@@ -1,8 +1,7 @@
 <template>
-  <div>
     <AdminLayout>
       <PageBreadcrumb :pageTitle="$t('LostAndFound')" :breadcrumb="breadcrumb" />
-      <div class="min-h-screen">
+      <div class="h-full">
         <ReusableTable
           :title="$t('LostAndFound')"
           :columns="columns"
@@ -71,8 +70,6 @@
       @close="handleCloseModal"
       @submit="handleSubmitLostFound"
     />
-
-  </div>
 </template>
 
 <script setup lang="ts">

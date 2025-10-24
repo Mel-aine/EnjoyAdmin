@@ -2,41 +2,28 @@
   <div>
     <!-- Grid Header with Controls -->
     <div
-      class="bg-white shadow-lg dark:bg-gray-800 mt-2 mb-4 flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-4 p-3 rounded-lg"
-    >
+      class="bg-white shadow-lg dark:bg-gray-800 mt-2 mb-4 flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-4 p-3 rounded-lg">
       <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-white">
           {{ $t('reservations') }}
         </h2>
-        <span
-          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
-          :class="getFilterBadgeClass('totalReservations')"
-          @click="handleFilterClick('totalReservations')"
-        >
+        <span class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('totalReservations')" @click="handleFilterClick('totalReservations')">
           {{ statistics.totalReservations }} {{ $t('reservations') }}
         </span>
 
-        <span
-          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
-          :class="getFilterBadgeClass('arrivals')"
-          @click="handleFilterClick('arrivals')"
-        >
+        <span class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('arrivals')" @click="handleFilterClick('arrivals')">
           {{ statistics.arrivals }} {{ $t('arrivals') }}
         </span>
 
-        <span
-          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
-          :class="getFilterBadgeClass('departures')"
-          @click="handleFilterClick('departures')"
-        >
+        <span class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('departures')" @click="handleFilterClick('departures')">
           {{ statistics.departures }} {{ $t('departures') }}
         </span>
 
-        <span
-          class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
-          :class="getFilterBadgeClass('inHouse')"
-          @click="handleFilterClick('inHouse')"
-        >
+        <span class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
+          :class="getFilterBadgeClass('inHouse')" @click="handleFilterClick('inHouse')">
           {{ statistics.inHouse }} {{ $t('in house') }}
         </span>
       </div>
@@ -44,85 +31,62 @@
       <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
         <!-- Reservation Mode Toggle -->
         <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-          <button
-            @click="reservationMode = 'all'"
-            :class="[
-              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-              reservationMode === 'all'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
-            ]"
-          >
+          <button @click="reservationMode = 'all'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'all'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
+          ]">
             {{ $t('All') }}
           </button>
-          <button
-            @click="reservationMode = 'single'"
-            :class="[
-              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-              reservationMode === 'single'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
-            ]"
-          >
+          <button @click="reservationMode = 'single'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'single'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
+          ]">
             <User class="w-4 h-4" />
           </button>
-          <button
-            @click="reservationMode = 'group'"
-            :class="[
-              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-              reservationMode === 'group'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
-            ]"
-          >
+          <button @click="reservationMode = 'group'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            reservationMode === 'group'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
+          ]">
             <Users class="w-4 h-4" />
           </button>
         </div>
 
         <!-- View Toggle -->
         <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-          <button
-            @click="viewMode = 'grid'"
-            :class="[
-              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-              viewMode === 'grid'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
-            ]"
-          >
+          <button @click="viewMode = 'grid'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            viewMode === 'grid'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
+          ]">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path
-                d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-              />
+                d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
             </svg>
           </button>
-          <button
-            @click="viewMode = 'list'"
-            :class="[
-              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-              viewMode === 'list'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
-            ]"
-          >
+          <button @click="viewMode = 'list'" :class="[
+            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+            viewMode === 'list'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white',
+          ]">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
+              <path fill-rule="evenodd"
                 d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clip-rule="evenodd"
-              />
+                clip-rule="evenodd" />
             </svg>
           </button>
         </div>
 
         <!-- Add Booking Button -->
-        <BasicButton
-          :label="$t('AddBooking')"
-          @click="openBookingModal"
-          variant="primary"
-          class="transform hover:scale-105"
-          :disabled="!canAddBooking"
-        >
+        <BasicButton :label="$t('AddBooking')" @click="openBookingModal" variant="primary"
+          class="transform hover:scale-105" :disabled="!canAddBooking">
         </BasicButton>
         <BookingFilter @filter="applyFilter" />
       </div>
@@ -131,19 +95,14 @@
     <div v-if="activeFilter !== 'totalReservations'" class="mb-4 flex items-center gap-2">
       <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Active filter') }}:</span>
       <span
-        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-      >
+        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
         {{ getActiveFilterLabel() }}
-        <button
-          @click="clearFilter"
-          class="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-purple-400 hover:text-purple-600 dark:hover:text-purple-300"
-        >
+        <button @click="clearFilter"
+          class="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-purple-400 hover:text-purple-600 dark:hover:text-purple-300">
           <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
+            <path fill-rule="evenodd"
               d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </button>
       </span>
@@ -155,32 +114,19 @@
     </div>
 
     <!-- Grid View -->
-    <div
-      v-else-if="viewMode === 'grid'"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-    >
+    <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <div v-for="reservation in paginatedReservations" :key="reservation.id">
-        <ReservationCardItem
-          :reservation="reservation"
-          @reservation-updated="handleReservationUpdate"
-          @save="handleSave"
-        />
+        <ReservationCardItem :reservation="reservation" @reservation-updated="handleReservationUpdate"
+          @save="handleSave" />
       </div>
     </div>
 
     <!-- List View (ReusableTable) -->
     <div v-else-if="viewMode === 'list'">
-      <ReusableTable
-        :showHeader="false"
-        :columns="tableColumns"
-        :data="paginatedReservations"
-        :get-actions="getTableActionsForReservation"
-        :searchable="false"
-        :empty-state-title="$t('No reservations')"
-        :empty-state-description="$t('Get started by creating a new reservation.')"
-        @action="onTableAction"
-        :title="$t('Reservations')"
-      >
+      <ReusableTable :showHeader="false" :columns="tableColumns" :data="paginatedReservations"
+        :get-actions="getTableActionsForReservation" :searchable="false" :empty-state-title="$t('No reservations')"
+        :empty-state-description="$t('Get started by creating a new reservation.')" @action="onTableAction"
+        :title="$t('Reservations')">
         <!-- Custom column for reservation number -->
         <template #column-reservationNumber="{ item }">
           <div class="text-sm font-medium text-gray-900 dark:text-white">
@@ -226,18 +172,9 @@
 
     <!-- Empty State -->
     <div v-if="!loading && filteredReservations.length === 0" class="text-center py-12">
-      <svg
-        class="mx-auto h-12 w-12 text-gray-400"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-        />
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
       </svg>
       <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
         {{ getEmptyStateTitle() }}
@@ -248,31 +185,23 @@
     </div>
 
     <!-- Pagination -->
-    <div
-      v-if="!loading && filteredReservations.length > 0 && totalPages > 1"
-      class="mt-6 flex items-center justify-between"
-    >
+    <div v-if="!loading && filteredReservations.length > 0 && totalPages > 1"
+      class="mt-6 flex items-center justify-between">
       <div class="text-sm text-gray-700 dark:text-gray-300">
         {{ $t('Showing') }} {{ (currentPage - 1) * pageSize + 1 }} {{ $t('to') }}
         {{ Math.min(currentPage * pageSize, filteredReservations.length) }} {{ $t('of') }}
         {{ filteredReservations.length }} {{ $t('results') }}
       </div>
       <div class="flex gap-2">
-        <button
-          @click="currentPage--"
-          :disabled="currentPage === 1"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-        >
+        <button @click="currentPage--" :disabled="currentPage === 1"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
           {{ $t('Previous') }}
         </button>
         <span class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
           {{ currentPage }} / {{ totalPages }}
         </span>
-        <button
-          @click="currentPage++"
-          :disabled="currentPage === totalPages"
-          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-        >
+        <button @click="currentPage++" :disabled="currentPage === totalPages"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
           {{ $t('Next') }}
         </button>
       </div>
@@ -280,131 +209,77 @@
   </div>
 
   <!-- Modals -->
-  <ModalDelete
-    v-if="modalShow"
-    @close="modalShow = false"
-    @delete="confirmDelete"
-    :isLoading="loadingDelete"
-  />
+  <ModalDelete v-if="modalShow" @close="modalShow = false" @delete="confirmDelete" :isLoading="loadingDelete" />
 
   <AddBookingModal v-if="showBookingModal" @close="showBookingModal = false" @refresh="refresh" />
 
   <!-- Cancel Reservation Modal -->
   <template v-if="showCancelModal && selectedReservation">
-    <CancelReservation
-      :is-open="showCancelModal"
-      :reservation-id="selectedReservation.id"
-      :reservation-data="selectedReservation"
-      @close="showCancelModal = false"
-      @cancel-confirmed="handleCancelConfirmed"
-    />
+    <CancelReservation :is-open="showCancelModal" :reservation-id="selectedReservation.id"
+      :reservation-data="selectedReservation" @close="showCancelModal = false"
+      @cancel-confirmed="handleCancelConfirmed" />
   </template>
 
   <!-- Void Reservation Modal -->
   <template v-if="showVoidModal && selectedReservation">
-    <VoidReservation
-      :is-open="showVoidModal"
-      :reservation-data="selectedReservation"
-      @close="showVoidModal = false"
-      :reservation-id="selectedReservation.id"
-      :reservation-number="selectedReservation.reservationNumber"
-      @void-confirmed="handleVoidConfirmed"
-    />
+    <VoidReservation :is-open="showVoidModal" :reservation-data="selectedReservation" @close="showVoidModal = false"
+      :reservation-id="selectedReservation.id" :reservation-number="selectedReservation.reservationNumber"
+      @void-confirmed="handleVoidConfirmed" />
   </template>
 
   <!-- Amend Stay Modal -->
   <template v-if="showAmendModal && selectedReservation">
-    <AmendStay
-      :is-open="showAmendModal"
-      :reservation-data="selectedReservation"
-      @close="showAmendModal = false"
-      :reservation-id="selectedReservation.id"
-      :reservation-number="selectedReservation.reservationNumber"
-      @amend-confirmed="handleAmendConfirmed"
-      :reservation="selectedReservation"
-    />
+    <AmendStay :is-open="showAmendModal" :reservation-data="selectedReservation" @close="showAmendModal = false"
+      :reservation-id="selectedReservation.id" :reservation-number="selectedReservation.reservationNumber"
+      @amend-confirmed="handleAmendConfirmed" :reservation="selectedReservation" />
   </template>
 
   <!-- NoShow Reservation Modal -->
   <template v-if="showNoShowModal && selectedReservation">
-    <NoShowReservation
-      :is-open="showNoShowModal"
-      :reservation-id="selectedReservation.id"
-      @close="showNoShowModal = false"
-      @noshow-confirmed="handleNoShowConfirmed"
-    />
+    <NoShowReservation :is-open="showNoShowModal" :reservation-id="selectedReservation.id"
+      @close="showNoShowModal = false" @noshow-confirmed="handleNoShowConfirmed" />
   </template>
 
   <!-- Add Payment Modal -->
   <template v-if="isAddPaymentModalOpen && selectedReservation">
-    <AddPaymentModal
-      :reservation-id="selectedReservation.id"
-      :is-open="isAddPaymentModalOpen"
-      @close="closeAddPaymentModal"
-      @save="handleSavePayment"
-    />
+    <AddPaymentModal :reservation-id="selectedReservation.id" :is-open="isAddPaymentModalOpen"
+      @close="closeAddPaymentModal" @save="handleSavePayment" />
   </template>
 
   <!-- Check Out Modal -->
   <template v-if="isCkeckOutModalOpen && selectedReservation">
-    <CheckOutReservation
-      :reservation-id="selectedReservation.id"
-      :is-open="isCkeckOutModalOpen"
-      @close="closeCheckOutReservationModal"
-      @success="handleCheckOutSuccess"
-    />
+    <CheckOutReservation :reservation-id="selectedReservation.id" :is-open="isCkeckOutModalOpen"
+      @close="closeCheckOutReservationModal" @success="handleCheckOutSuccess" />
   </template>
 
   <!-- Check In Modal -->
   <template v-if="isCkeckInModalOpen && selectedReservation">
-    <CheckInReservation
-      :reservation-id="selectedReservation.id"
-      :is-open="isCkeckInModalOpen"
-      @close="closeCheckInReservationModal"
-      @success="handleCheckInSuccess"
-    />
+    <CheckInReservation :reservation-id="selectedReservation.id" :is-open="isCkeckInModalOpen"
+      @close="closeCheckInReservationModal" @success="handleCheckInSuccess" />
   </template>
 
   <!-- Unassign Room Modal -->
   <template v-if="isUnAssignModalOpen && selectedReservation">
-    <UnAssignRoomReservation
-      :reservation-id="selectedReservation.id"
-      :is-open="isUnAssignModalOpen"
-      @close="closeUnAssignReservationModal"
-      @success="handleUnassignSuccess"
-    />
+    <UnAssignRoomReservation :reservation-id="selectedReservation.id" :is-open="isUnAssignModalOpen"
+      @close="closeUnAssignReservationModal" @success="handleUnassignSuccess" />
   </template>
 
   <!-- Print Modal -->
   <template v-if="showPrintModal && selectedReservation">
-    <PrintModal
-      :is-open="showPrintModal"
-      :document-data="printDocumentData"
-      @close="showPrintModal = false"
-      @print-success="handlePrintSuccess"
-      @print-error="handlePrintError"
-      :reservation-id="selectedReservation.id"
-    />
+    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
+      @print-success="handlePrintSuccess" @print-error="handlePrintError" :reservation-id="selectedReservation.id" />
   </template>
 
   <!-- Room Move Modal -->
   <template v-if="isRoomMoveModalOpen && selectedReservation">
-    <RoomMoveModal
-      :reservation-id="selectedReservation.id"
-      :is-open="isRoomMoveModalOpen"
-      @close="closeRoomMoveModal"
-      @success="handleRoomMoveSuccess"
-    />
+    <RoomMoveModal :reservation-id="selectedReservation.id" :is-open="isRoomMoveModalOpen" @close="closeRoomMoveModal"
+      @success="handleRoomMoveSuccess" />
   </template>
 
   <!-- Exchange Room Modal -->
   <template v-if="isExchangeRoomModalOpen && selectedReservation">
-    <ExchangeRoomModal
-      :reservation-id="selectedReservation.id"
-      :is-open="isExchangeRoomModalOpen"
-      @close="closeExchangeRoomModal"
-      @success="handleExchangeSuccess"
-    />
+    <ExchangeRoomModal :reservation-id="selectedReservation.id" :is-open="isExchangeRoomModalOpen"
+      @close="closeExchangeRoomModal" @success="handleExchangeSuccess" />
   </template>
 </template>
 
@@ -740,8 +615,8 @@ const executeAction = async (actionId: string, actionFn: () => Promise<void>, lo
   } catch (error: any) {
     console.error(`${actionId} error:`, error)
     const errorMessage = error.response?.data?.message ||
-                        error.message ||
-                        t(`Failed to ${actionId.replace('_', ' ')}`)
+      error.message ||
+      t(`Failed to ${actionId.replace('_', ' ')}`)
     toast.error(errorMessage)
     currentAction.value = null
   } finally {

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-full bg-gray-50 dark:bg-gray-900 xl:flex">
     <!-- Reports Sidebar -->
     <ReportsSidebar />
     
@@ -8,7 +8,7 @@
     
     <!-- Main content area -->
     <div :class="[
-      'transition-all duration-300 ease-in-out',
+      ' flex-1 transition-all duration-300 ease-in-out flex flex-col min-h-full',
       {
         'lg:ml-[290px]': isExpanded || isHovered,
         'lg:ml-[90px]': !isExpanded && !isHovered,
@@ -18,14 +18,12 @@
       <AppHeader :show-sidebar="false" />
       
       <!-- Page content -->
-      <main class="pt-16 lg:pt-0">
-        <div class="p-6">
+        <div class="p-6 h-full">
           <slot />
         </div>
-      </main>
       
       <!-- Footer -->
-      <AppFooter />
+      <AppFooter class="mt-auto" />
     </div>
   </div>
 </template>

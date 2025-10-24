@@ -675,7 +675,7 @@ export const getFolioBalance = async (id: number): Promise<any> => {
  */
 export const getFolioStatement = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement`, getHeaders())
+    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement-service`, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error getting folio statement:', error)

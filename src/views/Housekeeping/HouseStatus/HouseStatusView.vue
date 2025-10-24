@@ -1,6 +1,5 @@
 <template>
   <AdminLayout>
-    <FullScreenLayout>
       <PageBreadcrumb :pageTitle="$t('house_status')" :breadcrumb="breadcrumb"/>
       <div class="flex flex-col p-4 w-full bg-white mt-10 rounded-lg">
         <!-- Header section -->
@@ -39,7 +38,6 @@
           @selection-change="handleSelectionChange"
         />
       </div>
-    </FullScreenLayout>
   </AdminLayout>
 </template>
 
@@ -48,7 +46,6 @@ import { ref } from 'vue'
 import { Search as SearchIcon, List as ListIcon, FileText as FileTextIcon } from 'lucide-vue-next'
 import RoomStatusTable from './RoomStatusTable.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import { useI18n } from 'vue-i18n'
 import router from '@/router'

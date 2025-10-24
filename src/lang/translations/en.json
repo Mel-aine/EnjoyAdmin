@@ -6311,7 +6311,7 @@
   "PlaceOfBirth" : "Place Of Birth",
   "DateOfBirth" : "Date Of Birth",
   "QuickBooking" : "Quick Reservation",
-  "countryOfPermanentResidence" : "Country Of Permanent Residence",
+  "countryOfPermanentResidence" : "Country of residence",
   "AllActions" : "All Actions",
   "AllUsers" : "All Users",
   "check_out_date" : "Check Out Date",
@@ -6325,7 +6325,7 @@
   "Save Payment" : "Save Payment",
   "Payment saved successfully" : "Payment saved successfully!",
   "UpdateSuccessfully" : "Update Payment Successfully",
-  "MaidenName" : "Maiden Name",
+  "MaidenName" : "Middle Name",
   "contactType" : "Contact Type",
   "contactTypes" : {
     "mobile" :"Mobile",
@@ -6334,5 +6334,33 @@
     "whatsapp" : "WhatsApp",
     "email" :"Email"
   },
-  "GuestRegistration" : "Guest Registration"
+  "GuestRegistration" : "Guest Registration",
+  "enterProfession": "Enter a profession",
+  "doctor": "Doctor",
+  "nurse": "Nurse",
+  "teacher": "Teacher",
+  "engineer": "Engineer",
+  "lawyer": "Lawyer",
+  "architect": "Architect",
+  "developer": "Developer",
+  "designer": "Designer",
+  "accountant": "Accountant",
+  "chef": "Chef",
+  "salesperson": "Salesperson",
+  "driver": "Driver",
+  "student": "Student",
+  "retired": "Retired",
+  "entrepreneur": "Entrepreneur",
+  "artist": "Artist",
+  "technician": "Technician",
+  "scientist": "Scientist",
+  "consultant": "Consultant",
+  "photographer": "Photographer",
+  "writer": "Writer",
+  "journalist": "Journalist",
+  "police_officer": "Police Officer",
+  "firefighter": "Firefighter",
+  "civil_servant": "Civil Servant"
+
+
 }
