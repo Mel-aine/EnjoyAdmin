@@ -117,7 +117,7 @@
               <div>
                 <Select
                   :lb="t('roomType')"
-                  :modelValue="formData.roomTypeId !== null ? String(formData.roomTypeId) : undefined"
+                  :modelValue="formData.roomTypeId"
                   @update:modelValue="handleRoomTypeChange"
                   :options="roomTypeOptions"
                   :placeholder="t('selectRoomType')"
@@ -130,7 +130,7 @@
               <div>
                 <Select
                   :lb="t('bedType')"
-                  :modelValue="formData.bedTypeId !== null ? String(formData.bedTypeId) : undefined"
+                  :modelValue="formData.bedTypeId"
                   @update:modelValue="handleBedTypeChange"
                   :options="bedTypeOptions"
                   :placeholder="t('selectBedType')"
@@ -455,6 +455,13 @@ const handleBedTypeChange = (value: string | number | undefined) => {
 
 // Table configuration with proper Column typing - using const assertion
 const columns = ref([
+  {
+    key: 'sortKey',
+    label: 'Sort Key',
+    sortable: true,
+    searchable: true,
+    type: 'custom' as const
+  },
   {
     key: 'roomInfo',
     label: 'Room Name',

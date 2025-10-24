@@ -107,7 +107,7 @@ function extractTaxesFromPrice(priceTTC: number, taxes: Tax[], nights: number, q
  * Calcule les taxes pour tous les items du panier
  */
 export function calculateCartTaxes(
-  items: RoomItemWithTax[],
+  items: any[],
   taxes: Tax[],
   nights: number
 ): TaxCalculationResult {

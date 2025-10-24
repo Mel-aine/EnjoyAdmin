@@ -436,12 +436,12 @@ export function useReservation() {
     isUndoingCheckOut.value = true
     try {
       const response = await undoCheckOutReservation(reservationId, payload)
-      toast.success(t('toast.undoCheckOutSuccess') || 'Check-out undone successfully!')
+      toast.success(t('toast.undoCheckOutSuccess'))
       if (refreshCallback) { await refreshCallback() }
       return response
     } catch (error) {
       console.error('Undo check-out error:', error)
-      toast.error(t('toast.undoCheckOutError') || 'Failed to undo check-out. Please try again.')
+      toast.error(t('toast.undoCheckOutError'))
       throw error
     } finally {
       isUndoingCheckOut.value = false
