@@ -170,6 +170,8 @@ const generateReport = async () => {
     // Generate new PDF URL
     const newPdfUrl = await getMonthlyOccupancyPDFUrl(currentParams.value)
     pdfUrl.value = newPdfUrl
+
+    console.log('url.send', pdfUrl.value)
     openPDFInNewPage()
 
     console.log('📊 Occupancy report generated successfully:', reportTitle.value)
