@@ -20,6 +20,7 @@ import { useToast } from 'vue-toastification'
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import { useBooking } from '@/composables/useBooking2'
+import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 
 interface SelectOption {
   value: string
@@ -77,7 +78,6 @@ const { t } = useI18n()
 const GuestTitles = computed(() => [
   { label: t('guestTitles.mr'), value: 'Mr' },
   { label: t('guestTitles.mrs'), value: 'Mrs' },
-  { label: t('guestTitles.ms'), value: 'Ms' },
   { label: t('guestTitles.miss'), value: 'Miss' },
   { label: t('guestTitles.dr'), value: 'Dr' },
 ])
@@ -472,13 +472,20 @@ console.log('modalevalue', props.modelValue)
 
               <!-- Profession + Phone + Email -->
               <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <Input
+                <!-- <Input
                   :lb="$t('profession')"
                   :id="'profession'"
                   v-model="selectedCustomer.profession"
                   :placeholder="$t('profession')"
                   custom-class="h-11"
+                /> -->
+                <ProfessionAutocomplete
+                  v-model="selectedCustomer.profession"
+                  :lb="$t('profession')"
+                  :placeholder="$t('profession')"
+                  custom-class="h-11"
                 />
+
 
                 <InputPhone
                   :title="$t('Phone')"

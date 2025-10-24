@@ -153,8 +153,15 @@
                   v-model="reservation.goingTo" />
               </div>
               <div>
-                <Input :lb="$t('MeansOfTransportation')" :id="'means'" :forLabel="'means'"
-                  :placeholder="$t('MeansOfTransportation')" v-model="reservation.meansOfTransport" />
+                <AutoCompleteSelect
+                    v-model="reservation.meansOfTransport"
+                    :options="TransportationModes"
+                    :defaultValue="$t('MeansOfTransportation')"
+                    :lb="$t('MeansOfTransportation')"
+                    :is-required="false"
+                    :use-dropdown="useDropdownBooking"
+                    @clear-error="emit('clear-error')"
+                  />
               </div>
               <div>
                 <InputPaymentMethodSelect :label="$t('PaymentMethod')" v-model="billing.paymentMode" />
@@ -218,7 +225,12 @@
                 custom-class="h-11" />
 
               <Input :lb="$t('B.P')" v-model="formData.zipcode" :placeholder="$t('B.P')" />
-              <Input :lb="$t('profession')" v-model="formData.profession" :placeholder="$t('profession')" />
+               <ProfessionAutocomplete
+                  v-model="formData.profession"
+                  :lb="$t('profession')"
+                  :placeholder="$t('profession')"
+                  custom-class="h-11"
+                />
             </div>
           </section>
 
@@ -254,7 +266,7 @@
                 </div>
               </div>
                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
-               
+
                 <div>
                   <InputDatePicker :title="$t('ExpiryDate')" v-model="formData.idExpiryDate"
                     :placeholder="$t('Select Date')" />
@@ -305,6 +317,7 @@ import { useI18n } from 'vue-i18n'
 import { useBooking } from '@/composables/useBooking2'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
+import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 
 
 interface SelectOption {
@@ -319,7 +332,8 @@ interface RichSelectOption extends SelectOption {
   label_fr: string
 }
 const { t } = useI18n()
-const emit = defineEmits(['close', 'save'])
+const emit = defineEmits(['close', 'save','clear-error'])
+
 
 // Utiliser le composable useBooking
 const {
@@ -347,7 +361,8 @@ const {
   initialize,
   onRoomNumberChange,
   getAdultOptions,
-  getChildOptions
+  getChildOptions,
+  TransportationModes,
 } = useBooking()
 
 // State management
