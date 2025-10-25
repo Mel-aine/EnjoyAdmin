@@ -5,7 +5,7 @@
       <RouterView /> 
       <ReAuthModal :is-open="isReAuthOpen && authStore.isFullyAuthenticated" @close="handleClose"
         @success="handleSuccess" />
-    </SidebarProvider>
+    </SidebarProvider> 
   </ThemeProvider>
 </template>   
 <script setup lang="ts"> 
