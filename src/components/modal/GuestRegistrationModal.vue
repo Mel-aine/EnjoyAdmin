@@ -481,27 +481,19 @@ const renderPrintHtml = () => {
       }
     })
 
-    const grid = doc.createElement('div')
-    grid.className = 'print-grid'
-    const panel1 = doc.createElement('div')
-    panel1.className = 'print-panel'
-    const panel2 = doc.createElement('div')
-    panel2.className = 'print-panel'
-    while (doc.body.firstChild) panel1.appendChild(doc.body.firstChild as Node)
-    panel2.innerHTML = panel1.innerHTML
-    grid.appendChild(panel1)
-    grid.appendChild(panel2)
-    doc.body.appendChild(grid)
+    const container = doc.createElement('div')
+     container.className = 'print-container'
+     while (doc.body.firstChild) container.appendChild(doc.body.firstChild as Node)
+     doc.body.appendChild(container)
 
     const style = doc.createElement('style')
     style.textContent = `
     .filled-value{font-weight:normal;color:#111;font-size:9pt;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .line-dot,.line-empty{overflow:hidden;}
-    .print-panel:nth-child(2){display:none;}
     @media print {
-      @page { size: A4 landscape; margin: 10mm; }
-      html, body { width: 297mm; height: 210mm; }
-      .print-panel:nth-child(2){display:block;}
+      @page { size: A4 portrait; margin: 10mm; }
+      html, body { width: 200mm; height: 297mm; }
+      .print-container { width: calc(210mm - 5mm); height: calc(297mm - 20mm); overflow: hidden; zoom: 0.9; }
     }
     `
     doc.head.appendChild(style)
