@@ -1,47 +1,45 @@
 <template>
-
   <PdfModalPreview :title="title" :is-open="isModalOpen" @close="closeModal">
-
-    <div>
-      <!-- Modal de prévisualisation -->
-      <div
-        class="inline-block align-bottom bg-white h-full text-left overflow-hidden shadow-xl transform transition-all  sm:align-middle sm:max-w-6xl sm:w-full">
+   <div
+        class="inline-block align-bottom bg-white h-full text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-6xl sm:w-full">
         <!-- Contenu principal -->
-        <div>
-          <div class="flex space-x-4">
+         <div class="flex space-x-4 h-full">
             <!-- Zone de prévisualisation PDF -->
-            <div class="flex-1">
-              <div v-if="isGenerating" class="flex items-center justify-center h-screen bg-gray-100 rounded-lg">
+            <div class="flex-1 h-full">
+              <div v-if="isGenerating" class="flex items-center justify-center h-full bg-gray-100">
                 <div class="text-center">
-                  <div class="animate-spin  rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                   <p class="text-gray-600">Génération du PDF...</p>
                 </div>
               </div>
-              <div v-else-if="pdfUrl" class="h-screen overflow-hidden">
+              <div v-else-if="pdfUrl" class="h-full overflow-hidden">
                 <!-- Custom PDF Controls (Optional) -->
-
                 <VuePdfApp
-                    :pdf="pdfUrl"
-                    :config="pdfViewerConfig"
-                    class="w-full h-full border-0"
-                    @after-created="onPdfViewerCreated"
-                    @pages-rendered="onPagesRendered"
-                    @page-rendered="onPageRendered"
-                    @error="onPdfError"
-                  ></VuePdfApp>
-
+                  :pdf="pdfUrl"
+                  :config="mergedPdfViewerConfig"
+                  @after-created="onPdfViewerCreated"
+                  @pages-rendered="onPagesRendered"
+                  @page-rendered="onPageRendered"
+                  @error="onPdfError"
+                ></VuePdfApp>
               </div>
             </div>
           </div>
-        </div>
       </div>
-    </div>
+
+    <!-- Iframe caché pour l'impression -->
+    <iframe
+      ref="printIframe"
+      style="display: none;"
+      :src="pdfUrl"
+    ></iframe>
   </PdfModalPreview>
 </template>
 
 <script setup lang="ts">
 /**
  * PdfExporter Component with VuePdfApp Configuration
+ * Enhanced with advanced printing system
  *
  * This component provides a comprehensive PDF viewer and exporter with the following features:
  *
@@ -50,7 +48,7 @@
  * - Toolbar: Customize left, right, and middle toolbar sections
  * - Theme: Full CSS custom property theming support
  * - Events: Handle PDF viewer lifecycle events
- * - Controls: Optional custom control panel for enhanced interaction
+ * - Advanced Printing: Custom print handling with blob management
  *
  * Usage Examples:
  *
@@ -67,17 +65,17 @@
  * />
  *
  * @author EnjoyAdmin Team
- * @version 2.0.0
+ * @version 2.1.0
  */
 
-import { ref, computed, onMounted, nextTick } from 'vue'
-
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import PdfModalPreview from '../modal/PdfModalPreview.vue'
 import VuePdfApp from "vue3-pdf-app"
 import "vue3-pdf-app/dist/icons/main.css"
+
+
+
 // Types
-
-
 interface PdfViewerConfig {
   sidebar?: {
     viewThumbnail?: boolean
@@ -118,23 +116,25 @@ interface PdfExporterProps {
   pdfTheme?: Record<string, string>
   showControls?: boolean
   isGenerating: boolean
-  isModalOpen:boolean
-  title?:string
+  isModalOpen: boolean
+  title?: string
 }
 
 // Props
 const props = withDefaults(defineProps<PdfExporterProps>(), {
   buttonText: 'Exporter PDF',
   filename: 'document',
-  showControls: false
+  showControls: false,
 })
-const emit = defineEmits(['close'])
 
+const emit = defineEmits(['close'])
 
 // Reactive data
 const currentPage = ref(1)
 const totalPages = ref(0)
 const pdfDocument = ref<any>(null)
+const printIframe = ref<HTMLIFrameElement | null>(null)
+const pdfBlob = ref<Blob | null>(null)
 
 // Default PDF Viewer Configuration
 const defaultPdfViewerConfig = {
@@ -188,8 +188,7 @@ const defaultPdfViewerConfig = {
     show: true,
     color: '#3b82f6'
   },
-  // Custom print configuration
-  printResolution: 150,
+  printResolution: 300,
   printAutoRotate: true,
   printAnnotations: true
 }
@@ -260,8 +259,18 @@ const pdfViewerConfig = computed(() => {
     }
   }
 })
+
+// Configuration avec interception d'impression personnalisée
+const mergedPdfViewerConfig = computed(() => {
+  return {
+    ...pdfViewerConfig.value,
+    // Désactive l'impression par défaut pour utiliser notre système
+    disableDefaultPrint: true
+  }
+})
+
 const closeModal = () => {
-    emit('close');
+  emit('close')
 }
 
 // Merge user theme with defaults
@@ -272,11 +281,235 @@ const pdfTheme = computed(() => {
   }
 })
 
+// 🖨️ SYSTÈME D'IMPRESSION AVANCÉ
+// ===============================
+
+/**
+ * Charge le blob PDF depuis l'URL
+ */
+const loadPdfBlob = async (): Promise<void> => {
+  if (!props.pdfUrl) return
+
+  try {
+    console.log('📥 Chargement du blob PDF depuis l URL...')
+    const response = await fetch(props.pdfUrl)
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    
+    pdfBlob.value = await response.blob()
+    console.log('✅ Blob PDF chargé:', pdfBlob.value.size, 'bytes')
+  } catch (error) {
+    console.error('❌ Erreur lors du chargement du blob PDF:', error)
+    throw error
+  }
+}
+
+/**
+ * Impression optimisée avec gestion des timeouts adaptatifs
+ */
+const printPdfBlob = async (): Promise<void> => {
+  try {
+    // Charge le blob si pas déjà fait
+    if (!pdfBlob.value) {
+      await loadPdfBlob()
+    }
+
+    if (!pdfBlob.value) {
+      throw new Error('Aucun blob PDF disponible pour l impression')
+    }
+
+    console.log('🖨️ Début de l impression PDF...')
+    
+    // Crée une URL blob temporaire
+    const blobUrl = URL.createObjectURL(pdfBlob.value)
+    
+    // Méthode principale : impression via iframe
+    if (printIframe.value) {
+      await printViaIframe(blobUrl)
+    } else {
+      // Fallback : impression via nouvelle fenêtre
+      await printViaNewWindow(blobUrl)
+    }
+    
+  } catch (error) {
+    console.error('❌ Erreur lors de l impression PDF:', error)
+    // Fallback ultime : impression directe de l'URL
+    await ultimatePrintFallback()
+  }
+}
+
+/**
+ * Impression via iframe avec gestion de timeout intelligent
+ */
+const printViaIframe = (blobUrl: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (!printIframe.value) {
+      reject(new Error('Iframe d impression non disponible'))
+      return
+    }
+
+    const timeoutMs = calculatePrintTimeout(pdfBlob.value?.size || 0)
+    const timeoutId = setTimeout(() => {
+      reject(new Error(`Timeout d impression dépassé (${timeoutMs}ms)`))
+    }, timeoutMs)
+
+    printIframe.value.onload = () => {
+      clearTimeout(timeoutId)
+      
+      // Délai supplémentaire pour s'assurer du chargement complet
+      setTimeout(() => {
+        try {
+          printIframe.value?.contentWindow?.print()
+          
+          // Nettoyage après impression
+          setTimeout(() => {
+            URL.revokeObjectURL(blobUrl)
+            resolve()
+          }, 1000)
+          
+        } catch (error) {
+          URL.revokeObjectURL(blobUrl)
+          reject(error)
+        }
+      }, 500)
+    }
+
+    printIframe.value.src = blobUrl
+  })
+}
+
+/**
+ * Impression via nouvelle fenêtre (fallback)
+ */
+const printViaNewWindow = (blobUrl: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const printWindow = window.open(blobUrl, '_blank')
+    
+    if (!printWindow) {
+      URL.revokeObjectURL(blobUrl)
+      reject(new Error('Impossible d ouvrir la fenêtre d impression. Autorisez les pop-ups.'))
+      return
+    }
+
+    printWindow.onload = () => {
+      setTimeout(() => {
+        try {
+          printWindow.print()
+          
+          // Nettoyage après impression
+          setTimeout(() => {
+            URL.revokeObjectURL(blobUrl)
+            printWindow.close()
+            resolve()
+          }, 1000)
+          
+        } catch (error) {
+          URL.revokeObjectURL(blobUrl)
+          printWindow.close()
+          reject(error)
+        }
+      }, 1000)
+    }
+  })
+}
+
+/**
+ * Fallback ultime - impression directe
+ */
+const ultimatePrintFallback = (): void => {
+  if (!props.pdfUrl) return
+  
+  const printWindow = window.open(props.pdfUrl, '_blank')
+  if (printWindow) {
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print()
+      }, 1000)
+    }
+  } else {
+    alert('Veuillez autoriser les pop-ups pour imprimer le PDF.')
+  }
+}
+
+/**
+ * Calcule un timeout adaptatif basé sur la taille du PDF
+ */
+const calculatePrintTimeout = (fileSize: number): number => {
+  const baseTimeout = 30000 // 30 secondes de base
+  const sizeInMB = fileSize / (1024 * 1024)
+  const additionalTime = sizeInMB * 2000 // 2 secondes supplémentaires par MB
+  
+  return Math.min(baseTimeout + additionalTime, 120000) // Max 2 minutes
+}
+
+/**
+ * Interception des raccourcis clavier (Ctrl+P / Cmd+P)
+ */
+const handlePrintShortcut = (e: KeyboardEvent): void => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+    e.preventDefault()
+    e.stopPropagation()
+    printPdfBlob()
+  }
+}
+
+/**
+ * Interception des clics sur le bouton d'impression du viewer PDF
+ */
+const interceptPdfViewerPrint = (): (() => void) => {
+  const interceptClick = (e: Event) => {
+    const target = e.target as HTMLElement
+    
+    // Sélecteurs pour détecter le bouton d'impression
+    const printSelectors = [
+      '#print',
+      '.print',
+      '[title*="print" i]',
+      '[title*="imprimer" i]',
+      'button[data-l10n-id="print"]',
+      'button:has(> svg use[href*="print"])'
+    ]
+    
+    const isPrintButton = printSelectors.some(selector => 
+      target.matches?.(selector) || target.closest?.(selector)
+    )
+    
+    if (isPrintButton) {
+      e.preventDefault()
+      e.stopPropagation()
+      console.log('🖨️ Bouton d impression intercepté dans le viewer PDF')
+      printPdfBlob()
+    }
+  }
+
+  document.addEventListener('click', interceptClick, true)
+  return () => document.removeEventListener('click', interceptClick, true)
+}
 
 // PDF Viewer Event Handlers
-const onPdfViewerCreated = (pdfApp: any) => {
+const onPdfViewerCreated = async (pdfApp: any) => {
   console.log('📄 PDF Viewer créé:', pdfApp)
   pdfDocument.value = pdfApp
+  
+  // Charge le blob dès que le viewer est créé
+  try {
+    await loadPdfBlob()
+  } catch (error) {
+    console.warn('⚠️ Impossible de précharger le blob PDF:', error)
+  }
+  
+  // Tente de remplacer la fonction d'impression interne
+  try {
+    if (pdfApp && pdfApp.pdfViewer && typeof pdfApp.pdfViewer.print === 'function') {
+      const originalPrint = pdfApp.pdfViewer.print
+      pdfApp.pdfViewer.print = () => {
+        console.log('🖨️ Fonction d impression interne interceptée')
+        printPdfBlob()
+      }
+      console.log('✅ Fonction d impression du viewer remplacée')
+    }
+  } catch (error) {
+    console.warn('⚠️ Impossible de remplacer la fonction d impression interne:', error)
+  }
 }
 
 const onPagesRendered = (pages: any) => {
@@ -291,8 +524,42 @@ const onPageRendered = (page: any) => {
 
 const onPdfError = (error: any) => {
   console.error('❌ Erreur PDF Viewer:', error)
-  // Optionally show user-friendly error message
 }
+
+// Gestion du cycle de vie
+let cleanupIntercept: (() => void) | null = null
+
+onMounted(() => {
+  // Écoute les raccourcis clavier
+  window.addEventListener('keydown', handlePrintShortcut)
+  
+  // Intercepte les clics sur le bouton d'impression
+  cleanupIntercept = interceptPdfViewerPrint()
+  
+  console.log('✅ Système d impression avancé initialisé')
+})
+
+onUnmounted(() => {
+  // Nettoyage
+  window.removeEventListener('keydown', handlePrintShortcut)
+  cleanupIntercept?.()
+  
+  // Nettoie les URLs blob
+  if (pdfBlob.value) {
+    const blobUrl = URL.createObjectURL(pdfBlob.value)
+    URL.revokeObjectURL(blobUrl)
+  }
+  
+  console.log('🧹 Système d impression nettoyé')
+})
+
+// Exposition des méthodes au composant parent
+defineExpose({
+  printPdf: printPdfBlob,
+  currentPage,
+  totalPages,
+  pdfBlob
+})
 </script>
 
 <style scoped>
@@ -346,33 +613,6 @@ const onPdfError = (error: any) => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background: white;
   margin-bottom: 10px;
-}
-
-/* PDF Controls Styles */
-.pdf-controls {
-  border-bottom: 1px solid #e5e7eb;
-  background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
-}
-
-.pdf-controls button {
-  transition: all 0.2s ease-in-out;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-}
-
-.pdf-controls button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.pdf-controls button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.pdf-controls button:active:not(:disabled) {
-  transform: translateY(0);
 }
 
 /* Custom PDF Viewer Theme Overrides */

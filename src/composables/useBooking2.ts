@@ -264,6 +264,7 @@ export function useBooking() {
     profilePhoto: '',
     maidenName: '',
     contactType: '',
+    contactValue: '',
   })
   const taxes = ref<any>([])
   const otherInfo = ref<OtherInfo>({
@@ -882,7 +883,14 @@ const fetchRoomTypes = async () => {
       profilePhoto: customer.profilePhoto || null,
       issuingCountry: customer.issuingCountry || '',
       issuingCity: customer.issuingCity || '',
+      contactValue: customer.contactTypeValue || '',
     }
+
+
+     if (customer.contactType && customer.contactTypeValue) {
+          formData.value.contactTypeValue = customer.contactTypeValue
+          formData.value.contactValue = customer.contactTypeValue
+      }
 
     if (customer.passportNumber) {
       formData.value.idType = customer.idType || 'Passport'
@@ -941,6 +949,7 @@ const fetchRoomTypes = async () => {
       zipcode: '',
       maidenName: '',
       contactType: '',
+      contactValue: '',
       idPhoto: '',
       idType: '',
       idNumber: '',
@@ -1261,6 +1270,7 @@ const getChildOptions = (roomTypeId: any | null) => {
         nationality: formData.value.nationality,
         profession: formData.value.profession,
         contact_type: formData.value.contactType,
+        contact_type_value: formData.value.contactValue,
         maiden_name: formData.value.maidenName,
         ...identityPayload,
         reservation_status: reservation.value.reservationStatus,
@@ -1853,6 +1863,7 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
     profilePhoto: '',
     maidenName: '',
     contactType: '',
+    contactValue: '',
   })
 
   // Reset other info
@@ -2204,6 +2215,7 @@ const loadDraftData = (draftData: any) => {
         profilePhoto: draftData.formData.profilePhoto || '',
         maidenName: draftData.formData.maidenName || '',
         contactType: draftData.formData.contactType || '',
+        contactValue: draftData.formData.contactValue || '',
       }
     }
 

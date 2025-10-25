@@ -515,8 +515,22 @@ const handleNoShowConfirmed = async () => {
   emit('save', { action: 'noshow', reservationId: localRes.value?.id })
 }
 
-const handleUnAssignConfirmed = () => {
+const handleUnAssignConfirmed = async (data: any) => {
   isUnAssignModalOpen.value = false
+  const updatedRooms = localRes.value.reservationRooms.map((room: any) => {
+    if (data.reservationRooms.includes(room.id)) {
+      return {
+        ...room,
+        roomId: null,
+        room: null,
+        status: 'reserved'
+      }
+    }
+    return room
+  })
+  updateLocalReservation({
+    reservationRooms: updatedRooms
+  })
   emit('save', { action: 'unassign', reservationId: localRes.value?.id })
 }
 const handleRoomMoveSuccess = () => {

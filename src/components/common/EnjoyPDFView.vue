@@ -12,7 +12,7 @@
     <div v-else-if="pdfUrl" class="h-full overflow-hidden">
       <VuePdfApp 
         :pdf="pdfUrl"
-        :config="pdfViewerConfig"
+        :config="mergedPdfViewerConfig"
         class=""
         @after-created="onPdfViewerCreated"
         @pages-rendered="onPagesRendered"
@@ -28,35 +28,22 @@
         <p class="text-gray-600">No PDF to display</p>
       </div>
     </div>
+
+    <!-- Hidden iframe for blob printing - REUTILISATION de l'URL existante -->
+    <iframe
+      ref="printIframe"
+      style="display: none;"
+      :src="pdfUrl" 
+    ></iframe>
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * EnjoyPDFView Component
- * 
- * A standalone PDF viewer component for displaying PDF blobs without modal wrapper.
- * Based on PdfExporterNode but designed for direct page integration.
- * 
- * Features:
- * - PDF blob display with VuePdfApp
- * - Loading states
- * - Error handling
- * - Customizable PDF viewer configuration
- * - Theme support
- * 
- * Usage:
- * <EnjoyPDFView :pdf-url="pdfBlobUrl" :is-generating="loading" />
- * 
- * @author EnjoyAdmin Team
- * @version 1.0.0
- */
-
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import VuePdfApp from "vue3-pdf-app"
 import "vue3-pdf-app/dist/icons/main.css"
 
-// Types
+// Types (inchangés)
 interface PdfViewerConfig {
   sidebar?: {
     viewThumbnail?: boolean
@@ -106,8 +93,9 @@ const props = withDefaults(defineProps<EnjoyPDFViewProps>(), {
 const currentPage = ref(1)
 const totalPages = ref(0)
 const pdfDocument = ref<any>(null)
+const printIframe = ref<HTMLIFrameElement | null>(null)
 
-// Default PDF Viewer Configuration
+// Configuration par défaut (inchangée)
 const defaultPdfViewerConfig = {
   sidebar: {
     viewThumbnail: true,
@@ -159,90 +147,172 @@ const defaultPdfViewerConfig = {
     show: true,
     color: '#3b82f6'
   },
-  printResolution: 150,
+  printResolution: 300,
   printAutoRotate: true,
   printAnnotations: true
 }
 
-// Default PDF Viewer Theme
-const defaultPdfTheme = {
-  '--main-color': '#3b82f6',
-  '--body-bg-color': '#f8fafc',
-  '--progressBar-color': '#3b82f6',
-  '--progressBar-bg-color': '#e2e8f0',
-  '--progressBar-blend-color': '#1e40af',
-  '--scrollbar-color': '#cbd5e1',
-  '--scrollbar-bg-color': '#f1f5f9',
-  '--toolbar-icon-bg-color': '#f8fafc',
-  '--toolbar-icon-hover-bg-color': '#e2e8f0',
-  '--button-hover-color': '#1e40af',
-  '--toggled-btn-bg-color': '#dbeafe',
-  '--toggled-hover-active-btn-color': '#1e40af',
-  '--dropdown-btn-bg-color': '#ffffff',
-  '--separator-color': '#e2e8f0',
-  '--field-color': '#374151',
-  '--field-bg-color': '#ffffff',
-  '--field-border-color': '#d1d5db',
-  '--findbar-nextprevious-btn-bg-color': '#f3f4f6',
-  '--treeitem-color': '#374151',
-  '--treeitem-hover-color': '#1f2937',
-  '--treeitem-selected-color': '#1e40af',
-  '--treeitem-selected-bg-color': '#dbeafe',
-  '--sidebaritem-bg-color': '#f8fafc',
-  '--doorhanger-bg-color': '#ffffff',
-  '--doorhanger-border-color': '#e5e7eb',
-  '--doorhanger-hover-color': '#f3f4f6',
-  '--doorhanger-separator-color': '#e5e7eb',
-  '--overlay-button-bg-color': '#ffffff',
-  '--overlay-button-hover-color': '#f3f4f6'
-}
-
-// Merge user configuration with defaults
-const pdfViewerConfig = computed(() => {
-  if (!props.pdfViewerConfig) return defaultPdfViewerConfig
-  
+// Configuration fusionnée avec interception d'impression
+const mergedPdfViewerConfig = computed(() => {
   return {
     ...defaultPdfViewerConfig,
     ...props.pdfViewerConfig,
-    sidebar: {
-      ...defaultPdfViewerConfig.sidebar,
-      ...props.pdfViewerConfig.sidebar
-    },
-    toolbar: {
-      ...defaultPdfViewerConfig.toolbar,
-      ...props.pdfViewerConfig.toolbar,
-      toolbarViewerLeft: {
-        ...defaultPdfViewerConfig.toolbar.toolbarViewerLeft,
-        ...props.pdfViewerConfig.toolbar?.toolbarViewerLeft
-      },
-      toolbarViewerRight: {
-        ...defaultPdfViewerConfig.toolbar.toolbarViewerRight,
-        ...props.pdfViewerConfig.toolbar?.toolbarViewerRight
-      },
-      toolbarViewerMiddle: {
-        ...defaultPdfViewerConfig.toolbar.toolbarViewerMiddle,
-        ...props.pdfViewerConfig.toolbar?.toolbarViewerMiddle
+    // Désactive le système d'impression par défaut pour utiliser le nôtre
+    disableDefaultPrint: true
+  }
+})
+
+// 🖨️ SYSTÈME D'IMPRESSION AMÉLIORÉ
+// ================================
+
+/**
+ * NOUVELLE LOGIQUE : Utilisation directe de l'URL existante
+ * 
+ * Problème de l'ancienne version :
+ * - Créait un nouveau Blob URL à chaque impression
+ * - Risque de fuites mémoire avec URL.revokeObjectURL()
+ * - Chargement inutile du PDF en mémoire
+ * 
+ * Solution améliorée :
+ * - Réutilise l'URL déjà chargée dans VuePdfApp
+ * - Pas de création de nouveaux Blob URLs
+ * - Meilleures performances
+ * - Pas de risque de fuites mémoire
+ */
+const printPdf = async () => {
+  if (!props.pdfUrl) {
+    console.error('❌ No PDF URL available for printing')
+    alert('Unable to print PDF. No PDF available.')
+    return
+  }
+
+  try {
+    console.log('🖨️ Printing PDF using existing URL...')
+    
+    // APPROCHE 1: Utilisation directe de l'iframe avec l'URL existante
+    if (printIframe.value) {
+      // L'iframe utilise déjà l'URL via :src="pdfUrl"
+      // On déclenche simplement l'impression
+      await nextTick() // S'assurer que l'iframe est prêt
+      
+      printIframe.value.onload = () => {
+        // Petit délai pour s'assurer que le PDF est chargé dans l'iframe
+        setTimeout(() => {
+          try {
+            printIframe.value?.contentWindow?.print()
+            console.log('✅ Print dialog opened via iframe')
+          } catch (error) {
+            console.error('❌ Error printing via iframe:', error)
+            fallbackPrint()
+          }
+        }, 1000)
       }
-    },
-    loadingBar: {
-      ...defaultPdfViewerConfig.loadingBar,
-      ...props.pdfViewerConfig.loadingBar
+      
+      // Force le rechargement pour déclencher onload
+      printIframe.value.src = props.pdfUrl
+    } else {
+      fallbackPrint()
+    }
+  } catch (error) {
+    console.error('❌ Error in print process:', error)
+    fallbackPrint()
+  }
+}
+
+/**
+ * Méthode de secours - ouvre dans une nouvelle fenêtre
+ */
+const fallbackPrint = () => {
+  if (!props.pdfUrl) return
+  
+  console.log('🔄 Using fallback print method')
+  const printWindow = window.open(props.pdfUrl, '_blank')
+  if (printWindow) {
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print()
+      }, 1000)
+    }
+  } else {
+    alert('Please allow pop-ups to print the PDF.')
+  }
+}
+
+/**
+ * Interception des raccourcis clavier (Ctrl+P / Cmd+P)
+ */
+const handlePrintShortcut = (e: KeyboardEvent) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+    e.preventDefault()
+    e.stopPropagation()
+    printPdf()
+    return false
+  }
+}
+
+/**
+ * Interception des clics sur le bouton d'impression du viewer PDF
+ * 
+ * IMPORTANT: Vue3-pdf-app utilise une structure DOM spécifique.
+ * On intercepte les clics sur les éléments avec les sélecteurs connus.
+ */
+const interceptPdfViewerPrint = () => {
+  const interceptClick = (e: Event) => {
+    const target = e.target as HTMLElement
+    
+    // Sélecteurs spécifiques à vue3-pdf-app pour le bouton d'impression
+    const printSelectors = [
+      '#print',                           // ID direct
+      '.print',                           // Classe directe
+      '[title*="print" i]',               // Title contenant "print"
+      '[title*="imprimer" i]',            // Title contenant "imprimer" (FR)
+      'button[data-l10n-id="print"]',     // Bouton avec data attribute
+      'button:has(> svg use[href*="print"])' // Bouton avec icône print
+    ]
+    
+    const isPrintButton = printSelectors.some(selector => 
+      target.matches?.(selector) || target.closest?.(selector)
+    )
+    
+    if (isPrintButton) {
+      e.preventDefault()
+      e.stopPropagation()
+      console.log('🖨️ Print button intercepted in PDF viewer')
+      printPdf()
+      return false
     }
   }
-})
 
-// Merge user theme with defaults
-const pdfTheme = computed(() => {
-  return {
-    ...defaultPdfTheme,
-    ...props.pdfTheme
-  }
-})
+  // Écouteur en phase capture pour intercepter avant le handler par défaut
+  document.addEventListener('click', interceptClick, true)
+  
+  // Retourne la fonction de nettoyage
+  return () => document.removeEventListener('click', interceptClick, true)
+}
 
-// PDF Viewer Event Handlers
-const onPdfViewerCreated = (pdfApp: any) => {
+// Gestionnaires d'événements PDF
+const onPdfViewerCreated = async (pdfApp: any) => {
   console.log('📄 PDF Viewer created:', pdfApp)
   pdfDocument.value = pdfApp
+  
+  // Tentative d'override de la fonction print interne
+  try {
+    if (pdfApp && pdfApp.pdfViewer && typeof pdfApp.pdfViewer.print === 'function') {
+
+      // Sauvegarde la fonction originale
+      const originalPrint = pdfApp.pdfViewer.print
+
+      // Remplace par notre propre fonction
+      pdfApp.pdfViewer.print = () => {
+        console.log('🖨️ Internal print function intercepted')
+        printPdf()
+      }
+      
+      console.log('✅ PDF viewer print function overridden')
+    }
+  } catch (error) {
+    console.warn('⚠️ Could not override internal print function:', error)
+  }
 }
 
 const onPagesRendered = (pages: any) => {
@@ -251,13 +321,40 @@ const onPagesRendered = (pages: any) => {
 }
 
 const onPageRendered = (page: any) => {
-  console.log('📄 Page rendered:', page.pageNumber)
   currentPage.value = page.pageNumber
 }
 
 const onPdfError = (error: any) => {
   console.error('❌ PDF Viewer Error:', error)
 }
+
+// Lifecycle
+let cleanupIntercept: (() => void) | null = null
+
+onMounted(() => {
+  // Raccourci clavier
+  window.addEventListener('keydown', handlePrintShortcut)
+  
+  // Interception des clics sur le bouton d'impression
+  cleanupIntercept = interceptPdfViewerPrint()
+  
+  console.log('✅ Enhanced print system initialized')
+})
+
+onUnmounted(() => {
+  // Nettoyage
+  window.removeEventListener('keydown', handlePrintShortcut)
+  cleanupIntercept?.()
+  
+  console.log('🧹 Print system cleanup completed')
+})
+
+// Exposition de l'API
+defineExpose({
+  printPdf,
+  currentPage,
+  totalPages
+})
 </script>
 
 <style scoped>
@@ -266,7 +363,6 @@ const onPdfError = (error: any) => {
   height: 100%;
 }
 
-/* PDF Viewer Styles */
 .enjoy-pdf-view :deep(.pdf-viewer-container) {
   display: flex;
   flex-direction: column;
@@ -280,37 +376,5 @@ const onPdfError = (error: any) => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background: white;
   margin-bottom: 10px;
-}
-
-/* Styles to avoid page breaks */
-.enjoy-pdf-view :deep(.page-break-avoid) {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.enjoy-pdf-view :deep(.page-break-before) {
-  page-break-before: always;
-  break-before: page;
-}
-
-.enjoy-pdf-view :deep(.page-break-after) {
-  page-break-after: always;
-  break-after: page;
-}
-
-/* Table styles */
-.enjoy-pdf-view :deep(table) {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.enjoy-pdf-view :deep(tr) {
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.enjoy-pdf-view :deep(.no-break) {
-  page-break-inside: avoid;
-  break-inside: avoid;
 }
 </style>

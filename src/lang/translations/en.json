@@ -1,4 +1,16 @@
 {
+  "tableColumns": {
+    "resNo": "Res. No",
+    "guest": "Guest",
+    "room": "Room",
+    "rate": "Rate",
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "pax": "PAX",
+    "businessSource": "Business Source",
+    "resType": "Reservation Type",
+    "user": "User"
+  },
   "login": "Login",
   "french": "French",
   "english": "English",
@@ -6360,7 +6372,9 @@
   "journalist": "Journalist",
   "police_officer": "Police Officer",
   "firefighter": "Firefighter",
-  "civil_servant": "Civil Servant"
+  "civil_servant": "Civil Servant",
+  "AddReservation" : "Add Reservation",
+  "error_fetching_reservation_details" :"Error fetching reservation details"
 
 
 }

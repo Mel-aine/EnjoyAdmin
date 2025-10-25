@@ -53,6 +53,7 @@ export interface GuestPayload {
   contactType?: string
   reservationId?: number
   preferences?: any;
+  contactTypeValue?:string
 }
 
 /**

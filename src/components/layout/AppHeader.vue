@@ -67,7 +67,7 @@
             <AddBookinIcon class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
             <span
               class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
-              {{ $t('AddBooking') }}
+              {{ $t('AddReservation') }}
             </span>
           </button>
 

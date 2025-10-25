@@ -175,14 +175,21 @@ export interface OTABookingPayload {
     taxIncluded: boolean
     totalPrice: number
   }>
-  subtotal: number
-  taxes: number
+   subtotal: number  // ✅ Prix HT total
+  taxes: number     // ✅ Total des taxes
+  taxBreakdown: Array<{  // ✅ Nouveau
+    taxId: number
+    taxName: string
+    amount: number
+    type: string
+  }>
   taxIncluded: boolean
   taxRate: number
   discount: number
   totalPrice: number
   currency: string
   promoCode: string | null
+
 }
 
 /**
@@ -224,34 +231,72 @@ export const getAvailability = async (
 /**
  * Transformer le payload OTA vers le format API de réservation
  */
+
+
 export function transformOTAPayloadToReservation(
   otaPayload: OTABookingPayload,
   serviceId: number,
   userId?: number,
 ) {
-  // Calculer le total par nuit pour chaque chambre
+  // Calculer le room_rate HT pour chaque item
   const roomsData = otaPayload.items.flatMap((item) => {
-    const totalForAllNights = item.planPrice * item.quantity * otaPayload.nights
-    const pricePerNight = item.planPrice * item.quantity
+    let roomRateHT = item.planPrice // Prix par nuit par chambre
+    let taxesPerRoom = 0
 
-    let taxesPerNight = 0
-    if (!item.taxIncluded && otaPayload.taxes > 0) {
+    // Si les taxes sont incluses dans le prix, on doit les extraire
+    if (item.taxIncluded && otaPayload.taxBreakdown && otaPayload.taxBreakdown.length > 0) {
+      // Calculer le taux total de taxation (uniquement les pourcentages)
+      let totalTaxRate = 0
+
+      otaPayload.taxBreakdown.forEach((tax: any) => {
+        if (tax.type === 'flat_percentage') {
+          // Le pourcentage devrait être dans le taxBreakdown ou calculé
+          // Pour une TVA de 15%, si le prix TTC est 2000 et prix HT est 1677
+          // Alors taux = (2000 - 1677) / 1677 = 0.1925 ≈ 19.25%
+          // Mais on sait que c'est environ 19.25% (323/1677)
+
+          // Méthode alternative : utiliser le ratio des taxes
+          const taxRatio = tax.amount / otaPayload.subtotal
+          totalTaxRate += taxRatio
+        }
+      })
+
+      // Extraire le prix HT: Prix HT = Prix TTC / (1 + taux)
+      if (totalTaxRate > 0) {
+        roomRateHT = item.planPrice / (1 + totalTaxRate)
+        taxesPerRoom = item.planPrice - roomRateHT
+      } else {
+        // Fallback : utiliser le ratio subtotal/totalPrice
+        const htRatio = otaPayload.subtotal / (otaPayload.subtotal + otaPayload.taxes)
+        roomRateHT = item.planPrice * htRatio
+        taxesPerRoom = item.planPrice - roomRateHT
+      }
+    }
+    // Si les taxes ne sont pas incluses, on doit les calculer
+    else if (!item.taxIncluded && otaPayload.taxes > 0 && otaPayload.subtotal > 0) {
+      // Le prix est déjà HT, on calcule juste les taxes à ajouter
       const itemSubtotal = item.planPrice * item.quantity * otaPayload.nights
       const itemTaxes = (itemSubtotal / otaPayload.subtotal) * otaPayload.taxes
-      taxesPerNight = itemTaxes / otaPayload.nights
+      taxesPerRoom = itemTaxes / (item.quantity * otaPayload.nights)
     }
-    console.log('Item Taxes Per Night:', taxesPerNight)
 
+    console.log('Item:', item.roomName)
+    console.log('- Prix affiché (planPrice):', item.planPrice)
+    console.log('- Prix HT (room_rate):', Math.round(roomRateHT))
+    console.log('- Taxes par chambre/nuit:', Math.round(taxesPerRoom))
+    console.log('- Tax Included:', item.taxIncluded)
+
+    // Créer une entrée pour chaque chambre
     return Array.from({ length: item.quantity }, () => ({
       room_type_id: item.roomId,
       rate_type_id: parseInt(item.rateTypeId),
       room_id: null,
-      room_rate: item.planPrice + (taxesPerNight / item.quantity),
+      room_rate: Math.round(roomRateHT), // Prix HT par chambre par nuit
       adult_count: item.adults,
       child_count: item.children,
       quantity: 1,
       tax_includes: item.taxIncluded,
-      taxes: taxesPerNight / item.quantity,
+      taxes: Math.round(taxesPerRoom), // Taxes par chambre par nuit
       meal_plan_rate_include: false,
       room_rate_id: null,
       meal_plan_id: null,
@@ -262,6 +307,13 @@ export function transformOTAPayloadToReservation(
   const totalAmount = otaPayload.totalPrice
   const taxAmount = otaPayload.taxes
   const finalAmount = otaPayload.totalPrice
+
+  console.log('=== Totaux de la réservation ===')
+  console.log('Total Amount:', totalAmount)
+  console.log('Tax Amount:', taxAmount)
+  console.log('Final Amount:', finalAmount)
+  console.log('Subtotal (HT):', otaPayload.subtotal)
+  console.log('Rooms Data:', roomsData)
 
   return {
     hotel_id: serviceId,
@@ -282,9 +334,9 @@ export function transformOTAPayloadToReservation(
 
     // Dates et séjour
     arrived_date: otaPayload.arrivalDate,
-    check_in_time: new Date().toLocaleTimeString('fr-Fr', { hour: '2-digit', minute: '2-digit' }),
+    check_in_time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     depart_date: otaPayload.departureDate,
-    check_out_time: new Date().toLocaleTimeString('fr-Fr', { hour: '2-digit', minute: '2-digit' }),
+    check_out_time: '12:00',
     number_of_nights: otaPayload.nights,
     nights: otaPayload.nights,
     reservation_type_id: null,
@@ -294,7 +346,7 @@ export function transformOTAPayloadToReservation(
     reservation_status: 'confirmed',
     status: 'confirmed',
 
-    // Chambres
+    // Chambres (avec room_rate HT)
     rooms: roomsData,
 
     // Montants financiers

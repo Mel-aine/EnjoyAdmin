@@ -95,7 +95,7 @@ const close = () => {
           </div>
 
           <!-- Content -->
-          <div class="">
+          <div class="flex-1 min-h-0 overflow-hidden">
             <slot></slot>
           </div>
 
@@ -110,7 +110,5 @@ const close = () => {
 </template>
 
 <style scoped>
-@reference "tailwindcss";
-
 /* Additional styles if needed */
 </style>
