@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 z-999 flex items-start hide-scrollbar justify-end">
-    <div class="bg-white dark:bg-gray-900 shadow-lg w-full max-w-4xl h-full mr-0 relative flex flex-col">
+    <div class="bg-white dark:bg-gray-900 shadow-lg  w-[80%] h-full mr-0 relative flex flex-col">
       <!-- Header -->
       <div
         class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
@@ -14,8 +14,13 @@
       </div>
 
       <!-- Content Area -->
-      <div class="flex-1 overflow-y-auto p-5 space-y-6">
-        <form @submit.prevent="handleSubmit">
+      <div class="p-4 overflow-hidden">
+        <div class="flex  h-full">
+          <div class="overflow-y-auto w-6/12 bg-white dark:bg-gray-800">
+            <div v-html="htmlContent"></div>
+          </div>
+          <div class="w-8/12 min-h-0 overflow-y-auto space-y-6">
+            <form @submit.prevent="handleSubmit">
           <!-- Room Configuration Section -->
           <section class="space-y-4">
             <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end">
@@ -322,19 +327,19 @@
             </div>
           </section>
         </form>
+          </div>
+        </div>
       </div>
 
       <!-- Footer with buttons -->
       <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-        <button type="button" @click="$emit('close')"
-          class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200">
-          {{ $t('Cancel') }}
-        </button>
+        <BasicButton type="button" variant="outline" @click="printHtml" :label="$t('print')" />
         <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
           @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
           :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
         </BasicButton>
       </div>
+
     </div>
   </div>
 </template>
@@ -359,6 +364,8 @@ import { useBooking } from '@/composables/useBooking2'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+// @ts-ignore
+import pHtml from '@/views/Bookings/p.html?raw'
 
 
 interface SelectOption {
@@ -409,6 +416,106 @@ const {
 // State management
 const submitted = ref(false)
 const showIdentitySection = ref(true)
+const htmlContent = ref<string>('')
+
+const renderPrintHtml = () => {
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(pHtml as string, 'text/html')
+
+    const getSafe = (val: any) => (val ?? '').toString()
+    const sumGuests = (() => {
+      const rc: any = roomConfig.value || {}
+      return (rc.adultCount || 0) + (rc.childCount || 0)
+    })()
+    const roomNumberLabel = (() => {
+      const rc: any = roomConfig.value || {}
+      const rn: any = rc.roomNumber
+      if (!rn) return ''
+      if (typeof rn === 'object') return getSafe(rn.label || rn.value)
+      return getSafe(rn)
+    })()
+    const getOptionLabel = (options: any[], value: any) => {
+      const opt = options?.find?.((o: any) => o.value === value)
+      return getSafe(opt?.label ?? value)
+    }
+
+    const filledMap: Record<string, string> = {
+      'N° de chambre :': roomNumberLabel,
+      'Nombre de personnes :': getSafe(sumGuests),
+      "Date d'arrivée :": getSafe(reservation.value?.checkinDate),
+      'Date de départ :': getSafe(reservation.value?.checkoutDate),
+      'Venant de :': getSafe(reservation.value?.arrivingTo),
+      'Se rendant à :': getSafe(reservation.value?.goingTo),
+      'Mode de transport :': getOptionLabel(TransportationModes as any[], reservation.value?.meansOfTransport),
+      'Mode de paiement :': getSafe(billing.value?.paymentMode),
+      'NOM (en gros characters) :': getSafe(formData.value.lastName),
+      'NOM jeune fille :': getSafe(formData.value.maidenName),
+      'Date de naissance :': getSafe(formData.value.dateOfBirth),
+      'Lieu de naissance :': getSafe(formData.value.placeOfBirth),
+      'Nationalité :': getSafe(formData.value.nationality),
+      'Pays de residence :': getSafe(formData.value.country),
+      'Tél :': getSafe(formData.value.phoneNumber),
+      'Fax :': getSafe(formData.value.fax),
+      'E-mail address :': getSafe(formData.value.email),
+      'B.P :': getSafe(formData.value.zipcode),
+      'Profession :': getSafe(formData.value.profession),
+      "Passeport / Carte d'identité N° :": getSafe(formData.value.idNumber),
+      'Délivré le :': getSafe(formData.value.idExpiryDate),
+      'A :': getSafe([formData.value.issuingCity, formData.value.issuingCountry].filter(Boolean).join(', ')),
+    }
+
+    const frLabels = Array.from(doc.querySelectorAll('.label-fr'))
+    frLabels.forEach((el: Element) => {
+      const text = (el.textContent || '').trim()
+      const valueToInsert = filledMap[text]
+      if (!valueToInsert) return
+      const sibling = el.nextElementSibling as HTMLElement | null
+      if (sibling && (sibling.classList.contains('line-dot') || sibling.classList.contains('line-empty'))) {
+        const span = doc.createElement('span')
+        span.className = 'filled-value'
+        span.textContent = valueToInsert
+        span.style.marginLeft = '6px'
+        span.style.maxWidth = '30ch'
+        sibling.appendChild(span)
+      }
+    })
+
+    const grid = doc.createElement('div')
+    grid.className = 'print-grid'
+    const panel1 = doc.createElement('div')
+    panel1.className = 'print-panel'
+    const panel2 = doc.createElement('div')
+    panel2.className = 'print-panel'
+    while (doc.body.firstChild) panel1.appendChild(doc.body.firstChild as Node)
+    panel2.innerHTML = panel1.innerHTML
+    grid.appendChild(panel1)
+    grid.appendChild(panel2)
+    doc.body.appendChild(grid)
+
+    const style = doc.createElement('style')
+    style.textContent = `
+    .filled-value{font-weight:normal;color:#111;font-size:9pt;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .line-dot,.line-empty{overflow:hidden;}
+    .print-panel:nth-child(2){display:none;}
+    @media print {
+      @page { size: A4 landscape; margin: 10mm; }
+      html, body { width: 297mm; height: 210mm; }
+      .print-panel:nth-child(2){display:block;}
+    }
+    `
+    doc.head.appendChild(style)
+
+    return doc.documentElement.outerHTML
+  } catch (err) {
+    console.error('renderPrintHtml error:', err)
+    return pHtml as string
+  }
+}
+
+const updateHtml = () => {
+  htmlContent.value = renderPrintHtml()
+}
 
 // Dropdown controls
 const useDropdownRoomType = ref(true)
@@ -447,6 +554,12 @@ const adultOptions = computed(() => {
 const childOptions = computed(() => {
   return getChildOptions(roomConfig.value.roomType)
 })
+
+watch(formData, updateHtml, { deep: true })
+watch(roomConfig, updateHtml, { deep: true })
+watch(billing, updateHtml, { deep: true })
+watch(reservation, updateHtml, { deep: true })
+
 const fetchIdentityTypes = async () => {
   try {
     const hotelId = serviceStore.serviceId
@@ -525,6 +638,34 @@ const handleOccupancyChange = (type: string, event: Event) => {
 
 const toggleIdentitySection = () => {
   showIdentitySection.value = !showIdentitySection.value
+}
+
+const printHtml = () => {
+  try {
+    const iframe = document.createElement('iframe')
+    iframe.style.position = 'fixed'
+    iframe.style.right = '0'
+    iframe.style.bottom = '0'
+    iframe.style.width = '0'
+    iframe.style.height = '0'
+    iframe.style.border = '0'
+    document.body.appendChild(iframe)
+
+    const doc = iframe.contentWindow?.document
+    if (doc) {
+      doc.open()
+      doc.write(htmlContent.value)
+      doc.close()
+      iframe.contentWindow?.focus()
+      iframe.contentWindow?.print()
+    }
+
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+    }, 1000)
+  } catch (err) {
+    console.error('Error printing HTML:', err)
+  }
 }
 
 const handleSubmit = async () => {
@@ -618,8 +759,7 @@ watch(() => formData.value.contactType, (newType, oldType) => {
 onMounted(async () => {
   await fetchIdentityTypes()
   await initialize()
-
-
+  htmlContent.value = renderPrintHtml()
 })
 </script>
 
