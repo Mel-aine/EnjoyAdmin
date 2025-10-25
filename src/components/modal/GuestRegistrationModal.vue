@@ -15,11 +15,46 @@
 
       <!-- Content Area -->
       <div class="p-4 overflow-hidden">
-        <div class="flex  h-full">
+        <div class="flex gap-1 h-full">
           <div class="overflow-y-auto w-6/12 bg-white dark:bg-gray-800">
-            <div v-html="htmlContent"></div>
+            <div v-if="isPreviewLoading || !htmlContent" class="p-6">
+              <div class="preview-skeleton animate-pulse space-y-4">
+                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                  <div v-for="n in 6" :key="'col1-'+n" class="flex items-center gap-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                  </div>
+                  <div v-for="n in 6" :key="'col2-'+n" class="flex items-center gap-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                  </div>
+                </div>
+
+                <div class="mt-4 flex items-center gap-2">
+                  <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
+                  <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                </div>
+
+                <div class="mt-8 grid grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                  <div class="space-y-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else v-html="htmlContent"></div>
           </div>
-          <div class="w-8/12 min-h-0 overflow-y-auto space-y-6">
+          <div class="w-8/12 ps-2 min-h-0 overflow-y-auto space-y-6">
             <form @submit.prevent="handleSubmit">
           <!-- Room Configuration Section -->
           <section class="space-y-4">
@@ -417,11 +452,29 @@ const {
 const submitted = ref(false)
 const showIdentitySection = ref(true)
 const htmlContent = ref<string>('')
+const isPreviewLoading = ref(true)
 
 const renderPrintHtml = () => {
   try {
     const parser = new DOMParser()
     const doc = parser.parseFromString(pHtml as string, 'text/html')
+
+    // Inject hotel header from current service
+    const cs: any = serviceStore.getCurrentService
+    if (cs) {
+      const nameEl = doc.querySelector('.hotel-name') as HTMLElement | null
+      if (nameEl) nameEl.textContent = (cs.hotelName ?? '').toString()
+      const addrEl = doc.querySelector('.hotel-address') as HTMLElement | null
+      if (addrEl) addrEl.textContent = [cs.address, cs.address2, cs.city].filter(Boolean).join(', ')
+      const contactEl = doc.querySelector('.contact-info') as HTMLElement | null
+      if (contactEl) {
+        const bpText = [cs.postalCode, cs.city, cs.country].filter(Boolean).join(' ')
+        const telText = cs.phoneNumber ? `Tel: ${cs.phoneNumber}` : ''
+        const upperLine = [bpText ? `B.P.: ${bpText}` : '', telText].filter(Boolean).join(' / ')
+        const lowerLine = [cs.email, cs.website].filter(Boolean).join(' / ')
+        contactEl.innerHTML = [upperLine, lowerLine].filter(Boolean).join('<br>')
+      }
+    }
 
     const getSafe = (val: any) => (val ?? '').toString()
     const sumGuests = (() => {
@@ -447,7 +500,7 @@ const renderPrintHtml = () => {
       'Date de départ :': getSafe(reservation.value?.checkoutDate),
       'Venant de :': getSafe(reservation.value?.arrivingTo),
       'Se rendant à :': getSafe(reservation.value?.goingTo),
-      'Mode de transport :': getOptionLabel(TransportationModes as any[], reservation.value?.meansOfTransport),
+      'Mode de transport :': getOptionLabel(TransportationModes as unknown as any[], reservation.value?.meansOfTransport),
       'Mode de paiement :': getSafe(billing.value?.paymentMode),
       'NOM (en gros characters) :': getSafe(formData.value.lastName),
       'NOM jeune fille :': getSafe(formData.value.maidenName),
@@ -490,6 +543,7 @@ const renderPrintHtml = () => {
     style.textContent = `
     .filled-value{font-weight:normal;color:#111;font-size:9pt;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .line-dot,.line-empty{overflow:hidden;}
+    .header .hotel-name,.header .hotel-address,.header .contact-info{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     @media print {
       @page { size: A4 portrait; margin: 10mm; }
       html, body { width: 200mm; height: 297mm; }
@@ -506,7 +560,9 @@ const renderPrintHtml = () => {
 }
 
 const updateHtml = () => {
+  isPreviewLoading.value = true
   htmlContent.value = renderPrintHtml()
+  isPreviewLoading.value = false
 }
 
 // Dropdown controls
@@ -751,7 +807,7 @@ watch(() => formData.value.contactType, (newType, oldType) => {
 onMounted(async () => {
   await fetchIdentityTypes()
   await initialize()
-  htmlContent.value = renderPrintHtml()
+  updateHtml()
 })
 </script>
 
@@ -765,3 +821,7 @@ onMounted(async () => {
   display: none;
 }
 </style>
+
+@media print {
+  .preview-skeleton { display: none !important; }
+}

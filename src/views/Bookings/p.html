@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,32 +16,39 @@
             display: flex;
             justify-content: center;
         }
+
         .form-container {
             width: 100%;
             max-width: 700px;
             background-color: white;
             padding: 10px;
             border: 1px solid black;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .header {
             text-align: center;
             margin-bottom: 20px;
         }
+
         .header h1 {
             font-size: 14pt;
             font-weight: bold;
             margin: 0 0 5px 0;
         }
+
         .contact-info {
             font-size: 9pt;
             margin-top: 5px;
             margin-bottom: 5px;
         }
+
         /* Conteneur pour une paire de lignes (Français + Anglais) */
         .line-pair {
-            margin-bottom: 1px; /* Ajoute un espacement entre les paires de champs */
+            margin-bottom: 1px;
+            /* Ajoute un espacement entre les paires de champs */
         }
+
         /* Conteneur pour une seule ligne bilingue */
         .line-item {
             display: flex;
@@ -51,72 +59,76 @@
         /* Style pour les labels français : en gras */
         .label-fr {
             white-space: nowrap;
-            font-weight: bold; 
+            font-weight: bold;
         }
+
         /* Style pour les labels anglais : normal */
         .label-en {
             white-space: nowrap;
-            font-weight: normal; 
+            font-weight: normal;
         }
 
         /* Lignes pointillées pour le français (maintenant l'exigence) */
         .line-dot {
             flex-grow: 1;
-            border-bottom: 1px dotted #000; 
+            border-bottom: 1px dotted #000;
             margin-left: 5px;
             margin-right: 0;
         }
+
         /* Ligne vide/masquée pour l'anglais (nouvelle exigence) */
         .line-empty {
             flex-grow: 1;
             margin-left: 5px;
             margin-right: 0;
-            height: 16px; /* Donne une hauteur pour maintenir l'espacement vertical sans ligne */
+            height: 16px;
+            /* Donne une hauteur pour maintenir l'espacement vertical sans ligne */
         }
-        
+
         .line-full-width-pair {
             margin-bottom: 1px;
         }
+
         .line-single {
-             display: flex;
-             justify-content: space-between;
+            display: flex;
+            justify-content: space-between;
         }
 
         .line-separator {
             border-top: 1px solid #000;
             margin: 10px 0;
         }
+
         /* Section Signature */
         .signature-section {
             text-align: right;
             margin-top: 40px;
         }
+
         .signature-section span {
             font-weight: bold;
         }
+
         /* Ligne de signature pleine */
         .signature-line {
-            height: 1px; 
-            width: 250px; 
-            background-color: #000; 
-            margin-left: auto; 
+            height: 1px;
+            width: 250px;
+            background-color: #000;
+            margin-left: auto;
             margin-top: 5px;
         }
     </style>
 </head>
+
 <body>
     <div class="form-container">
 
         <!-- Section En-tête -->
         <div class="header">
             <!-- Logo Placeholder -->
-            <div style="float: left; margin-left: 20px;">
-                <img src="https://placehold.co/80x40/1e3a8a/ffffff?text=S+" alt="Logo SUITA HOTEL" style="border-radius: 5px;">
-            </div>
-
-            <div style="text-align: right; padding-right: 20px;">
-                <div style="font-size: 12pt; font-weight: bold;">SUITA HOTEL</div>
-                <div style="font-size: 10pt;">Carrefour Bastos</div>
+            <div style="text-align: center; padding-right: 20px;">
+                <div class="hotel-name" style="font-size: 12pt; font-weight: bold;">SUITA HOTEL</div>
+                <div class="hotel-address" style="font-size: 10pt;">Carrefour Bastos</div>
                 <div class="contact-info">
                     B.P.: 2723 Yaoundé - CMR / Tel: (237) 658 85 85 85<br>
                     reservation@suita-hotel.com / www.suita-hotel.com
@@ -131,46 +143,46 @@
             <!-- Section 1: Chambre et Dates -->
             <div class="line-pair">
                 <div class="line-item">
-                    <span class="label-fr">N° de chambre :</span>
-                    <span class="line-dot" style="flex-grow: 0.5;"></span>
-                    <span class="label-fr" style="margin-left: 10px;">Nombre de personnes :</span>
-                    <span class="line-dot" style="flex-grow: 1;"></span>
+                    <span class="label-fr" style="width: 15%;">N° de chambre :</span>
+                    <span class="line-dot" style="width: 30%;"></span>
+                    <span class="label-fr" style="width: 25%;">Nombre de personnes :</span>
+                    <span class="line-dot" style="min-width: 30%;"></span>
                 </div>
                 <div class="line-item">
-                    <span class="label-en">Room n° :</span>
-                    <span class="line-empty" style="flex-grow: 0.5;"></span>
-                    <span class="label-en" style="margin-left: 21px;">N° of persons :</span>
-                    <span class="line-empty" style="flex-grow: 1;"></span>
-                </div>
-            </div>
-
-            <div class="line-pair">
-                <div class="line-item">
-                    <span class="label-fr">Date d'arrivée :</span>
-                    <span class="line-dot" style="flex-grow: 0.45;"></span>
-                    <span class="label-fr" style="margin-left: 10px;">Date de départ :</span>
-                    <span class="line-dot" style="flex-grow:1;"></span>
-                </div>
-                <div class="line-item">
-                    <span class="label-en">Arrival date :</span>
-                    <span class="line-empty" style="flex-grow: 0.5;"></span>
-                    <span class="label-en" style="margin-left: 20px;">Departure date :</span>
-                    <span class="line-empty" style="flex-grow: 1;"></span>
+                    <span class="label-en" style="width: 15%;">Room n° :</span>
+                    <span class="line-empty" style="width: 30%;"></span>
+                    <span class="label-en" style=" width: 15%">N° of persons :</span>
+                    <span class="line-empty" style=" width: 40%"></span>
                 </div>
             </div>
 
             <div class="line-pair">
                 <div class="line-item">
-                    <span class="label-fr">Venant de :</span>
-                    <span class="line-dot" style="flex-grow: 0.5;"></span>
-                    <span class="label-fr" style="margin-left: 10px;">Se rendant à :</span>
-                    <span class="line-dot" style="flex-grow: 1;"></span>
+                    <span class="label-fr" style="width: 15%;">Date d'arrivée :</span>
+                    <span class="line-dot" style=" width: 30%"></span>
+                    <span class="label-fr" style=" width: 15%">Date de départ :</span>
+                    <span class="line-dot" style=" width: 40%"></span>
                 </div>
                 <div class="line-item">
-                    <span class="label-en">Arriving from :</span>
-                    <span class="line-empty" style="flex-grow: 0.5;"></span>
-                    <span class="label-en" style="margin-left: 21px;">Going to :</span>
-                    <span class="line-empty" style="flex-grow: 1;"></span>
+                    <span class="label-en" style="width: 15%;">Arrival date :</span>
+                    <span class="line-empty" style=" width: 30%"></span>
+                    <span class="label-en" style=" width: 15%">Departure date :</span>
+                    <span class="line-empty" style=" width: 40%"></span>
+                </div>
+            </div>
+
+            <div class="line-pair">
+                <div class="line-item">
+                    <span class="label-fr" style="max-width: 15%;">Venant de :</span>
+                    <span class="line-dot" style="min-width: 30%"></span>
+                    <span class="label-fr" style="width: 15%;">Se rendant à :</span>
+                    <span class="line-dot" style="min-width: 40%"></span>
+                </div>
+                <div class="line-item">
+                    <span class="label-en" style="width: 15%;">Arriving from :</span>
+                    <span class="line-empty" style=" width: 30%"></span>
+                    <span class="label-en" style=" width: 15%">Going to :</span>
+                    <span class="line-empty" style=" width: 40%"></span>
                 </div>
             </div>
 
@@ -184,7 +196,7 @@
                     <span class="line-empty" style="display: inline-block; width: 70%;"></span>
                 </div>
             </div>
-            
+
             <div class="line-full-width-pair">
                 <div class="line-single">
                     <span class="label-fr">Mode de paiement :</span>
@@ -277,7 +289,7 @@
             </div>
 
             <div class="line-pair">
-                 <div class="line-item">
+                <div class="line-item">
                     <span class="label-fr">E-mail address :</span>
                     <span class="line-dot" style="flex-grow: 1;"></span>
                     <span class="label-fr" style="margin-left: 10px;">B.P :</span>
@@ -290,7 +302,7 @@
                     <span class="line-empty" style="flex-grow: 1;"></span>
                 </div>
             </div>
-            
+
             <div class="line-full-width-pair">
                 <div class="line-single">
                     <span class="label-fr">Profession :</span>
@@ -338,4 +350,5 @@
         </div>
     </div>
 </body>
+
 </html>
