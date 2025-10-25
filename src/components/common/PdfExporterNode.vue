@@ -1,26 +1,22 @@
 <template>
   <PdfModalPreview :title="title" :is-open="isModalOpen" @close="closeModal">
-    <div>
-      <!-- Modal de prévisualisation -->
-      <div
+   <div
         class="inline-block align-bottom bg-white h-full text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-6xl sm:w-full">
         <!-- Contenu principal -->
-        <div>
-          <div class="flex space-x-4">
+         <div class="flex space-x-4 h-full">
             <!-- Zone de prévisualisation PDF -->
-            <div class="flex-1">
-              <div v-if="isGenerating" class="flex items-center justify-center h-screen bg-gray-100 rounded-lg">
+            <div class="flex-1 h-full">
+              <div v-if="isGenerating" class="flex items-center justify-center h-full bg-gray-100">
                 <div class="text-center">
                   <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                   <p class="text-gray-600">Génération du PDF...</p>
                 </div>
               </div>
-              <div v-else-if="pdfUrl" class="h-screen overflow-hidden">
+              <div v-else-if="pdfUrl" class="h-full overflow-hidden">
                 <!-- Custom PDF Controls (Optional) -->
                 <VuePdfApp
                   :pdf="pdfUrl"
                   :config="mergedPdfViewerConfig"
-                  class="w-full h-full border-0"
                   @after-created="onPdfViewerCreated"
                   @pages-rendered="onPagesRendered"
                   @page-rendered="onPageRendered"
@@ -29,9 +25,7 @@
               </div>
             </div>
           </div>
-        </div>
       </div>
-    </div>
 
     <!-- Iframe caché pour l'impression -->
     <iframe
@@ -78,6 +72,8 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import PdfModalPreview from '../modal/PdfModalPreview.vue'
 import VuePdfApp from "vue3-pdf-app"
 import "vue3-pdf-app/dist/icons/main.css"
+
+
 
 // Types
 interface PdfViewerConfig {
@@ -128,7 +124,7 @@ interface PdfExporterProps {
 const props = withDefaults(defineProps<PdfExporterProps>(), {
   buttonText: 'Exporter PDF',
   filename: 'document',
-  showControls: false
+  showControls: false,
 })
 
 const emit = defineEmits(['close'])

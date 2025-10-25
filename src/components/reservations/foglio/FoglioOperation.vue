@@ -143,8 +143,9 @@
 
         <!-- Add Payment Modal -->
         <template v-if="isAddPaymentModalOpen">
-          <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen" :folio-id="selectedFolio?.id"
-            @close="closeAddPaymentModal" @save="handleSavePayment" :isEditMode="isEditMode" :transactionData="transactionToEdit"/>
+          <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen"
+            :folio-id="selectedFolio?.id" @close="closeAddPaymentModal" @save="handleSavePayment"
+            :isEditMode="isEditMode" :transactionData="transactionToEdit" />
         </template>
         <!-- Create Folio Modal -->
         <template v-if="isCreateFolioModalOpen">
@@ -176,7 +177,7 @@
         </template>
         <!-- Direct PDF Preview (same viewer as PrintInvoice) -->
         <div v-if="showPdfExporter">
-          <PdfExporterNode @close="showPdfExporter = false" :is-modal-open="showPdfExporter"
+          <PdfExporterNode @close="showPdfExporter = false" :is-modal-open="showPdfExporter" :title="$t(documentTitle)"
             :is-generating="printLoading" :pdf-url="pdfurl" :pdf-theme="pdfTheme" @pdf-generated="handlePdfGenerated"
             @error="handlePdfError" />
         </div>
@@ -241,6 +242,7 @@ const pdfurl = ref<string>('')
 const pdfTheme = ref<Record<string, any>>({})
 const selectedMoreAction = ref<any>(null)
 const isVoidTrasaction = ref(false);
+const documentTitle = ref('');
 /// manage more action folio
 
 const isAdjustmentModal = ref(false);
@@ -434,12 +436,15 @@ const onAction = (action: any, item: any) => {
       selectedTransaction.value = item;
       break
     case 'printReceipt':
+      documentTitle.value = t('printReceipt')
       printReceipt(item)
       break
     case 'printVoucher':
+      documentTitle.value = t('printVoucher')
       printInvoice(item);
       break
     case 'printPosReceipt':
+      documentTitle.value = t('printPosReceipt')
       printPosReceipt(item);
       break
     case 'edit':
@@ -465,7 +470,7 @@ const EditTransaction = (item: any) => {
     isAddChargeModalOpen.value = true
   } else if (item.category === 'payment') {
     isAddPaymentModalOpen.value = true
-  }else {
+  } else {
     isRoomChargesModal.value = true
   }
 }
@@ -539,7 +544,7 @@ const closeAddChargeModal = () => {
 // Payment modal handlers
 const openAddPaymentModal = () => {
   isAddPaymentModalOpen.value = true
-   isEditMode.value = false
+  isEditMode.value = false
 }
 
 const closeAddPaymentModal = () => {
@@ -573,7 +578,7 @@ const refreshFolio = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
-            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null) ;
+            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null);
 
             const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
             allTransactions.value.push({
@@ -698,6 +703,7 @@ const printInvoiceDirect = async () => {
     if (!selectedFolio.value?.id) return
     printLoading.value = true
     showPdfExporter.value = true
+    documentTitle.value = t('printInvoice')
     const res = await printFolioPdf({ folioId: Number(selectedFolio.value.id), reservationId: props.reservationId })
     pdfurl.value = window.URL.createObjectURL(res)
   } catch (e) {
