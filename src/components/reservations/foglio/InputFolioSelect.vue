@@ -34,32 +34,32 @@
 
       <!-- Dropdown list -->
       <ul v-if="isDropdownOpen && !isLoading"
-        class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
+        class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
 
         <!-- No results message -->
         <li v-if="folioOptions.length === 0 && searchQuery.length > 0"
-          class="px-5 py-3 text-gray-500 text-center italic">
+          class="px-5 py-3 text-gray-500 dark:text-gray-400 text-center italic">
           {{ $t('No folios found') }}
         </li>
 
         <!-- Initial message when no search -->
         <li v-else-if="folioOptions.length === 0 && searchQuery.length === 0"
-          class="px-5 py-3 text-gray-500 text-center italic">
+          class="px-5 py-3 text-gray-500 dark:text-gray-400 text-center italic">
           {{ $t('Start typing to search folios...') }}
         </li>
 
         <!-- Folio options -->
         <li v-for="folio in folioOptions" :key="folio.id" @click="selectFolio(folio)" :class="[
-          'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
+          'px-5 py-3 cursor-pointer hover:bg-brand-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0',
           disabled ? 'cursor-not-allowed text-gray-400' : '',
-          selectedFolio?.id === folio.id ? 'bg-brand-50 text-brand-700' : ''
+          selectedFolio?.id === folio.id ? 'bg-brand-50 text-brand-700 dark:bg-blue-900 dark:text-blue-200' : ''
         ]" role="option" :aria-selected="selectedFolio?.id === folio.id">
           <div class="flex flex-col">
             <div class="font-medium text-sm">
               {{ $t('Folio') }} #{{ folio.id }} - {{ folio.guestName }}
             </div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {{ $t('Balance') }}: {{ formatCurrency(folio.balance) }} |
               {{ $t('Status') }}: {{ folio.status }}
             </div>

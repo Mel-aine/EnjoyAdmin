@@ -3,7 +3,7 @@
         aria-modal="true">
         <div class="absolute inset-0 overflow-hidden">
             <!-- Background overlay -->
-            <div class="absolute inset-0 bg-gray-500/25 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <div class="absolute inset-0 bg-gray-500/25 bg-opacity-75 transition-opacity dark:bg-black/40" aria-hidden="true"></div>
 
             <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
                 <div class="relative w-screen max-w-md">
@@ -13,13 +13,13 @@
                         <div class="px-4 py-2 sm:px-4 border-b border-gray-200 dark:border-gray-700">
                             <div class="flex items-start justify-between">
                                 <h2 class="text-sm font-medium text-gray-900 dark:text-white" id="slide-over-title">{{ $t('cutFolio') }}</h2>
-                                <XIcon @click="closeModal" class="text-gray-300 hover:text-red-500 cursor-pointer"
+                                <XIcon @click="closeModal" class="text-gray-300 hover:text-red-500 cursor-pointer dark:text-gray-400 dark:hover:text-red-400"
                                     aria-label="Close panel" />
                             </div>
                         </div>
                         
                         <!-- Content -->
-                        <div class="flex-1 px-4 py-6 space-y-4">
+                        <div class="flex-1 px-4 py-6 space-y-4 dark:text-gray-100">
                             <Toggle 
                                 :title="$t('all')"
                                 v-model="toggleStates.all"
@@ -43,7 +43,7 @@
                         </div>
                         
                         <!-- Footer -->
-                        <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
+                        <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-900">
                             <div class="flex justify-end space-x-2">
                                 <BasicButton 
                                     variant="secondary" 

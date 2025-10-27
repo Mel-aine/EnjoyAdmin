@@ -1,15 +1,15 @@
 <template>
   <PdfModalPreview :title="title" :is-open="isModalOpen" @close="closeModal">
    <div
-        class="inline-block align-bottom bg-white h-full text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-6xl sm:w-full">
+        class="inline-block align-bottom bg-white h-full text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-6xl sm:w-full dark:bg-gray-800 dark:text-gray-100">
         <!-- Contenu principal -->
          <div class="flex space-x-4 h-full">
             <!-- Zone de prévisualisation PDF -->
             <div class="flex-1 h-full">
-              <div v-if="isGenerating" class="flex items-center justify-center h-full bg-gray-100">
+              <div v-if="isGenerating" class="flex items-center justify-center h-full bg-gray-100 dark:bg-gray-900">
                 <div class="text-center">
                   <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p class="text-gray-600">Génération du PDF...</p>
+                  <p class="text-gray-600 dark:text-gray-300">Génération du PDF...</p>
                 </div>
               </div>
               <div v-else-if="pdfUrl" class="h-full overflow-hidden">

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mx-2 md:mx-4 mt-4">
+  <div class="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-lg shadow-md p-4 md:p-6 mx-2 md:mx-4 mt-4">
     <!-- Status Bar -->
     <!-- <div class="flex flex-wrap gap-3 md:gap-6 mb-4 md:mb-6 text-xs md:text-sm">
       <span class="text-gray-600">{{ $t('All') }} {{ totalRooms }}</span>
@@ -21,20 +21,22 @@
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
       <!-- Left Section - Room Details -->
-      <div class="lg:col-span-2 border-r-0 lg:border-r-2 border-gray-100 bg-gray-50 r">
+      <div class="lg:col-span-2 border-r-0 lg:border-r-2 border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-900 r">
         <div class="h-full flex flex-col">
-          <div class="bg-white h-full rounded-lg">
+          <div class="bg-white dark:bg-gray-800 h-full rounded-lg">
             <div class="flex justify-between pt-2 px-2 pb-2">
-              <span>{{ $t('Room') }}</span>
+              <span class="dark:text-gray-100">{{ $t('Room') }}</span>
             </div>
-            <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ roomTypeSummary }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 px-2">♦ {{ roomTypeSummary }}</div>
 
             <div class="space-y-2 px-2">
               <div v-for="room in reservationRooms" :key="room.id"
-                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1 rounded" :class="selectedRoom?.id === room.id
-                    ? 'bg-blue-100 border-l-4 border-blue-500'
-                    : 'bg-gray-100'
-                  " @click="selectRoom(room)">
+                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1 rounded"
+                :class="selectedRoom?.id === room.id
+                    ? ['bg-blue-100','border-l-4','border-blue-500','dark:bg-blue-900','dark:border-blue-400']
+                    : ['bg-gray-100','dark:bg-gray-800']
+                  "
+                @click="selectRoom(room)">
                 <span>{{ room.room?.roomNumber }} - {{ getGuestName(room) }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
@@ -47,12 +49,12 @@
       <div class="lg:col-span-5">
         <div class="rounded-lg p-3 md:p-4">
           <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
-            <h3 class="font-medium text-gray-900 flex items-center text-lg md:text-xl mb-2 md:mb-0">
+            <h3 class="font-medium text-gray-900 dark:text-gray-100 flex items-center text-lg md:text-xl mb-2 md:mb-0">
               {{ $t('BillingInformation') }}
             </h3>
             <!-- Edit button visible on mobile and small screens -->
             <button
-              class="flex lg:hidden items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors self-start"
+              class="flex lg:hidden items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors self-start"
               @click="toggleEditMode">
               <svg v-if="!editMode" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -77,7 +79,7 @@
             <!-- Payment Type (Radio buttons) -->
             <div class="grid grid-cols-1 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('paymentType') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('paymentType') }}</label>
                 <div class="flex space-x-4">
                   <label class="flex items-center" :class="{ 'opacity-50 cursor-not-allowed': !editMode }">
                     <input type="radio" v-model="billingData.paymentType" value="cash" class="mr-2" :disabled="!editMode" />
@@ -123,10 +125,10 @@
       <div class="lg:col-span-5">
         <div class=" rounded-lg p-3 md:p-4">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-medium text-lg md:text-xl text-gray-900 mb-4">{{ $t('SourceInformation') }}</h3>
+            <h3 class="font-medium text-lg md:text-xl text-gray-900 dark:text-gray-100 mb-4">{{ $t('SourceInformation') }}</h3>
             <!-- Edit Button for Desktop -->
             <button
-              class="hidden lg:flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+              class="hidden lg:flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               @click="toggleEditMode">
               <svg v-if="!editMode" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -159,14 +161,14 @@
                   :disabled="!editMode" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 ">{{ $t('Company') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 ">{{ $t('Company') }}</label>
                 <div class="flex">
                   <div class="flex-1">
                     <Select v-model="sourceData.company" :options="companyOptions" :placeholder="$t('-Select-')"
-                      :disabled="!editMode" customClass="rounded-r-none h-11" />
+                      :disabled="!editMode" customClass="rounded-r-none h-11 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700" />
                   </div>
                   <button
-                    class="w-11 mt-1.5 flex items-center justify-center bg-gray-100 border border-l-0 border-gray-300  text-gray-600 hover:bg-gray-300 transition-colors"
+                    class="w-11 mt-1.5 flex items-center justify-center bg-gray-100 dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
                     :disabled="!editMode">
                     <Building class="w-4 h-4" />
                   </button>
@@ -179,19 +181,19 @@
     </div>
 
     <!-- Bottom Action Bar -->
-    <div class="mt-6 p-3 md:p-4 rounded-lg bg-gray-50">
-      <div class="bg-gray-50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div class="mt-6 p-3 md:p-4 rounded-lg bg-gray-50 dark:bg-gray-900">
+      <div class="bg-gray-50 dark:bg-gray-900 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <!-- Left side - Financial Summary -->
         <div class="flex text-sm">
           <div class="flex flex-col space-y-1">
-            <div class="text-blue-600 font-medium">{{ $t('Total') }}</div>
-            <div class="text-green-600 font-medium">{{ $t('paid') }}</div>
-            <div class="font-medium text-red-600">{{ $t('Balance') }}</div>
+            <div class="text-blue-600 dark:text-blue-400 font-medium">{{ $t('Total') }}</div>
+            <div class="text-green-600 dark:text-green-400 font-medium">{{ $t('paid') }}</div>
+            <div class="font-medium text-red-600 dark:text-red-400">{{ $t('Balance') }}</div>
           </div>
           <div class="flex flex-col space-y-1 ml-8">
-            <div class="font-medium text-blue-600">{{ formatCurrency(totalAmount) }}</div>
-            <span class="text-green-600">{{ formatCurrency(totalPayments) }}</span>
-            <div class="font-medium text-red-600">{{ formatCurrency(balanceAmount) }}</div>
+            <div class="font-medium text-blue-600 dark:text-blue-400">{{ formatCurrency(totalAmount) }}</div>
+            <span class="text-green-600 dark:text-green-400">{{ formatCurrency(totalPayments) }}</span>
+            <div class="font-medium text-red-600 dark:text-red-400">{{ formatCurrency(balanceAmount) }}</div>
           </div>
         </div>
 

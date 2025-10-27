@@ -1,21 +1,21 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="$t('Check-out')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ $t('Check-out') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('Check-out') }}</h3>
     </template>
 
     <!-- Loading Skeleton -->
     <div v-if="isLoading" class="px-2 space-y-4">
       <div class="animate-pulse">
-        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
         <div class="flex space-x-4 mb-4">
-          <div class="h-4 bg-gray-200 rounded w-16"></div>
-          <div class="h-4 bg-gray-200 rounded w-32"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
         </div>
-        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-        <div class="h-10 bg-gray-200 rounded mb-4"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-        <div class="h-10 bg-gray-200 rounded mb-4"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+        <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+        <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
       </div>
     </div>
 
@@ -23,7 +23,7 @@
     <div v-else class="px-2 space-y-4 ">
       <!-- Perform Check-out on -->
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
           {{ $t('PerformCheck-outon') }}
         </label>
         <div class="flex space-x-4">
@@ -32,35 +32,35 @@
               v-model="formData.checkOutType"
               type="radio"
               value="group"
-              class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+              class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary"
             />
-            <span class="ml-2 text-sm text-gray-700">{{ $t('Group') }}</span>
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Group') }}</span>
           </label>
           <label class="flex items-center">
             <input
               v-model="formData.checkOutType"
               type="radio"
               value="individual"
-              class="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+              class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary"
             />
-            <span class="ml-2 text-sm text-gray-700">{{ $t('IndividualReservation') }}</span>
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('IndividualReservation') }}</span>
           </label>
         </div>
       </div>
 
       <!-- Room Selection -->
       <div v-if="reservationRooms.length > 0">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
           {{ $t('Select Rooms') }}
         </label>
         <div class="space-y-2 max-h-40 overflow-y-auto">
           <label
             v-for="room in reservationRooms"
             :key="room.id"
-            class="flex items-center p-2 border rounded transition-colors"
+            class="flex items-center p-2 border rounded transition-colors dark:border-gray-700"
             :class="{
-              'bg-gray-50 opacity-60 cursor-not-allowed': isRoomCheckedOut(room),
-              'hover:bg-gray-50 cursor-pointer': !isRoomCheckedOut(room)
+              'bg-gray-50 dark:bg-gray-800 opacity-60 cursor-not-allowed': isRoomCheckedOut(room),
+              'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer': !isRoomCheckedOut(room)
             }"
           >
             <input
@@ -71,29 +71,29 @@
                 isRoomCheckedOut(room) ||
                 (reservationRooms.length === 1 && formData.checkOutType === 'group')
               "
-              class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-50"
+              class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 rounded focus:ring-primary disabled:opacity-50"
             />
             <div class="ml-2 flex-1">
               <div class="flex items-center justify-between">
                 <span
                   class="text-sm"
                   :class="{
-                    'text-gray-500': isRoomCheckedOut(room),
-                    'text-gray-700': !isRoomCheckedOut(room)
+                    'text-gray-500 dark:text-gray-400': isRoomCheckedOut(room),
+                    'text-gray-700 dark:text-gray-300': !isRoomCheckedOut(room)
                   }"
                 >
                   {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
                 </span>
                 <span
                   v-if="isRoomCheckedOut(room)"
-                  class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium"
+                  class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full font-medium"
                 >
                   {{ $t('reservationStatus.Checked-out') }}
                 </span>
               </div>
               <div
                 v-if="isRoomCheckedOut(room) && room.actualCheckOutTime"
-                class="text-xs text-gray-500 mt-1"
+                class="text-xs text-gray-500 dark:text-gray-400 mt-1"
               >
                 {{ $t('Check-out') }}: {{ formatCheckOutDateTime(room.actualCheckOutTime) }}
               </div>
@@ -104,13 +104,13 @@
         <!-- Info message if all rooms are checked out -->
         <div
           v-if="allRoomsCheckedOut"
-          class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md"
+          class="mt-3 p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-400 rounded-md"
         >
           <div class="flex items-center">
             <svg class="w-5 h-5 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
             </svg>
-            <span class="text-sm text-blue-800">
+            <span class="text-sm text-blue-800 dark:text-blue-200">
               {{ $t('Allroomsinthisreservationhavealreadybeencheckedout') }}
             </span>
           </div>
@@ -119,13 +119,13 @@
         <!-- Warning if some rooms are checked out -->
         <div
           v-else-if="hasCheckedOutRooms && !allRoomsCheckedOut"
-          class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md"
+          class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-400 rounded-md"
         >
           <div class="flex items-center">
             <svg class="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
             </svg>
-            <span class="text-sm text-yellow-800">
+            <span class="text-sm text-yellow-800 dark:text-yellow-200">
               {{ $t('Someroomshavealreadybeencheckedoutandcannotbeselected') }}
             </span>
           </div>
@@ -135,7 +135,7 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-end space-x-2">
+      <div class="flex justify-end space-x-2 dark:bg-gray-800">
         <BasicButton
           variant="secondary"
           @click="closeModal"

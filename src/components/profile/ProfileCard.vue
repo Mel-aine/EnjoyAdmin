@@ -9,11 +9,11 @@
               v-if="picture"
               :src="picture"
               alt="Photo utilisateur"
-              class="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-gray-500 shadow-lg"
+              class="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-gray-500 shadow-lg dark:border-gray-400"
             />
             <div
               v-else
-              class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-xl sm:text-2xl font-bold border-2 border-gray-500"
+              class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-xl sm:text-2xl font-bold border-2 border-gray-500 dark:from-gray-700 dark:to-gray-900 dark:text-white/90 dark:border-gray-400"
             >
               {{ userInitials }}
             </div>

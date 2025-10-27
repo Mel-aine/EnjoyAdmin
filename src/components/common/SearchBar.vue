@@ -61,15 +61,15 @@
 
               <!-- Dates and room info -->
               <div class="grid grid-cols-8 px-4">
-                <div class="flex col-span-3 items-center p-2 flex-col bg-gray-100">
-                  <span>{{ formatDate(result.arrivedDate) }}</span>
-                  <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
+                <div class="flex col-span-3 items-center p-2 flex-col bg-gray-100 dark:bg-black">
+                  <span class="dark:text-gray-25">{{ formatDate(result.arrivedDate) }}</span>
+                  <span class="text-xs text-gray-600 dark:text-gray-25 font-mono">
                     {{ formatTimeFromTimeString(result.checkInTime) }}
                   </span>
                 </div>
-                <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300" v-if="(Number((result.nights ?? result.numberOfNights)) >= 1)">
-                  <span>{{ result.nights ?? result.numberOfNights }}</span>
-                  <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
+                <div class="dark:bg-black/80 flex col-span-2 items-center p-2 flex-col bg-gray-300" v-if="(Number((result.nights ?? result.numberOfNights)) >= 1)">
+                  <span class="dark:text-white">{{ result.nights ?? result.numberOfNights }}</span>
+                  <span class="text-xs text-gray-600 dark:text-gray-100 font-mono">
                     {{ t('nights') }}
                   </span>
                 </div>
@@ -79,9 +79,9 @@
                     {{ t('hours') }}
                   </span>
                 </div>
-                <div class="flex items-center col-span-3 p-2 flex-col bg-gray-100">
-                  <span>{{ formatDate(result.departDate) }}</span>
-                  <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
+                <div class="flex items-center col-span-3 p-2 flex-col bg-gray-100 dark:bg-black">
+                  <span class="dark:text-white">{{ formatDate(result.departDate) }}</span>
+                  <span class="text-xs text-gray-600 dark:text-gray-25 font-mono">
                     {{ formatTimeFromTimeString(result.checkOutTime) }}
                   </span>
                 </div>
@@ -89,10 +89,10 @@
               </div>
               <div class="flex gap-2">
                 <div class="flex items-center">
-                  <Adult class="w-6 h-10" /><span class="pt-2 text-sm">{{ result.adults }}</span>
+                  <Adult class="w-6 h-10" /><span class="pt-2 text-sm dark:text-white">{{ result.adults }}</span>
                 </div>
                 <div class="flex items-center">
-                  <Child class="w-5 h-10" /><span class="pt-2 text-sm">{{ result.child ?? 0 }}</span>
+                  <Child class="w-5 h-10" /><span class="pt-2 text-sm dark:text-white">{{ result.child ?? 0 }}</span>
                 </div>
               </div>
             </div>

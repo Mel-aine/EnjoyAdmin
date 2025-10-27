@@ -1,7 +1,7 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="$t('voidTransaction')" @close="closeModal">
     <template #default>
-      <div class="p-3 space-y-6">
+      <div class="p-3 space-y-6 dark:text-gray-100">
         <!-- Void Reason Form -->
         <div>
           <ReasonSelector v-model="voidForm.reason" :category="'Void Reservation'" :label="$t('Reason')"

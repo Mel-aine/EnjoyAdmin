@@ -310,7 +310,7 @@ onMounted(() => {
     <div class="h-full" v-else-if="localReservation && localReservation.id"
       :class="{ 'void-status': localReservation.status === 'voided' }">
       <!--Header-->
-      <div class="shadow-sm px-4 py-2 mx-4 bg-white flex justify-between">
+      <div class="shadow-sm px-4 py-2 mx-4 bg-white dark:bg-gray-800 dark:text-gray-100 flex justify-between">
         <div class="flex gap-2 align-middle self-center items-center">
           <ArrowLeft @click="router.back()" class="cursor-pointer"></ArrowLeft>
           <Building2Icon class="text-primary"></Building2Icon>
@@ -370,7 +370,7 @@ onMounted(() => {
             type="button"
             @click="ReservationConfirm"
             :disabled="isConfirming"
-            class="bg-green-500 rounded-lg px-4 py-2 text-sm flex gap-2 items-center text-white shadow-theme-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            class="bg-green-500 rounded-lg px-4 py-2 text-sm flex gap-2 items-center text-white shadow-theme-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:ring-offset-gray-900"
           >
             <svg
               v-if="isConfirming"
@@ -393,15 +393,15 @@ onMounted(() => {
       </div>
 
       <!--main-->
-      <div class="shadow-sm px-2 pt-1 mx-4 bg-white mt-5 flex justify-between">
+      <div class="shadow-sm px-2 pt-1 mx-4 bg-white dark:bg-gray-800 dark:text-gray-100 mt-5 flex justify-between">
         <div class="flex justify-between w-full">
-          <div class="border-b border-gray-200">
+          <div class="border-b border-gray-200 dark:border-gray-700">
             <nav class="flex space-x-8 px-6">
               <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
                 'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                  ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-200 dark:hover:border-gray-600',
               ]">
                 <div class="flex items-center space-x-2">
                   <span>{{ tab.label }}</span>
@@ -441,7 +441,7 @@ onMounted(() => {
 
     <div v-else class="h-full flex items-center justify-center">
       <div class="text-center">
-        <p class="text-gray-500 text-lg">{{ $t('No reservation found') }}</p>
+        <p class="text-gray-500 dark:text-gray-400 text-lg">{{ $t('No reservation found') }}</p>
       </div>
     </div>
   </AdminLayout>
@@ -454,4 +454,9 @@ onMounted(() => {
   </template>
 </template>
 
-<style></style>
+<style scoped>
+/* View-scoped dark-mode adjustments */
+:deep(.dark .btn.btn-primary) {
+  color: #f3f4f6 !important; /* keep primary label readable in dark */
+}
+</style>

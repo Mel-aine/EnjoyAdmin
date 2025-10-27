@@ -1,11 +1,11 @@
 <template>
     <RightSideModal :is-open="isOpen" :title="$t('New Folio')" @close="closeModal">
         <template #header>
-            <h3 class="text-lg font-semibold text-gray-900">{{ $t('New Folio') }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('New Folio') }}</h3>
         </template>
 
         <!-- Form -->
-        <div class="px-2 space-y-4">
+        <div class="px-2 space-y-4 dark:text-gray-100">
             <!-- Guest Selection -->
             <div>
                 <Select v-model="formData.guestId" :options="guestOptions" :lb="$t('Guest') + ' *'"
@@ -59,9 +59,9 @@
 
             <!-- Notes -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Notes') }}</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Notes') }}</label>
                 <textarea v-model="formData.notes" rows="3"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-500"
                     :placeholder="$t('Enter any additional notes...')"></textarea>
             </div>
         </div>

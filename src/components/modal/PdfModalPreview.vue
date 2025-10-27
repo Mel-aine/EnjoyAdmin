@@ -43,7 +43,7 @@ const close = () => {
   >
     <!-- Background overlay -->
     <div
-      class="absolute inset-0 bg-transparent bg-opacity-50 transition-opacity duration-300"
+      class="absolute inset-0 bg-transparent bg-opacity-50 transition-opacity duration-300 dark:bg-black/50"
       :class="{
         'opacity-100': isOpen,
         'opacity-0': !isOpen
@@ -61,17 +61,17 @@ const close = () => {
         }"
       >
         <!-- Modal content -->
-        <div class="flex h-full flex-col bg-white shadow-xl">
+        <div class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-800 dark:shadow-black/30">
           <!-- Header -->
-          <div class="bg-gray-200 ps-2 pe-4 py-2 sm:pe-6 border-b border-gray-200">
+          <div class="bg-gray-200 ps-2 pe-4 py-2 sm:pe-6 border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
             <div class="flex items-center justify-between">
-              <h2 class="text-sm font-medium text-gray-900" v-if="title">
+              <h2 class="text-sm font-medium text-gray-900 dark:text-gray-100" v-if="title">
                 {{ title }}
               </h2>
               <div class="ml-3 flex h-7 items-center">
                 <button
                   type="button"
-                  class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
                   @click="close"
                 >
                   <span class="sr-only">Close panel</span>
@@ -100,7 +100,7 @@ const close = () => {
           </div>
 
           <!-- Footer -->
-          <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6" v-if="$slots.footer">
+          <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-800" v-if="$slots.footer">
             <slot name="footer"></slot>
           </div>
         </div>

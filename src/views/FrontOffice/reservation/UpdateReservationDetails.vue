@@ -3,25 +3,25 @@
     <!-- No Show Reservation Modal -->
     <RightSideModal :is-open="isOpen" :title="$t('updateDetails')" @close="closeModal">
         <template #header>
-            <h3 class="text-lg font-semibold text-gray-900">{{ $t('updateDetails') }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('updateDetails') }}</h3>
         </template>
         <div>
             <!-- Loading Skeleton -->
             <div v-if="isLoading" class="space-y-4">
                 <div class="animate-pulse">
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
                     <div class="flex space-x-4 mb-4">
-                        <div class="h-4 bg-gray-200 rounded w-16"></div>
-                        <div class="h-4 bg-gray-200 rounded w-32"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
                     </div>
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
                 </div>
             </div>
 
@@ -82,16 +82,16 @@
                 </div>
 
                 <!-- Meal Plan Details Warning (if meal plan unchecked but rate includes it) -->
-                <div v-if="showMealPlanWarning" class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <div v-if="showMealPlanWarning" class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg dark:bg-amber-900 dark:border-amber-700">
                     <div class="flex items-start">
-                        <svg class="w-5 h-5 text-amber-500 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-amber-500 dark:text-amber-300 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                         </svg>
                         <div class="flex-1">
-                            <h4 class="text-sm font-semibold text-amber-800 mb-2">
+                            <h4 class="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-2">
                                 {{ $t('Meal Plan will be added ') }}
                             </h4>
-                            <div v-if="currentMealPlan" class="text-sm text-amber-700">
+                            <div v-if="currentMealPlan" class="text-sm text-amber-700 dark:text-amber-300">
                                 <p class="font-medium mb-1">{{ currentMealPlan.name }}</p>
                                 <div v-if="currentMealPlan.extraCharges && currentMealPlan.extraCharges.length > 0" class="space-y-1">
                                     <p class="text-xs font-semibold">{{ $t('Includes') }}:</p>
@@ -100,7 +100,7 @@
                                             {{ charge.name }} - {{ formatCurrency(charge.rate) }}
                                         </li>
                                     </ul>
-                                    <p class="font-semibold mt-2 pt-2 border-t border-amber-300">
+                                    <p class="font-semibold mt-2 pt-2 border-t border-amber-300 dark:border-amber-600">
                                         {{ $t('Total Meal Plan Cost') }}: {{ formatCurrency(mealPlanTotal) }}
                                     </p>
                                 </div>
@@ -138,22 +138,22 @@
                         {{ $t('selectTransactions') }}
                         <span class="text-red-500">*</span>
                     </label>
-                    <div class="space-y-2 max-h-60 overflow-y-auto border rounded p-3">
+                    <div class="space-y-2 max-h-60 overflow-y-auto border rounded p-3 dark:border-gray-700 dark:bg-gray-800 custom-scrollbar">
                         <div v-if="loadingTransactions" class="text-center py-4">
                             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto">
                             </div>
-                            <span class="text-sm text-gray-500 mt-2">{{ $t('loadingTransactions') }}</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ $t('loadingTransactions') }}</span>
                         </div>
                         <label v-else v-for="transaction in availableTransactions" :key="transaction.transactionId"
-                            class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.transactionIds.includes(transaction.transactionId) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                            class="flex items-center p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                            :class="formData.transactionIds.includes(transaction.transactionId) ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900' : 'border-gray-200 dark:border-gray-700 dark:bg-gray-800'">
                             <input v-model="formData.transactionIds" type="checkbox" :value="transaction.transactionId"
                                 class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                             <div class="ml-3 flex-1">
-                                <div class="text-sm font-medium text-gray-900">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">
                                     {{transaction.description }}
                                 </div>
-                                <div class="text-xs text-gray-500">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
                                     {{ formatDate(transaction.transactionDate) }} -
                                     {{ formatCurrency(transaction.amount) }}
                                 </div>
@@ -168,13 +168,13 @@
                         {{ $t('notes') }}
                     </label>
                     <textarea v-model="formData.notes" rows="3"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
                         :placeholder="$t('enterAdditionalNotes')"></textarea>
                 </div>
             </form>
         </div>
         <template #footer>
-            <div class="flex justify-end space-x-3 bg-gray-50">
+            <div class="flex justify-end space-x-3 bg-gray-50 dark:bg-gray-800 dark:border-t dark:border-gray-700">
                 <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                     :disabled="loading" />
                 <BasicButton type="submit" variant="primary" @click="handleSubmit" :label="$t('save')"

@@ -153,14 +153,14 @@ onUnmounted(() => {
 
       <!-- Search results dropdown -->
       <ul v-if="filteredCustomers.length > 0"
-        class="absolute left-0 right-0 bg-white z-20 max-h-60 overflow-y-auto rounded-b-lg shadow-lg border-l border-r border-b border-gray-200 mt-1">
-        <li class="px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+        class="absolute left-0 right-0 bg-white z-20 max-h-60 overflow-y-auto rounded-b-lg shadow-lg border-l border-r border-b border-gray-200 mt-1 dark:bg-gray-800 dark:border-gray-700 dark:shadow-lg">
+        <li class="px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0 dark:hover:bg-gray-700 dark:border-gray-700"
           v-for="customer in filteredCustomers" :key="customer.id" @click="selectCustomer(customer)">
           <div class="flex flex-col">
-            <div class="font-medium text-gray-900">
+            <div class="font-medium text-gray-900 dark:text-gray-100">
               {{ customer.firstName }} {{ customer.lastName }}
             </div>
-            <div class="text-sm text-gray-500 flex items-center gap-4">
+            <div class="text-sm text-gray-500 flex items-center gap-4 dark:text-gray-400">
                <span  class="text-xs">
                 ID: {{ customer.id }}
               </span>

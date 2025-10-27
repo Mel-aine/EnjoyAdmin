@@ -1,9 +1,9 @@
 <template>
-  <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg"
+  <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg dark:bg-gray-900 dark:text-gray-100"
     :class="{ 'void-status': reservation.status === 'voided' }">
-    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
+    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
       <div class="h-full flex flex-col">
-        <div class="bg-white flex-grow overflow-y-auto">
+        <div class="bg-white dark:bg-gray-800 dark:text-gray-100 flex-grow overflow-y-auto">
           <div class="flex justify-between pt-2 px-2 pb-2">
             <span>{{ $t('roomFolios') }}</span>
             <PlusCircle class="text-primary cursor-pointer" @click="openCreateFolioModal" v-if="canCreateFolio" />
@@ -13,16 +13,20 @@
           <!-- Show All Transactions Button -->
           <div class="px-2 pb-2">
             <button class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors"
-              :class="!selectedFolio ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'"
+              :class="!selectedFolio
+                ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900 dark:border-blue-400 dark:text-blue-200'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200'"
               @click="showAllTransactions">
               {{ $t('showAllTransactions') }}
             </button>
           </div>
           <div v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber">
-            <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
             <div v-for="(fo, index) in folioList" :key="index">
-              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
-                :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
+              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
+                :class="selectedFolio?.id === fo.id
+                  ? 'bg-blue-100 border-l-4 border-blue-500 dark:bg-blue-900 dark:border-blue-400'
+                  : 'bg-gray-100 dark:bg-gray-800'"
                 @click="selectFolio(fo)">
                 <span class="capitalize">#{{ fo.folioNumber }} {{ fo.guest.displayName }}</span>
                 <ChevronRight class="w-4 h-4" />
@@ -47,10 +51,10 @@
       </div>
     </div>
     <div class="w-10/12">
-      <div class="bg-white border-t-1 shadow-sm flex flex-col h-full">
+      <div class="bg-white dark:bg-gray-800 dark:text-gray-100 border-t-1 dark:border-gray-700 shadow-sm flex flex-col h-full">
         <div class="flex-grow overflow-y-auto custom-scrollbar">
           <!-- Header with action buttons -->
-          <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
+          <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
             <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal"
               :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal"
@@ -63,7 +67,7 @@
             <!-- More Actions Dropdown -->
             <div class="relative" v-if="(canAddItemInFolio || reservation.status !== 'voided') && selectedFolio">
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
-                :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
+                :button-class="'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100'" @option-selected="handleMoreAction" />
 
             </div>
             <!-- Status indicators
@@ -88,12 +92,12 @@
           </div>
 
           <!-- Table -->
-          <div class="px-4 py-2 bg-gray-50 border-b border-gray-200">
+          <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700">
             <div class="flex items-center justify-between">
-              <h3 class="text-sm font-medium text-gray-700">
+              <h3 class="text-sm font-medium text-gray-700 dark:text-gray-200">
                 {{ selectedFolio ? `${$t('transactionsFor')}: ${selectedFolio.folioName}` : $t('allTransactions') }}
               </h3>
-              <span class="text-xs text-gray-500">
+              <span class="text-xs text-gray-500 dark:text-gray-400">
                 {{ $t('total') }}: {{ foglioData.length }} {{ $t('transactions') }}
               </span>
             </div>
@@ -102,7 +106,7 @@
             :actions="actionTransactions" :selectable="false" :searchable="false" :title="$t('folio')">
             <!-- Custom column templates -->
             <template #column-day="{ item }">
-              <div class="text-sm text-gray-900">
+              <div class="text-sm text-gray-900 dark:text-gray-100">
                 {{ formatDate(item.day) }}
               </div>
             </template>
@@ -114,7 +118,7 @@
             </template>
 
             <template #column-user="{ item }">
-              <div class="text-sm text-blue-600 hover:text-blue-800 cursor-pointer">
+              <div class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer">
                 {{ item.user }}
               </div>
             </template>
@@ -123,11 +127,11 @@
           </ReusableTable>
         </div>
         <!-- Footer summary -->
-        <div class="p-4 border-t border-gray-200 bg-gray-50">
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">{{ $t('endOfData') }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-300">{{ $t('endOfData') }}</span>
             <div class="text-right">
-              <div class="text-sm font-medium text-red-600">
+              <div class="text-sm font-medium text-red-600 dark:text-red-400">
                 {{ $t('balance') }}: {{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}
               </div>
             </div>
@@ -526,7 +530,7 @@ const formatAmount = (amount: number) => {
 }
 
 const getAmountColor = (amount: number) => {
-  return amount >= 0 ? 'text-blue-600' : 'text-green-600'
+  return amount >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'
 }
 
 // Modal handlers

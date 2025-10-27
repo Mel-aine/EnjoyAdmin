@@ -1,10 +1,10 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="props.isEditMode ? $t('Edit Charge') : $t('Add Charge')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ props.isEditMode ? $t('Edit Charge') : $t('Add Charge') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ props.isEditMode ? $t('Edit Charge') : $t('Add Charge') }}</h3>
     </template>
     <!-- Form -->
-    <div class="px-2 space-y-4">
+    <div class="px-2 space-y-4 text-gray-900 dark:text-gray-100">
       <!-- Date -->
       <div>
         <InputDatePicker v-model="formData.date" :title="$t('Date')" />
@@ -52,15 +52,15 @@
 
       <!-- Comment -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comment</label>
         <textarea v-model="formData.comment" rows="3"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none"
+          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
           placeholder="Enter any additional comments..."></textarea>
       </div>
     </div>
 
     <template #footer>
-      <div class="flex justify-end space-x-3">
+      <div class="flex justify-end space-x-3 dark:bg-gray-800">
         <BasicButton variant="secondary" @click="closeModal" :label="$t('cancel')" :disabled="isLoading"></BasicButton>
         <BasicButton variant="primary" @click="saveCharge"  :label="isLoading ? (props.isEditMode ? $t('Updating...') : $t('Adding...')) : (props.isEditMode ? $t('Update') : $t('Add'))"  :disabled="isLoading"></BasicButton>
       </div>

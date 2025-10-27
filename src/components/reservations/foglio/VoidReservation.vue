@@ -3,7 +3,7 @@
 
   <RightSideModal :is-open="isOpen" :title="$t('void_reservation')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ $t('void_reservation') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('void_reservation') }}</h3>
     </template>
     <div class="mt-3">
       <!-- Modal Form -->
@@ -21,7 +21,7 @@
       </form>
     </div>
     <template #footer>
-      <div class="flex justify-end space-x-3 bg-gray-50">
+      <div class="flex justify-end space-x-3 bg-gray-50 dark:bg-gray-800">
         <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')" :disabled="loading" />
         <BasicButton type="submit" variant="danger" @click="handleSubmit" :label="$t('void_reservation')" :loading="loading" />
       </div>

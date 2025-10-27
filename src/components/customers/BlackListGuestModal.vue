@@ -2,7 +2,7 @@
   <div>
     <Modal v-if="isOpen" @close="emit('close')">
       <template #body>
-        <div class="no-scrollbar relative w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
+        <div class="no-scrollbar relative w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8 border border-gray-200 dark:border-gray-700">
           <!-- Close button -->
           <button
             @click="emit('close')"
@@ -83,14 +83,14 @@
             </div>
 
             <!-- Warning message -->
-            <div class="mb-6 p-4 rounded-md" :class="isBlacklisting ? 'bg-red-50 dark:bg-red-900/20 border border-red-200' : 'bg-green-50 dark:bg-green-900/20 border border-green-200'">
+            <div class="mb-6 p-4 rounded-md" :class="isBlacklisting ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800' : 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'">
               <div class="flex">
                 <component :is="isBlacklisting ? AlertTriangle : CheckCircle" class="flex-shrink-0 w-5 h-5 mt-0.5" :class="isBlacklisting ? 'text-red-400' : 'text-green-400'" />
                 <div class="ml-3">
-                  <h5 class="text-sm font-medium" :class="isBlacklisting ? 'text-red-800' : 'text-green-800'">
+                  <h5 class="text-sm font-medium" :class="isBlacklisting ? 'text-red-800 dark:text-red-200' : 'text-green-800 dark:text-green-200'">
                     {{ isBlacklisting ? $t('blacklistWarningTitle') : $t('unblacklistConfirmationTitle') }}
                   </h5>
-                  <p class="mt-1 text-sm" :class="isBlacklisting ? 'text-red-700' : 'text-green-700'">
+                  <p class="mt-1 text-sm" :class="isBlacklisting ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'">
                     {{ isBlacklisting ? $t('blacklistWarningMessage') : $t('unblacklistConfirmationMessage') }}
                   </p>
                 </div>

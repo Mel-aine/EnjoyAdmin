@@ -35,7 +35,7 @@
 
       <ul
         v-if="isDropdownOpen && displayOptions.length && !isLoading"
-        class="custom-scrollbar absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100"
+        class="custom-scrollbar absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700"
         role="listbox"
         :aria-expanded="isDropdownOpen"
         aria-hidden="false"
@@ -45,14 +45,14 @@
           :key="option.value"
           @mousedown.prevent="selectOption(option)"
           :class="[
-            'px-5 py-2 cursor-pointer flex items-center justify-between',
+            'px-5 py-2 cursor-pointer flex items-center justify-between dark:text-gray-200',
             {
-              'bg-purple-100 text-purple-900': selectedOption?.value === option.value,
-              'bg-blue-50': highlightedIndex === index && selectedOption?.value !== option.value,
-              'hover:bg-gray-100': selectedOption?.value !== option.value && highlightedIndex !== index,
-              'opacity-50 cursor-not-allowed text-gray-400': disabled ,
-              'hover:bg-purple-100': !disabled && !option.disabled,
-              'text-red-600 bg-red-50': option.status === 'occupied',
+              'bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100': selectedOption?.value === option.value,
+              'bg-blue-50 dark:bg-blue-900': highlightedIndex === index && selectedOption?.value !== option.value,
+              'hover:bg-gray-100 dark:hover:bg-gray-700': selectedOption?.value !== option.value && highlightedIndex !== index,
+              'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500': disabled ,
+              'hover:bg-purple-100 dark:hover:bg-purple-900': !disabled && !option.disabled,
+              'text-red-600 bg-red-50 dark:text-red-300 dark:bg-red-900/30': option.status === 'occupied',
             }
           ]"
           role="option"
@@ -75,7 +75,7 @@
       <!-- Message quand aucun résultat n'est trouvé -->
       <div
         v-if="isDropdownOpen && displayOptions.length === 0 && search && !isLoading"
-        class="absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg bg-white border-2 border-t-0 border-purple-100 px-5 py-3 text-gray-500 text-sm"
+        class="absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg bg-white border-2 border-t-0 border-purple-100 px-5 py-3 text-gray-500 text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
       >
         {{ $t('no_fund') }}
       </div>

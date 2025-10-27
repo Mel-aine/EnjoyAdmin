@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-gray-100 group hover:border-gray-200 transform hover:-translate-y-1">
+  <div class="bg-white dark:bg-black rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700 group hover:border-gray-200 dark:hover:border-gray-600 transform hover:-translate-y-1">
 
     <!-- Header avec gradient subtil -->
-    <div class="relative px-6 pt-6 pb-4 bg-gradient-to-br from-white to-gray-50/50">
+    <div class="relative px-6 pt-6 pb-4 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-700/50">
       <div class="flex items-start justify-between">
         <!-- Info principale -->
         <div class="flex-1">
@@ -154,7 +154,7 @@
 
     <!-- Footer avec actions -->
     <div v-if="statusConfig.statusMessage"
-         class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100/50 border-t border-gray-100">
+         class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-700/50 border-t border-gray-100 dark:border-gray-700">
       <div class="p-3 rounded-xl" :class="statusConfig.statusMessage.classes">
         <div class="flex items-center justify-center gap-3">
           <component :is="statusConfig.statusMessage.icon"
