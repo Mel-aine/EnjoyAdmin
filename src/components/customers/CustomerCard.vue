@@ -20,7 +20,7 @@ import { useToast } from 'vue-toastification'
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import { useBooking } from '@/composables/useBooking2'
-import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+import { extractIdDataWithPreprocessing, extractIdDataSimple, extractIdDataLocal, type ExtractedIdData } from '@/services/localOcrService'
 
 interface SelectOption {
   value: string
@@ -66,6 +66,50 @@ const pendingImages = ref<string[]>([])
 const profilePhotoUploader = ref<ImageUploaderInstance | null>(null)
 const idPhotoUploader = ref<ImageUploaderInstance | null>(null)
 const { trackUpload, completeUpload } = useBooking()
+const isReadingId = ref(false)
+const lastIdFile = ref<File | null>(null)
+
+function mapExtractedIdTypeToOption(value: ExtractedIdData['idType']): string | undefined {
+  const lower = (value || 'Unknown').toLowerCase()
+  const opts = idTypeOptions.value as any[]
+  const findBy = (kw: string) => opts.find((o: any) => o?.value?.toLowerCase?.().includes(kw) || o?.label?.toLowerCase?.().includes(kw))?.value
+  if (lower.includes('passport')) return findBy('pass') || findBy('passeport')
+  if (lower.includes('visa')) return findBy('visa')
+  if (lower.includes('id')) return findBy('id') || findBy('ident')
+  return opts[0]?.value
+}
+
+function normalizeCountryCode(value?: string): string | undefined {
+  if (!value) return undefined
+  const v = value.trim()
+  // Prefer 2-letter country code for InputCountries
+  const alpha3To2: Record<string, string> = {
+    CAN: 'CA', CMR: 'CM', FRA: 'FR', DEU: 'DE', ESP: 'ES', ITA: 'IT', USA: 'US', GBR: 'GB',
+  }
+  const nameTo2: Record<string, string> = {
+    canada: 'CA', cameroon: 'CM', france: 'FR', germany: 'DE', spain: 'ES', italy: 'IT',
+    'united states': 'US', 'united kingdom': 'GB',
+  }
+  if (/^[A-Z]{2}$/.test(v)) return v
+  if (/^[A-Z]{3}$/.test(v)) return alpha3To2[v] || undefined
+  const lower = v.toLowerCase()
+  return nameTo2[lower]
+}
+
+function autofillIdentityFields(data: ExtractedIdData) {
+  console.log('OCR extracted data:', data)
+  const mappedType = mapExtractedIdTypeToOption(data.idType)
+  if (mappedType) {
+    selectedCustomer.value.idType = mappedType
+  }
+  if (data.idNumber) selectedCustomer.value.idNumber = data.idNumber
+  if (data.idExpiryDate) selectedCustomer.value.idExpiryDate = data.idExpiryDate
+  if (data.issuingCountry) {
+    const code = normalizeCountryCode(data.issuingCountry)
+    if (code) selectedCustomer.value.issuingCountry = code
+  }
+  if (data.issuingCity) selectedCustomer.value.issuingCity = data.issuingCity
+}
 
 const toggleIdentitySection = () => {
   showIdentitySection.value = !showIdentitySection.value
@@ -78,6 +122,7 @@ const { t } = useI18n()
 const GuestTitles = computed(() => [
   { label: t('guestTitles.mr'), value: 'Mr' },
   { label: t('guestTitles.mrs'), value: 'Mrs' },
+  { label: t('guestTitles.ms'), value: 'Ms' },
   { label: t('guestTitles.miss'), value: 'Miss' },
   { label: t('guestTitles.dr'), value: 'Dr' },
 ])
@@ -109,8 +154,8 @@ const selectCustomer = (customer: any) => {
   selectedCustomer.value.firstName = customer.firstName ?? selectedCustomer.value.firstName
   selectedCustomer.value.lastName = customer.lastName ?? selectedCustomer.value.lastName
   selectedCustomer.value.email = customer.email ?? selectedCustomer.value.email
-  selectedCustomer.value.phoneNumber = customer.phonePrimary ?? selectedCustomer.value.phonePrimary
-  selectedCustomer.value.address = customer.addressLine ?? selectedCustomer.value.addressLine
+  selectedCustomer.value.phoneNumber = customer.phonePrimary ?? selectedCustomer.value.phoneNumber
+  selectedCustomer.value.address = customer.addressLine ?? selectedCustomer.value.address
   selectedCustomer.value.country = customer.country ?? selectedCustomer.value.country
   selectedCustomer.value.state = customer.stateProvince ?? selectedCustomer.value.stateProvince
   selectedCustomer.value.city = customer.city ?? selectedCustomer.value.city
@@ -258,6 +303,47 @@ const onIdPhotoSuccess = (data: { url: string; file: File }) => {
   if (index > -1) {
     pendingImages.value.splice(index, 1)
   }
+  // Fallback OCR si non déjà rempli et fichier disponible
+  if (!selectedCustomer.value.idNumber && !selectedCustomer.value.idType) {
+    console.log('Running fallback OCR after upload...')
+    isReadingId.value = true
+    const runWithFile = async () => {
+      if (!lastIdFile.value) return false
+      try {
+        const extracted = await extractIdDataWithPreprocessing(lastIdFile.value)
+        autofillIdentityFields(extracted)
+        return true
+      } catch (e) {
+        console.error('OCR fallback error (preprocessing):', e)
+        try {
+          const extracted2 = await extractIdDataSimple(lastIdFile.value)
+          autofillIdentityFields(extracted2)
+          return true
+        } catch (e2) {
+          console.error('OCR fallback error (simple):', e2)
+        }
+      }
+      return false
+    }
+
+    const runWithUrl = async () => {
+      try {
+        const extracted = await extractIdDataLocal(data.url)
+        autofillIdentityFields(extracted)
+        return true
+      } catch (e) {
+        console.error('OCR fallback from URL error:', e)
+        return false
+      }
+    }
+
+    ;(async () => {
+      const okWithFile = await runWithFile()
+      if (!okWithFile) {
+        await runWithUrl()
+      }
+    })().finally(() => (isReadingId.value = false))
+  }
 }
 
 const onUploadError = (error: any) => {
@@ -305,6 +391,25 @@ const onIdPhotoSelected = async (data: { file: File; preview: string }) => {
     pendingImages.value.push('Photo de la pièce')
   }
   globalError.value = ''
+
+  // Lancer l'OCR dès la sélection pour meilleure qualité
+  lastIdFile.value = data.file
+  console.log('Starting OCR on selected file...')
+  try {
+    isReadingId.value = true
+    const extracted = await extractIdDataWithPreprocessing(data.file)
+    autofillIdentityFields(extracted)
+  } catch (e) {
+    console.error('OCR error (preprocessing):', e)
+    try {
+      const extracted = await extractIdDataSimple(data.file)
+      autofillIdentityFields(extracted)
+    } catch (e2) {
+      console.error('OCR error (simple):', e2)
+    }
+  } finally {
+    isReadingId.value = false
+  }
 
   // Déclencher l'upload automatiquement après sélection
   try {
@@ -472,20 +577,13 @@ console.log('modalevalue', props.modelValue)
 
               <!-- Profession + Phone + Email -->
               <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <!-- <Input
+                <Input
                   :lb="$t('profession')"
                   :id="'profession'"
                   v-model="selectedCustomer.profession"
                   :placeholder="$t('profession')"
                   custom-class="h-11"
-                /> -->
-                <ProfessionAutocomplete
-                  v-model="selectedCustomer.profession"
-                  :lb="$t('profession')"
-                  :placeholder="$t('profession')"
-                  custom-class="h-11"
                 />
-
 
                 <InputPhone
                   :title="$t('Phone')"
