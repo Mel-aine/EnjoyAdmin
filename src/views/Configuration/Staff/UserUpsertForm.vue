@@ -19,6 +19,7 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import { getConfiguration } from '@/services/configrationApi'
 import { ChevronDown } from 'lucide-vue-next'
 import OverLoading from '@/components/spinner/OverLoading.vue'
+import BasicButton from '../../../components/buttons/BasicButton.vue'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -514,7 +515,7 @@ onMounted(async () => {
 
 <template>
   <ConfigurationLayout>
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen mt-5 bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
       <!-- Header -->
 
         <div class="px-4 sm:px-6 lg:px-8">
@@ -522,22 +523,22 @@ onMounted(async () => {
             <div class="flex items-center">
               <button
                 @click="goBack"
-                class="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                class="mr-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <ArrowLeft class="w-5 h-5 text-gray-600" />
+                <ArrowLeft class="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
-              <h1 class="text-xl font-semibold text-gray-900">
+              <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                 {{ isEditMode ? t('EditUser') : t('NewUser') }}
               </h1>
             </div>
             <div class="flex items-center space-x-3">
-              <button
-                @click="goBack"
-                type="button"
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                {{ t('Cancel') }}
-              </button>
+              <BasicButton 
+              type="button" 
+              variant="outline" 
+              @click="goBack" 
+              :label="$t('cancel')"
+            />
+              
               <button
                 @click="handleSubmit"
                 :disabled="isLoading || isLoadingUser"
@@ -559,7 +560,7 @@ onMounted(async () => {
       </div>
 
       <div class="max-w-full px-4 sm:px-6 lg:px-8 py-4">
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <form @submit.prevent="handleSubmit">
             <div class="flex">
               <!-- Section des informations personnelles -->
@@ -570,7 +571,7 @@ onMounted(async () => {
                     <div class="space-y-8">
                       <!-- Basic Information -->
                       <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-6">
+                        <h3 class="text-lg font-medium text-gray-800 dark:text-gray-100 mb-6">
                           {{ t('Basic Information') }}
                         </h3>
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -644,7 +645,7 @@ onMounted(async () => {
                           <div v-if="!isEditMode" class="col-span-full md:col-span-1">
                             <label
                               for="password"
-                              class="mb-1.5 block text-sm font-medium text-gray-700"
+                              class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
                             >
                               {{ t('Password') }} <span class="text-red-500">*</span>
                             </label>
@@ -656,11 +657,11 @@ onMounted(async () => {
                                 autocomplete="current-password"
                                 required
                                 :placeholder="t('Enteryourpassword')"
-                                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800  placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/10"
+                                class="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent dark:bg-dark-800 px-4 py-2.5 text-sm text-gray-800 dark:text-gray-100  placeholder:text-gray-400 dark:placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/10"
                               />
                               <span
                                 @click="togglePasswordVisibility"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 dark:text-gray-400"
                               >
                                 <svg
                                   v-if="!showPassword"
@@ -724,18 +725,18 @@ onMounted(async () => {
 
                       <!-- Address Information -->
                       <div class="border-t pt-8">
-                        <h3 class="text-lg font-medium text-gray-900 mb-6">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
                           {{ t('Address Information') }}
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                           <div class="col-span-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{
                               t('Address')
                             }}</label>
                             <textarea
                               v-model="form.addressLine"
                               rows="2"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/10 resize-none"
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/10 resize-none dark:bg-dark-800 dark:text-gray-100 dark:placeholder:text-gray-400"
                               :placeholder="t('Address')"
                             ></textarea>
                           </div>
@@ -787,9 +788,9 @@ onMounted(async () => {
               </div>
 
               <!-- Section des onglets (Privileges, Reports, Discounts) -->
-              <div class="my-10 w-1/2 border-l border-b border-t h-[700px] border-gray-200">
+              <div class="my-10 w-1/2 border-l border-b border-t h-[700px] border-gray-200 dark:border-gray-700">
                 <!-- Tabs Navigation -->
-                <div class="border-b border-gray-200">
+                <div class="border-b border-gray-200 dark:border-gray-700">
                   <nav class="-mb-px flex space-x-8 px-6">
                     <button
                       v-for="tab in tabs"
@@ -799,7 +800,7 @@ onMounted(async () => {
                         'py-4 px-1 border-b-2 font-medium text-sm flex items-center',
                         activeTab === tab.id
                           ? 'border-purple-500 text-purple-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600',
                       ]"
                     >
                       <component :is="tab.icon" class="w-5 h-5 mr-2" />
@@ -814,10 +815,10 @@ onMounted(async () => {
                   <div v-show="activeTab === 'privileges'" class="p-6">
                     <div class="space-y-6">
                       <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                           {{ t('User Privileges') }}
                         </h3>
-                        <p class="text-sm text-gray-600 mb-6">
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
                           {{ t('Select the privileges this user should have access to') }}
                         </p>
                       </div>
@@ -828,7 +829,7 @@ onMounted(async () => {
 
                       <div
                         v-else-if="permissions.length === 0"
-                        class="text-center py-8 text-gray-500"
+                        class="text-center py-8 text-gray-500 dark:text-gray-400"
                       >
                         {{ t('No privileges available') }}
                       </div>
@@ -837,12 +838,12 @@ onMounted(async () => {
                         <div
                           v-for="category in permissions"
                           :key="category.category"
-                          class="border border-gray-200 rounded-lg overflow-hidden"
+                          class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
                         >
                           <!-- Category Header -->
                           <div
                             @click="toggleCategoryPrivileges(category.category)"
-                            class="flex items-center justify-between p-2 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors"
+                            class="flex items-center justify-between p-2 bg-gray-50 dark:bg-black hover:bg-gray-100 dark:hover:bg-dark-700 cursor-pointer transition-colors"
                           >
                             <div class="flex items-center space-x-3">
                               <input
@@ -854,17 +855,17 @@ onMounted(async () => {
                                 "
                                 @click.stop
                                @change="(e) => toggleAllCategoryItemsPrivileges(category.category, e)"
-                                class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 rounded"
+                                class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 dark:border-gray-700 rounded"
                               />
-                              <h4 class="text-base font-medium text-gray-900">
+                              <h4 class="text-base font-medium text-gray-900 dark:text-gray-100">
                                 {{ category.category }}
                               </h4>
-                              <span class="text-sm text-gray-500"
+                              <span class="text-sm text-gray-500 dark:text-gray-400"
                                 >({{ category.items.length }} items)</span
                               >
                             </div>
                             <div class="flex items-center space-x-2">
-                              <span class="text-sm text-gray-500">
+                              <span class="text-sm text-gray-500 dark:text-gray-400">
                                 {{ getSelectedCountPrivileges(category.category) }} /
                                 {{ category.items.length }} selected
                               </span>
@@ -882,12 +883,12 @@ onMounted(async () => {
                           <!-- Category Items -->
                           <div
                             v-show="!collapsedCategoriesPrivileges[category.category]"
-                            class="divide-y divide-gray-100"
+                            class="divide-y divide-gray-100 dark:divide-gray-800"
                           >
                             <div
                               v-for="privilege in category.items"
                               :key="privilege.id"
-                              class="flex items-start p-3 hover:bg-gray-50 transition-colors"
+                              class="flex items-start p-3 hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors"
                             >
                               <div class="flex items-center h-5">
                                 <input
@@ -895,17 +896,17 @@ onMounted(async () => {
                                   v-model="form.selectedPrivileges"
                                   :value="privilege.id"
                                   type="checkbox"
-                                  class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 rounded"
+                                  class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 dark:border-gray-700 rounded"
                                 />
                               </div>
                               <div class="ml-3 text-sm">
                                 <label
                                   :for="`privilege-${privilege.id}`"
-                                  class="font-medium text-gray-700 cursor-pointer"
+                                  class="font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
                                 >
                                   {{ privilege.name }}
                                 </label>
-                                <p v-if="privilege.description" class="text-gray-500 mt-1">
+                                <p v-if="privilege.description" class="text-gray-500 dark:text-gray-400 mt-1">
                                   {{ privilege.description }}
                                 </p>
                               </div>
@@ -920,10 +921,10 @@ onMounted(async () => {
                   <div v-show="activeTab === 'reports'" class="p-6">
                     <div class="space-y-6">
                       <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                           {{ t('Report Access') }}
                         </h3>
-                        <p class="text-sm text-gray-600 mb-6">
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
                           {{ t('Select which reports this user can access') }}
                         </p>
                       </div>
@@ -932,7 +933,7 @@ onMounted(async () => {
                         <Spinner class="w-8 h-8" />
                       </div>
 
-                      <div v-else-if="reports.length === 0" class="text-center py-8 text-gray-500">
+                      <div v-else-if="reports.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
                         {{ t('No reports available') }}
                       </div>
 
@@ -940,12 +941,12 @@ onMounted(async () => {
                         <div
                           v-for="category in reports"
                           :key="category.category"
-                          class="border border-gray-200 rounded-lg overflow-hidden"
+                          class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
                         >
                           <!-- Category Header -->
                           <div
                             @click="toggleCategoryReports(category.category)"
-                            class="flex items-center justify-between p-2 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors"
+                            class="flex items-center justify-between p-2 bg-gray-50 dark:bg-black hover:bg-gray-100 dark:hover:bg-dark-700 cursor-pointer transition-colors"
                           >
                             <div class="flex items-center space-x-3">
                               <input
@@ -958,17 +959,17 @@ onMounted(async () => {
                                 @click.stop
                                 @change="(e) => toggleAllCategoryItemsReports(category.category, e)"
 
-                                class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 rounded"
+                                class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 dark:border-gray-700 rounded"
                               />
-                              <h4 class="text-base font-medium text-gray-900">
+                              <h4 class="text-base font-medium text-gray-900 dark:text-gray-100">
                                 {{ category.category }}
                               </h4>
-                              <span class="text-sm text-gray-500 "
+                              <span class="text-sm text-gray-500 dark:text-gray-400 "
                                 >({{ category.items.length }} items)</span
                               >
                             </div>
                             <div class="flex items-center space-x-2">
-                              <span class="text-sm text-gray-500">
+                              <span class="text-sm text-gray-500 dark:text-gray-400">
                                 {{ getSelectedCountReports(category.category) }} /
                                 {{ category.items.length }} selected
                               </span>
@@ -986,12 +987,12 @@ onMounted(async () => {
                           <!-- Category Items -->
                           <div
                             v-show="!collapsedCategoriesReports[category.category]"
-                            class="divide-y divide-gray-100"
+                            class="divide-y divide-gray-100 dark:divide-gray-800"
                           >
                             <div
                               v-for="report in category.items"
                               :key="report.id"
-                              class="flex items-start p-3 hover:bg-gray-50 transition-colors"
+                              class="flex items-start p-3 hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors"
                             >
                               <div class="flex items-center h-5">
                                 <input
@@ -999,17 +1000,17 @@ onMounted(async () => {
                                   v-model="form.selectedReports"
                                   :value="report.id"
                                   type="checkbox"
-                                  class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 rounded"
+                                  class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 dark:border-gray-700 rounded"
                                 />
                               </div>
                               <div class="ml-3 text-sm">
                                 <label
                                   :for="`report-${report.id}`"
-                                  class="font-medium text-gray-700 cursor-pointer"
+                                  class="font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
                                 >
                                   {{ report.name }}
                                 </label>
-                                <p v-if="report.description" class="text-gray-500 mt-1">
+                                <p v-if="report.description" class="text-gray-500 dark:text-gray-400 mt-1">
                                   {{ report.description }}
                                 </p>
                               </div>
@@ -1024,10 +1025,10 @@ onMounted(async () => {
                   <div v-show="activeTab === 'discounts'" class="p-6">
                     <div class="space-y-6">
                       <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                           {{ t('Discount Management') }}
                         </h3>
-                        <p class="text-sm text-gray-600 mb-6">
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
                           {{ t('Select which discounts this user can manage and apply') }}
                         </p>
                       </div>
@@ -1038,7 +1039,7 @@ onMounted(async () => {
 
                       <div
                         v-else-if="discounts.length === 0"
-                        class="text-center py-8 text-gray-500"
+                        class="text-center py-8 text-gray-500 dark:text-gray-400"
                       >
                         {{ t('No discounts available') }}
                       </div>
@@ -1047,7 +1048,7 @@ onMounted(async () => {
                         <div
                           v-for="discount in discounts"
                           :key="discount.id"
-                          class="relative flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                          class="relative flex items-start p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors"
                         >
                           <div class="flex items-center h-5">
                             <input
@@ -1055,31 +1056,31 @@ onMounted(async () => {
                               v-model="form.selectedDiscounts"
                               :value="discount.id"
                               type="checkbox"
-                              class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 rounded"
+                              class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 dark:border-gray-700 rounded"
                             />
                           </div>
                           <div class="ml-3 text-sm">
                             <label
                               :for="`discount-${discount.id}`"
-                              class="font-medium text-gray-700 cursor-pointer"
+                              class="font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
                             >
                               {{ discount.name }}
                             </label>
                             <div class="mt-1">
                               <span
                                 v-if="discount.type"
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                               >
                                 {{ discount.type }}
                               </span>
                               <span
                                 v-if="discount.value"
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 ml-2"
                               >
                                 {{ discount.value }}{{ discount.unit || '%' }}
                               </span>
                             </div>
-                            <p v-if="discount.description" class="text-gray-500 mt-1">
+                            <p v-if="discount.description" class="text-gray-500 dark:text-gray-400 mt-1">
                               {{ discount.description }}
                             </p>
                           </div>

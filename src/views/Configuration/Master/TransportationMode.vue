@@ -15,16 +15,16 @@
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
-            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
-            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>

@@ -27,15 +27,15 @@
 
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -43,8 +43,8 @@
       <!-- Add/Edit Bed Type Modal -->
       <div v-if="showAddModal || showEditModal"
         class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-          <h3 class="text-lg font-semibold mb-4">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 border rounded-lg p-6 w-full max-w-md mx-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ showEditModal ? t('editBedType') : t('addBedType') }}
           </h3>
 
@@ -60,7 +60,7 @@
                 label-class="after:content-['*'] after:ml-0.5 after:text-red-500"
                 class="w-full"
               />
-              <p class="text-xs text-gray-500 mt-1">{{ t('shortCodeDescription') }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('shortCodeDescription') }}</p>
             </div>
 
             <div>
@@ -73,7 +73,7 @@
                 label-class="after:content-['*'] after:ml-0.5 after:text-red-500"
                 class="w-full"
               />
-              <p class="text-xs text-gray-500 mt-1">{{ t('bedTypeNameDescription') }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('bedTypeNameDescription') }}</p>
             </div>
 
             <div>

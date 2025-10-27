@@ -429,10 +429,10 @@ console.log('modalevalue', props.modelValue)
     <div class="p-2 mb-3">
       <button @click.prevent="toggleInfoSection"
         class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
-        <h2 class="text-md font-semibold text-gray-900 flex items-center">
+        <h2 class="text-md font-semibold text-gray-900 flex items-center dark:text-white">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-user-pen-icon lucide-user-pen w-5 h-5 mr-2 text-black">
+            class="lucide lucide-user-pen-icon lucide-user-pen w-5 h-5 mr-2 text-black dark:text-white">
             <path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
             <path
               d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
@@ -690,9 +690,9 @@ console.log('modalevalue', props.modelValue)
     <!-- Section Informations d'Identité -->
     <div class="p-2">
       <button @click.prevent="toggleIdentitySection"
-        class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
-        <h2 class="text-md font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="flex items-center justify-between w-full text-left group  hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors ">
+        <h2 class="text-md font-semibold text-gray-900 flex items-center dark:text-white">
+          <svg class="w-5 h-5 mr-2 text-black dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1">
             </path>

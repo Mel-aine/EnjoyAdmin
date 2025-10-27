@@ -14,16 +14,16 @@
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
         <template #column-status="{ item }">
@@ -38,9 +38,9 @@
     <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div
-        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
             {{ isEditing ? $t('configuration.identity_type.edit_identity_type') :
               $t('configuration.identity_type.add_identity_type') }}
           </h3>

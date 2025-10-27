@@ -35,39 +35,39 @@
         <!-- Custom column for rate info -->
         <template #column-rateInfo="{ item }">
           <div>
-            <div class="text-sm font-medium text-gray-900">{{ formatCurrency(item.baseRate) }}</div>
-            <div class="text-xs text-gray-500">{{ t('baseRate') }}</div>
+            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(item.baseRate) }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('baseRate') }}</div>
           </div>
         </template>
 
         <!-- Custom column for extra rates -->
         <template #column-extraRates="{ item }">
           <div>
-            <div class="text-xs text-gray-600">{{ t('extraAdult') }}: {{ formatCurrency(item.extraAdultRate) }}</div>
-            <div class="text-xs text-gray-600">{{ t('extraChild') }}: {{ formatCurrency(item.extraChildRate) }}</div>
+            <div class="text-xs text-gray-600 dark:text-gray-300">{{ t('extraAdult') }}: {{ formatCurrency(item.extraAdultRate) }}</div>
+            <div class="text-xs text-gray-600 dark:text-gray-300">{{ t('extraChild') }}: {{ formatCurrency(item.extraChildRate) }}</div>
           </div>
         </template>
 <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
       <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
             {{ showAddModal ? t('addRoomRate') : t('editRoomRate') }}
           </h3>
 
@@ -127,33 +127,33 @@
             </div>
 
             <!-- Meal Plan Details -->
-           <div v-if="selectedMealPlanDetails" class="border rounded-lg p-3 bg-gray-50">
+           <div v-if="selectedMealPlanDetails" class="border rounded-lg p-3 bg-gray-50 dark:bg-gray-900 dark:border-gray-700">
 
-              <p class="text-sm text-gray-700 mb-1">
+              <p class="text-sm text-gray-700 dark:text-gray-300 mb-1">
                 <strong>{{ selectedMealPlanDetails.name }}</strong>
-                <span v-if="selectedMealPlanDetails.isAllInclusive" class="ml-2 text-green-600 text-xs font-medium">
+                <span v-if="selectedMealPlanDetails.isAllInclusive" class="ml-2 text-green-600 dark:text-green-400 text-xs font-medium">
                   ({{ t('allInclusive') || 'All Inclusive' }})
                 </span>
               </p>
 
               <div v-if="selectedMealPlanDetails.components?.length">
-                <ul class="text-sm text-gray-700 space-y-1">
+                <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                   <li v-for="component in selectedMealPlanDetails.components" :key="component.id">
                     {{ component.extraCharge?.name }}
-                    <span class="text-gray-500 text-xs">
+                    <span class="text-gray-500 dark:text-gray-400 text-xs">
                       ({{ component.targetGuestType }} • x{{ component.quantityPerDay }}/{{ t('day') || 'day' }})
                     </span>
                     — <strong>{{ formatCurrency(component.extraCharge?.rate) }}</strong>
                   </li>
                 </ul>
 
-                <p class="mt-2 text-sm font-semibold text-gray-900">
+                <p class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
                   {{ t('totalPerDay') || 'Total per day' }} :
                   <span class="font-bold">{{ formatCurrency(calculateMealPlanTotal()) }}</span>
                 </p>
               </div>
 
-              <p v-else class="text-sm text-gray-500 italic mt-2">
+              <p v-else class="text-sm text-gray-500 dark:text-gray-400 italic mt-2">
                 {{ t('noChargesIncluded') || 'No extra charges included' }}
               </p>
             </div>
@@ -212,7 +212,7 @@
             <!-- Effective Dates -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {{ t('effectiveFrom') }} <span class="text-red-500">*</span>
                   <span v-if="!formData.effectiveFrom && formSubmitted" class="text-red-500">
                     {{ t('fieldRequired') }}
@@ -223,10 +223,11 @@
                   :placeholder="t('selectEffectiveFromDate')"
                   :class="{'border-red-500': !formData.effectiveFrom && formSubmitted}"
                   @update:modelValue="formData.effectiveFrom = $event"
+                  class="dark:bg-gray-700 dark:border-gray-700 dark:text-gray-200"
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {{ t('effectiveTo') }} <span class="text-red-500">*</span>
                   <span v-if="!formData.effectiveTo && formSubmitted" class="text-red-500">
                     {{ t('fieldRequired') }}
@@ -237,6 +238,7 @@
                   :placeholder="t('selectEffectiveToDate')"
                   :class="{'border-red-500': !formData.effectiveTo && formSubmitted}"
                   @update:modelValue="formData.effectiveTo = $event"
+                  class="dark:bg-gray-700 dark:border-gray-700 dark:text-gray-200"
                 />
               </div>
             </div>

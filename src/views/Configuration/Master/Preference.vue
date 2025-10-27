@@ -2,7 +2,7 @@
   <ConfigurationLayout>
     <div class="p-6">
       <!-- Table -->
-      <div class="bg-white rounded-lg shadow">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <ReusableTable
                 :title="$t('configuration.preference.title')"
 
@@ -25,16 +25,16 @@
            <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.updatedAt }}</div>
           </div>
         </template>
         </ReusableTable>
@@ -42,8 +42,8 @@
 
       <!-- Add/Edit Modal -->
       <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ isEditing ? $t('configuration.preference.edit_preference') : $t('configuration.preference.add_preference') }}
           </h3>
           
@@ -62,7 +62,7 @@
 
             <!-- Preference Type ID -->
             <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t('configuration.preference.preference_type') }} *
               </label>
               <Select 

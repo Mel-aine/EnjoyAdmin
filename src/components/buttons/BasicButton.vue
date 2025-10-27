@@ -21,8 +21,8 @@ const emit = defineEmits(['click'])
 <template>
     <div>
         <button v-bind="$attrs" :type="type" @click="emit('click')" :disabled="loading || disabled"
-            :class="`flex gap-2 text-sm text-primary btn btn-${variant} ${(loading || disabled) ? 'btn-disabled' : ''}`"
-            class="dark:bg-dark-900  items-center content-center h-10 self-center align-middle w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 disabled:opacity-50 disabled:cursor-not-allowed">
+            :class="`flex gap-2 text-sm dark:text-primary text-primary btn btn-${variant} ${(loading || disabled) ? 'btn-disabled' : ''}`"
+            class=" items-center content-center h-10 self-center align-middle w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 disabled:opacity-50 disabled:cursor-not-allowed">
             <div v-if="loading" class="w-4 h-4  flex-shrink-0  border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin">
             </div>
             <component v-else-if="icon" :is="icon" class="w-4 h-4"></component>
@@ -39,11 +39,11 @@ const emit = defineEmits(['click'])
 }
 
 .btn-primary {
-    color: black;
+    color: inherit;
 }
 
 .btn-secondary {
-    color: black;
+    color: inherit;
 }
 
 .btn-success {
@@ -146,5 +146,63 @@ const emit = defineEmits(['click'])
 .btn-link {
     background-color: transparent;
     color: #007bff;
+}
+
+/* Dark mode overrides to ensure consistent colors */
+.dark .btn {
+    color: inherit;
+}
+.dark .btn-primary,
+.dark .btn-secondary {
+    color: #f3f4f6; /* text-gray-100 */
+}
+.dark .btn-light {
+    background-color: #374151; /* bg-gray-700 */
+    color: #e5e7eb; /* text-gray-200 */
+    border-color: #4b5563; /* border-gray-600 */
+}
+.dark .btn-dark {
+    background-color: #111827; /* bg-gray-900 */
+    color: #f9fafb; /* text-gray-50 */
+}
+.dark .btn-link {
+    color: #93c5fd; /* text-blue-300 */
+}
+.dark .btn-disabled {
+    background-color: #4b5563 !important; /* bg-gray-600 */
+    color: #e5e7eb !important; /* text-gray-200 */
+    border-color: #4b5563 !important; /* border-gray-600 */
+}
+.dark .btn-outline-primary {
+    color: #93c5fd;
+    border-color: #93c5fd;
+}
+.dark .btn-outline-secondary {
+    color: #9ca3af; /* text-gray-400 */
+    border-color: #9ca3af;
+}
+.dark .btn-outline-success {
+    color: #34d399; /* text-emerald-400 */
+    border-color: #34d399;
+}
+.dark .btn-outline-danger {
+    color: #f87171; /* text-red-400 */
+    border-color: #f87171;
+}
+.dark .btn-outline-warning {
+    color: #fbbf24; /* text-amber-400 */
+    border-color: #fbbf24;
+}
+.dark .btn-outline-info {
+    color: #38bdf8; /* text-sky-400 */
+    border-color: #38bdf8;
+}
+.dark .btn-outline-light {
+    color: #e5e7eb; /* text-gray-200 */
+    border-color: #e5e7eb;
+}
+.dark .btn-outline-dark {
+    color: #d1d5db; /* text-gray-300 */
+    border-color: #374151; /* border-gray-700 */
 }
 </style>

@@ -1,13 +1,13 @@
 <template>
   <ConfigurationLayout>
-    <div class="p-6">
+    <div class="p-6 dark:text-gray-200">
      
 
 
       <Modal v-if="isAddModalOpen" @close="closeModal()">
       <template #body>
         <div
-          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 dark:text-gray-200 lg:p-11">
           <button @click="closeModal()"
             class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
             <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"

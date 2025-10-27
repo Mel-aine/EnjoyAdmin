@@ -3,7 +3,7 @@
 
     <!-- Assign Room Button -->
     <button @click.stop="handleAssignRoom" :disabled="isAssigning || !canAssignRoom"
-      class=" underline hover:text-primary/25 text-primary text-xs rounded-md transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+      class=" underline hover:text-primary/25 text-primary text-sm rounded-md transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
       {{ $t('AssignRoom')}}
     </button>
   </div>

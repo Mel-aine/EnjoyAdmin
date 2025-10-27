@@ -18,7 +18,7 @@
 
                     <!-- Status Filter -->
                     <div>
-                        <label for="status" class="block text-gray-700 text-sm font-bold mb-2">{{
+                        <label for="status" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">{{
                             $t('reservationsList.filterStatus')
                             }}:</label>
                         <select id="status" v-model="filters.status"
@@ -32,7 +32,7 @@
 
                     <!-- Room Type Filter -->
                     <div>
-                        <label for="roomType" class="block text-gray-700 text-sm font-bold mb-2">{{
+                        <label for="roomType" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">{{
                             $t('reservationsList.filterRoomType') }}:</label>
                         <select id="roomType" v-model="filters.roomType"
                             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-2 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-purple-300 focus:ring-1 focus:ring-purple-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
@@ -45,7 +45,7 @@
 
                     <!-- Check-in Date Filter -->
                     <div v-if="showDate">
-                        <label for="checkInDate" class="block text-gray-700 text-sm font-bold mb-2">{{
+                        <label for="checkInDate" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">{{
                             $t('reservationsList.filterCheckInDate') }}:</label>
                         <div class="relative">
                             <flat-pickr v-model="filters.checkInDate" :config="flatpickrConfig"
@@ -59,7 +59,7 @@
                     </div>
                     <!-- Check-out Date Filter -->
                     <div v-if="showDate">
-                        <label for="checkOutDate" class="block text-gray-700 text-sm font-bold mb-2">{{
+                        <label for="checkOutDate" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">{{
                             $t('reservationsList.filterCheckOutDate') }}:</label>
                         <div class="relative">
                             <flat-pickr v-model="filters.checkOutDate" :config="flatpickrConfig"

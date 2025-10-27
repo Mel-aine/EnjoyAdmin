@@ -3,7 +3,7 @@
     <div class="p-6 pt-0">
       <!-- Header -->
       <div class="mb-6">
-        <div class="flex items-center justify-between bg-white shadow-md">
+        <div class="flex items-center justify-between bg-white dark:bg-gray-800 shadow-md">
           <h1 class="font-bold text-gray-900 dark:text-white p-3 text-md">
             {{ $t('frontOffice.dashboard.title') }}
           </h1>

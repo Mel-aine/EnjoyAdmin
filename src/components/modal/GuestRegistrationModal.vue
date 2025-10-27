@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 z-999 flex items-start hide-scrollbar justify-end">
-    <div class="bg-white dark:bg-gray-900 shadow-lg  w-[80%] h-full mr-0 relative flex flex-col">
+    <div class="bg-white dark:bg-gray-800 shadow-lg  w-[80%] h-full mr-0 relative flex flex-col">
       <!-- Header -->
       <div
         class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
@@ -112,7 +112,7 @@
                     {{ $t('rate') }} (XAF)
                   </label>
                   <div v-if="!isCustomPrize"
-                    class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11 bg-gray-200 px-4 py-2.5 text-sm"
+                    class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11 bg-gray-200 dark:bg-black px-4 py-2.5 text-sm"
                     :class="{ 'opacity-50': roomConfig.isLoadingRate }">
                     <span class="text-gray-500 hover:text-gray-700 mr-3 cursor-pointer" @click="isCustomPrize = true">
                       <PencilLine :size="18" />
@@ -318,9 +318,9 @@
           <!-- Document Information Section -->
           <section class="pt-4">
             <button @click.prevent="toggleIdentitySection" type="button"
-              class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
-              <h2 class="text-md font-semibold text-gray-900 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="flex items-center justify-between w-full text-left group hover:bg-gray-50 dark:hover:text-black -m-2 p-2 rounded-md transition-colors">
+              <h2 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
+                <svg class="w-5 h-5 mr-2 text-black dark:text-white " fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1">
                   </path>

@@ -1,22 +1,22 @@
 <template>
   <AdminLayout>
       <PageBreadcrumb :pageTitle="$t('house_status')" :breadcrumb="breadcrumb"/>
-      <div class="flex flex-col p-4 w-full bg-white mt-10 rounded-lg">
+      <div class="flex flex-col p-4 w-full bg-white dark:bg-gray-800 mt-10 rounded-lg">
         <!-- Header section -->
         <div class="flex items-center justify-between mb-4">
-          <h1 class="text-lg font-medium">{{ $t('house_status_view') }}</h1>
+          <h1 class="text-lg font-medium dark:text-gray-100">{{ $t('house_status_view') }}</h1>
           <div class="flex items-center space-x-2">
             <!-- Search input -->
             <div class="relative">
               <input
                 type="text"
                 :placeholder="$t('search...')"
-                class="border border-gray-300 rounded px-3 py-1.5 pr-8 w-64 text-sm block leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                class="border border-gray-300 dark:border-gray-700 rounded px-3 py-1.5 pr-8 w-64 text-sm block leading-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 v-model="searchQuery"
               />
               <SearchIcon
                 :size="16"
-                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-400"
               />
             </div>
 
@@ -25,7 +25,7 @@
               <ListIcon :size="16" />
               <span class="text-sm">Views</span>
             </button> -->
-            <button @click="openAuditTrail" class="flex items-center space-x-1 border border-gray-300 rounded px-3 py-1.5 bg-white hover:bg-orange-500 hover:text-white">
+            <button @click="openAuditTrail" class="flex items-center space-x-1 border border-gray-300 dark:border-gray-700 rounded px-3 py-1.5 bg-white dark:bg-gray-800 dark:text-gray-100 hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white">
               <FileTextIcon :size="16" />
               <span class="text-sm">{{ $t('audit_trial') }}</span>
             </button>

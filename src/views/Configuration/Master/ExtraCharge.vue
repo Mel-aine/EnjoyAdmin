@@ -42,18 +42,18 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:bg-black/40">
       <div
-        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ isEditing ? t('configuration.extra_charge.edit_extra_charge') : t('configuration.extra_charge.add_extra_charge') }}
           </h3>
 
           <form @submit.prevent="saveExtraCharge">
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.short_code') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('configuration.extra_charge.short_code') }}</label>
                 <Input
                   v-model="formData.shortCode"
                   :placeholder="t('configuration.extra_charge.short_code_placeholder')"
@@ -62,7 +62,7 @@
               </div>
 
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.name') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('configuration.extra_charge.name') }}</label>
                 <Input
                   v-model="formData.name"
                   :placeholder="t('configuration.extra_charge.name_placeholder')"
@@ -73,38 +73,38 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.rate') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('configuration.extra_charge.rate') }}</label>
                 <Input v-model="formData.rate" type="number" step="0.01"
                   required @input="calculateRateInclusiveTax"
                   :placeholder="t('configuration.extra_charge.rate_placeholder')" class="w-full" />
               </div>
 
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ t('configuration.extra_charge.tax') }}
                 </label>
-                <div class="space-y-2 p-3 border border-gray-300 rounded-md bg-gray-50">
+                <div class="space-y-2 p-3 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700">
                   <label class="flex items-center">
                     <input v-model="formData.taxes" value="0" type="checkbox" @change="calculateRateInclusiveTax"
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                    <span class="ml-2 text-sm text-gray-700">No Tax (0%)</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">No Tax (0%)</span>
                   </label>
                   <label class="flex items-center" v-for="tax in taxes" :key="tax.taxRateId">
                     <input v-model="formData.taxes" :value="tax.taxRateId" type="checkbox"
                       @change="calculateRateInclusiveTax"
                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                    <span class="ml-2 text-sm text-gray-700">{{ tax.taxName }}</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ tax.taxName }}</span>
                   </label>
                 </div>
               </div>
             </div>
 
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('configuration.extra_charge.rate_inclusive_tax') }}
               </label>
               <input v-model="formData.rateInclusiveTax" type="number" step="0.01" readonly
-                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500"
                 :placeholder="t('configuration.extra_charge.rate_inclusive_tax_placeholder')" />
             </div>
 
@@ -113,7 +113,7 @@
                 <label class="flex items-center">
                   <input v-model="formData.fixedPrice" type="checkbox"
                     class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                  <span class="ml-2 text-sm text-gray-700">{{ t('configuration.extra_charge.fixed_price') }}</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('configuration.extra_charge.fixed_price') }}</span>
                 </label>
               </div>
 
@@ -121,12 +121,12 @@
                 <label class="flex items-center">
                   <input v-model="formData.isMealPlanComponent" type="checkbox"
                     class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                  <span class="ml-2 text-sm text-gray-700">Meal Plan Component</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Meal Plan Component</span>
                 </label>
               </div>
 
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.front_desk_sort_key') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('configuration.extra_charge.front_desk_sort_key') }}</label>
                 <Input v-model="formData.frontDeskSortKey" type="number" :placeholder="t('configuration.extra_charge.front_desk_sort_key_placeholder')" class="w-full" />
               </div>
             </div>
@@ -136,16 +136,16 @@
                 <label class="flex items-center">
                   <input v-model="formData.publishOnWeb" type="checkbox"
                     class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                  <span class="ml-2 text-sm text-gray-700">{{ t('configuration.extra_charge.publish_on_web') }}</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('configuration.extra_charge.publish_on_web') }}</span>
                 </label>
               </div>
 
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ t('configuration.extra_charge.voucher_no') }}
                 </label>
                 <select v-model="formData.voucherNo"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500">
                   <option value="auto_general">{{ t('configuration.extra_charge.auto_general') }}</option>
                   <option value="auto_private">{{ t('configuration.extra_charge.auto_private') }}</option>
                   <option value="manual">{{ t('configuration.extra_charge.manual') }}</option>
@@ -155,20 +155,20 @@
 
             <!-- Description -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('configuration.extra_charge.description') }}
               </label>
               <textarea v-model="formData.description" rows="3"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
                 :placeholder="t('configuration.extra_charge.description_placeholder')"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4 mt-2">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ t('configuration.extra_charge.charge_applies_on') }}
                 </label>
                 <select v-model="formData.chargeAppliesOn"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
                   <option value="per_quantity">{{ t('configuration.extra_charge.per_quantity') }}</option>
                   <option value="per_night">{{ t('configuration.extra_charge.per_night') }}</option>
                   <option value="per_stay">{{ t('configuration.extra_charge.per_stay') }}</option>
@@ -176,11 +176,11 @@
               </div>
 
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ t('configuration.extra_charge.apply_above_charge_on') }}
                 </label>
                 <select v-model="formData.applyChargeOn"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
                   <option value="only_on_check_in">{{ t('configuration.extra_charge.only_on_check_in') }}</option>
                   <option value="daily">{{ t('configuration.extra_charge.daily') }}</option>
                   <option value="on_checkout">{{ t('configuration.extra_charge.on_checkout') }}</option>
@@ -192,18 +192,18 @@
                 <label class="flex items-center">
                   <input v-model="formData.applyChargeAlways" type="checkbox"
                     class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                  <span class="ml-2 text-sm text-gray-700">{{ t('configuration.extra_charge.apply_charge_always')
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('configuration.extra_charge.apply_charge_always')
                     }}</span>
                 </label>
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-6" v-if="!formData.applyChargeAlways">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.valid_from') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('configuration.extra_charge.valid_from') }}</label>
                 <InputDatePicker v-model="formData.validFrom" class="w-full" />
               </div>
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('configuration.extra_charge.valid_to') }}</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ t('configuration.extra_charge.valid_to') }}</label>
                 <InputDatePicker v-model="formData.validTo" class="w-full" />
               </div>
             </div>

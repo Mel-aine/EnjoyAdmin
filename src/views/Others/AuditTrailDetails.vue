@@ -3,7 +3,7 @@
         <FullScreenLayout>
             <div class="h-full">
                 <!-- Modern Header Section -->
-                <div class="shadow-sm px-4 py-3 mx-4 bg-white flex justify-between items-center">
+                <div class="shadow-sm px-4 py-3 mx-4 bg-white dark:bg-gray-800 flex justify-between items-center">
                     <div class="flex gap-3 items-center">
                         <button @click="goBack"
                             class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
@@ -33,7 +33,7 @@
                             {{ $t('Export') }}
                         </button>
                         <button @click="refreshData" :disabled="loading"
-                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition flex items-center gap-2 disabled:opacity-50">
+                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition flex items-center gap-2 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
                             <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
                             {{ $t('Refresh') }}
                         </button>
@@ -41,7 +41,7 @@
                 </div>
 
                 <!-- Filters Section -->
-                <div class="mx-4 mt-4 bg-white rounded-lg shadow-sm p-4">
+                <div class="mx-4 mt-4 bg-white rounded-lg shadow-sm p-4 dark:bg-gray-800">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <InputDatePicker v-model="filters.startDate" placeholder="gg/mm/YY" :title="$t('StartDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
@@ -50,7 +50,7 @@
                             <InputDatePicker v-model="filters.endDate" placeholder="gg/mm/YY" :title="$t('EndDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
                         </div>
                         <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Action') }}</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Action') }}</label>
               <SelectComponent 
                 v-model="filters.action" 
                 :options="actionOptions" 
@@ -60,7 +60,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('User') }}</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('User') }}</label>
               <SelectComponent 
                 v-model="filters.userId" 
                 :options="userOptions" 
@@ -73,17 +73,17 @@
                 </div>
 
                 <!-- Error Message -->
-                <div v-if="error" class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg">
+                <div v-if="error" class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg dark:bg-red-900/30 dark:border-red-700">
                     <div class="flex items-start">
-                        <AlertCircle class="h-5 w-5 text-red-500 mt-0.5" />
+                        <AlertCircle class="h-5 w-5 text-red-500 mt-0.5 dark:text-red-400" />
                         <div class="ml-3">
-                            <p class="text-sm text-red-700">{{ error }}</p>
+                            <p class="text-sm text-red-700 dark:text-red-300">{{ error }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Audit Trail Table -->
-                <div class="mx-4 mt-4 bg-white rounded-lg shadow-sm">
+                <div class="mx-4 mt-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">
                     <AuditLogsTable :logs="auditData" :expanded-changes="expandedChanges" @toggle-changes="handleToggleChanges" />
                 </div>
             </div>

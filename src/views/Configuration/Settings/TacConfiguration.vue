@@ -3,8 +3,8 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Tax/Account Configuration</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Tax/Account Configuration</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
             Map revenue categories to accounts and choose applicable taxes for each.
           </p>
         </div>
@@ -19,27 +19,27 @@
 
       <div class="space-y-6">
         <!-- Room Revenue -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Room Revenue</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Room Revenue</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Account</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account</label>
                 <Select v-model="tacSettings.roomRevenue.account" :options="accountOptions" placeholder="Select account" :disabled="true" />
               </div>
               <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tax</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tax</label>
                 <div v-if="isTaxesLoading" class="grid grid-cols-2 gap-4 animate-pulse">
                   <div class="flex items-center" v-for="n in 6" :key="`tax-skel-room-${n}`">
-                    <div class="h-4 w-4 bg-gray-200 rounded"></div>
-                    <div class="ml-2 h-4 w-24 bg-gray-200 rounded"></div>
+                    <div class="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="ml-2 h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
-                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500">No taxes available.</div>
+                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500 dark:text-gray-400">No taxes available.</div>
                 <div v-else class="grid grid-cols-2 gap-4">
                   <label class="inline-flex items-center" v-for="tax in activeTaxes" :key="tax.taxRateId">
-                    <input type="checkbox" v-model="tacSettings.roomRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-                    <span class="ml-2 text-sm text-gray-900">{{ tax.taxName }}</span>
+                    <input type="checkbox" v-model="tacSettings.roomRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-700 rounded" />
+                    <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">{{ tax.taxName }}</span>
                   </label>
                 </div>
               </div>
@@ -48,27 +48,27 @@
         </div>
 
         <!-- Cancellation Revenue -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Cancellation Revenue</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Cancellation Revenue</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Account</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account</label>
                 <Select v-model="tacSettings.cancellationRevenue.account" :options="accountOptions" placeholder="Select account" :disabled="true"/>
               </div>
               <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tax</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tax</label>
                 <div v-if="isTaxesLoading" class="grid grid-cols-2 gap-4 animate-pulse">
                   <div class="flex items-center" v-for="n in 6" :key="`tax-skel-cancel-${n}`">
-                    <div class="h-4 w-4 bg-gray-200 rounded"></div>
-                    <div class="ml-2 h-4 w-24 bg-gray-200 rounded"></div>
+                    <div class="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="ml-2 h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
-                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500">No taxes available.</div>
+                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500 dark:text-gray-400">No taxes available.</div>
                 <div v-else class="grid grid-cols-2 gap-4">
                   <label class="inline-flex items-center" v-for="tax in activeTaxes" :key="tax.taxRateId">
-                    <input type="checkbox" v-model="tacSettings.cancellationRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-                    <span class="ml-2 text-sm text-gray-900">{{ tax.taxName }}</span>
+                    <input type="checkbox" v-model="tacSettings.cancellationRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-700 rounded" />
+                    <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">{{ tax.taxName }}</span>
                   </label>
                 </div>
               </div>
@@ -77,27 +77,27 @@
         </div>
 
         <!-- No Show Revenue -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">No Show Revenue</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">No Show Revenue</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Account</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account</label>
                 <Select v-model="tacSettings.noShowRevenue.account" :options="accountOptions" placeholder="Select account" :disabled="true"/>
               </div>
               <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tax</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tax</label>
                 <div v-if="isTaxesLoading" class="grid grid-cols-2 gap-4 animate-pulse">
                   <div class="flex items-center" v-for="n in 6" :key="`tax-skel-noshow-${n}`">
-                    <div class="h-4 w-4 bg-gray-200 rounded"></div>
-                    <div class="ml-2 h-4 w-24 bg-gray-200 rounded"></div>
+                    <div class="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="ml-2 h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
-                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500">No taxes available.</div>
+                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500 dark:text-gray-400">No taxes available.</div>
                 <div v-else class="grid grid-cols-2 gap-4">
                   <label class="inline-flex items-center" v-for="tax in activeTaxes" :key="tax.taxRateId">
-                    <input type="checkbox" v-model="tacSettings.noShowRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-                    <span class="ml-2 text-sm text-gray-900">{{ tax.taxName }}</span>
+                    <input type="checkbox" v-model="tacSettings.noShowRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-700 rounded" />
+                    <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">{{ tax.taxName }}</span>
                   </label>
                 </div>
               </div>
@@ -106,27 +106,27 @@
         </div>
 
         <!-- Day Use -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Day Use</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Day Use</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Account</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account</label>
                 <Select v-model="tacSettings.dayUseRevenue.account" :options="accountOptions" placeholder="Select account" :disabled="true"/>
               </div>
               <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tax</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tax</label>
                 <div v-if="isTaxesLoading" class="grid grid-cols-2 gap-4 animate-pulse">
                   <div class="flex items-center" v-for="n in 6" :key="`tax-skel-dayuse-${n}`">
-                    <div class="h-4 w-4 bg-gray-200 rounded"></div>
-                    <div class="ml-2 h-4 w-24 bg-gray-200 rounded"></div>
+                    <div class="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="ml-2 h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
-                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500">No taxes available.</div>
+                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500 dark:text-gray-400">No taxes available.</div>
                 <div v-else class="grid grid-cols-2 gap-4">
                   <label class="inline-flex items-center" v-for="tax in activeTaxes" :key="tax.taxRateId">
-                    <input type="checkbox" v-model="tacSettings.dayUseRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-                    <span class="ml-2 text-sm text-gray-900">{{ tax.taxName }}</span>
+                    <input type="checkbox" v-model="tacSettings.dayUseRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-700 rounded" />
+                    <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">{{ tax.taxName }}</span>
                   </label>
                 </div>
               </div>
@@ -135,27 +135,27 @@
         </div>
 
         <!-- Late Checkout -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Late Checkout</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Late Checkout</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Account</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account</label>
                 <Select v-model="tacSettings.lateCheckoutRevenue.account" :options="accountOptions" placeholder="Select account" :disabled="true" />
               </div>
               <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tax</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tax</label>
                 <div v-if="isTaxesLoading" class="grid grid-cols-2 gap-4 animate-pulse">
                   <div class="flex items-center" v-for="n in 6" :key="`tax-skel-late-${n}`">
-                    <div class="h-4 w-4 bg-gray-200 rounded"></div>
-                    <div class="ml-2 h-4 w-24 bg-gray-200 rounded"></div>
+                    <div class="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="ml-2 h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
-                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500">No taxes available.</div>
+                <div v-else-if="activeTaxes.length === 0" class="text-sm text-gray-500 dark:text-gray-400">No taxes available.</div>
                 <div v-else class="grid grid-cols-2 gap-4">
                   <label class="inline-flex items-center" v-for="tax in activeTaxes" :key="tax.taxRateId">
-                    <input type="checkbox" v-model="tacSettings.lateCheckoutRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-                    <span class="ml-2 text-sm text-gray-900">{{ tax.taxName }}</span>
+                    <input type="checkbox" v-model="tacSettings.lateCheckoutRevenue.taxIds" :value="tax.taxRateId" class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-700 rounded" />
+                    <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">{{ tax.taxName }}</span>
                   </label>
                 </div>
               </div>

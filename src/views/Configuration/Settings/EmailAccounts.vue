@@ -2,7 +2,7 @@
   <ConfigurationLayout>
     <div class="p-6">
       <!-- Table -->
-      <div class="bg-white rounded-lg shadow">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <ReusableTable :columns="columns" :data="emailAccounts" :actions="actions" :loading="isLoadingAccounts"
           searchPlaceholder="Search email accounts...">
           <template #header-actions>
@@ -14,8 +14,8 @@
             <span :class="[
               'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
               item.isActive
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
             ]">
               {{ item.isActive ? 'Active' : 'Inactive' }}
             </span>
@@ -25,8 +25,8 @@
 
       <!-- Add/Edit Modal -->
       <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-lg">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             {{ isEditing ? 'Edit Email Account' : 'Add Email Account' }}
           </h3>
 
@@ -44,7 +44,7 @@
 
             <!-- Display Name -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Display Name *
               </label>
               <Input v-model="formData.displayName" placeholder="Name to display when email is sent" required />
@@ -52,12 +52,12 @@
 
             <!-- Signature -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Signature
               </label>
               <textarea v-model="formData.signature"
                 placeholder="Create and edit signatures for outgoing messages, replies and forwards"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500-500 focus:border-purple-500"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-dark-800 dark:text-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-purple-500-500 focus:border-purple-500"
                 rows="4"></textarea>
             </div>
 

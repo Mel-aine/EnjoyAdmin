@@ -2,7 +2,7 @@
   <ConfigurationLayout>
     <div class="p-6">
       <!-- Table -->
-      <div class="bg-white rounded-lg shadow">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <ReusableTable :title="t('configuration.business_source.title')" :columns="columns" :data="businessSources"
           :actions="actions" :loading="loading"
           :searchPlaceholder="t('configuration.business_source.search_placeholder')" :selectable="false">
@@ -13,23 +13,23 @@
           </template>
           <template #column-color="{ item }">
             <div class="flex items-center space-x-2">
-              <div class="w-6 h-6 rounded border border-gray-300" :style="{ backgroundColor: item.color }"></div>
-              <span class="text-sm text-gray-600">{{ item.color }}</span>
+              <div class="w-6 h-6 rounded border border-gray-300 dark:border-gray-700" :style="{ backgroundColor: item.color }"></div>
+              <span class="text-sm text-gray-600 dark:text-gray-300">{{ item.color }}</span>
             </div>
           </template>
           <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
         </ReusableTable>
@@ -37,8 +37,8 @@
 
       <!-- Add/Edit Modal -->
       <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ isEditing ? t('configuration.business_source.edit_title') : t('configuration.business_source.add_title')
             }}
           </h3>
@@ -60,11 +60,11 @@
 
             <!-- Color -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('configuration.business_source.color') }}
               </label>
               <input type="color" v-model="formData.color"
-                class="w-16 h-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                class="w-16 h-10 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
             </div>
 
             <!-- Registration Number -->

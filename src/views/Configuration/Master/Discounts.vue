@@ -25,8 +25,8 @@
  <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
         <template #column-status="{ item }">
@@ -117,7 +117,7 @@
                 type="checkbox" 
                 id="openDiscount" 
                 v-model="formData.openDiscount"
-                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-700 text-blue-600 focus:ring-blue-500"
               />
               <label for="openDiscount" class="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ $t('configuration.discount.open_discount_label') }}

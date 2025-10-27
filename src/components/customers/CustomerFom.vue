@@ -18,7 +18,7 @@
 
       <div class="col-span-12 md:col-span-10 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700">{{ $t('Name') }}</label>
+          <label class="block text-sm font-medium dark:text-white text-gray-700">{{ $t('Name') }}</label>
           <div class="flex items-center">
             <div class="w-20">
               <Select
@@ -173,7 +173,7 @@
     <!-- Section Adresse -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 border-t pt-8">
       <div class="col-span-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Address') }}</label>
+        <label class="block text-sm font-medium dark:text-white text-gray-700 mb-1.5">{{ $t('Address') }}</label>
         <textarea
           v-model="form.addressLine"
           rows="2"
@@ -223,11 +223,11 @@
     <div class="border-t pt-8">
       <h3
         @click="toggleSection('identity')"
-        class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
+        class="text-lg font-medium leading-6 dark:text-white text-gray-900 flex items-center cursor-pointer"
       >
         <ChevronDownIcon
           :class="[
-            'w-6 h-6 text-gray-500 transition-transform',
+            'w-6 h-6 dark:text-white text-gray-500 transition-transform',
             { 'rotate-180': sections.identity },
           ]"
         />
@@ -288,11 +288,11 @@
     <div class="border-t pt-8">
       <h3
         @click="toggleSection('otherInformation')"
-        class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
+        class="text-lg font-medium leading-6 dark:text-white text-gray-900 flex items-center cursor-pointer"
       >
         <ChevronDownIcon
           :class="[
-            'w-6 h-6 text-gray-500 transition-transform',
+            'w-6 h-6 dark:text-white text-gray-500 transition-transform',
             { 'rotate-180': sections.otherInformation },
           ]"
         />
@@ -301,7 +301,7 @@
       </h3>
       <div v-if="sections.otherInformation" class="mt-6 pt-4">
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+          <label class="mb-1.5 block text-sm font-medium dark:text-white text-gray-700 dark:text-gray-400">
             {{ $t('Preference') }}
           </label>
           <MultipleSelect

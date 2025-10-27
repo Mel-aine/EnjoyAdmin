@@ -80,7 +80,7 @@
       <div 
         v-if="showAddModal || showEditModal"
         class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
             {{ showEditModal ? t('EditRoom') : t('AddRoom') }}
           </h3>
@@ -97,7 +97,7 @@
                   :is-required="true"
                   customClass="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ t('shortCodeDescription') }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('shortCodeDescription') }}</p>
               </div>
 
               <div>
@@ -108,7 +108,7 @@
                   :is-required="true"
                   customClass="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ t('roomNameDescription') }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('roomNameDescription') }}</p>
               </div>
             </div>
 
@@ -124,7 +124,7 @@
                   :is-required="true"
                   customClass="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ t('roomTypeDescription') }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('roomTypeDescription') }}</p>
               </div>
 
               <div>
@@ -136,7 +136,7 @@
                   :placeholder="t('selectBedType')"
                   customClass="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ t('bedTypeDescription') }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('bedTypeDescription') }}</p>
               </div>
             </div>
 
@@ -149,7 +149,7 @@
                   :placeholder="t('enterPhoneExtension')"
                   customClass="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ t('phoneExtensionDescription') }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('phoneExtensionDescription') }}</p>
               </div>
 
               <div>
@@ -159,7 +159,7 @@
                   :placeholder="t('enterKeyCardAlias')"
                   customClass="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ t('keyCardAliasDescription') }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('keyCardAliasDescription') }}</p>
               </div>
             </div>
 
@@ -174,7 +174,7 @@
                   :min="0"
                   customClass="w-full"
                 />
-                <p class="text-xs text-gray-500 mt-1">{{ t('sortKeyDescription') }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('sortKeyDescription') }}</p>
               </div>
 
               <div class="pt-6">
@@ -198,7 +198,7 @@
                   </div>
                   <div>
                     <div>{{ t('nonSmoking') }}</div>
-                    <p class="text-xs text-gray-500 mt-1">{{ t('nonSmokingDescription') }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('nonSmokingDescription') }}</p>
                   </div>
                 </label>
               </div>
@@ -293,7 +293,7 @@
                 type="submit" 
                 variant="primary" 
                 :icon="showEditModal ? Edit : Plus"
-                :label="saving ? t('saving') + '...' : showEditModal ? $t('update') : $t('addRoom')" 
+                :label="saving ? t('saving') + '...' : showEditModal ? $t('update') : $t('AddRoom')" 
                 :loading="saving"
                 :disabled="saving"
               />

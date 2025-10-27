@@ -3,15 +3,15 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">{{ t('notices.title') }}</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ t('notices.title') }}</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
             {{ t('notices.subtitle') }}
           </p>
         </div>
         <BasicButton variant="primary" :icon="Save" :label="t('notices.saveChanges')" @click="saveNotices" :loading="isLoading" />
       </div>
       
-      <div class="bg-white rounded-lg shadow">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="p-6">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Left Column -->

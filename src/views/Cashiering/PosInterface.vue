@@ -1,17 +1,17 @@
 <template>
     <AdminLayout>
-        <div class="bg-white shadow-lg border-b border-black/30 p-4">
+        <div class="bg-white dark:bg-gray-800 shadow-lg border-b border-black/30 dark:border-gray-700 p-4">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-4">
-                    <h2 class="text-xl font-bold text-gray-900 me-16">{{ $t('incidental_invoices') }}</h2>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white me-16">{{ $t('incidental_invoices') }}</h2>
 
                     <!-- Search -->
                     <div class="relative flex">
                         <input v-model="searchQuery" :placeholder="$t('search_by_voucher_name_type')"
-                            class="w-64 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-ring-primary rounded-r-none"
+                            class="w-64 px-3 py-2 border border-gray-300 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:placeholder:text-gray-400 rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-ring-primary rounded-r-none"
                             @keyup.enter="performSearch" />
                         <button @click="performSearch"
-                            class="px-4 py-2 bg-white text-primary rounded-r-md hover:bg-primary/25 transition-colors border border-l-0 border-gray-300">
+                            class="px-4 py-2 bg-white dark:bg-gray-900 text-primary rounded-r-md hover:bg-primary/25 dark:hover:bg-gray-700 transition-colors border border-l-0 border-gray-300 dark:border-gray-700">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -32,9 +32,9 @@
                 </div>
             </div>
         </div>
-        <div class="flex h-full bg-gray-50">
+        <div class="flex h-full bg-gray-50 dark:bg-gray-900">
             <!-- Left Sidebar - Invoice List -->
-            <div class="w-80 bg-white shadow-sm border-r border-gray-200 flex flex-col ">
+            <div class="w-80 bg-white dark:bg-gray-800 shadow-sm border-r border-gray-200 dark:border-gray-700 flex flex-col ">
                 <div class="flex-1 overflow-y-auto">
 
                     <!-- Invoice Table -->
@@ -42,20 +42,20 @@
                         :show-header="false" :selectable="false" :rowClass="getRowClass" class="invoice-table"
                         @row-click="onInvoiceRowClick" :loading="isLoading">
                         <!-- Custom date column -->
-                        <template #column-invoice_details="{ item }">
-                            <div :class="{ 'voided-invoice-details': item.status === 'voided' }">
+                        <template #column-invoice_details="{ item }" >
+                            <div :class="{ 'voided-invoice-details': item.status === 'voided' }" >
                                 <div class="text-sm">{{ item.invoiceNumber }}</div>
 
-                                <div class="text-xs text-gray-500">{{ item.guest.fullName }}</div>
-                                <div class="text-xs text-gray-500">{{ formatDate(item.createdAt) }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.guest.fullName }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(item.createdAt) }}</div>
                             </div>
 
                         </template>
 
                         <!-- Custom amount column -->
                         <template #column-totalCharges="{ item }">
-                            <div :class="{ 'voided-invoice-details': item.status === 'voided' }">
-                                <div class="font-medium text-gray-900 text-right">{{ formatCurrency(item.amount) }}
+                            <div :class="{ 'voided-invoice-details': item.status === 'voided' }" >
+                                <div class="font-medium text-gray-900 dark:text-white text-right">{{ formatCurrency(item.amount) }}
                                 </div>
 
                             </div>
@@ -68,26 +68,26 @@
             <div class="flex-1 flex flex-col">
                 <!-- Invoice Details -->
                 <div class="flex-1 p-0 overflow-y-auto">
-                    <div v-if="selectedInvoice" class="bg-white  shadow-sm border border-gray-200"
+                    <div v-if="selectedInvoice" class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700"
                         :class="{ 'voided-invoice-details': selectedInvoice.status === 'voided' }">
                         <!-- Invoice Header -->
-                        <div class="p-6 border-b border-gray-200">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h3 class="text-2xl font-bold text-gray-900">{{ selectedInvoice.guest.displayName }}
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ selectedInvoice.guest.displayName }}
                                     </h3>
                                     <div class="mt-2 space-y-1">
                                         
-                                        <div class="text-sm text-gray-600">
+                                        <div class="text-sm text-gray-600 dark:text-gray-300">
                                             <span class="font-medium">{{ $t('voucher_date') }}:</span> {{
                                                 formatDate(selectedInvoice.createdAt) }}
                                         </div>
-                                        <div class="text-sm text-gray-600">
+                                        <div class="text-sm text-gray-600 dark:text-gray-300">
                                             <span class="font-medium">{{ $t('prepared_by') }}:</span> {{
                                                 selectedInvoice.creator.fullName
                                             }}
                                         </div>
-                                        <div class="text-sm text-gray-600">
+                                        <div class="text-sm text-gray-600 dark:text-gray-300">
                                             <span class="font-medium">{{ $t('total_charges') }}:</span> 
                                             <span class="text-blue-500">{{
                                                 formatCurrency(parseFloat(selectedInvoice.amount)) }}</span>
@@ -105,7 +105,7 @@
                                 </div>
                                 <!-- Voided Status Indicator -->
                                 <div v-else class="flex items-center space-x-2">
-                                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
+                                    <span class="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 text-sm font-medium rounded-full">
                                         {{ $t('voided') }}
                                     </span>
                                 </div>
@@ -113,8 +113,8 @@
                         </div>
 
                         <!-- Charges Section -->
-                        <div class="p-6 border-b border-gray-200">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('charges') }}</h4>
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('charges') }}</h4>
                             <ReusableTable :columns="chargesColumns" :data="chargesTableData" :loading="isLoadingFolio"
                                 :searchable="false" :show-header="false" :selectable="false"
                                 :empty-state-title="$t('no_charges_found')"
@@ -130,7 +130,7 @@
 
                         <!-- Payments Section -->
                         <div class="p-6">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('Payments') }}</h4>
+                            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ $t('Payments') }}</h4>
                             <ReusableTable :columns="paymentsColumns" :data="paymentsTableData"
                                 :loading="isLoadingFolio" :searchable="false" :show-header="false" :selectable="false"
                                 :empty-state-title="$t('no_payments_found')"
@@ -149,8 +149,8 @@
                     <div v-else class="flex items-center justify-center h-full">
                         <div class="text-center">
                             <div class="text-gray-400 text-6xl mb-4">📄</div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $t('no_invoice_selected') }}</h3>
-                            <p class="text-gray-500">{{ $t('select_invoice_from_sidebar') }}</p>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('no_invoice_selected') }}</h3>
+                            <p class="text-gray-500 dark:text-gray-400">{{ $t('select_invoice_from_sidebar') }}</p>
                         </div>
                     </div>
                 </div>
@@ -391,7 +391,7 @@ function onInvoiceRowClick(invoice: any) {
 }
 
 function getRowClass(invoice: any) {
-    let classes = selectedInvoice.value?.id === invoice.id ? 'bg-blue-50' : ''
+    let classes = selectedInvoice.value?.id === invoice.id ? 'bg-blue-50 dark:bg-gray-800 dark:text-black' : ''
     if (invoice.status === 'voided') {
         classes += ' voided-invoice'
     }
@@ -503,5 +503,15 @@ onMounted(() => {
 
 .invoice-table :deep(.bg-blue-50) {
     background-color: #eff6ff !important;
+}
+
+/* Dark mode table adjustments */
+.dark .invoice-table :deep(th) {
+    background-color: #1f2937;
+    color: #d1d5db;
+}
+
+.dark .invoice-table :deep(tbody tr:hover) {
+    background-color: #1f2937;
 }
 </style>

@@ -18,31 +18,31 @@
         <!-- Custom column for nights info -->
         <template #column-nightsInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.nights }} {{ t('night', item.nights) }}</div>
-            <div class="text-xs text-gray-500">{{ t('min') }}: {{ item.minNight }} {{ t('nights') }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.nights }} {{ t('night', item.nights) }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('min') }}: {{ item.minNight }} {{ t('nights') }}</div>
           </div>
         </template>
 
         <!-- Custom column for capacity info -->
         <template #column-capacityInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ t('max') }} {{ item.maxAdult }} {{ t('adult', item.maxAdult) }}</div>
-            <div class="text-xs text-gray-500">{{ item.roomType?.roomTypeName }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ t('max') }} {{ item.maxAdult }} {{ t('adult', item.maxAdult) }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.roomType?.roomTypeName }}</div>
           </div>
         </template>
 
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.updatedAt }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -50,8 +50,8 @@
       <!-- Add/Edit Modal -->
       <div v-if="showAddModal || showEditModal"
         class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 border rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ showAddModal ? t('addRateType') : t('editRateType') }}
           </h3>
 
@@ -70,7 +70,7 @@
                   :is-required="true" :lb="t('rateTypeName')" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {{ t('status') }}
                 </label>
                 <Select v-model="formData.status" :options="statusOptions"

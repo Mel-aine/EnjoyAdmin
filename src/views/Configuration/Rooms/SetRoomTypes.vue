@@ -68,26 +68,26 @@
 
       <!-- Edit Sort Order Modal -->
       <div v-if="showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-          <h3 class="text-lg font-semibold mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             {{ t('editSortOrder') }}
           </h3>
           
           <form @submit.prevent="saveSortOrder" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('roomType') }}
               </label>
               <Input
                 :model-value="editingRoomType?.roomType"
                 input-type="text"
                 disabled
-                class="bg-gray-100 text-gray-600"
+                class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               />
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('sortOrder') }} *
               </label>
               <Input

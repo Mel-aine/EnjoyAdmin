@@ -16,10 +16,10 @@
           <template #column-color="{ item }">
             <div class="flex items-center gap-2">
               <div 
-                class="w-5 h-5 rounded border border-gray-300" 
+                class="w-5 h-5 rounded border border-gray-300 dark:border-gray-700" 
                 :style="{ backgroundColor: item.color }"
               ></div>
-              <span class="text-sm text-gray-700">{{ item.color }}</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ item.color }}</span>
             </div>
           </template>
 
@@ -27,23 +27,23 @@
           <template #column-icon="{ item }">
             <div class="flex items-center gap-2">
               <component v-if="item.icon" :is="getIconComponent(item.icon)" :style="{ color: item.color }" class="w-5 h-5" />
-              <span class="text-sm text-gray-700">{{ item.icon }}</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ item.icon }}</span>
             </div>
           </template>
 
           <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
         </ReusableTable>
@@ -52,9 +52,9 @@
     <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div
-        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
             {{ isEditing ? $t('vip_status.edit') : $t('vip_status.add') }}
           </h3>
 
@@ -65,14 +65,14 @@
             </div>
 
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t('vip_status.color') }} *
               </label>
               <div class="flex items-center gap-3">
                 <input 
                   type="color" 
                   v-model="formData.color" 
-                  class="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                  class="w-12 h-10 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded cursor-pointer"
                 />
                 <Input v-model="formData.color" inputType="text" :placeholder="$t('vip_status.colorPlaceholder')" class="flex-1" />
               </div>

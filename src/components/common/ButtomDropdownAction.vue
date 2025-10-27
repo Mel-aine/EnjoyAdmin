@@ -13,14 +13,14 @@
 
         <!-- Dropdown Menu -->
         <div v-if="isOpen" :class="[
-            'absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-999',
+            'absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-999 dark:bg-gray-800 dark:border-gray-700',
             dropdownClass
         ]">
             <div class="py-2">
                 <button v-for="option in options" :key="option.id" @click="handleOptionClick(option)"
-                    class="w-full flex items-center gap-3 px-4 py-1 text-left hover:bg-gray-50 transition-colors duration-150">
+                    class="w-full flex items-center gap-3 px-4 py-1 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
                     <component v-if="option.icon" :is="option.icon" class="w-4 h-5"  />
-                    <span class="text-gray-700 font-medium text-sm">{{ option.label }}</span>
+                    <span class="text-gray-700 dark:text-gray-300 font-medium text-sm">{{ option.label }}</span>
                 </button>
             </div>
         </div>
@@ -52,7 +52,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
     buttonText: 'Options',
-    buttonClass: 'bg-white text-black hover:text-primary',
+    buttonClass: 'bg-white text-black hover:text-primary dark:bg-gray-800 dark:text-gray-200',
     dropdownClass: 'w-64',
     id:"",
     openOnHover: true

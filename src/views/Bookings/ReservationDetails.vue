@@ -12,7 +12,7 @@
           </button>
         </div>
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden" v-if="selectBooking && selectBooking.id">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden" v-if="selectBooking && selectBooking.id">
         <!-- Header -->
         <div class="text-white p-6 flex items-center justify-between">
           <div class="flex items-center justify-between">
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="border-b border-gray-200">
+        <div class="border-b border-gray-200 dark:border-gray-700">
           <nav class="flex space-x-8 px-6">
             <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
               'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
@@ -76,7 +76,7 @@
             <!-- Informations de base -->
             <div class=" gap-7 grid grid-cols-1 xl:grid-cols-2">
               <!-- 1. General Reservation Information -->
-              <section class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 col-span-2">
+              <section class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 col-span-2">
                 <SectionHeader :icon="Hotel" :title="$t('general_reservation_information')" />
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <DetailItem :icon="User" :label="$t('guest_name')" :value="selectBooking?.user.firstName" />
@@ -114,7 +114,7 @@
                 </div>
               </section>
               <!-- 3. Payment Section -->
-              <section class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+              <section class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <SectionHeader :icon="DollarSign" :title="$t('payment_details')" />
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800 font-semibold text-lg mb-4">
                   <div class="flex items-center">

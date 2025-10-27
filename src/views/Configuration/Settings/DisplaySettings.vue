@@ -3,8 +3,8 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Display Settings</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Display Settings</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
             Manage different display settings that you want to set by default for various fields in Front Desk operations.
           </p>
         </div>
@@ -13,13 +13,13 @@
       
       <div class="space-y-6">
         <!-- Format Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Format Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Format Settings</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Time Format
                 </label>
                 <Select
@@ -30,7 +30,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Date Format
                 </label>
                 <Select
@@ -41,7 +41,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Arrival/Departure Date Format
                 </label>
                 <Select
@@ -52,7 +52,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Time Zone
                 </label>
                 <Select
@@ -66,13 +66,13 @@
         </div>
         
         <!-- Caption Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Caption Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Caption Settings</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   State Caption
                 </label>
                 <Input
@@ -82,7 +82,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Zip Code Caption
                 </label>
                 <Input
@@ -95,13 +95,13 @@
         </div>
         
         <!-- Default Values -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Default Values</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Default Values</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Select Identity
                 </label>
                 <Select
@@ -112,7 +112,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Default Reservation Type
                 </label>
                 <Select
@@ -123,7 +123,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Salutation
                 </label>
                 <Select
@@ -134,7 +134,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Bill To
                 </label>
                 <Select
@@ -145,7 +145,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Payment Mode
                 </label>
                 <Select
@@ -156,7 +156,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Select Payment Gateway
                 </label>
                 <Select
@@ -170,13 +170,13 @@
         </div>
         
         <!-- Round Off Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Round Off Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Round Off Settings</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Round Off Type
                 </label>
                 <Select
@@ -187,7 +187,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Round Off Limit
                 </label>
                 <Input
@@ -202,13 +202,13 @@
         </div>
         
         <!-- Web Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Web Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Web Settings</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Web Rate Mode
                 </label>
                 <Select
@@ -216,13 +216,13 @@
                   :options="webRateModeOptions"
                   placeholder="Select web rate mode"
                 />
-                <p class="text-sm text-gray-500 mt-1">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {{ getWebRateModeDescription(webSettings.rateMode) }}
                 </p>
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Web Inventory Mode
                 </label>
                 <Select
@@ -230,7 +230,7 @@
                   :options="webInventoryModeOptions"
                   placeholder="Select web inventory mode"
                 />
-                <p class="text-sm text-gray-500 mt-1">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {{ getWebInventoryModeDescription(webSettings.inventoryMode) }}
                 </p>
               </div>

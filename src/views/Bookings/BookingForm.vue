@@ -3,9 +3,9 @@
     <PageBreadcrumb :pageTitle="$t('Booking')" />
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-4">
       <!-- Left Column: Add Reservation Form -->
-      <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <!-- Header -->
-        <div class="flex items-center border-b border-gray-200 px-5 py-4">
+        <div class="flex items-center border-b border-gray-200 dark:border-gray-700 px-5 py-4">
           <button @click="goBack" class="mr-4 p-2 hover:bg-gray-200 rounded">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -210,7 +210,7 @@
                   <div
                     v-for="(room, index) in roomConfigurations"
                     :key="room.id"
-                    class="border border-gray-200 rounded-lg p-4 bg-white"
+                    class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800"
                     :class="{ 'border-l-4 border-l-orange-500': index === 0 }"
                   >
                     <!-- Room Header -->
@@ -364,7 +364,7 @@
                         </label>
                         <div
                           v-if="!isCustomPrize"
-                          class="flex items-center rounded-lg border border-black/50 bg-gray-100 px-4 py-2.5 text-sm"
+                          class="flex items-center rounded-lg border border-black/50 bg-gray-100 dark:bg-black px-4 py-2.5 text-sm"
                           :class="{ 'opacity-50': room.isLoadingRate }"
                         >
                           <span
@@ -459,19 +459,6 @@
                     </button>
                   </div>
 
-                  <div class="w-[500px]"></div>
-
-                  <div class="w-20 flex items-center justify-center">
-                    <span class="text-md text-gray-950 font-bold">
-                      {{ $t('Total') }}
-                    </span>
-                  </div>
-
-                  <div class="flex-1 flex items-center justify-end">
-                    <span class="text-sm font-medium text-gray-800">
-                      {{ formatCurrency(totalAmount) }}
-                    </span>
-                  </div>
                 </div>
               </section>
               <section class="border-t border-gray-300 pt-4 space-y-4" v-if="reservation.isHold">
@@ -554,7 +541,7 @@
               </section>
               <!-- Guest Information -->
               <section class="border-t border-gray-300 pt-4 space-y-4">
-                <h2 class="text-sm font-semibold text-gray-800 uppercase">
+                <h2 class="text-sm font-semibold text-gray-800 dark:text-white uppercase">
                   {{ $t('guest_info') }}
                 </h2>
                 <div>
@@ -564,7 +551,7 @@
 
               <!-- Other Information -->
               <section class="border-t border-gray-300 pt-4 space-y-4">
-                <h2 class="text-sm font-semibold text-gray-800 uppercase">
+                <h2 class="text-sm font-semibold text-gray-800 dark:text-white uppercase">
                   {{ $t('other_info') }}
                 </h2>
 
@@ -669,12 +656,12 @@
       </div>
 
       <!-- Right Side: Billing Summary -->
-      <div class="bg-white rounded-lg shadow p-5 h-fit lg:col-span-1 lg:sticky">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 h-fit lg:col-span-1 lg:sticky">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="font-semibold text-lg text-gray-800">{{ $t('BillingSummary') }}</h2>
+          <h2 class="font-semibold text-lg text-gray-800 dark:text-white">{{ $t('BillingSummary') }}</h2>
           <span
             v-if="pendingReservation"
-            class="bg-yellow-500 text-white text-sm py-2 px-4 rounded hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            class="bg-yellow-500 text-white  text-sm py-2 px-4 rounded hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             {{ $t('Unconfirmed Booking Inquiry') }}
           </span>
@@ -686,7 +673,7 @@
           </span>
         </div>
 
-        <div class="flex justify-between text-sm text-gray-600 mb-4 border-b border-gray-300 pb-3">
+        <div class="flex justify-between text-sm text-gray-600 dark:text-white mb-4 border-b border-gray-300 pb-3">
           <div class="flex flex-col">
             <span>{{ $t('CheckIn') }}</span>
             <span class="font-medium">{{ reservation.checkinDate }}</span>
@@ -700,7 +687,7 @@
 
         <!-- Room Summary avec détails des extras -->
         <div class="space-y-3 mb-6 overflow-y-auto sidebar-scroll">
-          <div class="text-sm font-medium text-gray-700 border-b pb-2">
+          <div class="text-sm font-medium text-gray-700 border-b dark:text-white pb-2">
             {{ $t('Rooms') }} ({{ roomConfigurations.length }})
           </div>
 
@@ -712,7 +699,7 @@
             <!-- En-tête de la chambre -->
             <div class="flex justify-between items-start text-sm">
               <div class="flex-1">
-                <div class="font-medium text-gray-800">
+                <div class="font-medium text-gray-800 dark:text-white">
                   {{ $t('Room') }} {{ index + 1 }}
                   <span v-if="room.roomNumber" class="text-gray-600 ml-1">
                     ({{ getRoomsForRoom(room.id).find((r) => r.value == room.roomNumber)?.label }})
@@ -720,7 +707,7 @@
                 </div>
 
                 <!-- Type de chambre et tarif -->
-                <div class="text-xs text-gray-600 mt-1">
+                <div class="text-xs text-gray-600 dark:text-white mt-1">
                   {{ RoomTypes.find((rt) => rt.value == room.roomType)?.label || 'N/A' }}
                   <span v-if="getRateTypesForRoom(room.id).find((rt) => rt.value == room.rateType)">
                     -
@@ -733,26 +720,26 @@
 
               <!-- Prix total de la chambre -->
               <div class="text-right">
-                <div class="font-medium text-gray-800">
+                <div class="font-medium text-gray-800 dark:text-white">
                   {{ formatCurrency((room.rate || 0) * numberOfNights) }}
                 </div>
-                <div class="text-xs text-gray-500">
+                <div class="text-xs text-gray-500 dark:text-white/80">
                   {{ formatCurrency(room.rate || 0) }} / {{ $t('night') }}
                 </div>
               </div>
             </div>
 
             <!-- Détails des occupants et extras -->
-            <div v-if="getRoomExtraInfo(room.id)" class="mt-2 text-xs text-gray-600">
+            <div v-if="getRoomExtraInfo(room.id)" class="mt-2 text-xs text-gray-600 dark:text-white">
               <div class="flex items-center justify-between">
                 <!-- Informations sur les occupants -->
                 <div class="flex items-center space-x-4">
                   <span>
-                    <i class="fas fa-user text-blue-500"></i>
+                    <i class="fas fa-user text-blue-500 dark:text-white"></i>
                     {{ room.adultCount }} {{ room.adultCount > 1 ? $t('Adults') : $t('Adult') }}
                   </span>
                   <span v-if="room.childCount > 0">
-                    <i class="fas fa-child text-green-500"></i>
+                    <i class="fas fa-child text-green-500 dark:text-white"></i>
                     {{ room.childCount }} {{ room.childCount > 1 ? $t('Children') : $t('Child') }}
                   </span>
                 </div>
@@ -801,7 +788,7 @@
                 @click="toggleTaxDetails(room.id)"
               >
                 <div class="flex items-center">
-                  <span class="text-sm font-medium text-gray-700">{{ $t('detailsOfTaxes') }}</span>
+                  <span class="text-sm font-medium text-gray-700 dark:text-white">{{ $t('detailsOfTaxes') }}</span>
                   <svg
                     class="w-4 h-4 ml-2 transform transition-transform duration-200"
                     :class="{ 'rotate-180': showTaxDetails[room.id] }"
@@ -922,7 +909,7 @@
             </div>
 
             <div
-              class="flex justify-between font-semibold text-gray-900 border-t border-gray-300 pt-3 text-lg"
+              class="flex justify-between font-semibold text-gray-900 border-t border-gray-300 dark:text-white pt-3 text-lg"
             >
               <span>{{ $t('DueAmount') }}</span>
               <span>{{ formatCurrency(totalAmount) }}</span>

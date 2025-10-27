@@ -1,8 +1,8 @@
 <template>
   <AdminLayout>
     <div class="p-6">
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ isEditMode ? $t('Edit Company') : $t('Add Company') }}</h2>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold dark:text-white text-gray-900 mb-6">{{ isEditMode ? $t('Edit Company') : $t('Add Company') }}</h2>
 
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -31,7 +31,7 @@
                 :placeholder="$t('Enter short code')" id="companyCode" />
             </div>
             <div>
-              <h2 class="text-lg font-bold text-gray-900 mb-0">Account Details</h2>
+              <h2 class="text-lg font-bold dark:text-white text-gray-900 mb-0">Account Details</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <!-- Registration Number -->
@@ -56,7 +56,7 @@
 
             </div>
           </div>
-          <h2 class="text-lg font-bold text-gray-900 mb-3">Address</h2>
+          <h2 class="text-lg font-bold dark:text-white text-gray-900 mb-3">Address</h2>
           <!-- Address -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">

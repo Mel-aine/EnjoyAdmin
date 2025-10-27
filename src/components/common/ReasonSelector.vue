@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-2">
-    <label v-if="label" class="block text-sm font-medium text-gray-700">
+    <label v-if="label" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
       {{ label }}<span v-if="isRequired" class="text-red-500">*</span>
     </label>
     <CloneAutoCompleteSelect
@@ -14,7 +14,7 @@
       @update:use-dropdown="onUseDropdownUpdate"
       @add-custom="handleAddCustomReason"
     />
-    <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
+    <p v-if="error" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
   </div>
 </template>
 

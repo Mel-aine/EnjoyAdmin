@@ -292,19 +292,19 @@ const nightsSummary = computed(() => {
 
       </div>
       <div class="grid grid-cols-8 px-4">
-        <div class="flex col-span-3 items-center p-2 flex-col bg-gray-100">
+        <div class="flex col-span-3 items-center p-2 flex-col bg-gray-100 dark:bg-black">
           <span>{{ formatDate(localReservation.date) }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
             {{ formatTimeFromTimeString(localReservation?.checkInTime) }}
           </span>
         </div>
-        <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300">
+        <div class="flex col-span-2 items-center p-2 flex-col bg-gray-300 dark:bg-black/80">
           <span>{{ nightsSummary}}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
             {{ $t('nights') }}
           </span>
         </div>
-        <div class="flex items-center col-span-3 p-2 flex-col bg-gray-100">
+        <div class="flex items-center col-span-3 p-2 flex-col bg-gray-100 dark:bg-black">
           <span>{{ formatDate(localReservation.departDate) }}</span>
           <span class="text-xs text-gray-600 dark:text-gray-400 font-mono">
             {{ formatTimeFromTimeString(localReservation?.checkOutTime) }}

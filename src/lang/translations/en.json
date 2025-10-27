@@ -6374,7 +6374,6 @@
   "firefighter": "Firefighter",
   "civil_servant": "Civil Servant",
   "AddReservation" : "Add Reservation",
-  "error_fetching_reservation_details" :"Error fetching reservation details"
-
-
+  "error_fetching_reservation_details" :"Error fetching reservation details",
+  "pay":"Pay"
 }

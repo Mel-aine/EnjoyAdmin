@@ -601,7 +601,7 @@ onMounted(() => {
     'opacity-0': !isOpen
   }">
     <!-- Background overlay -->
-    <div class="absolute inset-0 bg-transparent bg-opacity-50 transition-opacity duration-300" :class="{
+    <div class="absolute inset-0 bg-black/50 dark:bg-black/70 transition-opacity duration-300" :class="{
       'opacity-100': isOpen,
       'opacity-0': !isOpen
     }" @click="close"></div>
@@ -615,16 +615,16 @@ onMounted(() => {
           'translate-x-full': !isOpen
         }">
         <!-- Modal content -->
-        <div class="flex h-full flex-col bg-white shadow-xl">
+        <div class="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl">
           <!-- Header -->
-          <div class="bg-white px-4 py-3 sm:px- border-b border-gray-200">
+          <div class="bg-white dark:bg-gray-800 px-4 py-3 sm:px- border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-medium text-gray-900">
+              <h2 class="text-lg font-medium dark:text-white text-gray-900">
                 {{ $t('QuickBooking') }}
               </h2>
               <div class="ml-3 flex h-7 items-center">
                 <button type="button"
-                  class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="rounded-md bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-blue-600 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                   @click="close">
                   <span class="sr-only">Close panel</span>
                   <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -702,10 +702,10 @@ onMounted(() => {
 
 
                     <!-- Room Type -->
-                    <section class="border-t border-gray-300 pt-4 space-y-4">
+                    <section class="border-t border-gray-300  dark:bg-gray-800 pt-4 space-y-4">
                       <!-- Room Configurations -->
                       <div class="space-y-4">
-                        <div class="grid md:grid-cols-12 grid-cols-12 gap-1 py-2 px-3 items-end bg-gray-100">
+                        <div class="grid md:grid-cols-12 grid-cols-12 gap-1 py-2 px-3 items-end bg-gray-100  dark:bg-black dark:text-white">
                           <div class="col-span-3">{{ $t('roomType') }}</div>
                           <div class="col-span-2">{{ $t('configuration.rates.rateType') }}</div>
                           <div class="col-span-2">{{ $t('Room') }}</div>
@@ -780,9 +780,9 @@ onMounted(() => {
                               <div class="relative inline-block w-full">
 
                                 <div v-if="!isCustomPrize"
-                                  class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11  bg-gray-200 px-4 py-2.5 text-sm"
+                                  class="flex items-center rounded-lg border border-gray-300 dark:border-gray-700 mt-1.5 h-11 bg-gray-200 dark:bg-gray-900 px-4 py-2.5 text-sm dark:text-white/90"
                                   :class="{ 'opacity-50': room.isLoadingRate }">
-                                  <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
+                                  <span type="button" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 mr-3"
                                     @click="isCustomPrize = true">
                                     <PencilLine :size="18" />
                                   </span>
@@ -795,7 +795,7 @@ onMounted(() => {
 
                                   <!-- Rate avec breakdown -->
                                   <div v-else class="flex-grow">
-                                    <div class="font-medium text-gray-800 justify-end flex">
+                                    <div class="font-medium text-gray-800 dark:text-gray-200 justify-end flex">
                                       {{ room.rate }}
                                     </div>
                                   </div>
@@ -803,7 +803,7 @@ onMounted(() => {
 
 
                                   <div v-if="room.isOpen"
-                                    class="absolute left-0 top-full mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:bg-gray-900 z-20 max-h-48 overflow-auto">
+                                    class="absolute left-0 top-full mt-1 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white shadow-lg dark:bg-gray-900 z-20 max-h-48 overflow-auto">
                                     <ul>
                                       <li v-for="option in dropdownOptions" :key="option.value"
                                         class="flex items-center gap-3 px-4 py-2 hover:bg-purple-100 dark:hover:bg-purple-700 cursor-pointer"
@@ -871,13 +871,13 @@ onMounted(() => {
 
 
                           <div class="flex items-center justify-center translate-x-60">
-                            <span class="text-md text-gray-950 font-bold">
+                            <span class="text-md text-gray-950 dark:text-white font-bold">
                               {{ $t('Total') }}
                             </span>
                           </div>
 
                           <div class="flex-1 flex items-center justify-end mr-20">
-                            <span class="text-sm font-medium text-gray-800">
+                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
                               {{ formatCurrency(totalAmount) }}
                             </span>
                           </div>
@@ -885,10 +885,10 @@ onMounted(() => {
 
 
                     </section>
-                    <section class="border-t border-gray-300 pt-4 space-y-4" v-if="reservation.isHold">
+                    <section class="border-t border-gray-300 dark:border-gray-700 dark:bg-gray-800 pt-4 space-y-4" v-if="reservation.isHold">
                       <!-- Hold Release Date & Time Section -->
                       <div class="">
-                        <h2 class="text-sm font-semibold text-gray-800 uppercase mb-5">{{ $t('hold_release_date_time')
+                        <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200 uppercase mb-5">{{ $t('hold_release_date_time')
                           }}</h2>
 
                         <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-4">
@@ -919,19 +919,19 @@ onMounted(() => {
                             <div class="flex items-center space-x-2">
                               <Input :inputType="'number'" v-model="holdReleaseData.remindDays" :placeholder="'0'"
                                 class="w-22" />
-                              <span class="text-sm text-gray-600">{{ $t('days') }}</span>
+                              <span class="text-sm text-gray-600 dark:text-gray-300">{{ $t('days') }}</span>
 
                               <!-- Radio buttons -->
                               <div class="flex items-center space-x-4 ml-4">
                                 <label class="flex items-center space-x-1 cursor-pointer">
                                   <input type="radio" v-model="holdReleaseData.dateType" value="hold_release_date"
                                     class="form-radio text-blue-600" />
-                                  <span class="text-sm text-gray-700">{{ $t('hold_release_date') }}</span>
+                                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('hold_release_date') }}</span>
                                 </label>
                                 <label class="flex items-center space-x-1 cursor-pointer">
                                   <input type="radio" v-model="holdReleaseData.dateType" value="arrival_date"
                                     class="form-radio text-blue-600" />
-                                  <span class="text-sm text-gray-700">{{ $t('arrival_date') }}</span>
+                                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('arrival_date') }}</span>
                                 </label>
                               </div>
                             </div>
@@ -940,7 +940,7 @@ onMounted(() => {
                       </div>
                     </section>
                     <!-- Guest Information -->
-                    <section class="border-t border-gray-300 pt-2 space-y-4">
+                    <section class="border-t border-gray-300 dark:border-gray-700 dark:bg-gray-800 pt-2 space-y-4">
 
                      <div class="flex items-end w-full space-x-0">
                         <!-- Titre -->
@@ -1059,7 +1059,7 @@ onMounted(() => {
           </div>
 
           <!-- Footer -->
-          <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
+          <div class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-4 sm:px-6">
             <div class="flex justify-between  space-x-3">
                <BasicButton  v-if="!showCheckinButton && !pendingReservation" type="button" @click="gotoNew"
                  :disabled="isLoading" variant=""

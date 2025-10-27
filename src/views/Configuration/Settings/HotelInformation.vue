@@ -3,8 +3,8 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">{{ t('hotelInformation.title') }}</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ t('hotelInformation.title') }}</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
             {{ t('hotelInformation.subtitle') }}
           </p>
         </div>
@@ -17,12 +17,12 @@
         />
       </div>
       
-      <div class="bg-white rounded-lg shadow">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="p-6">
           <form @submit.prevent="saveHotelInfo" class="space-y-8">
             <!-- General Information -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('hotelInformation.generalInformation') }}</h3>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ t('hotelInformation.generalInformation') }}</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Input
@@ -123,7 +123,7 @@
             
             <!-- Property Information -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('hotelInformation.propertyInformation') }}</h3>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ t('hotelInformation.propertyInformation') }}</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Select
@@ -146,18 +146,18 @@
               </div>
               
               <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ t('hotelInformation.fields.hotelLogo') }}
                 </label>
                 <div class="flex items-center space-x-4">
                   <button
                     type="button"
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
                     @click="selectLogo"
                   >
                     {{ t('hotelInformation.buttons.chooseFile') }}
                   </button>
-                  <span class="text-sm text-gray-500">
+                  <span class="text-sm text-gray-500 dark:text-gray-400">
                     {{ hotelInfo.logoFileName || t('hotelInformation.messages.noFileSelected') }}
                   </span>
                   <button
@@ -169,7 +169,7 @@
                     {{ t('hotelInformation.buttons.remove') }}
                   </button>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {{ t('hotelInformation.messages.logoUploadInfo') }}
                 </p>
               </div>
