@@ -135,7 +135,7 @@ import { useAuthStore } from '../../composables/user'
 import BookingFormQuick from '../reservations/BookingFormQuick.vue'
 import GuestRegistrationModal from '../modal/GuestRegistrationModal.vue'
 import AddBookinIcon from '../../icons/AddBookinIcon.vue'
-import { useTheme } from '@/components/layout/ThemeProvider.vue'
+import { useTheme } from '@/composables/theme'
 
 const authStore = useAuthStore();
 
