@@ -381,6 +381,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 import Input from '@/components/forms/FormElements/Input.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
@@ -454,10 +455,20 @@ const showIdentitySection = ref(true)
 const htmlContent = ref<string>('')
 const isPreviewLoading = ref(true)
 
+// Cache parsed template once; clone for subsequent renders
+let _baseDoc: Document | null = null
+let _parser: DOMParser | null = null
+
 const renderPrintHtml = () => {
   try {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(pHtml as string, 'text/html')
+    // Initialize and cache base document once
+    if (!_baseDoc) {
+      _parser = new DOMParser()
+      _baseDoc = _parser.parseFromString(pHtml as string, 'text/html')
+    }
+    const doc = document.implementation.createHTMLDocument('')
+    const clonedRoot = (_baseDoc ?? (_parser ?? new DOMParser()).parseFromString(pHtml as string, 'text/html')).documentElement.cloneNode(true) as HTMLElement
+    doc.replaceChild(clonedRoot, doc.documentElement)
 
     // Inject hotel header from current service
     const cs: any = serviceStore.getCurrentService
@@ -543,11 +554,15 @@ const renderPrintHtml = () => {
     style.textContent = `
     .filled-value{font-weight:normal;color:#111;font-size:9pt;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .line-dot,.line-empty{overflow:hidden;}
-    .header .hotel-name,.header .hotel-address,.header .contact-info{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+   
     @media print {
       @page { size: A4 portrait; margin: 10mm; }
-      html, body { width: 200mm; height: 297mm; }
-      .print-container { width: calc(210mm - 5mm); height: calc(297mm - 20mm); overflow: hidden; zoom: 0.9; }
+      .label-fr {
+            white-space: nowrap;
+            font-weight: bold;
+            font-size: 11px;
+        }
+.      .print-container { width: calc(210mm - 5mm); height: calc(297mm - 20mm); overflow: hidden; zoom: 0.9; }
     }
     `
     doc.head.appendChild(style)
@@ -564,6 +579,11 @@ const updateHtml = () => {
   htmlContent.value = renderPrintHtml()
   isPreviewLoading.value = false
 }
+
+// Debounce preview updates to avoid heavy recompute on each keystroke
+const debouncedUpdateHtml = useDebounceFn(() => {
+  updateHtml()
+}, 200)
 
 // Dropdown controls
 const useDropdownRoomType = ref(true)
@@ -603,10 +623,33 @@ const childOptions = computed(() => {
   return getChildOptions(roomConfig.value.roomType)
 })
 
-watch(formData, updateHtml, { deep: true })
-watch(roomConfig, updateHtml, { deep: true })
-watch(billing, updateHtml, { deep: true })
-watch(reservation, updateHtml, { deep: true })
+// Replace deep watchers with targeted field watchers
+watch([
+  () => formData.value.lastName,
+  () => formData.value.maidenName,
+  () => formData.value.dateOfBirth,
+  () => formData.value.placeOfBirth,
+  () => formData.value.nationality,
+  () => formData.value.country,
+  () => formData.value.phoneNumber,
+  () => formData.value.fax,
+  () => formData.value.email,
+  () => formData.value.zipcode,
+  () => formData.value.profession,
+  () => formData.value.idNumber,
+  () => formData.value.idExpiryDate,
+  () => formData.value.issuingCity,
+  () => formData.value.issuingCountry,
+  () => billing.value?.paymentMode,
+  () => reservation.value?.checkinDate,
+  () => reservation.value?.checkoutDate,
+  () => reservation.value?.arrivingTo,
+  () => reservation.value?.goingTo,
+  () => reservation.value?.meansOfTransport,
+  () => roomConfig.value?.adultCount,
+  () => roomConfig.value?.childCount,
+  () => roomConfig.value?.roomNumber,
+], () => debouncedUpdateHtml(), { immediate: true })
 
 const fetchIdentityTypes = async () => {
   try {
@@ -821,7 +864,3 @@ onMounted(async () => {
   display: none;
 }
 </style>
-
-@media print {
-  .preview-skeleton { display: none !important; }
-}
