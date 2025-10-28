@@ -165,6 +165,20 @@
         <VoidInvoice :is-open="showVoidModal" :invoice-id="selectedInvoice?.id"
             :invoice-number="selectedInvoice?.invoiceNumber" @close="showVoidModal = false"
             @void-confirmed="handleVoidConfirmed" />
+
+        <!-- Direct PDF Preview -->
+        <div v-if="showPdfExporter">
+            <PdfExporterNode 
+                @close="showPdfExporter = false" 
+                :is-modal-open="showPdfExporter" 
+                :title="$t('printInvoice')"
+                :is-generating="printLoading" 
+                :pdf-url="pdfUrl" 
+                :pdf-theme="pdfTheme" 
+                @pdf-generated="handlePdfGenerated"
+                @error="handlePdfError" 
+            />
+        </div>
     </AdminLayout>
 </template>
 
@@ -180,20 +194,28 @@ import { PrinterIcon, Edit as EditIcon, DollarSign, Coffee, Utensils, Car, Wifi,
 import AddInvoiceIncidenPosc from './AddInvoiceIncidenPosc.vue'
 import ReusableTable from '../../components/tables/ReusableTable.vue'
 import VoidInvoice from '../../components/invoice/VoidInvoice.vue'
+import PdfExporterNode from '../../components/common/PdfExporterNode.vue'
 import type { Column } from '../../utils/models'
 import { getIncidentalInvoices } from '../../services/configrationApi'
 import { getFolioStatement } from '../../services/foglioApi'
 import { formatCurrency } from '../../utils/numericUtils'
+import { generateIncidentalInvoice } from '../../services/reportsApi'
 
 const { t } = useI18n()
 
 // State
-const selectedInvoice = <any>ref(null)
+const selectedInvoice = ref<any>(null)
 const searchQuery = ref('')
 const hideVoid = ref(false)
 const showAddInvoiceModal = ref(false)
 const showVoidModal = ref(false)
 const isLoading = ref(false)
+
+// PDF States
+const showPdfExporter = ref(false)
+const printLoading = ref(false)
+const pdfUrl = ref<string>('')
+const pdfTheme = ref<Record<string, any>>({})
 
 // Set default date range: yesterday to today
 const yesterday = new Date()
@@ -285,6 +307,7 @@ const filteredInvoices = computed(() => invoices.value)
 const folioCharges = ref<any>([])
 const folioPayments = ref<any>([])
 const isLoadingFolio = ref(false)
+const currentFolioData = ref<any>(null)
 
 // Computed data for tables with serial numbers
 const chargesTableData = computed(() => {
@@ -323,12 +346,12 @@ async function loadInvoices() {
 
         // Add status filter if hideVoid is checked
         if (hideVoid.value) {
-            params.hideVoided =  hideVoid // or whatever status excludes void invoices
+            params.hideVoided = hideVoid.value
         }
 
         const response = await getIncidentalInvoices(params)
         invoices.value = response.data?.data?.data || []
-        console.log('rservation', invoices.value)
+        console.log('reservations', invoices.value)
         // Clear selected invoice if it's no longer in the list
         if (selectedInvoice.value && !invoices.value.find((inv: any) => inv.id === selectedInvoice.value.id)) {
             selectedInvoice.value = null
@@ -348,6 +371,9 @@ async function loadFolioStatement(folioId: number) {
         const response = await getFolioStatement(folioId)
         console.log('loadFolioStatement', response)
 
+        // Store the complete folio data
+        currentFolioData.value = response.data
+
         // Extract transactions from the response
         const transactions = response.data?.transactions || []
 
@@ -366,6 +392,7 @@ async function loadFolioStatement(folioId: number) {
         console.error('Error loading folio statement:', error)
         folioCharges.value = []
         folioPayments.value = []
+        currentFolioData.value = null
     } finally {
         isLoadingFolio.value = false
     }
@@ -382,11 +409,11 @@ function selectInvoice(invoice: any) {
         // Clear folio data if no folioId
         folioCharges.value = []
         folioPayments.value = []
+        currentFolioData.value = null
     }
 }
 
 function onInvoiceRowClick(invoice: any) {
-
     selectInvoice(invoice)
 }
 
@@ -425,9 +452,61 @@ function handleInvoiceCreated(newInvoice: any) {
     loadInvoices()
 }
 
-function printInvoice() {
-    console.log('Printing invoice:', selectedInvoice.value)
-    // Implement print functionality
+// Print Invoice Function - MODIFIÉE
+async function printInvoice() {
+    // Vérification des données nécessaires
+    if (!selectedInvoice.value?.id) {
+        console.error('No invoice selected')
+        return
+    }
+
+    if (!currentFolioData.value?.transactions || currentFolioData.value.transactions.length === 0) {
+        console.error('No transactions available')
+        return
+    }
+
+    try {
+        printLoading.value = true
+        showPdfExporter.value = true
+        
+        // Récupérer automatiquement tous les IDs de transactions du folio
+        const transactionIds = currentFolioData.value.transactions.map((transaction: any) => transaction.id)
+        
+        console.log('Printing invoice with transaction IDs:', transactionIds)
+        console.log('Total transactions:', transactionIds.length)
+        
+        // Appeler l'API pour générer le PDF avec la liste des transactionIds
+        const url = await generateIncidentalInvoice(transactionIds)
+        
+        // S'assurer que l'URL est valide
+        if (!url) {
+            throw new Error('No PDF URL returned from API')
+        }
+        
+        // Utiliser une URL absolue si nécessaire
+        pdfUrl.value = url instanceof Blob
+            ? URL.createObjectURL(url)
+            : url   
+        
+        console.log('PDF URL set to:', pdfUrl.value)
+        
+    } catch (error) {
+        console.error('Error printing invoice:', error)
+        // Gérer l'erreur - peut-être afficher un message à l'utilisateur
+        showPdfExporter.value = false
+    } finally {
+        printLoading.value = false
+    }
+}
+
+// PDF Event Handlers
+const handlePdfGenerated = (blob: Blob) => {
+    console.log('PDF generated successfully', blob)
+}
+
+const handlePdfError = (err: any) => {
+    console.error('PDF generation error:', err)
+    showPdfExporter.value = false
 }
 
 function voidInvoice() {
