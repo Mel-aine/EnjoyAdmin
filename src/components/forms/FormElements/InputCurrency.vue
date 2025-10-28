@@ -156,10 +156,5 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-input:disabled {
-    background-color: #f3f4f6;
-    cursor: not-allowed;
-    border-color: #d1d5db;
-}
 /* padding-left = espace pour le symbole XAF affiché à gauche */
 </style>

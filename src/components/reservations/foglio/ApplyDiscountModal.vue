@@ -79,7 +79,7 @@
             </form>
         </div>
         <template #footer>
-            <div class="flex justify-end space-x-3 bg-gray-50 dark:bg-gray-900">
+            <div class="flex justify-end space-x-3 bg-gray-50 dark:bg-gray-800">
                 <BasicButton
                     type="button"
                     variant="outline"

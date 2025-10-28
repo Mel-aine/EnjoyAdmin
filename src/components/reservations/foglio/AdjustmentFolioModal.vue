@@ -115,8 +115,8 @@ const isFormValid = computed(() => {
     return formData.type &&
         formData.folioId &&
         formData.amount &&
-        formData.amount !== 0 &&
-        formData.comment.trim()
+        formData.amount !== 0 //&&
+        //formData.comment.trim()
 })
 
 const closeModal = () => {
