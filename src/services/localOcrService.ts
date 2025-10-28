@@ -192,32 +192,43 @@ const CITY_PATTERNS: Array<[RegExp, string]> = [
 
 // Patterns pour numéros d'identité (ordre de priorité)
 const ID_NUMBER_PATTERNS = [
-  // CNI - NUMEROCNI / NIC NUMBER (haute priorité)
+  // CNI - FR/EN
   /(?:NUMEROCNI|NUMERO\s*CNI|NIC\s*NUMBER|N°\s*CNI|NO\s*CNI)[:\s]*([A-Z0-9]{6,20})/i,
+  /(?:CARTE\s+D'?IDENTIT[EÉ]|IDENTITY\s*CARD)\s*(?:NO|N°|NUMBER)?\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
   
-  // Passport - PASSPORT No / No PASSPORT (haute priorité)
-  /(?:PASSPORT\s*NO\.?|NO\.?\s*PASSPORT|N°\s*(?:DE\s*)?PASSEPORT|PASSEPORT\s*N°)[:\s]*([A-Z0-9]{6,15})/i,
+  // Passport - multi-langues
+  /(?:PASSPORT\s*NO\.?|NO\.?\s*PASSPORT|N°\s*(?:DE\s*)?PASSEPORT|PASSEPORT\s*N°|PASSPORT\s*NUMBER)[:\s]*([A-Z0-9]{6,15})/i,
+  /(?:PASAPORTE|PASSAPORTO|REISEPASS(?:NR|NUMMER)?|NUM(?:ERO)?\s*(?:DE|DO)\s*PASS(?:APORTE|APORTO)|Nº\s*PASSAPORTE)[:\s]*([A-Z0-9]{6,15})/i,
   
-  // Variations avec séparateurs
+  // Espagnol / Portugais / Italien / Allemand pour CNI
+  /(?:DNI|N[ÚU]MERO\s+DE\s+IDENTIDAD|N[ÚU]MERO\s+DE\s+DOCUMENTO|C[EÉ]DULA)\s*(?:N[ºO\.]|NO|N°|NUM(?:ERO)?)?\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
+  /(?:BILHETE\s+DE\s+IDENTIDADE|CART(?:A|Ã)O\s+DE\s+CIDAD(?:Ã|A)O|N[ÚU]MERO\s+DO\s+DOCUMENTO)\s*(?:N[ºO\.]|NO|N°|NUM(?:ERO)?)?\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
+  /(?:PERSONALAUSWEIS|AUSWEIS)\s*(?:NR|NUMMER)?\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
+  /(?:CARTA\s+D'?IDENTIT[ÀA]|NUMERO\s+DOCUMENTO)\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
+
+  // Variations génériques
   /(?:NUMEROCNI|NIC\s*NUMBER)[\s:]*([A-Z0-9\s-]{6,20})/i,
   /(?:PASSPORT|PASSEPORT)[\s:]*(?:NO|N°|NUMBER)[\s:.]*([A-Z0-9\s-]{6,15})/i,
-  
-  // Labels génériques
-  /(?:ID|CNI|CARTE)[\s:]*(?:NO\.?|N°|NUM(?:BER)?)[\s:.]*([A-Z0-9]{6,15})/i,
-  /(?:DOCUMENT|DOC)[\s:]*(?:NO|N°|NUMBER)[\s:.]*([A-Z0-9]{6,15})/i,
+  /(?:ID|CNI|CARTE|CARD|DOC(?:UMENT)?)\s*(?:NO\.?|N°|NR\.?|NUM(?:BER|ERO)?)\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
 ]
 
 // Patterns pour dates d'expiration
 const EXPIRY_DATE_PATTERNS = [
-  // Avec label explicite
-  /(?:EXPIR(?:Y|ATION)|VALID(?:ITY|ITÉ)|JUSQU'AU)\s*(?:DATE)?[:\s]*(\d{1,2}[-\/\s]\d{1,2}[-\/\s]\d{2,4})/i,
+  // FR/EN
+  /(?:EXPIR(?:Y|ATION)|VALID(?:ITY|ITÉ)|JUSQU'AU)\s*(?:DATE)?[:\s]*(\d{1,2}[-\.\/\s]\d{1,2}[-\.\/\s]\d{2,4})/i,
   /(?:EXPIR(?:Y|ATION)|VALID(?:ITY|ITÉ))[:\s]*(\d{1,2}\s+(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\s+\d{4})/i,
   
-  // Format date proche du mot "expiry" ou similaire
-  /(?:EXP|VALID)[^0-9]{0,10}(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i,
+  // ES/PT/DE/IT libellés
+  /(?:FECHA\s+DE\s+EXPIRACI[ÓO]N|VENCE|VALIDEZ\s+HASTA)\s*[:\s]*(\d{1,2}[-\.\/\s]\d{1,2}[-\.\/\s]\d{2,4})/i,
+  /(?:DATA\s+DE\s+EXPIRA[ÇC][ÃA]O|VALIDADE|V[ÁA]LIDO\s+AT[EÉ])\s*[:\s]*(\d{1,2}[-\.\/\s]\d{1,2}[-\.\/\s]\d{2,4})/i,
+  /(?:G[ÜU]LTIG\s+BIS|ABLAUFDATUM)\s*[:\s]*(\d{1,2}[-\.\/\s]\d{1,2}[-\.\/\s]\d{2,4})/i,
+  /(?:DATA\s+DI\s+SCADENZA|SCADENZA)\s*[:\s]*(\d{1,2}[-\.\/\s]\d{1,2}[-\.\/\s]\d{2,4})/i,
+
+  // Formats voisins du label
+  /(?:EXP|VALID|SCAD|VENC|G[ÜU]LT)[^0-9]{0,10}(\d{1,2}[-\.\/]\d{1,2}[-\.\/]\d{2,4})/i,
   
-  // Dates formatées (DD/MM/YYYY, MM/DD/YYYY, DD-MM-YYYY)
-  /\b(\d{2}[-\/]\d{2}[-\/]\d{4})\b/,
+  // Dates formatées (DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY)
+  /\b(\d{2}[-\/.]\d{2}[-\/.]\d{4})\b/,
   /\b(\d{1,2}\s+(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\s+\d{4})\b/i,
 ]
 
@@ -234,6 +245,44 @@ const MONTH_MAP: Record<string, string> = {
   OCT: '10', OCTOBRE: '10', OCTOBER: '10',
   NOV: '11', NOVEMBRE: '11', NOVEMBER: '11',
   DEC: '12', DECEMBRE: '12', DÉCEMBRE: '12', DECEMBER: '12',
+  // Spanish
+  ENE: '01', ENERO: '01',
+  FEBRERO: '02',
+  MARZO: '03',
+  ABR: '04', ABRIL: '04',
+  MAYO: '05',
+  JUNIO: '06',
+  JULIO: '07',
+  AGO: '08', AGOSTO: '08',
+  SEPTIEMBRE: '09', SETIEMBRE: '09',
+  OCTUBRE: '10',
+  NOVIEMBRE: '11',
+  DIC: '12', DICIEMBRE: '12',
+  // Portuguese
+  JANEIRO: '01',
+  FEV: '02', FEVEREIRO: '02',
+  MARCO: '03', MARÇO: '03',
+  SET: '09', SETEMBRO: '09',
+  OUT: '10', OUTUBRO: '10',
+  DEZ: '12', DEZEMBRO: '12',
+  // German
+  JANUAR: '01',
+  FEBRUAR: '02',
+  MRZ: '03', MÄRZ: '03', MAERZ: '03',
+  JUNI: '06',
+  JULI: '07',
+  OKTOBER: '10',
+  DEZEMBER: '12',
+  // Italian
+  GENNAIO: '01',
+  FEBBRAIO: '02',
+  APRILE: '04',
+  MAGGIO: '05',
+  GIUGNO: '06',
+  LUGLIO: '07',
+  SETTEMBRE: '09',
+  OTTOBRE: '10',
+  DICEMBRE: '12',
 }
 
 /**
@@ -241,6 +290,8 @@ const MONTH_MAP: Record<string, string> = {
  */
 function detectIssuingCountry(text: string): string | undefined {
   const upperText = text.toUpperCase()
+  // Normalisation légère des confusions OCR: 0->O, 1->I
+  const normalized = upperText.replace(/0/g, 'O').replace(/1/g, 'I')
   
   // Recherche avec labels explicites d'abord
   const labelPatterns = [
@@ -263,7 +314,7 @@ function detectIssuingCountry(text: string): string | undefined {
   
   // Recherche générale dans tout le texte
   for (const [regex, fullName, code] of COUNTRY_PATTERNS) {
-    if (regex.test(upperText)) {
+    if (regex.test(upperText) || regex.test(normalized)) {
       return code // Retourner le code ISO 2 lettres
     }
   }
@@ -276,6 +327,7 @@ function detectIssuingCountry(text: string): string | undefined {
  */
 function detectIssuingCity(text: string): string | undefined {
   const upperText = text.toUpperCase()
+  const normalized = upperText.replace(/0/g, 'O').replace(/1/g, 'I')
   
   // Recherche avec labels explicites
   const labelPatterns = [
@@ -301,7 +353,7 @@ function detectIssuingCity(text: string): string | undefined {
   
   // Recherche de villes connues dans tout le texte
   for (const [regex, cityName] of CITY_PATTERNS) {
-    if (regex.test(upperText)) {
+    if (regex.test(upperText) || regex.test(normalized)) {
       return cityName
     }
   }
@@ -323,6 +375,25 @@ function extractIdNumber(text: string, docType: string): string {
     const line = lines[i]
     const upperLine = line.toUpperCase()
     
+    // Passeport: labels FR/EN possibles — si le numéro n'est pas sur la même ligne, prendre la ligne juste en dessous
+    if (/(?:PASSPORT\s*NO\.?|NO\.?\s*PASSPORT|N°\s*(?:DE\s*)?PASSEPORT|PASSEPORT\s*N°|PASSPORT\s*NUMBER)/i.test(line)) {
+      // même ligne
+      const same = line.match(/(?:PASSPORT\s*NO\.?|NO\.?\s*PASSPORT|N°\s*(?:DE\s*)?PASSEPORT|PASSEPORT\s*N°|PASSPORT\s*NUMBER)[:\s]*([A-Z0-9\s-]{5,20})/i)
+      if (same?.[1]) {
+        const n = normalizeIdNumberCandidate(same[1])
+        if (n.length >= 6 && /\d/.test(n)) return n
+      }
+      // lignes suivantes (jusqu'à 3)
+      for (let k = 1; k <= 3 && i + k < lines.length; k++) {
+        const next = lines[i + k]
+        const m = next.match(/([A-Z0-9\s-]{5,20})/)
+        if (m?.[1]) {
+          const n = normalizeIdNumberCandidate(m[1])
+          if (n.length >= 6 && /\d/.test(n)) return n
+        }
+      }
+    }
+
     // Pour CNI : chercher NUMEROCNI / NIC NUMBER
     if (/NUMEROCNI|NIC\s*NUMBER|N°\s*CNI|NO\s*CNI/i.test(line)) {
       console.log(`📌 Label CNI trouvé à la ligne ${i}: "${line}"`)
@@ -351,33 +422,7 @@ function extractIdNumber(text: string, docType: string): string {
       }
     }
     
-    // Pour Passport : chercher PASSPORT No / No PASSPORT
-    if (/PASSPORT\s*NO|NO\.?\s*PASSPORT|N°.*PASSEPORT|PASSEPORT.*N°/i.test(line)) {
-      console.log(`📌 Label Passport trouvé à la ligne ${i}: "${line}"`)
-      
-      // Extraire le numéro sur la même ligne
-      const sameLineMatch = line.match(/(?:PASSPORT\s*NO\.?|NO\.?\s*PASSPORT|N°\s*(?:DE\s*)?PASSEPORT|PASSEPORT\s*N°)[:\s]*([A-Z0-9\s-]{6,15})/i)
-      if (sameLineMatch && sameLineMatch[1]) {
-        const number = sameLineMatch[1].replace(/[\s-]/g, '').trim()
-        if (number.length >= 6 && /\d/.test(number)) {
-          console.log(`✅ Numéro Passport extrait (même ligne): ${number}`)
-          return number
-        }
-      }
-      
-      // Si pas trouvé sur la même ligne, chercher sur la ligne suivante
-      if (i + 1 < lines.length) {
-        const nextLine = lines[i + 1]
-        const nextLineMatch = nextLine.match(/([A-Z0-9\s-]{6,15})/)
-        if (nextLineMatch && nextLineMatch[1]) {
-          const number = nextLineMatch[1].replace(/[\s-]/g, '').trim()
-          if (number.length >= 6 && /\d/.test(number)) {
-            console.log(`✅ Numéro Passport extrait (ligne suivante): ${number}`)
-            return number
-          }
-        }
-      }
-    }
+    // l'ancien bloc Passport est remplacé par le bloc en tête ci-dessus
   }
   
   // Fallback : essayer les patterns globaux si aucun label spécifique trouvé
@@ -386,12 +431,34 @@ function extractIdNumber(text: string, docType: string): string {
   for (const pattern of ID_NUMBER_PATTERNS) {
     const match = text.match(pattern)
     if (match && match[1]) {
-      const candidate = match[1].replace(/[\s-]/g, '').trim()
+      const candidate = normalizeIdNumberCandidate(match[1])
       // Valider que le candidat contient au moins un chiffre et a une longueur minimale
       if (/\d/.test(candidate) && candidate.length >= 6) {
         console.log(`✅ Numéro extrait via fallback: ${candidate}`)
         return candidate
       }
+    }
+  }
+  
+  // Dernier balayage: chercher une séquence plausible proche des labels "Passport" même sans deux-points
+  const nearPassport = text
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .reduce<string[]>((acc, l, idx, arr) => {
+      if (/PASSPORT|PASSEPORT/i.test(l)) {
+        acc.push(l)
+        if (arr[idx + 1]) acc.push(arr[idx + 1])
+        if (arr[idx + 2]) acc.push(arr[idx + 2])
+      }
+      return acc
+    }, [])
+    .join(' ')
+  const loose = nearPassport.match(/([A-Z0-9][A-Z0-9\-\s]{5,20})/)
+  if (loose?.[1]) {
+    const candidate = normalizeIdNumberCandidate(loose[1])
+    if (/\d/.test(candidate) && candidate.length >= 6) {
+      console.log(`✅ Numéro extrait via balayage libre: ${candidate}`)
+      return candidate
     }
   }
   
@@ -444,32 +511,132 @@ function normalizeDate(dateStr: string): string | undefined {
   return undefined
 }
 
+// Formatte une date ISO (YYYY-MM-DD) vers DD/MM/YYYY pour l'UI
+function formatIsoToDDMMYYYY(iso: string | undefined): string | undefined {
+  if (!iso) return undefined
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!m) return undefined
+  const [, y, mo, d] = m
+  return `${d}/${mo}/${y}`
+}
+
+// Détecte une date d'expiration faible/suspecte (placeholders 01/01 ou 00/00)
+function isWeakExpiryDate(value?: string): boolean {
+  if (!value) return true
+  const v = value.trim()
+  // Formats DD/MM/YYYY ou ISO YYYY-MM-DD
+  if (/^(?:00|01)\/(?:00|01)\/\d{4}$/.test(v)) return true
+  if (/^\d{2}\/\d{2}\/0000$/.test(v)) return true
+  if (/^\d{4}-(?:00|01)-(?:00|01)$/.test(v)) return true
+  if (/^0000-\d{2}-\d{2}$/.test(v)) return true
+  return false
+}
+
+// Normalise un candidat de numéro d'identité pour corriger les confusions OCR courantes
+function normalizeIdNumberCandidate(raw: string): string {
+  if (!raw) return ''
+  let v = raw.toUpperCase().replace(/[^A-Z0-9]/g, '')
+  // Corrections OCR fréquentes
+  v = v.replace(/O/g, '0') // O -> 0
+       .replace(/Q/g, '0') // Q -> 0
+       .replace(/[IL]/g, '1') // I,l -> 1
+       .replace(/S/g, '5') // S -> 5
+       .replace(/B/g, '8') // B -> 8
+       .replace(/Z/g, '2') // Z -> 2
+       .replace(/G/g, '6') // G -> 6
+  return v
+}
+
 /**
  * Extrait la date d'expiration depuis le texte
  */
 function extractExpiryDate(text: string): string | undefined {
-  // Essayer chaque pattern
+  // 1) Lecture préférentielle: ligne sous le label (FR/EN/ES/PT/DE/IT)
+  const lines = text.split(/\r?\n/).map(l => l.trim())
+  const expiryLabel = /(?:DATE\s+OF\s+EXPIRY|EXPIRY\s*DATE|DATE\s+D'?EXPIRATION|DATE\s+DE\s+VALIDIT\xC9|VALID(?:ITY|IT\xC9)|VENCE|VALIDADE|SCADENZA|G[ÜU]LTIG\s+BIS|DATE.*EXPIR)/i
+  for (let i = 0; i < lines.length; i++) {
+    if (expiryLabel.test(lines[i])) {
+      // Chercher sur la même ligne d'abord, puis jusqu'à 2 lignes sous le label
+      const candidates: string[] = []
+      // Inclure la ligne précédente aussi (certains gabarits mettent la date avant le label)
+      if (lines[i - 1]) candidates.push(lines[i - 1])
+      candidates.push(lines[i])
+      if (lines[i + 1]) candidates.push(lines[i + 1])
+      if (lines[i + 2]) candidates.push(lines[i + 2])
+
+      for (const cand of candidates) {
+        const m = cand.match(/([0-9]{1,2}[-\.\/][0-9]{1,2}[-\.\/][0-9]{2,4}|[0-9]{1,2}\s+[A-Z\p{L}]{3,}\s+[0-9]{4})/iu)
+        if (m?.[1]) {
+          const normalized = normalizeDate(m[1])
+          if (normalized) {
+            const expiryDate = new Date(normalized)
+            const maxFuture = new Date(); maxFuture.setFullYear(maxFuture.getFullYear() + 50)
+            const maxPast = new Date(); maxPast.setFullYear(maxPast.getFullYear() - 2)
+            if (expiryDate >= maxPast && expiryDate <= maxFuture) {
+              const fmt = formatIsoToDDMMYYYY(normalized) || normalized
+              // Si la date semble un placeholder (01/01), garder la valeur brute si elle existe
+              if (isWeakExpiryDate(fmt)) return m[1].replace(/[.]/g, '/').replace(/\s+/g, ' ').trim()
+              return fmt
+            }
+          } else {
+            // Retour brut si non normalisable (ex: 00.00.0000)
+            return m[1].replace(/[.]/g, '/').replace(/\s+/g, ' ').trim()
+          }
+        }
+      }
+    }
+  }
+
+  // 2) Fallback: patterns globaux
   for (const pattern of EXPIRY_DATE_PATTERNS) {
     const match = text.match(pattern)
     if (match && match[1]) {
       const normalized = normalizeDate(match[1])
       if (normalized) {
-        // Vérifier que c'est une date future (potentiellement valide pour une expiration)
         const expiryDate = new Date(normalized)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        
-        // Accepter les dates jusqu'à 50 ans dans le futur ou 2 ans dans le passé
-        const maxFuture = new Date()
-        maxFuture.setFullYear(maxFuture.getFullYear() + 50)
-        const maxPast = new Date()
-        maxPast.setFullYear(maxPast.getFullYear() - 2)
-        
+        const maxFuture = new Date(); maxFuture.setFullYear(maxFuture.getFullYear() + 50)
+        const maxPast = new Date(); maxPast.setFullYear(maxPast.getFullYear() - 2)
         if (expiryDate >= maxPast && expiryDate <= maxFuture) {
-          return normalized
+          const fmt = formatIsoToDDMMYYYY(normalized) || normalized
+          if (isWeakExpiryDate(fmt)) continue
+          return fmt
         }
       }
     }
+  }
+  
+  // 3) Dernier recours: chercher toutes les dates plausibles et retourner la plus récente (souvent l'expiration)
+  const allDateMatches: string[] = []
+  const globalPatterns = [
+    /(\d{1,2}[-\.\/]\d{1,2}[-\.\/]\d{2,4})/g,
+    /(\d{1,2}\s+[A-Z\p{L}]{3,}\s+\d{4})/giu,
+  ]
+  for (const gp of globalPatterns) {
+    let m: RegExpExecArray | null
+    while ((m = gp.exec(text)) !== null) {
+      if (m[1]) allDateMatches.push(m[1])
+    }
+  }
+  if (allDateMatches.length > 0) {
+    let best: { d: Date; raw: string; norm: string | undefined } | null = null
+    const maxFuture = new Date(); maxFuture.setFullYear(maxFuture.getFullYear() + 50)
+    const maxPast = new Date(); maxPast.setFullYear(maxPast.getFullYear() - 2)
+    for (const raw of allDateMatches) {
+      const norm = normalizeDate(raw)
+      if (norm) {
+        const d = new Date(norm)
+        if (d >= maxPast && d <= maxFuture) {
+          if (!best || d > best.d) best = { d, raw, norm }
+      }
+    }
+  }
+    if (best) {
+      const fmt = formatIsoToDDMMYYYY(best.norm!) || best.norm!
+      if (!isWeakExpiryDate(fmt)) return fmt
+    }
+    // Si aucune normalisable: retourner une occurrence brute (ex: 00.00.0000) formatée
+    const zeroLike = allDateMatches.find(v => /\b\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}\b/.test(v))
+    if (zeroLike) return zeroLike.replace(/[.]/g, '/').trim()
   }
   
   return undefined
@@ -502,7 +669,19 @@ function preprocessImage(canvas: HTMLCanvasElement): HTMLCanvasElement {
 function detectDocumentType(text: string): 'Passport' | 'ID Card' | 'Visa' | 'Unknown' {
   const upperText = text.toUpperCase()
   
-  if (upperText.includes('PASSPORT') || upperText.includes('PASSEPORT') || /P<[A-Z]{3}/.test(text)) {
+  // MRZ entêtes (prioritaire)
+  if (/^[P]<[A-Z]{3}/m.test(upperText)) {
+    return 'Passport'
+  }
+  if (/^[I][<|<]{1}[A-Z]{3}/m.test(upperText)) {
+    return 'ID Card'
+  }
+  if (/^[V][<|<]{1}[A-Z]{3}/m.test(upperText)) {
+    return 'Visa'
+  }
+
+  // Mots-clés
+  if (upperText.includes('PASSPORT') || upperText.includes('PASSEPORT')) {
     return 'Passport'
   }
   if (upperText.includes('CARTE') || upperText.includes('IDENTITY') || upperText.includes('CNI')) {
@@ -519,18 +698,19 @@ function detectDocumentType(text: string): 'Passport' | 'ID Card' | 'Visa' | 'Un
  * Parse la zone MRZ (Machine Readable Zone)
  */
 function parseMRZ(text: string): Partial<ExtractedIdData> {
-  const lines = text.split(/\r?\n/)
-  const mrzLines = lines.filter(line => /^[A-Z0-9<]{25,}$/.test(line.trim()))
-  
+  const lines = text.split(/\r?\n/).map(l => l.trim())
+  const mrzLines = lines.filter(line => /^[A-Z0-9<]{20,}$/.test(line))
   if (mrzLines.length < 2) return {}
   
   const data: Partial<ExtractedIdData> = {}
   
-  // MRZ Passport (2 lignes)
+  const first = mrzLines[0]
+
+  // Passeport TD3 (P<...) 2 lignes
+  if (/^P<[A-Z]{3}/.test(first)) {
   const line1 = mrzLines[0]
   const line2 = mrzLines[mrzLines.length - 1]
   
-  // Première ligne: Type<Pays>Nom<<Prénom
   const nameMatch = line1.match(/P<([A-Z]{3})([A-Z<]+)<<([A-Z<]+)/)
   if (nameMatch) {
     data.issuingCountry = nameMatch[1]
@@ -538,26 +718,53 @@ function parseMRZ(text: string): Partial<ExtractedIdData> {
     data.firstName = nameMatch[3].replace(/</g, ' ').trim()
   }
   
-  // Deuxième ligne: NuméroPasseport<Nat>DateNais>Sexe>DateExp
   const dataMatch = line2.match(/([A-Z0-9]{9})\d([A-Z]{3})(\d{6})\d([MF<])(\d{6})/)
   if (dataMatch) {
     data.idNumber = dataMatch[1].replace(/</g, '')
     data.nationality = dataMatch[2]
     
-    // Dates au format YYMMDD
     const dobYY = dataMatch[3].substring(0, 2)
     const dobMM = dataMatch[3].substring(2, 4)
     const dobDD = dataMatch[3].substring(4, 6)
     const dobYear = parseInt(dobYY) > 50 ? `19${dobYY}` : `20${dobYY}`
     data.dateOfBirth = `${dobYear}-${dobMM}-${dobDD}`
     
-    data.sex = dataMatch[4] === 'M' || dataMatch[4] === 'F' ? dataMatch[4] : undefined
-    
     const expYY = dataMatch[5].substring(0, 2)
     const expMM = dataMatch[5].substring(2, 4)
     const expDD = dataMatch[5].substring(4, 6)
     const expYear = parseInt(expYY) > 50 ? `19${expYY}` : `20${expYY}`
     data.idExpiryDate = `${expYear}-${expMM}-${expDD}`
+  }
+    return data
+  }
+
+  // Carte d'identité TD1 (I<...) 3 lignes
+  if (/^I<[A-Z]{3}/.test(first) && mrzLines.length >= 2) {
+    const l1 = mrzLines[0]
+    const l2 = mrzLines[1]
+    const iso = l1.match(/^I<([A-Z]{3})/)
+    if (iso) data.issuingCountry = iso[1]
+    const afterHeader = l1.slice(5)
+    const num = afterHeader.replace(/</g, ' ').match(/([A-Z0-9]{5,15})/)
+    if (num) data.idNumber = num[1].replace(/</g, '')
+    // L2: YYMMDD check, sex, YYMMDD
+    const m2 = l2.match(/^(\d{6})\d([MF<])(\d{6})/)
+    if (m2) {
+      const exp = m2[3]
+      const yy = exp.substring(0, 2)
+      const mm = exp.substring(2, 4)
+      const dd = exp.substring(4, 6)
+      const year = parseInt(yy) > 50 ? `19${yy}` : `20${yy}`
+      data.idExpiryDate = `${year}-${mm}-${dd}`
+    }
+    return data
+  }
+
+  // Visa V< ... — au moins pays émetteur
+  if (/^V<[A-Z]{3}/.test(first)) {
+    const iso = first.match(/^V<([A-Z]{3})/)
+    if (iso) data.issuingCountry = iso[1]
+    return data
   }
   
   return data
@@ -651,6 +858,38 @@ export async function extractIdDataLocal(
       if (mrzText) {
         const docType = detectDocumentType(mrzText)
         if (docType && docType !== 'Unknown') out.idType = docType
+      }
+    } catch {}
+
+    // 4bis) Tentative MRZ verticale (bande droite) utile pour certaines CNI
+    try {
+      if (!out.idNumber || !out.idExpiryDate || !out.issuingCountry) {
+        const cropRight = (src: HTMLCanvasElement, ratio = 0.34): HTMLCanvasElement => {
+          const w = Math.round(src.width * ratio)
+          const x = src.width - w
+          const dst = document.createElement('canvas')
+          dst.width = w
+          dst.height = src.height
+          const ctx = dst.getContext('2d')!
+          ctx.drawImage(src, x, 0, w, src.height, 0, 0, w, src.height)
+          return dst
+        }
+        let rightBand = cropRight(baseCanvas, 0.32)
+        rightBand = rotateCanvas(rightBand, -90)
+        const mrzTextRight = await recognizeText(
+          rightBand,
+          {
+            tessedit_pageseg_mode: '6',
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
+          },
+          onProgress,
+        )
+        const mrzDataRight = parseMRZ(mrzTextRight)
+        Object.assign(out, mrzDataRight)
+        if (mrzTextRight) {
+          const docTypeR = detectDocumentType(mrzTextRight)
+          if (docTypeR && docTypeR !== 'Unknown') out.idType = docTypeR
+        }
       }
     } catch {}
 
