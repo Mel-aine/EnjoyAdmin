@@ -427,6 +427,7 @@ function handleInvoiceCreated(newInvoice: any) {
 
 function printInvoice() {
     console.log('Printing invoice:', selectedInvoice.value)
+    
     // Implement print functionality
 }
 
