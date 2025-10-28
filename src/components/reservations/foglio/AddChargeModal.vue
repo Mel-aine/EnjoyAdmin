@@ -1,19 +1,19 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="props.isEditMode ? $t('Edit Charge') : $t('Add Charge')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ props.isEditMode ? $t('Edit Charge') : $t('Add Charge') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ props.isEditMode ? $t('Edit Charge') : $t('Add Charge') }}</h3>
     </template>
     <!-- Form -->
-    <div class="px-2 space-y-4">
+    <div class="px-2 space-y-4 text-gray-900 dark:text-gray-100">
       <!-- Date -->
       <div>
-        <InputDatePicker v-model="formData.date" :title="$t('Date')" />
+        <InputDatePicker v-model="formData.date" :title="$t('Date')" :disabled="isEditMode" />
 
       </div>
 
       <!-- Folio -->
       <div>
-        <InputFolioSelect :title="$t('folio')" v-model="formData.folio" :reservation-id="reservationId"
+        <InputFolioSelect :title="$t('folio')" v-model="formData.folio" :reservation-id="reservationId" :disabled="isEditMode"
           :is-required="true" />
       </div>
 
@@ -26,7 +26,7 @@
 
       <!-- Charge -->
       <div>
-        <InputExtractChargeSelect v-model="formData.charge" :lb="$t('Charge')" @select="chargeSelected" />
+        <InputExtractChargeSelect :disabled="isEditMode" v-model="formData.charge" :lb="$t('Charge')" @select="chargeSelected" />
       </div>
       <!-- Add as Inclusion
       <div class="flex items-center">
@@ -52,15 +52,15 @@
 
       <!-- Comment -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comment</label>
         <textarea v-model="formData.comment" rows="3"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none"
+          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
           placeholder="Enter any additional comments..."></textarea>
       </div>
     </div>
 
     <template #footer>
-      <div class="flex justify-end space-x-3">
+      <div class="flex justify-end space-x-3 dark:bg-gray-800">
         <BasicButton variant="secondary" @click="closeModal" :label="$t('cancel')" :disabled="isLoading"></BasicButton>
         <BasicButton variant="primary" @click="saveCharge"  :label="isLoading ? (props.isEditMode ? $t('Updating...') : $t('Adding...')) : (props.isEditMode ? $t('Update') : $t('Add'))"  :disabled="isLoading"></BasicButton>
       </div>
@@ -137,7 +137,7 @@ const saveCharge = async () => {
     isLoading.value = true
 
     // Validate required fields
-    if (!formData.folio || !formData.charge || !formData.amount || !selectedCharge.value) {
+    if (!formData.folio || !formData.charge || !formData.amount ||( !selectedCharge.value && !formData.charge)) {
       toast.error('Please fill in all required fields (Folio, Charge, and Amount)')
       return
     }
@@ -156,7 +156,7 @@ const saveCharge = async () => {
       folioId: Number(formData.folio),
       transactionType: 'charge',
       category: 'extract_charge',
-      description: selectedCharge.value?.name || selectedCharge.value?.charge_name || 'Extra Charge',
+      description: `${selectedCharge.value?.name || selectedCharge.value?.charge_name} Qt[${formData.quantity}]`,
       amount: prepareFolioAmount(formData.amount),
       quantity: safeParseFloat(formData.quantity, 1),
       unitPrice: safeParseFloat(selectedCharge.value?.rateInclusiveTax, 0),
@@ -164,6 +164,7 @@ const saveCharge = async () => {
       departmentId: selectedCharge.value?.departmentId || '',
       reference: `${formData.recVouNumber}` || '',
       notes: formData.comment || '',
+      extraChargeId: formData.charge,
       discountId: formData.discount ? Number(formData.discount) : undefined
     }
 
@@ -198,8 +199,6 @@ const saveCharge = async () => {
 const loadTransactionData = () => {
   if (props.isEditMode && props.transactionData) {
     const tx = props.transactionData
-    console.log("tx",props.transactionData)
-
     formData.date = tx.postingDate || new Date().toISOString().split('T')[0]
     formData.folio = tx.folioId || props.folioId
     formData.recVouNumber = tx.transactionNumber || ''
@@ -208,8 +207,6 @@ const loadTransactionData = () => {
     formData.discount = tx.discountId || ''
     formData.comment = tx.notes || tx.description || ''
     formData.charge = tx.extraChargeId || tx.chargeId || tx.particular_id || ''
-
-
   }
 }
 

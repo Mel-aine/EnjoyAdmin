@@ -130,8 +130,8 @@ async function confirmCancel() {
   loadingCancel.value = true
   try {
     if (!reservationId.value) throw new Error('Missing reservation ID.')
-    const payload: any = { reason: reason.value }
-    await cancelReservationById(reservationId.value, payload)
+    // const payload: any = { reason: reason.value }
+    // await cancelReservationById(reservationId.value, payload)
     success.value = 'Reservation cancelled successfully.'
   } catch (e: any) {
     error.value = e?.response?.data?.message || e?.message || 'Cancellation failed. Please try again later.'

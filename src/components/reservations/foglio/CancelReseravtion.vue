@@ -2,23 +2,23 @@
   <!-- Cancel Reservation Modal -->
   <RightSideModal :is-open="isOpen" :title="$t('cancel_reservation')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ $t('cancel_reservation') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('cancel_reservation') }}</h3>
     </template>
     <div>
       <!-- Loading Skeleton -->
       <div v-if="isLoading" class="space-y-4">
         <div class="animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
           <div class="flex space-x-4 mb-4">
-            <div class="h-4 bg-gray-200 rounded w-16"></div>
-            <div class="h-4 bg-gray-200 rounded w-32"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
           </div>
-          <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-          <div class="h-10 bg-gray-200 rounded mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-          <div class="h-10 bg-gray-200 rounded mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-          <div class="h-10 bg-gray-200 rounded mb-4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+          <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+          <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+          <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
         </div>
       </div>
 
@@ -26,20 +26,20 @@
       <form v-else @submit.prevent="handleSubmit">
         <!-- Apply For Selection -->
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {{ $t('Apply For') }}
           </label>
           <div class="flex space-x-4">
             <label class="flex items-center">
               <input v-model="formData.cancelType" type="radio" value="group" :disabled="reservationRooms.length === 1"
-                class="w-4 h-4 text-primary border-gray-300 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed" />
-              <span class="ml-2 text-sm" :class="reservationRooms.length === 1 ? 'text-gray-400' : 'text-gray-700'">{{
+                class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed" />
+              <span class="ml-2 text-sm" :class="reservationRooms.length === 1 ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'">{{
                 $t('Group') }}</span>
             </label>
             <label class="flex items-center">
               <input v-model="formData.cancelType" type="radio" value="individual"
-                class="w-4 h-4 text-primary border-gray-300 focus:ring-primary" />
-              <span class="ml-2 text-sm text-gray-700">{{ $t('Individual Reservation') }}</span>
+                class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary" />
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Individual Reservation') }}</span>
             </label>
           </div>
         </div>
@@ -47,22 +47,22 @@
         <!-- Room Selection -->
 
         <div v-if="formData.cancelType === 'individual' && reservationRooms.length > 0" class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {{ $t('Select Rooms') }}
           </label>
           <div class="space-y-2 max-h-40 overflow-y-auto">
             <label v-for="room in reservationRooms" :key="room.id" class="flex items-center p-2 border rounded" :class="{
-              'hover:bg-gray-50 cursor-pointer': room.status !== 'cancelled',
-              'bg-gray-100 cursor-not-allowed opacity-60': room.status === 'cancelled'
+              'hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-700': room.status !== 'cancelled',
+              'bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-60': room.status === 'cancelled'
             }">
               <input v-model="formData.selectedRooms" type="checkbox" :value="room.id"
                 :disabled="room.status === 'cancelled'"
-                class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50" />
+                class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 rounded focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50" />
               <div class="ml-2 flex-1">
-                <span class="text-sm" :class="room.status === 'no_show' ? 'text-gray-500' : 'text-gray-700'">
+                <span class="text-sm" :class="room.status === 'no_show' ? 'text-gray-500 dark:text-gray-400' : 'text-gray-700 dark:text-gray-300'">
                   {{ room.room?.roomNumber }} - {{ room.guest?.displayName || room.guestName }}
                 </span>
-                <span v-if="room.status === 'cancelled'" class="ml-2 text-xs text-red-600 font-medium">
+                <span v-if="room.status === 'cancelled'" class="ml-2 text-xs text-red-600 dark:text-red-400 font-medium">
                   ({{ $t('Already marked as cancelled') }})
                 </span>
               </div>
@@ -87,7 +87,7 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-end space-x-3 bg-gray-50">
+      <div class="flex justify-end space-x-3 bg-gray-50 dark:bg-gray-800">
         <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')" :disabled="loading" />
         <BasicButton type="submit" variant="danger" @click="handleSubmit" :label="$t('cancel_reservation')"
           :loading="loading" />

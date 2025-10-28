@@ -37,14 +37,14 @@
       <div v-if="isDropdownOpen" class="relative">
         <div
           v-if="!isLoading"
-          class="absolute z-50 w-full mt-1 overflow-hidden bg-white border-2 border-t-0 border-purple-100 rounded-b-lg shadow-lg"
+          class="absolute z-50 w-full mt-1 overflow-hidden bg-white dark:bg-gray-900 border-2 border-t-0 border-purple-100 dark:border-gray-700 rounded-b-lg shadow-lg"
         >
           <!-- Container principal avec flex column -->
           <div class="flex flex-col">
             <!-- Liste des options avec scroll - MODIFIÉ: max-h réduit pour n'afficher qu'une option -->
             <ul
               ref="optionsList"
-              class="custom-scrollbar overflow-y-auto text-lg sm:text-base"
+              class="custom-scrollbar overflow-y-auto text-lg sm:text-base dark:text-gray-100"
               style="max-height: 200px;"
               role="listbox"
               :aria-expanded="isDropdownOpen"
@@ -84,14 +84,14 @@
               <!-- Message quand aucun résultat n'est trouvé -->
               <div
                 v-if="displayOptions.length === 0 && search && !isLoading"
-                class="px-5 py-3 text-sm text-gray-500"
+                class="px-5 py-3 text-sm text-gray-500 dark:text-gray-300"
               >
                 {{ $t('noResultsFound') }}
               </div>
             </ul>
 
             <!-- Champ de saisie personnalisé - TOUJOURS VISIBLE -->
-            <div v-if="props.allowCustom" class="border-t border-gray-200 bg-white px-3 py-2" @mousedown.stop>
+            <div v-if="props.allowCustom" class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2" @mousedown.stop>
               <div class="flex items-center gap-2">
                 <input
                   ref="customInput"
@@ -101,13 +101,13 @@
                   @keydown.esc="cancelCustomReason"
                   @click.stop
                   @mousedown.stop
-                  class="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   :placeholder="$t('Enter Custom Reason')"
                 />
                 <button
                   @click.prevent="addCustomReason"
                   @mousedown.stop
-                  class="px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   :disabled="!customReason.trim()"
                 >
                   {{ $t('add') }}

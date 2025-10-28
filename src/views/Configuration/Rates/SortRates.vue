@@ -2,48 +2,48 @@
   <ConfigurationLayout>
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Sort Rates</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Sort Rates</h1>
         <BasicButton variant="primary" @click="saveChanges">
           <Save class="w-4 h-4 mr-2" />
           Save Changes
         </BasicButton>
       </div>
       
-      <div class="bg-white rounded-lg shadow">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="p-6">
-          <p class="text-gray-600 mb-6">
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
             Enter the numbers against the rates you have defined in the order you want to list them. Save the changes and come to same screen if you want to edit this information anytime in future.
           </p>
           
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Rate Type
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Description
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Sort Order
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <tr v-for="rate in rates" :key="rate.id">
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                       {{ rate.name }}
                     </div>
-                    <div class="text-sm text-gray-500">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
                       {{ rate.shortCode }}
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {{ rate.description }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
@@ -51,14 +51,14 @@
                       v-model.number="rate.sortOrder" 
                       type="number" 
                       min="1" 
-                      class="w-20 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+                      class="w-20 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
                       @change="updateSortOrder(rate)"
                     />
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span :class="[
                       'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                      rate.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      rate.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                     ]">
                       {{ rate.status }}
                     </span>

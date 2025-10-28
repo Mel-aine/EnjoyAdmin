@@ -3,8 +3,8 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Registration Settings</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Registration Settings</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
             Configure guest registration requirements and mandatory fields.
           </p>
         </div>
@@ -13,9 +13,9 @@
       
       <div class="space-y-6">
         <!-- Guest Registration Requirements -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Guest Registration Requirements</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Guest Registration Requirements</h2>
             
             <div class="space-y-4">
               <div class="flex items-center">
@@ -23,9 +23,9 @@
                   id="requireIdProof"
                   v-model="registrationSettings.requireIdProof"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="requireIdProof" class="ml-2 block text-sm text-gray-900">
+                <label for="requireIdProof" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Require ID Proof for Registration
                 </label>
               </div>
@@ -35,9 +35,9 @@
                   id="requireSignature"
                   v-model="registrationSettings.requireSignature"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="requireSignature" class="ml-2 block text-sm text-gray-900">
+                <label for="requireSignature" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Require Guest Signature
                 </label>
               </div>
@@ -47,9 +47,9 @@
                   id="requireAddress"
                   v-model="registrationSettings.requireAddress"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="requireAddress" class="ml-2 block text-sm text-gray-900">
+                <label for="requireAddress" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Require Complete Address
                 </label>
               </div>
@@ -59,9 +59,9 @@
                   id="requireEmergencyContact"
                   v-model="registrationSettings.requireEmergencyContact"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="requireEmergencyContact" class="ml-2 block text-sm text-gray-900">
+                <label for="requireEmergencyContact" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Require Emergency Contact
                 </label>
               </div>
@@ -70,9 +70,9 @@
         </div>
         
         <!-- Mandatory Fields -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Mandatory Fields</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Mandatory Fields</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex items-center">
@@ -80,9 +80,9 @@
                   id="mandatoryPhone"
                   v-model="mandatoryFields.phone"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="mandatoryPhone" class="ml-2 block text-sm text-gray-900">
+                <label for="mandatoryPhone" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Phone Number
                 </label>
               </div>
@@ -92,9 +92,9 @@
                   id="mandatoryEmail"
                   v-model="mandatoryFields.email"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="mandatoryEmail" class="ml-2 block text-sm text-gray-900">
+                <label for="mandatoryEmail" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Email Address
                 </label>
               </div>
@@ -104,9 +104,9 @@
                   id="mandatoryNationality"
                   v-model="mandatoryFields.nationality"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="mandatoryNationality" class="ml-2 block text-sm text-gray-900">
+                <label for="mandatoryNationality" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Nationality
                 </label>
               </div>
@@ -116,9 +116,9 @@
                   id="mandatoryDateOfBirth"
                   v-model="mandatoryFields.dateOfBirth"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="mandatoryDateOfBirth" class="ml-2 block text-sm text-gray-900">
+                <label for="mandatoryDateOfBirth" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Date of Birth
                 </label>
               </div>
@@ -128,9 +128,9 @@
                   id="mandatoryGender"
                   v-model="mandatoryFields.gender"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="mandatoryGender" class="ml-2 block text-sm text-gray-900">
+                <label for="mandatoryGender" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Gender
                 </label>
               </div>
@@ -140,9 +140,9 @@
                   id="mandatoryOccupation"
                   v-model="mandatoryFields.occupation"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="mandatoryOccupation" class="ml-2 block text-sm text-gray-900">
+                <label for="mandatoryOccupation" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Occupation
                 </label>
               </div>
@@ -151,9 +151,9 @@
         </div>
         
         <!-- Registration Card Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Registration Card Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Registration Card Settings</h2>
             
             <div class="space-y-4">
               <div class="flex items-center">
@@ -161,9 +161,9 @@
                   id="printRegistrationCard"
                   v-model="cardSettings.printRegistrationCard"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="printRegistrationCard" class="ml-2 block text-sm text-gray-900">
+                <label for="printRegistrationCard" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Auto Print Registration Card on Check-in
                 </label>
               </div>
@@ -173,9 +173,9 @@
                   id="includePhoto"
                   v-model="cardSettings.includePhoto"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="includePhoto" class="ml-2 block text-sm text-gray-900">
+                <label for="includePhoto" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Include Guest Photo on Registration Card
                 </label>
               </div>
@@ -185,9 +185,9 @@
                   id="includeSignature"
                   v-model="cardSettings.includeSignature"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="includeSignature" class="ml-2 block text-sm text-gray-900">
+                <label for="includeSignature" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Include Signature Space on Registration Card
                 </label>
               </div>

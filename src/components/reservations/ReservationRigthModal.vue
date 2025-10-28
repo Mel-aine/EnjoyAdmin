@@ -1,11 +1,11 @@
 <template>
-    <div v-if="isOpen" class="fixed inset-0 z-50 h-full overflow-hidden">
+    <div v-if="isOpen" class="fixed inset-0 z-[99999] h-full overflow-hidden">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/25 bg-opacity-50 transition-opacity h-full"></div>
 
         <!-- Modal Container -->
         <div class="fixed inset-y-0 top-0 h-full right-0 flex max-w-full pl-10">
-            <div class="relative  max-w-7xl transform transition-transform duration-300 ease-in-out" @click.stop>
+            <div class="relative  max-w-7xl  transform transition-transform duration-300 ease-in-out" @click.stop>
                 <!-- Modal Content -->
                 <!-- Loading Skeleton -->
                 <div v-if="isLoading" class="flex h-full flex-col bg-white shadow-xl dark:bg-gray-900">

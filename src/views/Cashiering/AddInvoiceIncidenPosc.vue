@@ -1,9 +1,9 @@
 <template>
   <div class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-end z-50">
-    <div class="bg-white shadow-xl w-full max-w-6xl  overflow-hidden h-full flex flex-col">
+    <div class="bg-white dark:text-white  dark:bg-gray-800 shadow-xl w-full max-w-6xl  overflow-hidden h-full flex flex-col">
       <!-- Modal Header -->
       <div class="flex justify-between items-center p-4 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-gray-900">{{ $t('add') }}</h2>
+        <h2 class="text-xl font-semibold ">{{ $t('add') }}</h2>
         <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -58,13 +58,13 @@
         <!-- Charges Section -->
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">{{ $t('charges') }}</h3>
+            <h3 class="text-lg font-semibold ">{{ $t('charges') }}</h3>
 
           </div>
 
           <div class="overflow-visible">
             <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-200">
+              <thead class="bg-gray-200 dark:bg-black">
                 <tr>
                   <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('sr_no') }}</th>
@@ -82,9 +82,9 @@
                     $t('action') }}</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody class="bg-white divide-y divide-gray-200 dark:bg-black">
                 <tr v-for="(charge, index) in form.charges" :key="index">
-                  <td class="px-2 py-4 whitespace-nowrap text-sm text-gray-900">{{ index + 1 }}</td>
+                  <td class="px-2 py-4 whitespace-nowrap text-sm ">{{ index + 1 }}</td>
                  
                   <td class=" w-50 px-2 py-4 whitespace-nowrap">
                     <InputExtractChargeSelect v-model="charge.particular" :hide-label="true" @select="(selectedCharge) => handleChargeChange(selectedCharge, index)" />
@@ -123,8 +123,8 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="flex justify-between items-center p-6 border-t border-gray-200 bg-gray-50">
-        <div class="text-sm text-gray-600">
+      <div class="flex justify-between items-center px-6 py-4 border-t border-gray-200 bg-gray-50 dark:bg-gray-800">
+        <div class="text-sm text-red-600">
           {{ $t('balance') }}: {{ balance }}
         </div>
         <div class="flex space-x-3">

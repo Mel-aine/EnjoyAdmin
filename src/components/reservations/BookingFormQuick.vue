@@ -6,7 +6,7 @@ import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { useI18n } from 'vue-i18n'
 import Select from '@/components/forms/FormElements/Select.vue'
-import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
+import CustomerSearch from '../customers/CustomerSarch.vue'
 import {
   PencilLine,
   CircleChevronDown,
@@ -19,7 +19,7 @@ import { useBooking } from '@/composables/useBooking2'
 import router from '../../router'
 import { useRoute } from 'vue-router'
 import BasicButton from '../../components/buttons/BasicButton.vue'
-import InputPaymentMethodSelect from '../../components/reservations/foglio/InputPaymentMethodSelect.vue'
+import InputPhone from '../forms/FormElements/InputPhone.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import { useReservation } from '@/composables/useReservation'
 import { getReservationDetailsById, confirmBooking } from '../../services/reservation'
@@ -75,6 +75,12 @@ const toast = useToast()
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
 }
+const GuestTitles = computed(() => [
+  { label: t('guestTitles.mr'), value: 'Mr' },
+  { label: t('guestTitles.mrs'), value: 'Mrs' },
+  { label: t('guestTitles.miss'), value: 'Miss' },
+  { label: t('guestTitles.dr'), value: 'Dr' },
+])
 
 const showTaxDetails = ref<Record<string, boolean>>({})
 const showChargesDetails = ref<Record<string, boolean>>({})
@@ -303,6 +309,7 @@ const gotoNew = () => {
       idPhoto: formData.value.idPhoto,
       maidenName: formData.value.maidenName,
       contactType: formData.value.contactType,
+      contactValue: formData.value.contactValue,
     },
     otherInfo: {
       emailBookingVouchers: otherInfo.value.emailBookingVouchers,
@@ -396,6 +403,8 @@ const handleCheckIn = async () => {
   }
 }
 
+
+
 // Ajoutez
 const handleConfirmReservation = async () => {
   if (!reservationId.value) {
@@ -437,6 +446,16 @@ const handleConfirmReservation = async () => {
 const initializeForm = () => {
   // Call the original initialize from useBooking if it sets default values
   initialize()
+
+
+   const walkInOption = BookingSource.value.find((source: any) =>
+    source.label === 'Walk-in')
+     console.log('walkInOption:', walkInOption)
+
+  if (walkInOption) {
+    reservation.value.bookingSource = walkInOption.id
+  }
+
 
   // Check for query parameters and update reservation object
   if (route.query.checkin) {
@@ -509,6 +528,67 @@ const onQuickGroupBookingChange = (event: Event) => {
   }
 }
 
+const TypesOfContact = computed(() => [
+  { label: t('contactTypes.mobile'), value: 'Mobile' },
+  { label: t('contactTypes.fix'), value: 'Fix' },
+  { label: t('contactTypes.email'), value: 'Email' },
+  { label: t('contactTypes.facebook'), value: 'Facebook' },
+  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
+])
+
+const contactInputComponent = computed(() => {
+  if (!formData.value.contactType) return null
+
+  switch (formData.value.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = formData.value.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+
+watch(() => formData.value.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    formData.value.contactTypeValue = ''
+  }
+})
+
+// Créer un computed bidirectionnel
+
+const contactValue = computed({
+  get: () => formData.value.contactValue,
+  set: (value) => {
+    formData.value.contactValue = value
+  }
+})
+
 onMounted(() => {
   initialize()
   initializeForm()
@@ -521,7 +601,7 @@ onMounted(() => {
     'opacity-0': !isOpen
   }">
     <!-- Background overlay -->
-    <div class="absolute inset-0 bg-transparent bg-opacity-50 transition-opacity duration-300" :class="{
+    <div class="absolute inset-0 bg-black/50 dark:bg-black/70 transition-opacity duration-300" :class="{
       'opacity-100': isOpen,
       'opacity-0': !isOpen
     }" @click="close"></div>
@@ -529,22 +609,22 @@ onMounted(() => {
     <!-- Modal panel -->
     <div class="fixed inset-y-0 right-0 flex max-w-full pl-10">
       <div
-        class="pointer-events-auto relative w-screen max-w-5xl transform transition-transform duration-300 ease-in-out"
+        class="pointer-events-auto relative w-screen max-w-4xl transform transition-transform duration-300 ease-in-out"
         :class="{
           'translate-x-0': isOpen,
           'translate-x-full': !isOpen
         }">
         <!-- Modal content -->
-        <div class="flex h-full flex-col bg-white shadow-xl">
+        <div class="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl">
           <!-- Header -->
-          <div class="bg-white px-4 py-3 sm:px- border-b border-gray-200">
+          <div class="bg-white dark:bg-gray-800 px-4 py-3 sm:px- border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-medium text-gray-900">
+              <h2 class="text-lg font-medium dark:text-white text-gray-900">
                 {{ $t('QuickBooking') }}
               </h2>
               <div class="ml-3 flex h-7 items-center">
                 <button type="button"
-                  class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="rounded-md bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-blue-600 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                   @click="close">
                   <span class="sr-only">Close panel</span>
                   <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -571,10 +651,10 @@ onMounted(() => {
                         <label for="checkin" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                           {{ $t('check_in_date') }}
                         </label>
-                        <div class="flex gap-0">
+                        <div class="flex gap-0 ">
                           <InputDatePicker v-model="reservation.checkinDate" custom-class="rounded-r-none"
-                            :allowPastDates="false" :placeholder="$t('Selectdate')" />
-                          <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
+                            :allowPastDates="false" :placeholder="$t('Selectdate')" class="w-[110px]" />
+                          <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none w-[100px]" />
                         </div>
                       </div>
 
@@ -594,8 +674,8 @@ onMounted(() => {
                         </label>
                         <div class="flex gap-0">
                           <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
-                            custom-class="rounded-none" />
-                          <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" />
+                            custom-class="rounded-none" class="w-[110px]" />
+                          <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" class="w-[100px]"/>
                         </div>
 
                         <p v-if="dateError" class="text-sm text-red-600">
@@ -613,42 +693,19 @@ onMounted(() => {
                           :defaultValue="$t('SelectBookingSource')" :lb="$t('booking_source')" :is-required="false"
                           :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
                       </div>
-                    </div>
-
-                    <div class="grid md:grid-cols-5 grid-cols-1 gap-2">
-                      <div>
-                        <Select :lb="$t('customType')" :options="CustomTypes" :placeholder="$t('select_custom_type')" v-model="reservation.customType"/>
-                      </div>
-
-                      <div>
+                      <div class="flex-col flex w-[500px] ms-2">
                         <AutoCompleteSelect v-model="reservation.businessSource" :options="BusinessSource"
                           :defaultValue="$t('SelectBusinessSource')" :lb="$t('business_source')" :is-required="false"
                           :use-dropdown="useDropdownBooking" @clear-error="emits('clear-error')" />
                       </div>
-                      <div>
-                        <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'"
-                          :placeholder="$t('ArrivingTo')"  v-model="reservation.arrivingTo"/>
-                      </div>
-                      <div>
-                        <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')" v-model="reservation.goingTo"/>
-                      </div>
-                      <div>
-                          <AutoCompleteSelect
-                            v-model="reservation.meansOfTransport"
-                            :options="TransportationModes"
-                            :defaultValue="$t('MeansOfTransportation')"
-                            :lb="$t('MeansOfTransportation')"
-                            :is-required="false"
-                            :use-dropdown="useDropdownBooking"
-                            @clear-error="emits('clear-error')"
-                          />
-                      </div>
                     </div>
+
+
                     <!-- Room Type -->
-                    <section class="border-t border-gray-300 pt-4 space-y-4">
+                    <section class="border-t border-gray-300  dark:bg-gray-800 pt-4 space-y-4">
                       <!-- Room Configurations -->
                       <div class="space-y-4">
-                        <div class="grid md:grid-cols-12 grid-cols-12 gap-1 py-2 px-3 items-end bg-gray-100">
+                        <div class="grid md:grid-cols-12 grid-cols-12 gap-1 py-2 px-3 items-end bg-gray-100  dark:bg-black dark:text-white">
                           <div class="col-span-3">{{ $t('roomType') }}</div>
                           <div class="col-span-2">{{ $t('configuration.rates.rateType') }}</div>
                           <div class="col-span-2">{{ $t('Room') }}</div>
@@ -723,9 +780,9 @@ onMounted(() => {
                               <div class="relative inline-block w-full">
 
                                 <div v-if="!isCustomPrize"
-                                  class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11  bg-gray-200 px-4 py-2.5 text-sm"
+                                  class="flex items-center rounded-lg border border-gray-300 dark:border-gray-700 mt-1.5 h-11 bg-gray-200 dark:bg-gray-900 px-4 py-2.5 text-sm dark:text-white/90"
                                   :class="{ 'opacity-50': room.isLoadingRate }">
-                                  <span type="button" class="text-gray-500 hover:text-gray-700 mr-3"
+                                  <span type="button" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 mr-3"
                                     @click="isCustomPrize = true">
                                     <PencilLine :size="18" />
                                   </span>
@@ -738,7 +795,7 @@ onMounted(() => {
 
                                   <!-- Rate avec breakdown -->
                                   <div v-else class="flex-grow">
-                                    <div class="font-medium text-gray-800 justify-end flex">
+                                    <div class="font-medium text-gray-800 dark:text-gray-200 justify-end flex">
                                       {{ room.rate }}
                                     </div>
                                   </div>
@@ -746,7 +803,7 @@ onMounted(() => {
 
 
                                   <div v-if="room.isOpen"
-                                    class="absolute left-0 top-full mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:bg-gray-900 z-20 max-h-48 overflow-auto">
+                                    class="absolute left-0 top-full mt-1 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white shadow-lg dark:bg-gray-900 z-20 max-h-48 overflow-auto">
                                     <ul>
                                       <li v-for="option in dropdownOptions" :key="option.value"
                                         class="flex items-center gap-3 px-4 py-2 hover:bg-purple-100 dark:hover:bg-purple-700 cursor-pointer"
@@ -814,13 +871,13 @@ onMounted(() => {
 
 
                           <div class="flex items-center justify-center translate-x-60">
-                            <span class="text-md text-gray-950 font-bold">
+                            <span class="text-md text-gray-950 dark:text-white font-bold">
                               {{ $t('Total') }}
                             </span>
                           </div>
 
                           <div class="flex-1 flex items-center justify-end mr-20">
-                            <span class="text-sm font-medium text-gray-800">
+                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
                               {{ formatCurrency(totalAmount) }}
                             </span>
                           </div>
@@ -828,10 +885,10 @@ onMounted(() => {
 
 
                     </section>
-                    <section class="border-t border-gray-300 pt-4 space-y-4" v-if="reservation.isHold">
+                    <section class="border-t border-gray-300 dark:border-gray-700 dark:bg-gray-800 pt-4 space-y-4" v-if="reservation.isHold">
                       <!-- Hold Release Date & Time Section -->
                       <div class="">
-                        <h2 class="text-sm font-semibold text-gray-800 uppercase mb-5">{{ $t('hold_release_date_time')
+                        <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200 uppercase mb-5">{{ $t('hold_release_date_time')
                           }}</h2>
 
                         <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-4">
@@ -862,19 +919,19 @@ onMounted(() => {
                             <div class="flex items-center space-x-2">
                               <Input :inputType="'number'" v-model="holdReleaseData.remindDays" :placeholder="'0'"
                                 class="w-22" />
-                              <span class="text-sm text-gray-600">{{ $t('days') }}</span>
+                              <span class="text-sm text-gray-600 dark:text-gray-300">{{ $t('days') }}</span>
 
                               <!-- Radio buttons -->
                               <div class="flex items-center space-x-4 ml-4">
                                 <label class="flex items-center space-x-1 cursor-pointer">
                                   <input type="radio" v-model="holdReleaseData.dateType" value="hold_release_date"
                                     class="form-radio text-blue-600" />
-                                  <span class="text-sm text-gray-700">{{ $t('hold_release_date') }}</span>
+                                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('hold_release_date') }}</span>
                                 </label>
                                 <label class="flex items-center space-x-1 cursor-pointer">
                                   <input type="radio" v-model="holdReleaseData.dateType" value="arrival_date"
                                     class="form-radio text-blue-600" />
-                                  <span class="text-sm text-gray-700">{{ $t('arrival_date') }}</span>
+                                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('arrival_date') }}</span>
                                 </label>
                               </div>
                             </div>
@@ -883,11 +940,116 @@ onMounted(() => {
                       </div>
                     </section>
                     <!-- Guest Information -->
-                    <section class="border-t border-gray-300 pt-2 space-y-4">
+                    <section class="border-t border-gray-300 dark:border-gray-700 dark:bg-gray-800 pt-2 space-y-4">
 
-                      <div>
-                        <CustomerCard :show-image="false" @customerSelected="onCustomerSelected" v-model="formData" />
+                     <div class="flex items-end w-full space-x-0">
+                        <!-- Titre -->
+                        <div class="w-20">
+                          <Select
+                            :lb="$t('Title')"
+                            :options="GuestTitles"
+                            v-model="formData.title"
+                            :default-value="$t('guestTitles.mr')"
+                            custom-class="rounded-r-none h-11 w-full"
+                          />
+                        </div>
+
+                        <!-- Recherche client -->
+                        <div class="w-[110px]">
+                          <CustomerSearch
+                            @customer-selected="onCustomerSelected"
+                            v-model="formData"
+
+                          />
+                        </div>
+
+                        <!-- Nom -->
+                        <div class="w-[110px]">
+                          <Input
+                            :lb="$t('LastName')"
+                            v-model="formData.lastName"
+                            :placeholder="$t('LastName')"
+                            custom-class="rounded-none h-11 border-l-0 w-full"
+                          />
+                        </div>
+
+                        <!-- Nom de jeune fille -->
+                        <div class="w-[110px]">
+                          <Input
+                            :lb="$t('MaidenName')"
+                            v-model="formData.maidenName"
+                            :placeholder="$t('MaidenName')"
+                            custom-class="rounded-l-none h-11 border-l-0 w-full"
+                          />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="flex-1 ml-2">
+                          <InputEmail
+                            v-model="formData.email"
+                            placeholder="info@gmail.com"
+                            :title="$t('Email')"
+                            required
+                            custom-class=" h-11  w-full"
+                          />
+                        </div>
+
+                        <!-- Téléphone -->
+                        <div class="flex-1  ml-2">
+                          <InputPhone
+                            :title="$t('Phone')"
+                            v-model="formData.phoneNumber"
+                            :id="'phone'"
+                            :is-required="false"
+                            custom-class="rounded-l-none h-11 border-l-0 w-full"
+                          />
+                        </div>
                       </div>
+
+                      <div :class="[
+                        'grid grid-cols-1 gap-4',
+                        formData.contactType ? 'sm:grid-cols-2' : 'sm:grid-cols-2'
+                      ]">
+
+
+                        <AutoCompleteSelect
+                            v-model="formData.contactType"
+                            :options="TypesOfContact"
+                            :defaultValue="$t('contactType')"
+                            :lb="$t('contactType')"
+                            :is-required="false"
+                            :use-dropdown="useDropdownBooking"
+                            @clear-error="emits('clear-error')"
+                            custom-class="h-11"
+                          />
+
+                          <div v-if="formData.contactType">
+                            <InputPhone
+                              v-if="contactInputComponent === 'InputPhone'"
+                              :title="contactInputLabel"
+                              v-model="contactValue"
+                              :id="'contact-input'"
+                              :is-required="false"
+                              custom-class="h-11"
+                            />
+
+                            <InputEmail
+                              v-else-if="contactInputComponent === 'InputEmail'"
+                              v-model="contactValue"
+                              :placeholder="contactInputLabel"
+                              :title="contactInputLabel"
+                              custom-class="h-11"
+                            />
+
+                            <Input
+                              v-else-if="contactInputComponent === 'Input'"
+                              :lb="contactInputLabel"
+                              v-model="contactValue"
+                              :placeholder="contactInputLabel"
+                              custom-class="h-11"
+                            />
+                        </div>
+                        </div>
                     </section>
 
                   </div>
@@ -897,7 +1059,7 @@ onMounted(() => {
           </div>
 
           <!-- Footer -->
-          <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6">
+          <div class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-4 sm:px-6">
             <div class="flex justify-between  space-x-3">
                <BasicButton  v-if="!showCheckinButton && !pendingReservation" type="button" @click="gotoNew"
                  :disabled="isLoading" variant=""
@@ -907,9 +1069,9 @@ onMounted(() => {
                 :loading="isLoading" :disabled="isLoading" variant="info"
                 :label="isGroupReservation ? $t('Check-In') : $t('Quick Check-In')">
               </BasicButton>
-              <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
+              <BasicButton v-if="!confirmReservation" variant="success" :loading="isLoading" type="submit"
                 @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
-                :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
+                :label="hasPendingUploads ? $t('UploadingImages') : $t('Confirm')">
               </BasicButton>
             </div>
           </div>

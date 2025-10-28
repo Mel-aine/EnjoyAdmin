@@ -31,9 +31,9 @@
 
     <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+      <div class="relative top-20 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
             {{ isEditing ? $t('Edit Currency') : $t('Add Currency') }}
           </h3>
           
@@ -69,7 +69,7 @@
             </div>
             
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t('Prefix/Suffix') }} *
               </label>
               <div class="flex space-x-2">
@@ -80,7 +80,7 @@
                     value="prefix"
                     class="text-blue-600 focus:ring-blue-500"
                   />
-                  <span class="ml-2 text-sm text-gray-700">{{ $t('Prefix') }}</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Prefix') }}</span>
                 </label>
                 <label class="flex items-center">
                   <input 
@@ -89,7 +89,7 @@
                     value="suffix"
                     class="text-blue-600 focus:ring-blue-500"
                   />
-                  <span class="ml-2 text-sm text-gray-700">{{ $t('Suffix') }}</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Suffix') }}</span>
                 </label>
               </div>
             </div>
@@ -117,21 +117,21 @@
             </div>
             
             <div class="mb-4 col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t('Exchange Rate') }}
               </label>
               <div class="flex items-center space-x-2" >
-                <span class="text-sm text-gray-600">1</span>
-                <span class="text-sm text-gray-600">=</span>
+                <span class="text-sm text-gray-600 dark:text-gray-300">1</span>
+                <span class="text-sm text-gray-600 dark:text-gray-300">=</span>
                 <input 
                   v-model="formData.exchangeRate" 
                   type="number" 
                   step="0.0001"
                   required
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   :placeholder="$t('Enter exchange rate')"
                 />
-                <span class="text-sm text-gray-600">{{ $t('XAF') }}</span>
+                <span class="text-sm text-gray-600 dark:text-gray-300">{{ $t('XAF') }}</span>
               </div>
             </div>
             
@@ -140,9 +140,9 @@
                 <input 
                   v-model="formData.isDefault" 
                   type="checkbox" 
-                  class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-700 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
-                <span class="ml-2 text-sm text-gray-700">{{ $t('Set as default currency') }}</span>
+                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Set as default currency') }}</span>
               </label>
             </div>
             </div>

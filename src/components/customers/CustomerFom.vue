@@ -18,7 +18,7 @@
 
       <div class="col-span-12 md:col-span-10 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700">{{ $t('Name') }}</label>
+          <label class="block text-sm font-medium dark:text-white text-gray-700">{{ $t('Name') }}</label>
           <div class="flex items-center">
             <div class="w-20">
               <Select
@@ -28,21 +28,21 @@
                 customClass="rounded-r-none"
               />
             </div>
-            <div class="flex-1">
+            <div class="mt-1.5 flex-1">
               <Input
                 v-model="form.firstName"
                 :placeholder="$t('FirstName')"
                 custom-class="rounded-none"
               />
             </div>
-            <div class="flex-1">
+            <div class="flex-1 mt-1.5">
               <Input
                 v-model="form.lastName"
                 :placeholder="$t('LastName')"
                 custom-class="rounded-none"
               />
             </div>
-            <div class="flex-1">
+            <div class="flex-1 mt-1.5">
               <Input
                 v-model="form.maidenName"
                 :placeholder="$t('MaidenName')"
@@ -75,21 +75,51 @@
             v-model="form.profession"
             :placeholder="$t('profession')"
           /> -->
-           <ProfessionAutocomplete
-                  v-model="form.profession"
-                  :lb="$t('profession')"
-                  :placeholder="$t('profession')"
-                  custom-class="h-11"
-                />
+          <ProfessionAutocomplete
+            v-model="form.profession"
+            :lb="$t('profession')"
+            :placeholder="$t('profession')"
+            custom-class="h-11"
+          />
         </div>
 
-         <div>
-          <Select
-             v-model="form.contactType"
-             :placeholder="$t('-select-')"
-             :lb="$t('contactType')"
+        <div>
+          <AutoCompleteSelect
+            v-model="form.contactType"
             :options="TypesOfContact"
+            :defaultValue="$t('contactType')"
+            :lb="$t('contactType')"
+            :is-required="false"
+            :use-dropdown="useDropdownBooking"
+            @clear-error="emit('clear-error')"
+            custom-class="h-11"
+          />
+        </div>
 
+        <div v-if="form.contactType">
+          <InputPhone
+            v-if="contactInputComponent === 'InputPhone'"
+            :title="contactInputLabel"
+            v-model="contactValue"
+            :id="'contact-input'"
+            :is-required="false"
+            custom-class="h-11"
+          />
+
+          <InputEmail
+            v-else-if="contactInputComponent === 'InputEmail'"
+            v-model="contactValue"
+            :placeholder="contactInputLabel"
+            :title="contactInputLabel"
+            custom-class="h-11"
+          />
+
+          <Input
+            v-else-if="contactInputComponent === 'Input'"
+            :lb="contactInputLabel"
+            v-model="contactValue"
+            :placeholder="contactInputLabel"
+            custom-class="h-11"
           />
         </div>
 
@@ -101,14 +131,14 @@
             placeholder="Téléphone"
           />
         </div>
-        <div>
+        <!-- <div>
           <InputPhone
             :title="$t('mobile')"
             v-model="form.mobileNumber"
             :is-required="false"
             placeholder="Mobile"
           />
-        </div>
+        </div> -->
         <div>
           <InputEmail :title="$t('Email')" v-model="form.email" :placeholder="'info@gmail.com'" />
         </div>
@@ -143,7 +173,7 @@
     <!-- Section Adresse -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 border-t pt-8">
       <div class="col-span-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ $t('Address') }}</label>
+        <label class="block text-sm font-medium dark:text-white text-gray-700 mb-1.5">{{ $t('Address') }}</label>
         <textarea
           v-model="form.addressLine"
           rows="2"
@@ -193,11 +223,11 @@
     <div class="border-t pt-8">
       <h3
         @click="toggleSection('identity')"
-        class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
+        class="text-lg font-medium leading-6 dark:text-white text-gray-900 flex items-center cursor-pointer"
       >
         <ChevronDownIcon
           :class="[
-            'w-6 h-6 text-gray-500 transition-transform',
+            'w-6 h-6 dark:text-white text-gray-500 transition-transform',
             { 'rotate-180': sections.identity },
           ]"
         />
@@ -258,11 +288,11 @@
     <div class="border-t pt-8">
       <h3
         @click="toggleSection('otherInformation')"
-        class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
+        class="text-lg font-medium leading-6 dark:text-white text-gray-900 flex items-center cursor-pointer"
       >
         <ChevronDownIcon
           :class="[
-            'w-6 h-6 text-gray-500 transition-transform',
+            'w-6 h-6 dark:text-white text-gray-500 transition-transform',
             { 'rotate-180': sections.otherInformation },
           ]"
         />
@@ -271,7 +301,7 @@
       </h3>
       <div v-if="sections.otherInformation" class="mt-6 pt-4">
         <div>
-          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+          <label class="mb-1.5 block text-sm font-medium dark:text-white text-gray-700 dark:text-gray-400">
             {{ $t('Preference') }}
           </label>
           <MultipleSelect
@@ -321,6 +351,7 @@ import { ChevronDownIcon } from 'lucide-vue-next'
 import { vipStatusApi } from '@/services/configrationApi'
 import { getCompanies } from '@/services/companyApi'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -356,9 +387,10 @@ interface CustomerForm {
   issuingCity: string
   dateOfBirth: string
   placeOfBirth: string
-  profession:string
-  maidenName:string
-  contactType:string
+  profession: string
+  maidenName: string
+  contactType: string
+  contactTypeValue: string
   preferences: string[]
 }
 
@@ -389,12 +421,14 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
+const emit = defineEmits(['update:modelValue', 'submit', 'cancel','clear-error'])
+
 
 type ImageUploaderInstance = InstanceType<typeof ImageUploader>
 
 const profilePhotoUploader = ref<ImageUploaderInstance | null>(null)
 const idPhotoUploader = ref<ImageUploaderInstance | null>(null)
+const useDropdownBooking = ref(true)
 
 // Configuration Cloudinary
 const cloudinaryConfig = {
@@ -418,7 +452,6 @@ const TypesOfContact = computed(() => [
   { label: t('contactTypes.facebook'), value: 'Facebook' },
   { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
 ])
-
 
 // CustomerFom.vue
 
@@ -450,9 +483,10 @@ const getEmptyCustomerForm = (): CustomerForm => ({
   issuingCity: '',
   dateOfBirth: '',
   placeOfBirth: '',
-  profession:'',
-  contactType:'',
-  maidenName:'',
+  profession: '',
+  contactType: '',
+  maidenName: '',
+  contactTypeValue: '',
   preferences: [],
 })
 
@@ -483,6 +517,60 @@ const guestTypeOptions: SelectOption[] = [
   { value: 'corporate', label: t('GuestTypes.corporate') },
   { value: 'individual', label: t('GuestTypes.individual') },
 ]
+
+
+
+
+const contactInputComponent = computed(() => {
+  if (!form.contactType) return null
+
+  switch (form.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = form.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+watch(() => form.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    form.contactTypeValue = ''
+  }
+})
+
+// Créer un computed bidirectionnel
+const contactValue = computed({
+  get: () => form.contactTypeValue,
+  set: (value) => {
+    form.contactTypeValue = value
+  }
+})
 
 // Gestionnaires d'événements pour la sélection de fichiers
 const onProfilePhotoSelected = (data: { file: File; preview: string }) => {
@@ -602,9 +690,33 @@ const handleSubmit = async () => {
       }
     }
 
+    let contactData = {}
+    if (form.contactType && contactValue) {
+      switch (form.contactType) {
+        case 'Mobile':
+          contactData = { contactTypeValue: contactValue.value }
+          break
+        case 'Fix':
+          contactData = { contactTypeValue: contactValue.value }
+          break
+        case 'Email':
+          contactData = { contactTypeValue: contactValue.value }
+          break
+        case 'Facebook':
+          contactData = { contactTypeValue: contactValue.value }
+          break
+        case 'Whatsapp':
+          contactData = { contactTypeValue: contactValue.value }
+          break
+      }
+    }
+
+
     const finalFormData = {
       ...baseFormData,
       ...identityData,
+      ...contactData,
+      contactType: form.contactType,
       profilePhoto: profilePhotoUrl,
       idPhoto: idPhotoUrl,
       preferences: JSON.stringify(form.preferences),
@@ -643,6 +755,12 @@ const populateForm = (data: Partial<CustomerForm>) => {
     }
   }
   form.preferences = finalPreferences
+
+   if (data.contactTypeValue) {
+    form.contactTypeValue = data.contactTypeValue
+  }
+  console.log('Formulaire peuplé avec les données:', form)
+
 }
 
 const fetchVipStatuses = async () => {

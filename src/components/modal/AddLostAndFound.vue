@@ -3,7 +3,7 @@
   <Modal v-if="isOpen" @close="emit('close')">
     <template #body>
       <div
-        class="no-scrollbar h-11/12 relative w-full max-w-7xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
+        class="no-scrollbar h-11/12 relative w-full max-w-7xl overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-800 lg:p-11"
       >
         <button
           @click="emit('close')"

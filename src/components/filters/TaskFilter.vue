@@ -23,7 +23,7 @@
                     :is-loading="isLoadingDepartment" :options="departments" />
                 <!-- Check-in Date Filter -->
                 <div >
-                    <label for="checkInDate" class="block text-gray-700 text-sm font-bold mb-2">{{
+                    <label for="checkInDate" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">{{
                         $t('dueDate') }}:</label>
                     <div class="relative">
                         <flat-pickr v-model="filters.dueDate" :config="flatpickrConfig"
@@ -37,7 +37,7 @@
                 </div>
                 <!-- Check-out Date Filter -->
                 <div >
-                    <label for="checkOutDate" class="block text-gray-700 text-sm font-bold mb-2">{{
+                    <label for="checkOutDate" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">{{
                         $t('createdDate') }}:</label>
                     <div class="relative">
                         <flat-pickr v-model="filters.createdDate" :config="flatpickrConfig"

@@ -49,6 +49,7 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: 'customerSelected', payload: any): void
   (e: 'update:modelValue', value: any): void
+  (e:'clear-error'):void
 }>()
 
 type ImageUploaderInstance = InstanceType<typeof ImageUploader>
@@ -196,6 +197,9 @@ const selectCustomer = (customer: any) => {
     selectedCustomer.value.idType = customer.idType ?? selectedCustomer.value.idType
     selectedCustomer.value.idNumber = selectedCustomer.value.idNumber
     selectedCustomer.value.idExpiryDate = selectedCustomer.value.idExpiryDate
+  }
+  if (customer.contactTypeValue) {
+    selectedCustomer.value.contactValue = customer.contactTypeValue
   }
 
   emit('customerSelected', selectedCustomer.value)
@@ -458,6 +462,63 @@ const TypesOfContact = computed(() => [
   { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
 ])
 
+
+
+const contactInputComponent = computed(() => {
+  if (!selectedCustomer.value.contactType) return null
+
+  switch (selectedCustomer.value.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = selectedCustomer.value.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+
+
+
+// Watcher pour synchroniser avec le type de contact sélectionné
+watch(() => selectedCustomer.value.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    selectedCustomer.value.contactValue = ''
+  }
+})
+
+// Créer un computed bidirectionnel
+const contactValue = computed({
+  get: () => selectedCustomer.value.contactValue,
+  set: (value) => {
+    selectedCustomer.value.contactValue = value
+  }
+})
+
 onMounted(() => {
   fetchGuest()
   fetchIdentityTypes()
@@ -472,10 +533,10 @@ console.log('modalevalue', props.modelValue)
     <div class="p-2 mb-3">
       <button @click.prevent="toggleInfoSection"
         class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
-        <h2 class="text-md font-semibold text-gray-900 flex items-center">
+        <h2 class="text-md font-semibold text-gray-900 flex items-center dark:text-white">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-user-pen-icon lucide-user-pen w-5 h-5 mr-2 text-black">
+            class="lucide lucide-user-pen-icon lucide-user-pen w-5 h-5 mr-2 text-black dark:text-white">
             <path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
             <path
               d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
@@ -581,6 +642,7 @@ console.log('modalevalue', props.modelValue)
                   :lb="$t('profession')"
                   :id="'profession'"
                   v-model="selectedCustomer.profession"
+                  :lb="$t('profession')"
                   :placeholder="$t('profession')"
                   custom-class="h-11"
                 />
@@ -601,14 +663,20 @@ console.log('modalevalue', props.modelValue)
                   custom-class="h-11"
                 />
 
-                <Select
+                 <AutoCompleteSelect
                   v-model="selectedCustomer.contactType"
-                  :placeholder="$t('-select-')"
-                  :lb="$t('contactType')"
                   :options="TypesOfContact"
-                  custom-class="h-11"
+                  :defaultValue="$t('contactType')"
+                  :lb="$t('contactType')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  @clear-error="emit('clear-error')"
+                   custom-class="h-11"
                 />
-              </div>
+
+
+
+              </div> -->
             </div>
           </div>
 
@@ -659,9 +727,9 @@ console.log('modalevalue', props.modelValue)
     <!-- Section Informations d'Identité -->
     <div class="p-2">
       <button @click.prevent="toggleIdentitySection"
-        class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
-        <h2 class="text-md font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="flex items-center justify-between w-full text-left group  hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors ">
+        <h2 class="text-md font-semibold text-gray-900 flex items-center dark:text-white">
+          <svg class="w-5 h-5 mr-2 text-black dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1">
             </path>

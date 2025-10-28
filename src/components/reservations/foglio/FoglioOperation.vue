@@ -1,9 +1,9 @@
 <template>
-  <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg"
+  <div class="flex h-[calc(100vh-250px)]  mx-4 mt-2 shadow-lg dark:bg-gray-900 dark:text-gray-100"
     :class="{ 'void-status': reservation.status === 'voided' }">
-    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
+    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
       <div class="h-full flex flex-col">
-        <div class="bg-white flex-grow overflow-y-auto">
+        <div class="bg-white dark:bg-gray-800 dark:text-gray-100 flex-grow overflow-y-auto">
           <div class="flex justify-between pt-2 px-2 pb-2">
             <span>{{ $t('roomFolios') }}</span>
             <PlusCircle class="text-primary cursor-pointer" @click="openCreateFolioModal" v-if="canCreateFolio" />
@@ -13,17 +13,20 @@
           <!-- Show All Transactions Button -->
           <div class="px-2 pb-2">
             <button class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors"
-              :class="!selectedFolio ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'"
-              @click="showAllTransactions">
+              :class="!selectedFolio
+                ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900 dark:border-blue-400 dark:text-blue-200'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200'" @click="showAllTransactions">
               {{ $t('showAllTransactions') }}
             </button>
           </div>
           <div v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber">
-            <div class="text-sm text-gray-600 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
             <div v-for="(fo, index) in folioList" :key="index">
-              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
-                :class="selectedFolio?.id === fo.id ? 'bg-blue-100 border-l-4 border-blue-500' : 'bg-gray-100'"
-                @click="selectFolio(fo)">
+              <div
+                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
+                :class="selectedFolio?.id === fo.id
+                  ? 'bg-blue-100 border-l-4 border-blue-500 dark:bg-blue-900 dark:border-blue-400'
+                  : 'bg-gray-100 dark:bg-gray-800'" @click="selectFolio(fo)">
                 <span class="capitalize">#{{ fo.folioNumber }} {{ fo.guest.displayName }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
@@ -47,10 +50,11 @@
       </div>
     </div>
     <div class="w-10/12">
-      <div class="bg-white border-t-1 shadow-sm flex flex-col h-full">
+      <div
+        class="bg-white dark:bg-gray-800 dark:text-gray-100 border-t-1 dark:border-gray-700 shadow-sm flex flex-col h-full">
         <div class="flex-grow overflow-y-auto custom-scrollbar">
           <!-- Header with action buttons -->
-          <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200">
+          <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
             <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal"
               :disabled="!canAddItemInFolio || reservation.status === 'voided'" />
             <BasicButton :label="$t('addCharges')" @click="openAddChargeModal"
@@ -63,7 +67,8 @@
             <!-- More Actions Dropdown -->
             <div class="relative" v-if="(canAddItemInFolio || reservation.status !== 'voided') && selectedFolio">
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
-                :button-class="'bg-white border border-gray-200'" @option-selected="handleMoreAction" />
+                :button-class="'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100'"
+                @option-selected="handleMoreAction" />
 
             </div>
             <!-- Status indicators
@@ -88,12 +93,12 @@
           </div>
 
           <!-- Table -->
-          <div class="px-4 py-2 bg-gray-50 border-b border-gray-200">
+          <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700">
             <div class="flex items-center justify-between">
-              <h3 class="text-sm font-medium text-gray-700">
+              <h3 class="text-sm font-medium text-gray-700 dark:text-gray-200">
                 {{ selectedFolio ? `${$t('transactionsFor')}: ${selectedFolio.folioName}` : $t('allTransactions') }}
               </h3>
-              <span class="text-xs text-gray-500">
+              <span class="text-xs text-gray-500 dark:text-gray-400">
                 {{ $t('total') }}: {{ foglioData.length }} {{ $t('transactions') }}
               </span>
             </div>
@@ -102,7 +107,7 @@
             :actions="actionTransactions" :selectable="false" :searchable="false" :title="$t('folio')">
             <!-- Custom column templates -->
             <template #column-day="{ item }">
-              <div class="text-sm text-gray-900">
+              <div class="text-sm text-gray-900 dark:text-gray-100">
                 {{ formatDate(item.day) }}
               </div>
             </template>
@@ -114,7 +119,8 @@
             </template>
 
             <template #column-user="{ item }">
-              <div class="text-sm text-blue-600 hover:text-blue-800 cursor-pointer">
+              <div
+                class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer">
                 {{ item.user }}
               </div>
             </template>
@@ -123,11 +129,11 @@
           </ReusableTable>
         </div>
         <!-- Footer summary -->
-        <div class="p-4 border-t border-gray-200 bg-gray-50">
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">{{ $t('endOfData') }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-300">{{ $t('endOfData') }}</span>
             <div class="text-right">
-              <div class="text-sm font-medium text-red-600">
+              <div class="text-sm font-medium text-red-600 dark:text-red-400">
                 {{ $t('balance') }}: {{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}
               </div>
             </div>
@@ -143,8 +149,9 @@
 
         <!-- Add Payment Modal -->
         <template v-if="isAddPaymentModalOpen">
-          <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen" :folio-id="selectedFolio?.id"
-            @close="closeAddPaymentModal" @save="handleSavePayment" :isEditMode="isEditMode" :transactionData="transactionToEdit"/>
+          <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen"
+            :folio-id="selectedFolio?.id" @close="closeAddPaymentModal" @save="handleSavePayment"
+            :isEditMode="isEditMode" :transactionData="transactionToEdit" />
         </template>
         <!-- Create Folio Modal -->
         <template v-if="isCreateFolioModalOpen">
@@ -176,7 +183,7 @@
         </template>
         <!-- Direct PDF Preview (same viewer as PrintInvoice) -->
         <div v-if="showPdfExporter">
-          <PdfExporterNode @close="showPdfExporter = false" :is-modal-open="showPdfExporter"
+          <PdfExporterNode @close="showPdfExporter = false" :is-modal-open="showPdfExporter" :title="$t(documentTitle)"
             :is-generating="printLoading" :pdf-url="pdfurl" :pdf-theme="pdfTheme" @pdf-generated="handlePdfGenerated"
             @error="handlePdfError" />
         </div>
@@ -241,6 +248,7 @@ const pdfurl = ref<string>('')
 const pdfTheme = ref<Record<string, any>>({})
 const selectedMoreAction = ref<any>(null)
 const isVoidTrasaction = ref(false);
+const documentTitle = ref('');
 /// manage more action folio
 
 const isAdjustmentModal = ref(false);
@@ -362,6 +370,8 @@ interface FoglioItem {
   user: string
   amount: number
   status: 'unposted' | 'posted'
+  postingDate?: string
+  transactionDate?:string
   folioId?: number // Add folioId to link transactions to folios
 }
 
@@ -374,22 +384,27 @@ const isEditMode = ref(false)
 const transactionToEdit = ref<any>(null)
 
 // Computed property to filter transactions based on selected folio
+// and order by postingDate ascending
 const foglioData = computed(() => {
-  if (!selectedFolio.value) {
-    return allTransactions.value // Show all transactions when no folio is selected
-  }
-  return allTransactions.value.filter(transaction =>
-    transaction.folioId === selectedFolio.value.id
-  )
+  const list = !selectedFolio.value
+    ? allTransactions.value // Show all transactions when no folio is selected
+    : allTransactions.value.filter(transaction => transaction.folioId === selectedFolio.value.id)
+
+  // Return a sorted copy by postingDate ASC
+  return [...list].sort((a, b) => {
+    const at = a.transactionDate ? new Date(a.transactionDate).getTime() : 0
+    const bt = b.transactionDate ? new Date(b.transactionDate).getTime() : 0
+    return at - bt
+  })
 })
 
 // Table columns configuration
 const columns = computed<Column[]>(() => [
-  { key: 'postingDate', label: t('Day'), type: 'date' },
+  { key: 'transactionDate', label: t('Day'), type: 'date' },
   { key: 'transactionNumber', label: t('Ref No.'), type: 'text' },
   { key: 'particular', label: t('Particulars'), type: 'text', translatable: true },
   { key: 'description', label: t('Description'), type: 'text' },
-  { key: 'guest.displayName', label: t('User'), type: 'custom' },
+  { key: 'modifier.fullName', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
   { key: 'actions', label: '', type: 'custom' }
 ])
@@ -434,12 +449,15 @@ const onAction = (action: any, item: any) => {
       selectedTransaction.value = item;
       break
     case 'printReceipt':
+      documentTitle.value = t('printReceipt')
       printReceipt(item)
       break
     case 'printVoucher':
+      documentTitle.value = t('printVoucher')
       printInvoice(item);
       break
     case 'printPosReceipt':
+      documentTitle.value = t('printPosReceipt')
       printPosReceipt(item);
       break
     case 'edit':
@@ -457,16 +475,14 @@ const EditTransaction = (item: any) => {
   // Déterminer quel modal ouvrir en fonction du type de transaction
   if (item.category === 'adjustment') {
     isAdjustmentModal.value = true
-  } else if (item.category === 'room' || item.transactionType === 'room_posting') {
+  } else if (((item.category === 'room' || item.category === 'Room Charges') && item.transactionType === 'charge') || item.transactionType === 'room_posting') {
     isRoomChargesModal.value = true
   } else if (item.category === 'discount') {
     isApplyDiscountModal.value = true
   } else if (item.category === 'extract_charge') {
     isAddChargeModalOpen.value = true
-  } else if (item.category === 'payment') {
+  } else if (item.transactionType === 'payment') {
     isAddPaymentModalOpen.value = true
-  }else {
-    isRoomChargesModal.value = true
   }
 }
 
@@ -517,11 +533,11 @@ const printInvoice = async (item: any) => {
   }
 }
 const formatAmount = (amount: number) => {
-  return amount
+  return formatCurrency(amount)
 }
 
 const getAmountColor = (amount: number) => {
-  return amount >= 0 ? 'text-blue-600' : 'text-green-600'
+  return amount >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'
 }
 
 // Modal handlers
@@ -539,7 +555,7 @@ const closeAddChargeModal = () => {
 // Payment modal handlers
 const openAddPaymentModal = () => {
   isAddPaymentModalOpen.value = true
-   isEditMode.value = false
+  isEditMode.value = false
 }
 
 const closeAddPaymentModal = () => {
@@ -561,7 +577,7 @@ const refreshFolio = async () => {
   try {
     emit('refresh')
     const resp = await getReservationFolios(props.reservationId)
-    console.log(resp)
+    console.log('getReservationFolios',resp)
 
     // Handle the case where folios contain their transactions
     if (resp.data && Array.isArray(resp.data)) {
@@ -573,19 +589,28 @@ const refreshFolio = async () => {
         if (folio.transactions && Array.isArray(folio.transactions)) {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
-            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null) ;
+            transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null);
+            if (transaction.transactionType === 'payment') {
+              const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
+              allTransactions.value.push({
+                ...transaction,
+                totalAmount: (transaction.transactionType === 'payment' || transaction.transactionType === 'discount') ? -Math.abs(baseAmount) : Math.abs(baseAmount),
+                // totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                //   totalAmount,
+                category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
+                folioId: folio.id,
+                guest: folio.guest
 
-            const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
-            allTransactions.value.push({
-              ...transaction,
-              totalAmount: transaction.transactionType === 'payment' ? -Math.abs(baseAmount) : Math.abs(baseAmount),
-              // amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
-              //   grossAmount,
-              category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
-              folioId: folio.id,
-              guest: folio.guest
+              })
+            } else {
+              allTransactions.value.push({
+                ...transaction,
+                category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
+                folioId: folio.id,
+                guest: folio.guest
+              })
+            }
 
-            })
           })
         }
       })
@@ -608,7 +633,7 @@ const getFolosReservations = async () => {
   loading.value = true
   try {
     const resp = await getReservationFolios(props.reservationId)
-    console.log(resp)
+    console.log('getReservationFolios',resp)
 
     // Handle the case where folios contain their transactions
     if (resp.data && Array.isArray(resp.data)) {
@@ -625,7 +650,7 @@ const getFolosReservations = async () => {
               const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
               allTransactions.value.push({
                 ...transaction,
-                totalAmount: transaction.transactionType === 'payment' ? -Math.abs(baseAmount) : Math.abs(baseAmount),
+                totalAmount: (transaction.transactionType === 'payment' || transaction.transactionType === 'discount') ? -Math.abs(baseAmount) : Math.abs(baseAmount),
                 // totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
                 //   totalAmount,
                 category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
@@ -698,6 +723,7 @@ const printInvoiceDirect = async () => {
     if (!selectedFolio.value?.id) return
     printLoading.value = true
     showPdfExporter.value = true
+    documentTitle.value = t('printInvoice')
     const res = await printFolioPdf({ folioId: Number(selectedFolio.value.id), reservationId: props.reservationId })
     pdfurl.value = window.URL.createObjectURL(res)
   } catch (e) {

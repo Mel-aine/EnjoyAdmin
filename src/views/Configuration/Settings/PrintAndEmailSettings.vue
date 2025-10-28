@@ -3,8 +3,8 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Print and Email Settings</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Print and Email Settings</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
             Configure print and email settings for Front Desk operations. Set templates and preferences for various documents and communications.
           </p>
         </div>
@@ -13,9 +13,9 @@
       
       <div class="space-y-6">
         <!-- Print Options -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Print Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Print Options</h2>
             
             <!-- City Ledger Posting Option -->
             <div class="mb-6">
@@ -26,7 +26,7 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 >
-                <label for="printCityLedger" class="ml-2 block text-sm text-gray-900">
+                <label for="printCityLedger" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Print City Ledger Posting on Invoice
                 </label>
               </div>
@@ -35,7 +35,7 @@
             <!-- Print Templates -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div v-for="template in printTemplates" :key="template.key" class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {{ template.name }}
                 </label>
                 <Select
@@ -49,26 +49,26 @@
         </div>
         
         <!-- Email Options -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Email Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Email Options</h2>
             
             <!-- Email Templates -->
             <div class="space-y-6">
-              <div v-for="emailOption in emailOptions" :key="emailOption.key" class="border border-gray-200 rounded-lg p-4">
+              <div v-for="emailOption in emailOptions" :key="emailOption.key" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <div class="flex items-center justify-between mb-4">
                   <div>
-                    <h4 class="text-md font-medium text-gray-900">{{ emailOption.name }}</h4>
-                    <p class="text-sm text-gray-600">{{ emailOption.description }}</p>
+                    <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ emailOption.name }}</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ emailOption.description }}</p>
                   </div>
                   <div class="flex items-center">
                     <input
                       :id="emailOption.key"
                       v-model="emailOption.enabled"
                       type="checkbox"
-                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                     >
-                    <label :for="emailOption.key" class="ml-2 block text-sm text-gray-900">
+                    <label :for="emailOption.key" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                       Enable
                     </label>
                   </div>
@@ -76,7 +76,7 @@
                 
                 <div v-if="emailOption.enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Email Template
                     </label>
                     <Select
@@ -87,7 +87,7 @@
                   </div>
                   
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Subject Line
                     </label>
                     <Input
@@ -102,17 +102,17 @@
         </div>
         
         <!-- Additional Email Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Additional Email Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Additional Email Settings</h2>
             
             <div class="space-y-6">
               <!-- Guest Review Settings -->
-              <div class="border border-gray-200 rounded-lg p-4">
-                <h4 class="text-md font-medium text-gray-900 mb-4">Guest Review Email</h4>
+              <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">Guest Review Email</h4>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Send Review Email Link To
                     </label>
                     <Select
@@ -124,9 +124,9 @@
                   
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Review Email Template
-                      </label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Review Email Template
+                    </label>
                       <Select
                         v-model="additionalSettings.reviewEmailTemplate"
                         :options="availableEmailTemplates"
@@ -135,9 +135,9 @@
                     </div>
                     
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Delay (hours after checkout)
-                      </label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Delay (hours after checkout)
+                    </label>
                       <Input
                         v-model="additionalSettings.reviewEmailDelay"
                         type="number"
@@ -149,8 +149,8 @@
               </div>
               
               <!-- Reservation Voucher Settings -->
-              <div class="border border-gray-200 rounded-lg p-4">
-                <h4 class="text-md font-medium text-gray-900 mb-4">Reservation Voucher Email</h4>
+              <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">Reservation Voucher Email</h4>
                 <div class="space-y-4">
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="flex items-center">
@@ -158,9 +158,9 @@
                         id="voucherToGuest"
                         v-model="additionalSettings.sendVoucherToGuest"
                         type="checkbox"
-                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                       >
-                      <label for="voucherToGuest" class="ml-2 block text-sm text-gray-900">
+                      <label for="voucherToGuest" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                         Send to Guest
                       </label>
                     </div>
@@ -170,9 +170,9 @@
                         id="voucherToCompany"
                         v-model="additionalSettings.sendVoucherToCompany"
                         type="checkbox"
-                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                       >
-                      <label for="voucherToCompany" class="ml-2 block text-sm text-gray-900">
+                      <label for="voucherToCompany" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                         Send to Company
                       </label>
                     </div>
@@ -182,16 +182,16 @@
                         id="voucherToAgent"
                         v-model="additionalSettings.sendVoucherToTravelAgent"
                         type="checkbox"
-                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                       >
-                      <label for="voucherToAgent" class="ml-2 block text-sm text-gray-900">
+                      <label for="voucherToAgent" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                         Send to Travel Agent
                       </label>
                     </div>
                   </div>
                   
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Voucher Email Template
                     </label>
                     <Select

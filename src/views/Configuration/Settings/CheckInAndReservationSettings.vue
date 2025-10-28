@@ -3,8 +3,8 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Check In and Reservation Settings</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Check In and Reservation Settings</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
             Configure check-in and checkout times, day use options, late checkout policies, cancellation fees, no-show fees, and other reservation settings.
           </p>
         </div>
@@ -13,9 +13,9 @@
       
       <div class="space-y-6">
         <!-- Check In and Check Out Time Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Check In and Check Out Time Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Check In and Check Out Time Settings</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -23,16 +23,16 @@
                   id="twentyFourHourCheckout"
                   v-model="timeSettings.twentyFourHourCheckout"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="twentyFourHourCheckout" class="ml-2 block text-sm text-gray-900">
+                <label for="twentyFourHourCheckout" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   24 Hours Check Out
                 </label>
               </div>
               
               <div v-if="!timeSettings.twentyFourHourCheckout" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Check In Time
                   </label>
                   <Input
@@ -43,7 +43,7 @@
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Check Out Time
                   </label>
                   <Input
@@ -58,9 +58,9 @@
         </div>
         
         <!-- Day Use Options -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Day Use Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Day Use Options</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -68,16 +68,16 @@
                   id="autoPostDayUse"
                   v-model="dayUseSettings.autoPost"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="autoPostDayUse" class="ml-2 block text-sm text-gray-900">
+                <label for="autoPostDayUse" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Auto Post for Day Use
                 </label>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Grace Period (Hours)
                   </label>
                   <Input
@@ -88,7 +88,7 @@
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     % of Room Charge
                   </label>
                   <Input
@@ -103,9 +103,9 @@
         </div>
         
         <!-- Late Check Out Options -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Late Check Out Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Late Check Out Options</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -113,16 +113,16 @@
                   id="autoPostLateCheckout"
                   v-model="lateCheckoutSettings.autoPost"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="autoPostLateCheckout" class="ml-2 block text-sm text-gray-900">
+                <label for="autoPostLateCheckout" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Auto Post for Late Checkout
                 </label>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Grace Period (Hours)
                   </label>
                   <Input
@@ -133,7 +133,7 @@
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     % of Room Charge
                   </label>
                   <Input
@@ -148,9 +148,9 @@
         </div>
         
         <!-- Cancellation Fee Options -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Cancellation Fee Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Cancellation Fee Options</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -158,9 +158,9 @@
                   id="postCancellationFee"
                   v-model="cancellationSettings.postFee"
                   type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
-                <label for="postCancellationFee" class="ml-2 block text-sm text-gray-900">
+                <label for="postCancellationFee" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Post Cancellation Fee
                 </label>
               </div>
@@ -179,7 +179,7 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div v-if="cancellationSettings.feeType === 'percentage'">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Percentage (%)
                     </label>
                     <Input
@@ -190,7 +190,7 @@
                   </div>
                   
                   <div v-if="cancellationSettings.feeType === 'fixed'">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Fixed Amount
                     </label>
                     <Input
@@ -201,7 +201,7 @@
                   </div>
                   
                   <div v-if="cancellationSettings.feeType === 'nights'">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Number of Nights
                     </label>
                     <Input
@@ -214,7 +214,7 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Days Before Reservation
                     </label>
                     <Input
@@ -225,7 +225,7 @@
                   </div>
                   
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Days Before Arrival
                     </label>
                     <Input
@@ -241,9 +241,9 @@
         </div>
         
         <!-- No Show Fee Options -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">No Show Fee Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">No Show Fee Options</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -253,14 +253,14 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 >
-                <label for="postNoShowFee" class="ml-2 block text-sm text-gray-900">
+                <label for="postNoShowFee" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   Post No Show Fee
                 </label>
               </div>
               
               <div v-if="noShowSettings.postFee" class="space-y-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     No Show Fee Type
                   </label>
                   <Select
@@ -272,7 +272,7 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div v-if="noShowSettings.feeType === 'percentage'">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Percentage (%)
                     </label>
                     <Input
@@ -283,7 +283,7 @@
                   </div>
                   
                   <div v-if="noShowSettings.feeType === 'fixed'">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Fixed Amount
                     </label>
                     <Input
@@ -294,7 +294,7 @@
                   </div>
                   
                   <div v-if="noShowSettings.feeType === 'nights'">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Number of Nights
                     </label>
                     <Input
@@ -310,13 +310,13 @@
         </div>
         
         <!-- Financial Year Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Financial Year Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Financial Year Settings</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Financial Year Start Month
                 </label>
                 <Select
@@ -327,7 +327,7 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Financial Year Start Day
                 </label>
                 <Input
@@ -343,10 +343,10 @@
         </div>
         
         <!-- Mandatory Information -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Mandatory Information</h2>
-            <p class="text-gray-600 mb-6">Select information that must be provided during reservation and/or walk-in.</p>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Mandatory Information</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">Select information that must be provided during reservation and/or walk-in.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div v-for="field in mandatoryFields" :key="field.key" class="flex items-center">
@@ -356,7 +356,7 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 >
-                <label :for="field.key" class="ml-2 block text-sm text-gray-900">
+                <label :for="field.key" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                   {{ field.name }}
                 </label>
               </div>
@@ -365,9 +365,9 @@
         </div>
         
         <!-- Other Settings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Other Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Other Settings</h2>
             
             <div class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -378,7 +378,7 @@
                     type="checkbox"
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   >
-                  <label for="emailReservationVoucher" class="ml-2 block text-sm text-gray-900">
+                  <label for="emailReservationVoucher" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                     Email Reservation Voucher
                   </label>
                 </div>
@@ -390,7 +390,7 @@
                     type="checkbox"
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   >
-                  <label for="allowOverbooking" class="ml-2 block text-sm text-gray-900">
+                  <label for="allowOverbooking" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                     Allow Overbooking
                   </label>
                 </div>
@@ -398,7 +398,7 @@
               
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Base Occupancy
                   </label>
                   <Input
@@ -409,7 +409,7 @@
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Front Rate Mode
                   </label>
                   <Select
@@ -420,7 +420,7 @@
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Send Review Email Link To
                   </label>
                   <Select

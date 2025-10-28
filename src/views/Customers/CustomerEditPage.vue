@@ -4,7 +4,7 @@
     <FullScreenLayout>
       <PageBreadcrumb :pageTitle="pageTitle" :breadcrumbs="breadcrumb" />
 
-      <div v-if="!loadingInitialData" class="mt-10 bg-white border border-gray-200 rounded-lg">
+      <div v-if="!loadingInitialData" class="mt-10 bg-white dark:text-white dark:bg-gray-800 border border-gray-200 rounded-lg">
         <CustomerForm
 
           :is-edit-mode="isEditMode"

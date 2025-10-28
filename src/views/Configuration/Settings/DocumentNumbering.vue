@@ -3,27 +3,27 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Document Numbering</h1>
-          <p class="text-gray-600 mt-1">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Document Numbering</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
             Manage the numbering of different documents generated in the hotel. Set prefixes and reset options for various document types.
           </p>
         </div>
         <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveDocumentNumbering" :loading="isLoading" />
       </div>
       
-      <div class="bg-white rounded-lg shadow">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="p-6">
           <div class="space-y-8">
             <!-- Document Types Configuration -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-6">Document Types</h3>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Document Types</h3>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div v-for="document in documentTypes" :key="document.key" class="border border-gray-200 rounded-lg p-4">
-                  <h4 class="text-md font-medium text-gray-900 mb-4">{{ document.name }}</h4>
+                <div v-for="document in documentTypes" :key="document.key" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">{{ document.name }}</h4>
                   
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Prefix
                       </label>
                       <Input
@@ -33,7 +33,7 @@
                     </div>
                     
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Next Number
                       </label>
                       <Input
@@ -45,7 +45,7 @@
                   </div>
                   
                   <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Reset Frequency
                     </label>
                     <Select
@@ -55,9 +55,9 @@
                     />
                   </div>
                   
-                  <div class="mt-4 p-3 bg-gray-50 rounded-md">
-                    <p class="text-sm font-medium text-gray-700">Preview:</p>
-                    <p class="text-sm text-gray-600 mt-1">{{ document.prefix }}{{ String(document.nextNumber).padStart(4, '0') }}</p>
+                  <div class="mt-4 p-3 bg-gray-50 dark:bg-black rounded-md">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Preview:</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ document.prefix }}{{ String(document.nextNumber).padStart(4, '0') }}</p>
                   </div>
                 </div>
               </div>

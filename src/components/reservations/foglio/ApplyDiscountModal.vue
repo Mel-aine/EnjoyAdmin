@@ -3,9 +3,9 @@
     <!-- No Show Reservation Modal -->
     <RightSideModal :is-open="isOpen" :title="props.isEditMode ? $t('Edit Discount') : $t('applyDiscount')" @close="closeModal">
         <template #header>
-            <h3 class="text-lg font-semibold text-gray-900">{{ props.isEditMode ? $t('Edit Discount') : $t('applyDiscount') }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ props.isEditMode ? $t('Edit Discount') : $t('applyDiscount') }}</h3>
         </template>
-        <div>
+        <div class="dark:text-gray-100">
             <!-- Loading Skeleton -->
             <div v-if="isLoading" class="space-y-4">
                 <div class="animate-pulse">
@@ -72,14 +72,14 @@
                     <textarea
                         v-model="formData.notes"
                         rows="3"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-500"
                         :placeholder="$t('enterAdditionalNotes')"
                     ></textarea>
                 </div>
             </form>
         </div>
         <template #footer>
-            <div class="flex justify-end space-x-3 bg-gray-50">
+            <div class="flex justify-end space-x-3 bg-gray-50 dark:bg-gray-800">
                 <BasicButton
                     type="button"
                     variant="outline"

@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 z-999 flex items-start hide-scrollbar justify-end">
-    <div class="bg-white dark:bg-gray-900 shadow-lg w-full max-w-4xl h-full mr-0 relative flex flex-col">
+    <div class="bg-white dark:bg-gray-800 shadow-lg  w-[80%] h-full mr-0 relative flex flex-col">
       <!-- Header -->
       <div
         class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
@@ -14,8 +14,48 @@
       </div>
 
       <!-- Content Area -->
-      <div class="flex-1 overflow-y-auto p-5 space-y-6">
-        <form @submit.prevent="handleSubmit">
+      <div class="p-4 overflow-hidden">
+        <div class="flex gap-1 h-full">
+          <div class="overflow-y-auto w-6/12 bg-white dark:bg-gray-800">
+            <div v-if="isPreviewLoading || !htmlContent" class="p-6">
+              <div class="preview-skeleton animate-pulse space-y-4">
+                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                  <div v-for="n in 6" :key="'col1-'+n" class="flex items-center gap-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                  </div>
+                  <div v-for="n in 6" :key="'col2-'+n" class="flex items-center gap-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                  </div>
+                </div>
+
+                <div class="mt-4 flex items-center gap-2">
+                  <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
+                  <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                </div>
+
+                <div class="mt-8 grid grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                  <div class="space-y-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    <div class="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else v-html="htmlContent"></div>
+          </div>
+          <div class="w-8/12 ps-2 min-h-0 overflow-y-auto space-y-6">
+            <form @submit.prevent="handleSubmit">
           <!-- Room Configuration Section -->
           <section class="space-y-4">
             <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end">
@@ -72,7 +112,7 @@
                     {{ $t('rate') }} (XAF)
                   </label>
                   <div v-if="!isCustomPrize"
-                    class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11 bg-gray-200 px-4 py-2.5 text-sm"
+                    class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11 bg-gray-200 dark:bg-black px-4 py-2.5 text-sm"
                     :class="{ 'opacity-50': roomConfig.isLoadingRate }">
                     <span class="text-gray-500 hover:text-gray-700 mr-3 cursor-pointer" @click="isCustomPrize = true">
                       <PencilLine :size="18" />
@@ -213,9 +253,50 @@
 
           <!-- Contact Information Section -->
           <section class="pt-4 space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div :class="[
+              'grid grid-cols-1 gap-4',
+               formData.contactType ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+            ]">
                 <InputPhone :title="$t('Phone')" v-model="formData.phoneNumber" :id="'phone'" :is-required="false"
                 custom-class="h-11" />
+
+              <AutoCompleteSelect
+                  v-model="formData.contactType"
+                  :options="TypesOfContact"
+                  :defaultValue="$t('contactType')"
+                  :lb="$t('contactType')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  @clear-error="emit('clear-error')"
+                  custom-class="h-11"
+                />
+                <!-- Input conditionnel basé sur le type de contact -->
+                <div v-if="formData.contactType">
+                  <InputPhone
+                    v-if="contactInputComponent === 'InputPhone'"
+                    :title="contactInputLabel"
+                    v-model="contactValue"
+                    :id="'contact-input'"
+                    :is-required="false"
+                    custom-class="h-11"
+                  />
+
+                  <InputEmail
+                    v-else-if="contactInputComponent === 'InputEmail'"
+                    v-model="contactValue"
+                    :placeholder="contactInputLabel"
+                    :title="contactInputLabel"
+                    custom-class="h-11"
+                  />
+
+                  <Input
+                    v-else-if="contactInputComponent === 'Input'"
+                    :lb="contactInputLabel"
+                    v-model="contactValue"
+                    :placeholder="contactInputLabel"
+                    custom-class="h-11"
+                  />
+               </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -237,9 +318,9 @@
           <!-- Document Information Section -->
           <section class="pt-4">
             <button @click.prevent="toggleIdentitySection" type="button"
-              class="flex items-center justify-between w-full text-left group hover:bg-gray-50 -m-2 p-2 rounded-md transition-colors">
-              <h2 class="text-md font-semibold text-gray-900 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="flex items-center justify-between w-full text-left group hover:bg-gray-50 dark:hover:text-black -m-2 p-2 rounded-md transition-colors">
+              <h2 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
+                <svg class="w-5 h-5 mr-2 text-black dark:text-white " fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1">
                   </path>
@@ -281,19 +362,19 @@
             </div>
           </section>
         </form>
+          </div>
+        </div>
       </div>
 
       <!-- Footer with buttons -->
       <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-        <button type="button" @click="$emit('close')"
-          class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200">
-          {{ $t('Cancel') }}
-        </button>
+        <BasicButton type="button" variant="outline" @click="printHtml" :label="$t('print')" />
         <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
           @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
           :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
         </BasicButton>
       </div>
+
     </div>
   </div>
 </template>
@@ -318,6 +399,8 @@ import { useBooking } from '@/composables/useBooking2'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+// @ts-ignore
+import pHtml from '@/views/Bookings/p.html?raw'
 
 
 interface SelectOption {
@@ -368,6 +451,119 @@ const {
 // State management
 const submitted = ref(false)
 const showIdentitySection = ref(true)
+const htmlContent = ref<string>('')
+const isPreviewLoading = ref(true)
+
+const renderPrintHtml = () => {
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(pHtml as string, 'text/html')
+
+    // Inject hotel header from current service
+    const cs: any = serviceStore.getCurrentService
+    if (cs) {
+      const nameEl = doc.querySelector('.hotel-name') as HTMLElement | null
+      if (nameEl) nameEl.textContent = (cs.hotelName ?? '').toString()
+      const addrEl = doc.querySelector('.hotel-address') as HTMLElement | null
+      if (addrEl) addrEl.textContent = [cs.address, cs.address2, cs.city].filter(Boolean).join(', ')
+      const contactEl = doc.querySelector('.contact-info') as HTMLElement | null
+      if (contactEl) {
+        const bpText = [cs.postalCode, cs.city, cs.country].filter(Boolean).join(' ')
+        const telText = cs.phoneNumber ? `Tel: ${cs.phoneNumber}` : ''
+        const upperLine = [bpText ? `B.P.: ${bpText}` : '', telText].filter(Boolean).join(' / ')
+        const lowerLine = [cs.email, cs.website].filter(Boolean).join(' / ')
+        contactEl.innerHTML = [upperLine, lowerLine].filter(Boolean).join('<br>')
+      }
+    }
+
+    const getSafe = (val: any) => (val ?? '').toString()
+    const sumGuests = (() => {
+      const rc: any = roomConfig.value || {}
+      return (rc.adultCount || 0) + (rc.childCount || 0)
+    })()
+    const roomNumberLabel = (() => {
+      const rc: any = roomConfig.value || {}
+      const rn: any = rc.roomNumber
+      if (!rn) return ''
+      if (typeof rn === 'object') return getSafe(rn.label || rn.value)
+      return getSafe(rn)
+    })()
+    const getOptionLabel = (options: any[], value: any) => {
+      const opt = options?.find?.((o: any) => o.value === value)
+      return getSafe(opt?.label ?? value)
+    }
+
+    const filledMap: Record<string, string> = {
+      'N° de chambre :': roomNumberLabel,
+      'Nombre de personnes :': getSafe(sumGuests),
+      "Date d'arrivée :": getSafe(reservation.value?.checkinDate),
+      'Date de départ :': getSafe(reservation.value?.checkoutDate),
+      'Venant de :': getSafe(reservation.value?.arrivingTo),
+      'Se rendant à :': getSafe(reservation.value?.goingTo),
+      'Mode de transport :': getOptionLabel(TransportationModes as unknown as any[], reservation.value?.meansOfTransport),
+      'Mode de paiement :': getSafe(billing.value?.paymentMode),
+      'NOM (en gros characters) :': getSafe(formData.value.lastName),
+      'NOM jeune fille :': getSafe(formData.value.maidenName),
+      'Date de naissance :': getSafe(formData.value.dateOfBirth),
+      'Lieu de naissance :': getSafe(formData.value.placeOfBirth),
+      'Nationalité :': getSafe(formData.value.nationality),
+      'Pays de residence :': getSafe(formData.value.country),
+      'Tél :': getSafe(formData.value.phoneNumber),
+      'Fax :': getSafe(formData.value.fax),
+      'E-mail address :': getSafe(formData.value.email),
+      'B.P :': getSafe(formData.value.zipcode),
+      'Profession :': getSafe(formData.value.profession),
+      "Passeport / Carte d'identité N° :": getSafe(formData.value.idNumber),
+      'Délivré le :': getSafe(formData.value.idExpiryDate),
+      'A :': getSafe([formData.value.issuingCity, formData.value.issuingCountry].filter(Boolean).join(', ')),
+    }
+
+    const frLabels = Array.from(doc.querySelectorAll('.label-fr'))
+    frLabels.forEach((el: Element) => {
+      const text = (el.textContent || '').trim()
+      const valueToInsert = filledMap[text]
+      if (!valueToInsert) return
+      const sibling = el.nextElementSibling as HTMLElement | null
+      if (sibling && (sibling.classList.contains('line-dot') || sibling.classList.contains('line-empty'))) {
+        const span = doc.createElement('span')
+        span.className = 'filled-value'
+        span.textContent = valueToInsert
+        span.style.marginLeft = '6px'
+        span.style.maxWidth = '30ch'
+        sibling.appendChild(span)
+      }
+    })
+
+    const container = doc.createElement('div')
+     container.className = 'print-container'
+     while (doc.body.firstChild) container.appendChild(doc.body.firstChild as Node)
+     doc.body.appendChild(container)
+
+    const style = doc.createElement('style')
+    style.textContent = `
+    .filled-value{font-weight:normal;color:#111;font-size:9pt;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .line-dot,.line-empty{overflow:hidden;}
+    .header .hotel-name,.header .hotel-address,.header .contact-info{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    @media print {
+      @page { size: A4 portrait; margin: 10mm; }
+      html, body { width: 200mm; height: 297mm; }
+      .print-container { width: calc(210mm - 5mm); height: calc(297mm - 20mm); overflow: hidden; zoom: 0.9; }
+    }
+    `
+    doc.head.appendChild(style)
+
+    return doc.documentElement.outerHTML
+  } catch (err) {
+    console.error('renderPrintHtml error:', err)
+    return pHtml as string
+  }
+}
+
+const updateHtml = () => {
+  isPreviewLoading.value = true
+  htmlContent.value = renderPrintHtml()
+  isPreviewLoading.value = false
+}
 
 // Dropdown controls
 const useDropdownRoomType = ref(true)
@@ -384,7 +580,6 @@ const roomConfig = computed(() => roomConfigurations.value[0])
 const GuestTitles = computed(() => [
   { label: t('guestTitles.mr'), value: 'Mr' },
   { label: t('guestTitles.mrs'), value: 'Mrs' },
-  { label: t('guestTitles.ms'), value: 'Ms' },
   { label: t('guestTitles.miss'), value: 'Miss' },
   { label: t('guestTitles.dr'), value: 'Dr' },
 ])
@@ -407,6 +602,12 @@ const adultOptions = computed(() => {
 const childOptions = computed(() => {
   return getChildOptions(roomConfig.value.roomType)
 })
+
+watch(formData, updateHtml, { deep: true })
+watch(roomConfig, updateHtml, { deep: true })
+watch(billing, updateHtml, { deep: true })
+watch(reservation, updateHtml, { deep: true })
+
 const fetchIdentityTypes = async () => {
   try {
     const hotelId = serviceStore.serviceId
@@ -487,6 +688,34 @@ const toggleIdentitySection = () => {
   showIdentitySection.value = !showIdentitySection.value
 }
 
+const printHtml = () => {
+  try {
+    const iframe = document.createElement('iframe')
+    iframe.style.position = 'fixed'
+    iframe.style.right = '0'
+    iframe.style.bottom = '0'
+    iframe.style.width = '0'
+    iframe.style.height = '0'
+    iframe.style.border = '0'
+    document.body.appendChild(iframe)
+
+    const doc = iframe.contentWindow?.document
+    if (doc) {
+      doc.open()
+      doc.write(htmlContent.value)
+      doc.close()
+      iframe.contentWindow?.focus()
+      iframe.contentWindow?.print()
+    }
+
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+    }, 1000)
+  } catch (err) {
+    console.error('Error printing HTML:', err)
+  }
+}
+
 const handleSubmit = async () => {
   submitted.value = true
 
@@ -515,12 +744,70 @@ const handleSubmit = async () => {
   }
 }
 
+const TypesOfContact = computed(() => [
+  { label: t('contactTypes.mobile'), value: 'Mobile' },
+  { label: t('contactTypes.fix'), value: 'Fix' },
+  { label: t('contactTypes.email'), value: 'Email' },
+  { label: t('contactTypes.facebook'), value: 'Facebook' },
+  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
+])
+
+
+
+const contactInputComponent = computed(() => {
+  if (!formData.value.contactType) return null
+
+  switch (formData.value.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = formData.value.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+const contactValue = computed({
+  get: () => formData.value.contactValue,
+  set: (value) => {
+    formData.value.contactValue = value
+  }
+})
+watch(() => formData.value.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    formData.value.contactTypeValue = ''
+  }
+})
+
 // Initialize on mount
 onMounted(async () => {
   await fetchIdentityTypes()
   await initialize()
-
-
+  updateHtml()
 })
 </script>
 
@@ -534,3 +821,7 @@ onMounted(async () => {
   display: none;
 }
 </style>
+
+@media print {
+  .preview-skeleton { display: none !important; }
+}

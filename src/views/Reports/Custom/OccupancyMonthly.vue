@@ -2,11 +2,11 @@
   <ReportsLayout>
     <div class="occupancy-rate-report">
       <!-- Header Section -->
-      <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <div class="bg-white  dark:bg-gray-800 shadow-sm border-b border-gray-200 px-6 py-4">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-semibold text-gray-900">Monthly Occupancy Rate Report</h1>
-            <p class="mt-1 text-sm text-gray-600">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Monthly Occupancy Rate Report</h1>
+            <p class="mt-1 text-sm text-gray-600 dark:text-white/80">
               View detailed occupancy statistics and trends for your hotel
             </p>
           </div>
@@ -15,7 +15,7 @@
       </div>
 
       <!-- Filter Section -->
-      <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 px-6 py-4">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Month Selection -->
           <div>
@@ -170,6 +170,8 @@ const generateReport = async () => {
     // Generate new PDF URL
     const newPdfUrl = await getMonthlyOccupancyPDFUrl(currentParams.value)
     pdfUrl.value = newPdfUrl
+
+    console.log('url.send', pdfUrl.value)
     openPDFInNewPage()
 
     console.log('📊 Occupancy report generated successfully:', reportTitle.value)

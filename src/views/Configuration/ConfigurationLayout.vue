@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-[95vh] bg-gray-50">
+  <div class="min-h-[95vh] bg-gray-50 dark:bg-gray-900 dark:text-gray-200">
     <!-- Configuration Sidebar -->
     <ConfigurationSidebar />
     
@@ -37,3 +37,16 @@ import AppFooter from '../../components/layout/AppFooter.vue'
 
 const sidebarStore = useSidebar()
 </script>
+
+<style scoped>
+/* Dark mode cascade for Configuration pages */
+/* Adjust common light classes used inside configuration views when in dark mode */
+:deep(.dark .bg-white) { background-color: #1f2937 !important; } /* gray-800 */
+:deep(.dark .bg-gray-50) { background-color: #111827 !important; } /* gray-900 */
+:deep(.dark .text-gray-900) { color: #e5e7eb !important; } /* gray-200 */
+:deep(.dark .text-gray-800) { color: #e5e7eb !important; }
+:deep(.dark .text-gray-700) { color: #d1d5db !important; } /* gray-300 */
+:deep(.dark .text-gray-600) { color: #9ca3af !important; } /* gray-400 */
+:deep(.dark .text-gray-500) { color: #94a3b8 !important; } /* slate-400 */
+:deep(.dark .border-gray-200) { border-color: #374151 !important; } /* gray-700 */
+</style>

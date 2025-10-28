@@ -3,25 +3,25 @@
     <!-- No Show Reservation Modal -->
     <RightSideModal :is-open="isOpen" :title="$t('applyDiscount')" @close="closeModal">
         <template #header>
-            <h3 class="text-lg font-semibold text-gray-900">{{ $t('applyDiscount') }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('applyDiscount') }}</h3>
         </template>
         <div>
             <!-- Loading Skeleton -->
             <div v-if="isLoading" class="space-y-4">
                 <div class="animate-pulse">
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
                     <div class="flex space-x-4 mb-4">
-                        <div class="h-4 bg-gray-200 rounded w-16"></div>
-                        <div class="h-4 bg-gray-200 rounded w-32"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
                     </div>
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div class="h-10 bg-gray-200 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
                 </div>
             </div>
 
@@ -38,34 +38,34 @@
 
                 <!-- Discount Rule Selection -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ $t('discountRule') }}
                         <span class="text-red-500">*</span>
                     </label>
                     <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.discountRule === 'all_nights' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-700"
+                            :class="formData.discountRule === 'all_nights' ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900' : 'border-gray-300 dark:border-gray-700'">
                             <input v-model="formData.discountRule" type="radio" value="all_nights"
-                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-gray-700">{{ $t('allNights') }}</span>
+                                class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-700 focus:ring-blue-500" />
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('allNights') }}</span>
                         </label>
-                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.discountRule === 'first_night' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-700"
+                            :class="formData.discountRule === 'first_night' ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900' : 'border-gray-300 dark:border-gray-700'">
                             <input v-model="formData.discountRule" type="radio" value="first_night"
-                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-gray-700">{{ $t('firstNight') }}</span>
+                                class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-700 focus:ring-blue-500" />
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('firstNight') }}</span>
                         </label>
-                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.discountRule === 'last_night' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-700"
+                            :class="formData.discountRule === 'last_night' ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900' : 'border-gray-300 dark:border-gray-700'">
                             <input v-model="formData.discountRule" type="radio" value="last_night"
-                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-gray-700">{{ $t('lastNight') }}</span>
+                                class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-700 focus:ring-blue-500" />
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('lastNight') }}</span>
                         </label>
-                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.discountRule === 'select_nights' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'">
+                        <label class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-700"
+                            :class="formData.discountRule === 'select_nights' ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900' : 'border-gray-300 dark:border-gray-700'">
                             <input v-model="formData.discountRule" type="radio" value="select_nights"
-                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                            <span class="ml-2 text-sm text-gray-700">{{ $t('selectNights') }}</span>
+                                class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-700 focus:ring-blue-500" />
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('selectNights') }}</span>
                         </label>
                     </div>
                 </div>
@@ -73,27 +73,27 @@
 
                 <!-- Transaction Selection (only for group reservations and selected_transaction) -->
                 <div v-if="formData.discountRule === 'select_nights'" class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ $t('selectTransactions') }}
                         <span class="text-red-500">*</span>
                     </label>
-                    <div class="space-y-2 max-h-60 overflow-y-auto border rounded p-3">
+                    <div class="space-y-2 max-h-60 overflow-y-auto border rounded p-3 dark:border-gray-700">
                         <div v-if="loadingTransactions" class="text-center py-4">
                             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto">
                             </div>
-                            <span class="text-sm text-gray-500 mt-2">{{ $t('loadingTransactions') }}</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ $t('loadingTransactions') }}</span>
                         </div>
                         <label v-else v-for="transaction in availableTransactions" :key="transaction.transactionId"
-                            class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer"
-                            :class="formData.selectedTransactions.includes(transaction.transactionId) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                            class="flex items-center p-3 border rounded hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-700"
+                            :class="formData.selectedTransactions.includes(transaction.transactionId) ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900' : 'border-gray-200 dark:border-gray-700'">
                             <input v-model="formData.selectedTransactions" type="checkbox"
                                 :value="transaction.transactionId"
-                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                                class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-700 rounded focus:ring-blue-500" />
                             <div class="ml-3 flex-1">
-                                <div class="text-sm font-medium text-gray-900">
+                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {{ transaction.description }}
                                 </div>
-                                <div class="text-xs text-gray-500">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
                                     {{ formatDate(transaction.transactionDate) }} -
                                     {{ formatCurrency(transaction.netAmount) }} -
                                 </div>
@@ -110,17 +110,17 @@
 
                 <!-- Notes -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ $t('notes') }}
                     </label>
                     <textarea v-model="formData.notes" rows="3"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-400"
                         :placeholder="$t('enterAdditionalNotes')"></textarea>
                 </div>
             </form>
         </div>
         <template #footer>
-            <div class="flex justify-end space-x-3 bg-gray-50">
+            <div class="flex justify-end space-x-3 bg-gray-50 dark:bg-gray-800">
                 <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                     :disabled="loading" />
                 <BasicButton type="submit" variant="primary" @click="handleSubmit" :label="$t('applyDiscount')"

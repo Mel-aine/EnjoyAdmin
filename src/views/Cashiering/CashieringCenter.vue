@@ -1,6 +1,6 @@
 <template>
     <AdminLayout>
-        <div class=" bg-white shadow-sm">
+        <div class=" bg-white shadow-sm dark:bg-gray-800">
             <div class="mb-0 p-3 flex justify-between items-center border-b border-gray-200">
                 <div class="flex gap-5 align-middle items-center  dark:border-gray-700">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $t('cashiering_center') }}</h2>

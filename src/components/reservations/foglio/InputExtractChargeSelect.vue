@@ -39,18 +39,18 @@
 
       <!-- Dropdown list -->
       <ul v-if="isDropdownOpen && !isLoading"
-        class="custom-scrollbar  absolute top-full left-0  z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
+        class="custom-scrollbar  absolute top-full left-0  z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
 
         <!-- No results message -->
         <li v-if="chargeOptions.length === 0 && searchQuery.length > 0"
-          class="px-5 py-3 text-gray-500 text-center italic">
+          class="px-5 py-3 text-gray-500 dark:text-gray-400 text-center italic">
           {{ $t('No extra charges found') }}
         </li>
 
         <!-- Initial message when no search -->
         <li v-else-if="chargeOptions.length === 0 && searchQuery.length === 0"
-          class="px-5 py-3 text-gray-500 text-center italic">
+          class="px-5 py-3 text-gray-500 dark:text-gray-400 text-center italic">
           {{ $t('Start typing to search extra charges...') }}
         </li>
 
@@ -59,9 +59,9 @@
           :key="charge.id"
           @click="selectCharge(charge)"
           :class="[
-            'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
+            'px-5 py-3 cursor-pointer hover:bg-brand-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0',
             disabled ? 'cursor-not-allowed text-gray-400' : '',
-            selectedCharge?.id === charge.id ? 'bg-brand-50 text-brand-700' : ''
+            selectedCharge?.id === charge.id ? 'bg-brand-50 text-brand-700 dark:bg-blue-900 dark:text-blue-200' : ''
           ]"
           role="option"
           :aria-selected="selectedCharge?.id === charge.id">
@@ -69,7 +69,7 @@
             <div class="font-medium text-sm">
               {{ charge.name || charge.charge_name }}
             </div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {{ $t('Type') }}: {{ charge.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} |
               {{ $t('Value') }}: {{ formatCurrency(charge.rateInclusiveTax) }} |
             </div>
@@ -211,6 +211,17 @@ const loadExtraCharges = async () => {
 
     allCharges.value = charges
     chargeOptions.value = charges
+
+    // Preselect the charge if a modelValue was passed before data loaded
+    const initialId = props.modelValue != null ? Number(props.modelValue) : null
+    if (initialId && !selectedCharge.value) {
+      const initial = charges.find((c: ExtraChargeOption) => c.id === initialId)
+      if (initial) {
+        selectedCharge.value = initial
+        searchQuery.value = initial.name || initial.charge_name || '';
+        selectCharge(selectedCharge.value!)
+      }
+    }
   } catch (error) {
     console.error('Error loading extra charges:', error)
     allCharges.value = []
@@ -252,7 +263,6 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 const selectCharge = (charge: ExtraChargeOption) => {
-  if (!props.disabled && !isLoading.value) {
     selectedCharge.value = charge
     searchQuery.value = charge.name || charge.charge_name || ''
     isDropdownOpen.value = false
@@ -260,7 +270,7 @@ const selectCharge = (charge: ExtraChargeOption) => {
     emit('update:modelValue', charge.id)
     emit('select', charge)
     emit('change', charge.id)
-  }
+  
 }
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -276,12 +286,12 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   // Load all charges on mount
-  loadExtraCharges()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+ loadExtraCharges()
 </script>
 
 <style scoped>

@@ -1,7 +1,7 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="'Exchange Room'" @close="$emit('close')">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ $t('ExchangeRoom') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('ExchangeRoom') }}</h3>
     </template>
     <!-- Content -->
     <div class="space-y-6">
@@ -9,40 +9,40 @@
         <!-- Skeleton loader -->
         <div class="mb-6">
           <div class="flex items-center justify-between mb-2">
-            <div class="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-            <div class="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-8 animate-pulse"></div>
           </div>
         </div>
-        <div class="border border-gray-200 bg-gray-50 rounded-lg p-4 mb-3 animate-pulse">
+        <div class="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-3 animate-pulse">
           <div class="flex items-center justify-between">
             <div class="flex gap-3 justify-start items-start w-full">
 
               <!-- Bloc gauche -->
-              <div class="flex flex-col bg-white p-2 rounded-lg shadow-sm w-32">
+              <div class="flex flex-col bg-white dark:bg-gray-700 p-2 rounded-lg shadow-sm w-32">
                 <div class="flex flex-col items-center gap-1">
-                  <div class="h-3 w-16 bg-gray-300 rounded"></div>
-                  <div class="h-3 w-12 bg-gray-200 rounded"></div>
+                  <div class="h-3 w-16 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                  <div class="h-3 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 </div>
-                <div class="h-1 bg-gray-300 w-full my-2 rounded"></div>
+                <div class="h-1 bg-gray-300 dark:bg-gray-600 w-full my-2 rounded"></div>
                 <div class="flex items-center justify-between w-full">
                   <div class="flex flex-col items-center w-full">
-                    <div class="h-3 w-10 bg-gray-300 rounded mb-1"></div>
-                    <div class="h-3 w-8 bg-gray-200 rounded"></div>
+                    <div class="h-3 w-10 bg-gray-300 dark:bg-gray-600 rounded mb-1"></div>
+                    <div class="h-3 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
               </div>
 
               <!-- Bloc droit -->
               <div class="flex flex-col justify-between flex-1 h-full">
-                <div class="h-4 w-32 bg-gray-300 rounded mb-4"></div>
+                <div class="h-4 w-32 bg-gray-300 dark:bg-gray-600 rounded mb-4"></div>
                 <div class="flex gap-10">
                   <div>
-                    <div class="h-3 w-16 bg-gray-200 rounded mb-2 mt-4"></div>
-                    <div class="h-4 w-20 bg-gray-300 rounded"></div>
+                    <div class="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded mb-2 mt-4"></div>
+                    <div class="h-4 w-20 bg-gray-300 dark:bg-gray-600 rounded"></div>
                   </div>
                   <div>
-                    <div class="h-3 w-16 bg-gray-200 rounded mb-2 mt-4"></div>
-                    <div class="h-4 w-20 bg-gray-300 rounded"></div>
+                    <div class="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded mb-2 mt-4"></div>
+                    <div class="h-4 w-20 bg-gray-300 dark:bg-gray-600 rounded"></div>
                   </div>
                 </div>
               </div>
@@ -89,45 +89,45 @@
             v-if="reservation.reservationRooms && reservation.reservationRooms.length > 0"
             class="mb-6"
           >
-            <h4 class="text-sm font-medium text-gray-700 mb-3">{{ $t('Current Rooms') }}</h4>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-400 mb-3">{{ $t('Current Rooms') }}</h4>
             <div v-for="(resRoom, idx) in filteredReservationRooms" :key="idx">
-              <div class="border border-gray-200 bg-gray-50 rounded-lg p-4 mb-3">
+              <div class="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-3">
                 <div class="flex items-center justify-between">
                   <div class="flex gap-3 justify-start align-top items-start">
-                    <div class="flex flex-col bg-white p-2 rounded">
+                    <div class="flex flex-col bg-white dark:bg-gray-700 p-2 rounded">
                       <div
-                        class="gap-1 text-sm text-gray-600 flex flex-col align-middle items-center"
+                        class="gap-1 text-sm text-gray-600 dark:text-gray-300 flex flex-col align-middle items-center"
                       >
                         <span>{{ formatDateDisplay(new Date(resRoom.checkInDate)).day }}</span>
                         <span>{{ formatDateDisplay(new Date(resRoom.checkInDate)).month }}</span>
                       </div>
-                      <div class="h-1 bg-gray-300 w-full my-1"></div>
+                      <div class="h-1 bg-gray-300 dark:bg-gray-600 w-full my-1"></div>
                       <div class="flex items-center justify-between">
                         <div class="text-xs flex flex-col align-middle items-center">
-                          <span class="text-gray-600">{{
+                          <span class="text-gray-600 dark:text-gray-300">{{
                             formatDateDisplay(new Date(resRoom.checkOutDate)).day
                           }}</span>
-                          <span class="text-gray-500 ml-1">{{
+                          <span class="text-gray-500 dark:text-gray-400 ml-1">{{
                             formatDateDisplay(new Date(resRoom.checkOutDate)).month
                           }}</span>
                         </div>
                       </div>
                     </div>
-                    <div class="text-md text-gray-500 flex flex-col justify-between h-full">
+                    <div class="text-md text-gray-500 dark:text-gray-400 flex flex-col justify-between h-full">
                       <div>
-                        <span class="text-gray-700 font-medium">{{
+                        <span class="text-gray-700 dark:text-gray-300 font-medium">{{
                           resRoom.guest?.displayName || reservation.guest?.displayName
                         }}</span>
                       </div>
                       <div class="flex gap-7">
                         <div>
-                          <div class="text-xs text-gray-500 mb-1 mt-8">{{ $t('roomType') }}</div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 mt-8">{{ $t('roomType') }}</div>
                           <div class="text-sm font-medium">
                             {{ resRoom.roomType?.roomTypeName || resRoom.roomTypeName || 'N/A' }}
                           </div>
                         </div>
                         <div>
-                          <div class="text-xs text-gray-500 mb-1 mt-8">
+                          <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 mt-8">
                             {{ $t('Current Room') }}
                           </div>
                           <div class="text-sm font-medium">
@@ -145,13 +145,13 @@
                   class="mt-3 pt-3 border-t border-gray-200"
                 >
                   <div class="flex items-center gap-2 text-sm">
-                    <span class="text-gray-600">{{ $t('Exchange with') }}:</span>
+                    <span class="text-gray-600 dark:text-gray-300">{{ $t('Exchange with') }}:</span>
                     <span class="font-medium text-purple-600">
                       {{ getRoomExchangeLabel(resRoom.id) }}
                     </span>
                     <button
                       @click="clearExchange(resRoom.id)"
-                      class="ml-auto text-red-500 hover:text-red-700 text-xs"
+                      class="ml-auto text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-xs"
                     >
                       {{ $t('Clear') }}
                     </button>
@@ -169,7 +169,7 @@
                       'w-full py-2 px-4 rounded text-sm font-medium',
                       activeExchangeSourceId === resRoom.id
                         ? 'bg-purple-600 text-white'
-                        : 'bg-purple-100 text-purple-600 hover:bg-purple-200',
+                        : 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-200 hover:bg-purple-200 dark:hover:bg-purple-800',
                     ]"
                   >
                     {{
@@ -190,9 +190,9 @@
           <!-- No results message (only after filtering) -->
           <div
             v-if="hasFilterApplied && inHouseReservations.length === 0"
-            class="text-center py-8 bg-gray-50 border border-gray-200 rounded-lg"
+            class="text-center py-8 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
           >
-            <div class="text-gray-600">
+            <div class="text-gray-600 dark:text-gray-300">
               <svg
                 class="w-12 h-12 mx-auto mb-3"
                 fill="none"
@@ -218,7 +218,7 @@
             v-if="hasFilterApplied && inHouseReservations.length > 0"
             class="mb-4 custom-scrollbar overflow-y-auto h-[350px]"
           >
-            <h4 class="text-sm font-medium text-gray-700 mb-3">
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-400 mb-3">
               {{
                 activeExchangeSourceId
                   ? $t('Select destination room')
@@ -233,20 +233,20 @@
               >
                 <div class="flex items-center justify-between">
                   <div class="flex gap-3 justify-start align-top items-start">
-                    <div class="flex flex-col bg-white p-2 rounded">
+                    <div class="flex flex-col bg-white dark:bg-gray-700 p-2 rounded">
                       <div
-                        class="gap-1 text-sm text-gray-600 flex flex-col align-middle items-center"
+                        class="gap-1 text-sm text-gray-600 dark:text-gray-300 flex flex-col align-middle items-center"
                       >
                         <span>{{ formatDateDisplay(new Date(inHouse.checkInDate)).day }}</span>
                         <span>{{ formatDateDisplay(new Date(inHouse.checkInDate)).month }}</span>
                       </div>
-                      <div class="h-1 bg-gray-300 w-full my-1"></div>
+                      <div class="h-1 bg-gray-300 dark:bg-gray-600 w-full my-1"></div>
                       <div class="flex items-center justify-between">
                         <div class="text-xs flex flex-col align-middle items-center">
-                          <span class="text-gray-600">{{
+                          <span class="text-gray-600 dark:text-gray-300">{{
                             formatDateDisplay(new Date(inHouse.checkOutDate)).day
                           }}</span>
-                          <span class="text-gray-500 ml-1">{{
+                          <span class="text-gray-500 dark:text-gray-400 ml-1">{{
                             formatDateDisplay(new Date(inHouse.checkOutDate)).month
                           }}</span>
                         </div>
@@ -256,17 +256,17 @@
                       <div>
                         <span class="text-purple-600 font-medium">{{ inHouse.guestName }}</span>
                         <span
-                          class="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded"
+                          class="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 px-2 py-1 rounded"
                           >{{ $t('Checked In') }}</span
                         >
                       </div>
                       <div class="flex gap-7">
                         <div>
-                          <div class="text-xs text-gray-500 mb-1 mt-8">{{ $t('roomType') }}</div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 mt-8">{{ $t('roomType') }}</div>
                           <div class="text-sm font-medium">{{ inHouse.roomTypeName }}</div>
                         </div>
                         <div>
-                          <div class="text-xs text-gray-500 mb-1 mt-8">{{ $t('Room') }}</div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 mt-8">{{ $t('Room') }}</div>
                           <div class="text-sm font-medium">{{ inHouse.roomNumber }}</div>
                         </div>
                       </div>
@@ -414,12 +414,12 @@ const getInHouseCardClass = (inHouse: any) => {
   const isDisabled = isSelected && !activeExchangeSourceId.value
 
   if (isSelected) {
-    return 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
+    return 'border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900 ring-2 ring-purple-500'
   }
   if (activeExchangeSourceId.value) {
-    return 'border-purple-200 bg-purple-50 hover:border-purple-400'
+    return 'border-purple-200 dark:border-purple-400 bg-purple-50 dark:bg-purple-900 hover:border-purple-400 dark:hover:border-purple-300'
   }
-  return 'border-gray-200 bg-gray-50 opacity-50'
+  return 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 opacity-50'
 }
 
 const onRoomTypeChange = async (roomTypeId: number) => {

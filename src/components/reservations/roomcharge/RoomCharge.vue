@@ -1,9 +1,9 @@
 <template>
-  <div class="flex h-[calc(100vh-250px)] mx-4 mt-2 shadow-lg">
+  <div class="flex h-[calc(100vh-250px)] mx-4 mt-2 shadow-lg dark:bg-gray-900 dark:text-gray-100">
     <!-- Left Sidebar - Room Selection -->
-    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50 max-h-full">
+    <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50 dark:bg-gray-900 dark:border-gray-800 max-h-full">
       <div class="h-full flex flex-col">
-        <div class="bg-white flex-grow overflow-y-auto ">
+        <div class="bg-white dark:bg-gray-800 dark:text-gray-100 flex-grow overflow-y-auto ">
           <!-- Room/Group Header -->
           <div class="px-2 pb-2">
             {{ $t('updateDetails') }}
@@ -12,10 +12,10 @@
           <div v-if="singleRoom">
             <div :title="$t('roomNumber')">
               <div>
-                <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
+                <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1">
                   <div class="flex flex-col">
                     <span class="capitalize">{{ singleRoom?.roomNumber }}-{{ singleRoom?.guestName }}</span>
-                    <span class="text-xs text-gray-500">{{ }}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ }}</span>
                   </div>
                   <ChevronRight class="w-4 h-4" />
                 </div>
@@ -24,12 +24,12 @@
           </div>
           <!-- Group Rooms Display -->
           <div v-if="groupRooms.length > 0">
-            <div v-for="room in groupRooms" :key="room.id" :class="{ 'bg-gray-200': selectedRoomId === room.id }"
+            <div v-for="room in groupRooms" :key="room.id" :class="{ 'bg-gray-200 dark:bg-gray-700': selectedRoomId === room.id }"
               @click="selectRoom(room.id)">
-              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1">
+              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1">
                 <div class="flex flex-col">
                   <span class="capitalize">{{ room.roomNumber }}-{{ room.guestName }}</span>
-                  <span class="text-xs text-gray-500">{{ room.roomType || '' }}</span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">{{ room.roomType || '' }}</span>
                 </div>
                 <ChevronRight class="w-4 h-4" />
               </div>
@@ -38,7 +38,7 @@
         </div>
 
         <!-- Footer Summary -->
-        <div class="px-4 gap-1 py-2 text-sm flex flex-col border-t border-gray-200">
+        <div class="px-4 gap-1 py-2 text-sm flex flex-col border-t border-gray-200 dark:border-gray-700">
           <!-- Total Charges -->
           <div class="flex justify-between text-sm text-blue-600">
             <span>{{ $t('Total') }}</span>
@@ -56,7 +56,7 @@
           </div>
 
           <!-- Room Info -->
-          <div class="flex justify-between text-xs text-gray-500 mt-1 pt-1 border-t border-gray-100">
+          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1 pt-1 border-t border-gray-100 dark:border-gray-800">
             <span>{{ summaryData?.totalRooms }} {{ summaryData?.totalRooms === 1 ? $t('Room') : $t('Rooms') }} • {{
               summaryData?.totalTransactions }} {{ $t('transactions') }}</span>
           </div>
@@ -67,7 +67,7 @@
     <!-- Right Content Area -->
     <div class="w-10/12 flex flex-col">
       <!-- Action Buttons -->
-      <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 bg-white">
+      <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 dark:text-gray-100">
         <BasicButton :label="$t('updateDetails')" @click="updateDetails" />
         <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
 
@@ -110,7 +110,7 @@
           @selection-change="handleTableSelectionChange">
           <!-- Custom Stay Column -->
           <template #column-transactionDate="{ item }">
-            <div class="text-sm text-gray-900">
+            <div class="text-sm text-gray-900 dark:text-gray-100">
               <div class="font-medium">{{ formatTransactionDate(item.transactionDate) }}</div>
             </div>
           </template>
@@ -139,14 +139,14 @@
           <!-- Custom Charge Column -->
           <template #column-charge="{ item }">
             <div class="text-sm">
-              <div class="font-medium text-black">{{ formatAmount(item.charge || 0) }}</div>
+              <div class="font-medium text-black dark:text-gray-100">{{ formatAmount(item.charge || 0) }}</div>
             </div>
           </template>
 
 
           <!-- Custom Tax Column -->
           <template #column-tax="{ item }">
-            <div class="text-sm text-black">
+            <div class="text-sm text-black dark:text-gray-100">
               {{ formatAmount(item.tax || 0) }}
             </div>
           </template>
@@ -170,13 +170,13 @@
       </div>
 
       <!-- Footer Summary -->
-      <div class="p-4 border-t border-gray-200 bg-gray-50">
+      <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
         <div class="flex justify-between items-center">
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-gray-600 dark:text-gray-300">
             {{ isGroupReservation ? $t('GroupTotalRoomCharges') : $t('TotalRoomCharges') }}
           </span>
           <div class="text-right">
-            <div class="text-sm font-medium">
+            <div class="text-sm font-medium dark:text-gray-100">
               {{ $t('TotalAmount') }}: {{ formatAmount(calculatedTotalAmount) }}
             </div>
           </div>

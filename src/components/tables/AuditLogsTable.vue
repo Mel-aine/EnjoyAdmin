@@ -1,36 +1,36 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-800">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               {{ $t('Action') }}
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               {{ $t('User') }}
 
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               {{ $t('Description') }}
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               {{ $t('Timestamp') }}
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               {{ $t('IPAddress') }}
             </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               {{ $t('Details') }}
             </th>
 
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
           <tr
             v-for="log in logs"
             :key="log.id"
-            class="hover:bg-gray-50 transition-colors duration-150"
+            class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"
 
           >
             <!-- Action Column -->
@@ -45,13 +45,13 @@
                   <component :is="getActionIcon(log.action)" class="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-200">
                     {{ $t(`auditActions.${log.action}`) }}
                   </div>
                   <div class="flex items-center space-x-2 mt-1">
                     <span
                       :class="[
-                        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
+                        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium dark:bg-gray-800 dark:text-gray-300',
                         getActionBadgeColor(log.action)
                       ]"
                     >
@@ -67,12 +67,12 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 w-8 h-8">
-                  <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                    <User class="w-4 h-4 text-gray-600" />
+                  <div class="w-8 h-8 bg-gray-300 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                    <User class="w-4 h-4 text-gray-600 dark:text-gray-300" />
                   </div>
                 </div>
                 <div class="ml-3">
-                  <div class="text-sm font-medium text-gray-900">
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-200">
                     {{ log.userName || log.username || log.userId }}
                   </div>
 
@@ -82,10 +82,10 @@
 
             <!-- Description Column -->
             <td class="px-6 py-4 max-w-xs">
-              <div class="text-sm text-gray-900 truncate" :title="formatDescription(log)">
+              <div class="text-sm text-gray-900 dark:text-gray-200 truncate" :title="formatDescription(log)">
                 {{ formatDescription(log) }}
               </div>
-              <div v-if="log.entityType" class="text-xs text-gray-500 mt-1">
+              <div v-if="log.entityType" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {{ log.entityType }}
                 <span v-if="log.entityId" class="font-mono">#{{ log.entityId }}</span>
               </div>
@@ -93,10 +93,10 @@
 
             <!-- Timestamp Column -->
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900">
+              <div class="text-sm text-gray-900 dark:text-gray-200">
                 {{ formatDate(log.timestamp || log.createdAt) }}
               </div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-gray-500 dark:text-gray-400">
                 {{ formatTime(log.timestamp || log.createdAt!) }}
               </div>
             </td>
@@ -104,12 +104,12 @@
             <!-- IP Address Column -->
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center space-x-2">
-                <Globe class="w-4 h-4 text-gray-400" />
-                <span class="text-sm text-gray-900 font-mono">
+                <Globe class="w-4 h-4 text-gray-400 dark:text-gray-300" />
+                <span class="text-sm text-gray-900 dark:text-gray-200 font-mono">
                   {{ log.ipAddress || 'Unknown' }}
                 </span>
               </div>
-              <div v-if="log.userAgent" class="text-xs text-gray-500 mt-1 flex items-center space-x-1">
+              <div v-if="log.userAgent" class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center space-x-1">
                 <Monitor class="w-3 h-3" />
                 <span>{{ getBrowserInfo(log.userAgent) }}</span>
               </div>
@@ -121,11 +121,11 @@
                 <button
                   v-if="log.changes && Object.keys(log.changes).length > 0"
                   @click="$emit('toggle-changes', log.id)"
-                  class="text-blue-600 hover:text-blue-900 text-sm font-medium transition-colors duration-150"
+                  class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-150"
                 >
                   <div class="flex items-center space-x-1">
                     <span>{{ $t('Changes') }}</span>
-                    <span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full text-xs">
+                    <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-1.5 py-0.5 rounded-full text-xs">
                       {{ Object.keys(log.changes).length }}
                     </span>
                   </div>
@@ -146,16 +146,16 @@
       <Transition name="slide-down">
         <div
           v-if="expandedChanges?.includes(String(log.id)) && log.changes && Object.keys(log.changes).length > 0"
-          class="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-200"
+          class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-t border-gray-200 dark:border-gray-700"
         >
           <div class="px-6 py-4">
             <div class="flex items-center justify-between mb-4">
-              <h4 class="text-sm font-semibold text-gray-900">
+              <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-200">
                 {{ $t('Changesfor{action}', { action: $t(`auditActions.${log.action}`) }) }}
               </h4>
               <button
                 @click="$emit('toggle-changes', log.id)"
-                class="text-gray-400 hover:text-gray-600"
+                class="text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 <X class="w-4 h-4" />
               </button>
@@ -165,13 +165,13 @@
               <div
                 v-for="(change, field) in log.changes"
                 :key="field"
-                class="bg-white p-4 rounded-lg border border-blue-100 shadow-sm"
+                class="bg-white dark:bg-gray-900 p-4 rounded-lg border border-blue-100 dark:border-blue-900/30 shadow-sm"
               >
                 <div class="flex items-center justify-between mb-3">
-                  <span class="text-sm font-semibold text-gray-800">
+                  <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                     {{ formatFieldName(field) }}
                   </span>
-                  <div class="flex items-center space-x-1 text-xs text-gray-500">
+                  <div class="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400">
                     <Clock class="w-3 h-3" />
                     <span>{{ formatTime(log.timestamp) }}</span>
                   </div>
@@ -184,8 +184,8 @@
                       <Minus class="w-3 h-3" />
                       <span>{{ $t('Before') }}</span>
                     </div>
-                    <div class="bg-red-50 border border-red-200 rounded-md px-3 py-2">
-                      <code class="text-red-800 text-sm break-all">
+                    <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md px-3 py-2">
+                      <code class="text-red-800 dark:text-red-300 text-sm break-all">
                         {{ formatValue(change.old) }}
                       </code>
                     </div>
@@ -197,8 +197,8 @@
                       <Plus class="w-3 h-3" />
                       <span>{{ $t('After') }}</span>
                     </div>
-                    <div class="bg-green-50 border border-green-200 rounded-md px-3 py-2">
-                      <code class="text-green-800 text-sm break-all">
+                    <div class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-md px-3 py-2">
+                      <code class="text-green-800 dark:text-green-300 text-sm break-all">
                         {{ formatValue(change.new) }}
                       </code>
                     </div>
@@ -214,8 +214,8 @@
     <!-- Empty State -->
     <div v-if="logs.length === 0" class="text-center py-12">
       <FileSearch class="w-16 h-16 mx-auto text-gray-300 mb-4" />
-      <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $t('No Logs Found') }}</h3>
-      <p class="text-gray-500">{{ $t('No audit logs match your current filters.') }}</p>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-200 mb-2">{{ $t('No Logs Found') }}</h3>
+      <p class="text-gray-500 dark:text-gray-400">{{ $t('No audit logs match your current filters.') }}</p>
     </div>
   </div>
 </template>

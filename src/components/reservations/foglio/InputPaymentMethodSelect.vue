@@ -22,18 +22,18 @@
 
       <!-- Dropdown -->
       <ul v-if="showDropdown && (filteredPaymentMethods.length > 0 || isLoading)"
-        class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100"
+        class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         role="listbox" :aria-expanded="showDropdown" aria-hidden="false">
-        <li v-if="isLoading" class="px-5 py-2 text-sm text-gray-500">
+        <li v-if="isLoading" class="px-5 py-2 text-sm text-gray-500 dark:text-gray-400">
           Loading payment methods...
         </li>
         <li v-else v-for="(paymentMethod, index) in filteredPaymentMethods" :key="paymentMethod.id"
           @click="selectPaymentMethod(paymentMethod)"
-          class="px-5 py-2 cursor-pointer hover:bg-brand-100 transition-colors duration-150"
+          class="px-5 py-2 cursor-pointer hover:bg-brand-100 dark:hover:bg-gray-700 transition-colors duration-150"
           :class="{
-            'bg-blue-50': index === selectedIndex,
-            'bg-purple-100 border-l-4 border-purple-500 font-semibold text-purple-800': props.modelValue === paymentMethod.id,
-            'text-gray-700': props.modelValue !== paymentMethod.id
+            'bg-blue-50 dark:bg-blue-900': index === selectedIndex,
+            'bg-purple-100 border-l-4 border-purple-500 font-semibold text-purple-800 dark:border-purple-400 dark:text-purple-200': props.modelValue === paymentMethod.id,
+            'text-gray-700 dark:text-gray-300': props.modelValue !== paymentMethod.id
           }"
           role="option" :aria-selected="props.modelValue === paymentMethod.id">
           <div class="font-medium flex items-center justify-between">

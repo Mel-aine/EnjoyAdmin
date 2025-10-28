@@ -3,11 +3,11 @@
     <!-- Info Icon Button -->
     <button 
       @click="toggleTooltip" 
-      class="p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
+      class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600"
       aria-label="Show status legend"
     >
       <slot name="icon">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </slot>
@@ -16,17 +16,17 @@
     <!-- Tooltip Content -->
     <div 
       v-if="isOpen" 
-      class="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-80"
+      class="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-80 dark:bg-gray-800 dark:border-gray-700"
       :class="positionClasses"
     >
       <!-- Title -->
-      <div v-if="title" class="font-bold text-gray-800 mb-2">{{ title }}</div>
+      <div v-if="title" class="font-bold text-gray-800 dark:text-gray-200 mb-2">{{ title }}</div>
       
       <!-- Legend Items -->
       <div class="space-y-3">
         <template v-if="sections && sections.length > 0">
           <div v-for="(section, sectionIndex) in sections" :key="sectionIndex" class="mb-4">
-            <div v-if="section.title" class="font-semibold text-gray-700 mb-2">{{ section.title }}</div>
+            <div v-if="section.title" class="font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ section.title }}</div>
             <div class="space-y-2 grid grid-cols-2">
               <div 
                 v-for="(item, itemIndex) in section.items" 
@@ -49,7 +49,7 @@
                 />
                 
                 <!-- Label -->
-                <span class="text-sm text-gray-700">{{ item.label }}</span>
+                <span class="text-sm text-gray-700 dark:text-gray-300">{{ item.label }}</span>
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@
             />
             
             <!-- Label -->
-            <span class="text-sm text-gray-700">{{ item.label }}</span>
+            <span class="text-sm text-gray-700 dark:text-gray-300">{{ item.label }}</span>
           </div>
         </template>
       </div>
@@ -85,7 +85,7 @@
       <!-- Close Button -->
       <button 
         @click="isOpen = false"
-        class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+        class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

@@ -7,15 +7,15 @@
         <div class="px-2 space-y-4">
             <!-- Currency List -->
             <div class="space-y-3">
-                <div class="grid grid-cols-3 bg-gray-400 px-3 py-2">
+                <div class="grid grid-cols-3 bg-gray-400 dark:bg-black dark:text-white px-3 py-2">
                     <div class="">Name</div>
                     <div class="">Exchange Rate</div>
                 </div>
-                <div v-for="currency in currencies" :key="currency.id" class="border border-gray-200 rounded-lg p-4">
+                <div v-for="currency in currencies" :key="currency.id" class="dark:bg-black dark:text-white border border-gray-200 rounded-lg p-4">
                     <!-- Exchange Rate Input -->
                     <div v-if="!currency.isBaseCurrency" class="grid grid-cols-3 gap-4">
                         <div class="col-span-1">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ currency.name }}</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">{{ currency.name }}</label>
                         </div>
                         <div class="col-span-1">
                             <div class="flex items-center space-x-2 p-3 bg-gray-50 rounded-md">
@@ -35,7 +35,7 @@
                     <!-- Base Currency Display (XAF) -->
                     <div v-else class="grid grid-cols-3 gap-4">
                         <div class="col-span-1">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ currency.name }}</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">{{ currency.name }}</label>
                         </div>
                         <div class="col-span-2">
                             <div class="flex items-center space-x-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">

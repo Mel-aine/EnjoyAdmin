@@ -17,40 +17,40 @@
         <!-- Custom column for tax details -->
         <template #column-taxDetails="{ item }">
           <div>
-            <div class="text-sm font-medium text-gray-900">{{ t('configuration.taxes.'+item.postingType) }}</div>
-            <div class="text-xs text-gray-500" v-if="item.postingType === 'flat_amount'">{{ item.amount }}</div>
-            <div class="text-xs text-gray-500" v-else-if="item.postingType === 'flat_percentage'">{{ item.percentage }}%
+            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ t('configuration.taxes.'+item.postingType) }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400" v-if="item.postingType === 'flat_amount'">{{ item.amount }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400" v-else-if="item.postingType === 'flat_percentage'">{{ item.percentage }}%
             </div>
-            <div class="text-xs text-gray-500" v-else>Slab Based</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400" v-else>Slab Based</div>
           </div>
         </template>
 
         <!-- Custom column for application rules -->
         <template #column-applicationRules="{ item }">
           <div>
-            <div class="text-xs text-gray-600">{{ t('configuration.taxes.'+item.applyTax) }}</div>
-            <div class="text-xs text-gray-500" v-if="item.applyTaxOnRackRate">On Rack Rate</div>
+            <div class="text-xs text-gray-600 dark:text-gray-300">{{ t('configuration.taxes.'+item.applyTax) }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400" v-if="item.applyTaxOnRackRate">On Rack Rate</div>
           </div>
         </template>
 
           <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
           <template  #column-status="{ item }">
             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-              :class="item.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+              :class="item.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'">
               {{ $t('configuration.identity_type.status_' + item.status.toLowerCase()) }}
             </span>
           </template>
@@ -59,8 +59,8 @@
       <!-- Add/Edit Modal -->
       <div v-if="showAddModal || showEditModal"
         class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
             {{ showAddModal ? t('configuration.taxes.add_tax') : t('configuration.taxes.edit_tax') }}
           </h3>
 
@@ -81,13 +81,13 @@
 
               <!-- Second Row: Exempt After, Posting Type -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {{ t('configuration.taxes.exempt_after') }}
                 </label>
                 <div class="flex items-center space-x-2">
                   <Input v-model="formData.exemptAfter" type="Number"
                     :placeholder="t('configuration.taxes.exempt_after_placeholder')" class="flex-1" />
-                  <span class="text-sm text-gray-600">{{ t('configuration.taxes.days') }}</span>
+                  <span class="text-sm text-gray-600 dark:text-gray-300">{{ t('configuration.taxes.days') }}</span>
                 </div>
               </div>
               <div> 
@@ -100,42 +100,42 @@
                 <div class="flex items-center space-x-4 pt-6">
                   <div class="flex items-center space-x-2">
                     <input type="radio" id="beforeDiscount" v-model="formData.applyTax" value="before_discount"
-                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
-                    <label for="beforeDiscount" class="text-sm text-gray-700">
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700" />
+                    <label for="beforeDiscount" class="text-sm text-gray-700 dark:text-gray-300">
                       {{ t('configuration.taxes.before_discount') }}
                     </label>
                   </div>
                   <div class="flex items-center space-x-2">
                     <input type="radio" id="afterDiscount" v-model="formData.applyTax" value="after_discount"
-                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
-                    <label for="afterDiscount" class="text-sm text-gray-700">
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700" />
+                    <label for="afterDiscount" class="text-sm text-gray-700 dark:text-gray-300">
                       {{ t('configuration.taxes.after_discount') }}
                     </label>
                   </div>
                 </div>
-                <div class="text-sm text-gray-600 mt-1">{{ t('configuration.taxes.apply_tax') }} *</div>
+                <div class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ t('configuration.taxes.apply_tax') }} *</div>
               </div>
 
               <!-- Third Row: Dynamic fields based on posting type and Apply Tax on Rack Rate -->
               <!-- Dynamic field based on posting type -->
               <div v-if="formData.postingType === 'flat_amount'">
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {{ t('configuration.taxes.amount') }}
                 </label>
                 <Input v-model="formData.amount" inputType="number" step="0.01" :placeholder="t('configuration.taxes.amount_placeholder')" class="w-full" />
               </div>
               <div v-else-if="formData.postingType === 'flat_percentage'">
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {{ t('configuration.taxes.percentage') }}
                 </label>
                 <Input v-model="formData.percentage" type="number" step="0.01" :placeholder="t('configuration.taxes.percentage_placeholder')" class="w-full" />
               </div>
               <div v-else-if="formData.postingType === 'slab'">
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {{ t('configuration.taxes.slab_information') }}
                 </label>
                 <textarea v-model="formData.slabInfo"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows="3" :placeholder="t('configuration.taxes.slab_placeholder')"></textarea>
               </div>
               <div v-else>
@@ -143,23 +143,23 @@
               </div>
               <!-- Tax Apply After Section -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ t('configuration.taxes.tax_apply_after') }}
                 </label>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-h-48 overflow-y-auto">
+                <div class="bg-blue-50 border border-blue-200 dark:bg-gray-900 dark:border-gray-700 rounded-lg p-4 max-h-48 overflow-y-auto">
                   <div class="grid grid-cols-2 gap-2 text-sm">
                     <div class="flex items-center space-x-2" v-for="(tax, ind) in taxes">
                       <input type="checkbox" id="vat"  v-model="formData.taxApplyAfter" :value="tax.taxRateId"
-                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                      <label for="vat" class="text-gray-700">{{ tax.taxName }}</label>
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
+                      <label for="vat" class="text-gray-700 dark:text-gray-300">{{ tax.taxName }}</label>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="flex items-center space-x-2 pt-6">
                 <input type="checkbox" id="applyTaxOnRackRate" v-model="formData.applyTaxOnRackRate"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                <label for="applyTaxOnRackRate" class="text-sm text-gray-700">
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
+                <label for="applyTaxOnRackRate" class="text-sm text-gray-700 dark:text-gray-300">
                   {{ t('configuration.taxes.apply_tax_on_rack_rate') }}
                 </label>
               </div>

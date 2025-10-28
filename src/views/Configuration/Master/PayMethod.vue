@@ -41,11 +41,11 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:bg-black/40">
       <div
-        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+        class="relative top-10 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
             {{ isEditing ? $t('configuration.payment_method.edit_payment_method') :
               $t('configuration.payment_method.add_payment_method') }}
           </h3>
@@ -67,11 +67,11 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ $t('configuration.payment_method.type') }} *
                 </label>
                 <select v-model="formData.type" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
                   <option value="">{{ $t('configuration.payment_method.select_type') }}</option>
                   <option value="CASH">{{ $t('configuration.payment_method.type_cash') }}</option>
                   <option value="BANK">{{ $t('configuration.payment_method.type_bank') }}</option>
@@ -82,7 +82,7 @@
                 <label class="flex align-baseline ">
                   <input v-model="formData.cardProcessing" type="checkbox"
                     class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                  <span class="ml-2 text-sm text-gray-700">{{ $t('configuration.payment_method.card_processing')
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('configuration.payment_method.card_processing')
                   }}</span>
                 </label>
               </div>
@@ -92,22 +92,22 @@
               <label class="flex items-center">
                 <input v-model="formData.surchargeSetting" type="checkbox"
                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                <span class="ml-2 text-sm text-gray-700">{{ $t('configuration.payment_method.surcharge_setting')
+                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('configuration.payment_method.surcharge_setting')
                 }}</span>
               </label>
             </div>
 
-            <div v-if="formData.surchargeSetting" class="border border-gray-200 rounded-md p-4 mb-4">
+            <div v-if="formData.surchargeSetting" class="border border-gray-200 dark:border-gray-700 rounded-md p-4 mb-4 dark:bg-gray-800/50">
               <h4 class="text-sm font-medium text-gray-900 mb-3">{{
                 $t('configuration.payment_method.surcharge_configuration') }}</h4>
 
               <div class="grid grid-cols-2 gap-4">
                 <div class="mb-4">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {{ $t('configuration.payment_method.amount_percent') }}
                   </label>
                   <select v-model="formData.surchargeType"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
                     <option value="amount">{{ $t('configuration.payment_method.amount') }}</option>
                     <option value="percent">{{ $t('configuration.payment_method.percentage') }}</option>
                   </select>
@@ -120,11 +120,11 @@
               </div>
 
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ $t('configuration.payment_method.extra_charge') }}
                 </label>
                 <select v-model="formData.extraCharge"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
                   <option value="">{{ $t('configuration.payment_method.select_extra_charge') }}</option>
                   <option value="service_charge">{{ $t('configuration.payment_method.service_charge') }}</option>
                   <option value="processing_fee">{{ $t('configuration.payment_method.processing_fee') }}</option>
@@ -134,17 +134,17 @@
             </div>
 
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t('configuration.payment_method.receipt_no_setting') }}
               </label>
               <select v-model="formData.receiptNoSetting"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
                 <option value="auto_general">{{ $t('configuration.payment_method.auto_general') }}</option>
                 <option value="auto_private">{{ $t('configuration.payment_method.auto_private') }}</option>
                 <option value="manual">{{ $t('configuration.payment_method.manual') }}</option>
               </select>
             </div>
-
+          
             <div class="flex justify-end space-x-3 mt-6">
               <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                 :disabled="saving" />

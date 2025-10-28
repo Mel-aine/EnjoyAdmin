@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUITA HOTEL Registration Form</title>
+    <style>
+        /* Styles de base pour imiter un document imprimé */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 3px;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid black;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+
+        .contact-info {
+            font-size: 9pt;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* Conteneur pour une paire de lignes (Français + Anglais) */
+        .line-pair {
+            margin-bottom: 1px;
+            /* Ajoute un espacement entre les paires de champs */
+        }
+
+        /* Conteneur pour une seule ligne bilingue */
+        .line-item {
+            display: flex;
+            justify-content: space-between;
+            line-height: 1.4;
+        }
+
+        /* Style pour les labels français : en gras */
+        .label-fr {
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        /* Style pour les labels anglais : normal */
+        .label-en {
+            white-space: nowrap;
+            font-weight: normal;
+        }
+
+        /* Lignes pointillées pour le français (maintenant l'exigence) */
+        .line-dot {
+            flex-grow: 1;
+            border-bottom: 1px dotted #000;
+            margin-left: 5px;
+            margin-right: 0;
+        }
+
+        /* Ligne vide/masquée pour l'anglais (nouvelle exigence) */
+        .line-empty {
+            flex-grow: 1;
+            margin-left: 5px;
+            margin-right: 0;
+            height: 16px;
+            /* Donne une hauteur pour maintenir l'espacement vertical sans ligne */
+        }
+
+        .line-full-width-pair {
+            margin-bottom: 1px;
+        }
+
+        .line-single {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .line-separator {
+            border-top: 1px solid #000;
+            margin: 10px 0;
+        }
+
+        /* Section Signature */
+        .signature-section {
+            text-align: right;
+            margin-top: 40px;
+        }
+
+        .signature-section span {
+            font-weight: bold;
+        }
+
+        /* Ligne de signature pleine */
+        .signature-line {
+            height: 1px;
+            width: 250px;
+            background-color: #000;
+            margin-left: auto;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+
+        <!-- Section En-tête -->
+        <div class="header">
+            <!-- Logo Placeholder -->
+            <div style="text-align: center; padding-right: 20px;">
+                <div class="hotel-name" style="font-size: 12pt; font-weight: bold;">SUITA HOTEL</div>
+                <div class="hotel-address" style="font-size: 10pt;">Carrefour Bastos</div>
+                <div class="contact-info">
+                    B.P.: 2723 Yaoundé - CMR / Tel: (237) 658 85 85 85<br>
+                    reservation@suita-hotel.com / www.suita-hotel.com
+                </div>
+            </div>
+            <div style="clear: both;"></div>
+            <hr style="margin-top: 10px;">
+        </div>
+
+        <!-- Corps du Formulaire -->
+        <div>
+            <!-- Section 1: Chambre et Dates -->
+            <div class="line-pair">
+                <div class="line-item">
+                    <span class="label-fr" style="width: 15%;">N° de chambre :</span>
+                    <span class="line-dot" style="width: 30%;"></span>
+                    <span class="label-fr" style="width: 25%;">Nombre de personnes :</span>
+                    <span class="line-dot" style="min-width: 30%;"></span>
+                </div>
+                <div class="line-item">
+                    <span class="label-en" style="width: 15%;">Room n° :</span>
+                    <span class="line-empty" style="width: 30%;"></span>
+                    <span class="label-en" style=" width: 15%">N° of persons :</span>
+                    <span class="line-empty" style=" width: 40%"></span>
+                </div>
+            </div>
+
+            <div class="line-pair">
+                <div class="line-item">
+                    <span class="label-fr" style="width: 15%;">Date d'arrivée :</span>
+                    <span class="line-dot" style=" width: 30%"></span>
+                    <span class="label-fr" style=" width: 15%">Date de départ :</span>
+                    <span class="line-dot" style=" width: 40%"></span>
+                </div>
+                <div class="line-item">
+                    <span class="label-en" style="width: 15%;">Arrival date :</span>
+                    <span class="line-empty" style=" width: 30%"></span>
+                    <span class="label-en" style=" width: 15%">Departure date :</span>
+                    <span class="line-empty" style=" width: 40%"></span>
+                </div>
+            </div>
+
+            <div class="line-pair">
+                <div class="line-item">
+                    <span class="label-fr" style="max-width: 15%;">Venant de :</span>
+                    <span class="line-dot" style="min-width: 30%"></span>
+                    <span class="label-fr" style="width: 15%;">Se rendant à :</span>
+                    <span class="line-dot" style="min-width: 40%"></span>
+                </div>
+                <div class="line-item">
+                    <span class="label-en" style="width: 15%;">Arriving from :</span>
+                    <span class="line-empty" style=" width: 30%"></span>
+                    <span class="label-en" style=" width: 15%">Going to :</span>
+                    <span class="line-empty" style=" width: 40%"></span>
+                </div>
+            </div>
+
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">Mode de transport :</span>
+                    <span class="line-dot" style="display: inline-block; width: 70%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">Means of transportation :</span>
+                    <span class="line-empty" style="display: inline-block; width: 70%;"></span>
+                </div>
+            </div>
+
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">Mode de paiement :</span>
+                    <span class="line-dot" style="display: inline-block; width: 80%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">Means of payment :</span>
+                    <span class="line-empty" style="display: inline-block; width: 80%;"></span>
+                </div>
+            </div>
+            <!-- Section 2: Informations Personnelles -->
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">NOM (en gros characters) :</span>
+                    <span class="line-dot" style="display: inline-block; width: 70%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">GIVEN NAME (in capital letters) :</span>
+                    <span class="line-empty" style="display: inline-block; width: 70%;"></span>
+                </div>
+            </div>
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">NOM jeune fille :</span>
+                    <span class="line-dot" style="display: inline-block; width: 70%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">SURNAME :</span>
+                    <span class="line-empty" style="display: inline-block; width: 70%;"></span>
+                </div>
+            </div>
+
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">Date de naissance :</span>
+                    <span class="line-dot" style="display: inline-block; width: 75%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">Date of birth :</span>
+                    <span class="line-empty" style="display: inline-block; width: 75%;"></span>
+                </div>
+            </div>
+
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">Lieu de naissance :</span>
+                    <span class="line-dot" style="display: inline-block; width: 75%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">Place of birth :</span>
+                    <span class="line-empty" style="display: inline-block; width: 75%;"></span>
+                </div>
+            </div>
+
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">Nationalité :</span>
+                    <span class="line-dot" style="display: inline-block; width: 80%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">Nationality :</span>
+                    <span class="line-empty" style="display: inline-block; width: 80%;"></span>
+                </div>
+            </div>
+
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">Pays de residence :</span>
+                    <span class="line-dot" style="display: inline-block; width: 75%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">Country of permanent residence :</span>
+                    <span class="line-empty" style="display: inline-block; width: 60%;"></span>
+                </div>
+            </div>
+            <!-- Section 3: Contact et Profession -->
+            <div class="line-pair">
+                <div class="line-item">
+                    <span class="label-fr">Tél :</span>
+                    <span class="line-dot" style="flex-grow: 1;"></span>
+                    <span class="label-fr" style="margin-left: 10px;">Fax :</span>
+                    <span class="line-dot" style="flex-grow: 1;"></span>
+                </div>
+                <div class="line-item">
+                    <span class="label-en">Tél :</span>
+                    <span class="line-empty" style="flex-grow: 1;"></span>
+                    <span class="label-en" style="margin-left: 10px;">Fax :</span>
+                    <span class="line-empty" style="flex-grow: 1;"></span>
+                </div>
+            </div>
+
+            <div class="line-pair">
+                <div class="line-item">
+                    <span class="label-fr">E-mail address :</span>
+                    <span class="line-dot" style="flex-grow: 1;"></span>
+                    <span class="label-fr" style="margin-left: 10px;">B.P :</span>
+                    <span class="line-dot" style="flex-grow: 1;"></span>
+                </div>
+                <div class="line-item">
+                    <span class="label-en">E-mail address :</span>
+                    <span class="line-empty" style="flex-grow: 1;"></span>
+                    <span class="label-en" style="margin-left: 10px;">B.P :</span>
+                    <span class="line-empty" style="flex-grow: 1;"></span>
+                </div>
+            </div>
+
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">Profession :</span>
+                    <span class="line-dot" style="display: inline-block; width: 80%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">Profession :</span>
+                    <span class="line-empty" style="display: inline-block; width: 80%;"></span>
+                </div>
+            </div>
+
+            <!-- Section 4: Pièce d'identité -->
+            <div class="line-full-width-pair">
+                <div class="line-single">
+                    <span class="label-fr">Passeport / Carte d'identité N° :</span>
+                    <span class="line-dot" style="display: inline-block; width: 60%;"></span>
+                </div>
+                <div class="line-single">
+                    <span class="label-en">Passport N° / Identification card :</span>
+                    <span class="line-empty" style="display: inline-block; width: 60%;"></span>
+                </div>
+            </div>
+
+            <div class="line-pair">
+                <div class="line-item">
+                    <span class="label-fr">Délivré le :</span>
+                    <span class="line-dot" style="flex-grow: 1;"></span>
+                    <span class="label-fr" style="margin-left: 10px;">A :</span>
+                    <span class="line-dot" style="flex-grow: 1;"></span>
+                </div>
+                <div class="line-item">
+                    <span class="label-en">Delivered on the :</span>
+                    <span class="line-empty" style="flex-grow: 1;"></span>
+                    <span class="label-en" style="margin-left: 10px;">at :</span>
+                    <span class="line-empty" style="flex-grow: 1;"></span>
+                </div>
+            </div>
+
+            <!-- Signature -->
+            <div class="signature-section">
+                <span>Signature du client</span>
+                <div class="signature-line"></div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

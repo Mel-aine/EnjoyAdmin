@@ -19,25 +19,25 @@
         <!-- Custom column for period info -->
         <template #column-periodInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.fromDay }}-{{ monthOptions.find(month => month.value === item.fromMonth)?.label }} to {{ item.toDay }}-{{
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.fromDay }}-{{ monthOptions.find(month => month.value === item.fromMonth)?.label }} to {{ item.toDay }}-{{
               monthOptions.find(month => month.value === item.toMonth)?.label }}</div>
-            <div class="text-xs text-gray-500">{{ item.startDate }} - {{ item.expireDate }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.startDate }} - {{ item.expireDate }}</div>
           </div>
         </template>
 
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
-            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.updatedAt }}</div>
           </div>
         </template>
       </ReusableTable>
@@ -45,8 +45,8 @@
       <!-- Add/Edit Modal -->
       <div v-if="showAddModal || showEditModal"
         class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">
+        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 border rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ showAddModal ? t('addSeason') : t('editSeason') }}
           </h3>
 

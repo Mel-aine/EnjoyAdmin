@@ -3,7 +3,7 @@
         aria-modal="true">
         <div class="absolute inset-0 overflow-hidden">
             <!-- Background overlay -->
-            <div class="absolute inset-0 bg-gray-500/25 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <div class="absolute inset-0 bg-gray-500/25 bg-opacity-75 transition-opacity dark:bg-black/40" aria-hidden="true"></div>
 
             <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
                 <div class="relative w-screen max-w-7xl">
@@ -14,11 +14,11 @@
                             <div class="flex items-start justify-between">
                                 <h2 class="text-sm font-medium text-gray-900 dark:text-white" id="slide-over-title">{{
                                     $t('selectFolio') }}</h2>
-                                <XIcon @click="closeModal" class="text-gray-300 hover:text-red-500 cursor-pointer"
+                                <XIcon @click="closeModal" class="text-gray-300 hover:text-red-500 cursor-pointer dark:text-gray-400 dark:hover:text-red-400"
                                     aria-label="Close panel" />
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-x-8 p-4">
+                        <div class="grid grid-cols-2 gap-x-8 p-4 dark:text-gray-100">
                             <!-- source folio-->
                             <div>
                                 <div>
@@ -137,7 +137,7 @@ const fetchFoliotransaction = async () => {
         const response = await getFolioStatement(selectFolio.value.id);
         const resData = response.data;
         console.log('list of folio returned')
-        sourceFolios.value = resData?.map((e: any) => {
+        sourceFolios.value = resData?.transactions?.map((e: any) => {
             return {
                 ...e,
                 transactionDate:formatDate(e.transactionDate),

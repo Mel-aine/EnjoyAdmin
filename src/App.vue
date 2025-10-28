@@ -1,14 +1,14 @@
  <template>
   <SpeedInsights />
-  <ThemeProvider>
+  <ThemeProvider>  
     <SidebarProvider>
-      <RouterView />
-      <ReAuthModal :is-open="isReAuthOpen && authStore.isFullyAuthenticated" @close="handleClose"
+      <RouterView /> 
+      <ReAuthModal :is-open="isReAuthOpen && authStore.isFullyAuthenticated" @close="handleClose" 
         @success="handleSuccess" />
-    </SidebarProvider>
+    </SidebarProvider> 
   </ThemeProvider>
-</template>   
-<script setup lang="ts">
+</template>    
+<script setup lang="ts"> 
 import ThemeProvider from './components/layout/ThemeProvider.vue'
 import SidebarProvider from './components/layout/SidebarProvider.vue'
 import { useI18n } from "vue-i18n";

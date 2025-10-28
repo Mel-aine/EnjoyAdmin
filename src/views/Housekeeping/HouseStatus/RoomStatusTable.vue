@@ -1,12 +1,12 @@
 <template>
   <div class="w-full">
     <!-- Tableau avec scrollbar invisible -->
-    <div class="w-full overflow-auto border border-gray-200 rounded max-h-[600px] scrollbar-hide">
+    <div class="w-full overflow-auto border border-gray-200  dark:bg-black border-gray-600 rounded max-h-[600px] scrollbar-hide">
       <table class="w-full text-sm">
         <thead class="sticky top-0 bg-white z-12">
           <!-- En-tête normal quand aucune sélection -->
-          <tr class="bg-gray-100 border-l-4 border-l-gray-200" v-if="!selectedRoomsCount">
-            <th class="py-2 px-3 border-b border-r border-gray-200 text-center w-10">
+          <tr class="bg-gray-100 dark:bg-black border-l-4 border-l-gray-200" v-if="!selectedRoomsCount">
+            <th class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black text-center w-10">
               <input
                 type="checkbox"
                 :checked="allFilteredSelectableRoomsSelected"
@@ -16,37 +16,37 @@
               />
             </th>
 
-            <th class="py-2 px-3 border-b border-r border-gray-200 text-center w-50">
+            <th class="py-2 px-3 border-b border-r border-gray-200 dark:bg-black text-center w-50">
               <Select
                 :options="roomTypesOptionsWithAll"
                 :placeholder="$t('RoomTypes')"
                 v-model="selectedRoomTypeFilter"
               />
             </th>
-            <th class="py-2 px-3 border-b border-r border-gray-200 text-center">
+            <th class="py-2 px-3 border-b border-r border-gray-200 dark:bg-black text-center">
               <div class="flex items-center justify-center">
                 <PersonStanding />
               </div>
             </th>
-            <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-gray-50">
+            <th class="py-2 px-3 border-b border-r border-gray-200 dark:bg-black text-center bg-gray-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-gray-300 mr-1"></div>
                 <span class="text-sm">{{ $t('noStatus') }}</span>
               </div>
             </th>
-            <th class="py-2 px-3 border-b border-r border-gray-100 text-center bg-orange-50">
+            <th class="py-2 px-3 border-b border-r border-gray-100 dark:bg-black text-center bg-orange-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-orange-700 mr-1"></div>
                 <span class="text-sm">{{ $t('dirty') }}</span>
               </div>
             </th>
-            <th class="py-2 px-3 border-b border-r border-gray-200 text-center bg-green-50">
+            <th class="py-2 px-3 border-b border-r border-gray-200 dark:bg-black text-center bg-green-50">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-green-500 mr-1"></div>
                 <span class="text-sm">{{ $t('Clean') }}</span>
               </div>
             </th>
-            <th class="py-2 px-3 border-b border-gray-200 text-center bg-gray-100">
+            <th class="py-2 px-3 border-b border-gray-200 text-center dark:bg-black">
               <div class="flex items-center justify-center">
                 <div class="w-4 h-4 bg-gray-700 mr-1"></div>
                 <span class="text-sm">{{ $t('statut.outOfOrder') }}</span>
@@ -55,8 +55,8 @@
           </tr>
 
           <!-- En-tête avec contrôles de sélection quand des chambres sont sélectionnées -->
-          <tr class="bg-gray-50" v-if="selectedRoomsCount > 0">
-            <th colspan="7" class="py-3 px-4 border-b border-gray-200">
+          <tr class="bg-gray-50  dark:bg-black" v-if="selectedRoomsCount > 0">
+            <th colspan="7" class="py-3 px-4 border-b border-gray-200 dark:bg-black">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                   <span class="text-sm font-medium"
@@ -125,7 +125,7 @@
         <tbody v-if="!isLoading">
           <template v-for="section in Object.keys(filteredGroupedRooms)" :key="section">
             <!-- En-tête de section avec checkbox pour sélectionner toute la section (seulement les dirty) -->
-            <tr class="bg-gray-100 border-l-4 border-l-gray-200">
+            <tr class="bg-gray-100 dark:bg-gray-700 border-l-4 border-l-gray-200">
               <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
                 <input
                   type="checkbox"
@@ -163,7 +163,7 @@
             >
               <td
                 :class="[
-                  'py-2 px-3 border-b border-r border-gray-200 text-center',
+                  'py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center',
                   getRoomBorderColor(room),
                 ]"
               >
@@ -175,7 +175,7 @@
                   :disabled="!canSelectRoom(room)"
                 />
               </td>
-              <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
+              <td class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center">
                 <div class="flex items-center justify-between w-full">
                   <!-- Partie gauche : nom + bed icon + housekeeper -->
                   <div class="flex items-center">
@@ -209,12 +209,12 @@
                   </div>
                 </div>
               </td>
-              <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
+              <td class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center">
                 {{ room.occupants || 0 }}
               </td>
               <td
                 :class="[
-                  'py-2 px-3 border-b border-r border-gray-200 text-center',
+                  'py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center',
                   getStatusColumn(room) === 3 ? 'bg-gray-50' : '',
                 ]"
               >
@@ -241,7 +241,7 @@
               </td>
               <td
                 :class="[
-                  'py-2 px-3 border-b border-r border-gray-200 text-center',
+                  'py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center',
                   getStatusColumn(room) === 4 ? 'bg-orange-50' : '',
                 ]"
               >
@@ -268,7 +268,7 @@
               </td>
               <td
                 :class="[
-                  'py-2 px-3 border-b border-r border-gray-200 text-center',
+                  'py-2 px-3 border-b border-r border-gray-200  dark:bg-black/25 text-center',
                   getStatusColumn(room) === 5 ? 'bg-green-50' : '',
                 ]"
               >
@@ -295,7 +295,7 @@
               </td>
               <td
                 :class="[
-                  'py-2 px-3 border-b border-r border-gray-200 text-center',
+                  'py-2 px-3 border-b border-r border-gray-200  dark:bg-black/25 text-center',
                   getStatusColumn(room) === 6 ? 'bg-gray-100' : '',
                 ]"
               >
@@ -325,23 +325,23 @@
 
           <!-- Ligne de total -->
           <tr class="bg-orange-50 sticky bottom-0 z-10 border-l-4 border-l-orange-50">
-            <td class="py-2 px-3 border-b border-r border-gray-200"></td>
-            <td class="py-2 px-3 border-b border-r border-gray-200 font-medium text-center">
+            <td class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85"></td>
+            <td class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 font-medium text-center">
               {{ $t('total') }} ({{ selectedCount }} {{ $t('selected') }})
             </td>
-            <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
+            <td class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center">
               {{ totalOccupants }}
             </td>
-            <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
+            <td class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center">
               {{ filteredRooms.filter((r) => r.housekeepingStatus === 'No Status').length }}
             </td>
-            <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
+            <td class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center">
               {{ filteredRooms.filter((r) => r.housekeepingStatus === 'dirty').length }}
             </td>
-            <td class="py-2 px-3 border-b border-r border-gray-200 text-center">
+            <td class="py-2 px-3 border-b border-r border-gray-200  dark:bg-black/85 text-center">
               {{ filteredRooms.filter((r) => r.housekeepingStatus === 'clean').length }}
             </td>
-            <td class="py-2 px-3 border-b border-gray-200 text-center">
+            <td class="py-2 px-3 border-b border-gray-200  dark:bg-black/85 text-center">
               {{ filteredRooms.filter((r) => r.status === 'out_of_order').length }}
             </td>
           </tr>

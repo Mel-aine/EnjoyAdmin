@@ -4,10 +4,10 @@
     <div class="absolute inset-0 bg-black/25 bg-opacity-50" @click="$emit('close')"></div>
 
     <!-- Modal -->
-    <div class="absolute right-0 top-0 h-full w-full max-w-6xl bg-white shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col">
+    <div class="absolute right-0 top-0 h-full w-full max-w-6xl bg-white dark:text-white text-gray-900 dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col">
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-gray-900">{{ $t('add_new_customer') }}</h2>
+        <h2 class="text-xl font-semibold ">{{ $t('add_new_customer') }}</h2>
         <button
           @click="$emit('close')"
           class="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
@@ -157,7 +157,7 @@
           <div class="border-t pt-8">
             <h3
               @click="toggleSection('identity')"
-              class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
+              class="text-lg font-medium leading-6  flex items-center cursor-pointer"
             >
               <svg
                 class="w-5 h-5 mr-2 text-gray-600 transition-transform"
@@ -230,7 +230,7 @@
           <div class="border-t pt-8">
             <h3
               @click="toggleSection('otherInformation')"
-              class="text-lg font-medium leading-6 text-gray-900 flex items-center cursor-pointer"
+              class="text-lg font-medium leading-6  flex items-center cursor-pointer"
             >
               <svg
                 class="w-5 h-5 mr-2 text-gray-600 transition-transform"

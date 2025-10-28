@@ -2,9 +2,9 @@
   <div class="flex h-[calc(100vh-250px)] mx-4 mt-2 shadow-lg">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
       <div class="h-full flex flex-col justify-between">
-        <div class="bg-white h-full">
+        <div class="bg-white dark:bg-gray-800 h-full">
           <div class="flex justify-between pt-2 px-2 pb-2">
-            <span>{{ $t('Room/Guest') }}</span>
+            <span class="dark:text-gray-200">{{ $t('Room/Guest') }}</span>
             <PlusCircle class="text-primary cursor-pointer" @click="createNewGuest" />
           </div>
 
@@ -16,15 +16,15 @@
           >
             <div v-for="(guest, guestIndex) in guestList" :key="guestIndex">
               <div
-                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 my-1"
+                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
                 :class="
                   selectedGuest?.id === guest.id
-                    ? 'bg-blue-100 border-l-4 border-blue-500'
-                    : 'bg-gray-100'
+                    ? 'bg-blue-100 border-l-4 border-blue-500 dark:bg-blue-900 dark:border-blue-400'
+                    : 'bg-gray-100 dark:bg-gray-800'
                 "
                 @click="selectGuest(guest)"
               >
-                <span class="capitalize">{{
+                <span class="capitalize dark:text-gray-200">{{
                   guest.displayName || guest.firstName + ' ' + guest.lastName
                 }}</span>
                 <ChevronRight class="w-4 h-4" />
@@ -38,20 +38,20 @@
 
     <div class="w-10/12">
       <div class="h-full flex flex-col justify-between">
-        <div class="bg-white border border-gray-200 p-6 overflow-y-auto custom-scrollbar">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 overflow-y-auto custom-scrollbar">
           <!-- Header -->
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center space-x-3">
-              <div class="bg-blue-100 p-2 rounded-lg">
-                <UserCircleIcon class="w-6 h-6 text-blue-600" />
+              <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                <UserCircleIcon class="w-6 h-6 text-blue-600 dark:text-blue-200" />
               </div>
               <div>
-                <h2 class="text-lg font-semibold text-gray-900">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                   {{ isCreatingNewGuest ? $t('New Guest') : $t('Guest') }}
                 </h2>
                 <div
                   v-if="props.reservation.guest?.blacklisted && !isCreatingNewGuest"
-                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200"
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200 dark:bg-red-900 dark:text-red-200 dark:border-red-400"
                 >
                   <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 008.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"/>
@@ -59,7 +59,7 @@
                   {{ $t('Blacklisted') }}
                 </div>
 
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   {{
                     isCreatingNewGuest
                       ? $t('Create new guest information')
@@ -71,7 +71,7 @@
             </div>
             <div class="flex space-x-2">
               <button
-                class="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+                class="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 @click="editGuest"
               >
                 <svg
@@ -107,7 +107,7 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
               <!-- ImageUploader pour la Photo de Profil -->
               <div class="col-span-12 md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{
                   $t('ProfilePhoto')
                 }}</label>
                 <ImageUploader
@@ -126,7 +126,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <!-- Nom -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{
                       $t('Name')
                     }}</label>
                     <div class="flex">
@@ -202,9 +202,14 @@
                       />
                     </div>
 
+
                     </div>
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
+                    <div :class="[
+                      'mt-4 grid grid-cols-1 gap-4',
+                      guestData.contactType ? 'md:grid-cols-4' : 'md:grid-cols-3',
+                    ]">
+
+                       <div>
                       <!-- <Input
                         :lb="$t('profession')"
                         :id="'profession'"
@@ -216,12 +221,11 @@
                           v-model="guestData.profession"
                           :lb="$t('profession')"
                           :placeholder="$t('profession')"
-                          custom-class="h-11"
+                          custom-class="w-20"
                           :disabled="!isEditing"
                         />
                     </div>
-
-                    <div>
+                    <!-- <div>
                        <Select
                           v-model="guestData.contactType"
                           :placeholder="$t('-select-')"
@@ -229,7 +233,50 @@
                           :options="TypesOfContact"
                            :disabled="!isEditing"
                         />
-                    </div>
+                    </div> -->
+                     <div>
+                    <AutoCompleteSelect
+                      v-model="guestData.contactType"
+                      :options="TypesOfContact"
+                      :defaultValue="$t('contactType')"
+                      :lb="$t('contactType')"
+                      :is-required="false"
+                      :use-dropdown="useDropdownBooking"
+                      @clear-error="emit('clear-error')"
+                      custom-class="h-11"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+
+                  <div v-if="guestData.contactType">
+                    <InputPhone
+                      v-if="contactInputComponent === 'InputPhone'"
+                      :title="contactInputLabel"
+                      v-model="contactValue"
+                      :id="'contact-input'"
+                      :is-required="false"
+                      custom-class="h-11"
+                      :disabled="!isEditing"
+                    />
+
+                    <InputEmail
+                      v-else-if="contactInputComponent === 'InputEmail'"
+                      v-model="contactValue"
+                      :placeholder="contactInputLabel"
+                      :title="contactInputLabel"
+                      custom-class="h-11"
+                      :disabled="!isEditing"
+                    />
+
+                    <Input
+                      v-else-if="contactInputComponent === 'Input'"
+                      :lb="contactInputLabel"
+                      v-model="contactValue"
+                      :placeholder="contactInputLabel"
+                      custom-class="h-11"
+                      :disabled="!isEditing"
+                    />
+                  </div>
 
                   <!-- Téléphone -->
 
@@ -244,7 +291,7 @@
                   </div>
 
                   <!-- Mobile -->
-                  <div>
+                  <!-- <div>
                       <InputPhone
                       :title="$t('mobile')"
                       v-model="guestData.mobile"
@@ -253,7 +300,7 @@
                       :disabled="!isEditing"
                     />
 
-                  </div>
+                  </div> -->
                 </div>
 
                 <!-- Ligne Email, Genre, Type de client, Statut VIP -->
@@ -306,16 +353,16 @@
             </div>
 
             <!-- Section Adresse -->
-            <div class="border-t pt-6 space-y-4">
+            <div class="border-t dark:border-gray-700 pt-6 space-y-4">
               <!-- Champ Adresse -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
                   $t('Address')
                 }}</label>
                 <textarea
                   v-model="guestData.address"
                   rows="2"
-                  class="w-full px-3 py-2 border rounded-lg border-black/50  focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+                  class="w-full px-3 py-2 border rounded-lg border-black/50 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:focus:border-purple-800 resize-none"
                   :placeholder="$t('Address')"
                   :disabled="!isEditing"
                 ></textarea>
@@ -366,7 +413,7 @@
             </div>
 
             <!-- Section Informations Professionnelles -->
-            <div class="border-t pt-6">
+            <div class="border-t dark:border-gray-700 pt-6">
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- Nationalité -->
                 <div>
@@ -411,15 +458,15 @@
             </div>
 
             <!-- Section Informations d'Identité (Pliable) -->
-            <div class="border-t pt-4">
+            <div class="border-t dark:border-gray-700 pt-4">
               <button
                 @click="toggleIdentitySection"
                 class="flex items-center justify-between w-full text-left"
               >
-                <h3 class="text-lg font-medium text-gray-700">{{ $t('IdentityInformation') }}</h3>
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">{{ $t('IdentityInformation') }}</h3>
                 <ChevronDownIcon
                   :class="[
-                    'w-5 h-5 text-gray-500 transition-transform',
+                    'w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform',
                     { 'rotate-180': showIdentitySection },
                   ]"
                 />
@@ -501,15 +548,15 @@
             </div>
 
             <!-- Section Autres Informations (Pliable) -->
-            <div class="border-t pt-4">
+            <div class="border-t dark:border-gray-700 pt-4">
               <button
                 @click="toggleOtherInfoSection"
                 class="flex items-center justify-between w-full text-left"
               >
-                <h3 class="text-lg font-medium text-gray-700">{{ $t('OtherInformation') }}</h3>
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">{{ $t('OtherInformation') }}</h3>
                 <ChevronDownIcon
                   :class="[
-                    'w-5 h-5 text-gray-500 transition-transform',
+                    'w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform',
                     { 'rotate-180': showOtherInfoSection },
                   ]"
                 />
@@ -531,7 +578,7 @@
           </div>
 
           <!-- Action Buttons -->
-          <div v-if="isEditing" class="flex justify-end space-x-3 mt-6 pt-6 border-t">
+          <div v-if="isEditing" class="flex justify-end space-x-3 mt-6 pt-6 border-t dark:border-gray-700">
             <BasicButton variant="secondary" :label="$t('Cancel')" @click="cancelEdit" />
             <BasicButton
               variant="primary"
@@ -543,7 +590,7 @@
         </div>
         <div class="px-4"></div>
            <!-- Footer summary -->
-        <div class=" p-2 border-t border-gray-200 bg-gray-50">
+        <div class=" p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
           <div class="flex justify-between items-center ">
             <div class="flex flex-row gap-4">
                    <BasicButton
@@ -626,6 +673,7 @@ import BlackListGuestModal from '../customers/BlackListGuestModal.vue'
 import { vipStatusApi } from '@/services/configrationApi'
 import { getCompanies } from '@/services/companyApi'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 
 interface GuestData {
   title: string
@@ -659,6 +707,7 @@ interface GuestData {
   preferences?: any;
   contactType?:string
   maidenName?:string
+  contactTypeValue?:string
 }
 
 interface Props {
@@ -679,13 +728,14 @@ interface RichSelectOption extends SelectOption {
   dateField: string
   label_fr: string
 }
-
+const emit = defineEmits(['clear-error'])
 const props = defineProps<Props>()
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
 const Preferences = ref<SelectOption[]>([])
 const companyOptions = ref<Array<{ label: string; value: string }>>([])
+const useDropdownBooking = ref(true)
 
 // State
 const isSaving = ref(false)
@@ -767,6 +817,7 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     idExpiryDate: '',
     issuingCountry: customer?.issuingCountry || '',
     issuingCity: customer?.issuingCity || '',
+    contactTypeValue : customer?.contactTypeValue || '',
     preferences: parsePreferencesFromDB(customer?.preferences)
   }
 
@@ -828,6 +879,7 @@ const initializeGuestData = (guest: any = null): GuestData => {
     issuingCity: '',
     contactType: '',
     maidenName: '',
+    contactTypeValue: '',
     preferences: []
   }
 }
@@ -909,6 +961,56 @@ const toggleOtherInfoSection = () => {
   showOtherInfoSection.value = !showOtherInfoSection.value
 }
 
+const contactInputComponent = computed(() => {
+  if (!guestData.contactType) return null
+
+  switch (guestData.contactType) {
+    case 'Email':
+      return 'InputEmail'
+    case 'Mobile':
+    case 'Fix':
+    case 'Whatsapp':
+      return 'InputPhone'
+    case 'Facebook':
+      return 'Input'
+    default:
+      return null
+  }
+})
+
+const contactInputLabel = computed(() => {
+  const type = guestData.contactType
+  if (!type) return ''
+
+  switch (type) {
+    case 'Mobile':
+      return t('contactTypes.mobile')
+    case 'Fix':
+      return t('contactTypes.fix')
+    case 'Email':
+      return t('Email')
+    case 'Facebook':
+      return t('contactTypes.facebook')
+    case 'Whatsapp':
+      return t('contactTypes.whatsapp')
+    default:
+      return type
+  }
+})
+
+watch(() => guestData.contactType, (newType, oldType) => {
+  if (newType !== oldType) {
+    guestData.contactTypeValue = ''
+  }
+})
+
+// Créer un computed bidirectionnel
+const contactValue = computed({
+  get: () => guestData.contactTypeValue,
+  set: (value) => {
+    guestData.contactTypeValue = value
+  }
+})
 const fetchVipStatuses = async () => {
   try {
     loading.value = true
@@ -1012,6 +1114,7 @@ const prepareGuestPayload = (): GuestPayload => {
     issuingCountry: guestData.issuingCountry,
     issuingCity: guestData.issuingCity,
     contactType : guestData.contactType,
+    contactTypeValue : guestData.contactTypeValue,
     maidenName : guestData.maidenName,
     preferences: formatPreferencesForDB(guestData.preferences)
   }

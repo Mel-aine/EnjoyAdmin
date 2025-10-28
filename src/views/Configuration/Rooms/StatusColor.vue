@@ -3,36 +3,36 @@
     <div class="p-6">
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ t('statusColor') }}</h1>
-        <p class="text-gray-600 mt-1">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('statusColor') }}</h1>
+        <p class="text-gray-600 dark:text-gray-300 mt-1">
           {{ t('statusColorDescription') }}
         </p>
       </div>
 
       <!-- Status Color Configuration -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-6">{{ t('roomStatusColors') }}</h3>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">{{ t('roomStatusColors') }}</h3>
 
         <div class="space-y-4">
           <div v-for="status in roomStatuses" :key="status.key"
-            class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             <div class="flex items-center space-x-4">
               <!-- Color Preview -->
               <div
-                class="w-8 h-8 rounded-full border-2 border-gray-300 cursor-pointer transition-transform hover:scale-110"
+                class="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600 cursor-pointer transition-transform hover:scale-110"
                 :style="{ backgroundColor: status.color }" @click="openColorPicker(status)"
                 :title="t('clickToChangeColorFor', { status: t(`${status.name}`) })"></div>
 
               <!-- Status Info -->
               <div>
-                <h4 class="text-sm font-medium text-gray-900">{{ t(`${status.name}`) }}</h4>
-                <p class="text-xs text-gray-500">{{ t(`${status.name}`) }}</p>
+                <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ t(`${status.name}`) }}</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ t(`${status.name}`) }}</p>
               </div>
             </div>
 
             <!-- Color Code Display -->
             <div class="flex items-center space-x-3">
-              <span class="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">{{ status.color }}</span>
+              <span class="text-sm font-mono text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ status.color }}</span>
               <BasicButton @click="openColorPicker(status)" :label="t('changeColor')" :icon="Palette" />
             </div>
           </div>
@@ -58,46 +58,46 @@
 
       <!-- Color Picker Modal -->
       <div v-if="showColorPicker" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-          <h3 class="text-lg font-semibold mb-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             {{ t('selectColorFor', { status: t(`roomStatus.${selectedStatus?.name}`) }) }}
           </h3>
 
           <!-- Color Input -->
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Color Code
             </label>
             <div class="flex items-center space-x-3">
-              <input v-model="tempColor" type="color" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
+              <input v-model="tempColor" type="color" class="w-12 h-10 border border-gray-300 dark:border-gray-700 rounded cursor-pointer">
               <input v-model="tempColor" type="text"
-                class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="flex-1 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-200"
                 placeholder="#000000">
             </div>
           </div>
 
           <!-- Predefined Colors -->
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Quick Colors
             </label>
             <div class="grid grid-cols-8 gap-2">
               <div v-for="color in predefinedColors" :key="color"
                 class="w-8 h-8 rounded cursor-pointer border-2 transition-transform hover:scale-110"
-                :class="tempColor === color ? 'border-gray-800' : 'border-gray-300'" :style="{ backgroundColor: color }"
+                :class="tempColor === color ? 'border-gray-800 dark:border-gray-300' : 'border-gray-300 dark:border-gray-600'" :style="{ backgroundColor: color }"
                 @click="tempColor = color"></div>
-            </div>
           </div>
+        </div>
 
           <!-- Preview -->
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Preview
             </label>
-            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+            <div class="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
               <div class="w-6 h-6 rounded-full" :style="{ backgroundColor: tempColor }"></div>
-              <span class="text-sm text-gray-900">{{ selectedStatus?.name }}</span>
-              <span class="text-xs text-gray-500 font-mono">{{ tempColor }}</span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ selectedStatus?.name }}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ tempColor }}</span>
             </div>
           </div>
 

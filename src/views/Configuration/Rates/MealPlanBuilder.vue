@@ -35,7 +35,7 @@
 
       <!-- Add/Edit Modal -->
       <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
             {{ showAddModal ? 'Add Meal Plan' : 'Edit Meal Plan' }}
           </h3>
@@ -53,8 +53,8 @@
                 <Select v-model="formData.status" :lb="'Status'" :options="statusOptions" :placeholder="'Select status'" />
               </div>
               <div class="flex items-center">
-                <input id="isAllInclusive" v-model="formData.isAllInclusive" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                <label for="isAllInclusive" class="ml-2 text-sm text-gray-700">All-Inclusive (includes drinks and activities)</label>
+                <input id="isAllInclusive" v-model="formData.isAllInclusive" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
+                <label for="isAllInclusive" class="ml-2 text-sm text-gray-700 dark:text-gray-300">All-Inclusive (includes drinks and activities)</label>
               </div>
             </div>
 
@@ -85,7 +85,7 @@
               <!-- Components Table -->
               <div class="mt-6 overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                  <thead class="bg-gray-50 dark:bg-black">
                     <tr>
                       <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Extra Charge</th>
                       <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity / Night</th>
@@ -93,7 +93,7 @@
                       <th class="px-4 py-2"></th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
+                  <tbody class="bg-white dark:bg-black divide-y divide-gray-200">
                     <tr v-for="(comp, idx) in components" :key="idx">
                       <td class="px-4 py-2">{{ comp.extraChargeName }}</td>
                       <td class="px-4 py-2">{{ comp.quantityPerDay }}</td>
@@ -102,7 +102,7 @@
                         <BasicButton type="button" variant="outline" :label="'Remove'" @click="removeComponent(idx)" />
                       </td>
                     </tr>
-                    <tr v-if="components.length === 0">
+                    <tr v-if="components.length === 0" class="dark:bg-black">
                       <td class="px-4 py-4 text-sm text-gray-500" colspan="4">No components added yet.</td>
                     </tr>
                   </tbody>

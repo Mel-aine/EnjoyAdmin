@@ -1,14 +1,14 @@
 <template>
 <!-- @reference tailwindcss -->
   <AdminLayout>
-    <div class="min-h-full bg-gray-50">
+    <div class="min-h-full bg-gray-50 dark:bg-gray-800">
       <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header Section -->
         <div class="px-2 sm:px-4 lg:px-6">
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
-              <h1 class="text-2xl font-semibold text-gray-900">{{ $t('OccupancyofRooms') }}</h1>
-              <div class="ml-4 px-3 py-1 bg-purple-50 text-purple-700 text-sm rounded-full">
+              <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ $t('OccupancyofRooms') }}</h1>
+              <div class="ml-4 px-3 py-1 bg-purple-50 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 text-sm rounded-full">
                 {{ roomStats.total }} {{ $t('Rooms') }}
               </div>
             </div>
@@ -16,14 +16,14 @@
             <!-- Quick Actions -->
             <div class="flex items-center space-x-3">
               <!-- View Mode Toggle -->
-              <div class="flex items-center bg-gray-100 rounded-lg p-1">
+              <div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
                 <button
                   @click="viewMode = 'grid'"
                   :class="[
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     viewMode === 'grid'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700',
+                      ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
                   ]"
                 >
                   <svg
@@ -46,8 +46,8 @@
                   :class="[
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     viewMode === 'list'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700',
+                      ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
                   ]"
                 >
                   <svg
@@ -70,8 +70,8 @@
                   :class="[
                     'px-3 py-1 text-sm font-medium rounded-md transition-colors',
                     viewMode === 'status'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700',
+                      ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
                   ]"
                 >
                   <svg
@@ -94,7 +94,7 @@
               <button
                 @click="refreshRooms"
                 :disabled="isLoading"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -124,7 +124,7 @@
 
               <button
                 @click="openAuditTrail"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -144,7 +144,7 @@
         <div v-if="viewMode === 'status'" class="px-4 sm:px-6 lg:px-8 py-6">
           <!-- Stats Dashboard -->
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-            <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
               <div class="p-4">
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
@@ -153,14 +153,14 @@
                     </div>
                   </div>
                   <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">{{ roomStats.available }}</p>
-                    <p class="text-xs text-gray-500">{{ $t('Available') }}</p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ roomStats.available }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-300">{{ $t('Available') }}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
               <div class="p-4">
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
@@ -169,14 +169,14 @@
                     </div>
                   </div>
                   <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">{{ roomStats.occupied }}</p>
-                    <p class="text-xs text-gray-500">{{ $t('Occupied') }}</p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ roomStats.occupied }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-300">{{ $t('Occupied') }}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
               <div class="p-4">
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
@@ -187,14 +187,14 @@
                     </div>
                   </div>
                   <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">{{ roomStats.cleaning }}</p>
-                    <p class="text-xs text-gray-500">{{ $t('Cleaning') }}</p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ roomStats.cleaning }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-300">{{ $t('Cleaning') }}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
               <div class="p-4">
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
@@ -205,14 +205,14 @@
                     </div>
                   </div>
                   <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">{{ roomStats.maintenance }}</p>
-                    <p class="text-xs text-gray-500">{{ $t('Maintenance') }}</p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ roomStats.maintenance }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-300">{{ $t('Maintenance') }}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
               <div class="p-4">
                 <div class="flex items-center">
                   <div class="flex-shrink-0">
@@ -221,8 +221,8 @@
                     </div>
                   </div>
                   <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">{{ roomStats.out_of_order }}</p>
-                    <p class="text-xs text-gray-500">{{ $t('statut.outOfOrder') }}</p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ roomStats.out_of_order }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-300">{{ $t('statut.outOfOrder') }}</p>
                   </div>
                 </div>
               </div>
@@ -230,22 +230,22 @@
           </div>
 
           <!-- Status View Table -->
-          <div class="bg-white shadow rounded-lg mb-6">
+          <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
             <div class="px-4 py-5 sm:p-6">
-              <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4">
                 {{ $t('House Status View') }}
               </h3>
               <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
                       <th
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         {{ $t('Room Types') }}
                       </th>
                       <th
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         <div class="flex items-center justify-center">
                           <div class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
@@ -253,7 +253,7 @@
                         </div>
                       </th>
                       <th
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         <div class="flex items-center justify-center">
                           <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
@@ -261,7 +261,7 @@
                         </div>
                       </th>
                       <th
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         <div class="flex items-center justify-center">
                           <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
@@ -269,7 +269,7 @@
                         </div>
                       </th>
                        <th
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         <div class="flex items-center justify-center">
                           <div class="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
@@ -277,7 +277,7 @@
                         </div>
                       </th>
                        <th
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         <div class="flex items-center justify-center">
                           <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
@@ -285,7 +285,7 @@
                         </div>
                       </th>
                       <th
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         <div class="flex items-center justify-center">
                           <div class="w-3 h-3 bg-gray-600 rounded-full mr-2"></div>
@@ -295,17 +295,17 @@
                     </tr>
                   </thead>
 
-                  <tbody class="bg-white divide-y divide-gray-200">
+                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <template v-for="roomType in roomTypeStats" :key="roomType.id">
                       <!-- Room Type Row -->
                       <tr
-                        class="hover:bg-gray-50 cursor-pointer"
+                        class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
                         @click="toggleRoomType(roomType.id)"
                       >
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                           <div class="flex items-center">
                             <svg
-                              class="w-4 h-4 mr-2 text-gray-500 transition-transform duration-200"
+                              class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400 transition-transform duration-200"
                               :class="{ 'rotate-90': expandedRoomTypes.has(roomType.id) }"
                               fill="none"
                               stroke="currentColor"
@@ -319,33 +319,33 @@
                               />
                             </svg>
                             {{ roomType.name }}
-                            <span class="ml-2 text-xs text-gray-500">
+                            <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
                               ({{ roomType.totalRooms }} {{ $t('rooms') }})
                             </span>
                           </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center">
                           {{ roomType.noStatus }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center">
                           {{ roomType.available }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center">
                           {{ roomType.occupied }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center">
                           {{ roomType.cleaning }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center">
                           {{ roomType.dirty }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center">
                           {{ roomType.outOfOrder }}
                         </td>
                       </tr>
 
                       <!-- Expanded Room Details Row -->
-                      <tr v-if="expandedRoomTypes.has(roomType.id)" class="bg-gray-50">
+                      <tr v-if="expandedRoomTypes.has(roomType.id)" class="bg-gray-50 dark:bg-gray-900">
                         <td></td>
                         <!-- No Status Rooms -->
                         <td class="px-2 py-2 space-y-1">
@@ -353,7 +353,7 @@
                           <div
                             v-for="room in getRoomsByStatus(roomType.rooms, 'nostatus')"
                             :key="room.id"
-                            class="p-2 border border-gray-300 bg-gray-100 rounded-lg text-xs text-gray-800 text-center"
+                            class="p-2 border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs text-gray-800 dark:text-gray-100 text-center"
                           >
                             {{ room.roomNumber }}
                           </div>
@@ -363,11 +363,11 @@
                           <div
                             v-for="room in getRoomsByStatus(roomType.rooms, 'available')"
                             :key="room.id"
-                            class="p-2 border flex items-center justify-between border-green-200 bg-green-50 rounded-lg text-xs text-green-800 text-center hover:bg-green-100 transition-colors"
+                            class="p-2 border flex items-center justify-between border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900 rounded-lg text-xs text-green-800 dark:text-green-100 text-center hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
                           >
-                            <span class="font-medium text-sm text-green-800">{{ room.roomNumber }}</span>
+                            <span class="font-medium text-sm text-green-800 dark:text-green-100">{{ room.roomNumber }}</span>
                             <div class="text-right">
-                            <div v-if="room.floorNumber" class="text-xs text-green-500">
+                            <div v-if="room.floorNumber" class="text-xs text-green-500 dark:text-green-400">
                               {{ $t('Floor') }} {{ room.floorNumber }}
                             </div>
                             </div>
@@ -378,11 +378,11 @@
                           <div
                             v-for="room in getRoomsByStatus(roomType.rooms, 'occupied')"
                             :key="room.id"
-                            class="p-2 border flex items-center justify-between border-red-200 bg-red-50 rounded-lg text-xs text-red-800 text-center hover:bg-red-100 transition-colors"
+                            class="p-2 border flex items-center justify-between border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900 rounded-lg text-xs text-red-800 dark:text-red-100 text-center hover:bg-red-100 dark:hover:bg-red-800 transition-colors"
                           >
-                            <span class="font-medium text-sm text-red-800">{{ room.roomNumber }}</span>
+                            <span class="font-medium text-sm text-red-800 dark:text-red-100">{{ room.roomNumber }}</span>
                             <div class="text-right">
-                            <div v-if="room.floorNumber" class="text-xs text-red-500">
+                            <div v-if="room.floorNumber" class="text-xs text-red-500 dark:text-red-400">
                               {{ $t('Floor') }} {{ room.floorNumber }}
                             </div>
                             </div>
@@ -393,11 +393,11 @@
                           <div
                             v-for="room in getRoomsByStatus(roomType.rooms, 'cleaning')"
                             :key="room.id"
-                            class="p-2 border flex items-center justify-between border-purple-200 bg-purple-50 rounded-lg text-xs text-purple-800 text-center hover:bg-purple-100 transition-colors"
+                            class="p-2 border flex items-center justify-between border-purple-200 dark:border-purple-700 bg-purple-50 dark:bg-purple-900 rounded-lg text-xs text-purple-800 dark:text-purple-100 text-center hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors"
                           >
-                            <span class="font-medium text-sm text-purple-800">{{ room.roomNumber }}</span>
+                            <span class="font-medium text-sm text-purple-800 dark:text-purple-100">{{ room.roomNumber }}</span>
                             <div class="text-right">
-                            <div v-if="room.floorNumber" class="text-xs text-purple-500">
+                            <div v-if="room.floorNumber" class="text-xs text-purple-500 dark:text-purple-400">
                               {{ $t('Floor') }} {{ room.floorNumber }}
                             </div>
                             </div>
@@ -408,11 +408,11 @@
                           <div
                             v-for="room in getRoomsByStatus(roomType.rooms, 'dirty')"
                             :key="room.id"
-                            class="p-2 border border-orange-200 bg-orange-50 rounded-lg text-xs text-orange-800 text-center flex items-center justify-between hover:bg-orange-100 transition-colors"
+                            class="p-2 border border-orange-200 dark:border-orange-700 bg-orange-50 dark:bg-orange-900 rounded-lg text-xs text-orange-800 dark:text-orange-100 text-center flex items-center justify-between hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors"
                           >
-                            <span class="font-medium text-sm text-orange-800">{{ room.roomNumber }}</span>
+                            <span class="font-medium text-sm text-orange-800 dark:text-orange-100">{{ room.roomNumber }}</span>
                             <div class="text-right">
-                            <div v-if="room.floorNumber" class="text-xs text-orange-500">
+                            <div v-if="room.floorNumber" class="text-xs text-orange-500 dark:text-orange-400">
                               {{ $t('Floor') }} {{ room.floorNumber }}
                             </div>
                             </div>
@@ -423,10 +423,10 @@
                           <div
                             v-for="room in getRoomsByStatus(roomType.rooms, 'maintenance')"
                             :key="room.id"
-                            class="p-2 border border-gray-300 bg-gray-100 rounded-lg text-xs text-gray-800 text-center flex items-center justify-between hover:bg-gray-100 transition-colors"
+                            class="p-2 border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs text-gray-800 dark:text-gray-100 text-center flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                           >
-                            <span class="font-medium text-sm text-gray-800">{{ room.roomNumber }}</span>
-                            <div v-if="room.maintenanceNotes" class="text-xs text-gray-500 truncate max-w-20" :title="room.maintenanceNotes">
+                            <span class="font-medium text-sm text-gray-800 dark:text-gray-100">{{ room.roomNumber }}</span>
+                            <div v-if="room.maintenanceNotes" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-20" :title="room.maintenanceNotes">
                               {{ room.maintenanceNotes }}
                             </div>
                           </div>
@@ -435,26 +435,26 @@
                     </template>
 
                     <!-- Total Row -->
-                    <tr class="bg-gray-100 font-semibold border-t-2 border-gray-300">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                    <tr class="bg-gray-100 dark:bg-gray-900 font-semibold border-t-2 border-gray-300 dark:border-gray-700">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">
                         {{ $t('Total') }}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center font-bold">
                         {{ totalStats.noStatus }}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center font-bold">
                         {{ totalStats.available }}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center font-bold">
                         {{ totalStats.occupied }}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center font-bold">
                         {{ totalStats.cleaning }}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center font-bold">
                         {{ totalStats.dirty }}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-bold">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-center font-bold">
                         {{ totalStats.outOfOrder }}
                       </td>
                     </tr>
@@ -468,8 +468,8 @@
 
         <!-- Filters and Search (for Grid and List views) -->
         <div v-if="viewMode !== 'status'" class="px-4 sm:px-6 lg:px-8">
-          <div class="bg-white shadow rounded-lg mb-6">
-            <div class="p-4 border-b border-gray-200">
+          <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
               <div
                 class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0"
               >
@@ -480,7 +480,7 @@
                       class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
                     >
                       <svg
-                        class="h-5 w-5 text-gray-400"
+                        class="h-5 w-5 text-gray-400 dark:text-gray-500"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -497,14 +497,14 @@
                       v-model="searchQuery"
                       type="text"
                       :placeholder="$t('search...')"
-                      class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                      class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md leading-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                     />
                   </div>
 
                   <!-- Status Filter -->
                   <select
                     v-model="statusFilter"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   >
                     <option value="">{{ $t('All_statuses') }}</option>
                     <option value="available">{{ $t('Available') }}</option>
@@ -517,7 +517,7 @@
                   <!-- Room Type Filter -->
                   <select
                     v-model="roomTypeFilter"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   >
                     <option value="">{{ $t('All_room_types') }}</option>
                     <option v-for="type in roomTypeData" :key="type.value" :value="type.value">
@@ -530,7 +530,7 @@
                   <!-- Items per page -->
                   <select
                     v-model="itemsPerPage"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   >
                     <option value="12">12 {{ $t('per_page') }}</option>
                     <option value="24">24 {{ $t('per_page') }}</option>
@@ -543,11 +543,11 @@
           </div>
 
           <!-- Loading State -->
-          <div v-if="isLoading" class="bg-white shadow rounded-lg">
+          <div v-if="isLoading" class="bg-white dark:bg-gray-800 shadow rounded-lg">
             <div class="p-6">
               <div class="animate-pulse">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div v-for="n in 6" :key="n" class="bg-gray-200 h-48 rounded-lg"></div>
+                  <div v-for="n in 6" :key="n" class="bg-gray-200 dark:bg-gray-700 h-48 rounded-lg"></div>
                 </div>
               </div>
             </div>
@@ -571,7 +571,7 @@
           </div>
 
           <!-- Room Table View -->
-          <div v-if="viewMode === 'list'" class="mt-10 bg-white rounded-lg shadow">
+          <div v-if="viewMode === 'list'" class="mt-10 bg-white dark:bg-gray-800 rounded-lg shadow">
             <ReusableTable
               title="Room Occupancy"
               :data="processedTableData"
@@ -587,27 +587,27 @@
           <!-- Pagination -->
           <div
             v-if="filteredRooms.length > 0"
-            class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow"
+            class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6 mt-6 rounded-lg shadow"
           >
             <div class="flex-1 flex justify-between sm:hidden">
               <button
                 @click="currentPage > 1 && currentPage--"
                 :disabled="currentPage === 1"
-                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ $t('Previous') }}
               </button>
               <button
                 @click="currentPage < totalPages && currentPage++"
                 :disabled="currentPage === totalPages"
-                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ $t('Next') }}
               </button>
             </div>
             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
-                <p class="text-sm text-gray-700">
+                <p class="text-sm text-gray-700 dark:text-gray-300">
                   {{ $t('showing') }}
                   <span class="font-medium">{{ startIndex + 1 }}</span>
                   {{ $t('to') }}
@@ -625,7 +625,7 @@
                   <button
                     @click="currentPage > 1 && currentPage--"
                     :disabled="currentPage === 1"
-                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span class="sr-only">Previous</span>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -645,8 +645,8 @@
                     :class="[
                       'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                       page === currentPage
-                        ? 'z-10 bg-purple-50 border-purple-500 text-purple-600'
-                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
+                        ? 'z-10 bg-purple-50 dark:bg-purple-900 border-purple-500 dark:border-purple-600 text-purple-600 dark:text-purple-300'
+                        : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800',
                     ]"
                   >
                     {{ page }}
@@ -655,7 +655,7 @@
                   <button
                     @click="currentPage < totalPages && currentPage++"
                     :disabled="currentPage === totalPages"
-                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span class="sr-only">Next</span>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -688,8 +688,8 @@
       v-if="showMaintenanceModal"
       class="fixed inset-0 bg-opacity-50 overflow-y-auto h-full w-full bg-black/25 bg-opacity-50 flex items-center justify-center modal z-99999"
     >
-      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-semibold mb-4">{{ $t('maintenanceSetup') }}</h3>
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold mb-4 dark:text-gray-100">{{ $t('maintenanceSetup') }}</h3>
         <div class="space-y-4">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">

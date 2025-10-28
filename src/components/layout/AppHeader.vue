@@ -1,7 +1,7 @@
 <template>
   <header
     class="sticky top-0 flex w-full bg-gradient-to-r from-white via-gray-50 to-white border-gray-200 z-49 dark:border-gray-800 dark:bg-gradient-to-r dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 lg:border-b shadow-lg backdrop-blur-sm">
-    <div class="flex flex-col items-center justify-between grow lg:flex-row lg:px-8">
+    <div class="flex flex-col items-center justify-between grow lg:flex-row dark:bg-gray-800 lg:px-8">
       <div
         class="flex items-center  justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
         <button @click="handleToggle"
@@ -37,7 +37,7 @@
           <div class="flex items-center gap-2 flex-shrink-0 min-w-[120px]">
 
             <img class="rounded-full w-10" src="/src/assets/images/header/logo2.png" alt="Logo" />
-            <span class="inline-flex text-xl text-gray-900 font-bold flex-wrap">
+            <span class="inline-flex text-xl text-gray-900 font-bold flex-wrap dark:text-white">
               Enjoy
             </span>
           </div>
@@ -67,7 +67,7 @@
             <AddBookinIcon class="w-5 h-5  cursor-pointer text-gray-600 dark:text-gray-300" />
             <span
               class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
-              {{ $t('AddBooking') }}
+              {{ $t('AddReservation') }}
             </span>
           </button>
 
@@ -92,6 +92,17 @@
             </span>
           </button>
 
+          <!-- Bascule thème clair/sombre -->
+          <button
+            class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
+            @click="toggleTheme" aria-label="Basculer le thème">
+            <component :is="isDarkMode ? Sun : Moon" class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
+            <span
+              class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+              {{ isDarkMode ? 'Thème clair' : 'Mode sombre' }}
+            </span>
+          </button>
+
           <NotificationMenu />
         </div>
         <UserMenu />
@@ -103,7 +114,8 @@
     <!-- <Backdrop /> -->
   </template>
   <template v-if="showModalAddingModal">
-    <BookingFormQuick :is-open='showModalAddingModal' v-if="showModalAddingModal" @close="showModalAddingModal = false" />
+    <BookingFormQuick :is-open='showModalAddingModal' v-if="showModalAddingModal"
+      @close="showModalAddingModal = false" />
   </template>
   <template v-if="showGuestRegistration">
     <GuestRegistrationModal v-if="showGuestRegistration" @close="showGuestRegistration = false" />
@@ -117,12 +129,13 @@ import SearchBar from './header/SearchBar.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
 import AppSidebar from './AppSidebar.vue'
-import { Calendar, X, PlusCircle, List } from 'lucide-vue-next'
+import { Calendar, X, PlusCircle, List, Sun, Moon } from 'lucide-vue-next'
 import router from '@/router'
 import { useAuthStore } from '../../composables/user'
 import BookingFormQuick from '../reservations/BookingFormQuick.vue'
 import GuestRegistrationModal from '../modal/GuestRegistrationModal.vue'
 import AddBookinIcon from '../../icons/AddBookinIcon.vue'
+import { useTheme } from '@/composables/theme'
 
 const authStore = useAuthStore();
 
@@ -167,6 +180,9 @@ const canviewListBooking = computed(() => {
 const canviewStayView = computed(() => {
   return authStore.hasPermission("access_to_stay_view")
 })
+
+// Dark mode toggle
+const { isDarkMode, toggleTheme } = useTheme()
 interface HeaderProps {
   showSidebar?: boolean
 }

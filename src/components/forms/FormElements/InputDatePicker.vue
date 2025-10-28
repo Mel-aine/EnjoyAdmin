@@ -15,7 +15,7 @@
         :config="flatpickrConfig"
         @on-change="updateValue"
         :class="[
-          'dark:bg-dark-900 h-11 w-full  rounded-lg border border-black/50 bg-transparent bg-none px-2 py-2.5 pl-2 pr-6 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',
+          'dark:bg-dark-900 h-11 w-full  rounded-lg border border-black/50 bg-transparent bg-none px-2 py-2.5 pl-2 pr-6 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:bg-gray-700 dark:disabled:text-gray-400 dark:disabled:border-gray-700',
           props.customClass
         ]"
         :placeholder="placeholder"
@@ -117,3 +117,41 @@ watch(() => props.modelValue, (newVal) => {
   localValue.value = newVal
 })
 </script>
+
+<style scoped>
+/* Dark theme overrides for flatpickr calendar */
+:deep(.dark) .flatpickr-calendar {
+  background: #1f2937; /* gray-800 */
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,.4), 0 4px 6px -2px rgba(0,0,0,.3);
+  border-color: #374151; /* gray-700 */
+}
+
+:deep(.dark) .flatpickr-months,
+:deep(.dark) .flatpickr-days,
+:deep(.dark) .flatpickr-weekdays {
+  background: #1f2937; /* gray-800 */
+}
+
+:deep(.dark) .flatpickr-day {
+  color: #e5e7eb; /* gray-200 */
+}
+
+:deep(.dark) .flatpickr-day.today {
+  border-color: #6366f1; /* indigo-500 */
+}
+
+:deep(.dark) .flatpickr-day.selected,
+:deep(.dark) .flatpickr-day.startRange,
+:deep(.dark) .flatpickr-day.endRange,
+:deep(.dark) .flatpickr-day.inRange {
+  background: #4f46e5; /* indigo-600 */
+  border-color: #4f46e5;
+  color: #ffffff;
+}
+
+:deep(.dark) .flatpickr-time .numInputWrapper input,
+:deep(.dark) .flatpickr-months .cur-month,
+:deep(.dark) .flatpickr-weekday {
+  color: #d1d5db; /* gray-300 */
+}
+</style>

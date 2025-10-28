@@ -39,18 +39,18 @@
 
       <!-- Dropdown list -->
       <ul v-if="isDropdownOpen && !isLoading"
-        class="custom-scrollbar absolute top-full left-0 z-999999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg"
+        class="custom-scrollbar absolute top-full left-0 z-999999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
 
         <!-- No results message -->
         <li v-if="discountOptions.length === 0 && searchQuery.length > 0"
-          class="px-5 py-3 text-gray-500 text-center italic">
+          class="px-5 py-3 text-gray-500 dark:text-gray-400 text-center italic">
           {{ $t('No discounts found') }}
         </li>
 
         <!-- Initial message when no search -->
         <li v-else-if="discountOptions.length === 0 && searchQuery.length === 0"
-          class="px-5 py-3 text-gray-500 text-center italic">
+          class="px-5 py-3 text-gray-500 dark:text-gray-400 text-center italic">
           {{ $t('Start typing to search discounts...') }}
         </li>
 
@@ -59,9 +59,9 @@
           :key="discount.id"
           @click="selectDiscount(discount)"
           :class="[
-            'px-5 py-3 cursor-pointer hover:bg-brand-100 border-b border-gray-100 last:border-b-0',
+            'px-5 py-3 cursor-pointer hover:bg-brand-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0',
             disabled ? 'cursor-not-allowed text-gray-400' : '',
-            selectedDiscount?.id === discount.id ? 'bg-brand-50 text-brand-700' : ''
+            selectedDiscount?.id === discount.id ? 'bg-brand-50 text-brand-700 dark:bg-blue-900 dark:text-blue-200' : ''
           ]"
           role="option"
           :aria-selected="selectedDiscount?.id === discount.id">
@@ -69,7 +69,7 @@
             <div class="font-medium text-sm">
               {{ discount.name || discount.discount_name }}
             </div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {{ $t('Type') }}: {{ discount.type === 'percentage' ? $t('Percentage') : $t('Flat Amount') }} |
               {{ $t('Value') }}: {{ formatDiscountValue(discount) }} |
               {{ $t('Status') }}: {{ discount.status === 'active' ? $t('Active') : $t('Inactive') }}

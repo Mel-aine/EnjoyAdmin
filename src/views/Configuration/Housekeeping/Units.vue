@@ -12,8 +12,8 @@
             <span :class="[
               'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
               item.status === 'Active'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
             ]">
               {{ item.status }}
             </span>
@@ -21,16 +21,16 @@
           <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
-              <div class="text-xs text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
         </ReusableTable>
@@ -38,9 +38,9 @@
 
     <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
             {{ isEditing ? 'Edit Unit' : 'Add Unit' }}
           </h3>
 

@@ -1,30 +1,30 @@
 <template>
   <div :class="[
-    'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
+    'fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out',
     sidebarStore.isExpanded ? 'w-64' : 'w-16',
     sidebarStore.isMobileOpen ? 'translate-x-0' : '-translate-x-full',
     'lg:translate-x-0'
   ]">
     <!-- Sidebar Header -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
       <div v-if="sidebarStore.isExpanded" class="flex items-center space-x-2">
         <Settings class="w-6 h-6 text-blue-600" />
-        <h2 class="text-lg font-semibold text-gray-900">Configuration</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Configuration</h2>
       </div>
-      <button @click="sidebarStore.toggleSidebar()" class="p-1 rounded-md hover:bg-gray-100 lg:hidden">
+      <button @click="sidebarStore.toggleSidebar()" class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden">
         <X class="w-5 h-5" />
       </button>
     </div>
 
     <!-- Search Bar -->
-    <div v-if="sidebarStore.isExpanded" class="p-4 border-b border-gray-200">
+    <div v-if="sidebarStore.isExpanded" class="p-4 border-b border-gray-200 dark:border-gray-700">
       <div class="relative">
-        <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search class="absolute left-3 top-1/2 dark:text-gray-500 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
         <input 
           v-model="searchQuery" 
           type="text" 
           placeholder="Search configuration..."
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent dark:bg-gray-900 dark:text-gray-100 dark:placeholder-gray-400" 
         />
       </div>
     </div>
@@ -40,18 +40,18 @@
         <button 
           @click="toggleSection('rooms')" 
           :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
             sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <Home class="w-5 h-5 text-gray-600" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Rooms</span>
+            <Home class="w-5 h-5 text-gray-600 dark:text-gray-100" />
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Rooms</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
             :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
+              'w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform',
               expandedSections.rooms ? 'rotate-180' : ''
             ]" 
           />
@@ -62,8 +62,8 @@
             v-for="item in filteredRoomsItems" 
             :key="item.path" 
             :to="item.path"
-            class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-gray-900 bg-gray-200 font-medium"
+            class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+            active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
             {{ item.label }}
           </router-link>
@@ -75,18 +75,18 @@
         <button 
           @click="toggleSection('rates')" 
           :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
             sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <DollarSign class="w-5 h-5 text-gray-600" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Rates</span>
+            <DollarSign class="w-5 h-5 text-gray-600 dark:text-gray-100" />
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Rates</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
             :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
+              'w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform',
               expandedSections.rates ? 'rotate-180' : ''
             ]" 
           />
@@ -97,8 +97,8 @@
             v-for="item in filteredRatesItems" 
             :key="item.path" 
             :to="item.path"
-            class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-gray-900 bg-gray-200 font-medium"
+            class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+            active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
             {{ item.label }}
           </router-link>
@@ -110,18 +110,18 @@
         <button 
           @click="toggleSection('housekeeping')" 
           :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
             sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <Users class="w-5 h-5 text-gray-600" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Housekeeping</span>
+            <Users class="w-5 h-5 text-gray-600 dark:text-gray-100" />
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Housekeeping</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
             :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
+              'w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform',
               expandedSections.housekeeping ? 'rotate-180' : ''
             ]" 
           />
@@ -132,8 +132,8 @@
             v-for="item in filteredHousekeepingItems" 
             :key="item.path" 
             :to="item.path"
-            class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-gray-900 bg-gray-200 font-medium"
+            class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+            active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
             {{ item.label }}
           </router-link>
@@ -145,18 +145,18 @@
         <button 
           @click="toggleSection('master')" 
           :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
             sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <Database class="w-5 h-5 text-gray-600" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Master</span>
+            <Database class="w-5 h-5 text-gray-600 dark:text-gray-100" />
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Master</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
             :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
+              'w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform',
               expandedSections.master ? 'rotate-180' : ''
             ]" 
           />
@@ -167,8 +167,8 @@
             v-for="item in filteredMasterItems" 
             :key="item.path" 
             :to="item.path"
-            class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-gray-900 bg-gray-200 font-medium"
+            class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+            active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
             {{ item.label }}
           </router-link>
@@ -180,18 +180,18 @@
         <button 
           @click="toggleSection('settings')" 
           :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
             sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <Cog class="w-5 h-5 text-gray-600" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Settings</span>
+            <Cog class="w-5 h-5 text-gray-600 dark:text-gray-100" />
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Settings</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
             :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
+              'w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform',
               expandedSections.settings ? 'rotate-180' : ''
             ]" 
           />
@@ -202,8 +202,8 @@
             v-for="item in filteredSettingsItems" 
             :key="item.path" 
             :to="item.path"
-            class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-gray-900 bg-gray-200 font-medium"
+            class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+            active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
             {{ item.label }}
           </router-link>
@@ -215,18 +215,18 @@
         <button 
           @click="toggleSection('staff')" 
           :class="[
-            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 transition-colors',
+            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
             sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
           ]"
         >
           <div class="flex items-center space-x-3">
-            <UserCircle class="w-5 h-5 text-gray-600" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900">Staff</span>
+            <UserCircle class="w-5 h-5 text-gray-600 dark:text-gray-100" />
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Staff</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
             :class="[
-              'w-4 h-4 text-gray-400 transition-transform',
+              'w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform',
               expandedSections.staff ? 'rotate-180' : ''
             ]" 
           />
@@ -237,8 +237,8 @@
             v-for="item in filteredStaffItems" 
             :key="item.path" 
             :to="item.path"
-            class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-            active-class="text-gray-900 bg-gray-200 font-medium"
+            class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+            active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
             {{ item.label }}
           </router-link>

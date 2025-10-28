@@ -1,7 +1,7 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="'Add Transportation Request'" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ $t('Add Transportation Request') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('Add Transportation Request') }}</h3>
     </template>
 
     <!-- Form -->
@@ -87,7 +87,7 @@
         v-if="selectedTransportationMode && selectedTransportationMode.isExternal"
         class="space-y-4"
       >
-        <h4 class="text-sm font-medium text-gray-700 border-b pb-2">External Service Details</h4>
+        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 border-b dark:border-gray-700 pb-2">External Service Details</h4>
 
         <div>
           <Input
@@ -149,7 +149,7 @@
       <!-- Service Fee & Folio -->
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">{{
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
             $t('Service Fee')
           }}</label>
           <InputCurrency v-model="formData.serviceFee" :currency="formData.currency" />
@@ -171,13 +171,13 @@
 
       <!-- Special Requirements -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{
           $t('Special Requirements')
         }}</label>
         <textarea
           v-model="formData.specialRequirements"
           rows="3"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-300 resize-none"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-300 resize-none dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:placeholder:text-white/30 dark:focus:ring-purple-600 dark:focus:border-purple-700"
           :placeholder="$t('Enter any special requirements...')"
         ></textarea>
       </div>
