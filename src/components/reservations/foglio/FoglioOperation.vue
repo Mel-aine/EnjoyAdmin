@@ -15,19 +15,18 @@
             <button class="w-full text-sm px-2 py-2 rounded cursor-pointer transition-colors"
               :class="!selectedFolio
                 ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900 dark:border-blue-400 dark:text-blue-200'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200'"
-              @click="showAllTransactions">
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200'" @click="showAllTransactions">
               {{ $t('showAllTransactions') }}
             </button>
           </div>
           <div v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber">
             <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
             <div v-for="(fo, index) in folioList" :key="index">
-              <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
+              <div
+                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
                 :class="selectedFolio?.id === fo.id
                   ? 'bg-blue-100 border-l-4 border-blue-500 dark:bg-blue-900 dark:border-blue-400'
-                  : 'bg-gray-100 dark:bg-gray-800'"
-                @click="selectFolio(fo)">
+                  : 'bg-gray-100 dark:bg-gray-800'" @click="selectFolio(fo)">
                 <span class="capitalize">#{{ fo.folioNumber }} {{ fo.guest.displayName }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
@@ -51,7 +50,8 @@
       </div>
     </div>
     <div class="w-10/12">
-      <div class="bg-white dark:bg-gray-800 dark:text-gray-100 border-t-1 dark:border-gray-700 shadow-sm flex flex-col h-full">
+      <div
+        class="bg-white dark:bg-gray-800 dark:text-gray-100 border-t-1 dark:border-gray-700 shadow-sm flex flex-col h-full">
         <div class="flex-grow overflow-y-auto custom-scrollbar">
           <!-- Header with action buttons -->
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
@@ -67,7 +67,8 @@
             <!-- More Actions Dropdown -->
             <div class="relative" v-if="(canAddItemInFolio || reservation.status !== 'voided') && selectedFolio">
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
-                :button-class="'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100'" @option-selected="handleMoreAction" />
+                :button-class="'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100'"
+                @option-selected="handleMoreAction" />
 
             </div>
             <!-- Status indicators
@@ -118,7 +119,8 @@
             </template>
 
             <template #column-user="{ item }">
-              <div class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer">
+              <div
+                class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer">
                 {{ item.user }}
               </div>
             </template>
@@ -368,6 +370,8 @@ interface FoglioItem {
   user: string
   amount: number
   status: 'unposted' | 'posted'
+  postingDate?: string
+  transactionDate?:string
   folioId?: number // Add folioId to link transactions to folios
 }
 
@@ -380,22 +384,27 @@ const isEditMode = ref(false)
 const transactionToEdit = ref<any>(null)
 
 // Computed property to filter transactions based on selected folio
+// and order by postingDate ascending
 const foglioData = computed(() => {
-  if (!selectedFolio.value) {
-    return allTransactions.value // Show all transactions when no folio is selected
-  }
-  return allTransactions.value.filter(transaction =>
-    transaction.folioId === selectedFolio.value.id
-  )
+  const list = !selectedFolio.value
+    ? allTransactions.value // Show all transactions when no folio is selected
+    : allTransactions.value.filter(transaction => transaction.folioId === selectedFolio.value.id)
+
+  // Return a sorted copy by postingDate ASC
+  return [...list].sort((a, b) => {
+    const at = a.transactionDate ? new Date(a.transactionDate).getTime() : 0
+    const bt = b.transactionDate ? new Date(b.transactionDate).getTime() : 0
+    return at - bt
+  })
 })
 
 // Table columns configuration
 const columns = computed<Column[]>(() => [
-  { key: 'postingDate', label: t('Day'), type: 'date' },
+  { key: 'transactionDate', label: t('Day'), type: 'date' },
   { key: 'transactionNumber', label: t('Ref No.'), type: 'text' },
   { key: 'particular', label: t('Particulars'), type: 'text', translatable: true },
   { key: 'description', label: t('Description'), type: 'text' },
-  { key: 'guest.displayName', label: t('User'), type: 'custom' },
+  { key: 'modifier.fullName', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
   { key: 'actions', label: '', type: 'custom' }
 ])
@@ -466,16 +475,14 @@ const EditTransaction = (item: any) => {
   // Déterminer quel modal ouvrir en fonction du type de transaction
   if (item.category === 'adjustment') {
     isAdjustmentModal.value = true
-  } else if (item.category === 'room' || item.transactionType === 'room_posting') {
+  } else if (((item.category === 'room' || item.category === 'Room Charges') && item.transactionType === 'charge') || item.transactionType === 'room_posting') {
     isRoomChargesModal.value = true
   } else if (item.category === 'discount') {
     isApplyDiscountModal.value = true
   } else if (item.category === 'extract_charge') {
     isAddChargeModalOpen.value = true
-  } else if (item.category === 'payment') {
+  } else if (item.transactionType === 'payment') {
     isAddPaymentModalOpen.value = true
-  } else {
-    isRoomChargesModal.value = true
   }
 }
 
@@ -526,7 +533,7 @@ const printInvoice = async (item: any) => {
   }
 }
 const formatAmount = (amount: number) => {
-  return amount
+  return formatCurrency(amount)
 }
 
 const getAmountColor = (amount: number) => {
@@ -570,7 +577,7 @@ const refreshFolio = async () => {
   try {
     emit('refresh')
     const resp = await getReservationFolios(props.reservationId)
-    console.log(resp)
+    console.log('getReservationFolios',resp)
 
     // Handle the case where folios contain their transactions
     if (resp.data && Array.isArray(resp.data)) {
@@ -583,18 +590,27 @@ const refreshFolio = async () => {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
             transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null);
+            if (transaction.transactionType === 'payment') {
+              const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
+              allTransactions.value.push({
+                ...transaction,
+                totalAmount: (transaction.transactionType === 'payment' || transaction.transactionType === 'discount') ? -Math.abs(baseAmount) : Math.abs(baseAmount),
+                // totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
+                //   totalAmount,
+                category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
+                folioId: folio.id,
+                guest: folio.guest
 
-            const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
-            allTransactions.value.push({
-              ...transaction,
-              totalAmount: transaction.transactionType === 'payment' ? -Math.abs(baseAmount) : Math.abs(baseAmount),
-              // amount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
-              //   grossAmount,
-              category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
-              folioId: folio.id,
-              guest: folio.guest
+              })
+            } else {
+              allTransactions.value.push({
+                ...transaction,
+                category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
+                folioId: folio.id,
+                guest: folio.guest
+              })
+            }
 
-            })
           })
         }
       })
@@ -617,7 +633,7 @@ const getFolosReservations = async () => {
   loading.value = true
   try {
     const resp = await getReservationFolios(props.reservationId)
-    console.log(resp)
+    console.log('getReservationFolios',resp)
 
     // Handle the case where folios contain their transactions
     if (resp.data && Array.isArray(resp.data)) {
@@ -634,7 +650,7 @@ const getFolosReservations = async () => {
               const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
               allTransactions.value.push({
                 ...transaction,
-                totalAmount: transaction.transactionType === 'payment' ? -Math.abs(baseAmount) : Math.abs(baseAmount),
+                totalAmount: (transaction.transactionType === 'payment' || transaction.transactionType === 'discount') ? -Math.abs(baseAmount) : Math.abs(baseAmount),
                 // totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
                 //   totalAmount,
                 category: transaction.category === 'room' ? 'Room Charges' : transaction.category,

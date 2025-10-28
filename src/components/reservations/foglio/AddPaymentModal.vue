@@ -7,12 +7,12 @@
     <div class="px-2 space-y-4 text-gray-900 dark:text-gray-100">
       <!-- Date -->
       <div>
-        <InputDatePicker v-model="formData.date" :title="$t('Date')" />
+        <InputDatePicker v-model="formData.date" :title="$t('Date')" :disabled="isEditMode" />
       </div>
 
       <!-- Folio -->
       <div>
-        <InputFolioSelect :title="$t('folio')" v-model="formData.folio" @select="folioSelected"
+        <InputFolioSelect :disabled="true" :title="$t('folio')" v-model="formData.folio" @select="folioSelected"
           :reservation-id="reservationId" :is-required="true"  />
       </div>
 
@@ -156,7 +156,7 @@ const loadPaymentData = () => {
     const payment = props.transactionData
     console.log("payment",props.transactionData)
 
-    formData.date = payment.postingDate || new Date().toISOString().split('T')[0]
+    formData.date = new Date(payment.postingDate).toISOString().split('T')[0]
     const methodType = payment.paymentMethod?.type?.toLowerCase() || payment.transactionCategory || 'cash'
     formData.type = methodType === 'city_ledger' ? 'city_ledger' : 'cash'
     formData.folio = payment.folioId || ''
@@ -211,9 +211,9 @@ const savePayment = async () => {
     const transactionData:any = {
       folioId: safeParseInt(formData.folio),
       transactionType: 'payment',
-      transactionCategory: formData.type,
+      //transactionCategory: formData.type,
       category: 'payment',
-      description: `Payment - ${methodeSelected.value?.name || 'Unknown'}`,
+      description: `Payment`,
       amount: prepareFolioAmount(formData.amount),
       reference: formData.recVouNumber,
       notes: formData.comment,
