@@ -23,7 +23,7 @@
                             <!-- Room Charge Form Content -->
                             <div class="space-y-4">
                                 <div>
-                                    <InputDatePicker :title="$t('date')" v-model="formData.date" />
+                                    <InputDatePicker :disabled="isEditMode" :title="$t('date')" v-model="formData.date" />
                                 </div>
                                 <div>
                                     <Select :lb="$t('chargeSubType')" :placeholder="$t('selectChargeSubType')" v-model="formData.chargeSubtype"
@@ -31,12 +31,14 @@
                                 </div>
 
                                 <div>
-                                    <InputFolioSelect :title="$t('folio')" v-model="formData.folioId"
+                                    <InputFolioSelect :disabled="isEditMode" :title="$t('folio')" v-model="formData.folioId"
                                         :reservationId="props.reservationId" />
 
                                 </div>
 
-                                <Toggle :title="$t('complementaryRoom')" v-model="formData.complementary" />
+                                <!--
+                                    <Toggle :disabled="isEditMode" :title="$t('complementaryRoom')" v-model="formData.complementary" />
+                                -->
 
                                 <div>
                                     <InputCurrency :lb="$t('amount')" v-model="formData.amount" />

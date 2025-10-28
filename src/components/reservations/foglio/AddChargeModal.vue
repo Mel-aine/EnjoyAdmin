@@ -7,13 +7,13 @@
     <div class="px-2 space-y-4 text-gray-900 dark:text-gray-100">
       <!-- Date -->
       <div>
-        <InputDatePicker v-model="formData.date" :title="$t('Date')" />
+        <InputDatePicker v-model="formData.date" :title="$t('Date')" :disabled="isEditMode" />
 
       </div>
 
       <!-- Folio -->
       <div>
-        <InputFolioSelect :title="$t('folio')" v-model="formData.folio" :reservation-id="reservationId"
+        <InputFolioSelect :title="$t('folio')" v-model="formData.folio" :reservation-id="reservationId" :disabled="isEditMode"
           :is-required="true" />
       </div>
 
@@ -26,7 +26,7 @@
 
       <!-- Charge -->
       <div>
-        <InputExtractChargeSelect v-model="formData.charge" :lb="$t('Charge')" @select="chargeSelected" />
+        <InputExtractChargeSelect :disabled="isEditMode" v-model="formData.charge" :lb="$t('Charge')" @select="chargeSelected" />
       </div>
       <!-- Add as Inclusion
       <div class="flex items-center">
@@ -137,7 +137,7 @@ const saveCharge = async () => {
     isLoading.value = true
 
     // Validate required fields
-    if (!formData.folio || !formData.charge || !formData.amount || !selectedCharge.value) {
+    if (!formData.folio || !formData.charge || !formData.amount ||( !selectedCharge.value && !formData.charge)) {
       toast.error('Please fill in all required fields (Folio, Charge, and Amount)')
       return
     }
@@ -156,7 +156,7 @@ const saveCharge = async () => {
       folioId: Number(formData.folio),
       transactionType: 'charge',
       category: 'extract_charge',
-      description: selectedCharge.value?.name || selectedCharge.value?.charge_name || 'Extra Charge',
+      description: `${selectedCharge.value?.name || selectedCharge.value?.charge_name} Qt[${formData.quantity}]`,
       amount: prepareFolioAmount(formData.amount),
       quantity: safeParseFloat(formData.quantity, 1),
       unitPrice: safeParseFloat(selectedCharge.value?.rateInclusiveTax, 0),
@@ -164,6 +164,7 @@ const saveCharge = async () => {
       departmentId: selectedCharge.value?.departmentId || '',
       reference: `${formData.recVouNumber}` || '',
       notes: formData.comment || '',
+      extraChargeId: formData.charge,
       discountId: formData.discount ? Number(formData.discount) : undefined
     }
 
@@ -198,8 +199,6 @@ const saveCharge = async () => {
 const loadTransactionData = () => {
   if (props.isEditMode && props.transactionData) {
     const tx = props.transactionData
-    console.log("tx",props.transactionData)
-
     formData.date = tx.postingDate || new Date().toISOString().split('T')[0]
     formData.folio = tx.folioId || props.folioId
     formData.recVouNumber = tx.transactionNumber || ''
@@ -208,8 +207,6 @@ const loadTransactionData = () => {
     formData.discount = tx.discountId || ''
     formData.comment = tx.notes || tx.description || ''
     formData.charge = tx.extraChargeId || tx.chargeId || tx.particular_id || ''
-
-
   }
 }
 

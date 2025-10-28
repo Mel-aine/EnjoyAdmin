@@ -137,7 +137,7 @@ const fetchFoliotransaction = async () => {
         const response = await getFolioStatement(selectFolio.value.id);
         const resData = response.data;
         console.log('list of folio returned')
-        sourceFolios.value = resData?.map((e: any) => {
+        sourceFolios.value = resData?.transactions?.map((e: any) => {
             return {
                 ...e,
                 transactionDate:formatDate(e.transactionDate),

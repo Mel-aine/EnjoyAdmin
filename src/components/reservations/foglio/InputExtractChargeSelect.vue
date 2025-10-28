@@ -211,6 +211,17 @@ const loadExtraCharges = async () => {
 
     allCharges.value = charges
     chargeOptions.value = charges
+
+    // Preselect the charge if a modelValue was passed before data loaded
+    const initialId = props.modelValue != null ? Number(props.modelValue) : null
+    if (initialId && !selectedCharge.value) {
+      const initial = charges.find((c: ExtraChargeOption) => c.id === initialId)
+      if (initial) {
+        selectedCharge.value = initial
+        searchQuery.value = initial.name || initial.charge_name || '';
+        selectCharge(selectedCharge.value!)
+      }
+    }
   } catch (error) {
     console.error('Error loading extra charges:', error)
     allCharges.value = []
@@ -252,7 +263,6 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 const selectCharge = (charge: ExtraChargeOption) => {
-  if (!props.disabled && !isLoading.value) {
     selectedCharge.value = charge
     searchQuery.value = charge.name || charge.charge_name || ''
     isDropdownOpen.value = false
@@ -260,7 +270,7 @@ const selectCharge = (charge: ExtraChargeOption) => {
     emit('update:modelValue', charge.id)
     emit('select', charge)
     emit('change', charge.id)
-  }
+  
 }
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -276,12 +286,12 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   // Load all charges on mount
-  loadExtraCharges()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+ loadExtraCharges()
 </script>
 
 <style scoped>

@@ -67,19 +67,4 @@ watch(() => props.modelValue, (newValue) => {
 </template>
 
 <style scoped>
-input:disabled {
-    background-color: #f3f4f6;
-    /* Fond grisé */
-    cursor: not-allowed;
-    /* Curseur interdit */
-    border-color: #d1d5db;
-    /* Bord plus clair */
-    cursor: not-allowed;
-}
-/* Dark mode disabled state */
-:deep(.dark) input:disabled {
-    background-color: #374151; /* gray-700 */
-    border-color: #374151;     /* gray-700 */
-    color: #9ca3af;            /* gray-400 */
-}
 </style>
