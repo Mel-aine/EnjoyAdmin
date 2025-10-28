@@ -639,7 +639,6 @@ console.log('modalevalue', props.modelValue)
               <!-- Profession + Phone + Email -->
               <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <Input
-                  :lb="$t('profession')"
                   :id="'profession'"
                   v-model="selectedCustomer.profession"
                   :lb="$t('profession')"
@@ -669,7 +668,6 @@ console.log('modalevalue', props.modelValue)
                   :defaultValue="$t('contactType')"
                   :lb="$t('contactType')"
                   :is-required="false"
-                  :use-dropdown="useDropdownBooking"
                   @clear-error="emit('clear-error')"
                    custom-class="h-11"
                 />

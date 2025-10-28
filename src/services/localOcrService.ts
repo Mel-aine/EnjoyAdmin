@@ -195,11 +195,11 @@ const ID_NUMBER_PATTERNS = [
   // CNI - FR/EN
   /(?:NUMEROCNI|NUMERO\s*CNI|NIC\s*NUMBER|N°\s*CNI|NO\s*CNI)[:\s]*([A-Z0-9]{6,20})/i,
   /(?:CARTE\s+D'?IDENTIT[EÉ]|IDENTITY\s*CARD)\s*(?:NO|N°|NUMBER)?\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
-  
+
   // Passport - multi-langues
   /(?:PASSPORT\s*NO\.?|NO\.?\s*PASSPORT|N°\s*(?:DE\s*)?PASSEPORT|PASSEPORT\s*N°|PASSPORT\s*NUMBER)[:\s]*([A-Z0-9]{6,15})/i,
   /(?:PASAPORTE|PASSAPORTO|REISEPASS(?:NR|NUMMER)?|NUM(?:ERO)?\s*(?:DE|DO)\s*PASS(?:APORTE|APORTO)|Nº\s*PASSAPORTE)[:\s]*([A-Z0-9]{6,15})/i,
-  
+
   // Espagnol / Portugais / Italien / Allemand pour CNI
   /(?:DNI|N[ÚU]MERO\s+DE\s+IDENTIDAD|N[ÚU]MERO\s+DE\s+DOCUMENTO|C[EÉ]DULA)\s*(?:N[ºO\.]|NO|N°|NUM(?:ERO)?)?\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
   /(?:BILHETE\s+DE\s+IDENTIDADE|CART(?:A|Ã)O\s+DE\s+CIDAD(?:Ã|A)O|N[ÚU]MERO\s+DO\s+DOCUMENTO)\s*(?:N[ºO\.]|NO|N°|NUM(?:ERO)?)?\s*[:\-]?\s*([A-Z0-9]{6,20})/i,
@@ -217,7 +217,7 @@ const EXPIRY_DATE_PATTERNS = [
   // FR/EN
   /(?:EXPIR(?:Y|ATION)|VALID(?:ITY|ITÉ)|JUSQU'AU)\s*(?:DATE)?[:\s]*(\d{1,2}[-\.\/\s]\d{1,2}[-\.\/\s]\d{2,4})/i,
   /(?:EXPIR(?:Y|ATION)|VALID(?:ITY|ITÉ))[:\s]*(\d{1,2}\s+(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\s+\d{4})/i,
-  
+
   // ES/PT/DE/IT libellés
   /(?:FECHA\s+DE\s+EXPIRACI[ÓO]N|VENCE|VALIDEZ\s+HASTA)\s*[:\s]*(\d{1,2}[-\.\/\s]\d{1,2}[-\.\/\s]\d{2,4})/i,
   /(?:DATA\s+DE\s+EXPIRA[ÇC][ÃA]O|VALIDADE|V[ÁA]LIDO\s+AT[EÉ])\s*[:\s]*(\d{1,2}[-\.\/\s]\d{1,2}[-\.\/\s]\d{2,4})/i,
@@ -226,7 +226,7 @@ const EXPIRY_DATE_PATTERNS = [
 
   // Formats voisins du label
   /(?:EXP|VALID|SCAD|VENC|G[ÜU]LT)[^0-9]{0,10}(\d{1,2}[-\.\/]\d{1,2}[-\.\/]\d{2,4})/i,
-  
+
   // Dates formatées (DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY)
   /\b(\d{2}[-\/.]\d{2}[-\/.]\d{4})\b/,
   /\b(\d{1,2}\s+(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\s+\d{4})\b/i,
@@ -439,7 +439,7 @@ function extractIdNumber(text: string, docType: string): string {
       }
     }
   }
-  
+
   // Dernier balayage: chercher une séquence plausible proche des labels "Passport" même sans deux-points
   const nearPassport = text
     .split(/\r?\n/)
@@ -627,9 +627,9 @@ function extractExpiryDate(text: string): string | undefined {
         const d = new Date(norm)
         if (d >= maxPast && d <= maxFuture) {
           if (!best || d > best.d) best = { d, raw, norm }
+        }
       }
     }
-  }
     if (best) {
       const fmt = formatIsoToDDMMYYYY(best.norm!) || best.norm!
       if (!isWeakExpiryDate(fmt)) return fmt
@@ -701,40 +701,40 @@ function parseMRZ(text: string): Partial<ExtractedIdData> {
   const lines = text.split(/\r?\n/).map(l => l.trim())
   const mrzLines = lines.filter(line => /^[A-Z0-9<]{20,}$/.test(line))
   if (mrzLines.length < 2) return {}
-  
+
   const data: Partial<ExtractedIdData> = {}
-  
+
   const first = mrzLines[0]
 
   // Passeport TD3 (P<...) 2 lignes
   if (/^P<[A-Z]{3}/.test(first)) {
-  const line1 = mrzLines[0]
-  const line2 = mrzLines[mrzLines.length - 1]
-  
-  const nameMatch = line1.match(/P<([A-Z]{3})([A-Z<]+)<<([A-Z<]+)/)
-  if (nameMatch) {
-    data.issuingCountry = nameMatch[1]
-    data.lastName = nameMatch[2].replace(/</g, ' ').trim()
-    data.firstName = nameMatch[3].replace(/</g, ' ').trim()
-  }
-  
-  const dataMatch = line2.match(/([A-Z0-9]{9})\d([A-Z]{3})(\d{6})\d([MF<])(\d{6})/)
-  if (dataMatch) {
-    data.idNumber = dataMatch[1].replace(/</g, '')
-    data.nationality = dataMatch[2]
-    
-    const dobYY = dataMatch[3].substring(0, 2)
-    const dobMM = dataMatch[3].substring(2, 4)
-    const dobDD = dataMatch[3].substring(4, 6)
-    const dobYear = parseInt(dobYY) > 50 ? `19${dobYY}` : `20${dobYY}`
-    data.dateOfBirth = `${dobYear}-${dobMM}-${dobDD}`
-    
-    const expYY = dataMatch[5].substring(0, 2)
-    const expMM = dataMatch[5].substring(2, 4)
-    const expDD = dataMatch[5].substring(4, 6)
-    const expYear = parseInt(expYY) > 50 ? `19${expYY}` : `20${expYY}`
-    data.idExpiryDate = `${expYear}-${expMM}-${expDD}`
-  }
+    const line1 = mrzLines[0]
+    const line2 = mrzLines[mrzLines.length - 1]
+
+    const nameMatch = line1.match(/P<([A-Z]{3})([A-Z<]+)<<([A-Z<]+)/)
+    if (nameMatch) {
+      data.issuingCountry = nameMatch[1]
+      data.lastName = nameMatch[2].replace(/</g, ' ').trim()
+      data.firstName = nameMatch[3].replace(/</g, ' ').trim()
+    }
+
+    const dataMatch = line2.match(/([A-Z0-9]{9})\d([A-Z]{3})(\d{6})\d([MF<])(\d{6})/)
+    if (dataMatch) {
+      data.idNumber = dataMatch[1].replace(/</g, '')
+      data.nationality = dataMatch[2]
+
+      const dobYY = dataMatch[3].substring(0, 2)
+      const dobMM = dataMatch[3].substring(2, 4)
+      const dobDD = dataMatch[3].substring(4, 6)
+      const dobYear = parseInt(dobYY) > 50 ? `19${dobYY}` : `20${dobYY}`
+      data.dateOfBirth = `${dobYear}-${dobMM}-${dobDD}`
+
+      const expYY = dataMatch[5].substring(0, 2)
+      const expMM = dataMatch[5].substring(2, 4)
+      const expDD = dataMatch[5].substring(4, 6)
+      const expYear = parseInt(expYY) > 50 ? `19${expYY}` : `20${expYY}`
+      data.idExpiryDate = `${expYear}-${expMM}-${expDD}`
+    }
     return data
   }
 
@@ -766,7 +766,7 @@ function parseMRZ(text: string): Partial<ExtractedIdData> {
     if (iso) data.issuingCountry = iso[1]
     return data
   }
-  
+
   return data
 }
 
