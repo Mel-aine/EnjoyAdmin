@@ -1,6 +1,6 @@
 <template>
   <FullScreenLayout>
-    <OtaHeader :brand="brand" :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
     <!-- Hero with dark background image -->
     <section class="relative pt-12">
       <img src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1600&q=60" alt="Hotel hero" class="absolute inset-0 w-full h-40 md:h-52 object-cover" />

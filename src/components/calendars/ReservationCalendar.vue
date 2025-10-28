@@ -130,12 +130,7 @@
                         <div class="flex justify-between">
                           <span>{{ room.room_number || '-' }}</span>
                           <div class="flex gap-1 text-gray-500 dark:text-gray-400">
-                            <span class="text-xs" v-if="room.is_smoking">
-                              <Cigarette class="w-4 h-4" />
-                            </span>
-                            <span v-else>
-                              <CigaretteOff class="w-4 h-4" />
-                            </span>
+
                             <span class="text-xs" v-if="room.room_housekeeping_status === 'clean'">
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -151,6 +146,12 @@
                             </span>
                             <span v-else>
                               <LucideBrush class="w-4 h-4" />
+                            </span>
+                             <span class="text-xs" v-if="room.is_smoking">
+                              <Cigarette class="w-4 h-4" />
+                            </span>
+                            <span v-else>
+                              <CigaretteOff class="w-4 h-4" />
                             </span>
                           </div>
                         </div>
@@ -611,6 +612,7 @@ function handleUnassignedRoomClick(date: Date, roomTypeId: number) {
         selectedUnassignedDate.value = dStr
         unassignedReservations.value = unassignedReservations
         showUnassignedModal.value = true
+        console.log("Opening unassigned modal with filtered reservations:", unassignedReservations)
       }
     }
   }
@@ -933,6 +935,20 @@ const roomTypeOptions = computed(() => {
   }
   return []
 })
+const todayStats = ref<any>(null);
+// onMounted(async () => {
+//   const serviceId = serviceStore.serviceId!
+//   const today = new Date().toISOString().split('T')[0];
+//   try {
+//     const response = await getDailyOccupancyAndReservations(serviceId, today, today);
+//     if(response.data && response.data.global_room_status_stats){
+//       todayStats.value = response.data.global_room_status_stats;
+//     }
+//   } catch (error) {
+//     console.error("Failed to fetch today's stats:", error);
+//   }
+//   getLocaleDailyOccupancyAndReservations()
+// })
 onMounted(() => {
   getLocaleDailyOccupancyAndReservations()
 })
@@ -966,6 +982,13 @@ const statusElements = ref([
 ])
 
 // Function to get room status count from API response
+// function getRoomStatusCount(status: string): number {
+//   if (!todayStats.value) {
+//     return 0
+//   }
+//   return todayStats.value[status] || 0
+// }
+
 function getRoomStatusCount(status: string): number {
   if (!serviceResponse.value?.global_room_status_stats) {
     return 0

@@ -411,7 +411,7 @@ const totalRoomCharges = computed(() => {
 // Vérifier si toutes les taxes sont incluses
 const allTaxesIncluded = computed(() => {
   const items = bookingData.value?.items || []
-  return items.length > 0 && items.every(item => item.taxIncluded === true)
+  return items.length > 0 && items.every(item => item.taxIncluded !== true)
 })
 
 // Vérifier si on a un mix

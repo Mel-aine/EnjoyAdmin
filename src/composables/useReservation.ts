@@ -99,10 +99,14 @@ export function useReservation() {
       }
 
       return response
-    } catch (error) {
+    } catch (error:any) {
       console.error('Check-in error:', error)
-      toast.error(t('toast.checkInError') || 'Failed to complete check-in. Please try again.')
-      throw error
+      if (!error.response || error.response.status !== 400) {
+        toast.error(t('toast.checkInError') || 'Failed to complete check-in. Please try again.')
+      } else {
+        toast.error(error.response.data?.message || t('toast.checkInError'))
+      }
+      // throw error
     } finally {
       isCheckingIn.value = false
     }
@@ -447,7 +451,7 @@ export function useReservation() {
       isUndoingCheckOut.value = false
     }
   }
- 
+
   return {
     // Loading states
     isCheckingIn,
@@ -481,6 +485,6 @@ export function useReservation() {
     handleNoShowConfirmed,
     performUndoCheckIn,
     performUndoCheckOut,
- 
+
   }
 }

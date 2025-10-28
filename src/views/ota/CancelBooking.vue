@@ -36,22 +36,72 @@
 
           <!-- Step 2 -->
           <div v-if="summary" class="mt-6">
-            <div class="text-xs uppercase font-semibold text-gray-500">Step 2</div>
-            <div class="text-base font-medium mt-1">Cancellation summary</div>
-            <div class="mt-3 grid sm:grid-cols-2 gap-4">
-              <div class="rounded-lg border p-4">
-                <dl class="text-sm text-gray-700 space-y-2">
-                  <div><dt class="font-medium">Guest</dt><dd>{{ summary.guestName || 'N/A' }}</dd></div>
-                  <div><dt class="font-medium">Room</dt><dd>{{ summary.roomName || 'N/A' }}</dd></div>
-                  <div><dt class="font-medium">Stay</dt><dd>{{ summary.arrivalDate || '-' }} – {{ summary.departureDate || '-' }}</dd></div>
-                </dl>
+              <div class="text-xs uppercase font-semibold text-gray-500">Step 2</div>
+              <div class="text-base font-medium mt-1">Cancellation summary</div>
+
+              <div class="mt-3 grid sm:grid-cols-2 gap-4">
+                  <div class="rounded-lg border p-4">
+                      <dl class="text-sm text-gray-700 space-y-2">
+                          <div>
+                              <dt class="font-medium">Guest</dt>
+                              <dd>**{{ summary.guest || 'N/A' }}**</dd>
+                          </div>
+                          <div>
+                              <dt class="font-medium">Stay</dt>
+                              <dd>{{ summary.check_in_date || '-' }} – {{ summary.check_out_date || '-' }}</dd>
+                          </div>
+                          <div>
+                              <dt class="font-medium">Room Type / Rate</dt>
+                              <dd>{{ summary.roomType || '-' }} / {{ summary.rateType || '-' }}</dd>
+                          </div>
+                      </dl>
+                  </div>
+
+                  <div class="rounded-lg border p-4">
+                      <div class="text-sm text-gray-700">Total Cancellation Fee (TTC)</div>
+                      <div class="mt-2 text-2xl font-semibold text-red-700">
+                          {{ summary.final_cancel_fee_ttc ?? '0' }} {{ summary.currency }}
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">This is the final penalty, including taxes.</p>
+                  </div>
               </div>
-              <div class="rounded-lg border p-4">
-                <div class="text-sm text-gray-700">Cancellation penalty</div>
-                <div class="mt-2 text-2xl font-semibold text-blue-700">{{ summary.penalty ?? '0' }}</div>
-                <p class="text-xs text-gray-500 mt-1">Exact amount depends on selected rate conditions.</p>
-              </div>
-            </div>
+
+              <!-- <div class="mt-6 grid sm:grid-cols-3 gap-4">
+                  <div class="rounded-lg border p-4 bg-gray-50">
+                      <div class="text-sm text-gray-700">Amount Paid</div>
+                      <div class="mt-2 text-xl font-semibold">
+                          {{ summary.paid_amount ?? '0' }} {{ summary.currency }}
+                      </div>
+                  </div>
+
+                  <div class="rounded-lg border p-4">
+                      <div class="text-sm font-semibold text-gray-700 mb-1">Fee Breakdown</div>
+                      <dl class="text-sm text-gray-700 space-y-1">
+                          <div>
+                              <dt class="float-left">Raw Fee (HT):</dt>
+                              <dd class="float-right font-medium">{{ summary.raw_cancel_fee_ht ?? '0' }} {{ summary.currency }}</dd>
+                          </div>
+
+                          <div v-for="tax in summary.tax_details" :key="tax.taxName" class="clearfix">
+                              <dt class="float-left text-xs italic">{{ tax.taxName }} ({{ tax.taxRate }}%) :</dt>
+                              <dd class="float-right text-xs italic font-medium">{{ tax.taxAmount ?? '0' }} {{ summary.currency }}</dd>
+                          </div>
+
+                          <div class="pt-2 border-t mt-2 clearfix">
+                              <dt class="float-left font-semibold">Total Taxes:</dt>
+                              <dd class="float-right font-semibold text-blue-700">{{ summary.total_tax_amount ?? '0' }} {{ summary.currency }}</dd>
+                          </div>
+                      </dl>
+                  </div>
+
+                  <div class="rounded-lg border p-4 bg-green-50">
+                      <div class="text-sm text-gray-700">Refund Amount</div>
+                      <div class="mt-2 text-2xl font-bold text-green-700">
+                          {{ summary.refund_amount ?? '0' }} {{ summary.currency }}
+                      </div>
+                      <p class="text-xs text-gray-500 mt-1">Final amount to be credited back to the guest.</p>
+                  </div>
+              </div> -->
           </div>
 
           <!-- Step 3 -->
@@ -87,7 +137,8 @@
 import { ref,computed ,onMounted} from 'vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
-import { getCancellationSummary, cancelReservationById } from '@/views/ota/services/otaApi'
+import { getCancellationSummary } from '@/views/ota/services/otaApi'
+import { cancelReservation } from '@/services/reservation'
 import { getHotelInfo } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
@@ -115,7 +166,7 @@ async function loadSummary() {
   try {
     if (!reservationId.value) throw new Error('Please enter a reservation ID.')
     const { data } = await getCancellationSummary(reservationId.value)
-    summary.value = data || {}
+    summary.value = data.data || {}
     console.log('Loaded cancellation summary:', summary.value)
   } catch (e: any) {
     error.value = e?.response?.data?.message || e?.message || 'Unable to load summary. Please try again.'
@@ -124,20 +175,40 @@ async function loadSummary() {
   }
 }
 
+
+
 async function confirmCancel() {
-  error.value = ''
-  success.value = ''
-  loadingCancel.value = true
-  try {
-    if (!reservationId.value) throw new Error('Missing reservation ID.')
-    // const payload: any = { reason: reason.value }
-    // await cancelReservationById(reservationId.value, payload)
-    success.value = 'Reservation cancelled successfully.'
-  } catch (e: any) {
-    error.value = e?.response?.data?.message || e?.message || 'Cancellation failed. Please try again later.'
-  } finally {
-    loadingCancel.value = false
-  }
+    error.value = ''
+    success.value = ''
+    loadingCancel.value = true
+
+    if (!reservationId.value || !summary.value) {
+        error.value = 'Missing reservation ID or summary details.'
+        loadingCancel.value = false
+        return
+    }
+
+    try {
+
+        const cancelData: any = {
+            cancellationFee: summary.value.final_cancel_fee_ttc,
+            reservationId: reservationId.value,
+            reason: reason.value,
+            selectedRooms: summary.value.reservationRooms.map((room: any) => room.id)
+
+        }
+
+        await cancelReservation(cancelData)
+
+        // Affichage du succès et nettoyage
+        success.value = 'Reservation cancelled successfully. A refund of ' + summary.value.refund_amount + ' ' + summary.value.currency + ' will be processed shortly.'
+        summary.value = null
+
+    } catch (e: any) {
+        error.value = e?.response?.data?.message || e?.message || 'Cancellation failed. Please try again later.'
+    } finally {
+        loadingCancel.value = false
+    }
 }
 
 function resetForm() {
