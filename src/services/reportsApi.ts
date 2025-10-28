@@ -1157,18 +1157,19 @@ export const generatePosReceiptPdf = async (transactionId: string): Promise<Blob
     throw error
   }
 }
-export const generateIncidentalInvoice = async (transactionId: string): Promise<Blob> => {
+export const generateIncidentalInvoice = async (transactionIds: number[]): Promise<Blob> => {
   try {
-      
-    const url = `${API_URL}/incidental-invoice/${transactionId}`
+    const url = `${API_URL}/incidental-invoice`
     
-    // Configuration axios pour recevoir une réponse blob
-    const config = {
-      ...getHeaders(),
-      responseType: 'blob' as const,
-    }
-
-    const response: AxiosResponse<Blob> = await axios.get(url, config)
+    // Utilisation de POST avec les données dans le body
+    const response: AxiosResponse<Blob> = await axios.post(
+      url, 
+      { transactionIds }, // ← Données dans le body
+      {
+        ...getHeaders(),
+        responseType: 'blob' as const,
+      }
+    )
     
     // Valider que nous avons reçu un blob PDF
     if (response.data.type && response.data.type !== 'application/pdf') {
@@ -1177,7 +1178,7 @@ export const generateIncidentalInvoice = async (transactionId: string): Promise<
 
     return response.data
   } catch (error) {
-    console.error('Error fetching generatePosReceiptPdf :', error)
+    console.error('Error fetching generateIncidentalInvoice :', error)
     throw error
   }
 }
