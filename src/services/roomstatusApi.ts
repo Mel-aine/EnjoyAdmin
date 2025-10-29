@@ -90,6 +90,13 @@ export interface RoomStatusReportResponse {
   success: boolean;
   message: string;
   data: RoomStatusReportData;
+  pdf: {
+    available: boolean;
+    filename: string;
+    buffer?: any;
+    url?: string;
+    blob?: Blob;
+  };
   filters: {
     date: string;
     hotelId: number;
@@ -130,6 +137,35 @@ export const fetchRoomStatusReport = async (
 
     if (!response.data.success) {
       throw new Error(response.data.message || 'Erreur lors de la génération du rapport');
+    }
+
+    // ✅ Conversion du buffer PDF en Blob
+    if (response.data.pdf?.available && response.data.pdf.buffer) {
+      try {
+        // Vérifier que c'est bien un buffer
+        if (response.data.pdf.buffer.type === 'Buffer' && Array.isArray(response.data.pdf.buffer.data)) {
+          // Convertir le tableau de nombres en Uint8Array
+          const uint8Array = new Uint8Array(response.data.pdf.buffer.data);
+          
+          // Créer un Blob PDF
+          const blob = new Blob([uint8Array], { type: 'application/pdf' });
+          
+          // Remplacer le buffer par le Blob dans la réponse
+          response.data.pdf.blob = blob;
+          
+          // Créer une URL pour le Blob
+          response.data.pdf.url = URL.createObjectURL(blob);
+          
+          console.log('✅ PDF converti en Blob avec succès', {
+            size: blob.size,
+            type: blob.type,
+            filename: response.data.pdf.filename
+          });
+        }
+      } catch (blobError) {
+        console.error('⚠️ Erreur lors de la conversion du PDF en Blob:', blobError);
+        // On continue quand même, le buffer brut est toujours disponible
+      }
     }
 
     console.log('✅ Rapport d\'état des chambres récupéré avec succès');
@@ -174,6 +210,7 @@ export const fetchRoomStatusReport = async (
     throw new Error('Une erreur inattendue est survenue lors de la récupération du rapport');
   }
 };
+
 
 /**
  * Transforme les données du rapport en format compatible avec le composant RapportExportTable
