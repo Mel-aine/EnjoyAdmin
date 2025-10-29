@@ -3,15 +3,15 @@
     <div class="bg-white dark:bg-gray-800 shadow-sm">
       <div class="mb-0 p-3 flex justify-between items-center border-b border-gray-200">
         <div class="flex gap-5 align-middle items-center dark:border-gray-700">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $t('Night Audit') }}</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $t('frontOffice.nightAudit.title') }}</h2>
           <div class="text-sm text-gray-600 dark:text-gray-400">
             {{ formatDateT(currentDate) }}
           </div>
         </div>
         <div class="flex space-x-2">
-          <BasicButton :label="$t('Previous')" variant="secondary" @click="previousStep"
+          <BasicButton :label="$t('previous')" variant="secondary" @click="previousStep"
             :disabled="currentStep === 1" />
-          <BasicButton v-if="currentStep < 6" :label="$t('Next')" variant="primary" @click="nextStep" />
+          <BasicButton v-if="currentStep < 6" :label="$t('next')" variant="primary" @click="nextStep" />
         </div>
       </div>
 
@@ -39,7 +39,7 @@
                   ]">
                     {{ $t(step.name) }}
                   </p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t(step.description) }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t(step.caption) }}</p>
                 </div>
               </div>
               <div v-if="index < steps.length - 1" class="ml-8 flex-1 h-0.5 bg-gray-200 dark:bg-gray-700"></div>
@@ -53,9 +53,9 @@
         <!-- Step 1: Pending Reservations -->
         <div v-if="currentStep === 1" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('Pending Reservations') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.pendingReservations.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ $t('Reservations with check-in date matching current working date but not yet checked in') }}
+              {{ $t('frontOffice.nightAudit.steps.pendingReservations.description') }}
             </p>
           </div>
           <ReusableTable :columns="pendingReservationsColumns" :data="pendingReservationsData" :searchable="false"
@@ -66,9 +66,9 @@
         <!-- Step 2: Release Reservations -->
         <div v-if="currentStep === 2" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('Release Reservations') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.releaseReservations.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ $t('Reservations that have reached their release date without payment confirmation') }}
+              {{ $t('frontOffice.nightAudit.steps.releaseReservations.description') }}
             </p>
           </div>
           <ReusableTable :columns="releaseReservationsColumns" :data="releaseReservationsData" :searchable="false"
@@ -85,9 +85,9 @@
         <!-- Step 3: Room Status -->
         <div v-if="currentStep === 3" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('Room Status') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.roomStatus.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ $t('Verify status of all rooms including occupied, check-out due, or blocked rooms') }}
+              {{ $t('frontOffice.nightAudit.steps.roomStatus.description') }}
             </p>
           </div>
           <ReusableTable :columns="roomStatusColumns" :data="roomStatusData" :searchable="false" :show-header="false"
@@ -103,9 +103,9 @@
         <!-- Step 4: Unsettled Folios -->
         <div v-if="currentStep === 4" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('Unsettled Folios') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.unsettledFolios.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ $t('Review guest folios that have pending payments') }}
+              {{ $t('frontOffice.nightAudit.steps.unsettledFolios.description') }}
             </p>
           </div>
           <ReusableTable :columns="unsettledFoliosColumns" :data="unsettledFoliosData" :searchable="false"
@@ -123,16 +123,15 @@
         <!-- Step 5: Nightly Charges -->
         <div v-if="currentStep === 5" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('Nightly Charges') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.nightlyCharges.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ $t('Post room charges for all occupied rooms based on current working date') }}
+              {{ $t('frontOffice.nightAudit.steps.nightlyCharges.description') }}
             </p>
           </div>
           <div class="mb-4 flex gap-3 " v-if="canPostCharges">
-            <span class="align-middle self-center items-center">{{ selectedCharges.length }} {{ $t('Record(s) Selected')
-              }}
+            <span class="align-middle self-center items-center">{{ selectedCharges.length }} {{ $t('frontOffice.nightAudit.recordsSelected') }}
             </span>
-            <BasicButton :label="$t('Post')" variant="primary" @click="postSelectedCharges" :loading="postingCharges" />
+            <BasicButton :label="$t('frontOffice.nightAudit.post')" variant="primary" @click="postSelectedCharges" :loading="postingCharges" />
           </div>
           <ReusableTable :columns="nightlyChargesColumns" :data="nightlyChargesData" :searchable="false"
             :show-header="false" :loading="loading" :selectable="true" @selection-change="handleChargesSelectionChange">
@@ -143,25 +142,25 @@
         <!-- Step 6: Create New Day -->
         <div v-if="currentStep === 6" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('Create New Day') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.createNewDay.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ $t('Close current business day and initiate new business day') }}
+              {{ $t('frontOffice.nightAudit.steps.createNewDay.description') }}
             </p>
           </div>
           <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 mb-6">
             <div class="flex items-center">
               <InfoIcon class="h-5 w-5 text-blue-400 mr-3" />
               <div>
-                <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200">{{ $t('Ready to Close Day') }}</h4>
+                <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200">{{ $t('frontOffice.nightAudit.readyToCloseDay') }}</h4>
                 <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                  {{ $t('Current Date') }}: {{ formatDateT(currentDate) }}<br>
-                  {{ $t('Next Date') }}: {{ formatDateT(nextDate) }}
+                  {{ $t('frontOffice.nightAudit.currentDate') }}: {{ formatDateT(currentDate) }}<br>
+                  {{ $t('frontOffice.nightAudit.nextDate') }}: {{ formatDateT(nextDate) }}
                 </p>
               </div>
             </div>
           </div>
           <div class="flex space-x-4">
-            <BasicButton :label="$t('Finish Night Audit')" variant="primary" @click="finishNightAudit"
+            <BasicButton :label="$t('frontOffice.nightAudit.finishNightAudit')" variant="primary" @click="finishNightAudit"
               :loading="finishingAudit" />
           </div>
 
@@ -235,12 +234,12 @@ const nextDate = computed(() => {
 
 // Steps configuration
 const steps = [
-  { id: 1, name: 'Pending Reservations', description: 'Check-in pending reservations' },
-  { id: 2, name: 'Release Reservations', description: 'Handle release date reservations' },
-  { id: 3, name: 'Room Status', description: 'Verify room statuses' },
-  { id: 4, name: 'Unsettled Folios', description: 'Review pending payments' },
-  { id: 5, name: 'Nightly Charges', description: 'Post room charges' },
-  { id: 6, name: 'Create New Day', description: 'Close business day' }
+  { id: 1, name: 'frontOffice.nightAudit.steps.pendingReservations.name', caption: 'frontOffice.nightAudit.steps.pendingReservations.caption', description: 'frontOffice.nightAudit.steps.pendingReservations.description' },
+  { id: 2, name: 'frontOffice.nightAudit.steps.releaseReservations.name', caption: 'frontOffice.nightAudit.steps.releaseReservations.caption', description: 'frontOffice.nightAudit.steps.releaseReservations.description' },
+  { id: 3, name: 'frontOffice.nightAudit.steps.roomStatus.name', caption: 'frontOffice.nightAudit.steps.roomStatus.caption', description: 'frontOffice.nightAudit.steps.roomStatus.description' },
+  { id: 4, name: 'frontOffice.nightAudit.steps.unsettledFolios.name', caption: 'frontOffice.nightAudit.steps.unsettledFolios.caption', description: 'frontOffice.nightAudit.steps.unsettledFolios.description' },
+  { id: 5, name: 'frontOffice.nightAudit.steps.nightlyCharges.name', caption: 'frontOffice.nightAudit.steps.nightlyCharges.caption', description: 'frontOffice.nightAudit.steps.nightlyCharges.description' },
+  { id: 6, name: 'frontOffice.nightAudit.steps.createNewDay.name', caption: 'frontOffice.nightAudit.steps.createNewDay.caption', description: 'frontOffice.nightAudit.steps.createNewDay.description' }
 ]
 
 // Data for Night Audit sections
@@ -260,7 +259,7 @@ const fetchPendingReservations = async () => {
     console.log('pending reservation Document', pendingReservationsData)
   } catch (error) {
     console.error('Error fetching pending reservations:', error)
-    toast.error(t('Failed to load pending reservations'))
+    toast.error(t('frontOffice.nightAudit.errors.failedLoadPendingReservations'))
   } finally {
     loading.value = false
   }
@@ -281,7 +280,7 @@ const fetchReleaseReservations = async () => {
 
   } catch (error) {
     console.error('Error fetching release reservations:', error)
-    toast.error(t('Failed to load release reservations'))
+    toast.error(t('frontOffice.nightAudit.errors.failedLoadReleaseReservations'))
   } finally {
     loading.value = false
   }
@@ -304,7 +303,7 @@ const fetchRoomStatus = async () => {
 
   } catch (error) {
     console.error('Error fetching room status:', error)
-    toast.error(t('Failed to load room status'))
+    toast.error(t('frontOffice.nightAudit.errors.failedLoadRoomStatus'))
   } finally {
     loading.value = false
   }
@@ -320,7 +319,7 @@ const fetchUnsettledFolios = async () => {
 
   } catch (error) {
     console.error('Error fetching unsettled folios:', error)
-    toast.error(t('Failed to fetch unsettled folios'))
+    toast.error(t('frontOffice.nightAudit.errors.failedFetchUnsettledFolios'))
   } finally {
     loading.value = false
   }
@@ -338,7 +337,7 @@ const fetchNightlyCharges = async () => {
 
   } catch (error) {
     console.error('Error fetching nightly charges:', error)
-    toast.error(t('Failed to fetch nightly charges'))
+    toast.error(t('frontOffice.nightAudit.errors.failedFetchNightlyCharges'))
 
   } finally {
     loading.value = false
@@ -355,63 +354,63 @@ const selectedReservationForCheckIn = ref(null)
 const selectedGuestForCheckOut = ref(null)
 // Column definitions
 const pendingReservationsColumns: Column[] = [
-  { key: 'confirmation_number', label: 'Res No#', type: 'text' },
-  { key: 'guest_name', label: 'Guest', type: 'text' },
-  { key: 'room_number', label: 'Room', type: 'text' },
-  { key: 'rate_type', label: 'Rate Type', type: 'text' },
-  { key: 'reservation_type', label: 'Res. Type', type: 'text' },
-  { key: 'departure', label: 'Departure', type: 'date' },
-  { key: 'total_amount', label: 'Total ', type: 'text' },
-  { key: 'deposit_amount', label: 'Deposit ', type: 'text' },
-  //{ key: 'actions', label: 'Actions',  type: 'custom' }
+  { key: 'confirmation_number', label: t('res.no'), type: 'text' },
+  { key: 'guest_name', label: t('Guest'), type: 'text' },
+  { key: 'room_number', label: t('Room'), type: 'text' },
+  { key: 'rate_type', label: t('Rate Type'), type: 'text' },
+  { key: 'reservation_type', label: t('Res. Type'), type: 'text' },
+  { key: 'departure', label: t('departure'), type: 'date' },
+  { key: 'total_amount', label: t('Total'), type: 'text' },
+  { key: 'deposit_amount', label: t('Deposit'), type: 'text' },
+  //{ key: 'actions', label: t('Actions'),  type: 'custom' }
 ]
 
 const releaseReservationsColumns: Column[] = [
-  { key: 'resNo', label: 'Res No#', type: 'text' },
-  { key: 'guest', label: 'Guest', type: 'text' },
-  { key: 'room', label: 'Room', type: 'text' },
-  { key: 'rateType', label: 'Rate Type', type: 'text' },
-  { key: 'resType', label: 'Res. Type', type: 'text' },
-  { key: 'releaseTerm', label: 'Release Term', type: 'text' },
-  { key: 'departure', label: 'Departure', type: 'text' },
-  { key: 'total', label: 'Total(Rs)', type: 'text' },
-  { key: 'deposit', label: 'Deposit(Rs)', type: 'text' },
-  { key: 'actions', label: 'Actions', type: 'custom' }
+  { key: 'resNo', label: t('res.no'), type: 'text' },
+  { key: 'guest', label: t('Guest'), type: 'text' },
+  { key: 'room', label: t('Room'), type: 'text' },
+  { key: 'rateType', label: t('Rate Type'), type: 'text' },
+  { key: 'resType', label: t('Res. Type'), type: 'text' },
+  { key: 'releaseTerm', label: t('Release Term'), type: 'text' },
+  { key: 'departure', label: t('departure'), type: 'text' },
+  { key: 'total', label: t('Total'), type: 'text' },
+  { key: 'deposit', label: t('Deposit'), type: 'text' },
+  { key: 'actions', label: t('Actions'), type: 'custom' }
 ]
 
 const roomStatusColumns: Column[] = [
-  { key: 'roomNumber', label: 'Room', type: 'text' },
-  { key: 'guest.name', label: 'Guest', type: 'text' },
-  { key: 'reservation.checkInDate', label: 'Arrival', type: 'date' },
-  { key: 'reservation.checkOutDate', label: 'Departure', type: 'date' },
-  { key: 'folio.totalPayments', label: 'Total(XAF)', type: 'text' },
-  { key: 'folio.balance', label: 'Balance(XAF)', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' },
-  // { key: 'actions', label: 'Actions', type: 'custom' }
+  { key: 'roomNumber', label: t('Room'), type: 'text' },
+  { key: 'guest.name', label: t('Guest'), type: 'text' },
+  { key: 'reservation.checkInDate', label: t('arrival'), type: 'date' },
+  { key: 'reservation.checkOutDate', label: t('departure'), type: 'date' },
+  { key: 'folio.totalPayments', label: t('Total'), type: 'text' },
+  { key: 'folio.balance', label: t('Balance'), type: 'text' },
+  { key: 'status', label: t('Status'), type: 'custom' },
+  // { key: 'actions', label: t('Actions'), type: 'custom' }
 ]
 
 const unsettledFoliosColumns: Column[] = [
-  { key: 'resNo', label: 'Res No#', type: 'text' },
-  { key: 'folio', label: 'Folio', type: 'text' },
-  { key: 'guest', label: 'Guest', type: 'text' },
-  { key: 'arrival', label: 'Arrival', type: 'text' },
-  { key: 'departure', label: 'Departure', type: 'text' },
-  { key: 'status', label: 'Status', type: 'text' },
-  { key: 'balance', label: 'Balance(Rs)', type: 'text' },
-  { key: 'actions', label: 'Actions', type: 'custom' }
+  { key: 'resNo', label: t('res.no'), type: 'text' },
+  { key: 'folio', label: t('Folio'), type: 'text' },
+  { key: 'guest', label: t('Guest'), type: 'text' },
+  { key: 'arrival', label: t('arrival'), type: 'text' },
+  { key: 'departure', label: t('departure'), type: 'text' },
+  { key: 'status', label: t('Status'), type: 'text' },
+  { key: 'balance', label: t('Balance'), type: 'text' },
+  { key: 'actions', label: t('Actions'), type: 'custom' }
 ]
 
 const nightlyChargesColumns: Column[] = [
-  { key: 'reservation_number', label: 'Res No#', type: 'text' },
-  { key: 'guest_name', label: 'Guest', type: 'text' },
-  { key: 'folio_id', label: 'Folio', type: 'text' },
-  { key: 'rate_type', label: 'Type', type: 'text' },
-  { key: 'rate', label: 'Amount', type: 'text' },
+  { key: 'reservation_number', label: t('res.no'), type: 'text' },
+  { key: 'guest_name', label: t('Guest'), type: 'text' },
+  { key: 'folio_id', label: t('Folio'), type: 'text' },
+  { key: 'rate_type', label: t('Type'), type: 'text' },
+  { key: 'rate', label: t('Amount'), type: 'text' },
 ]
 
 const pendingReservationsActions: Action[] = [
   {
-    label: 'Check In',
+    label: t('check in'),
     variant: 'primary',
     icon: 'check-in',
     handler: (item) => {
@@ -419,7 +418,7 @@ const pendingReservationsActions: Action[] = [
     }
   },
   {
-    label: 'Mark as No-Show',
+    label: t('mark_as_no_show'),
     variant: 'primary',
     icon: 'mark-no-show',
     handler: (item) => {
@@ -427,7 +426,7 @@ const pendingReservationsActions: Action[] = [
     }
   },
   {
-    label: 'Cancel Reservation',
+    label: t('cancel_reservation'),
     variant: 'primary',
     icon: 'cancel-reservation',
     handler: (item) => {
@@ -435,7 +434,7 @@ const pendingReservationsActions: Action[] = [
     }
   },
   {
-    label: 'Void Booking',
+    label: t('void_booking'),
     variant: 'primary',
     icon: 'void-booking',
     handler: (item) => {
@@ -446,7 +445,7 @@ const pendingReservationsActions: Action[] = [
 
 const roomStatusActions: Action[] = [
   {
-    label: 'Check Out',
+    label: t('Check Out'),
     variant: 'primary',
     icon: 'check-out',
     handler: (item) => {
@@ -454,7 +453,7 @@ const roomStatusActions: Action[] = [
     },
   },
   {
-    label: "Amend Stay",
+    label: t('amen_stay'),
     variant: 'primary',
     icon: 'amend-stay',
     handler: (item) => {
@@ -696,7 +695,7 @@ const canPostCharges = computed(() => {
 // Post selected charges function
 const postSelectedCharges = async () => {
   if (selectedCharges.value.length === 0) {
-    toast.warning(t('Please select at least one charge to post'))
+    toast.warning(t('frontOffice.nightAudit.errors.selectAtLeastOneCharge'))
     return
   }
 
@@ -719,12 +718,12 @@ const postSelectedCharges = async () => {
 
     // Clear selection after posting
     selectedCharges.value = []
-    toast.success(t('Selected charges posted successfully'))
+    toast.success(t('frontOffice.nightAudit.success.postedSelectedCharges'))
     // Refresh nightly charges data
     await fetchNightlyCharges()
   } catch (error) {
     console.error('Error posting selected charges:', error)
-    toast.error(t('Failed to post selected charges'))
+    toast.error(t('frontOffice.nightAudit.errors.failedPostSelectedCharges'))
   } finally {
     postingCharges.value = false
   }
@@ -743,12 +742,12 @@ const finishNightAudit = async () => {
     // Mark audit as completed
     auditCompleted.value = true
     // Success notification
-    toast.success(t('Night audit completed successfully. Business day closed.'))
+    toast.success(t('frontOffice.nightAudit.success.completedAndClosed'))
     router.back();
 
   } catch (error) {
     console.error('Night audit completion error:', error)
-    toast.error(t('Failed to complete night audit'))
+    toast.error(t('frontOffice.nightAudit.errors.failedCompleteNightAudit'))
   } finally {
     finishingAudit.value = false
   }

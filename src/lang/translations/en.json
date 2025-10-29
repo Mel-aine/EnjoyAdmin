@@ -11,6 +11,19 @@
     "resType": "Reservation Type",
     "user": "User"
   },
+  "lostFound": {
+    "csv": {
+      "status": "Status",
+      "date": "Date",
+      "whoFound": "Who Found",
+      "itemName": "Item Name",
+      "itemColor": "Item Color",
+      "location": "Location",
+      "roomNumber": "Room Number",
+      "type": "Type"
+    }
+  },
+  
   "login": "Login",
   "french": "French",
   "english": "English",
@@ -5268,10 +5281,70 @@
         "maintenance": "Maintenance",
         "housekeeping": "Housekeeping",
         "communication": "Communication"
+      },
+      "activityDescriptions": {
+        "receiptCreatedForPayment": "Receipt created for payment transaction"
       }
+    },
+    "nightAudit": {
+    "title": "Night Audit",
+    "recordsSelected": "Record(s) Selected",
+    "post": "Post",
+    "finishNightAudit": "Finish Night Audit",
+    "readyToCloseDay": "Ready to Close Day",
+    "currentDate": "Current Date",
+    "nextDate": "Next Date",
+    "steps": {
+      "pendingReservations": {
+        "name": "Pending Reservations",
+          "caption": "Check-in pending reservations",
+          "description": "Reservations with check-in date matching current working date but not yet checked in"
+      },
+      "releaseReservations": {
+        "name": "Release Reservations",
+          "caption": "Handle release date reservations",
+          "description": "Handle release date reservations"
+      },
+      "roomStatus": {
+        "name": "Room Status",
+          "caption": "Verify room statuses",
+          "description": "Verify room statuses"
+      },
+      "unsettledFolios": {
+        "name": "Unsettled Folios",
+          "caption": "Review pending payments",
+          "description": "Review pending payments"
+      },
+      "nightlyCharges": {
+        "name": "Nightly Charges",
+          "caption": "Post room charges",
+          "description": "Post room charges"
+      },
+      "createNewDay": {
+        "name": "Create New Day",
+          "caption": "Close business day",
+          "description": "Close business day"
+      }
+    },
+    "success": {
+      "postedSelectedCharges": "Selected charges posted successfully",
+      "completedAndClosed": "Night audit completed successfully. Business day closed."
+    },
+    "errors": {
+      "failedLoadPendingReservations": "Failed to load pending reservations",
+      "failedLoadReleaseReservations": "Failed to load release reservations",
+      "failedLoadRoomStatus": "Failed to load room status",
+      "failedFetchUnsettledFolios": "Failed to fetch unsettled folios",
+      "failedFetchNightlyCharges": "Failed to fetch nightly charges",
+      "selectAtLeastOneCharge": "Please select at least one charge to post",
+      "failedPostSelectedCharges": "Failed to post selected charges",
+      "failedCompleteNightAudit": "Failed to complete night audit"
     }
+  }
   },
   "segment": "Segment",
+  "mark_as_no_show": "Mark as No-Show",
+  "void_booking": "Void Booking",
   "created_by": "Created By",
   "modified_by": "Modified By",
   "Room/Room types": "Room/Room types",
@@ -5385,8 +5458,14 @@
     "noFoliosFound": "No Folios Found",
     "allPaid": "All the records are up to date.",
     "noFoliosMessage": "No unsettled folios match your current filters",
+    "filter": {
+      "searchPlaceholder": "Folio#, Res#, Guest...",
+      "arrivalDate": "Arrival Date",
+      "status": "Status"
+    },
     "columns": {
       "folioNumber": "Folio Number",
+      "reservationNumber": "Reservation Number",
       "guestName": "Guest Name",
       "roomNumber": "Room Number",
       "roomType": "Room Type",

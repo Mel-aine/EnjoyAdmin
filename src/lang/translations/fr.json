@@ -11,6 +11,19 @@
     "resType": "Type de réservation",
     "user": "Utilisateur"
   },
+  "lostFound": {
+    "csv": {
+      "status": "Statut",
+      "date": "Date",
+      "whoFound": "Qui a trouvé",
+      "itemName": "Nom de l'objet",
+      "itemColor": "Couleur de l'objet",
+      "location": "Emplacement",
+      "roomNumber": "N° de chambre",
+      "type": "Type"
+    }
+  },
+  
   "login": "Connexion",
   "french": "Français",
   "english": "Anglais",
@@ -5160,10 +5173,88 @@
       "guestMessage": "Message client",
       "carvertyFailed": "Échec de Carverty",
       "tasks": "Tâches",
-      "review": "Avis"
+      "review": "Avis",
+      "reviews": "Avis",
+      "workOrders": "Ordres de travail",
+      "guestMessages": "Messages clients",
+      "bookingInquiries": "Demandes de réservation",
+      "unpaidFolios": "Folios non réglés",
+      "folioUnpaidList": "Liste des folios non réglés",
+      "activityTypes": {
+        "system": "Système",
+        "arrival": "Arrivée",
+        "departure": "Départ",
+        "booking": "Réservation",
+        "modification": "Modification",
+        "cancellation": "Annulation",
+        "payment": "Paiement",
+        "maintenance": "Maintenance",
+        "housekeeping": "Entretien ménager",
+        "communication": "Communication"
+      },
+      "activityDescriptions": {
+        "receiptCreatedForPayment": "Reçu créé pour la transaction de paiement"
+      }
+    },
+    "nightAudit": {
+      "title": "Audit de nuit",
+      "recordsSelected": "Enregistrement(s) sélectionné(s)",
+      "post": "Comptabiliser",
+      "finishNightAudit": "Terminer l'audit de nuit",
+      "readyToCloseDay": "Prêt à clôturer la journée",
+      "currentDate": "Date actuelle",
+      "nextDate": "Date suivante",
+      "steps": {
+        "pendingReservations": {
+          "name": "Réservations en attente",
+          "caption": "Réservations en attente d’arrivée",
+          "description": "Réservations dont la date d'arrivée correspond à la date de travail actuelle mais qui ne sont pas encore enregistrées"
+        },
+        "releaseReservations": {
+          "name": "Réservations à relâcher",
+          "caption": "Gérer les réservations à relâcher",
+          "description": "Gérer les réservations à relâcher"
+        },
+        "roomStatus": {
+          "name": "Statut des chambres",
+          "caption": "Vérifier les statuts des chambres",
+          "description": "Vérifier les statuts des chambres"
+        },
+        "unsettledFolios": {
+          "name": "Folios non réglés",
+          "caption": "Examiner les paiements en attente",
+          "description": "Examiner les paiements en attente"
+        },
+        "nightlyCharges": {
+          "name": "Frais de nuit",
+          "caption": "Comptabiliser les frais de chambre",
+          "description": "Comptabiliser les frais de chambre"
+        },
+        "createNewDay": {
+          "name": "Créer une nouvelle journée",
+          "caption": "Clôturer la journée",
+          "description": "Clôturer la journée"
+        }
+      },
+      "success": {
+        "postedSelectedCharges": "Frais sélectionnés comptabilisés avec succès",
+        "completedAndClosed": "Audit de nuit terminé avec succès. Journée clôturée."
+      },
+      "errors": {
+        "failedLoadPendingReservations": "Échec du chargement des réservations en attente",
+        "failedLoadReleaseReservations": "Échec du chargement des réservations à relâcher",
+        "failedLoadRoomStatus": "Échec du chargement du statut des chambres",
+        "failedFetchUnsettledFolios": "Échec du chargement des folios non réglés",
+        "failedFetchNightlyCharges": "Échec du chargement des frais de nuit",
+        "selectAtLeastOneCharge": "Veuillez sélectionner au moins un frais à comptabiliser",
+        "failedPostSelectedCharges": "Échec de la comptabilisation des frais sélectionnés",
+        "failedCompleteNightAudit": "Échec de la finalisation de l'audit de nuit"
+      }
     }
   },
   "segment": "Segment",
+  "mark_as_no_show": "Marquer comme no-show",
+  "void_booking": "Invalider la réservation",
   "created_by": "Créé par",
   "modified_by": "Modifié par",
   "Room/Room types": "Chambre/Types de chambre",
@@ -5275,9 +5366,16 @@
     "title": "Folios non réglés",
     "tableTitle": "Folios non réglés",
     "noFoliosFound": "Aucun folio trouvé",
+    "allPaid": "Tous les enregistrements sont à jour.",
     "noFoliosMessage": "Aucun folio non réglé ne correspond à vos filtres actuels",
+    "filter": {
+      "searchPlaceholder": "N° folio, N° rés., Client...",
+      "arrivalDate": "Date d'arrivée",
+      "status": "Statut"
+    },
     "columns": {
       "folioNumber": "N° de folio",
+      "reservationNumber": "N° de réservation",
       "guestName": "Nom du client",
       "roomNumber": "N° de chambre",
       "roomType": "Type de chambre",
@@ -5443,7 +5541,13 @@
     "in_progress": "En cours",
     "inProgress": "En cours",
     "completed": "Terminé",
-    "assigned": "Assigné"
+    "assigned": "Assigné",
+    "returned": "Retourné",
+    "discarded": "Écarté"
+  },
+  "types": {
+    "found": "Trouvé",
+    "lost": "Perdu"
   },
   "successBlockDeleted": "Blocage pour maintenance supprimé avec succès",
   "blocksExportedSuccessfully": "Blocages exportés avec succès",

@@ -5,7 +5,7 @@
     <div class="space-y-6">
 
       <!-- Unsettled Folios Table -->
-      <ReusableTable :title="'Unsettled Folios'" :columns="columns" :data="filteredFolios" :actions="actions"
+      <ReusableTable :title="$t('unsettledFolios.tableTitle')" :columns="columns" :data="filteredFolios" :actions="actions"
         :loading="loading" :searchable="false" :selectable="true"
         :empty-state-title="$t('unsettledFolios.noFoliosFound')"
         :empty-state-message="$t('unsettledFolios.noFoliosMessage')" @selection-change="onSelectionChange"
@@ -45,7 +45,7 @@
 
     <!-- PDF Exporter -->
     <template v-if="showPdfExporter">
-      <PdfExporterNode :pdf-url="pdfurl" is-modal-open :title="`Print Invoice`" :is-generating="printLoading"
+      <PdfExporterNode :pdf-url="pdfurl" is-modal-open :title="$t('printInvoice')" :is-generating="printLoading"
         :loading="printLoading" @pdf-generated="handlePdfGenerated" @pdf-error="handlePdfError"
         @close="showPdfExporter = false" />
     </template>
@@ -130,13 +130,13 @@ const folios = ref<UnsettledFolio[]>([
 
 // Table columns configuration
 const columns = computed(() => [
-  { key: 'folioNumber', label: 'Folio#', type: 'text' as const },
-  { key: 'reservationNumber', label: 'Reservation#', type: 'text' as const },
-  { key: 'guestName', label: 'Guest Name', type: 'text' as const },
-  { key: 'arrival', label: 'Arrival', type: 'date' as const },
-  { key: 'departure', label: 'Departure', type: 'date' as const },
-  { key: 'status', label: 'Status', type: 'custom' as const },
-  { key: 'balance', label: 'Balance', type: 'custom' as const }
+  { key: 'folioNumber', label: t('unsettledFolios.columns.folioNumber'), type: 'text' as const },
+  { key: 'reservationNumber', label: t('unsettledFolios.columns.reservationNumber'), type: 'text' as const },
+  { key: 'guestName', label: t('unsettledFolios.columns.guestName'), type: 'text' as const },
+  { key: 'arrival', label: t('arrival'), type: 'date' as const },
+  { key: 'departure', label: t('departure'), type: 'date' as const },
+  { key: 'status', label: t('unsettledFolios.columns.status'), type: 'custom' as const },
+  { key: 'balance', label: t('unsettledFolios.columns.balance'), type: 'custom' as const }
 ])
 
 // Table actions
