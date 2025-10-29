@@ -198,6 +198,17 @@
           <VoidTransactionModal :is-open="isVoidTrasaction" :transaction-details="selectedTransaction"
             @close="closeVoidTransactionModal" @success="refreshFolio" />
         </template>
+        <!-- Transfer: select destination folio -->
+        <template v-if="isTransfertFolioModalOpen">
+          <TransfertFolioModal :is-open="isTransfertFolioModalOpen" @close="closeTransfertFolioModal"
+            @select="onDestinationFolioSelected" />
+        </template>
+        <!-- Transfer Posting -->
+        <template v-if="isTransfertPostingModalOpen">
+          <TransfertPostingModal :is-open="isTransfertPostingModalOpen" :source-folio="selectedFolio"
+            :destination-folio="selectedDestinationFolio" @close="closeTransfertPostingModal"
+            @success="onTransferSuccess" />
+        </template>
       </div>
     </div>
   </div>
@@ -227,6 +238,8 @@ import { useAuthStore } from '@/composables/user'
 import VoidTransactionModal from '../../modals/VoidTransactionModal.vue'
 import { generateInvoicePdfUrl, generatePosReceiptPdfUrl, generateReceiptPdfUrl } from '../../../services/reportsApi'
 import ApplyDiscountModal from './ApplyDiscountModal.vue'
+import TransfertFolioModal from './TransfertFolioModal.vue'
+import TransfertPostingModal from './TransfertPostingModal.vue'
 
 const authStore = useAuthStore()
 
@@ -259,6 +272,10 @@ const isCutFolioModal = ref(false);
 const isSendFolioModal = ref(false);
 const isApplyDiscountModal = ref(false);
 const selectedTransaction = ref<any>(null)
+// Transfer flow state
+const isTransfertFolioModalOpen = ref(false)
+const isTransfertPostingModalOpen = ref(false)
+const selectedDestinationFolio = ref<any>(null)
 
 const closeSplitFolioModal = () => {
   isSplitFolioModal.value = false
@@ -339,6 +356,9 @@ const moreActionOptions = computed(() => {
     menus.push({ label: t('roomCharges'), id: 'roomCharges' })
   } else if (authStore.hasPermission('change_room_rate_before_check_in')) {
     menus.push({ label: t('roomCharges'), id: 'roomCharges' })
+  }
+   if (authStore.hasPermission('transfer_item_from_folio')) {
+    menus.push({ label: t('split_folio'), id: 'split' })
   }
   if (authStore.hasPermission('transfer_item_from_folio')) {
     menus.push({ label: t('transfer'), id: 'transfer' })
@@ -748,8 +768,11 @@ const handleMoreAction = (action: any) => {
   console.log('More action selected:', action)
 
   switch (action.id) {
-    case 'transfer':
+    case 'split':
       handleSplitFolio()
+      break
+    case 'transfer':
+      openTransfertFolioModal()
       break
     case 'cut':
       handleCutFolio()
@@ -773,6 +796,31 @@ const handleMoreAction = (action: any) => {
 const handleSplitFolio = () => {
   console.log('Split folio action')
   isSplitFolioModal.value = true
+}
+
+const openTransfertFolioModal = () => {
+  console.log('Transfer folio action')
+  isTransfertFolioModalOpen.value = true
+}
+
+const closeTransfertFolioModal = () => {
+  isTransfertFolioModalOpen.value = false
+}
+
+const onDestinationFolioSelected = (folio: any) => {
+  selectedDestinationFolio.value = folio
+  isTransfertFolioModalOpen.value = false
+  isTransfertPostingModalOpen.value = true
+}
+
+const closeTransfertPostingModal = () => {
+  isTransfertPostingModalOpen.value = false
+}
+
+const onTransferSuccess = () => {
+  isTransfertPostingModalOpen.value = false
+  selectedDestinationFolio.value = null
+  refreshFolio()
 }
 
 const handleCutFolio = () => {

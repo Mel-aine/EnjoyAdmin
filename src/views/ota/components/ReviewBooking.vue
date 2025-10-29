@@ -142,7 +142,7 @@
                     <div>
                       <div class="font-semibold text-slate-900">{{ item.roomName }}</div>
                       <div class="text-xs text-slate-600">{{ item.planName }}</div>
-                      <span
+                      <!-- <span
                         v-if="item.taxIncluded"
                         class="inline-block mt-1 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full"
                       >
@@ -153,7 +153,7 @@
                         class="inline-block mt-1 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full"
                       >
                         Tax Not Included
-                      </span>
+                      </span> -->
                     </div>
                     <div class="text-right text-xs">
                       <div class="text-slate-500">{{ item.quantity }} room(s)</div>

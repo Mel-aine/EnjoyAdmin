@@ -120,7 +120,7 @@
                                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                                         {{ reservation.guest?.displayName }}
                                     </h2>
-                                    <div class="text-sm flex gap-2 text-gray-500 dark:text-gray-400">
+                                    <!-- <div class="text-sm flex gap-2 text-gray-500 dark:text-gray-400">
                                         <div v-if="reservation.guest?.country"
                                             class="flex align-middle self-center content-center items-center gap-1">
                                             <MapPin class="w-4 h-4" /><span>{{
@@ -132,6 +132,42 @@
                                             <PhoneCall class="w-3 h-3" /><span>{{ $t(reservation.guest?.phonePrimary)
                                             }}</span>
                                         </div>
+                                    </div> -->
+                                    <div class="text-sm flex gap-2 text-gray-500 dark:text-gray-400">
+                                        <div v-if="reservation.guest?.country"
+                                            class="flex align-middle self-center content-center items-center gap-1">
+                                            <MapPin class="w-4 h-4" /><span>{{
+                                                $t(`countries_lists.${reservation.guest?.country.toLowerCase()}`)
+                                            }}</span>
+                                        </div>
+
+                                        <!-- Primary Phone -->
+                                        <div v-if="reservation.guest?.phonePrimary"
+                                            class="flex align-middle self-center content-center items-center gap-1">
+                                            <PhoneCall class="w-3 h-3" /><span>{{ reservation.guest?.phonePrimary }}</span>
+                                        </div>
+
+                                        <!-- Contact Type-->
+                                        <templat v-if="reservation.guest?.contactType">
+                                            <div
+                                                class="flex align-middle self-center content-center items-center gap-1">
+                                                <!-- Mobile -->
+                                                <PhoneCall v-if="reservation.guest.contactType === 'Mobile'" class="w-3 h-3" />
+                                                <!-- Fix/Landline -->
+                                                <PhoneCall v-else-if="reservation.guest.contactType === 'Fix'" class="w-3 h-3" />
+                                                <!-- Email -->
+                                                <Mail v-else-if="reservation.guest.contactType === 'Email'" class="w-3 h-3" />
+                                                <!-- Facebook -->
+                                                <svg v-else-if="reservation.guest.contactType === 'Facebook'" class="h-4 w-4 text-gray-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" /></svg>
+                                                <!-- WhatsApp -->
+
+                                                <MessageCircle v-else-if="reservation.guest.contactType === 'Whatsapp'" class="w-3 h-3" />
+                                                <!-- Default fallback -->
+                                                <PhoneCall v-else class="w-3 h-3" />
+
+                                                <span v-if="reservation.guest.contactTypeValue">{{ reservation.guest.contactTypeValue }}</span>
+                                            </div>
+                                        </templat>
                                     </div>
                                 </div>
                             </div>
@@ -346,7 +382,7 @@ import type { ReservationDetails } from '@/utils/models'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, MapPin, MapPlusIcon, PhoneCall, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X } from 'lucide-vue-next'
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, MapPin, MapPlusIcon, PhoneCall, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X ,MessageCircle,Mail } from 'lucide-vue-next'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
 

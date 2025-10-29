@@ -12,7 +12,7 @@
 
       <!-- Folio -->
       <div>
-        <InputFolioSelect :disabled="true" :title="$t('folio')" v-model="formData.folio" @select="folioSelected"
+        <InputFolioSelect :disabled="isEditMode" :title="$t('folio')" v-model="formData.folio" @select="folioSelected"
           :reservation-id="reservationId" :is-required="true"  />
       </div>
 

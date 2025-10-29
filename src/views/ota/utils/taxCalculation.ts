@@ -111,9 +111,9 @@ export function calculateCartTaxes(
   taxes: Tax[],
   nights: number
 ): TaxCalculationResult {
-  // Séparer les items selon leur statut de taxe
-  const itemsWithTaxIncluded = items.filter(item => item.taxIncluded === true)
-  const itemsWithoutTax = items.filter(item => item.taxIncluded !== true)
+  // a changer lorsqu on aura plus info sur les taxes
+  const itemsWithTaxIncluded = items.filter(item => item.taxIncluded !== true)
+  const itemsWithoutTax = items.filter(item => item.taxIncluded === true)
 
   let roomChargesHT = 0
   let extractedTaxes = 0
