@@ -134,7 +134,6 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const reportData = ref<RoomStatusReportResponse | null>(null)
 const pdfUrl = ref('')
-const exportPdfUrl = ref('')
 const wordExportRef = ref<InstanceType<typeof WordExportButton> | null>(null)
 
 // Filtres
@@ -181,33 +180,16 @@ const generateReport = async () => {
     successMessage.value = ''
     reportData.value = null
 
-    // Clear previous PDF URL AVANT de générer le nouveau rapport
-    if (exportPdfUrl.value) {
-      URL.revokeObjectURL(exportPdfUrl.value)
-      exportPdfUrl.value = ''
-    }
-
     const params: RoomStatusWordExportParams = {
       date: selectedDate.value,
       hotelId: serviceStore.serviceId!
     }
-    
+
     const response = await fetchRoomStatusReport(params)
     reportData.value = response
-
-    // ✅ Vérifier que le PDF est disponible et récupérer son URL
-    if (response.pdf?.available && response.pdf.url) {
-      exportPdfUrl.value = response.pdf.url
-      openPDFInNewPage1()
-      successMessage.value = 'Rapport généré avec succès et ouvert dans un nouvel onglet.'
-    } else {
-      successMessage.value = 'Rapport généré avec succès mais PDF non disponible.'
-      console.warn('⚠️ PDF non disponible dans la réponse')
-    }
+    successMessage.value = 'Rapport généré avec succès. Vous pouvez maintenant l\'exporter.'
 
     console.log('✅ Rapport généré avec succès:', response)
-    console.log('✅ URL du PDF:', exportPdfUrl.value)
-    
   } catch (error) {
     console.error('❌ Erreur lors de la génération du rapport:', error)
     errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
@@ -216,19 +198,7 @@ const generateReport = async () => {
     exportLoading.value = false
   }
 }
-const openPDFInNewPage1 = () => {
-  if (exportPdfUrl.value) {
-    const encodedUrl = btoa(encodeURIComponent(exportPdfUrl.value))
-    const routeData = router.resolve({
-      name: 'PDFViewer',
-      query: {
-        url: encodedUrl,
-        title: reportTitle.value
-      }
-    })
-    window.open(routeData.href, '_blank')
-  }
-}
+
 
 const openPDFInNewPage = () => {
   if (pdfUrl.value) {
