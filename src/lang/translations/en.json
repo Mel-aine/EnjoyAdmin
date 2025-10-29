@@ -6381,5 +6381,6 @@
   "Unassigned" : "Unassigned",
   "UnknownRoomType" : "Unknown Room Type",
   "split":"Split",
-  "split_folio":"Split Folio"
+  "split_folio":"Split Folio",
+  "transfer_posting":"Transfer Posting"
 }

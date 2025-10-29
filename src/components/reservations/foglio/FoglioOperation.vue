@@ -198,6 +198,17 @@
           <VoidTransactionModal :is-open="isVoidTrasaction" :transaction-details="selectedTransaction"
             @close="closeVoidTransactionModal" @success="refreshFolio" />
         </template>
+        <!-- Transfer: select destination folio -->
+        <template v-if="isTransfertFolioModalOpen">
+          <TransfertFolioModal :is-open="isTransfertFolioModalOpen" @close="closeTransfertFolioModal"
+            @select="onDestinationFolioSelected" />
+        </template>
+        <!-- Transfer Posting -->
+        <template v-if="isTransfertPostingModalOpen">
+          <TransfertPostingModal :is-open="isTransfertPostingModalOpen" :source-folio="selectedFolio"
+            :destination-folio="selectedDestinationFolio" @close="closeTransfertPostingModal"
+            @success="onTransferSuccess" />
+        </template>
       </div>
     </div>
   </div>
@@ -227,6 +238,8 @@ import { useAuthStore } from '@/composables/user'
 import VoidTransactionModal from '../../modals/VoidTransactionModal.vue'
 import { generateInvoicePdfUrl, generatePosReceiptPdfUrl, generateReceiptPdfUrl } from '../../../services/reportsApi'
 import ApplyDiscountModal from './ApplyDiscountModal.vue'
+import TransfertFolioModal from './TransfertFolioModal.vue'
+import TransfertPostingModal from './TransfertPostingModal.vue'
 
 const authStore = useAuthStore()
 
@@ -259,6 +272,10 @@ const isCutFolioModal = ref(false);
 const isSendFolioModal = ref(false);
 const isApplyDiscountModal = ref(false);
 const selectedTransaction = ref<any>(null)
+// Transfer flow state
+const isTransfertFolioModalOpen = ref(false)
+const isTransfertPostingModalOpen = ref(false)
+const selectedDestinationFolio = ref<any>(null)
 
 const closeSplitFolioModal = () => {
   isSplitFolioModal.value = false
@@ -755,7 +772,7 @@ const handleMoreAction = (action: any) => {
       handleSplitFolio()
       break
     case 'transfer':
-      //handle()
+      openTransfertFolioModal()
       break
     case 'cut':
       handleCutFolio()
@@ -779,6 +796,31 @@ const handleMoreAction = (action: any) => {
 const handleSplitFolio = () => {
   console.log('Split folio action')
   isSplitFolioModal.value = true
+}
+
+const openTransfertFolioModal = () => {
+  console.log('Transfer folio action')
+  isTransfertFolioModalOpen.value = true
+}
+
+const closeTransfertFolioModal = () => {
+  isTransfertFolioModalOpen.value = false
+}
+
+const onDestinationFolioSelected = (folio: any) => {
+  selectedDestinationFolio.value = folio
+  isTransfertFolioModalOpen.value = false
+  isTransfertPostingModalOpen.value = true
+}
+
+const closeTransfertPostingModal = () => {
+  isTransfertPostingModalOpen.value = false
+}
+
+const onTransferSuccess = () => {
+  isTransfertPostingModalOpen.value = false
+  selectedDestinationFolio.value = null
+  refreshFolio()
 }
 
 const handleCutFolio = () => {
