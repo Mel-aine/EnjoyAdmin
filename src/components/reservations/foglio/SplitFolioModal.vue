@@ -120,12 +120,12 @@ const handleSelectionChange = (vals: any[]) => {
     selectedFolios.value = vals;
 }
 // Table columns definition
-const columnsFolios = [
-    { key: 'folio', label: 'Folio No.', sortable: true },
-    { key: 'transactionDate', label: 'Date ', sortable: true },
-    { key: 'room', label: 'Room', sortable: true },
-    { key: 'description', label: 'Description', sortable: true },
-    { key: 'amount', label: 'Amount', type: 'custom', sortable: true },
+const columnsFolios: Column[] = [
+    { key: 'folio', label: 'Folio No.',  },
+    { key: 'transactionDate', label: 'Date ',  },
+    { key: 'room', label: 'Room',  },
+    { key: 'description', label: 'Description',  },
+    { key: 'amount', label: 'Amount', type: 'custom',  },
 ]
 
 const selectFolio = ref<any>(null);
