@@ -73,7 +73,7 @@
               ]" @click="emit('row-click', item)">
               <td v-if="selectable" class="px-6 py-4">
                 <input type="checkbox" v-model="selectedItems" :value="item"
-                  :disabled="props.canSelectItem && !props.canSelectItem(item)"
+                  :disabled="!isItemSelectable(item)"
                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" />
               </td>
               <td v-for="column in columns" :key="column.key" class="px-6 py-4 break-words max-w-xs">
@@ -297,9 +297,19 @@ const getBadgeClass = (value: string, colorMap?: Record<string, string>) => {
   }
 }
 
+// Determine whether a row item can be selected
+const isItemSelectable = (item: any): boolean => {
+  // Explicit per-item flag to block selection
+  if (item && item.selectNotAllow === true) return false
+  // External predicate, if provided
+  if (props.canSelectItem) return !!props.canSelectItem(item)
+  return true
+}
+
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedItems.value = [...filteredData.value]
+    // Only select items that are allowed to be selected
+    selectedItems.value = filteredData.value.filter(isItemSelectable)
   } else {
     selectedItems.value = []
   }
@@ -377,7 +387,8 @@ const closeDropdown = (event: Event) => {
 }
 
 watch(selectedItems, (newValue) => {
-  selectAll.value = newValue.length === filteredData.value.length && filteredData.value.length > 0
+  const selectableCount = filteredData.value.filter(isItemSelectable).length
+  selectAll.value = newValue.length === selectableCount && selectableCount > 0
   emit('selection-change', newValue)
 }, { deep: true })
 
@@ -393,7 +404,7 @@ watch(() => props.modelValue, (newValue) => {
 watch(filteredData, () => {
   // Reset selection when data changes
   selectedItems.value = selectedItems.value.filter(selected =>
-    filteredData.value.some(item => getItemKey(item, 0) === getItemKey(selected, 0))
+    filteredData.value.some(item => getItemKey(item, 0) === getItemKey(selected, 0) && isItemSelectable(item))
   )
 })
 

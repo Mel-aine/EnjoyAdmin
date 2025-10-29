@@ -340,6 +340,9 @@ const moreActionOptions = computed(() => {
   } else if (authStore.hasPermission('change_room_rate_before_check_in')) {
     menus.push({ label: t('roomCharges'), id: 'roomCharges' })
   }
+   if (authStore.hasPermission('transfer_item_from_folio')) {
+    menus.push({ label: t('split_folio'), id: 'split' })
+  }
   if (authStore.hasPermission('transfer_item_from_folio')) {
     menus.push({ label: t('transfer'), id: 'transfer' })
   }
@@ -748,8 +751,11 @@ const handleMoreAction = (action: any) => {
   console.log('More action selected:', action)
 
   switch (action.id) {
-    case 'transfer':
+    case 'split':
       handleSplitFolio()
+      break
+    case 'transfer':
+      //handle()
       break
     case 'cut':
       handleCutFolio()

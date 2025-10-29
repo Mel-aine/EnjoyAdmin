@@ -6379,5 +6379,7 @@
   "RequestedRooms":"Requested Rooms",
   "AssignedRooms":"Assigned Rooms",
   "Unassigned" : "Unassigned",
-  "UnknownRoomType" : "Unknown Room Type"
+  "UnknownRoomType" : "Unknown Room Type",
+  "split":"Split",
+  "split_folio":"Split Folio"
 }

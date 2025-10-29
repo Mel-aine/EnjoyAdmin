@@ -55,7 +55,7 @@
                                     variant="primary" 
                                     @click="cutFolioTransaction"
                                     :label="isLoading ? $t('Processing') + '...' : $t('save')" 
-                                    :disabled="isLoading"
+                                    :disabled="isLoading || !hasToggleSelection"
                                     :loading="isLoading"
                                 />
                             </div>
@@ -98,6 +98,11 @@ const toggleStates = reactive({
     extractCharges: false,
     payment: false
 })
+
+// At least one toggle selected
+const hasToggleSelection = computed(() => (
+    toggleStates.roomCharges || toggleStates.extractCharges || toggleStates.payment
+))
 
 // Watch for individual toggles to update "All" toggle
 watch(
@@ -143,6 +148,10 @@ const closeModal = () => {
 const cutFolioTransaction = async () => {
     if (!props.folioId) {
         toast.error(t('folioIdRequired'))
+        return
+    }
+    // Prevent action if no selection
+    if (!hasToggleSelection.value) {
         return
     }
 
