@@ -542,39 +542,121 @@ const handleExchangeSuccess = () => {
   emit('save', { action: 'exchangeRoom', reservationId: localRes.value?.id })
 }
 // Add Payment handler moved from parent
+// const handleSavePayment = async (data: any) => {
+//   closeAddPaymentModal()
+//   try {
+//     let updates: any = {}
+//     if (data.reservation && data.reservation.balanceSummary) {
+//       updates = {
+//         balanceSummary: data.reservation.balanceSummary,
+//         totalAmount: data.reservation.totalAmount,
+//         paidAmount: data.reservation.paidAmount,
+//         remainingAmount: data.reservation.remainingAmount
+//       }
+//     } else if (data.balanceSummary) {
+//       updates.balanceSummary = data.balanceSummary
+//       updates.totalAmount = data.balanceSummary.totalChargesWithTaxes
+//       updates.paidAmount = data.balanceSummary.totalPayments
+//       updates.remainingAmount = data.balanceSummary.outstandingBalance
+//     } else if (data.calculatedUpdate) {
+//       const currentBalance = localRes.value.balanceSummary || {}
+//       const paymentAmount = parseFloat(data.calculatedUpdate.paymentAmount.toString())
+//       const newTotalPayments = (currentBalance.totalPayments || 0) + paymentAmount
+//       const newOutstandingBalance = (currentBalance.totalChargesWithTaxes || 0) - newTotalPayments
+//       updates.balanceSummary = { ...currentBalance, totalPayments: newTotalPayments, outstandingBalance: Math.max(0, newOutstandingBalance) }
+//       updates.totalAmount = currentBalance.totalChargesWithTaxes
+//       updates.paidAmount = newTotalPayments
+//       updates.remainingAmount = Math.max(0, newOutstandingBalance)
+//     }
+//     if (Object.keys(updates).length > 0) {
+//       updateLocalReservation(updates)
+//     } else {
+//       emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data, needsRefresh: true })
+//       return
+//     }
+//     emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data })
+//   } catch (error) {
+//     console.error('Error updating payment display:', error)
+//     toast.error(t('Error updating payment display'))
+//   }
+// }
 const handleSavePayment = async (data: any) => {
   closeAddPaymentModal()
+
   try {
     let updates: any = {}
-    if (data.reservation && data.reservation.balanceSummary) {
+
+    console.log('Payment data received:', data)
+
+    // Priorité 1 : Données complètes de la réservation depuis le backend
+    if (data.reservation?.balanceSummary) {
       updates = {
         balanceSummary: data.reservation.balanceSummary,
-        totalAmount: data.reservation.totalAmount,
-        paidAmount: data.reservation.paidAmount,
-        remainingAmount: data.reservation.remainingAmount
+        totalAmount: data.reservation.totalAmount || data.reservation.balanceSummary.totalChargesWithTaxes,
+        paidAmount: data.reservation.paidAmount || data.reservation.balanceSummary.totalPayments,
+        remainingAmount: data.reservation.remainingAmount || data.reservation.balanceSummary.outstandingBalance
       }
-    } else if (data.balanceSummary) {
-      updates.balanceSummary = data.balanceSummary
-      updates.totalAmount = data.balanceSummary.totalChargesWithTaxes
-      updates.paidAmount = data.balanceSummary.totalPayments
-      updates.remainingAmount = data.balanceSummary.outstandingBalance
-    } else if (data.calculatedUpdate) {
+      console.log('Using reservation balanceSummary:', updates)
+    }
+    // Priorité 2 : BalanceSummary direct depuis le backend
+    else if (data.balanceSummary) {
+      updates = {
+        balanceSummary: data.balanceSummary,
+        totalAmount: data.balanceSummary.totalChargesWithTaxes,
+        paidAmount: data.balanceSummary.totalPayments,
+        remainingAmount: data.balanceSummary.outstandingBalance
+      }
+      console.log('Using direct balanceSummary:', updates)
+    }
+    // Priorité 3 : Calcul local si le backend ne retourne rien
+    else if (data.calculatedUpdate?.paymentAmount) {
       const currentBalance = localRes.value.balanceSummary || {}
       const paymentAmount = parseFloat(data.calculatedUpdate.paymentAmount.toString())
-      const newTotalPayments = (currentBalance.totalPayments || 0) + paymentAmount
-      const newOutstandingBalance = (currentBalance.totalChargesWithTaxes || 0) - newTotalPayments
-      updates.balanceSummary = { ...currentBalance, totalPayments: newTotalPayments, outstandingBalance: Math.max(0, newOutstandingBalance) }
-      updates.totalAmount = currentBalance.totalChargesWithTaxes
-      updates.paidAmount = newTotalPayments
-      updates.remainingAmount = Math.max(0, newOutstandingBalance)
+      const currentTotalPayments = currentBalance.totalPayments || 0
+      const currentTotalCharges = currentBalance.totalChargesWithTaxes || 0
+
+      const newTotalPayments = currentTotalPayments + paymentAmount
+      const newOutstandingBalance = Math.max(0, currentTotalCharges - newTotalPayments)
+
+      updates = {
+        balanceSummary: {
+          ...currentBalance,
+          totalPayments: newTotalPayments,
+          outstandingBalance: newOutstandingBalance
+        },
+        totalAmount: currentTotalCharges,
+        paidAmount: newTotalPayments,
+        remainingAmount: newOutstandingBalance
+      }
+      console.log('Using calculated update:', updates)
     }
+
+    // Appliquer les mises à jour
     if (Object.keys(updates).length > 0) {
       updateLocalReservation(updates)
+
+      // Rafraîchir les actions disponibles
+      await refreshAvailableActions()
+
+      // Émettre l'événement de sauvegarde
+      emit('save', {
+        action: 'addPayment',
+        reservationId: localRes.value?.id,
+        data
+      })
+
+      toast.success(t('Payment updated successfully'))
     } else {
-      emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data, needsRefresh: true })
-      return
+      // Aucune donnée à mettre à jour - forcer un rafraîchissement complet
+      console.warn('No update data available, requesting full refresh')
+      emit('save', {
+        action: 'addPayment',
+        reservationId: localRes.value?.id,
+        data,
+        needsRefresh: true
+      })
     }
-    emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data })
+
   } catch (error) {
     console.error('Error updating payment display:', error)
     toast.error(t('Error updating payment display'))

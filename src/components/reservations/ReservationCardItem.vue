@@ -59,6 +59,7 @@ watch(() => props.reservation, (newReservation) => {
   }
 }, { deep: true, immediate: true })
 
+
 const updateLocalReservation = (updates: any) => {
   console.log('Updating reservation with:', updates)
   console.log('Current reservation:', localReservation.value)
