@@ -9,19 +9,19 @@
     <div class="grid grid-cols-1 gap-6">
       <!-- Search by dropdown and input -->
       <div class="grid grid-cols-1  gap-4">
-        <Input :lb="'Search'" :inputType="'text'" :placeholder="'Folio#, Res#, G...'" :id="'searchText'"
+        <Input :lb="$t('common.search')" :inputType="'text'" :placeholder="$t('unsettledFolios.filter.searchPlaceholder')" :id="'searchText'"
           :forLabel="'search'" v-model="filters.searchText" />
       </div>
 
       <!-- Arrival section -->
       <div vclass="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 md:pl-6 items-end">
-        <InputDoubleDatePicker :title="'Arrival Date'" :id="'arrivalDate'" :forLabel="'arrivalDate'" allow-past-dates
+        <InputDoubleDatePicker :title="$t('unsettledFolios.filter.arrivalDate')" :id="'arrivalDate'" :forLabel="'arrivalDate'" allow-past-dates
           v-model="filters.date" :placeholder="'01/09/20'" />
 
       </div>
 
       <!-- Status dropdown -->
-      <Select :lb="'Status'" v-model="filters.status" :options="statusOptions" />
+      <Select :lb="$t('unsettledFolios.filter.status')" v-model="filters.status" :options="statusOptions" />
 
 
       <!-- Action buttons -->
@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon
 } from 'lucide-vue-next';
@@ -50,6 +51,8 @@ import { getTypeProductByServiceId } from '@/services/api';
 import type { RoomTypeData } from '@/types/option';
 import { useServiceStore } from '@/composables/serviceStore';
 import InputDoubleDatePicker from '../forms/FormElements/InputDoubleDatePicker.vue';
+// i18n
+const { t } = useI18n();
 
 // Define folio filter interface
 interface FolioFilterItem {
@@ -71,11 +74,11 @@ const showFilter = ref(false);
 
 // Options for dropdowns using the same pattern as the first component
 const statusOptions = computed(() => [
-  { label: '-Select-', value: '' },
-  { label: 'Checked Out', value: 'checkout' },
-  { label: 'Canceled', value: 'cancelled' },
-  { label: 'No Show', value: 'noshow' },
-  { label: 'In house', value: 'inhouse' }
+  { label: t('-Select-'), value: '' },
+  { label: t('checkout'), value: 'checkout' },
+  { label: t('cancelled'), value: 'cancelled' },
+  { label: t('noshow'), value: 'noshow' },
+  { label: t('inhouse'), value: 'inhouse' }
 ]);
 
 const applyFilters = () => {
