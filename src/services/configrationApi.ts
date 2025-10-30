@@ -2011,3 +2011,12 @@ export const deleteMealPlanById = (id: number | string): Promise<AxiosResponse<a
   return axios.delete(`${API_URL()}/meal_plans/${id}`, getHeaders())
 }
 
+/**
+ * get company transactions
+ */
+export const getCompanyTransaction = (companyId: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/company_folios/${companyId}`,
+    getHeaders()
+  )
+}
+
