@@ -107,7 +107,7 @@ export function safeDivide(dividend: any, divisor: any, defaultValue: number = 0
  * @param decimals - Number of decimal places (default: 2)
  * @returns Formatted number string
  */
-export function formatCurrency(value: any, decimals: number = 2): string {
+export function formatCurrency(value: any, decimals: number = 0): string {
   const numValue = safeParseFloat(value, 0)
   return numValue.toFixed(decimals)
 }

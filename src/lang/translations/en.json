@@ -6454,5 +6454,12 @@
   "civil_servant": "Civil Servant",
   "AddReservation" : "Add Reservation",
   "error_fetching_reservation_details" :"Error fetching reservation details",
-  "pay":"Pay"
+  "pay":"Pay",
+  "RequestedRooms":"Requested Rooms",
+  "AssignedRooms":"Assigned Rooms",
+  "Unassigned" : "Unassigned",
+  "UnknownRoomType" : "Unknown Room Type",
+  "split":"Split",
+  "split_folio":"Split Folio",
+  "transfer_posting":"Transfer Posting"
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import BasicButton from '../../buttons/BasicButton.vue';
 import Input from '../../forms/FormElements/Input.vue';
 import InputCheckBox from '../../forms/FormElements/InputCheckBox.vue';
@@ -9,6 +9,7 @@ import type { Column } from '../../../utils/models';
 import { findFolio } from '../../../services/foglioApi';
 import { useServiceStore } from '../../../composables/serviceStore';
 import { useI18n } from 'vue-i18n';
+import { useDebounceFn } from '@vueuse/core';
 const isOpen = ref(false);
 const loading = ref(false);
 const folios = ref([]);
@@ -30,6 +31,11 @@ const selectFolio = (item: any) => {
     emit('update:modelValue', item);
     emit('selectFolio', item);
     isOpen.value = false;
+}
+
+// Clear the current selected folio without opening the panel
+const clearSelectedFolio = () => {
+    selectedFolio.value = null;
 }
 const filters = ref({
     searchText: '',
@@ -55,17 +61,35 @@ const fetchFolio = async () => {
         loading.value = false;
     }
 }
+
+// Debounced auto-search when input length > 2
+const debouncedFetchFolio = useDebounceFn(() => {
+    const query = filters.value.searchText?.trim() || ''
+    if (query.length > 2) {
+        fetchFolio()
+    }
+}, 300)
+
+watch(() => filters.value.searchText, () => {
+    debouncedFetchFolio()
+})
+
+// When toggles change, refresh results if query is already long enough
+watch(() => [filters.value.inHouse, filters.value.reservation], () => {
+    const query = filters.value.searchText?.trim() || ''
+    if (query.length > 2) {
+        debouncedFetchFolio()
+    }
+})
 const columnsFolios = computed<Column[]>(() => {
     return [
         { key: 'folioNumber', label: t('Folio No.'), sortable: true },
         { key: 'roomNumber', label: t('Room'), sortable: true },
         { key: 'guest', label: t('guest '), sortable: true },
-        { key: 'billingContact', label: t('billingContact'), sortable: true },
         { key: 'arrivedDate', label: t('arrivalDate'), type: "date", sortable: true },
         { key: 'departureDate', label: t('departureDate'),type: "date", sortable: true },
         { key: "balance", label: t("balance") },
         { key: "action", label: "", type: "custom" }
-
     ]
 })
 </script>
@@ -75,7 +99,11 @@ const columnsFolios = computed<Column[]>(() => {
         <div @click="isOpen = true"
             class=" cursor-pointer flex gap-3 dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
             <SearchIcon class="w-5 h-5 text-gray-500"></SearchIcon>
-            <input type="text" placeholder="Search folio" :disabled="true" class="w-full" :value="selectedFolio ? (typeof selectedFolio.guest === 'object' ? selectedFolio.guest?.displayName : selectedFolio.guest) || 'Search folio' : 'Search folio'">
+            <input type="text" placeholder="Search folio"  :disabled="true" class="w-full" :value="selectedFolio ? (typeof selectedFolio.guest === 'object' ? selectedFolio.guest?.displayName : selectedFolio.guest) || 'Search folio' : 'Search folio'">
+            <button v-if="selectedFolio" @click.stop="clearSelectedFolio" type="button" aria-label="Clear selection"
+                class="flex items-center justify-center w-6 h-6 shrink-0 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 dark:text-white/50 dark:hover:text-white/70 dark:hover:bg-white/10">
+                <XIcon class="w-4 h-4" />
+            </button>
         </div>
     </div>
 
@@ -88,7 +116,7 @@ const columnsFolios = computed<Column[]>(() => {
             <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
                 <div class="relative w-screen max-w-4xl">
                     <!-- Slide-over panel -->
-                    <div class="h-full flex flex-col bg-white dark:bg-gray-800 shadow-xl overflow-y-auto">
+                    <div class="h-full flex flex-col bg-white dark:bg-gray-800 shadow-xl overflow-y-hidden">
                         <!-- Header -->
                         <div class="px-4 py-2 sm:px-6 border-b border-gray-200 dark:border-gray-700">
                             <div class="flex items-start justify-between">
@@ -113,11 +141,7 @@ const columnsFolios = computed<Column[]>(() => {
                                 </div>
 
                             </div>
-                            <div class=" col-span-1 align-middle mt-2 "></div>
-                            <div class=" col-span-1 align-middle mt-2 ">
-                                <BasicButton :label="$t('Search')" @click="fetchFolio" :icon="SearchIcon"
-                                    :loading="loading" />
-                            </div>
+                            <div class=" col-span-2 align-middle mt-2 "></div>
 
                         </div>
                         <ReusableTable :columns="columnsFolios" :data="folios" :selectable="false" :loading="loading"
@@ -125,10 +149,7 @@ const columnsFolios = computed<Column[]>(() => {
                             <!-- Custom cell for Open column -->
                             <template #column-action="{ item }">
                                 <BasicButton :label="$t('select')" @click="selectFolio(item)" />
-
                             </template>
-
-
                         </ReusableTable>
                     </div>
                 </div>
