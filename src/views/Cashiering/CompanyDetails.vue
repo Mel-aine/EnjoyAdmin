@@ -92,13 +92,7 @@ const columns = computed<Column[]>(() => [
   },
 ])
 
-const tabs = computed(() => [
-  { id: 'company_details', label: t('companyDatabase.viewModal.title') },
-  { id: 'financial_info', label: t('financial_info') },
-  { id: 'booking_history', label: t('Transaction_history') },
-])
 
-const activeTab = ref<string>('company_details')
 
 // Icon mapping for different actions (centralized)
 const actionIconMap = ActionIcons.getMap()
@@ -249,46 +243,12 @@ const getStatusClasses = (status: string) => {
   }
 }
 
-const getBalanceClass = (balance: number) => {
-  if (balance > 0) {
-    return 'text-green-600'
-  } else if (balance < 0) {
-    return 'text-red-600'
-  }
-  return 'text-gray-600'
-}
-
-// Fonction pour formater la date
-const formatDate = (date: string | Date) => {
-  if (!date) return '-'
-  try {
-    return new Date(date).toLocaleDateString('en-EN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  } catch (error) {
-    return '-'
-  }
-}
-
-// Fonction pour formater le montant
-const formatAmount = (amount: number) => {
-  if (amount === undefined || amount === null) return '-'
-  const formatted = formatCurrency(amount)
-  return amount >= 0 ? `${formatted}` : `${formatted}`
-}
 
 const formatAmounts = (amount: number) => {
   return formatCurrency(amount)
 }
 
-// Fonction pour obtenir la couleur du montant
-const getAmountColor = (amount: number) => {
-  if (amount > 0) return 'text-green-600 dark:text-green-400'
-  if (amount < 0) return 'text-red-600 dark:text-red-400'
-  return 'text-gray-600 dark:text-gray-400'
-}
+
 
 // Fonction pour récupérer les transactions de l'entreprise
 const fetchCompanyTransaction = async () => {
