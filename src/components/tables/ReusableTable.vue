@@ -170,12 +170,19 @@
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ emptyStateMessage }}</p>
     </div>
   </div>
+  <TablePagination
+    v-if="meta && meta.total > meta.perPage"
+    :meta="meta"
+    @page-change="(page) => emit('page-change', page)"
+  />
+
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Action, Column } from '../../utils/models'
+import TablePagination from './TablePagination.vue'
 
 // HeaderAction interface removed as we're using slots now
 
@@ -197,6 +204,14 @@ interface Props {
   rowClass?: (item: any) => string
   canSelectItem?: (item: any) => boolean // Function to determine if an item can be selected
   maxHeight?: string
+  meta?: {
+    total: number;
+    perPage: number;
+    currentPage: number;
+    lastPage: number;
+    previousPageUrl?: string | null;
+    nextPageUrl?: string | null;
+  }
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -221,6 +236,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   'search-change': [query: string]
   'row-click': [item: any]
+  'page-change': [page: number]
 }>()
 
 const searchQuery = ref(props.modelValue)

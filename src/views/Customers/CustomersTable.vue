@@ -10,9 +10,12 @@
             :selectable="false"
             :loading="loading"
             :rowClass="getRowClass"
+            @page-change="handlePageChange"
+            :meta="paginationMeta"
             v-model="searchQuery"
             @search-change="onSearchChange"
             class="modern-table"
+
           >
             <template #header-actions="">
               <BasicButton
@@ -45,11 +48,11 @@
             </template>
 
           </ReusableTable>
-           <TablePagination
+           <!-- <TablePagination
               v-if="paginationMeta"
               :meta="paginationMeta"
               @page-change="handlePageChange"
-            />
+            /> -->
         </div>
     </AdminLayout>
 
@@ -125,7 +128,7 @@ const showBlacklistModal = ref(false)
 const blacklisting = ref(false)
 const customerToBlacklist = ref<any>(null)
 const activeFilters = ref({})
-const paginationMeta = ref(null)
+const paginationMeta = ref<any>(null)
 const showAuditTrial = () => {
   router.push({ name: 'AuditTrailEntity', params: { entityType: 'Guest', entityId: 'all' } })
 }
