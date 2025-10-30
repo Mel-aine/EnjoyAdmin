@@ -209,8 +209,9 @@ const handleViewDetails = ()=>{
 const handleActionSave = (event: any) => {
     if (event.action === 'addPayment') {
         refreshAvailableActions(localReservation.value.id);
+    } else {
+        emit('save', event);
     }
-    emit('save', event);
 }
 
 
