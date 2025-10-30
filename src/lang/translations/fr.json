@@ -23,6 +23,62 @@
       "type": "Type"
     }
   },
+  "bookings": {
+    "demo": {
+      "title": "Démo BookingFormSuita",
+      "openModal": "Ouvrir la modale de réservation"
+    },
+    "success": {
+      "reservationConfirmed": "Réservation confirmée avec succès"
+    },
+    "errors": {
+      "noAvailableRoomsForCheckin": "Aucune chambre disponible pour l'enregistrement",
+      "confirmReservationFailed": "Échec de la confirmation de la réservation"
+    },
+    "grid": {
+      "activeFilter": "Filtre actif",
+      "empty": {
+        "all": {
+          "title": "Aucune réservation",
+          "desc": "Commencez par créer une nouvelle réservation."
+        },
+        "single": {
+          "title": "Aucune réservation avec chambre unique",
+          "desc": "Aucune réservation à chambre unique trouvée dans la plage de filtre."
+        },
+        "group": {
+          "title": "Aucune réservation de groupe",
+          "desc": "Aucune réservation multi‑chambres trouvée dans la plage de filtre."
+        }
+      }
+    },
+    "calendar": {
+      "titles": {
+        "bookingStatus": "Statut des réservations",
+        "bookingIndicators": "Indicateurs de réservation",
+        "roomIndicators": "Indicateurs de chambre"
+      },
+      "labels": {
+        "groupOwner": "Chef de groupe",
+        "groupBooking": "Réservation de groupe",
+        "paymentPending": "Paiement en attente",
+        "stopRoomMove": "Arrêter le changement de chambre",
+        "singleLady": "Dame seule",
+        "vipGuest": "Client VIP",
+        "splitReservation": "Réservation scindée",
+        "noSmoking": "Non‑fumeur",
+        "smoking": "Fumeur",
+        "connectedRooms": "Chambres communicantes",
+        "workOrder": "Ordre de travail",
+        "accessibleRoom": "Chambre accessible (PMR)",
+        "petFriendly": "Chambre acceptant les animaux",
+        "unassignedRoom": "Chambre non assignée",
+        "inventory": "Inventaire",
+        "unconfirmedBookings": "Réservations non confirmées",
+        "selectAll": "Tout sélectionner"
+      }
+    }
+  },
   
   "login": "Connexion",
   "french": "Français",

@@ -23,6 +23,62 @@
       "type": "Type"
     }
   },
+  "bookings": {
+    "demo": {
+      "title": "BookingFormSuita Demo",
+      "openModal": "Open Booking Modal"
+    },
+    "success": {
+      "reservationConfirmed": "Reservation confirmed successfully"
+    },
+    "errors": {
+      "noAvailableRoomsForCheckin": "No available rooms for check-in",
+      "confirmReservationFailed": "Failed to confirm reservation"
+    },
+    "grid": {
+      "activeFilter": "Active filter",
+      "empty": {
+        "all": {
+          "title": "No reservations",
+          "desc": "Get started by creating a new reservation."
+        },
+        "single": {
+          "title": "No single room reservations",
+          "desc": "No reservations with single room found in the current filter range."
+        },
+        "group": {
+          "title": "No group reservations",
+          "desc": "No reservations with multiple rooms found in the current filter range."
+        }
+      }
+    },
+    "calendar": {
+      "titles": {
+        "bookingStatus": "Booking Status",
+        "bookingIndicators": "Booking Indicators",
+        "roomIndicators": "Room Indicators"
+      },
+      "labels": {
+        "groupOwner": "Group Owner",
+        "groupBooking": "Group Booking",
+        "paymentPending": "Payment Pending",
+        "stopRoomMove": "Stop Room Move",
+        "singleLady": "Single Lady",
+        "vipGuest": "VIP Guest",
+        "splitReservation": "Split Reservation",
+        "noSmoking": "No Smoking",
+        "smoking": "Smoking",
+        "connectedRooms": "Connected Rooms",
+        "workOrder": "Work Order",
+        "accessibleRoom": "ADA / Accessible Room",
+        "petFriendly": "Pet Friendly Room",
+        "unassignedRoom": "Unassigned Room",
+        "inventory": "Inventory",
+        "unconfirmedBookings": "Unconfirmed Bookings",
+        "selectAll": "Select All"
+      }
+    }
+  },
   
   "login": "Login",
   "french": "French",
