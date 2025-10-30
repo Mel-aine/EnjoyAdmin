@@ -19,7 +19,7 @@ import {
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ButtonDropdown from '../../components/common/ButtonDropdown.vue'
-import router from '../../router'
+import { useRouter, useRoute } from 'vue-router'
 import AdminLayout from '../../components/layout/AdminLayout.vue'
 import Spinner from '../../components/spinner/Spinner.vue'
 import { useToast } from 'vue-toastification'
@@ -35,6 +35,8 @@ const Button = {
 
 const { t } = useI18n()
 const toast = useToast()
+const router = useRouter()
+const route = useRoute()
 const company = ref<any>(null)
 const isLoading = ref(false)
 const showDeleteModal = ref(false)
@@ -116,7 +118,8 @@ const handleOptionSelected = (option: any) => {
 const getCompanyDetailsById = async () => {
   isLoading.value = true
   try {
-    const id = router.currentRoute.value.params.id
+    const id = route.params.id
+    console.log('company Id', route.params)
     const response = await getCompanyById(Number(id))
     if (response) {
       company.value = response
@@ -159,15 +162,15 @@ const closeDeleteModal = () => {
 const getStatusClass = (status: string) => {
   switch (status?.toLowerCase()) {
     case 'active':
-      return 'bg-green-100 text-green-800'
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
     case 'inactive':
-      return 'bg-red-100 text-red-800'
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
     case 'suspended':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
     case 'pending':
-      return 'bg-blue-100 text-blue-800'
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
   }
 }
 
@@ -180,11 +183,11 @@ const formatCurrency = (amount: number) => {
 
 const getBalanceClass = (balance: number) => {
   if (balance > 0) {
-    return 'text-green-600'
+    return 'text-green-600 dark:text-green-400'
   } else if (balance < 0) {
-    return 'text-red-600'
+    return 'text-red-600 dark:text-red-400'
   }
-  return 'text-gray-600'
+  return 'text-gray-600 dark:text-gray-300'
 }
 
 // Load company details on component mount
@@ -195,7 +198,7 @@ onMounted(() => {
 
 <template>
   <AdminLayout>
-    <div class="p-6 h-screen">
+    <div class="p-6 h-full">
       <!-- Delete Confirmation Modal -->
       <ModalConfirmation
         v-if="showDeleteModal"
@@ -209,13 +212,13 @@ onMounted(() => {
       />
 
       <!-- Loading Skeleton -->
-      <div v-if="isLoading" class="bg-white rounded-lg shadow-md p-6">
+      <div v-if="isLoading" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <div class="animate-pulse">
-          <div class="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
         </div>
       </div>
 
@@ -223,11 +226,11 @@ onMounted(() => {
       <div v-else-if="company" class="">
         <!-- Header -->
 
-        <div class="shadow-sm px-4 py-2 mx-4 bg-white flex justify-between">
+        <div class="shadow-sm px-4 py-2 mx-4 bg-white dark:bg-gray-800 flex justify-between">
           <div class="flex gap-2 align-middle self-center items-center">
             <ArrowLeft @click="router.back()" class="cursor-pointer"></ArrowLeft>
             <div>
-              <h1 class="text-2xl font-bold text-gray-900">{{ company.companyName }}</h1>
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ company.companyName }}</h1>
               <div class="flex items-center mt-1 space-x-3">
                 <span
                   v-if="company.accountStatus"
@@ -236,7 +239,7 @@ onMounted(() => {
                 >
                   {{ $t(`companyDatabase.status.${company.accountStatus?.toLowerCase()}`) }}
                 </span>
-                <span class="text-sm text-gray-500">ID: {{ company.id }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-300">ID: {{ company.id }}</span>
               </div>
             </div>
           </div>
@@ -245,8 +248,8 @@ onMounted(() => {
         <!-- Tabs -->
 
 
-        <div class="shadow-sm px-2 pt-1 mx-4 bg-white mt-5 flex flex-col md:flex-row md:justify-between">
-          <div class="w-full border-b border-gray-200 overflow-x-auto">
+        <div class="shadow-sm px-2 pt-1 mx-4 bg-white dark:bg-gray-800 mt-5 flex flex-col md:flex-row md:justify-between">
+          <div class="w-full border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
             <nav class="flex space-x-4 sm:space-x-6 px-4 md:px-6 min-w-max">
               <button
                 v-for="tab in tabs"
@@ -255,8 +258,8 @@ onMounted(() => {
                 :class="[
                   'py-3 px-2 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-200',
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                    ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-200 dark:hover:border-gray-600',
                 ]"
               >
                 <div class="flex items-center space-x-2">
@@ -270,7 +273,7 @@ onMounted(() => {
             <ButtonDropdown
               :options="dropdownOptions"
               @option-selected="handleOptionSelected"
-              button-class="bg-white text-primary border-primary hover:bg-primary/25 w-full sm:w-auto"
+              button-class="bg-white dark:bg-gray-800 text-primary border-primary hover:bg-primary/25 w-full sm:w-auto"
               dropdown-class="w-64"
             >
               <template #button>
@@ -289,8 +292,8 @@ onMounted(() => {
           <div v-if="activeTab === 'company_details'" class="space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <!-- Company Information Card -->
-              <div class="bg-white p-6 rounded-lg border border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4">
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     class="h-6 w-6 mr-2 text-indigo-600"
@@ -308,24 +311,24 @@ onMounted(() => {
                   {{ t('Company Information') }}
                 </h3>
                 <div class="space-y-3">
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('Company Name') }}</span>
-                    <span class="text-base font-medium text-gray-900">{{
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Company Name') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">{{
                       company.companyName || '-'
                     }}</span>
                   </div>
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('Registration Number') }}</span>
-                    <span class="text-base font-medium text-gray-900">{{
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Registration Number') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">{{
                       company.registrationNumber || '-'
                     }}</span>
                   </div>
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('Tax ID') }}</span>
-                    <span class="text-base font-medium text-gray-900">{{ company.taxId || '-' }}</span>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Tax ID') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">{{ company.taxId || '-' }}</span>
                   </div>
                   <div class="flex justify-between items-center pt-2">
-                    <span class="text-sm text-gray-500">{{ t('Status') }}</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Status') }}</span>
                     <span
                       v-if="company.accountStatus"
                       class="inline-flex px-3 py-1 text-xs font-semibold rounded-full uppercase tracking-wider"
@@ -333,14 +336,14 @@ onMounted(() => {
                     >
                       {{ $t(`companyDatabase.status.${company.accountStatus?.toLowerCase()}`) }}
                     </span>
-                    <span v-else class="text-base font-medium text-gray-400">-</span>
+                    <span v-else class="text-base font-medium text-gray-400 dark:text-gray-500">-</span>
                   </div>
                 </div>
               </div>
 
               <!-- Address Information Card -->
-              <div class="bg-white p-6 rounded-lg  border border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4">
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg  border border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     class="h-6 w-6 mr-2 text-green-600"
@@ -364,27 +367,27 @@ onMounted(() => {
                   {{ t('Address Information') }}
                 </h3>
                 <div class="space-y-3">
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('Address') }}</span>
-                    <span class="text-base font-medium text-gray-900 text-right">{{
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Address') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100 text-right">{{
                       company.billingAddressLine || '-'
                     }}</span>
                   </div>
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('City') }}</span>
-                    <span class="text-base font-medium text-gray-900">{{ company.billingCity || '-' }}</span>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('City') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">{{ company.billingCity || '-' }}</span>
                   </div>
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('State') }}</span>
-                    <span class="text-base font-medium text-gray-900">{{ company.billingStateProvince || '-' }}</span>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('State') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">{{ company.billingStateProvince || '-' }}</span>
                   </div>
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('Country') }}</span>
-                    <span class="text-base font-medium text-gray-900">{{ $t(`countries_lists.${company.billingCountry.toLowerCase()}`) || '-' }}</span>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Country') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">{{ $t(`countries_lists.${company.billingCountry?.toLowerCase()}`) || '-' }}</span>
                   </div>
                   <div class="flex justify-between items-center pt-2">
-                    <span class="text-sm text-gray-500">{{ t('Postal Code') }}</span>
-                    <span class="text-base font-medium text-gray-900">{{
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Postal Code') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">{{
                       company.billingPostalCode || '-'
                     }}</span>
                   </div>
@@ -397,8 +400,8 @@ onMounted(() => {
           <div v-if="activeTab === 'contact_info'" class="space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-1 gap-8">
               <!-- Primary Contact Card -->
-              <div class="bg-white p-6 rounded-lg  border border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4">
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg  border border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     class="h-6 w-6 mr-2 text-blue-600"
@@ -458,8 +461,8 @@ onMounted(() => {
                   {{ t('Balance Information') }}
                 </h3>
                 <div class="space-y-3">
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('Current Balance') }}</span>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Current Balance') }}</span>
                     <span
                       class="text-base font-semibold"
                       :class="getBalanceClass(company.balance || 0)"
@@ -467,22 +470,22 @@ onMounted(() => {
                       {{ formatCurrency(company.balance || 0) }} {{ company.currency || 'XAF' }}
                     </span>
                   </div>
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('Credit Limit') }}</span>
-                    <span class="text-base font-medium text-gray-900">
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Credit Limit') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">
                       {{ formatCurrency(company.creditLimit || 0) }}
                       {{ company.currency || 'XAF' }}
                     </span>
                   </div>
-                  <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">{{ t('Business Source') }}</span>
-                    <span class="text-base font-medium text-gray-900">
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('Business Source') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">
                       {{ company.addToBusinessSource ? t('Yes') : t('No') }}
                     </span>
                   </div>
                   <div class="flex justify-between items-center pt-2">
-                    <span class="text-sm text-gray-500">{{ t('City Ledger') }}</span>
-                    <span class="text-base font-medium text-gray-900">
+                    <span class="text-sm text-gray-500 dark:text-gray-300">{{ t('City Ledger') }}</span>
+                    <span class="text-base font-medium text-gray-900 dark:text-gray-100">
                       {{ company.doNotCountAsCityLedger ? t('No') : t('Yes') }}
                     </span>
                   </div>
@@ -493,7 +496,7 @@ onMounted(() => {
 
           <!-- Booking History Tab -->
           <div v-if="activeTab === 'booking_history'" class="space-y-6">
-            <div class="text-center py-12 bg-white rounded-lg  border border-gray-200">
+            <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg  border border-gray-200 dark:border-gray-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-12 w-12 mx-auto text-gray-400 mb-4"
@@ -508,10 +511,10 @@ onMounted(() => {
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <p class="text-lg text-gray-600 font-medium mb-2">
+              <p class="text-lg text-gray-600 dark:text-gray-300 font-medium mb-2">
                 {{ t('Booking history will be implemented in a future update.') }}
               </p>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-500 dark:text-gray-300">
                 {{ t('Please check back later for this feature.') }}
               </p>
             </div>
@@ -520,8 +523,8 @@ onMounted(() => {
       </div>
 
       <!-- No Company Found -->
-      <div v-else class="bg-white rounded-lg shadow-md p-6 text-center">
-        <p class="text-gray-500">{{ t('Company not found or has been deleted.') }}</p>
+      <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
+        <p class="text-gray-500 dark:text-gray-300">{{ t('Company not found or has been deleted.') }}</p>
         <button
           @click="router.back()"
           class="mt-4 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"

@@ -1,7 +1,6 @@
 <template>
-  <div class="fixed inset-0 overflow-hidden z-999999" aria-labelledby="slide-over-title" role="dialog"
-    aria-modal="true">
-    <div class="absolute inset-0 overflow-hidden">
+  <div class="fixed inset-0  z-999" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 ">
       <!-- Background overlay -->
       <div class="absolute inset-0 bg-gray-500/25 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
@@ -31,7 +30,7 @@
                   </div> -->
                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- City Ledger Account -->
-                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger"  />
+                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" />
 
                     <!-- Date -->
                     <InputDatePicker :title="'Date'" v-model="formData.date" :isRequired="true" />
@@ -39,11 +38,10 @@
                     <!-- Payment Type -->
                     <Select lb="Payment Type" v-model="formData.paymentType" :options="[
                       { label: t('cash'), value: 'cash' },
-                      { label: t('city_ledger'), value: 'city_ledger' }
                     ]" :isRequired="true" />
 
                     <!-- Payment method -->
-                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType"/>
+                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType" />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!--amount-->
@@ -82,7 +80,7 @@
                     </div>
                     <div class="justify-center align-middle pt-6">
                       <BasicButton :label="t('Search')" :icon="SearchCodeIcon" @click="searchTransactions"
-                        :loading="loading"></BasicButton>
+                        :loading="isSearching" :disabled="loading || isSearching|| isSaving"></BasicButton>
                     </div>
                   </div>
                 </div>
@@ -104,7 +102,7 @@
                 <!-- Custom cell for Amount column -->
                 <template #cell-amount="{ item }">
                   <span class="text-xs font-medium text-gray-900 dark:text-white">{{ formatCurrency(item.amount)
-                    }}</span>
+                  }}</span>
                 </template>
 
                 <!-- Custom cell for Assigned column -->
@@ -134,7 +132,8 @@
                 <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-900 dark:text-white">
                   {{ $t('Balance') }}: {{ formatCurrency(totalAssignedAmount) }} </span>
                 <BasicButton :label="$t('Close')" variant="secondary" @click="closeModal" />
-                <BasicButton :label="$t('Save')" variant="primary" @click="savePayment" :icon="Save" :loading="loading"/>
+                <BasicButton :label="$t('Save')" variant="primary" @click="savePayment" :icon="Save"
+                  :loading="isSaving" />
               </div>
             </div>
           </div>
@@ -185,7 +184,9 @@ const props = defineProps<{
 
 // Loading state
 const loading = ref(false)
-const emit = defineEmits(['close','payment-saved'])
+const isSearching =ref(false)
+const isSaving = ref(false)
+const emit = defineEmits(['close', 'payment-saved'])
 
 // Initialize date range with yesterday and today
 const getYesterday = () => {
@@ -275,11 +276,12 @@ const loadCityLedgerData = async () => {
         date: transaction.date,
         name: transaction.guestName,
         folioNo: transaction.folioNo,
-        user: transaction.user || 'System',
+        user: transaction.user,
         amount: Math.abs(transaction.amount),
-        assigned: 0,
-        open: Math.abs(transaction.debit),
+        open: Math.abs(transaction.open),
         assign: 0,
+        assigned: Math.abs(transaction.assigned),
+        unassigned: Math.abs(transaction.unassigned),
         selected: false
       }))
 
@@ -312,7 +314,7 @@ const guestColumns = computed<Column[]>(() => {
 
 // Computed property for total assigned amount
 const totalAssignedAmount = computed(() => {
-  return formData.value.amount -  guestData.value.reduce((sum, item:any) => {
+  return formData.value.amount - guestData.value.reduce((sum, item: any) => {
     return sum + (parseFloat(item.assign) || 0)
   }, 0)
 })
@@ -342,7 +344,7 @@ const handleGuestSelectionChange = (selected: any) => {
   selectedGuests.value = validSelected
 
   // Update the selected property in guestData
-  guestData.value.forEach((guest:any) => {
+  guestData.value.forEach((guest: any) => {
     const isSelected = selectedGuests.value.some((item: any) => item.id === guest.id)
     guest.selected = isSelected
 
@@ -361,7 +363,7 @@ const handleGuestSelectionChange = (selected: any) => {
   })
 
   // Log total assigned amount for debugging
-  const total = guestData.value.reduce((sum, item:any) => sum + (parseFloat(item.assign) || 0), 0)
+  const total = guestData.value.reduce((sum, item: any) => sum + (parseFloat(item.assign) || 0), 0)
   console.log(`Total assigned amount: ${formatCurrency(total)}`)
 }
 const handChangeCityLedger = (item: any) => {
@@ -401,7 +403,7 @@ const searchTransactions = async () => {
   }
 
   try {
-    loading.value = true
+    isSearching.value = true
     // Clear current selections when searching
     selectedGuests.value = []
 
@@ -420,7 +422,7 @@ const searchTransactions = async () => {
     console.error('Search error:', error)
     toast.error('Failed to search transactions')
   } finally {
-    loading.value = false
+    isSearching.value = false
   }
 }
 
@@ -431,7 +433,7 @@ const searchTransactions = async () => {
 const savePayment = async () => {
   try {
     // Start loading
-    loading.value = true
+    isSaving.value = true
 
     // Validate form
     if (!formData.value.cityLedgerAccountId) {
@@ -450,13 +452,13 @@ const savePayment = async () => {
     }
 
     // Get selected items with assigned amounts
-    const selectedItems = guestData.value.filter((g:any) => g.selected && g.assign > 0)
+    const selectedItems = guestData.value.filter((g: any) => g.selected && g.assign > 0)
 
-
-    if (selectedItems.length === 0) {
-      toast.error('Please select items and assign amounts')
-      return
-    }
+    /*
+        if (selectedItems.length === 0) {
+          toast.error('Please select items and assign amounts')
+          return
+        }*/
     // Prepare payment data according to API schema
     const paymentData = {
       companyId: formData.value.cityLedgerAccountId,
@@ -468,7 +470,7 @@ const savePayment = async () => {
       paymentMethodId: formData.value.paymentMethod,
       postingDate: new Date().toISOString(),
       transactionDate: formData.value.date ? new Date(formData.value.date).toISOString() : new Date().toISOString(),
-      mappings: selectedItems.map((item:any) => ({
+      mappings: selectedItems.map((item: any) => ({
         transactionId: item.id,
         newAssignedAmount: parseFloat(item.assign) || 0
       })),
@@ -496,7 +498,7 @@ const savePayment = async () => {
     console.error('Error saving payment:', error)
     toast.error('An error occurred while saving the payment')
   } finally {
-    loading.value = false
+    isSaving.value = false
   }
 }
 

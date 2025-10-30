@@ -8,10 +8,11 @@
                 </div>
                 <div class="flex space-x-2">
 
-                    <BasicButton :icon="PlusIcon" :label="$t('new_payment')" @click="openNewPaymentModal"/>
+                    <BasicButton :icon="PlusIcon" :label="$t('new_payment')" @click="openNewPaymentModal" />
                     <!-- <BasicButton :label="$t('export')" variant="secondary" :icon="FileDown" /> -->
-                 <!-- <BasicButton :label="$t('send_email')" variant="secondary" :icon="Mail" />-->
-                  <!---->  <BasicButton :label="$t('print')" variant="secondary" :icon="PrinterIcon" />
+                    <!-- <BasicButton :label="$t('send_email')" variant="secondary" :icon="Mail" />-->
+                    <!---->
+                    <BasicButton :label="$t('print')" variant="secondary" :icon="PrinterIcon" />
 
                 </div>
             </div>
@@ -19,68 +20,84 @@
             <!-- Main Content -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md">
                 <!-- City Ledger Selection -->
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-200 dark:border-gray-700">
-                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
-                    <div class="mr-4 w-52">
-                        <InputSelectCityLeger v-model="selectCityLedger" @select="handChangeCityLedger" />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <div>
-                            <RadioGroup v-model="activeTab" class="flex space-x-4" :options="[
-                                { label: 'Posting date', value: 'posting' },
-                                { label: 'Departure date', value: 'departure' },
-                            ]" />
-
+                <div
+                    class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-200 dark:border-gray-700">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="mr-4 w-52">
+                            <InputSelectCityLeger v-model="selectCityLedger" @select="handChangeCityLedger" />
                         </div>
-                        <div class="mr-4">
-                            <InputDoubleDatePicker lb="Posting Date" :allow-past-dates="true"
-                                v-model="dateRange" />
+                        <div class="flex flex-col gap-2">
+                            <div>
+                                <RadioGroup v-model="activeTab" class="flex space-x-4" :options="[
+                                    { label: 'Posting date', value: 'posting' },
+                                    { label: 'Departure date', value: 'departure' },
+                                ]" />
+
+                            </div>
+                            <div class="mr-4">
+                                <InputDoubleDatePicker lb="Posting Date" :allow-past-dates="true" v-model="dateRange" />
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="flex justify-start  gap-6">
-                        <!-- <InputCheckBox v-model="pendingLedgerCommission" label="Pending Ledger Commission" id="pending" /> -->
-                        <InputCheckBox v-model="displayVoid" label="Display Void" id="display-void" />
-                    </div>
+                        <div class="flex justify-start  gap-6">
+                            <!-- <InputCheckBox v-model="pendingLedgerCommission" label="Pending Ledger Commission" id="pending" /> -->
+                            <InputCheckBox v-model="displayVoid" label="Display Void" id="display-void" />
+                        </div>
 
-                </div>
-                 <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
-                        <div class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full ">
+                    </div>
+                    <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
+                        <div
+                            class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full ">
                             <span>{{ formatCurrency(totals.cityLedgerTotal) }}</span>
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('City Ledger Total') }}</span>
+                            <span
+                                class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{
+                                $t('City Ledger Total') }}</span>
                         </div>
                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
                             <span>{{ formatCurrency(totals.unpaidInvoice) }}</span>
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unpaid Invoice') }}</span>
+                            <span
+                                class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{
+                                $t('Unpaid Invoice') }}</span>
                         </div>
                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
                             <span>{{ formatCurrency(totals.unassignedPayments) }}</span>
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unassigned Payments') }}</span>
+                            <span
+                                class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{
+                                $t('Unassigned Payments') }}</span>
                         </div>
                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ formatCurrency(totals.assignedPayments) }}</span>
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Assigned Payments') }}</span>
+                            <span
+                                class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{
+                                    formatCurrency(totals.assignedPayments) }}</span>
+                            <span
+                                class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{
+                                $t('Assigned Payments') }}</span>
                         </div>
-                         <div class="flex flex-col  gap-2 items-center justify-start align-top ">
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Opening Balance') }}</span>
-                            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ formatCurrency(totals.openingBalance) }}</span>
+                        <div class="flex flex-col  gap-2 items-center justify-start align-top ">
+                            <span
+                                class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{
+                                $t('Opening Balance') }}</span>
+                            <span
+                                class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{
+                                formatCurrency(totals.openingBalance) }}</span>
                         </div>
 
                     </div>
-                    </div>
+                </div>
 
 
                 <!-- Table Content -->
-                <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading" :searchable="false" :show-header="false"
-                    :selectable="true" @selection-change="handleSelectionChange">
+                <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading"
+                    :searchable="false" :show-header="false" :selectable="true"
+                    @selection-change="handleSelectionChange">
                     <!-- Custom cell for Description column -->
                     <template #column-description="{ item }">
                         <div>
                             <span class="text-sm font-medium text-gray-900 dark:text-white">{{ item.description
-                            }}</span>
+                                }}</span>
                             <p v-if="item.details" class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{
                                 item.details
-                            }}
+                                }}
                             </p>
                         </div>
                     </template>
@@ -88,17 +105,21 @@
                     <!-- Custom cell for Credit column -->
                     <template #column-credit="{ item }">
                         <span class="text-sm"
-                            :class="item.credit > 0 ? 'font-medium text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'">{{
-                                formatCurrency(item.credit) }}</span>
+                            :class="item.credit > 0 ? 'font-medium text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'">{{
+                                -formatCurrency(item.credit) }}</span>
                     </template>
 
                     <!-- Custom cell for Debit column -->
                     <template #column-debit="{ item }">
                         <span class="text-sm"
-                            :class="item.debit > 0 ? 'font-medium text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'">{{
+                            :class="item.debit > 0 ? 'font-medium text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'">{{
                                 formatCurrency(item.debit) }}</span>
                     </template>
-
+                    <template #column-unassigned="{ item }">
+                        <span class="text-sm"
+                            :class="item.debit > 0 ? 'font-medium text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'">{{
+                                formatCurrency(item.open) }}</span>
+                    </template>
                     <!-- Custom cell for Balance column -->
                     <template #column-balance="{ item }">
                         <span class="text-sm font-medium"
@@ -115,7 +136,9 @@
                 :selectedCompanyId="selectCityLedger?.id"
                 :dateRange="dateRange"
                 :activeTab="activeTab"
-                @close="newPaymentVisible = false"/>
+                @close="newPaymentVisible = false"
+                @payment-saved="onPaymentSaved"
+            />
         </template>
     </AdminLayout>
 
@@ -128,7 +151,6 @@ import { useI18n } from 'vue-i18n'
 import ReusableTable from '../../components/tables/ReusableTable.vue'
 import AdminLayout from '../../components/layout/AdminLayout.vue'
 
-import Select from '../../components/forms/FormElements/Select.vue'
 import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoubleDatePicker.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import PlusIcon from '../../icons/PlusIcon.vue'
@@ -151,10 +173,7 @@ const searchQuery = ref('')
 const activeTab = ref('posting')
 const totals = ref<any>({})
 const loading = ref(false)
-const closingBalance = ref(35000)
-const showFilters = ref(false)
 const newPaymentVisible = ref(false)
-const pendingLedgerCommission = ref(false)
 const displayVoid = ref(false)
 
 // Initialize date range with yesterday and today
@@ -180,7 +199,6 @@ const filters = ref({
 })
 
 // City Ledger data
-const selectCityLedgerId = ref<any>(null)
 const selectCityLedger = ref<any>(null)
 const cityLedgerData = ref<any>({
     transactions: [],
@@ -211,7 +229,7 @@ const columns = ref<Column[]>([
 // Sample data
 const transactions = ref([
 ])
-const handChangeCityLedger =(item:any)=>{
+const handChangeCityLedger = (item: any) => {
     selectCityLedger.value = item;
     loadCityLedgerData()
 }
@@ -237,7 +255,7 @@ const loadCityLedgerData = async () => {
         }
 
         const response = await getCityLedgerDetails(params)
-        console.log('response', response)
+        console.log('response search', response)
 
         if (response?.data) {
             cityLedgerData.value = response.companyAccount
@@ -293,7 +311,7 @@ const actions = ref([
 const selectedItems = ref([])
 
 
-function handleSelectionChange(items:any) {
+function handleSelectionChange(items: any) {
     selectedItems.value = items
     console.log('Selected items:', items)
 }
@@ -304,6 +322,14 @@ function handleSelectionChange(items:any) {
 
 function openNewPaymentModal() {
     newPaymentVisible.value = true
+}
+
+function onPaymentSaved() {
+    // Close the modal and refresh city ledger data
+    newPaymentVisible.value = false
+    if (selectCityLedger.value?.id) {
+        loadCityLedgerData()
+    }
 }
 
 
