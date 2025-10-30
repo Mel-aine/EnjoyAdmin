@@ -542,42 +542,9 @@ const handleExchangeSuccess = () => {
   emit('save', { action: 'exchangeRoom', reservationId: localRes.value?.id })
 }
 // Add Payment handler moved from parent
-const handleSavePayment = async (data: any) => {
-  closeAddPaymentModal()
-  try {
-    let updates: any = {}
-    if (data.reservation && data.reservation.balanceSummary) {
-      updates = {
-        balanceSummary: data.reservation.balanceSummary,
-        totalAmount: data.reservation.totalAmount,
-        paidAmount: data.reservation.paidAmount,
-        remainingAmount: data.reservation.remainingAmount
-      }
-    } else if (data.balanceSummary) {
-      updates.balanceSummary = data.balanceSummary
-      updates.totalAmount = data.balanceSummary.totalChargesWithTaxes
-      updates.paidAmount = data.balanceSummary.totalPayments
-      updates.remainingAmount = data.balanceSummary.outstandingBalance
-    } else if (data.calculatedUpdate) {
-      const currentBalance = localRes.value.balanceSummary || {}
-      const paymentAmount = parseFloat(data.calculatedUpdate.paymentAmount.toString())
-      const newTotalPayments = (currentBalance.totalPayments || 0) + paymentAmount
-      const newOutstandingBalance = (currentBalance.totalChargesWithTaxes || 0) - newTotalPayments
-      updates.balanceSummary = { ...currentBalance, totalPayments: newTotalPayments, outstandingBalance: Math.max(0, newOutstandingBalance) }
-      updates.totalAmount = currentBalance.totalChargesWithTaxes
-      updates.paidAmount = newTotalPayments
-      updates.remainingAmount = Math.max(0, newOutstandingBalance)
-    }
-    if (Object.keys(updates).length > 0) {
-      updateLocalReservation(updates)
-    } else {
-      emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data, needsRefresh: true })
-      return
-    }
-    emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data })
-  } catch (error) {
-    console.error('Error updating payment display:', error)
-    toast.error(t('Error updating payment display'))
-  }
+const handleSavePayment = (data: any) => {
+  closeAddPaymentModal();
+  // Emit a save event, letting the parent component handle the refresh.
+  emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data, needsRefresh: true });
 }
 </script>
