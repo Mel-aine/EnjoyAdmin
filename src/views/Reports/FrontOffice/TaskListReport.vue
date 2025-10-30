@@ -68,6 +68,48 @@
             </select>
           </div>
         </div>
+
+        <!-- Actions: Export -->
+        <div class="mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+          <div class="relative">
+            <button
+              @click="exportMenuOpen = !exportMenuOpen"
+              :disabled="exportLoading"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
+            >
+              <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span v-if="!exportLoading">{{ $t('common.export') }}</span>
+              <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+
+            <!-- Export menu -->
+            <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+              <button @click="exportCSV" :disabled="exportLoading" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left">
+                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                {{ $t('common.csv') }}
+              </button>
+              <button @click="exportPDF" :disabled="exportLoading" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left">
+                <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                {{ $t('common.pdf') }}
+              </button>
+              <button @click="exportExcel" :disabled="exportLoading" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left">
+                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {{ $t('common.excel') }}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Summary Cards -->
@@ -133,7 +175,7 @@
       <ReusableTable
         :title="$t('reports.tasksList')"
         :columns="tableColumns"
-        :data="filteredTasks"
+        :data="displayedTasks"
         :actions="tableActions"
         :searchable="true"
         :empty-message="$t('reports.noDataAvailable')"
@@ -151,12 +193,49 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
+const router = useRouter()
+
+// Export state
+const exportMenuOpen = ref(false)
+const exportLoading = ref(false)
+
+const exportCSV = async () => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export CSV: Task list', filteredTasks.value)
+    // TODO: implémenter l’export réel côté API si disponible
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportPDF = async () => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export PDF: Task list', filteredTasks.value)
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportExcel = async () => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export Excel: Task list', filteredTasks.value)
+  } finally {
+    exportLoading.value = false
+  }
+}
 
 // Filters
 const filters = ref({
@@ -237,6 +316,59 @@ const filteredTasks = computed(() => {
   })
 })
 
+// Traduction de la colonne Département uniquement; on conserve les valeurs brutes pour "status"
+// afin que le mapping des couleurs fonctionne.
+const translateDepartment = (dept: string) => {
+  switch (dept) {
+    case 'housekeeping': return t('common.housekeeping')
+    case 'maintenance': return t('common.maintenance')
+    case 'front-desk': return t('common.front-desk')
+    case 'concierge': return t('common.concierge')
+    default: return dept
+  }
+}
+
+const displayedTasks = computed(() => {
+  return filteredTasks.value.map(task => ({
+    ...task,
+    department: translateDepartment(task.department),
+    title: translateTitle(task.title),
+    priority: translatePriority(task.priority),
+    // status reste brut pour les couleurs
+  }))
+})
+
+// Traduction simple des titres courants (mock) et quelques motifs
+function translateTitle(title: string): string {
+  if (!title) return ''
+  const tLower = title.toLowerCase()
+  // Cas exacts
+  if (tLower === 'guest welcome package') return 'Pack de bienvenue client'
+  if (tLower === 'check-in assistance') return "Assistance à l'enregistrement"
+  // Motifs
+  const roomNumMatch = title.match(/room\s*(\d+)/i)
+  if (/^clean\s+room/i.test(title) && roomNumMatch) {
+    return `Nettoyer la chambre ${roomNumMatch[1]}`
+  }
+  if (/^fix\s*ac\s*in\s*room/i.test(title) && roomNumMatch) {
+    return `Réparer la climatisation dans la chambre ${roomNumMatch[1]}`
+  }
+  if (/^restock\s*minibar\s*room/i.test(title) && roomNumMatch) {
+    return `Réapprovisionner le minibar chambre ${roomNumMatch[1]}`
+  }
+  return title
+}
+
+function translatePriority(p: string): string {
+  switch ((p || '').toLowerCase()) {
+    case 'urgent': return t('common.urgent')
+    case 'high': return t('high')
+    case 'medium': return t('medium')
+    case 'low': return t('low')
+    default: return p
+  }
+}
+
 const summary = computed(() => {
   const filtered = filteredTasks.value
   return {
@@ -300,6 +432,12 @@ const tableColumns = computed<Column[]>(() => [
     label: t('common.status'), 
     type: 'badge' as const,
     translatable: true,
+    badgeColors: {
+      'pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+      'in-progress': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      'completed': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      'cancelled': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    }
   }
 ])
 

@@ -77,7 +77,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.totalRooms') }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.totalRooms') }}</p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ summary.totalRooms }}</p>
             </div>
           </div>
@@ -90,7 +90,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.availableRooms') }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.availableRooms') }}</p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ summary.availableRooms }}</p>
             </div>
           </div>
@@ -103,7 +103,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.occupiedRooms') }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.occupiedRooms') }}</p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ summary.occupiedRooms }}</p>
             </div>
           </div>
@@ -116,7 +116,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.occupancyRate') }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.occupancyRate') }}</p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ summary.occupancyRate }}%</p>
             </div>
           </div>
@@ -192,11 +192,11 @@ const tableColumns = computed<Column[]>(() => [
     translatable: true,
     translatePrefix: 'rooms.types'
   },
-  { key: 'total', label: t('reports.totalRooms'), type: 'text' },
-  { key: 'available', label: t('reports.availableRooms'), type: 'text' },
-  { key: 'occupied', label: t('reports.occupiedRooms'), type: 'text' },
+  { key: 'total', label: t('reports.frontOffice.totalRooms'), type: 'text' },
+  { key: 'available', label: t('reports.frontOffice.availableRooms'), type: 'text' },
+  { key: 'occupied', label: t('reports.frontOffice.occupiedRooms'), type: 'text' },
   { key: 'maintenance', label: t('reports.maintenanceRooms'), type: 'text' },
-  { key: 'occupancyRate', label: t('reports.occupancyRate'), type: 'custom' }
+  { key: 'occupancyRate', label: t('reports.frontOffice.occupancyRate'), type: 'custom' }
 ])
 
 const loadInventoryReport = async () => {
