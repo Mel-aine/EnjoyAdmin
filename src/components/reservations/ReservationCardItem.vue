@@ -206,6 +206,14 @@ const handleViewDetails = ()=>{
     })
 }
 
+const handleActionSave = (event: any) => {
+    if (event.action === 'addPayment') {
+        refreshAvailableActions(localReservation.value.id);
+    } else {
+        emit('save', event);
+    }
+}
+
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -285,7 +293,7 @@ const nightsSummary = computed(() => {
               :localReservation="localReservation"
               @reservation-updated="updateLocalReservation"
               :default="false"
-              @save="emit('save', $event)"
+              @save="handleActionSave"
             />
           </div>
         </div>

@@ -17,7 +17,7 @@
           :class="[
             'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out',
             modelValue
-              ? 'bg-brand-500 border-brand-500'
+              ? 'bg-primary border-brand-500'
               : 'bg-gray-200 border-gray-300 dark:bg-gray-700 dark:border-gray-600'
           ]"
         >

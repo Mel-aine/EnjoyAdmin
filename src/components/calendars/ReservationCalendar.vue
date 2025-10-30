@@ -354,7 +354,7 @@
     </template>
 
     <!-- Unassigned Reservations Modal -->
-    <UnassignedReservationsModal v-if="showUnassignedModal" :is-open="showUnassignedModal"
+    <UnassignedReservationsModal v-if="showUnassignedModal" :is-open="showUnassignedModal" :room-type-id="selectedRoomTypeId"
       :date="selectedUnassignedDate" :reservations="unassignedReservations" @close="closeUnassignedModal"
       @room-assigned="handleRoomAssigned" />
 
@@ -435,6 +435,7 @@ const router = useRouter()
 const bookingStore = useBookingStore()
 const selectionTooltipPosition = ref({ x: 0, y: 0 })
 const isTooltipAbove = ref(false)
+const selectedRoomTypeId = ref<number | null>(null)
 
 const tooltipStyle = computed((): Record<string, string | number> => {
   const pos = selectionTooltipPosition.value;
@@ -549,15 +550,29 @@ function handleReservationSave(data?: any) {
 }
 
 // Unassigned reservations modal handlers
+
 function openUnassignedModal(date: string) {
   selectedUnassignedDate.value = date
-  // Get unassigned reservations for the selected date
+
+  // Récupérer toutes les réservations pour cette date
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === date)
+  console.log("Metric for date", date, metric)
+
   if (metric && metric.unassigned_reservations_details) {
+    // Utiliser les détails complets des réservations non assignées
     unassignedReservations.value = metric.unassigned_reservations_details
   } else {
-    unassignedReservations.value = []
+    // Alternative : filtrer depuis toutes les réservations
+    const allReservations = apiRoomGroups.value.flatMap((group: any) => group.reservations || [])
+    unassignedReservations.value = allReservations.filter((res: any) => {
+      const hasUnassignedRooms = res.reservationRooms?.some((room: any) => !room.roomId)
+      const matchesDate = res.checkInDate === date ||
+                          (res.checkInDate <= date && res.checkOutDate > date)
+      return hasUnassignedRooms && matchesDate
+    })
   }
+
+  console.log('Opening unassigned modal with:', unassignedReservations.value)
   showUnassignedModal.value = true
 }
 
@@ -601,18 +616,17 @@ function handleUnassignedRoomClick(date: Date, roomTypeId: number) {
     const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
 
     if (roomTypeData && roomTypeData.unassigned_reservations) {
-      const unassignedReservations = roomTypeData.unassigned_reservations
+      const reservations = roomTypeData.unassigned_reservations
 
-      if (unassignedReservations.length === 1) {
-        // Only one reservation - directly open AssignRoomReservation
-        selectedReservationForAssignment.value = unassignedReservations[0]
+      if (reservations.length === 1) {
+        selectedReservationForAssignment.value = reservations[0]
         showAssignRoomModal.value = true
-      } else if (unassignedReservations.length > 1) {
-        // Multiple reservations - open selection modal
+      } else if (reservations.length > 1) {
         selectedUnassignedDate.value = dStr
-        unassignedReservations.value = unassignedReservations
+        unassignedReservations.value = reservations
+        selectedRoomTypeId.value = roomTypeId
         showUnassignedModal.value = true
-        console.log("Opening unassigned modal with filtered reservations:", unassignedReservations)
+        console.log("Opening unassigned modal with filtered reservations:", reservations)
       }
     }
   }
@@ -774,7 +788,7 @@ function getUnassignedApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
   if (metric && metric.unassigned_reservations > 0) {
-    return `${metric.unassigned_reservations}`
+    return `<a href="#" onclick="event.preventDefault(); handleUnassignedClick('${dStr}')" class="text-blue-500 hover:underline">${metric.unassigned_reservations}</a>`
   }
   return '0'
 }
@@ -806,7 +820,7 @@ function getUnassignedRoomsByType(date: Date, roomTypeId: number) {
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
 
   if (metric && metric.unassigned_room_reservations_by_type) {
-    const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
+    const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId )
     return roomTypeData ? roomTypeData.unassigned_count : '0'
   }
 
