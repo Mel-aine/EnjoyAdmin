@@ -21,7 +21,7 @@
           <InputDatePicker v-model="formData.requestDate" :title="$t('Request Date')" />
         </div>
         <div>
-          <InputTimePicker v-model="formData.scheduledTime" :title="$t('Scheduled Time')" />
+          <InputTimePicker v-model="formData.scheduledTime" :title="$t('Scheduled Time')" custom-class="rounded-lg" />
         </div>
       </div>
 

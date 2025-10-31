@@ -92,7 +92,25 @@ export const deleteGuest = (id: number): Promise<AxiosResponse<any>> => {
 export const getCustomerProfile = (
   id: number,
 ): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}/profile`, getHeaders())
+  return axios.get(`${API_URL}/customers/${id}/details`, getHeaders())
+}
+
+export const getCustomerActivityLogs = (
+  id: number,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/customers/${id}/activity-logs`, getHeaders())
+}
+
+export const getCustomerTransactions = (
+  id: number,params:any={}
+): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/customers/${id}/transactions`, {...getHeaders(),params})
+}
+
+export const getCustomerReservations = (
+  id: number,
+): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/customers/${id}/reservations`, getHeaders())
 }
 
 /**

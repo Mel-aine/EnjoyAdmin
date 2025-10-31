@@ -4,9 +4,11 @@
       v-if="payments && payments.length > 0"
       :columns="tableColumns"
       :data="payments"
-      :actions="tableActions"
+      :meta="meta"
+      @page-change="(page) => emit('page-change', page)"
       :searchable="false"
       :show-header="false"
+      :loading="loading"
       @action="onTableAction"
     >
       <!-- Date du paiement -->
@@ -31,6 +33,9 @@
           {{ item.status.replace('_', ' ') }}
         </span>
       </template>
+      <template #column-totalCharges="{ item }">
+        <div class="font-semibold text-gray-900">{{ formatCurrency(item.totalCharges) }}</div>
+      </template>
     </ReusableTable>
 
     <!-- État vide si aucune donnée de paiement n'est trouvée -->
@@ -54,10 +59,19 @@ const { t } = useI18n();
 // --- PROPS ---
 const props = defineProps<{
   payments: any[];
+  loading?:boolean
+  meta?: {
+    total: number;
+    perPage: number;
+    currentPage: number;
+    lastPage: number;
+    previousPageUrl?: string | null;
+    nextPageUrl?: string | null;
+  }
 }>();
 
 // --- EMITS ---
-const emit = defineEmits(['view-details', 'refund', 'print-receipt']);
+const emit = defineEmits(['view-details', 'refund', 'print-receipt','page-change']);
 
 // --- CONFIGURATION DE LA TABLE ---
 const tableColumns = computed(() => [
@@ -65,13 +79,12 @@ const tableColumns = computed(() => [
   { key: 'reference', label: t('Référence / Méthode'), type: 'custom' as const },
   { key: 'amount', label: t('Amount'), type: 'custom' as const },
   { key: 'status', label: t('Status'), type: 'custom' as const },
+  { key: 'balance', label: t('balance'), type: 'custom' as const },
+  { key: 'totalCharges', label: t('unsettledFolios.columns.totalCharges'), type: 'custom' as const },
+
 ]);
 
-const tableActions = computed(() => [
-  { label: t('View'), variant: 'primary' as const, action: 'view-details',icon:Eye },
-  { label: t('Rembourser'), variant: 'secondary' as const, action: 'refund', condition: (item: any) => item.status === 'open' || item.status === 'paid',icon:Undo2 },
-  { label: t('Imprimer le reçu'), variant: 'light' as const, action: 'print-receipt',icon:Printer },
-]);
+
 
 const onTableAction = (action: string, item: any) => {
   emit(action as any, item);
