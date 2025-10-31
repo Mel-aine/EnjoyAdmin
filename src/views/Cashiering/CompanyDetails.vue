@@ -25,7 +25,7 @@ import {
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ButtonDropdown from '../../components/common/ButtonDropdown.vue'
-import router from '../../router'
+import { useRouter, useRoute } from 'vue-router'
 import AdminLayout from '../../components/layout/AdminLayout.vue'
 import Spinner from '../../components/spinner/Spinner.vue'
 import { useToast } from 'vue-toastification'
@@ -37,6 +37,7 @@ import { getCompanyTransaction } from '@/services/configrationApi'
 import type { Column } from '@/utils/models'
 import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
 import ButtomDropdownAction from '@/components/common/ButtomDropdownAction.vue'
+import CashieringCenterInterface from './CashieringCenterInterface.vue'
 
 // Simple Button component
 const Button = {
@@ -46,6 +47,8 @@ const Button = {
 
 const { t } = useI18n()
 const toast = useToast()
+const router = useRouter()
+const route = useRoute()
 const company = ref<any>(null)
 const isLoading = ref(false)
 const showDeleteModal = ref(false)
@@ -161,7 +164,8 @@ const handleOptionSelected = (option: any) => {
 const getCompanyDetailsById = async () => {
   isLoading.value = true
   try {
-    const id = router.currentRoute.value.params.id
+    const id = route.params.id
+    console.log('company Id', route.params)
     const response = await getCompanyById(Number(id))
     if (response) {
       company.value = response
@@ -205,15 +209,15 @@ const closeDeleteModal = () => {
 const getStatusClass = (status: string) => {
   switch (status?.toLowerCase()) {
     case 'active':
-      return 'bg-green-100 text-green-800'
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
     case 'inactive':
-      return 'bg-red-100 text-red-800'
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
     case 'suspended':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
     case 'pending':
-      return 'bg-blue-100 text-blue-800'
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
   }
 }
 
@@ -305,35 +309,44 @@ onMounted(() => {
 
 <template>
   <AdminLayout>
-    <div class="p-6 h-screen">
+    <div class="p-6">
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation
-        v-if="showDeleteModal"
-        :is-open="showDeleteModal"
-        :is-loading="deleting"
-        :title="t('Delete Company')"
-        :message="t('Are you sure you want to delete this company?')"
-        action="DANGER"
-        @close="closeDeleteModal"
-        @confirm="confirmDeleteCompany"
-      />
+      <ModalConfirmation v-if="showDeleteModal" :is-open="showDeleteModal" :is-loading="deleting"
+        :title="t('Delete Company')" :message="t('Are you sure you want to delete this company?')" action="DANGER"
+        @close="closeDeleteModal" @confirm="confirmDeleteCompany" />
 
-      <!-- Loading Skeleton -->
-      <div v-if="isLoading" class="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6">
-        <div class="animate-pulse">
-          <div class="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
+      <!-- Skeleton while loading company details -->
+      <div v-else-if="isLoading" class="space-y-6 animate-pulse">
+        <!-- Header Skeleton -->
+        <div class="shadow-sm px-4 py-2 bg-white dark:bg-gray-800 flex justify-between">
+          <div class="flex gap-2 items-center">
+            <div class="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="w-48 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          </div>
+          <div class="flex gap-2">
+            <div class="w-24 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="w-20 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          </div>
+        </div>
+
+        <!-- Content Skeleton -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div class="w-40 h-5 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+          <div class="space-y-3">
+            <div class="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="w-3/4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="w-2/3 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          </div>
         </div>
       </div>
 
+      
       <!-- Company Details Content bg-white rounded-lg shadow-md -->
-      <div v-else-if="company" class="">
+      <div v-else-if="company" class="border-b-2 border-gray-00 dark:border-gray-700">
         <!-- Header -->
 
-        <div class="shadow-sm px-4 py-2 mx-4 bg-white dark:bg-gray-800 flex justify-between">
+        <div class="shadow-sm px-4 py-2  bg-white dark:bg-gray-800 flex justify-between">
           <div class="flex gap-2 align-middle self-center items-center">
             <ArrowLeft @click="router.back()" class="cursor-pointer"></ArrowLeft>
             <div>
@@ -342,11 +355,8 @@ onMounted(() => {
               </h1>
               <div class="flex items-center mt-1 space-x-4">
                 <!-- Statut du compte -->
-                <span
-                  v-if="company.accountStatus"
-                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  :class="getStatusClass(company.accountStatus)"
-                >
+                <span v-if="company.accountStatus" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                  :class="getStatusClass(company.accountStatus)">
                   {{ $t(`companyDatabase.status.${company.accountStatus?.toLowerCase()}`) }}
                 </span>
 
@@ -354,17 +364,14 @@ onMounted(() => {
                 <span class="text-sm text-gray-900 dark:text-gray-100">ID: {{ company.id }}</span>
 
                 <!-- Numéro d'enregistrement -->
-                <div
-                  class="flex items-center gap-1 text-base font-medium text-gray-900 dark:text-gray-100"
-                >
+                <div class="flex items-center gap-1 text-base font-medium text-gray-900 dark:text-gray-100">
 
-                  <span class="text-gray-500">{{ $t('configuration.business_source.registration_number') }} </span> : {{ company.registrationNumber || '-' }}
+                  <span class="text-gray-500">{{ $t('configuration.business_source.registration_number') }} </span> : {{
+                    company.registrationNumber || '-' }}
                 </div>
 
                 <!-- Numéro fiscal -->
-                <div
-                  class="flex items-center gap-1 text-base font-medium text-gray-900 dark:text-gray-100"
-                >
+                <div class="flex items-center gap-1 text-base font-medium text-gray-900 dark:text-gray-100">
 
                   <span class="text-gray-500">{{ $t('tax_id') }} </span> : {{ company.taxId || '-' }}
                 </div>
@@ -376,7 +383,7 @@ onMounted(() => {
                   <User class="text-gray-500 w-4 h-4" />
                   <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{
                     company.contactPersonName || '-'
-                  }}</span>
+                    }}</span>
                 </div>
 
                 <!-- Email -->
@@ -384,7 +391,7 @@ onMounted(() => {
                   <Mail class="text-gray-500 w-4 h-4" />
                   <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{
                     company.primaryEmail || '-'
-                  }}</span>
+                    }}</span>
                 </div>
 
                 <!-- Phone -->
@@ -392,7 +399,7 @@ onMounted(() => {
                   <Phone class="text-gray-500 w-4 h-4" />
                   <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{
                     company.primaryPhone || '-'
-                  }}</span>
+                    }}</span>
                 </div>
                 <div class="flex items-start gap-1">
                   <MapPin class="text-gray-500 w-4 h-4 mt-1" />
@@ -418,24 +425,21 @@ onMounted(() => {
 
           <div>
             <div class="flex flex-col items-end mt-5">
-            <ButtomDropdownAction
-              :options="dropdownOptions"
-              @option-selected="handleOptionSelected"
-              button-class="bg-white text-primary border-primary hover:bg-primary/25 w-full sm:w-auto"
-              dropdown-class="w-64"
-            >
-              <template #button>
-                <span class="flex items-center justify-center gap-2">
-                  <span>{{ t('Actions') }}</span>
-                </span>
-              </template>
-            </ButtomDropdownAction>
+              <ButtomDropdownAction :options="dropdownOptions" @option-selected="handleOptionSelected"
+                button-class="bg-white dark:bg-gray-800 text-primary border-primary hover:bg-primary/25 w-full sm:w-auto"
+                dropdown-class="w-64">
+                <template #button>
+                  <span class="flex items-center justify-center gap-2">
+                    <span>{{ t('Actions') }}</span>
+                  </span>
+                </template>
+              </ButtomDropdownAction>
             </div>
             <div class="flex flex-col items-end mt-5">
 
               <span class="text-sm text-gray-500 dark:text-gray-100">{{
                 t('current_balance')
-              }}</span>
+                }}</span>
               <span class="text-base font-semibold text-red-500 dark:text-red-500">
                 {{ formatAmounts(company.currentBalance || 0) }}
               </span>
@@ -445,16 +449,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- No Company Found -->
-      <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
-        <p class="text-gray-500 dark:text-gray-100">{{ t('can_t_find') }}</p>
-        <button
-          @click="router.back()"
-          class="mt-4 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
-        >
-          {{ t('back_to') }}
-        </button>
-      </div>
+      <CashieringCenterInterface :selectedCompanyId="company?.id" :isCashering="false" />
     </div>
   </AdminLayout>
 </template>
