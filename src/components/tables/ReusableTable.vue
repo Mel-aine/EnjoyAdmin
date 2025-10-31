@@ -286,6 +286,7 @@ const dropdownDirection = ref<'up' | 'down'>('down')
 const tableContainer = ref<HTMLElement | null>(null)
 const loadingNextPage = ref(false)
 const expandedRows = ref<number[]>([])
+const dropdownMenu = ref<HTMLElement | null>(null)
 
 const toggleExpand = (index: number) => {
   const pos = expandedRows.value.indexOf(index)
@@ -408,6 +409,38 @@ const getItemActions = (item: any) => {
 
 
 
+// const toggleDropdown = async (index: number, event: MouseEvent) => {
+//   if (openDropdown.value === index) {
+//     openDropdown.value = null
+//     return
+//   }
+
+//   // Réinitialiser la direction avant d'ouvrir
+//   dropdownDirection.value = 'down'
+//   openDropdown.value = index
+
+//   await nextTick()
+
+//   const triggerButton = event.currentTarget as HTMLElement
+//   const menu = triggerButton.nextElementSibling as HTMLElement
+
+//   if (!menu) {
+//     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
+//     return;
+//   }
+
+//   const menuRect = menu.getBoundingClientRect()
+//   const viewportHeight = window.innerHeight
+
+//   console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
+
+//   // Vérification de la position
+//   if (menuRect.bottom > viewportHeight - 150) {
+//     console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
+//     dropdownDirection.value = 'up'
+//   }
+// }
+
 const toggleDropdown = async (index: number, event: MouseEvent) => {
   if (openDropdown.value === index) {
     openDropdown.value = null
@@ -420,26 +453,27 @@ const toggleDropdown = async (index: number, event: MouseEvent) => {
 
   await nextTick()
 
-  const triggerButton = event.currentTarget as HTMLElement
-  const menu = triggerButton.nextElementSibling as HTMLElement
+  // Prefer template ref over DOM sibling traversal for robustness in tests and runtime
+  const menu = dropdownMenu.value as HTMLElement
 
   if (!menu) {
     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
     return;
   }
 
-  const menuRect = menu.getBoundingClientRect()
-  const viewportHeight = window.innerHeight
-
-  console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
-
-  // Vérification de la position
-  if (menuRect.bottom > viewportHeight - 150) {
-    console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
-    dropdownDirection.value = 'up'
+  // Safely compute dropdown direction only if DOM API is available
+  const getRect = (menu as any)?.getBoundingClientRect
+  if (typeof getRect === 'function') {
+    const menuRect = getRect.call(menu)
+    const viewportHeight = window.innerHeight
+    // Vérification de la position
+    if (menuRect.bottom > viewportHeight - 150) {
+      dropdownDirection.value = 'up'
+    }
+  } else {
+    dropdownDirection.value = 'down'
   }
 }
-
 const handleAction = (action: Action, item: any) => {
   action.handler(item)
   emit('action', action.label, item)
