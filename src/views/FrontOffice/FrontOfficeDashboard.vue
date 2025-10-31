@@ -167,7 +167,7 @@
                         <span>{{ $t('occupied') }}: {{ suite.occupied }}</span>
                         <span>{{ $t('available') }}: {{ suite.free }}</span>
                         <span class="">
-                          {{ $t('OR') }}:
+                          {{ $t('occupancyRate') }}:
                           <span :class="{
                             'text-green-600 font-semibold': parseFloat(suite.occupancyRate) < 50,
                             'text-yellow-600 font-semibold':
@@ -238,7 +238,7 @@
                       </div>
                     </div>
                     <div>
-                      <p class="text-sm text-gray-900 dark:text-white wrap-anywhere">{{ activity.description }}</p>
+                      <p class="text-sm text-gray-900 dark:text-white wrap-anywhere">{{ localizeActivityDescription(activity.description) }}</p>
                       <p class="text-xs text-gray-600 dark:text-gray-400">{{ activity.timestamp }}</p>
                     </div>
                   </div>
@@ -294,6 +294,16 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()
+// Localisation des descriptions d'activités renvoyées par l'API (en anglais)
+const activityDescriptionMap: Record<string, string> = {
+  'receipt created for payment transaction': 'frontOffice.dashboard.activityDescriptions.receiptCreatedForPayment',
+}
+
+function localizeActivityDescription(description?: string): string {
+  if (!description) return ''
+  const key = activityDescriptionMap[description.toLowerCase().trim()]
+  return key ? t(key) : description
+}
 const serviceStore = useServiceStore()
 
 // Reactive data

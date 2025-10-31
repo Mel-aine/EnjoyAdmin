@@ -119,6 +119,8 @@ const filters = ref<FitlterItem>({
   searchText: '', // For guest name or reservation number
   status: '',
   roomType: '',
+  // checkInDate: '',
+  // checkOutDate:'',
   checkInDate: formatDate(today),
   checkOutDate: formatDate(sevenDaysLater),
 });

@@ -6,6 +6,10 @@ const API_URL = () => {
   const hotelId = useServiceStore().serviceId
   return `${import.meta.env.VITE_API_URL as string}/configuration/hotels/${hotelId}/company_accounts`
 }
+const API_URL_CITY_LEDGER = () => {
+  const hotelId = useServiceStore().serviceId
+  return `${import.meta.env.VITE_API_URL as string}/configuration/hotels/${hotelId}/city_ledger`
+}
 const getHeaders = () => {
   const authStore = useAuthStore()
   return {
@@ -186,7 +190,7 @@ export const auditCompanies = async (): Promise<ApiResponse | undefined> => {
 export const getCityLedger = async (hotelId: number): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await axios.get(
-      `${API_URL()}/city_ledger/${hotelId}`,
+      `${API_URL()}/city_ledger`,
       getHeaders()
     )
     console.log('response', response)
@@ -213,7 +217,7 @@ export const getCityLedgerDetails = async (params: {
 }): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse> = await axios.get(
-      `${API_URL()}/city_ledger`,
+      `${API_URL_CITY_LEDGER()}`,
       {
         params,
         ...getHeaders()

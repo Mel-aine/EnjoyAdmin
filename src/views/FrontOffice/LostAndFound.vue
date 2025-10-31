@@ -263,14 +263,14 @@ const exportLostFound = async () => {
   try {
     // Utiliser filteredLostFoundItems au lieu de lostFoundItems
     const csvData = filteredLostFoundItems.value.map(item => ({
-      'Status': item.status || '',
-      'Date': formatDate(item.lost_on),
-      'Who Found': item.whoFound || '',
-      'Item Name': item.itemName || '',
-      'Item Color': item.itemColor || '',
-      'Location': item.lostLocation || '',
-      'Room Number': item.room?.roomNumber || '',
-      'Type': item.type || ''
+      [t('lostFound.csv.status')]: item.status || '',
+      [t('lostFound.csv.date')]: formatDate(item.lost_on),
+      [t('lostFound.csv.whoFound')]: item.whoFound || '',
+      [t('lostFound.csv.itemName')]: item.itemName || '',
+      [t('lostFound.csv.itemColor')]: item.itemColor || '',
+      [t('lostFound.csv.location')]: item.lostLocation || '',
+      [t('lostFound.csv.roomNumber')]: item.room?.roomNumber || '',
+      [t('lostFound.csv.type')]: item.type || ''
     }))
 
     // Convert to CSV string

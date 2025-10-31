@@ -2,6 +2,7 @@
 import axios from 'axios';
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
+import type { AxiosResponse } from 'axios'
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`;
 
 const getHeaders  = () => {
@@ -175,6 +176,32 @@ export const fetchRoomStatusReport = async (
   }
 };
 
+export const getRoomStatusPDF = async (data: { hotelId: number, date: string }): Promise<Blob> => {
+  try {
+    const url = `${API_URL}/front-office/rooms-status-pdf`
+    
+    const response: AxiosResponse<Blob> = await axios.post(url, data, {
+      ...getHeaders(),
+      responseType: 'blob',
+    })
+    
+    // Le backend retourne directement un PDF, pas besoin de validation supplémentaire
+    return response.data
+  } catch (error) {
+    console.error('Error fetching room status PDF:', error)
+    throw error
+  }
+}
+
+export const getRoomStatusPdfUrl = async (data: { hotelId: number, date: string }): Promise<string> => {
+  try {
+    const pdfBlob = await getRoomStatusPDF(data)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating PDF URL:', error)
+    throw error
+  }
+}
 /**
  * Transforme les données du rapport en format compatible avec le composant RapportExportTable
  */
