@@ -2,7 +2,7 @@
   <AdminLayout>
     <div class="p-6">
 
-      <ReusableTable :title="$t('companyDatabase.title')" :columns="columns" :data="filteredCompanies"
+      <ReusableTable :title="$t('companyDatabase.title')" :columns="columns" :data="filteredCompanies" @page-change="handlePageChange" :meta="paginationMeta"
         :actions="actions" :loading="loading" @action="onAction"
         :search-placeholder="$t('companyFilter.searchText')" :empty-title="$t('companyDatabase.empty_title')"
         :empty-description="$t('companyDatabase.noCompaniesMessage')">
@@ -90,6 +90,9 @@ const auditing = ref(false)
 const deleting = ref(false)
 const showDeleteModal = ref(false)
 const companyToDelete = ref<Company | null>(null)
+const paginationMeta = ref<any>(null)
+const page = ref(1)
+const activeFilters = ref<any>({})
 
 // Companies data from API
 const companies = ref<Company[]>([])
@@ -112,9 +115,10 @@ const actions = computed<Action[]>(() => [
 ])
 
 // Filter handling
-const handleFilter = async (filterData: any) => {
+const handleFilter = async (filterData: any, pageNumber = 1) => {
   try {
     loading.value = true
+    activeFilters.value = filterData
 
     // Convert filter data to API filter format
     const apiFilter: CompanyFilterType = {
@@ -123,14 +127,19 @@ const handleFilter = async (filterData: any) => {
       country: filterData.country || undefined,
       email: filterData.email || undefined,
       minBalance: filterData.minBalance ? parseFloat(filterData.minBalance) : undefined,
-      maxBalance: filterData.maxBalance ? parseFloat(filterData.maxBalance) : undefined
+      maxBalance: filterData.maxBalance ? parseFloat(filterData.maxBalance) : undefined,
+      page: pageNumber,
+      limit: 10,
     }
+
 
     // Call API with filters
     const result:any = await getFilteredCompanies(apiFilter)
-    console.log('result', result.data)
+    console.log('result', result)
     if (result) {
       filteredCompanies.value = result.data
+      paginationMeta.value = result.meta
+      page.value = pageNumber
     } else {
       filteredCompanies.value = []
       toast.error(t('companyDatabase.filter_error'))
@@ -276,15 +285,15 @@ const formatCurrency = (amount: number) => {
 }
 
 // Fetch companies from API
-const fetchCompanies = async () => {
+const fetchCompanies = async (pageNumber = 1) => {
   try {
     loading.value = true
-    const result: any = await getCompanies()
-    console.log('reservation', result.data)
+    const result: any = await getCompanies({ page: pageNumber, limit: 10 })
+    console.log('fetchCompanies', result)
     if (result) {
       companies.value = result.data
-
       filteredCompanies.value = result.data
+      paginationMeta.value = result.meta
 
     } else {
       companies.value = []
@@ -300,7 +309,9 @@ const fetchCompanies = async () => {
     loading.value = false
   }
 }
-
+const handlePageChange = (newPage: number) => {
+  handleFilter(activeFilters.value, newPage)
+}
 // Load companies on component mount
 onMounted(() => {
   fetchCompanies()
