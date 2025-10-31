@@ -211,9 +211,6 @@
               </h3>
 
               <div class="flex space-x-2">
-                <button class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-                  {{ $t('common.all') }}
-                </button>
                 <button @click="loadDashboardData"
                   class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
                   <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />

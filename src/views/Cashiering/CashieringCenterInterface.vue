@@ -39,12 +39,12 @@
         </div>
         <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
           <div class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full">
-            <span>{{ formatCurrency(totals.cityLedgerTotal) }}</span>
+            <span>{{ formatCurrency(totals.totalCredit) }}</span>
             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">
               {{ $t('City Ledger Total') }}</span>
           </div>
           <div class="flex flex-col gap-2 items-center justify-start align-top ">
-            <span>{{ formatCurrency(totals.unpaidInvoice) }}</span>
+            <span>{{ formatCurrency(totals.unpaidInvoices) }}</span>
             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unpaid Invoice') }}</span>
           </div>
           <div class="flex flex-col gap-2 items-center justify-start align-top ">
@@ -69,7 +69,7 @@
 
       <!-- Table Content -->
       <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading" :searchable="false"
-        :show-header="false" :selectable="true" @selection-change="handleSelectionChange">
+        :show-header="false" :selectable="false" @selection-change="handleSelectionChange">
         <!-- Custom cell for Description column -->
         <template #column-description="{ item }">
           <div>
@@ -225,7 +225,9 @@ const loadCityLedgerData = async () => {
     if (response?.data) {
       cityLedgerData.value = response.companyAccount
       totals.value = response.totals
-      transactions.value = response.data || []
+      transactions.value = (response.data || []).map((e:any)=>{
+        return {...e,noaction:e.transactionType==='transfer'}
+      })
       originalTransactions.value = [...transactions.value]
     }
   } catch (error) {
@@ -242,14 +244,15 @@ const actions = ref([
   {
     name: 'void', label: 'Void', icon: 'ban', danger: true,
     handler: (item :any) => onAction('void', item),
+    condition: (item: any) => (item.transactionType === 'payment' && item.assignedAmount<=0),
   },
   {
     name: 'print', label: 'Print Receipt', icon: 'printer',
     handler: (item :any) => onAction('printReceipt', item),
-    condition: (item: any) => item.transactionType === 'payment',
+    condition: (item: any) => (item.transactionType === 'payment' && item.assignedAmount<=0),
   },
   {
-    name: 'map', label: 'Map Payment', icon: 'map', handler: (item :any) => onAction('printReceipt', item),
+    name: 'map', label: 'Map Payment', icon: 'map', handler: (item :any) => onAction('map', item),
     condition: (item: any) => item.transactionType === 'payment',
   }
 ])

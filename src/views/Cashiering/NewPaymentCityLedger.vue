@@ -271,7 +271,7 @@ const loadCityLedgerData = async () => {
       console.log('esponse', response)
       cityLedgerData.value = response
       // Transform API data to guest data format
-      guestData.value = response.data.map((transaction: any, index: number) => ({
+      guestData.value = response.data.filter((e:any)=>(e.transactionType =='transfer' && e.open >0)).map((transaction: any, index: number) => ({
         id: transaction.id,
         date: transaction.date,
         name: transaction.guestName,
