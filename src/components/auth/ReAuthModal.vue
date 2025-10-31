@@ -142,7 +142,7 @@ const handleReAuth = async () => {
           </div>
         </div>
         <div class="flex justify-end gap-3">
-          <button @click="close" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 dark:text-white dark:hover:text-black ">{{ t('common.cancel') }}</button>
+          <button @click="close" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 dark:text-white dark:hover:text-black ">{{ t('cancel') }}</button>
           <button @click="handleReAuth" :disabled="!password || isLoading" class="relative flex items-center justify-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50">
             <span v-if="!isLoading">{{ t('reauth.reauthenticate') }}</span>
             <span v-else class="flex items-center gap-2">
