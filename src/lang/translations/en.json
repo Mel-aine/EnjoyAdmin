@@ -6473,5 +6473,6 @@
   "please_check_back" : "Please check back later for this feature.",
   "can_t_find" : "Company not found or has been deleted.",
   "back_to" : "Back to Company Database",
-  "transactionType" : "Transaction Type"
+  "transactionType" : "Transaction Type",
+  "totalPayments" : "Total Payments"
 }

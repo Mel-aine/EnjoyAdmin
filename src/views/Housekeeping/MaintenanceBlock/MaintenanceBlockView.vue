@@ -595,7 +595,7 @@ const fetchBlocks = async (pageNumber=1) => {
   }
 }
 
-const handlePageChange = (newPage) =>{
+const handlePageChange = (newPage:number) =>{
   fetchBlocks(newPage)
 }
 

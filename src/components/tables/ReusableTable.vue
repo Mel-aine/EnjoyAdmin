@@ -45,6 +45,7 @@
             <th v-if="hasActions"
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
             </th>
+            <th v-if="expandable" class="px-6 py-3 w-12"></th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
@@ -65,10 +66,12 @@
 
           <!-- Actual Data Rows -->
           <template v-else>
-            <tr v-for="(item, index) in filteredData" :key="getItemKey(item, index)"
+             <template v-for="(item, index) in filteredData" :key="getItemKey(item, index)">
+            <tr
               class="transition-colors cursor-pointer" :class="[
                 'hover:bg-gray-50 dark:hover:bg-gray-700',
-                item.isVoided ? 'bg-gray-100 dark:bg-gray-700 void-status' : '',
+                item.isVoided ? 'bg-gray-100 dark:bg-gray-700 void-status line-through' : '',
+                item.status === 'voided' ? 'line-through opacity-60' : '',
                 rowClass(item)
               ]" @click="emit('row-click', item)">
               <td v-if="selectable" class="px-6 py-4">
@@ -154,7 +157,31 @@
                   </div>
                 </div>
               </td>
+              <td v-if="expandable" class="px-6 py-4">
+                <button @click.stop="toggleExpand(index)" class="text-gray-400 hover:text-gray-600">
+                  <ChevronDown
+                    class="w-5 h-5 transition-transform"
+                    :class="{ 'rotate-180': expandedRows.includes(index) }"
+                  />
+                </button>
+              </td>
             </tr>
+           <tr
+            v-if="expandable && expandedRows.includes(index)"
+            :key="`expanded-${getItemKey(item, index)}`"
+            :class="[
+              'bg-gray-50 dark:bg-gray-800',
+              item.isVoided ? 'void-status line-through' : '',
+              item.status === 'voided' ? 'line-through opacity-60' : ''
+            ]"
+          >
+            <td :colspan="columns.length + (selectable ? 1 : 0) + (hasActions ? 1 : 0) + (expandable ? 1 : 0)" class="px-0 py-0">
+              <div class="animate-slideDown">
+                <slot name="expanded-content" :item="item"></slot>
+              </div>
+            </td>
+          </tr>
+          </template>
           </template>
 
           <tr v-if="loadingNextPage">
@@ -189,6 +216,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Action, Column } from '../../utils/models'
+import { ChevronDown } from 'lucide-vue-next'
 import TablePagination from './TablePagination.vue'
 
 // HeaderAction interface removed as we're using slots now
@@ -220,6 +248,7 @@ interface Props {
     nextPageUrl?: string | null;
   }
   isInfiniteScroll?: boolean
+  expandable?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -235,7 +264,8 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   rowClass: () => '',
   maxHeight: '80vh',
-  isInfiniteScroll:false
+  isInfiniteScroll:false,
+  expandable: false
 
 })
 
@@ -255,6 +285,16 @@ const openDropdown = ref<number | null>(null)
 const dropdownDirection = ref<'up' | 'down'>('down')
 const tableContainer = ref<HTMLElement | null>(null)
 const loadingNextPage = ref(false)
+const expandedRows = ref<number[]>([])
+
+const toggleExpand = (index: number) => {
+  const pos = expandedRows.value.indexOf(index)
+  if (pos > -1) {
+    expandedRows.value.splice(pos, 1)
+  } else {
+    expandedRows.value.push(index)
+  }
+}
 
 // const hasActions = computed(() => props.actions.length > 0)
 const hasActions = computed(() => {
@@ -581,6 +621,20 @@ onUnmounted(() => {
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out forwards;
+}
 
 
 </style>
