@@ -1,8 +1,8 @@
  <template>
-  <SpeedInsights />
+  <SpeedInsights /> 
   <ThemeProvider>  
     <SidebarProvider>  
-      <RouterView />  
+      <RouterView />    
       <ReAuthModal :is-open="isReAuthOpen && authStore.isFullyAuthenticated" @close="handleClose" 
         @success="handleSuccess" />
     </SidebarProvider> 

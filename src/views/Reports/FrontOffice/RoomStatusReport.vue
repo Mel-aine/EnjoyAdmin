@@ -121,10 +121,10 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import WordExportButton from '@/components/common/WordExportButton.vue'
 import { 
   fetchRoomStatusReport,
+  getRoomStatusPdfUrl,
   type RoomStatusReportResponse,
   type RoomStatusWordExportParams 
 } from '@/services/roomstatusApi'
-import { getRoomStatusPdfUrl } from '@/services/occupancyReportsApi'
 
 // Reactive data
 const isLoading = ref(false)
@@ -139,7 +139,7 @@ const wordExportRef = ref<InstanceType<typeof WordExportButton> | null>(null)
 // Filtres
 const selectedDate = ref(new Date().toISOString().split('T')[0])
 const currentParams = computed((): any => ({
-  asOnDate: selectedDate.value,
+  date: selectedDate.value,
   hotelId: useServiceStore().serviceId!
 }))
 

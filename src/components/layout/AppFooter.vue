@@ -1,5 +1,5 @@
 <template>
-  <footer class="border-t p-6 text-sm flex flex-col md:flex-row items-center justify-between bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 transition-colors duration-300">
+  <footer class="border-t p-6 text-sm flex flex-col md:flex-row items-center justify-between bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors duration-300">
     <p class="mb-2 md:mb-0">© 2025 Enjoy. {{ $t('allRightsReserved') }}.</p>
 
     <div class="flex gap-4">
