@@ -6,21 +6,21 @@
           {{ t('reports.frontOffice.guestCheckedOut') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage departing guest reservations
+          {{ t('reports.frontOffice.guestCheckedOutDescription') }}
         </p>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
+          {{ t('common.filters') }}
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Departure Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('Date From') }}
+              {{ t('common.dateFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
@@ -30,7 +30,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('Date To') }}
+              {{ t('common.dateTo') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalTo" 
@@ -253,7 +253,7 @@
                   <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  CSV
+                  {{ t('common.csv') }}
                 </button>
                 <button 
                   @click="exportPDF" 
@@ -263,7 +263,7 @@
                   <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
-                  PDF
+                  {{ t('common.pdf') }}
                 </button>
                 <button 
                   @click="exportExcel" 
@@ -273,7 +273,7 @@
                   <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Excel
+                  {{ t('common.excel') }}
                 </button>
               </div>
             </div>

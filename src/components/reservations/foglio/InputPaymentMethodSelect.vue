@@ -6,14 +6,15 @@
       {{ label || 'Payment Method' }}
     </label>
 
-    <div class="relative font-sans cursor-pointer" @click="handleFocus">
+    <div class="relative font-sans cursor-pointer" @click="handleFocus" :aria-disabled="props.disabled"
+      :class="props.disabled ? 'cursor-not-allowed opacity-60' : ''">
       <div
         class="flex justify-between dark:bg-dark-900 h-11 w-full truncate rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
         :class="[ showDropdown ? 'border-purple-500 text-gray-900' : 'border-black/50', props.customClass]">
 
         <input ref="inputRef" type="text" :value="displayValue" @input="handleInput" @focus="handleFocus"
-          @keydown="handleKeydown" :placeholder="placeholder || 'Search payment methods...'"
-          class="w-full bg-transparent outline-none border-none p-0 text-sm text-gray-800 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30',">
+          @keydown="handleKeydown" :placeholder="placeholder || 'Search payment methods...'" :disabled="props.disabled" :readonly="props.disabled"
+          class="w-full bg-transparent outline-none border-none p-0 text-sm text-gray-800 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30'" :class="props.disabled ? 'cursor-not-allowed' : ''">
 
 
         <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
@@ -21,7 +22,7 @@
       </div>
 
       <!-- Dropdown -->
-      <ul v-if="showDropdown && (filteredPaymentMethods.length > 0 || isLoading)"
+      <ul v-if="!props.disabled && showDropdown && (filteredPaymentMethods.length > 0 || isLoading)"
         class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         role="listbox" :aria-expanded="showDropdown" aria-hidden="false">
         <li v-if="isLoading" class="px-5 py-2 text-sm text-gray-500 dark:text-gray-400">
@@ -149,6 +150,7 @@ watch(() => props.paymentType, () => {
 
 // Methods
 const handleInput = (event: Event) => {
+  if (props.disabled) return
   const target = event.target as HTMLInputElement
   searchQuery.value = target.value
   selectedIndex.value = -1
@@ -163,6 +165,7 @@ const handleInput = (event: Event) => {
 }
 
 const handleFocus = () => {
+  if (props.disabled) return
   showDropdown.value = true
   isUserTyping.value = false // Reset typing state on focus to show all options
 
@@ -180,6 +183,7 @@ const handleFocus = () => {
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
+  if (props.disabled) return
   if (!showDropdown.value) return
 
   switch (event.key) {
@@ -205,6 +209,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 const selectPaymentMethod = (paymentMethod: PaymentMethod) => {
+  if (props.disabled) return
   emit('update:modelValue', paymentMethod.id) // Emit only the ID
   emit('select', paymentMethod) // Emit the selected method object
   emit('change', paymentMethod.id) // Emit the method ID on change

@@ -228,6 +228,8 @@ const selectedItems = ref<any[]>([])
 const selectAll = ref(false)
 const openDropdown = ref<number | null>(null)
 const dropdownDirection = ref<'up' | 'down'>('down')
+// Template ref for the action dropdown menu element
+const dropdownMenu = ref<HTMLElement | null>(null)
 
 // const hasActions = computed(() => props.actions.length > 0)
 const hasActions = computed(() => {
@@ -353,23 +355,25 @@ const toggleDropdown = async (index: number, event: MouseEvent) => {
 
   await nextTick()
 
-  const triggerButton = event.currentTarget as HTMLElement
-  const menu = triggerButton.nextElementSibling as HTMLElement
+  // Prefer template ref over DOM sibling traversal for robustness in tests and runtime
+  const menu = dropdownMenu.value as HTMLElement
 
   if (!menu) {
     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
     return;
   }
 
-  const menuRect = menu.getBoundingClientRect()
-  const viewportHeight = window.innerHeight
-
-  console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
-
-  // Vérification de la position
-  if (menuRect.bottom > viewportHeight - 150) {
-    console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
-    dropdownDirection.value = 'up'
+  // Safely compute dropdown direction only if DOM API is available
+  const getRect = (menu as any)?.getBoundingClientRect
+  if (typeof getRect === 'function') {
+    const menuRect = getRect.call(menu)
+    const viewportHeight = window.innerHeight
+    // Vérification de la position
+    if (menuRect.bottom > viewportHeight - 150) {
+      dropdownDirection.value = 'up'
+    }
+  } else {
+    dropdownDirection.value = 'down'
   }
 }
 

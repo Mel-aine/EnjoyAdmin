@@ -42,7 +42,7 @@
                     <div class="max-w-md">
                       <SelectDropdown v-model="selectedRoomTypes" :options="roomTypeOptions"
                         :placeholder="$t('roomType')" button-class="bg-white dark:bg-gray-800 text-primary border border-blue-200 dark:border-gray-700  w-42"
-                        dropdown-class="w-full" select-all-text="Select All" :max-display-items="3" />
+                        dropdown-class="w-full" :select-all-text="$t('bookings.calendar.labels.selectAll')" :max-display-items="3" />
                     </div>
                   </div>
 
@@ -120,7 +120,7 @@
                               {{ getUnassignedRoomsByType(date, group.room_type_id) }}
                             </span>
                           </div>
-                          <span class="text-xs">{{ roomRateForDate[group.room_type_id] ?? 'N/A' }}</span>
+                          <span class="text-xs">{{ roomRateForDate[group.room_type_id] ?? t('N/A') }}</span>
                         </div>
                       </td>
                     </tr>
@@ -1059,44 +1059,43 @@ const legendSections = computed(() => {
 
   return [
     {
-      title: 'Booking Status',
+      title: t('bookings.calendar.titles.bookingStatus'),
       items: [
-        { label: 'Arrived', color: colorGetter('checked_in') },
-        { label: 'Checked Out', color: colorGetter('checkout') },
-        { label: 'Due Out', color: colorGetter('departure') },
-        { label: 'Confirmed Reservation', color: colorGetter('confirmed') },
-        { label: 'Maintenance Block', color: colorGetter('blocked') },
-        { label: 'Stayover', color: colorGetter('inhouse') },
-        { label: 'Dayuse Reservation', color: colorGetter('dayuse') },
-        // { label: 'Dayuse', color: colorGetter('dayuse') }
+        { label: t('Arrived'), color: colorGetter('checked_in') },
+        { label: t('Checked Out'), color: colorGetter('checkout') },
+        { label: t('Due Out'), color: colorGetter('departure') },
+        { label: t('Confirmed Reservation'), color: colorGetter('confirmed') },
+        { label: t('Maintenance Block'), color: colorGetter('blocked') },
+        { label: t('Stayover'), color: colorGetter('inhouse') },
+        { label: t('Dayuse Reservation'), color: colorGetter('dayuse') },
       ]
     },
     {
-      title: 'Booking Indicators',
+      title: t('bookings.calendar.titles.bookingIndicators'),
       items: [
-        { label: 'Group Owner', icon: CrownIcons },
-        { label: 'Group Booking', icon: UsersIcons },
-        { label: 'Payment Pending', icon: DollarsIcons },
-        { label: 'Stop Room Move', icon: HandIcons },
-        { label: 'Single Lady', icon: LadyIcons },
-        { label: 'VIP Guest', icon: StarIcons },
-        { label: 'Split Reservation', icon: SplitIcons }
+        { label: t('bookings.calendar.labels.groupOwner'), icon: CrownIcons },
+        { label: t('bookings.calendar.labels.groupBooking'), icon: UsersIcons },
+        { label: t('bookings.calendar.labels.paymentPending'), icon: DollarsIcons },
+        { label: t('bookings.calendar.labels.stopRoomMove'), icon: HandIcons },
+        { label: t('bookings.calendar.labels.singleLady'), icon: LadyIcons },
+        { label: t('bookings.calendar.labels.vipGuest'), icon: StarIcons },
+        { label: t('bookings.calendar.labels.splitReservation'), icon: SplitIcons }
       ]
     },
     {
-      title: 'Room Indicators',
+      title: t('bookings.calendar.titles.roomIndicators'),
       items: [
-        { label: 'No Smoking', icon: CigaretteOff },
-        { label: 'Smoking', icon: Cigarette },
-        { label: 'Dirty', icon: BroomIcons },
-        { label: 'Clean', icon: CheckCircleIcon },
-        { label: 'Connected Rooms', icon: LinkIcon },
-        { label: 'Work Order', icon: WorkOdersIcons },
-        { label: 'ADA / Accessible Room', icon: AccessibleIcons },
-        { label: 'Pet Friendly Room', icon: PetIcons },
-        { label: 'Unassigned Room', color: '#e5e7eb' },
-        { label: 'Inventory', color: '#fecaca' },
-        { label: 'Unconfirmed Bookings', color: '#f87171' }
+        { label: t('bookings.calendar.labels.noSmoking'), icon: CigaretteOff },
+        { label: t('bookings.calendar.labels.smoking'), icon: Cigarette },
+        { label: t('Dirty'), icon: BroomIcons },
+        { label: t('Clean'), icon: CheckCircleIcon },
+        { label: t('bookings.calendar.labels.connectedRooms'), icon: LinkIcon },
+        { label: t('bookings.calendar.labels.workOrder'), icon: WorkOdersIcons },
+        { label: t('bookings.calendar.labels.accessibleRoom'), icon: AccessibleIcons },
+        { label: t('bookings.calendar.labels.petFriendly'), icon: PetIcons },
+        { label: t('bookings.calendar.labels.unassignedRoom'), color: '#e5e7eb' },
+        { label: t('bookings.calendar.labels.inventory'), color: '#fecaca' },
+        { label: t('bookings.calendar.labels.unconfirmedBookings'), color: '#f87171' }
       ]
     }
   ]

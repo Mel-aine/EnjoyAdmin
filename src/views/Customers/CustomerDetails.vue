@@ -1,9 +1,9 @@
 <template>
   <AdminLayout>
     <FullScreenLayout>
-      <div class="h-full" v-if="customer">
+      <div class="h-full dark:text-white" v-if="customer">
         <!-- Modern Header Section -->
-        <div class="shadow-sm px-4 py-3 mx-4 bg-white flex justify-between items-center">
+        <div class="shadow-sm px-4 py-3 mx-4 bg-white flex justify-between items-center dark:bg-gray-800 dark:text-white" data-testid="customer-header">
           <div class="flex gap-3 items-center">
             <button
               @click="goBack"
@@ -98,7 +98,7 @@
         <!-- Blacklist Alert Banner -->
         <div
           v-if="customer.blacklisted"
-          class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg"
+          class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg dark:bg-red-900 dark:text-red-200 dark:border-red-700"
         >
           <div class="flex items-start">
             <Ban class="h-5 w-5 text-red-500 mt-0.5" />
@@ -124,7 +124,7 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="shadow-sm px-2 pt-1 mx-4 bg-white mt-5">
+        <div class="shadow-sm px-2 pt-1 mx-4 bg-white mt-5 dark:bg-gray-800">
           <div class="flex justify-between w-full">
             <div class="border-b border-gray-200">
               <nav class="flex space-x-8 px-6">
@@ -135,8 +135,8 @@
                   :class="[
                     'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-200 dark:hover:border-gray-600',
                   ]"
                 >
                   <div class="flex items-center space-x-2">
@@ -159,15 +159,15 @@
         </div>
 
         <!-- Tab Content -->
-        <div class="mx-4 bg-white">
+        <div class="mx-4 bg-white dark:bg-gray-800">
           <!-- Details Tab -->
           <div
             v-if="activeTab === 'details'"
             class="p-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
           >
             <!-- Basic Information Card -->
-            <div class="bg-white border border-gray-200 rounded-xl p-6">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+            <div class="bg-white border border-gray-200 rounded-xl p-6 dark:bg-white/[0.03] dark:border-gray-800 dark:text-white/90" data-testid="basic-info-card">
+              <h3 class="font-semibold text-gray-800 mb-4 flex items-center dark:text-white/90">
                 <InfoIcon class="w-5 h-5 mr-2 text-blue-600" />
                 {{ $t('Basic_Information') }}
               </h3>
@@ -221,7 +221,7 @@
             </div>
 
             <!-- Contact Information Card -->
-            <div class="bg-white border border-gray-200 rounded-xl p-6">
+            <div class="bg-white border border-gray-200 rounded-xl p-6 dark:bg-gray-800">
               <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
                 <Mail class="w-5 h-5 mr-2 text-purple-600" />
                 {{ $t('customerDetails.contactInfo.title') }}
@@ -243,14 +243,14 @@
             </div>
 
             <!-- Current Stay Status -->
-            <div class="bg-white border border-gray-200 rounded-xl p-6">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+            <div class="bg-white border border-gray-200 rounded-xl p-6  dark:bg-gray-800">
+              <h3 class="font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
                 <BedDouble class="w-5 h-5 mr-2 text-green-600" />
                 {{ $t('Stays Status') }}
               </h3>
 
               <!-- Timeline container -->
-              <div class="relative border-l border-gray-300 pl-6 space-y-4 max-h-[250px] overflow-y-auto sidebar-scroll pr-2">
+              <div class="relative border-l  dark:bg-gray-800 border-gray-300 pl-6 space-y-4 max-h-[250px] overflow-y-auto sidebar-scroll pr-2">
                 <!-- Active Stays -->
                 <div v-for="stay in customer.activeStays" :key="stay.id" class="relative">
                   <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-500 rounded-full ring-4 ring-white">
@@ -258,7 +258,7 @@
                   </span>
 
                   <!-- Card -->
-                  <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-green-500">
+                  <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-green-500  dark:bg-gray-800">
                     <div class="flex justify-between items-center mb-2">
                       <h4 class="font-semibold text-gray-800">{{ $t('CurrentlyInHouse') }}</h4>
                       <span
@@ -286,12 +286,12 @@
 
                 <!-- Upcoming Stay -->
                 <div v-if="customer.upcomingStay" class="relative">
-                  <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-blue-500 rounded-full ring-4 ring-white">
+                  <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-blue-500 rounded-full ring-4 ring-white  dark:bg-gray-800">
                     📅
                   </span>
 
                   <!-- Card -->
-                  <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-blue-500">
+                  <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-blue-500  dark:bg-gray-800">
                     <div class="flex justify-between items-center mb-2">
                       <h4 class="font-semibold text-gray-800">{{ $t('UpcomingStay') }}</h4>
                       <span
@@ -339,7 +339,7 @@
             <!-- Guest Preferences -->
             <div
               v-if="customer.preferences && Array.isArray(customer.preferences) && customer.preferences.length > 0"
-              class="bg-white border border-gray-200 rounded-xl p-6 lg:col-span-2 xl:col-span-3"
+              class="bg-white border border-gray-200 rounded-xl p-6 lg:col-span-2 xl:col-span-3  dark:bg-gray-800" 
             >
               <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
                 <Heart class="w-5 h-5 mr-2 text-pink-600" />

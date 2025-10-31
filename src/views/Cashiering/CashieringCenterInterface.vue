@@ -39,13 +39,14 @@
         </div>
         <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
           <div class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full">
-            <span>{{ formatCurrency(totals.cityLedgerTotal) }}</span>
+            <span>{{ formatCurrency(totals.totalCredit) }}</span>
             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">
               {{ $t('City Ledger Total') }}</span>
           </div>
           <div class="flex flex-col gap-2 items-center justify-start align-top ">
-            <span>{{ formatCurrency(totals.unpaidInvoice) }}</span>
-            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unpaid Invoice') }}</span>
+            <span>{{ formatCurrency(totals.unpaidInvoices) }}</span>
+            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">
+              {{ $t('Unpaid Invoice') }}</span>
           </div>
           <div class="flex flex-col gap-2 items-center justify-start align-top ">
             <span>{{ formatCurrency(totals.unassignedPayments) }}</span>
@@ -69,7 +70,7 @@
 
       <!-- Table Content -->
       <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading" :searchable="false"
-        :show-header="false" :selectable="true" @selection-change="handleSelectionChange">
+        :show-header="false" :selectable="false" @selection-change="handleSelectionChange">
         <!-- Custom cell for Description column -->
         <template #column-description="{ item }">
           <div>
@@ -104,7 +105,19 @@
     <template v-if="newPaymentVisible">
       <NewPaymentCityLedger v-if="newPaymentVisible"
         :selectedCompanyId="selectCityLedger?.id || props.selectedCompanyId || null" :dateRange="dateRange"
-        :activeTab="activeTab" @close="newPaymentVisible = false" @payment-saved="onPaymentSaved" />
+        :activeTab="activeTab" :mappingMode="!!mapPaymentContext" :mapPaymentContext="mapPaymentContext"
+        @close="onModalClosed" @payment-saved="onPaymentSaved" />
+    </template>
+
+    <!-- Void Transaction Modal -->
+    <template v-if="showVoidModal && voidTransactionDetails">
+      <VoidTransactionModal
+        :is-open="showVoidModal"
+        :transactionDetails="voidTransactionDetails"
+        @close="handleVoidClose"
+        @success="handleVoidSuccess"
+        @error="handleVoidError"
+      />
     </template>
   </div>
 </template>
@@ -130,6 +143,7 @@ import { getCityLedgerDetails } from '../../services/companyApi'
 import { useServiceStore } from '../../composables/serviceStore'
 import { voidFolioTransaction } from '../../services/foglioApi'
 import { generateReceiptPdfUrl } from '../../services/reportsApi'
+import VoidTransactionModal from '../../components/modals/VoidTransactionModal.vue'
 
 const props = defineProps<{ selectedCompanyId?: number | null; isCashering?: boolean }>()
 
@@ -145,6 +159,8 @@ const totals = ref<any>({})
 const loading = ref(false)
 const newPaymentVisible = ref(false)
 const displayVoid = ref(false)
+const showVoidModal = ref(false)
+const voidTransactionDetails = ref<any | null>(null)
 
 // Initialize date range with yesterday and today
 const getYesterday = () => {
@@ -225,7 +241,9 @@ const loadCityLedgerData = async () => {
     if (response?.data) {
       cityLedgerData.value = response.companyAccount
       totals.value = response.totals
-      transactions.value = response.data || []
+      transactions.value = (response.data || []).map((e: any) => {
+        return { ...e, noaction: e.transactionType === 'transfer' }
+      })
       originalTransactions.value = [...transactions.value]
     }
   } catch (error) {
@@ -241,15 +259,16 @@ const loadCityLedgerData = async () => {
 const actions = ref([
   {
     name: 'void', label: 'Void', icon: 'ban', danger: true,
-    handler: (item :any) => onAction('void', item),
+    handler: (item: any) => onAction('void', item),
+    condition: (item: any) => (item.transactionType === 'payment' && item.assignedAmount <= 0),
   },
   {
     name: 'print', label: 'Print Receipt', icon: 'printer',
-    handler: (item :any) => onAction('printReceipt', item),
-    condition: (item: any) => item.transactionType === 'payment',
+    handler: (item: any) => onAction('printReceipt', item),
+    condition: (item: any) => (item.transactionType === 'payment' && item.assignedAmount <= 0),
   },
   {
-    name: 'map', label: 'Map Payment', icon: 'map', handler: (item :any) => onAction('printReceipt', item),
+    name: 'map', label: 'Map Payment', icon: 'map', handler: (item: any) => onAction('map', item),
     condition: (item: any) => item.transactionType === 'payment',
   }
 ])
@@ -269,6 +288,12 @@ function openNewPaymentModal() {
 function onPaymentSaved() {
   newPaymentVisible.value = false
   loadCityLedgerData()
+  mapPaymentContext.value = null
+}
+
+function onModalClosed() {
+  newPaymentVisible.value = false
+  mapPaymentContext.value = null
 }
 
 // Watchers
@@ -287,7 +312,7 @@ watch([() => dateRange.value.start, () => dateRange.value.end], () => {
 async function onAction(action: string, item: any) {
   try {
     // Defensive: derive a transaction ID
-    const transactionId = item?.id ?? item?.transactionId ?? item?.folioTransactionId ?? item?.folio_transaction_id
+    const transactionId = item?.id;
 
     switch (action) {
       case 'void': {
@@ -295,14 +320,8 @@ async function onAction(action: string, item: any) {
           toast.error('Missing transaction ID')
           return
         }
-
-        // Simple confirmation; could be replaced by a modal for reason input
-        const confirmed = window.confirm('Are you sure you want to void this transaction?')
-        if (!confirmed) return
-
-        await voidFolioTransaction(Number(transactionId), { reason: 'Voided from Cashiering Center' })
-        toast.success('Transaction voided')
-        await loadCityLedgerData()
+        // Open dedicated Void Transaction modal with transaction details
+        openVoidModal(item)
         break
       }
       case 'printReceipt': {
@@ -323,7 +342,11 @@ async function onAction(action: string, item: any) {
         break
       }
       case 'map': {
-        // Open mapping modal; prefilled with current filters via props
+        // Open mapping modal; pass mapping context with selected payment transaction
+        mapPaymentContext.value = {
+          ...item,
+          transactionId: Number(transactionId),
+        }
         openNewPaymentModal()
         break
       }
@@ -355,4 +378,49 @@ onMounted(() => {
   }
   loadCityLedgerData()
 })
+
+// Mapping context for New Payment modal invoked via 'map' action
+const mapPaymentContext = ref<{ transactionId: number; openAmount: number } | null>(null)
+
+// Void modal handlers
+function openVoidModal(item: any) {
+  voidTransactionDetails.value = {
+    id: Number(item?.id),
+    date: item?.date || item?.postingDate || '',
+    reference: item?.transactionNumber || item?.reference || '',
+    description: item?.description || '',
+    amount: item?.totalAmount ?? item?.amount ?? 0,
+  }
+  showVoidModal.value = true
+}
+
+function handleVoidClose() {
+  showVoidModal.value = false
+  voidTransactionDetails.value = null
+}
+
+async function handleVoidSuccess() {
+  try {
+    toast.success(t('transactionVoidedSuccessfully'))
+    const txnId = voidTransactionDetails.value?.id
+    showVoidModal.value = false
+    voidTransactionDetails.value = null
+    await loadCityLedgerData()
+    // Auto print receipt for the voided transaction
+    if (txnId) {
+      const url = await generateReceiptPdfUrl(String(txnId))
+      const encodedUrl = btoa(encodeURIComponent(url))
+      const routeData = router.resolve({ name: 'PDFViewer', query: { url: encodedUrl } })
+      window.open(routeData.href, '_blank')
+    }
+  } catch (err) {
+    console.error('Error after voiding transaction:', err)
+    toast.error(t('errorGeneratingReceipt') || 'Failed to generate receipt')
+  }
+}
+
+function handleVoidError(error: any) {
+  console.error('Void transaction error:', error)
+  toast.error(error?.message || t('errorVoidingTransaction'))
+}
 </script>
