@@ -43,7 +43,7 @@
             <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
           <div class="flex justify-between text-red-600">
-            <span>{{ $t('Balence') }}</span>
+            <span>{{ $t('Balance') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}</span>
           </div>
         </div>
