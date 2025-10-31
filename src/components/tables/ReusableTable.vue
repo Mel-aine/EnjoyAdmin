@@ -416,27 +416,62 @@ const closeDropdown = (event: Event) => {
 
 
 // Infinite Scroll Logic
-let debounceTimer: number | undefined;
+// let debounceTimer: number | undefined;
+
+// const handleScroll = () => {
+//   if (!props.isInfiniteScroll) return;
+
+//   clearTimeout(debounceTimer);
+//   debounceTimer = setTimeout(() => {
+//     const container = tableContainer.value;
+//     if (!container || props.loading || loadingNextPage.value) return;
+
+//     const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 20; // 20px threshold
+
+//     if (isNearBottom) {
+//       const meta = props.meta;
+//       if (meta && meta.currentPage < meta.lastPage) {
+//         loadingNextPage.value = true;
+//         emit('page-change', meta.currentPage + 1);
+//       }
+//     }
+//   }, 100); // 100ms debounce
+// };
 
 const handleScroll = () => {
-  if (!props.isInfiniteScroll) return;
+  // Cette fonction ne sera appelée que si props.isInfiniteScroll est vrai
+  const container = tableContainer.value
 
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    const container = tableContainer.value;
-    if (!container || props.loading || loadingNextPage.value) return;
+  // S'assurer qu'il y a un conteneur, que ce n'est pas le chargement initial, et que la page suivante n'est pas déjà en cours de chargement.
+  if (!container || props.loading || loadingNextPage.value) return
 
-    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 20; // 20px threshold
+  // Marge de 100px pour déclencher avant d'atteindre le bas
+  const scrollTolerance = 100
+  const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + scrollTolerance
 
-    if (isNearBottom) {
-      const meta = props.meta;
-      if (meta && meta.currentPage < meta.lastPage) {
-        loadingNextPage.value = true;
-        emit('page-change', meta.currentPage + 1);
-      }
-    }
-  }, 100); // 100ms debounce
-};
+  if (isNearBottom) {
+    checkAndLoadNextPage()
+  }
+}
+
+// FONCTION POUR VÉRIFIER ET CHARGER LA PAGE SUIVANTE
+const checkAndLoadNextPage = () => {
+  const meta = props.meta
+
+  if (!meta) return
+
+  const hasNextPage = meta.currentPage < meta.lastPage
+
+  if (hasNextPage) {
+    loadingNextPage.value = true
+    const nextPage = meta.currentPage + 1
+    emit('page-change', nextPage)
+  }
+}
+
+
+
+
 
 watch(() => props.loading, (newLoading) => {
   if (!newLoading) {

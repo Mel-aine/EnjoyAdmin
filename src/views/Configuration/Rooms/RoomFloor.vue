@@ -693,7 +693,7 @@ const loadData = async (pageNumber: number = 1) => {
   try {
     const params = {
       page: pageNumber,
-      limit: 8,
+      limit: 7,
     }
 
     const resp = await getRooms(params)
@@ -713,7 +713,6 @@ const loadData = async (pageNumber: number = 1) => {
     metaData.value = meta
     currentPage.value = pageNumber
 
-    toast.info(t('loadedRooms', { count: newRooms.length }))
 
   } catch (error) {
     console.error('Error loading rooms:', error)
