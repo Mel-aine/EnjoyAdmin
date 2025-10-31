@@ -248,10 +248,13 @@ const getStatusClasses = (status: string) => {
 }
 
 
-const formatAmounts = (amount: number) => {
-  return formatCurrency(amount)
-}
 
+const formatAmount = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(Math.abs(amount))
+}
 
 
 // Fonction pour récupérer les transactions de l'entreprise
@@ -341,7 +344,7 @@ onMounted(() => {
         </div>
       </div>
 
-      
+
       <!-- Company Details Content bg-white rounded-lg shadow-md -->
       <div v-else-if="company" class="border-b-2 border-gray-00 dark:border-gray-700">
         <!-- Header -->
@@ -441,7 +444,7 @@ onMounted(() => {
                 t('current_balance')
                 }}</span>
               <span class="text-base font-semibold text-red-500 dark:text-red-500">
-                {{ formatAmounts(company.currentBalance || 0) }}
+                {{ formatAmount(company.currentBalance || 0) }} FCFA
               </span>
             </div>
 

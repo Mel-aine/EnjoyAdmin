@@ -209,6 +209,11 @@
             :destination-folio="selectedDestinationFolio" @close="closeTransfertPostingModal"
             @success="onTransferSuccess" />
         </template>
+
+        <template v-if="isPickupAndDropoffModal">
+          <PickupAndDropModal :isOpen="isPickupAndDropoffModal"  @close="isPickupAndDropoffModal = false"/>
+
+        </template>
       </div>
     </div>
   </div>
@@ -240,6 +245,7 @@ import { generateInvoicePdfUrl, generatePosReceiptPdfUrl, generateReceiptPdfUrl 
 import ApplyDiscountModal from './ApplyDiscountModal.vue'
 import TransfertFolioModal from './TransfertFolioModal.vue'
 import TransfertPostingModal from './TransfertPostingModal.vue'
+import PickupAndDropModal from '@/components/customers/PickupAndDropModal.vue'
 
 const authStore = useAuthStore()
 
@@ -271,6 +277,7 @@ const isSplitFolioModal = ref(false);
 const isCutFolioModal = ref(false);
 const isSendFolioModal = ref(false);
 const isApplyDiscountModal = ref(false);
+const isPickupAndDropoffModal = ref(false)
 const selectedTransaction = ref<any>(null)
 // Transfer flow state
 const isTransfertFolioModalOpen = ref(false)
@@ -503,6 +510,8 @@ const EditTransaction = (item: any) => {
     isAddChargeModalOpen.value = true
   } else if (item.transactionType === 'payment') {
     isAddPaymentModalOpen.value = true
+  }else if (item.category === 'service_charge') {
+    isPickupAndDropoffModal.value = true
   }
 }
 

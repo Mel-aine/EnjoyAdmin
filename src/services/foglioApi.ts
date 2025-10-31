@@ -893,10 +893,10 @@ export const printHotelPdf = async (data: {
   }
 }
 
-export const getUnsetteledFolio = async (hotelId: number): Promise<any> => {
+export const getUnsetteledFolio = async (hotelId: number,params:any={}): Promise<any> => {
 
   try {
-    const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL as string}/folios/unsettled/${hotelId}`, getHeaders())
+    const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL as string}/folios/unsettled/${hotelId}`, {...getHeaders(),params})
     return response.data
   } catch (error) {
     console.error('Error fetching folio:', error)

@@ -1,9 +1,9 @@
 <template>
   <AdminLayout>
     <FullScreenLayout>
-      <div class="h-full dark:text-white" v-if="customer">
+      <div class="h-full" v-if="customer">
         <!-- Modern Header Section -->
-        <div class="shadow-sm px-4 py-3 mx-4 bg-white flex justify-between items-center dark:bg-gray-800 dark:text-white" data-testid="customer-header">
+        <div class="shadow-sm px-4 py-3 mx-4 bg-white flex justify-between items-center">
           <div class="flex gap-3 items-center">
             <button
               @click="goBack"
@@ -58,7 +58,7 @@
                 <span
                   :class="[
                     'text-lg font-bold px-3 py-1 rounded-lg',
-                    outstandingBalance > 0
+                    outstandingBalance < 0
                       ? 'text-red-700 bg-red-100 border border-red-300 shadow-md'
                       : 'text-green-700 bg-green-100 border border-green-300'
                   ]"
@@ -98,7 +98,7 @@
         <!-- Blacklist Alert Banner -->
         <div
           v-if="customer.blacklisted"
-          class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg dark:bg-red-900 dark:text-red-200 dark:border-red-700"
+          class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg"
         >
           <div class="flex items-start">
             <Ban class="h-5 w-5 text-red-500 mt-0.5" />
@@ -124,7 +124,7 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="shadow-sm px-2 pt-1 mx-4 bg-white mt-5 dark:bg-gray-800">
+        <div class="shadow-sm px-2 pt-1 mx-4 bg-white mt-5">
           <div class="flex justify-between w-full">
             <div class="border-b border-gray-200">
               <nav class="flex space-x-8 px-6">
@@ -135,8 +135,8 @@
                   :class="[
                     'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-200 dark:hover:border-gray-600',
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
                   ]"
                 >
                   <div class="flex items-center space-x-2">
@@ -159,15 +159,15 @@
         </div>
 
         <!-- Tab Content -->
-        <div class="mx-4 bg-white dark:bg-gray-800">
+        <div class="mx-4 bg-white">
           <!-- Details Tab -->
           <div
             v-if="activeTab === 'details'"
             class="p-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
           >
             <!-- Basic Information Card -->
-            <div class="bg-white border border-gray-200 rounded-xl p-6 dark:bg-white/[0.03] dark:border-gray-800 dark:text-white/90" data-testid="basic-info-card">
-              <h3 class="font-semibold text-gray-800 mb-4 flex items-center dark:text-white/90">
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
+              <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
                 <InfoIcon class="w-5 h-5 mr-2 text-blue-600" />
                 {{ $t('Basic_Information') }}
               </h3>
@@ -221,7 +221,7 @@
             </div>
 
             <!-- Contact Information Card -->
-            <div class="bg-white border border-gray-200 rounded-xl p-6 dark:bg-gray-800">
+            <div class="bg-white border border-gray-200 rounded-xl p-6">
               <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
                 <Mail class="w-5 h-5 mr-2 text-purple-600" />
                 {{ $t('customerDetails.contactInfo.title') }}
@@ -242,104 +242,10 @@
               </div>
             </div>
 
-            <!-- Current Stay Status -->
-            <div class="bg-white border border-gray-200 rounded-xl p-6  dark:bg-gray-800">
-              <h3 class="font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-                <BedDouble class="w-5 h-5 mr-2 text-green-600" />
-                {{ $t('Stays Status') }}
-              </h3>
-
-              <!-- Timeline container -->
-              <div class="relative border-l  dark:bg-gray-800 border-gray-300 pl-6 space-y-4 max-h-[250px] overflow-y-auto sidebar-scroll pr-2">
-                <!-- Active Stays -->
-                <div v-for="stay in customer.activeStays" :key="stay.id" class="relative">
-                  <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-500 rounded-full ring-4 ring-white">
-                    🏨
-                  </span>
-
-                  <!-- Card -->
-                  <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-green-500  dark:bg-gray-800">
-                    <div class="flex justify-between items-center mb-2">
-                      <h4 class="font-semibold text-gray-800">{{ $t('CurrentlyInHouse') }}</h4>
-                      <span
-                        :class="getReservationStatusInfo(stay.status).class"
-                        class="text-xs font-bold px-2 py-0.5 rounded-full"
-                      >
-                        {{ getReservationStatusInfo(stay.status).text }}
-                      </span>
-                    </div>
-                    <div class="text-sm space-y-1">
-                      <p><strong>{{ $t('Room') }}:</strong> {{ stay.room?.roomNumber || 'N/A' }}</p>
-                      <p><strong>{{ $t('departure') }}:</strong> {{ formatDate(stay.checkOutDate) }}</p>
-                    </div>
-                    <button
-                      v-if="!customer.blacklisted"
-                      @click="handleCheckOut(stay)"
-                      class="w-full mt-3 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                      :disabled="isCheckingOut === stay.id"
-                    >
-                      <Spinner v-if="isCheckingOut === stay.id" class="w-4 h-4" />
-                      <span>{{ isCheckingOut ? '' : $t('CheckOut') }}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Upcoming Stay -->
-                <div v-if="customer.upcomingStay" class="relative">
-                  <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-blue-500 rounded-full ring-4 ring-white  dark:bg-gray-800">
-                    📅
-                  </span>
-
-                  <!-- Card -->
-                  <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition border-l-4 border-blue-500  dark:bg-gray-800">
-                    <div class="flex justify-between items-center mb-2">
-                      <h4 class="font-semibold text-gray-800">{{ $t('UpcomingStay') }}</h4>
-                      <span
-                        :class="getReservationStatusInfo(customer.upcomingStay.status).class"
-                        class="text-xs font-bold px-2 py-0.5 rounded-full"
-                      >
-                        {{ getReservationStatusInfo(customer.upcomingStay.status).text }}
-                      </span>
-                    </div>
-                    <div class="text-sm space-y-1">
-                      <p><strong>{{ $t('Room Type') }}:</strong> {{ customer.upcomingStay.roomType?.roomTypeName || 'N/A' }}</p>
-                      <p><strong>{{ $t('Check-in') }}:</strong> {{ formatDate(customer.upcomingStay.checkInDate) }}</p>
-                    </div>
-                    <button
-                      v-if="!customer.blacklisted && canCheckInToday(customer.upcomingStay)"
-                      @click="handleCheckIn(customer.upcomingStay)"
-                      class="w-full mt-3 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      :disabled="isCheckingIn === customer.upcomingStay.id"
-                    >
-                      <Spinner v-if="isCheckingIn === customer.upcomingStay.id" class="w-4 h-4" />
-                      <span>{{ isCheckingIn ? '' : $t('CheckIn') }}</span>
-                    </button>
-                    <div
-                      v-else-if="!customer.blacklisted"
-                      class="mt-3 text-center text-sm text-gray-500 p-2 bg-gray-100 rounded-md"
-                    >
-                      {{ $t('check_in_available') }}
-                      {{ formatDate(customer.upcomingStay.checkInDate) }}
-                    </div>
-                  </div>
-                </div>
-
-                <!-- No active or upcoming stay -->
-                <div
-                  v-if="(!customer.activeStays || customer.activeStays.length === 0) && !customer.upcomingStay"
-                  class="text-gray-500 text-center p-4"
-                >
-                  <BedDouble class="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                  <p class="text-sm">{{ $t('Noactiveorupcomingstay') }}</p>
-                </div>
-              </div>
-            </div>
-
-
             <!-- Guest Preferences -->
             <div
               v-if="customer.preferences && Array.isArray(customer.preferences) && customer.preferences.length > 0"
-              class="bg-white border border-gray-200 rounded-xl p-6 lg:col-span-2 xl:col-span-3  dark:bg-gray-800" 
+              class="bg-white border border-gray-200 rounded-xl p-6 lg:col-span-2 xl:col-span-3"
             >
               <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
                 <Heart class="w-5 h-5 mr-2 text-pink-600" />
@@ -360,7 +266,7 @@
           <!-- Other tabs content remains the same -->
           <div v-if="activeTab === 'reservations'" class="p-6">
             <ReservationHistoryTable
-              :reservations="customer.reservations"
+              :reservations="reservations"
               :customer="customer"
               @check-in="handleReservationCheckIn"
               @check-out="handleReservationCheckOut"
@@ -371,10 +277,13 @@
 
           <div v-if="activeTab === 'payments'" class="p-6">
             <FolioTable
-              :payments="customer.folios || []"
+              :payments="folios || []"
+              :loading="isLoadingFolio"
               @view-details="handleViewPaymentDetails"
               @refund="handleRefundPayment"
               @print-receipt="handlePrintReceipt"
+              :meta="paginationMeta"
+              @page-change="handlePageChange"
             />
           </div>
 
@@ -453,7 +362,7 @@ import InfoIcon from '@/icons/InfoIcon.vue'
 import CalendarIcon from '@/icons/CalendarIcon.vue'
 import { isLoading } from '@/composables/spinner'
 import DetailRow from '../Room/DetailRow.vue'
-import { getCustomerProfile, deleteGuest, toggleGuestBlacklist ,getGuestsActivityLogs} from '@/services/guestApi'
+import { getCustomerProfile, deleteGuest, toggleGuestBlacklist ,getGuestsActivityLogs,getCustomerReservations,getCustomerTransactions} from '@/services/guestApi'
 import router from '@/router'
 import { Ban } from 'lucide-vue-next'
 import PaymentModal from '../Bookings/PaymentModal.vue'
@@ -501,13 +410,17 @@ const toast = useToast()
 const serviceStore = useServiceStore()
 // Reactive references
 const customer_id = router.currentRoute.value.params.id as string
-const customer = ref<any>(null) // Initialiser à null pour un v-if plus clair
+const customer = ref<any>(null)
 const activeTab = ref<string>('details')
 const loading = ref(false)
 const deleting = ref(false)
 const customerToDelete = ref<any>(null)
 const authStore = useAuthStore()
 const auditLogs = ref<AuditLog[]>([])
+const reservations = ref<any[]>([])
+const folios = ref<any[]>([])
+const paginationMeta = ref<any>(null)
+const isLoadingFolio = ref(false)
 
 // Modal states
 
@@ -557,8 +470,8 @@ const goBack = (): void => {
 }
 
 const outstandingBalance = computed(() => {
-  if (!customer.value?.folios) return 0
-  return customer.value.folios
+  if (!folios.value) return 0
+  return folios.value
     .filter((folio: any) => folio.status === 'open')
     .reduce((total: number, folio: any) => total + parseFloat(folio.balance || 0), 0)
 })
@@ -583,9 +496,10 @@ const getCustomerProfileDetails = async () => {
   isLoading.value = true
   try {
     const response = await getCustomerProfile(parseInt(customer_id))
+       console.log('Fetched customer details:', response)
     if (response.status === 200) {
-      customer.value = response.data.data.guest
-      console.log('Fetched customer details:', customer.value)
+      customer.value = response.data.customerDetails
+      console.log('Fetched customer details:', response)
     }
   } catch (error) {
     console.error('Error fetching customer details:', error)
@@ -593,6 +507,47 @@ const getCustomerProfileDetails = async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+const getCustomerReservationDetails = async () => {
+  isLoading.value = true
+  try {
+    const response = await getCustomerReservations(parseInt(customer_id))
+       console.log('Fetched customer reservations details:', response)
+
+       if(response.status === 200) {
+        reservations.value = response.data.reservations
+       }
+
+  } catch (error) {
+    console.error('Error fetching customer reservations details:', error)
+
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const getCustomerFolioDetails = async (pageNumber=1) => {
+  isLoadingFolio.value = true
+  try {
+    const response = await getCustomerTransactions(parseInt(customer_id),{page:pageNumber,perPage:10})
+       console.log('Fetched customer folios details:', response)
+
+       if(response.status === 200) {
+        folios.value = response.data.data
+        paginationMeta.value = response.data.meta
+       }
+
+  } catch (error) {
+    console.error('Error fetching customer folios details:', error)
+
+  } finally {
+    isLoadingFolio.value = false
+  }
+}
+
+const handlePageChange = (newPage:number)=>{
+  getCustomerFolioDetails(newPage)
 }
 
 const toggleBlacklistStatus = () => {
@@ -904,16 +859,7 @@ const handlePrintReceipt = (payment: any) => {
   console.log('Imprimer le reçu pour le paiement:', payment.id)
 }
 
-const canCheckInToday = (reservation: any): boolean => {
-  if (!reservation || !reservation.checkInDate) {
-    return false
-  }
 
-  const now = new Date()
-  const checkInDate = new Date(reservation.checkInDate)
-
-  return now.toDateString() === checkInDate.toDateString()
-}
 
 const fetchActivityLogs = async () => {
   if (loading.value) return
@@ -982,6 +928,8 @@ const handleToggleChanges = (logId: string | number) => {
 onMounted(() => {
   getCustomerProfileDetails()
   fetchActivityLogs()
+  getCustomerReservationDetails()
+  getCustomerFolioDetails(1)
 })
 </script>
 

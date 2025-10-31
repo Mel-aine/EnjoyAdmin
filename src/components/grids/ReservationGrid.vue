@@ -122,7 +122,7 @@
     </div>
 
     <!-- List View (ReusableTable) -->
-    <div v-else-if="viewMode === 'list'">
+    <div v-else-if="viewMode === 'list'" >
       <ReusableTable :showHeader="false" :columns="tableColumns" :data="paginatedReservations"
         :get-actions="getTableActionsForReservation" :searchable="false" :empty-state-title="$t('No reservations')"
         :empty-state-description="$t('Get started by creating a new reservation.')" @action="onTableAction"
@@ -163,7 +163,7 @@
 
         <!-- Custom column for status -->
         <template #column-status="{ item }">
-          <div class="flex flex-col gap-1">
+          <div class="flex-col gap-1 inline-flex">
             <ReservationStatus :status="item.status" />
           </div>
         </template>

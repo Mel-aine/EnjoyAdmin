@@ -88,9 +88,7 @@ const tableColumns = computed(() => [
 
 const tableActions = computed(() => [
   { label: t('View'), variant: 'primary' as const, handler: (item: any) => emit('view-details', item)  ,icon: Eye },
-  { label: t('Check In'), variant: 'secondary' as const, handler: (item: any) => emit('check-in', item) , condition: (item: any) => item.status === 'confirmed' && canCheckInToday(item) ,icon:CircleCheck  },
-  { label: t('Check Out'), variant: 'secondary' as const,  handler: (item: any) => emit('check-out', item) , condition: (item: any) => item.status === 'checked_in' ,icon:LogOut },
-  // { label: t('Delete'), variant: 'danger' as const, action: 'delete'  ,icon: Trash2},
+
 ]);
 
 // --- LOGIQUE ---

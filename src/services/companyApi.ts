@@ -59,6 +59,8 @@ export interface CompanyFilter {
   minBalance?: number
   maxBalance?: number
   email?: string
+  page?:number
+  limit?:number
 }
 
 const handleApiError = (error: any): never => {
@@ -70,12 +72,10 @@ const handleApiError = (error: any): never => {
 }
 
 // Get all companies
-export const getCompanies = async (): Promise<Company[] | undefined> => {
+export const getCompanies = async (params: any = {}): Promise<Company[] | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse<Company[]>> = await axios.get(
-      `${API_URL()}`,
-      getHeaders()
-    )
+      `${API_URL()}`,{ ...getHeaders(), params })
     return response.data.data
   } catch (error) {
     handleApiError(error)
@@ -83,20 +83,31 @@ export const getCompanies = async (): Promise<Company[] | undefined> => {
 }
 
 // Get filtered companies
-export const getFilteredCompanies = async (filter: CompanyFilter): Promise<Company[] | undefined> => {
+export const getFilteredCompanies = async (filter: CompanyFilter): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company[]>> = await axios.get(
-      `${API_URL()}`,
-      {  params: {
-          filters: filter
-        }, ...getHeaders() },
+    const response = await axios.get(`${API_URL()}`, {
+      params: {
+        filters: {
+          searchText: filter.searchText,
+          status: filter.status,
+          country: filter.country,
+          email: filter.email,
+          minBalance: filter.minBalance,
+          maxBalance: filter.maxBalance,
+        },
+        page: filter.page,
+        perPage: filter.limit,
+      },
+      ...getHeaders(),
+    })
 
-    )
     return response.data.data
   } catch (error) {
     handleApiError(error)
   }
 }
+
+
 
 // Get company by ID
 export const getCompanyById = async (companyId: number): Promise<Company | undefined> => {

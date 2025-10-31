@@ -29,7 +29,7 @@
     </div>
 
     <!-- Table -->
-    <div :style="{ maxHeight: props.maxHeight }">
+    <div ref="tableContainer" @scroll="handleScroll" :style="{ maxHeight: props.maxHeight, overflowY: 'auto' }" class="custom-scrollbar">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
@@ -45,6 +45,7 @@
             <th v-if="hasActions"
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
             </th>
+            <th v-if="expandable" class="px-6 py-3 w-12"></th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
@@ -65,10 +66,12 @@
 
           <!-- Actual Data Rows -->
           <template v-else>
-            <tr v-for="(item, index) in filteredData" :key="getItemKey(item, index)"
+             <template v-for="(item, index) in filteredData" :key="getItemKey(item, index)">
+            <tr
               class="transition-colors cursor-pointer" :class="[
                 'hover:bg-gray-50 dark:hover:bg-gray-700',
-                item.isVoided ? 'bg-gray-100 dark:bg-gray-700 void-status' : '',
+                item.isVoided ? 'bg-gray-100 dark:bg-gray-700 void-status line-through' : '',
+                item.status === 'voided' ? 'line-through opacity-60' : '',
                 rowClass(item)
               ]" @click="emit('row-click', item)">
               <td v-if="selectable" class="px-6 py-4">
@@ -154,8 +157,39 @@
                   </div>
                 </div>
               </td>
+              <td v-if="expandable" class="px-6 py-4">
+                <button @click.stop="toggleExpand(index)" class="text-gray-400 hover:text-gray-600">
+                  <ChevronDown
+                    class="w-5 h-5 transition-transform"
+                    :class="{ 'rotate-180': expandedRows.includes(index) }"
+                  />
+                </button>
+              </td>
             </tr>
+           <tr
+            v-if="expandable && expandedRows.includes(index)"
+            :key="`expanded-${getItemKey(item, index)}`"
+            :class="[
+              'bg-gray-50 dark:bg-gray-800',
+              item.isVoided ? 'void-status line-through' : '',
+              item.status === 'voided' ? 'line-through opacity-60' : ''
+            ]"
+          >
+            <td :colspan="columns.length + (selectable ? 1 : 0) + (hasActions ? 1 : 0) + (expandable ? 1 : 0)" class="px-0 py-0">
+              <div class="animate-slideDown">
+                <slot name="expanded-content" :item="item"></slot>
+              </div>
+            </td>
+          </tr>
           </template>
+          </template>
+
+          <tr v-if="loadingNextPage">
+              <td :colspan="columns.length + (selectable ? 1 : 0) + (hasActions ? 1 : 0)"
+                  class="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  Chargement de la page suivante...
+              </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -170,12 +204,20 @@
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ emptyStateMessage }}</p>
     </div>
   </div>
+  <TablePagination
+    v-if="!props.isInfiniteScroll && meta && meta.total > meta.perPage"
+    :meta="meta"
+    @page-change="(page) => emit('page-change', page)"
+  />
+
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Action, Column } from '../../utils/models'
+import { ChevronDown } from 'lucide-vue-next'
+import TablePagination from './TablePagination.vue'
 
 // HeaderAction interface removed as we're using slots now
 
@@ -197,6 +239,16 @@ interface Props {
   rowClass?: (item: any) => string
   canSelectItem?: (item: any) => boolean // Function to determine if an item can be selected
   maxHeight?: string
+  meta?: {
+    total: number;
+    perPage: number;
+    currentPage: number;
+    lastPage: number;
+    previousPageUrl?: string | null;
+    nextPageUrl?: string | null;
+  }
+  isInfiniteScroll?: boolean
+  expandable?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -211,7 +263,9 @@ const props = withDefaults(defineProps<Props>(), {
   showHeader: true,
   loading: false,
   rowClass: () => '',
-  maxHeight: '100vh'
+  maxHeight: '80vh',
+  isInfiniteScroll:false,
+  expandable: false
 
 })
 
@@ -221,6 +275,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   'search-change': [query: string]
   'row-click': [item: any]
+  'page-change': [page: number]
 }>()
 
 const searchQuery = ref(props.modelValue)
@@ -228,8 +283,18 @@ const selectedItems = ref<any[]>([])
 const selectAll = ref(false)
 const openDropdown = ref<number | null>(null)
 const dropdownDirection = ref<'up' | 'down'>('down')
-// Template ref for the action dropdown menu element
-const dropdownMenu = ref<HTMLElement | null>(null)
+const tableContainer = ref<HTMLElement | null>(null)
+const loadingNextPage = ref(false)
+const expandedRows = ref<number[]>([])
+
+const toggleExpand = (index: number) => {
+  const pos = expandedRows.value.indexOf(index)
+  if (pos > -1) {
+    expandedRows.value.splice(pos, 1)
+  } else {
+    expandedRows.value.push(index)
+  }
+}
 
 // const hasActions = computed(() => props.actions.length > 0)
 const hasActions = computed(() => {
@@ -355,25 +420,23 @@ const toggleDropdown = async (index: number, event: MouseEvent) => {
 
   await nextTick()
 
-  // Prefer template ref over DOM sibling traversal for robustness in tests and runtime
-  const menu = dropdownMenu.value as HTMLElement
+  const triggerButton = event.currentTarget as HTMLElement
+  const menu = triggerButton.nextElementSibling as HTMLElement
 
   if (!menu) {
     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
     return;
   }
 
-  // Safely compute dropdown direction only if DOM API is available
-  const getRect = (menu as any)?.getBoundingClientRect
-  if (typeof getRect === 'function') {
-    const menuRect = getRect.call(menu)
-    const viewportHeight = window.innerHeight
-    // Vérification de la position
-    if (menuRect.bottom > viewportHeight - 150) {
-      dropdownDirection.value = 'up'
-    }
-  } else {
-    dropdownDirection.value = 'down'
+  const menuRect = menu.getBoundingClientRect()
+  const viewportHeight = window.innerHeight
+
+  console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
+
+  // Vérification de la position
+  if (menuRect.bottom > viewportHeight - 150) {
+    console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
+    dropdownDirection.value = 'up'
   }
 }
 
@@ -389,6 +452,72 @@ const closeDropdown = (event: Event) => {
     openDropdown.value = null
   }
 }
+
+
+
+// Infinite Scroll Logic
+let debounceTimer: any;
+
+const handleScroll = () => {
+  if (!props.isInfiniteScroll) return;
+
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const container = tableContainer.value;
+    if (!container || props.loading || loadingNextPage.value) return;
+
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 20; // 20px threshold
+
+    if (isNearBottom) {
+      const meta = props.meta;
+      if (meta && meta.currentPage < meta.lastPage) {
+        loadingNextPage.value = true;
+        emit('page-change', meta.currentPage + 1);
+      }
+    }
+  }, 100);
+};
+
+// const handleScroll = () => {
+//   // Cette fonction ne sera appelée que si props.isInfiniteScroll est vrai
+//   const container = tableContainer.value
+
+//   // S'assurer qu'il y a un conteneur, que ce n'est pas le chargement initial, et que la page suivante n'est pas déjà en cours de chargement.
+//   if (!container || props.loading || loadingNextPage.value) return
+
+//   // Marge de 100px pour déclencher avant d'atteindre le bas
+//   const scrollTolerance = 100
+//   const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + scrollTolerance
+
+//   if (isNearBottom) {
+//     checkAndLoadNextPage()
+//   }
+// }
+
+// FONCTION POUR VÉRIFIER ET CHARGER LA PAGE SUIVANTE
+// const checkAndLoadNextPage = () => {
+//   const meta = props.meta
+
+//   if (!meta) return
+
+//   const hasNextPage = meta.currentPage < meta.lastPage
+
+//   if (hasNextPage) {
+//     loadingNextPage.value = true
+//     const nextPage = meta.currentPage + 1
+//     emit('page-change', nextPage)
+//   }
+// }
+
+
+
+
+
+watch(() => props.loading, (newLoading) => {
+  if (!newLoading) {
+    loadingNextPage.value = false;
+  }
+});
 
 watch(selectedItems, (newValue) => {
   const selectableCount = filteredData.value.filter(isItemSelectable).length
@@ -475,13 +604,37 @@ onUnmounted(() => {
 }
 
 /* Scrollbar invisible mais toujours scrollable */
-.custom-scrollbar {
-  scrollbar-width: none;
-  /* Firefox */
+
+@layer utilities {
+
+  /* Chrome, Safari, Edge, Opera */
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* IE, Edge, Firefox */
+  .custom-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari, Edge */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
 }
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+
 </style>

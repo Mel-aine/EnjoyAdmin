@@ -214,8 +214,8 @@ export const deleteRoomType = (id: number): Promise<AxiosResponse<any>> => {
  * Get all rooms
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getRooms = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/rooms`, getHeaders())
+export const getRooms = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/rooms`, {...getHeaders(),params})
 }
 
 /**
