@@ -3576,6 +3576,7 @@
   "checkinCheckoutSettings": "Check-in and check-out hours",
   "no_results": "No results found.",
   "countries_lists": {
+    "undefined":"",
     "af": "Afghanistan",
     "al": "Albania",
     "dz": "Algeria",

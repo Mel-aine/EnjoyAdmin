@@ -286,7 +286,7 @@ const loadCityLedgerData = async () => {
       }))
 
       // Update form amount with total balance
-      formData.value.amount = cityLedgerData.value.totals?.unassignedPayments || 0
+      formData.value.amount = 0;//cityLedgerData.value.totals?.unassignedPayments || 0
     }
   } catch (error) {
     console.error('Error loading city ledger data:', error)
@@ -352,7 +352,7 @@ const handleGuestSelectionChange = (selected: any) => {
       // Auto-assign the open value when selected
       const openAmount = parseFloat(guest.open) || 0
       if (openAmount > 0) {
-        guest.assign = openAmount
+        //guest.assign = openAmount
         console.log(`Auto-assigned ${formatCurrency(openAmount)} to ${guest.name}`)
       }
     } else {
@@ -378,7 +378,7 @@ const isItemSelected = (item: any) => {
 
 // Validate assign amount to not exceed open value
 const validateAssignAmount = (item: any) => {
-  // Convert to number to handle string inputs
+console.log('item',item)  // Convert to number to handle string inputs
   const assignValue = parseFloat(item.assign) || 0
   const openValue = parseFloat(item.open) || 0
 
@@ -453,13 +453,6 @@ const savePayment = async () => {
 
     // Get selected items with assigned amounts
     const selectedItems = guestData.value.filter((g: any) => g.selected && g.assign > 0)
-
-    /*
-        if (selectedItems.length === 0) {
-          toast.error('Please select items and assign amounts')
-          return
-        }*/
-    // Prepare payment data according to API schema
     const paymentData = {
       companyId: formData.value.cityLedgerAccountId,
       hotelId: serviceStore.serviceId,
