@@ -693,7 +693,7 @@ const loadData = async (pageNumber: number = 1) => {
   try {
     const params = {
       page: pageNumber,
-      limit: 5,
+      limit: 8,
     }
 
     const resp = await getRooms(params)

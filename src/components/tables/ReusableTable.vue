@@ -29,8 +29,7 @@
     </div>
 
     <!-- Table -->
-    <div ref="tableContainer"
-    @scroll="props.isInfiniteScroll ? handleScroll() : null" :style="{ maxHeight: props.maxHeight, overflowY: 'auto' }" class="custom-scrollbar">
+    <div ref="tableContainer" @scroll="handleScroll" :style="{ maxHeight: props.maxHeight, overflowY: 'auto' }" class="custom-scrollbar">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
@@ -416,45 +415,33 @@ const closeDropdown = (event: Event) => {
 
 
 
-// FONCTION DE GESTION DU SCROLL
+// Infinite Scroll Logic
+let debounceTimer: number | undefined;
+
 const handleScroll = () => {
-  // Cette fonction ne sera appelée que si props.isInfiniteScroll est vrai
-  const container = tableContainer.value
+  if (!props.isInfiniteScroll) return;
 
-  // S'assurer qu'il y a un conteneur, que ce n'est pas le chargement initial, et que la page suivante n'est pas déjà en cours de chargement.
-  if (!container || props.loading || loadingNextPage.value) return
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const container = tableContainer.value;
+    if (!container || props.loading || loadingNextPage.value) return;
 
-  // Marge de 100px pour déclencher avant d'atteindre le bas
-  const scrollTolerance = 100
-  const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + scrollTolerance
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 20; // 20px threshold
 
-  if (isNearBottom) {
-    checkAndLoadNextPage()
-  }
-}
+    if (isNearBottom) {
+      const meta = props.meta;
+      if (meta && meta.currentPage < meta.lastPage) {
+        loadingNextPage.value = true;
+        emit('page-change', meta.currentPage + 1);
+      }
+    }
+  }, 100); // 100ms debounce
+};
 
-// FONCTION POUR VÉRIFIER ET CHARGER LA PAGE SUIVANTE
-const checkAndLoadNextPage = () => {
-  const meta = props.meta
-
-  if (!meta) return
-
-  const hasNextPage = meta.currentPage < meta.lastPage
-
-  if (hasNextPage) {
-    loadingNextPage.value = true
-    const nextPage = meta.currentPage + 1
-
-    // Émission de l'événement page-change, le parent gère l'ajout des données
-    emit('page-change', nextPage)
-  }
-}
-
-
-
-// WATCHER pour désactiver l'état de chargement de page suivante
-watch(() => props.data, () => {
+watch(() => props.loading, (newLoading) => {
+  if (!newLoading) {
     loadingNextPage.value = false;
+  }
 });
 
 watch(selectedItems, (newValue) => {
