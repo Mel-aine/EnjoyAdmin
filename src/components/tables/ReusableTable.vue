@@ -29,7 +29,8 @@
     </div>
 
     <!-- Table -->
-    <div :style="{ maxHeight: props.maxHeight, overflowY: 'auto' }" class="custom-scrollbar">
+    <div ref="tableContainer"
+    @scroll="props.isInfiniteScroll ? handleScroll() : null" :style="{ maxHeight: props.maxHeight, overflowY: 'auto' }" class="custom-scrollbar">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
@@ -156,6 +157,13 @@
               </td>
             </tr>
           </template>
+
+          <tr v-if="loadingNextPage">
+              <td :colspan="columns.length + (selectable ? 1 : 0) + (hasActions ? 1 : 0)"
+                  class="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  Chargement de la page suivante...
+              </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -171,7 +179,7 @@
     </div>
   </div>
   <TablePagination
-    v-if="meta && meta.total > meta.perPage"
+    v-if="!props.isInfiniteScroll && meta && meta.total > meta.perPage"
     :meta="meta"
     @page-change="(page) => emit('page-change', page)"
   />
@@ -212,6 +220,7 @@ interface Props {
     previousPageUrl?: string | null;
     nextPageUrl?: string | null;
   }
+  isInfiniteScroll?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -226,7 +235,8 @@ const props = withDefaults(defineProps<Props>(), {
   showHeader: true,
   loading: false,
   rowClass: () => '',
-  maxHeight: '80vh'
+  maxHeight: '80vh',
+  isInfiniteScroll:false
 
 })
 
@@ -244,6 +254,8 @@ const selectedItems = ref<any[]>([])
 const selectAll = ref(false)
 const openDropdown = ref<number | null>(null)
 const dropdownDirection = ref<'up' | 'down'>('down')
+const tableContainer = ref<HTMLElement | null>(null)
+const loadingNextPage = ref(false)
 
 // const hasActions = computed(() => props.actions.length > 0)
 const hasActions = computed(() => {
@@ -401,6 +413,49 @@ const closeDropdown = (event: Event) => {
     openDropdown.value = null
   }
 }
+
+
+
+// FONCTION DE GESTION DU SCROLL
+const handleScroll = () => {
+  // Cette fonction ne sera appelée que si props.isInfiniteScroll est vrai
+  const container = tableContainer.value
+
+  // S'assurer qu'il y a un conteneur, que ce n'est pas le chargement initial, et que la page suivante n'est pas déjà en cours de chargement.
+  if (!container || props.loading || loadingNextPage.value) return
+
+  // Marge de 100px pour déclencher avant d'atteindre le bas
+  const scrollTolerance = 100
+  const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + scrollTolerance
+
+  if (isNearBottom) {
+    checkAndLoadNextPage()
+  }
+}
+
+// FONCTION POUR VÉRIFIER ET CHARGER LA PAGE SUIVANTE
+const checkAndLoadNextPage = () => {
+  const meta = props.meta
+
+  if (!meta) return
+
+  const hasNextPage = meta.currentPage < meta.lastPage
+
+  if (hasNextPage) {
+    loadingNextPage.value = true
+    const nextPage = meta.currentPage + 1
+
+    // Émission de l'événement page-change, le parent gère l'ajout des données
+    emit('page-change', nextPage)
+  }
+}
+
+
+
+// WATCHER pour désactiver l'état de chargement de page suivante
+watch(() => props.data, () => {
+    loadingNextPage.value = false;
+});
 
 watch(selectedItems, (newValue) => {
   const selectableCount = filteredData.value.filter(isItemSelectable).length
