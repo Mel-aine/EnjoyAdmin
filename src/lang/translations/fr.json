@@ -6739,23 +6739,16 @@
   "Confirm Clear Remarks": "Confirmer la suppression des remarques",
   "Are you sure you want to remove all remarks from these rooms?": "Êtes-vous sûr de vouloir supprimer toutes les remarques des chambres sélectionnées ?",
   "Confirm Unassignment": "Confirmer la suppression de l'affectation",
-<<<<<<< HEAD
-  "Are you sure you want to unassign the housekeeper from these rooms?": "Êtes-vous sûr de vouloir retirer la femme de ménage des chambres sélectionnées ?"
-=======
   "Are you sure you want to unassign the housekeeper from these rooms?": "Êtes-vous sûr de vouloir retirer la femme de ménage des chambres sélectionnées ?",
   "Transaction_history": "Historique des transactions",
   "current_balance": "Solde actuel",
-  "company_information": "Informations sur l’entreprise",
+  "company_information": "Informations sur l'entreprise",
   "tax_id": "Identifiant fiscal",
   "balance_informattion": "Informations sur le solde",
   "credit_limit": "Limite de crédit",
-  "transaction_history_will_be": "L’historique des transactions sera disponible dans une future mise à jour.",
+  "transaction_history_will_be": "L'historique des transactions sera disponible dans une future mise à jour.",
   "please_check_back": "Veuillez revenir plus tard pour cette fonctionnalité.",
   "can_t_find": "Entreprise introuvable ou supprimée.",
   "back_to": "Retour à la base de données des entreprises",
   "transactionType": "Type de transaction"
-   
-  
->>>>>>> e78232b21dff7ef482fd9de896f9085e51c73a72
-
 }

@@ -6940,10 +6940,7 @@
   "UnknownRoomType" : "Unknown Room Type",
   "split":"Split",
   "split_folio":"Split Folio",
-<<<<<<< HEAD
-  "transfer_posting":"Transfer Posting"
-=======
-"transfer_posting":"Transfer Posting",
+  "transfer_posting":"Transfer Posting",
   "Transaction_history" : "Transaction History",
   "current_balance" : "Current Balance",
   "company_information" : "Company Information",
@@ -6955,72 +6952,4 @@
   "can_t_find" : "Company not found or has been deleted.",
   "back_to" : "Back to Company Database",
   "transactionType" : "Transaction Type"
-  ,
-  "common": {
-    "arrivalFrom": "Arrival From",
-    "arrivalTo": "Arrival To",
-    "from": "From",
-    "to": "To",
-    "company": "Company",
-    "selectCompany": "-- select Company --",
-    "roomType": "Room Type",
-    "selectRoomType": "-- select Room Type --",
-    "rateType": "Rate Type",
-    "selectRateType": "-- select Rate Type --",
-    "businessSource": "Business Source",
-    "selectBusinessSource": "-- Select Business Source --",
-    "market": "Market",
-    "selectMarket": "-- Select Market --",
-    "user": "User",
-    "selectUser": "-- select User --",
-    "rateFrom": "Rate From",
-    "rateTo": "Rate To",
-    "showAmount": "Show Amount",
-    "selectAmountType": "-- Select Amount Type --",
-    "reservationType": "Reservation Type",
-    "selectReservationType": "-- select Reservation Type --",
-    "export": "Export",
-    "csv": "CSV",
-    "pdf": "PDF",
-    "excel": "Excel",
-    "report": "Report",
-    "reset": "Reset",
-    "generated": "Generated",
-    "results": "Results",
-    "selected": "Selected",
-    "columns": "columns",
-    "guest": "Guest",
-    "ratePerNight": "Rate/Night",
-    "ratePerNightShort": "Rate/Night",
-    "totalAmount": "Total Amount",
-    "arrival": "Arrival",
-    "departure": "Departure",
-    "pax": "PAX",
-    "roomNumber": "Room #",
-    "na": "N/A"
-  },
-  "reports": {
-    "reservation": {
-      "arrivalList": "Arrival List",
-      "arrivalListDescription": "View and manage upcoming guest arrivals",
-      "arrivalListReport": "Arrival List Report",
-      "taxInclusiveHint": "Tax Inclusive Rates (Disc./Adj. included, if applied)",
-      "taxIncludedInfo": "When checked, tax will be included in rates",
-      "selectAdditionalColumns": "Select Additional Columns (Any 5)",
-      "totalArrivals": "Total Arrivals",
-      "totalRevenue": "Total Revenue",
-      "totalNights": "Total Nights",
-      "totalPax": "Total Pax",
-      "columns": {
-        "pickUp": "Pick Up",
-        "dropOff": "Drop Off",
-        "reservationTypeShort": "Res.Type",
-        "deposit": "Deposit",
-        "balanceDue": "Balance Due",
-        "marketCode": "Market Code",
-        "mealPlan": "Meal Plan"
-      }
-    }
-  }
->>>>>>> e78232b21dff7ef482fd9de896f9085e51c73a72
 }
