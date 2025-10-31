@@ -83,34 +83,20 @@ export const getCompanies = async (params: any = {}): Promise<Company[] | undefi
 }
 
 // Get filtered companies
-// export const getFilteredCompanies = async (filter: CompanyFilter): Promise<Company[] | undefined> => {
-//   try {
-//     const response: AxiosResponse<ApiResponse<Company[]>> = await axios.get(
-//       `${API_URL()}`,
-//       {  params: {
-//           filters: filter
-//         }, ...getHeaders() },
-
-//     )
-//     return response.data.data
-//   } catch (error) {
-//     handleApiError(error)
-//   }
-// }
-
 export const getFilteredCompanies = async (filter: CompanyFilter): Promise<any> => {
   try {
     const response = await axios.get(`${API_URL()}`, {
       params: {
+        filters: {
+          searchText: filter.searchText,
+          status: filter.status,
+          country: filter.country,
+          email: filter.email,
+          minBalance: filter.minBalance,
+          maxBalance: filter.maxBalance,
+        },
         page: filter.page,
-        limit: filter.limit,
-        searchText: filter.searchText,
-        status: filter.status,
-        country: filter.country,
-        email: filter.email,
-        minBalance: filter.minBalance,
-        maxBalance: filter.maxBalance
-
+        perPage: filter.limit,
       },
       ...getHeaders(),
     })
@@ -120,6 +106,7 @@ export const getFilteredCompanies = async (filter: CompanyFilter): Promise<any> 
     handleApiError(error)
   }
 }
+
 
 
 // Get company by ID

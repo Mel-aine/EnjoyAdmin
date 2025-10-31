@@ -102,7 +102,7 @@ const columns = computed<Column[]>(() => [
   { key: 'companyName', label: t('companyDatabase.columns.name'), type: 'text' },
   { key: 'contactPersonName', label: t('companyDatabase.columns.contactPerson'), type: 'custom' },
   { key: 'billingCountry', label: t('companyDatabase.columns.country'), type: 'text' },
-  { key: 'primaryEmail', label: t('companyDatabase.columns.email'), type: 'text' },
+  { key: 'primaryEmail', label: t('companyDatabase.columns.email'), type: 'email' },
   { key: 'primaryPhone', label: t('companyDatabase.columns.contact'), type: 'text' },
   { key: 'accountStatus', label: t('companyDatabase.columns.status'), type: 'custom' },
   { key: 'balances', label: t('companyDatabase.columns.balances'), type: 'custom' }

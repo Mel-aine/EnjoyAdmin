@@ -29,7 +29,7 @@
     </div>
 
     <!-- Table -->
-    <div :style="{ maxHeight: props.maxHeight }">
+    <div :style="{ maxHeight: props.maxHeight, overflowY: 'auto' }" class="custom-scrollbar">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
@@ -226,7 +226,7 @@ const props = withDefaults(defineProps<Props>(), {
   showHeader: true,
   loading: false,
   rowClass: () => '',
-  maxHeight: '100vh'
+  maxHeight: '80vh'
 
 })
 
@@ -487,13 +487,23 @@ onUnmounted(() => {
 }
 
 /* Scrollbar invisible mais toujours scrollable */
-.custom-scrollbar {
-  scrollbar-width: none;
-  /* Firefox */
+
+@layer utilities {
+
+  /* Chrome, Safari, Edge, Opera */
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* IE, Edge, Firefox */
+  .custom-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari, Edge */
-}
+
+
 </style>

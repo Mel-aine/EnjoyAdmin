@@ -10,6 +10,8 @@
           :selectable="false"
           :loading="loading"
           :searchPlaceholder="$t('search...')"
+          @page-change="handlePageChange"
+          :meta="paginationMeta"
           v-model="searchQuery"
           @search-change="onSearchChange"
           class="modern-table"
@@ -32,7 +34,7 @@
               @click="exportLostFound"
               :loading="exportLoading"
             />
-           
+
           </template>
           <!-- Template pour la colonne status -->
           <template #column-status="{ item }">
@@ -40,7 +42,7 @@
               {{ $t(`statuses.${item.status}`) }}
             </span>
           </template>
-          
+
           <!-- Template pour la colonne type -->
           <template #column-type="{ item }">
             <span :class="getTypeClass(item.type)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
@@ -108,6 +110,7 @@ const lostFoundItems = ref<any[]>([])
 const showDeleteConfirmation = ref(false)
 const deleteLoading = ref(false)
 const exportLoading = ref(false)
+const paginationMeta = ref<any>(null)
 
 const columns = computed(() => [
   {
@@ -169,6 +172,9 @@ const columns = computed(() => [
   }
 ])
 
+
+
+
 const actions = computed(() => [
   {
     label: t('Edit'),
@@ -200,7 +206,7 @@ const filteredLostFoundItems = computed(() => {
 
   if (searchQuery.value) {
     const searchTerm = searchQuery.value.toLowerCase().trim()
-    
+
     if (searchTerm) {
       filtered = filtered.filter(item => {
         // Recherche dans tous les champs pertinents
@@ -239,7 +245,7 @@ const formatDate = (dateString: string) => {
   try {
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return dateString
-    
+
     return date.toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: '2-digit',
@@ -347,18 +353,19 @@ const handleLostFoundAction = async (action: string, item: any) => {
     }
     // Vous pouvez ajouter la logique pour 'view' ici si nécessaire
     console.log('Selected item:', selectedItem.value)
-  } 
+  }
   else if (action === 'delete') {
     showDeleteConfirmation.value = true
   }
 }
 
 // Fonction pour récupérer les objets perdus et trouvés
-const fetchLostFoundItems = async () => {
+const fetchLostFoundItems = async (pageNumber = 1) => {
   try {
     loading.value = true
-    const response = await getLostFound();
-
+    const response = await getLostFound({page: pageNumber,limit: 10});
+    console.log('response',response)
+    paginationMeta.value = response.meta;
     lostFoundItems.value = response.data.map((item: any) => {
       return {
         ...item,
@@ -378,6 +385,10 @@ const fetchLostFoundItems = async () => {
   } finally {
     loading.value = false
   }
+};
+
+const handlePageChange = (newPage: number) => {
+  fetchLostFoundItems(newPage);
 };
 
 const handleCloseModal = () => {
@@ -431,7 +442,7 @@ const handleSubmitLostFound = async (payload: any) => {
       if (!id) {
         throw new Error('ID de l\'item non trouvé pour la mise à jour')
       }
- 
+
       // Mise à jour locale pour la démo
       await updateLostFoundItem(id, payloadData)
       fetchLostFoundItems()
@@ -524,7 +535,7 @@ watch(searchQuery, () => {
 })
 
 onMounted(async () => {
-  await fetchLostFoundItems()
+  await fetchLostFoundItems(1)
 })
 </script>
 

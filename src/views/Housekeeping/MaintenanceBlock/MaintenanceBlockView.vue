@@ -7,11 +7,13 @@
         <ReusableTable
           :title="$t('maintenance_block')"
           :columns="columns"
-          :data="filteredBlocks"
+          :data="blocks"
           :actions="actions"
           :loading="loading"
           :searchable="true"
           :selectable="true"
+          :meta="paginationMeta"
+          @page-change="handlePageChange"
           :empty-state-title="$t('maintenanceBlocks.noBlocksFound')"
           :empty-state-message="$t('maintenanceBlocks.noBlocksMessage')"
           v-model:searchQuery="searchQuery"
@@ -214,6 +216,7 @@ const blockToUpdateStatus = ref<any>(null)
 const newStatusToUpdate = ref('')
 const statusUpdateNotes = ref('')
 const toast = useToast()
+const paginationMeta = ref<any>(null)
 
 // Breadcrumb
 const breadcrumb = [
@@ -274,48 +277,7 @@ const columns = computed(() => [
 ])
 
 // Computed properties
-const filteredBlocks = computed(() => {
-  let filtered = blocks.value
 
-  // Apply search filter
-  if (searchQuery.value) {
-    const searchTerm = searchQuery.value.toLowerCase().trim()
-
-    if (searchTerm) {
-      filtered = filtered.filter(block => {
-        // Recherche dans le numéro de chambre
-        const roomNumber = block.room?.roomNumber?.toLowerCase() || ''
-
-        // Recherche dans le type de chambre
-        const roomType = block.roomType?.roomTypeName?.toLowerCase() ||
-                         block.room?.roomType?.roomTypeName?.toLowerCase() || ''
-
-        // Recherche dans le nom de l'utilisateur qui a bloqué
-        const blockedByName = `${block.blockedBy?.firstName || ''} ${block.blockedBy?.lastName || ''}`.toLowerCase()
-
-        // Recherche dans la raison
-        const reason = block.reason?.toLowerCase() || ''
-
-        // Recherche dans le statut
-        const status = block.status?.toLowerCase() || ''
-
-        // Recherche dans les dates (format lisible)
-        const fromDate = formatDate(block.blockFromDate).toLowerCase()
-        const toDate = formatDate(block.blockToDate).toLowerCase()
-
-        return roomNumber.includes(searchTerm) ||
-               roomType.includes(searchTerm) ||
-               blockedByName.includes(searchTerm) ||
-               reason.includes(searchTerm) ||
-               status.includes(searchTerm) ||
-               fromDate.includes(searchTerm) ||
-               toDate.includes(searchTerm)
-      })
-    }
-  }
-
-  return filtered
-})
 
 const getStatusClass = (status: string) => {
   switch (status) {
@@ -441,7 +403,7 @@ const confirmStatusUpdate = async () => {
     await updateRoomBlock(blockToUpdateStatus.value.id, payload)
 
     toast.success(t('Block status updated successfully'))
-    await fetchBlocks()
+    await fetchBlocks(1)
 
   } catch (error: any) {
     console.error('Error updating work order status:', error)
@@ -525,12 +487,14 @@ const cancelDelete = () => {
 const handleBlockSave = async (eventData: any) => {
 
   if (eventData.isEditing && eventData.updated) {
-    await fetchBlocks()
+    await fetchBlocks(paginationMeta.value?.currentPage || 1)
   } else if (!eventData.isEditing && eventData.successCount > 0) {
-    await fetchBlocks()
+    await fetchBlocks(1)
   }
   handleBlockClose()
 }
+
+
 const handleBlockClose = () => {
   isBlockModalOpen.value = false
   selectedBlock.value = null
@@ -596,7 +560,7 @@ const exportBlocks = async () => {
 }
 
 // Data fetching
-const fetchBlocks = async () => {
+const fetchBlocks = async (pageNumber=1) => {
   if (!serviceStore.serviceId) {
     toast.error(t('serviceIdRequired'))
     return
@@ -605,14 +569,16 @@ const fetchBlocks = async () => {
   loading.value = true
 
   try {
-    const response = await getRoomBlocks(serviceStore.serviceId)
-    console.log('API Response:', response.data)
+    const response = await getRoomBlocks(serviceStore.serviceId,{ page:pageNumber,perPage:10})
+    console.log('API Response:', response.data.data.meta)
 
     // Handle different response structures
-    if (response.data?.data) {
+    if (response.data?.data?.data) {
+      blocks.value = response.data.data.data
+      paginationMeta.value = response.data.data.meta
+    } else if (Array.isArray(response.data.data)) {
       blocks.value = response.data.data
-    } else if (Array.isArray(response.data)) {
-      blocks.value = response.data
+      paginationMeta.value = response.data.meta
     } else {
       blocks.value = []
     }
@@ -620,7 +586,7 @@ const fetchBlocks = async () => {
     console.log('Fetched blocks:', blocks.value)
   } catch (error: any) {
     console.error('Error loading blocks:', error)
-    const errorMsg = error.response?.data?.message || error.message || t('errorLoadingBlocks')
+    const errorMsg = error.response?.data?.data.message || error.message || t('errorLoadingBlocks')
     console.log('errorMsg',errorMsg)
     // toast.error( t('errorLoadingBlocks'))
     blocks.value = []
@@ -629,30 +595,23 @@ const fetchBlocks = async () => {
   }
 }
 
+const handlePageChange = (newPage) =>{
+  fetchBlocks(newPage)
+}
+
 
 onMounted(async () => {
-  await fetchBlocks()
+  await fetchBlocks(1)
 })
 
 // Watch for service changes
 watch(() => serviceStore.serviceId, async (newServiceId) => {
   if (newServiceId) {
-    await fetchBlocks()
+    await fetchBlocks(1)
   }
 }, { immediate: false })
 
-// Debounce search to improve performance
-let searchTimeout: ReturnType<typeof setTimeout> | null = null
-watch(searchQuery, () => {
-  if (searchTimeout) {
-    clearTimeout(searchTimeout)
-  }
 
-  searchTimeout = setTimeout(() => {
-    // The search is reactive through filteredBlocks computed
-    console.log('Search query changed to:', searchQuery.value)
-  }, 300)
-})
 </script>
 
 <style scoped>

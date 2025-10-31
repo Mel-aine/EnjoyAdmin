@@ -28,9 +28,9 @@ export const createRoomBlock = (data: any): Promise<AxiosResponse<any>> => {
 /**
  * Get Room Blocks by Hotel ID
  */
-export const getRoomBlocks = (hotelId: any): Promise<AxiosResponse<any>> => {
+export const getRoomBlocks = (hotelId: any,params:any={}): Promise<AxiosResponse<any>> => {
   console.log('Fetching room blocks for hotel ID:', hotelId)
-  return axios.get(`${API_URL}/${hotelId}`, getAuthHeaders())
+  return axios.get(`${API_URL}/${hotelId}`, {...getAuthHeaders(),params})
 }
 
 /**
@@ -70,15 +70,15 @@ export const getRoomBlocksWithFilters = (
   }
 ): Promise<AxiosResponse<any>> => {
   const params = new URLSearchParams()
-  
+
   if (filters?.start_date) params.append('start_date', filters.start_date)
   if (filters?.end_date) params.append('end_date', filters.end_date)
   if (filters?.room_id) params.append('room_id', filters.room_id)
   if (filters?.status) params.append('status', filters.status)
-  
+
   const url = `${API_URL}/${hotelId}${params.toString() ? `?${params.toString()}` : ''}`
   console.log('Fetching room blocks with filters:', url)
-  
+
   return axios.get(url, getAuthHeaders())
 }
 

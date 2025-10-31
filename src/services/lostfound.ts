@@ -38,23 +38,23 @@ export interface ApiResponse<T = any> {
 
 //ajouter un objet perdu/trouvé
 export const addLostFound = async (data: any): Promise<any | undefined> => {
-  try { 
+  try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       '/lost-found', data, getHeaders()
     )
     return response.data
   } catch (error) {
-    console.error('Erreur ajout objet perdu/trouvé:', error)    
+    console.error('Erreur ajout objet perdu/trouvé:', error)
   }
 }
 
 // recuperer la liste des objets perdus/trouvés
-export const getLostFound = async (): Promise<any> => {
-  try { 
+export const getLostFound = async (params:any={}): Promise<any> => {
+  try {
     const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/lost-found`, getHeaders()
+      `/lost-found`, {...getHeaders(),params}
     )
-    return response.data 
+    return response.data
   } catch (error) {
     console.error('Erreur récupération objets perdus/trouvés:', error)
     return []
@@ -64,7 +64,7 @@ export const getLostFound = async (): Promise<any> => {
 //update un objet perdu/trouvé
 
 export const updateLostFoundItem = async (itemId: number, data: any): Promise<any | undefined> => {
-  try { 
+  try {
     const response: AxiosResponse<ApiResponse> = await apiClient.put(
       `/lost-found/${itemId}`, data, getHeaders()
     )
@@ -85,7 +85,7 @@ export const getLostFoundItem = async (itemId: number): Promise<any | undefined>
     )
     return response.data
   } catch (error) {
-    console.error('Erreur récupération objet perdu/trouvé:', error) 
+    console.error('Erreur récupération objet perdu/trouvé:', error)
     return undefined
     }
 }

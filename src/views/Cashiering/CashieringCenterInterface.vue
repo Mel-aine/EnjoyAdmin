@@ -68,7 +68,7 @@
 
 
       <!-- Table Content -->
-      <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading" :searchable="false"
+      <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading" :searchable="false" :meta="paginationMeta" @page-change="handlePageChange"
         :show-header="false" :selectable="true" @selection-change="handleSelectionChange">
         <!-- Custom cell for Description column -->
         <template #column-description="{ item }">
@@ -138,6 +138,7 @@ const serviceStore = useServiceStore()
 const router = useRouter()
 const toast = useToast()
 const searchQuery = ref('')
+const paginationMeta = ref<any>(null)
 
 // State
 const activeTab = ref('posting')
@@ -194,11 +195,11 @@ const columns = ref<Column[]>([
 const transactions = ref<any[]>([])
 const handChangeCityLedger = (item: any) => {
   selectCityLedger.value = item;
-  loadCityLedgerData()
+  loadCityLedgerData(1)
 }
 
 // Load city ledger data function
-const loadCityLedgerData = async () => {
+const loadCityLedgerData = async (pageNumber = 1) => {
   const companyId = selectCityLedger.value?.id ?? props.selectedCompanyId
   if (!companyId) {
     transactions.value = []
@@ -215,7 +216,7 @@ const loadCityLedgerData = async () => {
       usePostingDate: activeTab.value === 'posting',
       searchText: searchQuery.value || '',
       showVoided: displayVoid.value,
-      page: 1,
+      page: pageNumber,
       limit: 100
     }
 
@@ -226,6 +227,7 @@ const loadCityLedgerData = async () => {
       cityLedgerData.value = response.companyAccount
       totals.value = response.totals
       transactions.value = response.data || []
+      paginationMeta.value = response.meta
       originalTransactions.value = [...transactions.value]
     }
   } catch (error) {
@@ -235,6 +237,10 @@ const loadCityLedgerData = async () => {
     loading.value = false
   }
 }
+
+const handlePageChange = (newPage: number) => {
+  loadCityLedgerData(newPage);
+};
 
 
 // Actions
@@ -268,19 +274,19 @@ function openNewPaymentModal() {
 
 function onPaymentSaved() {
   newPaymentVisible.value = false
-  loadCityLedgerData()
+  loadCityLedgerData(1)
 }
 
 // Watchers
 watch(() => props.selectedCompanyId, (newId) => {
   if (newId) {
     selectCityLedger.value = { id: newId }
-    loadCityLedgerData()
+    loadCityLedgerData(1)
   }
 })
 
 watch([() => dateRange.value.start, () => dateRange.value.end], () => {
-  loadCityLedgerData()
+  loadCityLedgerData(1)
 })
 
 // Handle actions from the table
@@ -337,15 +343,15 @@ async function onAction(action: string, item: any) {
 }
 
 watch(activeTab, () => {
-  loadCityLedgerData()
+  loadCityLedgerData(1)
 })
 
 watch(displayVoid, () => {
-  loadCityLedgerData()
+  loadCityLedgerData(1)
 })
 
 watch(searchQuery, () => {
-  loadCityLedgerData()
+  loadCityLedgerData(1)
 })
 
 // Lifecycle hooks
@@ -353,6 +359,6 @@ onMounted(() => {
   if (props.selectedCompanyId) {
     selectCityLedger.value = { id: props.selectedCompanyId }
   }
-  loadCityLedgerData()
+  loadCityLedgerData(1)
 })
 </script>
