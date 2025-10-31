@@ -2803,7 +2803,7 @@
   "taxes": "Taxes",
   "discount": "Discount",
   "TotalAmount": "Total Amount",
-  "financial_info": "Financial information",
+  "financial_info": "Financial Information",
   "stay_dates": "Stay dates",
   "customer_detail": "Customer Details",
   "AddEvent+": "Add Event +",
@@ -3644,6 +3644,7 @@
   "checkinCheckoutSettings": "Check-in and check-out hours",
   "no_results": "No results found.",
   "countries_lists": {
+    "undefined":"",
     "af": "Afghanistan",
     "al": "Albania",
     "dz": "Algeria",
@@ -6570,7 +6571,18 @@
   "UnknownRoomType" : "Unknown Room Type",
   "split":"Split",
   "split_folio":"Split Folio",
-"transfer_posting":"Transfer Posting"
+"transfer_posting":"Transfer Posting",
+  "Transaction_history" : "Transaction History",
+  "current_balance" : "Current Balance",
+  "company_information" : "Company Information",
+  "tax_id" : "Tax ID",
+  "balance_informattion" : "Balance Information",
+  "credit_limit" : "Credit Limit",
+  "transaction_history_will_be" : "Transaction history will be implemented in a future update.",
+  "please_check_back" : "Please check back later for this feature.",
+  "can_t_find" : "Company not found or has been deleted.",
+  "back_to" : "Back to Company Database",
+  "transactionType" : "Transaction Type"
   ,
   "common": {
     "arrivalFrom": "Arrival From",

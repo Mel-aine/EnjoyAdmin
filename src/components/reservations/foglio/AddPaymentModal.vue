@@ -213,7 +213,7 @@ const savePayment = async () => {
       transactionType: 'payment',
       //transactionCategory: formData.type,
       category: 'payment',
-      description: `Payment`,
+      description: `Payment - ${methodeSelected.value.methodName}`,
       amount: prepareFolioAmount(formData.amount),
       reference: formData.recVouNumber,
       notes: formData.comment,
