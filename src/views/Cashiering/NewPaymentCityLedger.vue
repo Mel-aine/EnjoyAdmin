@@ -30,28 +30,28 @@
                   </div> -->
                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- City Ledger Account -->
-                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" />
+                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" :disabled="isMappingMode" />
 
                     <!-- Date -->
-                    <InputDatePicker :title="'Date'" v-model="formData.date" :isRequired="true" />
+                    <InputDatePicker :title="'Date'" v-model="formData.date" :isRequired="true" :disabled="isMappingMode" />
 
                     <!-- Payment Type -->
                     <Select lb="Payment Type" v-model="formData.paymentType" :options="[
                       { label: t('cash'), value: 'cash' },
-                    ]" :isRequired="true" />
+                    ]" :isRequired="true" :disabled="isMappingMode" />
 
                     <!-- Payment method -->
-                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType" />
+                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType" :disabled="isMappingMode" />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!--amount-->
                     <div class="col-span-2">
                       <InputCurrency lb="Total Amount to Pay" v-model="formData.amount" placeholder="0.00"
-                        step="0.01" />
+                        step="0.01" :disabled="isMappingMode" />
                       <small class="text-gray-500 text-xs mt-1">Auto-calculated from assigned amounts</small>
                     </div>
                     <div class="col-span-3">
-                      <Input :lb="$t('comment')" v-model="formData.comment" />
+                      <Input :lb="$t('comment')" v-model="formData.comment" :disabled="isMappingMode" />
                     </div>
                   </div>
                   <!-- Map Payment Section -->
@@ -180,6 +180,9 @@ const props = defineProps<{
     end: string
   }
   activeTab?: string
+  // Mapping mode: invoked from CashieringCenterInterface 'map' action
+  mappingMode?: boolean
+  mapPaymentContext?: any | null
 }>()
 
 // Loading state
@@ -187,6 +190,9 @@ const loading = ref(false)
 const isSearching =ref(false)
 const isSaving = ref(false)
 const emit = defineEmits(['close', 'payment-saved'])
+
+// Mapping mode helper
+const isMappingMode = computed(() => !!props.mappingMode)
 
 // Initialize date range with yesterday and today
 const getYesterday = () => {
@@ -271,7 +277,7 @@ const loadCityLedgerData = async () => {
       console.log('esponse', response)
       cityLedgerData.value = response
       // Transform API data to guest data format
-      guestData.value = response.data.map((transaction: any, index: number) => ({
+      guestData.value = response.data.filter((e:any)=>(e.transactionType =='transfer' && e.open >0)).map((transaction: any, index: number) => ({
         id: transaction.id,
         date: transaction.date,
         name: transaction.guestName,
@@ -286,7 +292,7 @@ const loadCityLedgerData = async () => {
       }))
 
       // Update form amount with total balance
-      formData.value.amount = 0;//cityLedgerData.value.totals?.unassignedPayments || 0
+      //formData.value.amount = 0;//cityLedgerData.value.totals?.unassignedPayments || 0
     }
   } catch (error) {
     console.error('Error loading city ledger data:', error)
@@ -472,6 +478,12 @@ const savePayment = async () => {
       notes: formData.value.comment || ''
     }
 
+    // If opened in mapping mode, include the payment transaction ID to avoid creating a new one
+    if (isMappingMode.value && props.mapPaymentContext?.transactionId) {
+      // Backend expects existing payment transaction identifier
+      ;(paymentData as any).transactionId = Number(props.mapPaymentContext?.transactionId)
+    }
+
     console.log('Saving payment with data:', paymentData)
 
     // Call API
@@ -546,9 +558,16 @@ watch(
 
 // Load data on component mount
 onMounted(() => {
+  // Prefill amount when mapping an existing payment
+  if (props.mapPaymentContext && props.mapPaymentContext.id) {
+    formData.value.amount = Math.abs(Number(props.mapPaymentContext?.open ?? 0))
+    formData.value.paymentMethod = props.mapPaymentContext?.paymentTypeId
+  }
   // Load data if props are provided or if cityLedgerAccount is set
   if (formData.value.cityLedgerAccount || props.selectedCompanyId) {
     loadCityLedgerData()
   }
+
+  
 })
 </script>

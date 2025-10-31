@@ -708,7 +708,7 @@
 
                 <!-- Type de chambre et tarif -->
                 <div class="text-xs text-gray-600 dark:text-white mt-1">
-                  {{ RoomTypes.find((rt) => rt.value == room.roomType)?.label || 'N/A' }}
+                  {{ RoomTypes.find((rt) => rt.value == room.roomType)?.label || t('N/A') }}
                   <span v-if="getRateTypesForRoom(room.id).find((rt) => rt.value == room.rateType)">
                     -
                     {{
@@ -1248,7 +1248,7 @@ const handleCheckIn = async () => {
       })
 
       if (!availableReservationRoom) {
-        console.error(t('No available rooms for check-in'))
+        console.error(t('bookings.errors.noAvailableRoomsForCheckin'))
         return
       }
 
@@ -1304,7 +1304,7 @@ const handleConfirmReservation = async () => {
       pendingReservation.value = false
       confirmReservation.value = true
 
-      toast.success(t('Reservation confirmed successfully'))
+      toast.success(t('bookings.success.reservationConfirmed'))
 
       await router.push({
         name: 'ReservationDetails',
@@ -1314,7 +1314,7 @@ const handleConfirmReservation = async () => {
   } catch (error: any) {
     console.error('Error confirming reservation:', error)
     const errorMessage =
-      error.response?.data?.message || error.message || t('Failed to confirm reservation')
+      error.response?.data?.message || error.message || t('bookings.errors.confirmReservationFailed')
     toast.error(errorMessage)
   } finally {
     isConfirmingReservation.value = false

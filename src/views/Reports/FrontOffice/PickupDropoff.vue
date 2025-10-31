@@ -3,28 +3,28 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Pickup / Dropoff Guest Report
+          {{ t('reports.frontOffice.pickupDropoffDetails.title') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage guest pickup and dropoff services
+          {{ t('reports.frontOffice.pickupDropoffDetails.description') }}
         </p>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ $t('common.filters') }}
+          {{ t('common.filters') }}
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Pick/Drop From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Pick/Drop From
+              {{ t('reports.frontOffice.pickupDropoffDetails.pickDropFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.dateFrom" 
-              placeholder="From"
+              :placeholder="t('common.from')"
               class="w-full"
               @update:modelValue="updateDateFilter('startDate', $event)"
             />
@@ -33,11 +33,11 @@
           <!-- To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ t('common.dateTo') }}
             </label>
             <InputDatepicker 
               v-model="filters.dateTo" 
-              placeholder="To"
+              :placeholder="t('common.to')"
               class="w-full"
               @update:modelValue="updateDateFilter('endDate', $event)"
             />
@@ -46,12 +46,12 @@
           <!-- Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Type
+              {{ t('common.type') }}
             </label>
             <SelectComponent 
               v-model="filters.type"
               :options="typeOptions"
-              placeholder="--Select--"
+              :placeholder="t('common.select')"
               class="w-full"
             />
           </div>
@@ -70,7 +70,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span v-if="!exportLoading">{{ $t('common.export') }}</span>
+              <span v-if="!exportLoading">{{ t('common.export') }}</span>
               <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -86,7 +86,7 @@
                 <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                CSV
+                {{ t('common.csv') }}
               </button>
               <button 
                 @click="exportPDF" 
@@ -96,7 +96,7 @@
                 <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                PDF
+                {{ t('common.pdf') }}
               </button>
               <button 
                 @click="exportExcel" 
@@ -106,7 +106,7 @@
                 <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Excel
+                {{ t('common.excel') }}
               </button>
             </div>
           </div>
@@ -121,7 +121,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ $t('common.report') }}
+            {{ t('common.report') }}
           </button>
 
           <!-- Bouton Reset -->
@@ -132,7 +132,7 @@
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            {{ $t('common.reset') }}
+            {{ t('common.reset') }}
           </button>
         </div>
       </div>
@@ -140,7 +140,7 @@
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-8">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-600 dark:text-gray-400">Generating report...</p>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">{{ t('reports.generatingReport') }}</p>
       </div>
 
       <!-- Error State -->
@@ -155,21 +155,21 @@
           <div class="flex justify-between items-center">
             <div>
               <h2 class="text-xl font-bold text-blue-600 dark:text-blue-400">
-                {{ reportData?.title || 'Pickup / Dropoff Guest Report' }}
+                {{ reportData?.title || t('reports.frontOffice.pickupDropoffDetails.title') }}
               </h2>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Pick Drop Date From {{ filters.dateFrom }} To {{ filters.dateTo }}
+                {{ t('reports.frontOffice.pickupDropoffDetails.pickDropDateRange', { from: filters.dateFrom, to: filters.dateTo }) }}
               </p>
             </div>
             <div class="text-right">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                Pickup / Dropoff Guest Report
+                {{ t('reports.frontOffice.pickupDropoffDetails.title') }}
               </h3>
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                Generated: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}
+                {{ t('reports.generatedAt') }}: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}
               </p>
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                By: {{ reportData?.generatedBy || '' }}
+                {{ t('reports.frontOffice.pickupDropoffDetails.by') }}: {{ reportData?.generatedBy || '' }}
               </p>
             </div>
           </div>
@@ -182,17 +182,17 @@
         <div v-else class="px-6 py-4">
           <div class="mb-4">
             <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">
-              Pick Drop Date Time &nbsp;&nbsp;&nbsp;&nbsp; Guest Name &nbsp;&nbsp;&nbsp;&nbsp; Room No. &nbsp;&nbsp;&nbsp;&nbsp; Mode &nbsp;&nbsp;&nbsp;&nbsp; Vehicle &nbsp;&nbsp;&nbsp;&nbsp; Description
+              {{ t('reports.frontOffice.pickupDropoffDetails.fallbackHeader') }}
             </h3>
           </div>
 
           <!-- Pickup Section -->
           <div v-if="reportData?.data?.pickup" class="mb-6">
             <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 mb-2">
-              <h4 class="font-medium text-blue-800 dark:text-blue-200">Pickup</h4>
+              <h4 class="font-medium text-blue-800 dark:text-blue-200">{{ t('reports.frontOffice.pickupDropoffDetails.pickup') }}</h4>
             </div>
             <div v-if="reportData.data.pickup.list.length === 0" class="text-gray-500 dark:text-gray-400 text-center py-4">
-              No pickup data found for selected criteria
+              {{ t('reports.frontOffice.pickupDropoffDetails.noPickupData') }}
             </div>
             <div v-else>
               <div v-for="(item, index) in reportData.data.pickup.list" :key="'pickup-' + index" class="border-b border-gray-100 dark:border-gray-700 py-2">
@@ -218,7 +218,7 @@
                 </div>
               </div>
               <div class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Total Guest #{{ reportData.data.pickup.totalGuests }}
+                {{ t('reports.frontOffice.pickupDropoffDetails.totalGuests') }} #{{ reportData.data.pickup.totalGuests }}
               </div>
             </div>
           </div>
@@ -226,10 +226,10 @@
           <!-- Dropoff Section -->
           <div v-if="reportData?.data?.dropoff" class="mb-6">
             <div class="bg-red-50 dark:bg-red-900/20 px-4 py-2 mb-2">
-              <h4 class="font-medium text-red-800 dark:text-red-200">Dropoff</h4>
+              <h4 class="font-medium text-red-800 dark:text-red-200">{{ t('reports.frontOffice.pickupDropoffDetails.dropoff') }}</h4>
             </div>
             <div v-if="reportData.data.dropoff.list.length === 0" class="text-gray-500 dark:text-gray-400 text-center py-4">
-              No dropoff data found for selected criteria
+              {{ t('reports.frontOffice.pickupDropoffDetails.noDropoffData') }}
             </div>
             <div v-else>
               <div v-for="(item, index) in reportData.data.dropoff.list" :key="'dropoff-' + index" class="border-b border-gray-100 dark:border-gray-700 py-2">
@@ -255,7 +255,7 @@
                 </div>
               </div>
               <div class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Total Guest #{{ reportData.data.dropoff.totalGuests }}
+                {{ t('reports.frontOffice.pickupDropoffDetails.totalGuests') }} #{{ reportData.data.dropoff.totalGuests }}
               </div>
             </div>
           </div>
@@ -361,7 +361,7 @@ const typeOptions = ref<FilterOptions[]>([
 
 // Computed
 const reportTitle = computed(() => {
-  return reportData.value?.title || 'Pickup / Dropoff Guest Report'
+  return reportData.value?.title || t('reports.frontOffice.pickupDropoffDetails.title')
 })
 
 // Watchers
@@ -387,7 +387,7 @@ const updateDateFilter = (field: 'startDate' | 'endDate', value: string) => {
 
 const generateReport = async () => {
   if (!filters.value.dateFrom || !filters.value.dateTo || !filters.value.type) {
-    error.value = 'Please fill in all required fields (Start Date, End Date, Type)'
+    error.value = t('validation.fillRequiredFields')
     return
   }
 
@@ -405,7 +405,7 @@ const generateReport = async () => {
       showResults.value = true
     }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'An error occurred while generating the report'
+    error.value = err instanceof Error ? err.message : t('errors.generatingReport')
     console.error('Report generation error:', err)
   } finally {
     loading.value = false

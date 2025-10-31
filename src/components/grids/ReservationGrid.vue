@@ -93,7 +93,7 @@
     </div>
 
     <div v-if="activeFilter !== 'totalReservations'" class="mb-4 flex items-center gap-2">
-      <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('Active filter') }}:</span>
+      <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('bookings.grid.activeFilter') }}:</span>
       <span
         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
         {{ getActiveFilterLabel() }}
@@ -540,20 +540,20 @@ const printDocumentData = computed(() => {
 // Helper functions
 const getEmptyStateTitle = () => {
   if (reservationMode.value === 'single') {
-    return safeTranslate('No single room reservations')
+    return t('bookings.grid.empty.single.title')
   } else if (reservationMode.value === 'group') {
-    return safeTranslate('No group reservations')
+    return t('bookings.grid.empty.group.title')
   }
-  return safeTranslate('No reservations')
+  return t('bookings.grid.empty.all.title')
 }
 
 const getEmptyStateMessage = () => {
   if (reservationMode.value === 'single') {
-    return safeTranslate('No reservations with single room found in the current filter range.')
+    return t('bookings.grid.empty.single.desc')
   } else if (reservationMode.value === 'group') {
-    return safeTranslate('No reservations with multiple rooms found in the current filter range.')
+    return t('bookings.grid.empty.group.desc')
   }
-  return safeTranslate('Get started by creating a new reservation.')
+  return t('bookings.grid.empty.all.desc')
 }
 
 // Refresh reservation data from API

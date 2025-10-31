@@ -6,7 +6,7 @@
           {{ $t('reports.frontOffice.guestList') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400"> 
-          {{ $t('reports front Office guest List Description') }}
+          {{ $t('reports.frontOffice.guestListDescription') }}
         </p> 
       </div>
 
@@ -16,17 +16,17 @@
           <!-- Start Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.startDate') }}
+              {{ $t('common.dateFrom') }}
             </label>
-            <InputDatepicker v-model="filters.startDate" placeholder="Start Date" class="w-full" />
+            <InputDatepicker v-model="filters.startDate" :placeholder="$t('common.dateFrom')" class="w-full" />
           </div>
 
           <!-- End Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.endDate') }}
+              {{ $t('common.dateTo') }}
             </label>
-            <InputDatepicker v-model="filters.endDate" placeholder="End Date" class="w-full" />
+            <InputDatepicker v-model="filters.endDate" :placeholder="$t('common.dateTo')" class="w-full" />
           </div>
 
           <!-- Status -->
@@ -34,7 +34,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.status') }}
             </label>
-            <SelectComponent v-model="filters.status" :options="statusOptions" placeholder="Select Status..." class="w-full" />
+            <SelectComponent v-model="filters.status" :options="statusOptions" :placeholder="$t('common.status')" class="w-full" />
           </div>
         </div>
 
@@ -48,7 +48,7 @@
             >
               <Spinner v-if="loading" class="w-4 h-4 mr-1" />
               <span class="flex items-center">
-                {{ loading ? $t('common.generating') : $t('Report') }}
+                {{ loading ? $t('common.generating') : $t('common.report') }}
                 <svg v-if="!loading" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>

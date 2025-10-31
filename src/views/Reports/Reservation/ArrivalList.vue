@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Arrival List
+          {{ $t('reports.reservation.arrivalList') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage upcoming guest arrivals
+          {{ $t('reports.reservation.arrivalListDescription') }}
         </p>
       </div>
 
@@ -20,32 +20,32 @@
           <!-- Arrival Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Arrival From
+              {{ $t('common.arrivalFrom') }}
             </label>
             <InputDatepicker
               v-model="filters.arrivalFrom"
-              placeholder="From"
+              :placeholder="$t('common.from')"
               class="w-full"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Arrival To
+              {{ $t('common.arrivalTo') }}
             </label>
             <InputDatepicker
               v-model="filters.arrivalTo"
-              placeholder="To"
+              :placeholder="$t('common.to')"
               class="w-full"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Company
+              {{ $t('common.company') }}
             </label>
             <SelectComponent
               v-model="filters.company"
               :options="companyOptions"
-              placeholder="-- select Company --"
+              :placeholder="$t('common.selectCompany')"
               class="w-full"
             />
           </div>
@@ -55,12 +55,12 @@
           <!-- Room Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Room Type
+              {{ $t('common.roomType') }}
             </label>
             <SelectComponent
               v-model="filters.roomType"
               :options="roomTypeOptions"
-              placeholder="-- select Room Types --"
+              :placeholder="$t('common.selectRoomType')"
               class="w-full"
             />
           </div>
@@ -81,24 +81,24 @@
           <!-- Rate Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rate Type
+              {{ $t('common.rateType') }}
             </label>
             <SelectComponent
               v-model="filters.rateType"
               :options="rateTypeOptions"
-              placeholder="-- select Rate Types --"
+              :placeholder="$t('common.selectRateType')"
               class="w-full"
             />
           </div>
           <!-- Business Source -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Business Source
+              {{ $t('common.businessSource') }}
             </label>
             <SelectComponent
               v-model="filters.businessSource"
               :options="BusinessSource"
-              placeholder="-- Select Business Source --"
+              :placeholder="$t('common.selectBusinessSource')"
               class="w-full"
             />
           </div>
@@ -109,12 +109,12 @@
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Market
+              {{ $t('common.market') }}
             </label>
             <SelectComponent
               v-model="filters.market"
               :options="MarketCode"
-              placeholder="--Select Market --"
+              :placeholder="$t('common.selectMarket')"
               class="w-full"
             />
           </div>
@@ -122,25 +122,25 @@
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              User
+              {{ $t('common.user') }}
             </label>
             <SelectComponent
               v-model="filters.user"
               :options="userOptions"
-              placeholder="-- select User --"
+              :placeholder="$t('common.selectUser')"
               class="w-full"
             />
           </div>
                   <!-- Rate Range -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rate From
+              {{ $t('common.rateFrom') }}
             </label>
             <input
               v-model="filters.rateFrom"
               type="number"
               class="w-full px-3 py-2 border rounded-lg border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-              placeholder="From"
+              :placeholder="$t('common.from')"
             />
           </div>
 
@@ -150,35 +150,35 @@
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rate To
+              {{ $t('common.rateTo') }}
             </label>
             <input
               v-model="filters.rateTo"
               type="number"
               class="w-full px-3 rounded-lg py-2 border border-black/50 dark:border-gray-600  focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-              placeholder="To"
+              :placeholder="$t('common.to')"
             />
           </div>
 
           <!-- Show Amount -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Show Amount
+              {{ $t('common.showAmount') }}
             </label>
             <SelectComponent
               v-model="filters.showAmount"
               :options="showAmountOptions"
-              placeholder=" -- Select Amount Type --"
+              :placeholder="$t('common.selectAmountType')"
               class="w-full"
             />
           </div>
           <!-- Reservation Type -->
           <div>
-            <label class="font-medium mb-1 text-gray-600">Reservation Type</label>
+            <label class="font-medium mb-1 text-gray-600">{{ $t('common.reservationType') }}</label>
             <SelectComponent
               v-model="filters.reservationType"
               :options="BookingType"
-              placeholder="--Select Reservation Type --"
+              :placeholder="$t('common.selectReservationType')"
             />
           </div>
         </div>
@@ -193,13 +193,13 @@
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
-              Tax Inclusive Rates (Disc./Adj. included, if applied)
+              {{ $t('reports.reservation.taxInclusiveHint') }}
             </label>
             <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>When checked, tax will be included in rates</span>
+              <span>{{ $t('reports.reservation.taxIncludedInfo') }}</span>
             </div>
           </div>
         </div>
@@ -207,7 +207,7 @@
         <!-- Select Columns -->
         <div class="mt-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Select Additional Columns (Any 5)
+            {{ $t('reports.reservation.selectAdditionalColumns') }}
           </label>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <label
@@ -226,7 +226,7 @@
             </label>
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            Selected: {{ filters.selectedColumns.length }}/5 columns
+            {{ $t('common.selected') }}: {{ filters.selectedColumns.length }}/5 {{ $t('common.columns') }}
           </p>
         </div>
 
@@ -243,7 +243,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span v-if="!exportLoading">Export</span>
+              <span v-if="!exportLoading">{{ $t('common.export') }}</span>
               <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -259,7 +259,7 @@
                 <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                CSV
+                {{ $t('common.csv') }}
               </button>
               <button
                 @click="exportPDF"
@@ -269,7 +269,7 @@
                 <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                PDF
+                {{ $t('common.pdf') }}
               </button>
               <button
                 @click="exportExcel"
@@ -279,7 +279,7 @@
                 <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Excel
+                {{ $t('common.excel') }}
               </button>
             </div>
           </div>
@@ -294,7 +294,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Report
+            {{ $t('common.report') }}
           </button>
 
           <!-- Bouton Reset -->
@@ -305,7 +305,7 @@
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Reset
+            {{ $t('common.reset') }}
           </button>
         </div>
       </div>
@@ -314,18 +314,18 @@
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <!-- En-tête du rapport -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ reportData?.title || 'Arrival List Results' }}
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ reportData?.title || `${$t('reports.reservation.arrivalList')} ${$t('common.results')}` }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>Generated: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
+            <span>{{ $t('common.generated') }}: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
           </div>
         </div>
 
         <!-- Table des résultats -->
         <div class="overflow-x-auto">
           <ResultTable
-            title="Arrival List Results"
+            :title="`${$t('reports.reservation.arrivalList')} ${$t('common.results')}`"
             :data="tableData"
             :columns="selectedTableColumns"
             class="w-full"
@@ -335,10 +335,10 @@
         <!-- Summary -->
         <div v-if="reportData?.datas?.summary" class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <span>Total Arrivals: {{ reportData.datas.summary.totalArrivals }}</span>
-            <span>Total Revenue: {{ formatCurrency(reportData.datas.summary.totalRevenue) }}</span>
-            <span>Total Nights: {{ reportData.datas.summary.totalNights }}</span>
-            <span>Total Pax: {{ reportData.datas.summary.totalAdults + reportData.datas.summary.totalChildren }}</span>
+            <span>{{ $t('reports.reservation.totalArrivals') }}: {{ reportData.datas.summary.totalArrivals }}</span>
+            <span>{{ $t('reports.reservation.totalRevenue') }}: {{ formatCurrency(reportData.datas.summary.totalRevenue) }}</span>
+            <span>{{ $t('reports.reservation.totalNights') }}: {{ reportData.datas.summary.totalNights }}</span>
+            <span>{{ $t('reports.reservation.totalPax') }}: {{ reportData.datas.summary.totalAdults + reportData.datas.summary.totalChildren }}</span>
           </div>
         </div>
       </div>
@@ -361,6 +361,7 @@ import { getRateTypes } from '@/services/rateTypeApi'
 import { useRouter } from 'vue-router'
 import { getEmployeesForService } from '@/services/userApi'
 import { get } from 'lodash'
+import { useI18n } from 'vue-i18n'
 
 interface FilterOptions {
   value: string;
@@ -409,6 +410,8 @@ const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
 
+const { t } = useI18n()
+
 
 const getTodayDate = (): string => {
   const today = new Date()
@@ -450,7 +453,7 @@ const pdfUrl = ref('')
 const router = useRouter()
 
 const reportTitle = computed(() => {
-  return reportData.value?.title || 'Arrival List Report'
+  return reportData.value?.title || t('reports.reservation.arrivalListReport')
 })
 
 // Computed pour les filtres API
@@ -531,8 +534,8 @@ const fetchUsers = async () => {
 }
 
 const showAmountOptions = ref<FilterOptions[]>([
-  { value: 'rent_per_night', label: 'Rent Per Night' },
-  { value: 'total_amount', label: 'Total Amount' }
+  { value: 'rent_per_night', label: t('common.ratePerNight') },
+  { value: 'total_amount', label: t('common.totalAmount') }
 ])
 
 const travelAgentOptions = ref<FilterOptions[]>([
@@ -551,17 +554,17 @@ const {
 } = useBooking()
 
 const availableColumns = ref<FilterOptions[]>([
-  { value: 'pickUp', label: 'Pick Up' },
-  { value: 'dropOff', label: 'Drop Off' },
-  { value: 'resType', label: 'Res.Type' },
-  { value: 'company', label: 'Company' },
-  { value: 'user', label: 'User' },
-  { value: 'deposit', label: 'Deposit' },
-  { value: 'balanceDue', label: 'Balance Due' },
-  { value: 'marketCode', label: 'Market Code' },
-  { value: 'businessSource', label: 'Business Source' },
-  //{ value: 'mealPlan', label: 'Meal Plan' },
-  { value: 'rateType', label: 'Rate Type' }
+  { value: 'pickUp', label: t('reports.reservation.columns.pickUp') },
+  { value: 'dropOff', label: t('reports.reservation.columns.dropOff') },
+  { value: 'resType', label: t('reports.reservation.columns.reservationTypeShort') },
+  { value: 'company', label: t('common.company') },
+  { value: 'user', label: t('common.user') },
+  { value: 'deposit', label: t('reports.reservation.columns.deposit') },
+  { value: 'balanceDue', label: t('reports.reservation.columns.balanceDue') },
+  { value: 'marketCode', label: t('reports.reservation.columns.marketCode') },
+  { value: 'businessSource', label: t('common.businessSource') },
+  //{ value: 'mealPlan', label: t('reports.reservation.columns.mealPlan') },
+  { value: 'rateType', label: t('common.rateType') }
 ])
 
 // Computed pour les données du tableau
@@ -633,15 +636,15 @@ const tableData = computed(() => {
 // Computed pour les colonnes du tableau
 const selectedTableColumns = computed(() => {
   const baseColumns = [
-    { key: 'reservationNumber', label: 'Res. No' },
-    { key: 'guestName', label: 'Guest' },
-    { key: 'roomType', label: 'Room Type' },
-    { key: 'roomNumber', label: 'Room #' },
-    { key: 'arrivalDate', label: 'Arrival' },
-    { key: 'departureDate', label: 'Departure' },
-    { key: 'totalPax', label: 'Pax' },
-    { key: 'amount', label: filters.value.showAmount === 'rent_per_night' ? 'Rate/Night' : 'Total Amount' },
-    { key: 'status', label: 'Status' }
+    { key: 'reservationNumber', label: t('reservation.resNo') },
+    { key: 'guestName', label: t('common.guest') },
+    { key: 'roomType', label: t('common.roomType') },
+    { key: 'roomNumber', label: t('common.roomNumber') },
+    { key: 'arrivalDate', label: t('common.arrival') },
+    { key: 'departureDate', label: t('common.departure') },
+    { key: 'totalPax', label: t('common.pax') },
+    { key: 'amount', label: filters.value.showAmount === 'rent_per_night' ? t('common.ratePerNightShort') : t('common.totalAmount') },
+    { key: 'status', label: t('common.status') }
   ]
 
   // Ajouter les colonnes sélectionnées
@@ -761,7 +764,7 @@ const formatDate = (dateString: string): string => {
 }
 
 const formatCurrency = (amount: number): string => {
-  if (!amount && amount !== 0) return 'N/A'
+  if (!amount && amount !== 0) return t('common.na')
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
     currency: 'EUR'
