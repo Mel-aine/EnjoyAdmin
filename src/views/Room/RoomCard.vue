@@ -135,7 +135,7 @@
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
               </svg>
             </div>
-            <span class="text-sm font-semibold text-gray-700">Historique nettoyage</span>
+            <span class="text-sm font-semibold text-gray-700">{{ $t('cleaningHistory') }}</span>
           </div>
           <button @click="showCleaningHistory = false"
                   class="w-6 h-6 rounded-full hover:bg-gray-200 flex items-center justify-center transition-colors">
@@ -341,15 +341,15 @@ const getStatusConfigurations = computed(() => ({
 }))
 
 // Configuration des options et équipements
-const optionLabels = {
-  option_2: 'Type de lit',
-  option_3: 'Vue',
-  option_4: 'Petit-déjeuner inclus',
-  option_5: 'WiFi',
-  option_6: 'Climatisation',
-  option_7: 'Parking',
-  option_8: 'Service de chambre',
-}
+const optionLabels = computed(() => ({
+  option_2: t('BedType'),
+  option_3: t('View'),
+  option_4: t('BreakfastIncluded'),
+  option_5: t('WiFi'),
+  option_6: t('AirConditioning'),
+  option_7: t('Parking'),
+  option_8: t('RoomService'),
+}))
 
 const iconsMap = {
   option_2: Bed,
@@ -361,12 +361,12 @@ const iconsMap = {
   option_8: Utensils,
 }
 
-const equipmentIcons = {
-  'TV écran plat': Tv,
-  'Mini-bar': Utensils,
-  'WiFi': Wifi,
-  'Climatisation': Car,
-}
+const equipmentIcons = computed(() => ({
+  [t('FlatScreenTV')]: Tv,
+  [t('MiniBar')]: Utensils,
+  [t('WiFi')]: Wifi,
+  [t('AirConditioning')]: Car,
+}))
 
 // Computed properties
 const statusConfig = computed(() => {
@@ -378,7 +378,7 @@ const activeBlocks = computed(() => {
 })
 
 const displayedOptions = computed(() => {
-  return Object.entries(optionLabels)
+  return Object.entries(optionLabels.value)
     .filter(([key]) => props.room[key] !== undefined && props.room[key] !== null)
     .slice(0, 4)
     .map(([key, label]) => ({
@@ -415,9 +415,13 @@ const formatDate = (dateStr, currentLocale = locale.value) => {
   })
 }
 
-const formatDateTime = (dateStr) => {
+const formatDateTime = (dateStr, currentLocale = locale.value) => {
   if (!dateStr) return ''
-  return new Date(dateStr).toLocaleString('fr-FR', {
+  const localeMap = {
+    'fr': 'fr-FR',
+    'en': 'en-US'
+  }
+  return new Date(dateStr).toLocaleString(localeMap[currentLocale] || currentLocale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

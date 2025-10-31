@@ -68,12 +68,12 @@
           <!-- Travel Agent -->
 <!--           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Travel Agent
+              {{ $t('common.travelAgent') }}
             </label>
             <SelectComponent
               v-model="filters.travelAgent"
               :options="travelAgentOptions"
-              placeholder="-- select Travel Agent --"
+              :placeholder="$t('common.selectTravelAgent')"
               class="w-full"
             />
           </div> -->
@@ -177,7 +177,7 @@
             <label class="font-medium mb-1 text-gray-600">{{ $t('common.reservationType') }}</label>
             <SelectComponent
               v-model="filters.reservationType"
-              :options="BookingType"
+              :options="bookingTypeOptions"
               :placeholder="$t('common.selectReservationType')"
             />
           </div>
@@ -539,8 +539,8 @@ const showAmountOptions = ref<FilterOptions[]>([
 ])
 
 const travelAgentOptions = ref<FilterOptions[]>([
-  { value: 'agent1', label: 'Travel Agent 1' },
-  { value: 'agent2', label: 'Travel Agent 2' }
+  { value: 'agent1', label: t('common.travelAgents.agent1') },
+  { value: 'agent2', label: t('common.travelAgents.agent2') }
 ])
 
 const {
@@ -552,6 +552,25 @@ const {
   MarketCode,
   reservationId,
 } = useBooking()
+
+// Traduction dynamique des types de réservation provenant de l'API/store
+const normalizeKey = (name: string): string => {
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+const bookingTypeOptions = computed<FilterOptions[]>(() => {
+  const list: any[] = (BookingType as any).value || []
+  return list.map((opt: any) => {
+    const rawLabel = opt.label ?? opt.name ?? ''
+    const key = `reservation.types.${normalizeKey(rawLabel)}`
+    const translated = t(key)
+    const finalLabel = translated === key ? rawLabel : translated
+    return { value: opt.value ?? String(opt.id), label: finalLabel }
+  })
+})
 
 const availableColumns = ref<FilterOptions[]>([
   { value: 'pickUp', label: t('reports.reservation.columns.pickUp') },
@@ -636,7 +655,7 @@ const tableData = computed(() => {
 // Computed pour les colonnes du tableau
 const selectedTableColumns = computed(() => {
   const baseColumns = [
-    { key: 'reservationNumber', label: t('reservation.resNo') },
+    { key: 'reservationNumber', label: t('reports.reservation.columns.resNo') },
     { key: 'guestName', label: t('common.guest') },
     { key: 'roomType', label: t('common.roomType') },
     { key: 'roomNumber', label: t('common.roomNumber') },

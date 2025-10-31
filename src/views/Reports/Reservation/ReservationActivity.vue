@@ -3,7 +3,7 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Reservations Activity
+          {{ t('reports.reservation.reservationActivity') }}
         </h1>
        <!--  <p class="text-gray-600 dark:text-gray-400">
           View and manage cancelled guest reservations
@@ -13,28 +13,28 @@
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
+          {{ t('common.filters') }}
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Cancellation Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Cancellation From
+              {{ t('reports.reservation.cancellationFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
-              placeholder="From"
+              :placeholder="t('common.from')"
               class="w-full"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Cancellation To
+              {{ t('reports.reservation.cancellationTo') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalTo" 
-              placeholder="To"
+              :placeholder="t('common.to')"
               class="w-full"
             />
           </div>
@@ -121,19 +121,19 @@
         <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Report Template (déplacé à gauche) -->
           <div class="flex items-center gap-3 w-full sm:w-auto">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Template</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('common.reportTemplate') }}</label>
             <div class="flex items-center gap-2 w-full sm:w-auto">
               
               <SelectComponent 
                 v-model="filters.reportTemplate"
                 :options="reportTemplateOptions"
-                placeholder="Default"
+                :placeholder="t('common.selectReportTemplate')"
                 class="min-w-32 w-full sm:w-auto"
               />
               <button 
                 @click="editTemplate"
                 class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                title="Edit Template"
+                :title="t('common.edit')"
               >
                 <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -149,7 +149,7 @@
               variant="secondary"
               class="min-w-24 w-full sm:w-auto"
             >
-              Export
+              {{ t('common.export') }}
             </ButtonComponent>
             
             <ButtonComponent 
@@ -157,7 +157,7 @@
               variant="primary"
               class="min-w-24 w-full sm:w-auto"
             >
-              Report
+              {{ t('common.report') }}
             </ButtonComponent>
             
             <ButtonComponent 
@@ -165,7 +165,7 @@
               variant="outline"
               class="min-w-24 w-full sm:w-auto"
             >
-              Reset
+              {{ t('common.reset') }}
             </ButtonComponent>
           </div>
         </div>
@@ -175,13 +175,13 @@
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Cancelled Reservations Results
+            {{ t('reports.reservation.reservationActivityResults') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span>{{ hotelName }}</span> • 
-            <span>Date From: {{ filters.arrivalFrom }} To {{ filters.arrivalTo }}</span> • 
-            <span>Order By: Room</span> • 
-            <span>Tax Inclusive: {{ filters.taxInclusive ? 'Yes' : 'No' }}</span>
+            <span>{{ t('common.dateFrom') }}: {{ filters.arrivalFrom }} {{ t('common.to') }} {{ filters.arrivalTo }}</span> • 
+            <span>{{ t('reports.reservation.orderBy') }}: {{ t('common.room') }}</span> • 
+            <span>{{ t('reports.reservation.taxInclusiveRates') }}: {{ filters.taxInclusive ? t('common.yes') : t('common.no') }}</span>
           </div>
         </div>
         
@@ -222,13 +222,13 @@
         <!-- Total Row -->
         <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>Total Cancelled Reservations: {{ totalReservations }}</div>
+            <div>{{ t('reports.reservation.totalCancelledReservations') }}: {{ totalReservations }}</div>
             <div class="flex gap-4">
-              <div>ADR: {{ totalADR }}</div>
-              <div>Car Revenue: {{ totalCarRevenue }}</div>
-              <div>Charges: {{ totalCharges }}</div>
-              <div>Paid: {{ totalPaid }}</div>
-              <div>Balance: {{ totalBalance }}</div>
+              <div>{{ t('reports.reservation.columns.adr') }}: {{ totalADR }}</div>
+              <div>{{ t('reports.reservation.columns.carRevenue') }}: {{ totalCarRevenue }}</div>
+              <div>{{ t('reports.reservation.columns.charges') }}: {{ totalCharges }}</div>
+              <div>{{ t('reports.reservation.columns.paid') }}: {{ totalPaid }}</div>
+              <div>{{ t('reports.reservation.columns.balance') }}: {{ totalBalance }}</div>
             </div>
           </div>
         </div>
@@ -379,7 +379,7 @@ const businessSourceOptions = ref<FilterOptions[]>([
 ]) */
 
 const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: t('common.default') },
+  { value: 'default', label: t('common.reportTemplates.default') },
   { value: 'detailed', label: t('common.reportTemplates.detailed') },
   { value: 'summary', label: t('common.reportTemplates.summary') },
   { value: 'financial', label: t('common.reportTemplates.financial') },

@@ -3,26 +3,26 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Monthly Statistics
+          {{ t('reports.statistical.monthlyStatistics') }}
         </h1>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
+          {{ t('common.filters') }}
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Select Year -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Select Year
+              {{ t('common.selectYear') }}
             </label>
             <SelectComponent 
               v-model="filters.year" 
               :options="yearOptions"
-              :placeholder="'Select Year'"
+              :placeholder="t('common.selectYear')"
               class="w-full"
             />
           </div>
@@ -30,12 +30,12 @@
           <!-- Select Month -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Select Month
+              {{ t('common.selectMonth') }}
             </label>
             <SelectComponent 
               v-model="filters.month" 
               :options="monthOptions"
-              :placeholder="'Select Month'"
+              :placeholder="t('common.selectMonth')"
               class="w-full"
             />
           </div>
@@ -50,7 +50,7 @@
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
-              Show Unposted Inclusions Charges
+              {{ t('reports.statistical.showUnpostedInclusionsCharges') }}
             </label>
           </div>
         </div>
@@ -89,7 +89,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Report
+              {{ t('common.report') }}
             </ButtonComponent>
             
             <ButtonComponent 
@@ -100,7 +100,7 @@
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Reset
+              {{ t('common.reset') }}
             </ButtonComponent>
           </div>
         </div>
@@ -114,18 +114,18 @@
               {{ hotelName }}
             </h2>
             <h2 class="text-lg font-semibold text-red-600 dark:text-red-400">
-              Monthly Statistics
+              {{ t('reports.statistical.monthlyStatistics') }}
             </h2>
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>Month {{ getMonthName(filters.month) }} {{ filters.year }}</span> • 
-            <span>Show Unposted Inclusions Charges: {{ filters.showUnpostedCharges ? 'Yes' : 'No' }}</span>
+            <span>{{ t('common.month') }} {{ getMonthName(filters.month) }} {{ filters.year }}</span> • 
+            <span>{{ t('reports.statistical.showUnpostedInclusionsCharges') }}: {{ filters.showUnpostedCharges ? t('common.yes') : t('common.no') }}</span>
           </div>
         </div>
         
         <div class="overflow-x-auto">
           <ResultTable 
-            :title="'Monthly Statistics'"
+            :title="t('reports.statistical.monthlyStatistics')"
             :data="monthlyStatsData"
             :columns="monthlyStatsColumns"
             :show-header=false
@@ -136,8 +136,8 @@
         <!-- Summary Row -->
         <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>Total Days: {{ totalDays }}</div>
-            <div>Total Revenue: {{ formatCurrency(totalRevenue) }}</div>
+            <div>{{ t('reports.statistical.totalDays') }}: {{ totalDays }}</div>
+            <div>{{ t('reports.totalRevenue') }}: {{ formatCurrency(totalRevenue) }}</div>
           </div>
         </div>
       </div>
@@ -208,27 +208,27 @@ const yearOptions = ref<FilterOptions[]>([
   { value: '2025', label: '2025' }
 ])
 
-const monthOptions = ref<FilterOptions[]>([
-  { value: '01', label: 'January' },
-  { value: '02', label: 'February' },
-  { value: '03', label: 'March' },
-  { value: '04', label: 'April' },
-  { value: '05', label: 'May' },
-  { value: '06', label: 'June' },
-  { value: '07', label: 'July' },
-  { value: '08', label: 'August' },
-  { value: '09', label: 'September' },
-  { value: '10', label: 'October' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'December' }
+const monthOptions = computed<FilterOptions[]>(() => [
+  { value: '01', label: t('common.months.january') },
+  { value: '02', label: t('common.months.february') },
+  { value: '03', label: t('common.months.march') },
+  { value: '04', label: t('common.months.april') },
+  { value: '05', label: t('common.months.may') },
+  { value: '06', label: t('common.months.june') },
+  { value: '07', label: t('common.months.july') },
+  { value: '08', label: t('common.months.august') },
+  { value: '09', label: t('common.months.september') },
+  { value: '10', label: t('common.months.october') },
+  { value: '11', label: t('common.months.november') },
+  { value: '12', label: t('common.months.december') }
 ])
 
-const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: 'Default' },
-  { value: 'detailed', label: 'Detailed' },
-  { value: 'summary', label: 'Summary' },
-  { value: 'financial', label: 'Financial' },
-  { value: 'custom', label: 'Custom' }
+const reportTemplateOptions = computed<FilterOptions[]>(() => [
+  { value: 'default', label: t('common.reportTemplates.default') },
+  { value: 'detailed', label: t('common.reportTemplates.detailed') },
+  { value: 'summary', label: t('common.reportTemplates.summary') },
+  { value: 'financial', label: t('common.reportTemplates.financial') },
+  { value: 'custom', label: t('common.reportTemplates.custom') }
 ])
 
 // Sample data for monthly statistics (based on the image)
@@ -477,19 +477,19 @@ const monthlyStatsData = ref<MonthlyStats[]>([
 
 // Table columns for monthly statistics
 const monthlyStatsColumns = computed(() => [
-  { key: 'date', label: 'Date' },
-  { key: 'availableRooms', label: 'Available Rooms' },
-  { key: 'nightSold', label: 'Night Sold' },
-  { key: 'complimentary', label: 'Complimentary' },
-  { key: 'occ', label: 'Occ %' },
-  { key: 'adr', label: 'ADR' },
-  { key: 'revPar', label: 'Rev Par' },
-  { key: 'pax', label: 'Pax' },
-  { key: 'roomCharges', label: 'Room Charges' },
-  { key: 'extraCharges', label: 'Extra Charges' },
-  { key: 'tax', label: 'Tax' },
-  { key: 'receipt', label: 'Receipt' },
-  { key: 'expense', label: 'Expense' }
+  { key: 'date', label: t('common.date') },
+  { key: 'availableRooms', label: t('common.availableRooms') },
+  { key: 'nightSold', label: t('reports.statistical.nightSold') },
+  { key: 'complimentary', label: t('reports.statistical.complimentary') },
+  { key: 'occ', label: t('common.occupancyRate') + ' %' },
+  { key: 'adr', label: t('common.adr') },
+  { key: 'revPar', label: t('common.revpar') },
+  { key: 'pax', label: t('common.pax') },
+  { key: 'roomCharges', label: t('common.roomCharges') },
+  { key: 'extraCharges', label: t('reports.statistical.extraCharges') },
+  { key: 'tax', label: t('common.tax') },
+  { key: 'receipt', label: t('reports.statistical.receipt') },
+  { key: 'expense', label: t('common.expenses') }
 ])
 
 // Computed properties

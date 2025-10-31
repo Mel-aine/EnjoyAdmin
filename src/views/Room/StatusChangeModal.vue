@@ -20,7 +20,7 @@
             {{ $t('Room') }}: <span class="font-medium">{{ room?.roomNumber }}</span>
           </p>
           <p class="text-sm text-gray-600 mb-4">
-            {{ $t('status_now') }}: <span class="font-medium">{{ statusLabels[currentStatus] || currentStatus }}</span>
+            {{ $t('status_now') }}: <span class="font-medium">{{ $t(`statut.${currentStatus}`) || currentStatus }}</span>
           </p>
         </div>
         <div class="space-y-2">
@@ -29,7 +29,7 @@
           </label>
           <div class="space-y-2">
             <label
-              v-for="(label, statusKey) in statusLabels"
+              v-for="statusKey in availableStatuses"
               :key="statusKey"
               class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200"
               :class="{
@@ -49,7 +49,7 @@
                     <circle cx="4" cy="4" r="3" :class="statusColors[statusKey]" />
                   </svg>
                 </span>
-                <span class="text-sm font-medium text-gray-900">{{ $t(`statut.${label}`) }}</span>
+                <span class="text-sm font-medium text-gray-900">{{ $t(`statut.${statusKey}`) }}</span>
               </span>
             </label>
           </div>
@@ -66,9 +66,9 @@
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
             <div>
-              <p class="text-sm font-medium text-yellow-800">Attention</p>
+              <p class="text-sm font-medium text-yellow-800">{{ $t('Attention') }}</p>
               <p class="text-sm text-yellow-700">
-                La chambre ne sera plus disponible pour les réservations pendant la maintenance.
+                {{ $t('maintenanceWarningMessage') }}
               </p>
             </div>
           </div>
@@ -144,6 +144,7 @@
 
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Room {
   id: number | string;
@@ -161,13 +162,11 @@ const emit = defineEmits<{
   (e: 'updateStatus', payload: { roomId: number | string; newStatus: string }): void;
 }>();
 
+const { t } = useI18n()
+
 const selectedStatus = ref(props.currentStatus);
 
-const statusLabels: Record<string, string> = {
-  available: 'Disponible',
-  dirty: 'À nettoyer',
-  out_of_order: 'Hors service',
-};
+const availableStatuses = ['available', 'dirty', 'out_of_order'];
 
 const statusColors: Record<string, string> = {
   available: 'text-green-500',

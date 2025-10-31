@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Daily Extra Charge - Detail
+          {{ $t('dailyExtraChargeDetail') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage daily extra charge details
+          {{ $t('viewAndManageDailyExtraChargeDetails') }}
         </p>
       </div>
 
@@ -16,7 +16,7 @@
           <!-- Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Date
+              {{ $t('Date') }}
             </label>
             <div class="flex items-center gap-2">
               <label class="flex items-center">
@@ -26,7 +26,7 @@
                   value="charge"
                   class="mr-1 text-blue-600"
                 />
-                <span class="text-sm">Charge/Posting</span>
+                <span class="text-sm">{{ $t('chargePosting') }}</span>
               </label>
               <label class="flex items-center">
                 <input 
@@ -35,7 +35,7 @@
                   value="departure"
                   class="mr-1 text-blue-600"
                 />
-                <span class="text-sm">Departure</span>
+                <span class="text-sm">{{ $t('Departure') }}</span>
               </label>
             </div>
           </div>
@@ -43,11 +43,11 @@
           <!-- Transaction Date From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Transaction Date From
+              {{ $t('transactionDateFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.transactionFrom" 
-              placeholder="2018-09-01"
+              :placeholder="$t('dateFormat')"
               class="w-full"
             />
           </div>
@@ -55,11 +55,11 @@
           <!-- To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ $t('To') }}
             </label>
             <InputDatepicker 
               v-model="filters.transactionTo" 
-              placeholder="2018-09-25"
+              :placeholder="$t('dateFormat')"
               class="w-full"
             />
           </div>
@@ -67,12 +67,12 @@
           <!-- Received By -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Received By
+              {{ $t('receivedBy') }}
             </label>
             <SelectComponent 
               v-model="filters.receivedBy"
               :options="receivedByOptions"
-              placeholder="--Select--"
+              :placeholder="$t('select')"
               class="w-full"
             />
           </div>
@@ -82,12 +82,12 @@
           <!-- Extra Charge -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Extra Charge
+              {{ $t('extraCharge') }}
             </label>
             <SelectComponent 
               v-model="filters.extraCharge"
               :options="extraChargeOptions"
-              placeholder="--Select--"
+              :placeholder="$t('select')"
               class="w-full"
             />
           </div>
@@ -95,12 +95,12 @@
           <!-- Sort By -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Sort By
+              {{ $t('sortBy') }}
             </label>
             <SelectComponent 
               v-model="filters.sortBy"
               :options="sortByOptions"
-              placeholder="Date"
+              :placeholder="$t('Date')"
               class="w-full"
             />
           </div>
@@ -108,12 +108,12 @@
           <!-- Room -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Room
+              {{ $t('Room') }}
             </label>
             <SelectComponent 
               v-model="filters.room"
               :options="roomOptions"
-              placeholder="--Select--"
+              :placeholder="$t('select')"
               class="w-full"
             />
           </div>
@@ -122,7 +122,7 @@
         <!-- Include Options -->
         <div class="mt-4">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Include
+            {{ $t('include') }}
           </label>
           <div class="flex flex-wrap gap-4">
             <label class="flex items-center">
@@ -131,7 +131,7 @@
                 v-model="filters.includeAll"
                 class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">All</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('common.all') }}</span>
             </label>
             <label class="flex items-center">
               <input 
@@ -139,7 +139,7 @@
                 v-model="filters.includeConfirmReserved"
                 class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">Confirm Reserved</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('confirmReserved') }}</span>
             </label>
             <label class="flex items-center">
               <input 
@@ -147,7 +147,7 @@
                 v-model="filters.includeCancelled"
                 class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">Cancelled</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('cancelled') }}</span>
             </label>
             <label class="flex items-center">
               <input 
@@ -155,7 +155,7 @@
                 v-model="filters.includeNoShow"
                 class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">No Show</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('noShow') }}</span>
             </label>
             <label class="flex items-center">
               <input 
@@ -163,7 +163,7 @@
                 v-model="filters.includeInhouse"
                 class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">Inhouse</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('inhouse') }}</span>
             </label>
             <label class="flex items-center">
               <input 
@@ -171,7 +171,7 @@
                 v-model="filters.includeCheckedOut"
                 class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span class="text-sm text-gray-700 dark:text-gray-300">Checked Out</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('checkedOut') }}</span>
             </label>
           </div>
         </div>
@@ -185,7 +185,7 @@
               :disabled="isLoading"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
-              <span v-if="!isLoading">{{ t('common.export') }}</span>
+              <span v-if="!isLoading">{{ $t('common.export') }}</span>
               <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -200,7 +200,7 @@
               :disabled="isLoading"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
-              <span v-if="!isLoading">{{ t('common.report') }}</span>
+              <span v-if="!isLoading">{{ $t('common.report') }}</span>
               <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -214,7 +214,7 @@
               @click="resetForm"
               class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
             >
-              {{ t('common.reset') }}
+              {{ $t('common.reset') }}
             </button>
           </div>
         </div>
@@ -226,21 +226,21 @@
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div class="flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Karma
+              {{ hotelName }}
             </h2>
             <h2 class="text-lg font-semibold text-red-600 dark:text-red-400 bg-yellow-100 dark:bg-yellow-900 px-3 py-1 rounded border-2 border-red-600">
-              Daily Extra Charge - Detail
+              {{ $t('dailyExtraChargeDetail') }}
             </h2>
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            <span><strong>Transaction Date From</strong> {{ filters.transactionFrom }} <strong>To</strong> {{ filters.transactionTo }} <strong>Include</strong> Confirm Reserved Cancelled No Show Inhouse Checked Out</span>
+            <span><strong>{{ $t('transactionDateFrom') }}</strong> {{ filters.transactionFrom }} <strong>{{ $t('To') }}</strong> {{ filters.transactionTo }} <strong>{{ $t('include') }}</strong> {{ $t('confirmReserved') }} {{ $t('cancelled') }} {{ $t('noShow') }} {{ $t('inhouse') }} {{ $t('checkedOut') }}</span>
           </div>
         </div>
         
         <!-- Report Table -->
         <div class="overflow-x-auto">
           <ResultTable 
-            title="Daily Extra Charge Details"
+            :title="$t('dailyExtraChargeDetails')"
             :data="extraChargeData"
             :columns="extraChargeColumns"
             class="w-full mb-4 min-w-max"
@@ -259,6 +259,7 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { useServiceStore } from '@/composables/serviceStore'
 
 interface FilterOptions {
   value: string;
@@ -295,8 +296,14 @@ interface Filters {
 }
 
 const { t } = useI18n()
+const serviceStore = useServiceStore()
 const showResults = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
+
+// Hotel name
+const hotelName = computed(() => {
+  return serviceStore.getCurrentService?.hotelName || t('hotelName')
+})
 
 const filters = ref<Filters>({
   dateType: 'charge',
@@ -304,7 +311,7 @@ const filters = ref<Filters>({
   transactionTo: '2018-09-25',
   receivedBy: '',
   extraCharge: '',
-  sortBy: 'Date',
+  sortBy: '',
   room: '',
   includeAll: true,
   includeConfirmReserved: true,
@@ -315,31 +322,31 @@ const filters = ref<Filters>({
 })
 
 // Options for selects
-const receivedByOptions = ref<FilterOptions[]>([
-  { value: '', label: '--Select--' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'staff', label: 'Staff' }
+const receivedByOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('select') },
+  { value: 'admin', label: t('admin') },
+  { value: 'manager', label: t('manager') },
+  { value: 'staff', label: t('staff') }
 ])
 
-const extraChargeOptions = ref<FilterOptions[]>([
-  { value: '', label: '--Select--' },
-  { value: 'birthday_cake', label: 'Birthday Cake' },
-  { value: 'room_service', label: 'Room Service' },
-  { value: 'laundry', label: 'Laundry' }
+const extraChargeOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('select') },
+  { value: 'birthday_cake', label: t('birthdayCake') },
+  { value: 'room_service', label: t('roomService') },
+  { value: 'laundry', label: t('laundry') }
 ])
 
-const sortByOptions = ref<FilterOptions[]>([
-  { value: 'Date', label: 'Date' },
-  { value: 'amount', label: 'Amount' },
-  { value: 'guest', label: 'Guest Name' }
+const sortByOptions = computed<FilterOptions[]>(() => [
+  { value: 'Date', label: t('Date') },
+  { value: 'amount', label: t('common.amount') },
+  { value: 'guest', label: t('guestName') }
 ])
 
-const roomOptions = ref<FilterOptions[]>([
-  { value: '', label: '--Select--' },
-  { value: '201', label: 'Room 201' },
-  { value: '202', label: 'Room 202' },
-  { value: '203', label: 'Room 203' }
+const roomOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('select') },
+  { value: '201', label: `${t('Room')} 201` },
+  { value: '202', label: `${t('Room')} 202` },
+  { value: '203', label: `${t('Room')} 203` }
 ])
 
 // Sample extra charge data based on the image
@@ -384,15 +391,15 @@ const extraChargeDataRaw = ref<ExtraChargeItem[]>([
 
 // Computed properties for ResultTable
 const extraChargeColumns = computed(() => [
-  { key: 'date', label: 'Date' },
-  { key: 'voucherNo', label: 'Voucher No' },
-  { key: 'reference', label: 'Reference' },
-  { key: 'quantity', label: 'Quantity' },
-  { key: 'amount', label: 'Amount' },
-  { key: 'discount', label: 'Discount' },
-  { key: 'tax', label: 'Tax' },
-  { key: 'total', label: 'Total' },
-  { key: 'user', label: 'User' }
+  { key: 'date', label: t('Date') },
+  { key: 'voucherNo', label: t('voucherNumber') },
+  { key: 'reference', label: t('reference') },
+  { key: 'quantity', label: t('quantity') },
+  { key: 'amount', label: t('common.amount') },
+  { key: 'discount', label: t('discount') },
+  { key: 'tax', label: t('taxes') },
+  { key: 'total', label: t('common.total') },
+  { key: 'user', label: t('user') }
 ])
 
 const extraChargeData = computed(() => {
@@ -416,7 +423,7 @@ const resetForm = (): void => {
     transactionTo: '',
     receivedBy: '',
     extraCharge: '',
-    sortBy: 'Date',
+    sortBy: '',
     room: '',
     includeAll: false,
     includeConfirmReserved: false,

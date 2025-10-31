@@ -127,14 +127,14 @@
               <input
                 v-model="filters.minAmount"
                 type="number"
-                placeholder="Min"
+                :placeholder="$t('common.min')"
                 class="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
               <span>-</span>
               <input
                 v-model="filters.maxAmount"
                 type="number"
-                placeholder="Max"
+                :placeholder="$t('common.max')"
                 class="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
@@ -334,7 +334,7 @@
 
               <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                  >TVA (%)</label
+                  >{{ $t('Vat') }} (%)</label
                 >
                 <input
                   v-model="newExpense.taxRate"
@@ -719,7 +719,7 @@ const titles = computed(() => [
     type: 'action',
     actions: [
       {
-        name: 'Edit',
+        name: t('common.edit'),
         event: 'edit',
         icone: ` <svg class="h-5 w-5 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
@@ -729,7 +729,7 @@ const titles = computed(() => [
           </svg>`,
       },
       {
-        name: 'Delete',
+        name: t('common.delete'),
         event: 'delete',
         icone: `<svg class="h-5 w-5 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>

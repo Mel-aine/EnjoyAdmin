@@ -99,13 +99,13 @@
                 {{ $t('Basic_Information') }}
               </h3>
               <div class="space-y-1">
-                <DetailRow :label="$t('Name')" :value="selectedRoom.name || 'N/A'" />
-                <DetailRow :label="$t('number')" :value="selectedRoom.room_number || 'N/A'" />
+                <DetailRow :label="$t('Name')" :value="selectedRoom.name || $t('common.na')" />
+                <DetailRow :label="$t('number')" :value="selectedRoom.room_number || $t('common.na')" />
                 <DetailRow :label="$t('Rent')" :value="selectedRoom.price || 0" suffix="XAF" />
-                <DetailRow :label="$t('RoomTypes')" :value="selectedRoom.roomType || 'N/A'" />
+                <DetailRow :label="$t('RoomTypes')" :value="selectedRoom.roomType || $t('common.na')" />
                 <DetailRow
                   :label="$t('Status')"
-                  :value="$t(`statut.${selectedRoom.status}`) || 'N/A'"
+                  :value="$t(`statut.${selectedRoom.status}`) || $t('common.na')"
                   type="badge"
                 />
               </div>
@@ -122,24 +122,24 @@
               <div class="space-y-1">
                 <DetailRow
                   :label="$t('RoomSize(sqm)')"
-                  :value="selectedRoom.options?.option_12 || 'N/A'"
+                  :value="selectedRoom.options?.option_12 || $t('common.na')"
                   suffix="m²"
                 />
                 <DetailRow
                   :label="$t('NumberofRooms')"
-                  :value="selectedRoom.options?.option_13 || 'N/A'"
+                  :value="selectedRoom.options?.option_13 || $t('common.na')"
                 />
                 <DetailRow
                   :label="$t('numberBeds')"
-                  :value="selectedRoom.options?.option_31 || 'N/A'"
+                  :value="selectedRoom.options?.option_31 || $t('common.na')"
                 />
                 <DetailRow
                   :label="$t('numberBathrooms')"
-                  :value="selectedRoom.options?.option_32 || 'N/A'"
+                  :value="selectedRoom.options?.option_32 || $t('common.na')"
                 />
                 <DetailRow
                   :label="$t('BedType')"
-                  :value="$t(`options.values.${selectedRoom.options?.option_2}`) || 'N/A'"
+                  :value="$t(`options.values.${selectedRoom.options?.option_2}`) || $t('common.na')"
                 />
               </div>
             </div>
@@ -155,26 +155,26 @@
               <div class="space-y-1">
                 <DetailRow
                   :label="$t('AirConditioning')"
-                  :value="selectedRoom.options?.option_6 || $t('no')"
+                  :value="selectedRoom.options?.option_6 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('Wi-fi')"
-                  :value="selectedRoom.options?.option_7 || 'No'"
+                  :value="selectedRoom.options?.option_7 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('TV')"
-                  :value="$t(`options.values.${selectedRoom.options?.option_15}`) || 'N/A'"
+                  :value="$t(`options.values.${selectedRoom.options?.option_15}`) || $t('common.na')"
                 />
                 <DetailRow
                   :label="$t('MiniBar')"
-                  :value="selectedRoom.options?.option_16 || $t('no')"
+                  :value="selectedRoom.options?.option_16 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('SafeDepositBox')"
-                  :value="selectedRoom.options?.option_17 || $t('no')"
+                  :value="selectedRoom.options?.option_17 || $t('common.no')"
                   type="boolean"
                 />
               </div>
@@ -191,25 +191,25 @@
               <div class="space-y-1">
                 <DetailRow
                   :label="$t('BreakfastIncluded')"
-                  :value="selectedRoom.options?.option_8 || $t('no')"
+                  :value="selectedRoom.options?.option_8 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('Housekeeping')"
-                  :value="selectedRoom.options?.option_24 || 'N/A'"
+                  :value="selectedRoom.options?.option_24 || $t('common.na')"
                 />
                 <DetailRow
                   :label="$t('Parking')"
-                  :value="selectedRoom.options?.option_25 || 'N/A'"
+                  :value="selectedRoom.options?.option_25 || $t('common.na')"
                 />
                 <DetailRow
                   :label="$t('RoomService')"
-                  :value="selectedRoom.options?.option_26 || $t('no')"
+                  :value="selectedRoom.options?.option_26 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('SelfCheck-in')"
-                  :value="selectedRoom.options?.option_27 || $t('no')"
+                  :value="selectedRoom.options?.option_27 || $t('common.no')"
                   type="boolean"
                 />
               </div>
@@ -226,26 +226,26 @@
               <div class="space-y-1">
                 <DetailRow
                   :label="$t('View')"
-                  :value="$t(`options.values.${selectedRoom.options?.option_3}`) || 'N/A'"
+                  :value="$t(`options.values.${selectedRoom.options?.option_3}`) || $t('common.na')"
                 />
                 <DetailRow
                   :label="$t('Balcony')"
-                  :value="selectedRoom.options?.option_4 || $t('no')"
+                  :value="selectedRoom.options?.option_4 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('Terrace')"
-                  :value="selectedRoom.options?.option_5 || $t('no')"
+                  :value="selectedRoom.options?.option_5 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('PrivatePool')"
-                  :value="selectedRoom.options?.option_20 || $t('no')"
+                  :value="selectedRoom.options?.option_20 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('Jacuzzi/Spa')"
-                  :value="selectedRoom.options?.option_21 || $t('no')"
+                  :value="selectedRoom.options?.option_21 || $t('common.no')"
                   type="boolean"
                 />
               </div>
@@ -262,16 +262,16 @@
               <div class="space-y-1">
                 <DetailRow
                   :label="$t('SmokingAllowed')"
-                  :value="$t(`options.values.${selectedRoom.options?.option_22}`) || 'N/A'"
+                  :value="$t(`options.values.${selectedRoom.options?.option_22}`) || $t('common.na')"
                 />
                 <DetailRow
                   :label="$t('PetsAllowed')"
-                  :value="selectedRoom.options?.option_23 || $t('no')"
+                  :value="selectedRoom.options?.option_23 || $t('common.no')"
                   type="boolean"
                 />
                 <DetailRow
                   :label="$t('WheelchairAccessible')"
-                  :value="selectedRoom.options?.option_19 || $t('no')"
+                  :value="selectedRoom.options?.option_19 || $t('common.no')"
                   type="boolean"
                 />
               </div>
@@ -411,9 +411,9 @@
               <template #legend>
                 <div class="flex items-center justify-center space-x-6">
                   <LegendItem color="blue" :label="$t('now')" />
-                  <LegendItem color="red" label="roomStatus.booked" />
-                  <LegendItem color="yellow" label="roomStatus.maintenance" />
-                  <LegendItem color="gray" label="roomStatus.available" />
+                  <LegendItem color="red" :label="$t('roomStatus.booked')" />
+                  <LegendItem color="yellow" :label="$t('roomStatus.maintenance')" />
+                  <LegendItem color="gray" :label="$t('roomStatus.available')" />
                 </div>
               </template>
             </BaseCalendar>
@@ -521,7 +521,7 @@ const getStatusColor = (status:any) => {
 
 
 const formatDateTime = (date:any) => {
-  if (!date) return 'N/A'
+  if (!date) return t('common.na')
   return new Date(date).toLocaleString('fr-FR')
 }
 

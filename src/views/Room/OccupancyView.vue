@@ -573,7 +573,7 @@
           <!-- Room Table View -->
           <div v-if="viewMode === 'list'" class="mt-10 bg-white dark:bg-gray-800 rounded-lg shadow">
             <ReusableTable
-              title="Room Occupancy"
+              :title="$t('RoomOccupancy')"
               :data="processedTableData"
               :columns="tableColumns"
               :loading="isLoading"
@@ -620,14 +620,14 @@
               <div>
                 <nav
                   class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                  aria-label="Pagination"
+                  :aria-label="$t('common.pagination')"
                 >
                   <button
                     @click="currentPage > 1 && currentPage--"
                     :disabled="currentPage === 1"
                     class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span class="sr-only">Previous</span>
+                    <span class="sr-only">{{ $t('common.previous') }}</span>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         stroke-linecap="round"
@@ -657,7 +657,7 @@
                     :disabled="currentPage === totalPages"
                     class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span class="sr-only">Next</span>
+                    <span class="sr-only">{{ $t('common.next') }}</span>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         stroke-linecap="round"
@@ -1121,7 +1121,7 @@ const validateMaintenanceForm = () => {
   const errors = []
 
   if (!maintenanceForm.value.reason.trim()) {
-    errors.push('Reason is required')
+    errors.push(t('validation.reasonRequired'))
   }
 
   if (maintenanceForm.value.startDate && maintenanceForm.value.endDate) {
@@ -1129,7 +1129,7 @@ const validateMaintenanceForm = () => {
     const end = new Date(maintenanceForm.value.endDate)
 
     if (end <= start) {
-      errors.push('End date must be after start date')
+      errors.push(t('validation.endDateMustBeAfterStartDate'))
       error.value = t('date_must')
     }
   }

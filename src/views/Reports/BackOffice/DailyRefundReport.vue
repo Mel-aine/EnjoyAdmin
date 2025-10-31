@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Daily Refund Report
+          {{ $t('Daily Refund Report') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage daily refund transactions for your hotel
+          {{ $t('viewAndManageDailyRefundTransactions') }}
         </p>
       </div>
 
@@ -16,11 +16,11 @@
           <!-- Receipt From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Receipt From
+              {{ $t('receiptFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.receiptFrom" 
-              placeholder="From date"
+              :placeholder="$t('fromDate')"
               class="w-full"
             />
           </div>
@@ -28,11 +28,11 @@
           <!-- Receipt To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ $t('To') }}
             </label>
             <InputDatepicker 
               v-model="filters.receiptTo" 
-              placeholder="To date"
+              :placeholder="$t('toDate')"
               class="w-full"
             />
           </div>
@@ -40,12 +40,12 @@
           <!-- Received By -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Received By
+              {{ $t('receivedBy') }}
             </label>
             <SelectComponent 
               v-model="filters.receivedBy"
               :options="receivedByOptions"
-              placeholder="--Select--"
+              :placeholder="$t('select')"
               class="w-full"
             />
           </div>
@@ -53,12 +53,12 @@
           <!-- Payment Method -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Payment Method
+              {{ $t('Payment Method') }}
             </label>
             <SelectComponent 
               v-model="filters.paymentMethod"
               :options="paymentMethodOptions"
-              placeholder="--Select--"
+              :placeholder="$t('select')"
               class="w-full"
             />
           </div>
@@ -66,12 +66,12 @@
           <!-- Currency -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Currency
+              {{ $t('Currency') }}
             </label>
             <SelectComponent 
               v-model="filters.currency"
               :options="currencyOptions"
-              placeholder="--Select--"
+              :placeholder="$t('select')"
               class="w-full"
             />
           </div>
@@ -79,12 +79,12 @@
           <!-- Report Template -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Report Template
+              {{ $t('reportTemplate') }}
             </label>
             <SelectComponent 
               v-model="filters.reportTemplate"
               :options="reportTemplateOptions"
-              placeholder="Default"
+              :placeholder="$t('default')"
               class="w-full"
             />
           </div>
@@ -97,7 +97,7 @@
             variant="outline"
             class="min-w-24"
           >
-            Reset
+            {{ $t('Reset') }}
           </ButtonComponent>
           
           <ButtonComponent 
@@ -105,7 +105,7 @@
             variant="primary"
             class="min-w-24"
           >
-            Report
+            {{ $t('Report') }}
           </ButtonComponent>
         </div>
       </div>
@@ -114,18 +114,18 @@
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Daily Refund Report Results
+            {{ $t('dailyRefundReportResults') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span>{{ hotelName }}</span> • 
-            <span>Period: {{ filters.receiptFrom }} to {{ filters.receiptTo }}</span> • 
-            <span>Currency: {{ getCurrencyLabel(filters.currency) }}</span>
+            <span>{{ $t('period') }}: {{ filters.receiptFrom }} {{ $t('To') }} {{ filters.receiptTo }}</span> • 
+            <span>{{ $t('Currency') }}: {{ getCurrencyLabel(filters.currency) }}</span>
           </div>
         </div>
         
         <div class="overflow-x-auto">
           <ResultTable 
-            title="Daily Refund Report"
+            :title="$t('Daily Refund Report')"
             :data="refundData"
             :columns="tableColumns"
             class="w-full"
@@ -136,36 +136,36 @@
         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Total Refunds:</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('totalRefunds') }}:</span>
               <span class="ml-2 font-bold text-red-600 dark:text-red-400">{{ totalRefundCount }}</span>
             </div>
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Cash Refunds:</span>
-              <span class="ml-2 font-bold text-green-600 dark:text-green-400">Rs {{ totalCashRefunds.toLocaleString() }}</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('cashRefunds') }}:</span>
+              <span class="ml-2 font-bold text-green-600 dark:text-green-400">{{ totalCashRefunds.toLocaleString() }}</span>
             </div>
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Card Refunds:</span>
-              <span class="ml-2 font-bold text-blue-600 dark:text-blue-400">Rs {{ totalCardRefunds.toLocaleString() }}</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('cardRefunds') }}:</span>
+              <span class="ml-2 font-bold text-blue-600 dark:text-blue-400">{{ $t('currencySymbol') }} {{ totalCardRefunds.toLocaleString() }}</span>
             </div>
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Grand Total:</span>
-              <span class="ml-2 font-bold text-gray-900 dark:text-white text-lg">Rs {{ grandTotalRefunds.toLocaleString() }}</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('grandTotal') }}:</span>
+              <span class="ml-2 font-bold text-gray-900 dark:text-white text-lg">{{ $t('currencySymbol') }} {{ grandTotalRefunds.toLocaleString() }}</span>
             </div>
           </div>
           
           <!-- Additional Summary Row -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Bank Transfer:</span>
-              <span class="ml-2 font-bold text-purple-600 dark:text-purple-400">Rs {{ totalBankRefunds.toLocaleString() }}</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('bankTransfer') }}:</span>
+              <span class="ml-2 font-bold text-purple-600 dark:text-purple-400">{{ $t('currencySymbol') }} {{ totalBankRefunds.toLocaleString() }}</span>
             </div>
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Other Methods:</span>
-              <span class="ml-2 font-bold text-orange-600 dark:text-orange-400">Rs {{ totalOtherRefunds.toLocaleString() }}</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('otherMethods') }}:</span>
+              <span class="ml-2 font-bold text-orange-600 dark:text-orange-400">{{ $t('currencySymbol') }} {{ totalOtherRefunds.toLocaleString() }}</span>
             </div>
             <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">Average Refund:</span>
-              <span class="ml-2 font-bold text-gray-600 dark:text-gray-400">Rs {{ averageRefund.toLocaleString() }}</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('averageRefund') }}:</span>
+              <span class="ml-2 font-bold text-gray-600 dark:text-gray-400">{{ $t('currencySymbol') }} {{ averageRefund.toLocaleString() }}</span>
             </div>
           </div>
         </div>
@@ -176,12 +176,17 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import type { Column } from '../../../utils/models'
+import { useServiceStore } from '@/composables/serviceStore'
+
+const { t } = useI18n()
+const serviceStore = useServiceStore()
 
 interface FilterOptions {
   value: string;
@@ -214,7 +219,9 @@ interface Filters {
   reportTemplate: string;
 }
 
-const hotelName = ref<string>('Hotel Nihal')
+const hotelName = computed(() => {
+  return serviceStore.getCurrentService?.hotelName || t('hotelName')
+})
 const showResults = ref<boolean>(false)
 
 const filters = ref<Filters>({
@@ -252,11 +259,11 @@ const currencyOptions = ref<FilterOptions[]>([
   { value: 'GBP', label: 'GBP (£)' }
 ])
 
-const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: 'Default' },
-  { value: 'detailed', label: 'Detailed' },
-  { value: 'summary', label: 'Summary' },
-  { value: 'custom', label: 'Custom' }
+const reportTemplateOptions = computed<FilterOptions[]>(() => [
+  { value: 'default', label: t('default') },
+  { value: 'detailed', label: t('detailed') },
+  { value: 'summary', label: t('Summary') },
+  { value: 'custom', label: t('custom') }
 ])
 
 // Sample refund data
@@ -344,21 +351,21 @@ const refundData = ref<RefundData[]>([
 ])
 
 // Table columns
-const tableColumns = ref<Column[]>([
-  { key: 'receiptNo', label: 'Receipt No.' },
-  { key: 'refundDate', label: 'Refund Date' },
-  { key: 'refundTime', label: 'Time' },
-  { key: 'reservationNo', label: 'Reservation No.' },
-  { key: 'guestName', label: 'Guest Name' },
-  { key: 'roomNo', label: 'Room No.' },
-  { key: 'refundReason', label: 'Refund Reason' },
-  { key: 'paymentMethod', label: 'Payment Method' },
-  { key: 'refundAmount', label: 'Refund Amount ', type: 'text', },
-  { key: 'currency', label: 'Currency' },
-  { key: 'receivedBy', label: 'Received By' },
-  { key: 'authorizedBy', label: 'Authorized By' },
-  { key: 'status', label: 'Status', type: 'custom' },
-  { key: 'remarks', label: 'Remarks' }
+const tableColumns = computed<Column[]>(() => [
+  { key: 'receiptNo', label: t('receiptNo') },
+  { key: 'refundDate', label: t('refundDate') },
+  { key: 'refundTime', label: t('Time') },
+  { key: 'reservationNo', label: t('reservationNo') },
+  { key: 'guestName', label: t('guestName') },
+  { key: 'roomNo', label: t('roomNo') },
+  { key: 'refundReason', label: t('refundReason'), translatable: true },
+  { key: 'paymentMethod', label: t('Payment Method'), translatable: true },
+  { key: 'refundAmount', label: t('refundAmount'), type: 'text' },
+  { key: 'currency', label: t('Currency') },
+  { key: 'receivedBy', label: t('receivedBy'), translatable: true },
+  { key: 'authorizedBy', label: t('authorizedBy'), translatable: true },
+  { key: 'status', label: t('Status'), type: 'custom' },
+  { key: 'remarks', label: t('remarks') }
 ])
 
 // Computed properties

@@ -14,7 +14,7 @@
               />
       </div>
       <div class="text-left flex-1 truncate">
-        <div class="font-medium text-gray-900 truncate">{{ currentService?.hotelName || 'Aucun service' }}</div>
+        <div class="font-medium text-gray-900 truncate">{{ currentService?.hotelName || $t('noService') }}</div>
         <div class="text-xs text-gray-500 capitalize truncate">{{ currentService?.type || '' }}</div>
       </div>
       <ChevronRight class="w-4 h-4 ml-auto text-gray-400 transition-transform" :class="{ 'rotate-180': showDropdown }" />

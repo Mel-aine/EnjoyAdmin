@@ -3,7 +3,7 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('Room Sale Statistics Report') }}
+          {{ t('reports.statistical.roomSaleStatistics') }}
         </h1>
       </div>
 
@@ -14,7 +14,7 @@
           <!-- Transaction Date From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('From') }}
+              {{ t('common.from') }}
             </label>
             <InputDatepicker 
               v-model="filters.transactionFrom" 
@@ -26,7 +26,7 @@
           <!-- To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('to') }}
+              {{ t('common.to') }}
             </label>
             <InputDatepicker 
               v-model="filters.transactionTo" 
@@ -43,19 +43,19 @@
             <SelectComponent 
               v-model="filters.roomType"
               :options="roomTypeOptions"
-              :placeholder="'--Select--'"
+              :placeholder="t('common.selectPlaceholder')"
               class="w-full"
             />
           </div>
                  <!-- Sort By -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('Sort By') }}
+              {{ t('common.sortBy') }}
             </label>
             <SelectComponent 
               v-model="filters.sortBy"
               :options="sortByOptions"
-              :placeholder="t('--select Type--')"
+              :placeholder="t('common.selectPlaceholder')"
               class="w-full"
             />
           </div>
@@ -74,7 +74,7 @@
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
-              {{ t('Show Inactive Rooms') }}
+              {{ t('reports.statistical.showInactiveRooms') }}
             </label>
           </div>
           <!-- Sort Order -->
@@ -87,7 +87,7 @@
                 name="sortOrder"
                 class="text-blue-600"
               />
-              {{ t('Aasc') }}
+              {{ t('common.ascending') }}
             </label>
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               <input 
@@ -97,7 +97,7 @@
                 name="sortOrder"
                 class="text-blue-600"
               />
-              {{ t('Desc') }}
+              {{ t('common.descending') }}
             </label>
           </div>
         </div>
@@ -164,20 +164,20 @@
               {{ hotelName }} 
             </h2>
             <h2 class="text-lg font-semibold text-red-600 dark:text-red-400">
-                {{ t('Room Sale Statistics Report') }}
+                {{ t('reports.statistical.roomSaleStatistics') }}
             </h2>
           </div>
 
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ t('Period') }}: {{ filters.transactionFrom }}  {{ t('to') }} {{ filters.transactionTo }}</span> • 
-            <span>{{ t('sort By') }}: {{ selectedSortByLabel }}</span> • 
-            <span>{{ t('RoomSales Inactive Rooms') }}: {{ filters.showInactiveRooms ? t('Included') : t('Excluded') }}</span>
+            <span>{{ t('common.from') }}: {{ filters.transactionFrom }}  {{ t('common.to') }} {{ filters.transactionTo }}</span> • 
+            <span>{{ t('common.sortBy') }}: {{ selectedSortByLabel }}</span> • 
+            <span>{{ t('reports.statistical.showInactiveRooms') }}: {{ filters.showInactiveRooms ? t('common.included') : t('common.excluded') }}</span>
           </div>
         </div>
         
         <div class="overflow-x-auto">
           <ResultTable 
-            :title="t('reports.roomSales.analysis')"
+            :title="t('reports.statistical.roomSaleStatistics')"
             :data="roomSalesData"
             :columns="selectedTableColumns"
             :show-header=false
@@ -188,11 +188,11 @@
         <!-- Statistics Summary -->
         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>{{ t('TotalRooms') }}: {{ totalRooms }}</div>
-            <div>{{ t('OccupiedRooms') }}: {{ occupiedRooms }}</div>
-            <div>{{ t('occupancyRate') }}: {{ occupancyRate }}%</div>
-            <div>{{ t('TotalRevenue') }}: {{ totalRevenue }}</div>
-            <div>{{ t('RevPAR') }}: {{ revPAR }}</div>
+            <div>{{ t('common.totalRooms') }}: {{ totalRooms }}</div>
+            <div>{{ t('common.occupiedRooms') }}: {{ occupiedRooms }}</div>
+            <div>{{ t('common.occupancyRate') }}: {{ occupancyRate }}%</div>
+            <div>{{ t('common.totalRevenue') }}: {{ totalRevenue }}</div>
+            <div>{{ t('common.revpar') }}: {{ revPAR }}</div>
           </div>
         </div>
       </div>
@@ -259,20 +259,20 @@ const filters = ref<Filters>({
 })
 
 // Options for selects
-const roomTypeOptions = ref<FilterOptions[]>([
-  { value: 'all', label: t('All') },
-  { value: 'suite', label: t('Suite') },
-  { value: 'deluxe', label: t('Deluxe') },
-  { value: 'standard', label: t('Standard') },
-  { value: 'executive', label: t('Executive') }
+const roomTypeOptions = computed<FilterOptions[]>(() => [
+  { value: 'all', label: t('common.all') },
+  { value: 'suite', label: t('common.suite') },
+  { value: 'deluxe', label: t('common.deluxe') },
+  { value: 'standard', label: t('common.standard') },
+  { value: 'executive', label: t('common.executive') }
 ])
 
-const sortByOptions = ref<FilterOptions[]>([
-  { value: 'room', label: t('Room') },
-  { value: 'roomType', label: t('RoomType') },
-  { value: 'occupancyRate', label: t('OccupancyRate') },
-  { value: 'revenue', label: t('Revenue') },
-  { value: 'revPAR', label: t('RevPAR') }
+const sortByOptions = computed<FilterOptions[]>(() => [
+  { value: 'room', label: t('common.room') },
+  { value: 'roomType', label: t('common.roomType') },
+  { value: 'occupancyRate', label: t('common.occupancyRate') },
+  { value: 'revenue', label: t('common.revenue') },
+  { value: 'revPAR', label: t('common.revpar') }
 ])
 
 /* const reportTemplateOptions = ref<FilterOptions[]>([
@@ -337,21 +337,21 @@ const roomSalesData = ref<RoomSalesData[]>([
 
 // Computed properties
 const selectedTableColumns = computed(() => [
-  { key: 'roomNo', label: t('RoomNumber') },
-  { key: 'roomType', label: t('RoomType') },
-  { key: 'status', label: t('Status') },
-  { key: 'occupancyDays', label: t('OccupiedDays') },
-  { key: 'totalNights', label: t('TotalNights') },
-  { key: 'occupancyRate', label: t('OccupancyRate') + ' (%)' },
-  { key: 'averageRate', label: t('Avg Daily Rate') },
-  { key: 'totalRevenue', label: t('Total Revenue') },
-  { key: 'revPAR', label: t('RevPAR') },
-  { key: 'lastOccupied', label: t('Last Occupied') }
+  { key: 'roomNo', label: t('common.roomNumber') },
+  { key: 'roomType', label: t('common.roomType') },
+  { key: 'status', label: t('common.status') },
+  { key: 'occupancyDays', label: t('reports.statistical.occupiedDays') },
+  { key: 'totalNights', label: t('common.totalNights') },
+  { key: 'occupancyRate', label: t('common.occupancyRate') + ' (%)' },
+  { key: 'averageRate', label: t('common.adr') },
+  { key: 'totalRevenue', label: t('common.totalRevenue') },
+  { key: 'revPAR', label: t('common.revpar') },
+  { key: 'lastOccupied', label: t('reports.statistical.lastOccupied') }
 ])
 
 const selectedSortByLabel = computed(() => {
   const selected = sortByOptions.value.find(option => option.value === filters.value.sortBy)
-  return selected ? selected.label : t('Room')
+  return selected ? selected.label : t('common.room')
 })
 
 const filteredRoomSalesData = computed(() => {

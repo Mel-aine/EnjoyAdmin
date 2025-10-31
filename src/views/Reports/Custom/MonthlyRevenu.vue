@@ -5,9 +5,9 @@
       <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 px-6 py-4">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Monthly Revenue Report</h1>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $t('monthlyRevenueReport') }}</h1>
             <p class="mt-1 text-sm text-gray-600 dark:text-white/80">
-              View detailed occupancy statistics and trends for your hotel
+              {{ $t('viewDetailedOccupancyStatistics') }}
             </p>
           </div>
 
@@ -20,7 +20,7 @@
           <!-- Month Selection -->
           <div>
             <label for="month" class="block text-sm font-medium text-gray-700 mb-1">
-              Month
+              {{ $t('month') }}
             </label>
        <!--      <select id="month" v-model="selectedMonth" @change="onFiltersChange"
               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
@@ -28,13 +28,13 @@
                 {{ month.label }}
               </option>
             </select> -->
-            <SelectComponent v-model="selectedMonth" @change="onFiltersChange" :options="availableMonths" placeholder="Select..." class="w-full" />
+            <SelectComponent v-model="selectedMonth" @change="onFiltersChange" :options="availableMonths" :placeholder="$t('select')" class="w-full" />
           </div>
 
           <!-- Year Selection -->
           <div>
             <label for="year" class="block text-sm font-medium text-gray-700 mb-1">
-              Year
+              {{ $t('year') }}
             </label>
      <!--        <select id="year" v-model="selectedYear" @change="onFiltersChange"
               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
@@ -42,7 +42,7 @@
                 {{ year.label }}
               </option>
             </select> -->
-            <SelectComponent v-model="selectedYear" @change="onFiltersChange" :options="availableYears" placeholder="Select..." class="w-full" />
+            <SelectComponent v-model="selectedYear" @change="onFiltersChange" :options="availableYears" :placeholder="$t('select')" class="w-full" />
           </div>
 
           <!-- Generate Button -->
@@ -59,7 +59,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-              Export
+              {{ $t('export') }}
             </button>
           </div>
         </div>
@@ -97,6 +97,9 @@
 
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 import {
   getMonthlyRevenuePDFUrl,
   getAvailableMonths,
@@ -153,7 +156,7 @@ const generateReport = async () => {
     console.log('📊 Occupancy report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating occupancy report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+    errorMessage.value = error instanceof Error ? error.message : t('failedToGenerateReport')
   } finally {
     isLoading.value = false
   }
