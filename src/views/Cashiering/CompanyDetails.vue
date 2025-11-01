@@ -51,6 +51,7 @@ const router = useRouter()
 const route = useRoute()
 const company = ref<any>(null)
 const isLoading = ref(false)
+const hasLoadedOnce = ref(false)
 const showDeleteModal = ref(false)
 const deleting = ref(false)
 const foglioData = ref([])
@@ -161,8 +162,11 @@ const handleOptionSelected = (option: any) => {
   }
 }
 
-const getCompanyDetailsById = async () => {
-  isLoading.value = true
+const getCompanyDetailsById = async (silent = false) => {
+  // Show skeleton only on first load; subsequent refreshes should rely on global overlay
+  if (!silent && !hasLoadedOnce.value) {
+    isLoading.value = true
+  }
   try {
     const id = route.params.id
     console.log('company Id', route.params)
@@ -178,6 +182,7 @@ const getCompanyDetailsById = async () => {
     toast.error(t('Failed to load company details'))
   } finally {
     isLoading.value = false
+    hasLoadedOnce.value = true
   }
 }
 
@@ -308,6 +313,11 @@ onMounted(() => {
   getCompanyDetailsById()
   fetchCompanyTransaction()
 })
+
+// Refresh company details without showing skeleton (used when CashieringCenter refreshes)
+const refreshCompanyDetailsNoSkeleton = async () => {
+  await getCompanyDetailsById(true)
+}
 </script>
 
 <template>
@@ -452,7 +462,12 @@ onMounted(() => {
         </div>
       </div>
 
-      <CashieringCenterInterface :selectedCompanyId="company?.id" :isCashering="false" />
+      <CashieringCenterInterface
+        v-if="company"
+        :selectedCompanyId="company?.id"
+        :isCashering="false"
+        @refreshed="refreshCompanyDetailsNoSkeleton"
+      />
     </div>
   </AdminLayout>
 </template>

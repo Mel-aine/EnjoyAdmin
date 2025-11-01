@@ -189,7 +189,7 @@
                                 <!-- Default content -->
                                 <div class="space-y-6 ">
                                     <!-- Buttons -->
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 dark:text-gray-100">
                                         <button class="rounded-lg bg-primary text-sm text-white px-4"
                                             @click="gotoResevationDetails">
                                             {{ $t('editreservation') }}</button>

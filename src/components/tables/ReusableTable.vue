@@ -29,7 +29,7 @@
     </div>
 
     <!-- Table -->
-    <div ref="tableContainer" @scroll="handleScroll" :style="{ maxHeight: props.maxHeight, overflowY: 'auto' }" class="custom-scrollbar">
+    <div ref="tableContainer" @scroll="handleScroll" :style="{ maxHeight: props.maxHeight}" class="custom-scrollbar">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>

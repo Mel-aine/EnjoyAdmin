@@ -37,6 +37,7 @@
 import { ref, reactive, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { voidFolioTransaction } from '@/services/foglioApi'
+import { voidFolioPayTransaction } from '@/services/companyApi'
 import RightSideModal from '../modal/RightSideModal.vue'
 import { getByCategory } from '../../services/configrationApi'
 import { useServiceStore } from '../../composables/serviceStore'
@@ -54,11 +55,14 @@ interface Props {
     description: string
     amount: number
   } | null
+  // When true, void through company payment API
+  isCompanyPayment?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isOpen: false,
-  transactionDetails: null
+  transactionDetails: null,
+  isCompanyPayment: false
 })
 
 // Emits
@@ -138,12 +142,15 @@ const handleVoidTransaction = async () => {
   isLoading.value = true
 
   try {
+    const reasonPayload = { reason: voidForm.reason.trim() }
     const voidData = {
       reason: voidForm.reason.trim(),
       notes: voidForm.notes.trim() || undefined
     }
 
-    const response = await voidFolioTransaction(props.transactionDetails.id, voidData)
+    const response = props.isCompanyPayment
+      ? await voidFolioPayTransaction(props.transactionDetails.id, reasonPayload)
+      : await voidFolioTransaction(props.transactionDetails.id, voidData)
 
     emit('success', {
       message: t('transactionVoidedSuccessfully'),

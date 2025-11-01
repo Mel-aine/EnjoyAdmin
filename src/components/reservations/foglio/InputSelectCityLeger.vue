@@ -6,14 +6,14 @@
       <span v-if="isRequired" class="text-red-500">*</span>
     </label>
 
-    <div :class="['relative font-sans', (disabled || isLoading) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']">
+    <div :class="['relative font-sans', disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']">
       <!-- Input field for autocomplete -->
       <input
         ref="inputRef"
         v-model="searchQuery"
         type="text"
         :placeholder="placeholder || $t('Search city ledger...')"
-        :disabled="disabled || isLoading"
+        :disabled="disabled"
         class="flex justify-between dark:bg-dark-900 h-11 w-full truncate rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
         :class="[isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-black/50', customClass]"
         @input="handleInput"
@@ -38,7 +38,9 @@
       <input type="hidden" :required="isRequired" :value="selectedCityLedger?.id || ''" />
 
       <!-- Dropdown list -->
-      <ul v-if="isDropdownOpen && !isLoading"
+      <ul v-if="isDropdownOpen"
+        ref="dropdownList"
+        @scroll="onScroll"
         class="custom-scrollbar  absolute top-full left-0  z-999 mt-1 rounded-b-lg max-h-60 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 shadow-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
 
@@ -69,13 +71,25 @@
             <div class="font-medium text-sm">
               {{ ledger.name }}
             </div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <!--  <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {{ $t('Contact') }}: {{ ledger.contactPerson || 'N/A' }} |
             </div>
             <div v-if="ledger.balance !== undefined" class="text-xs text-gray-600 dark:text-gray-300 mt-1">
               {{ $t('Balance') }}: {{ formatBalance(ledger.balance, ledger.currency) }}
-            </div>
+            </div>--> 
           </div>
+        </li>
+        <!-- Footer showing loading state and total -->
+        <li class="px-5 py-2 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between sticky bottom-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+          <span>
+            {{ $t('Showing') }} {{ cityLedgerOptions.length }} {{ $t('of') }} {{ totalCount }}
+          </span>
+          <span v-if="isSearching" class="flex items-center gap-2">
+            <DotSpinner size="sm" /> {{ $t('Searching...') }}
+          </span>
+          <span v-else-if="isLoadingMore" class="flex items-center gap-2">
+            <DotSpinner size="sm" /> {{ $t('Loading more...') }}
+          </span>
         </li>
       </ul>
     </div>
@@ -128,12 +142,19 @@ const serviceStore = useServiceStore()
 // Refs
 const selectWrapper = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
+const dropdownList = ref<HTMLElement | null>(null)
 const isDropdownOpen = ref(false)
 const isLoading = ref(false)
+const isLoadingMore = ref(false)
+const isSearching = ref(false)
 const searchQuery = ref('')
 const cityLedgerOptions = ref<CityLedgerOption[]>([])
 const selectedCityLedger = ref<CityLedgerOption | null>(null)
 const allCityLedgers = ref<CityLedgerOption[]>([])
+const page = ref(1)
+const limit = ref(20)
+const totalCount = ref(0)
+const lastPage = ref(1)
 
 // Computed
 const formatBalance = computed(() => {
@@ -147,63 +168,76 @@ const formatBalance = computed(() => {
 })
 
 
-// Filter city ledgers based on search query
-const filterCityLedgers = (query: string) => {
-  if (!query.trim()) {
-    cityLedgerOptions.value = allCityLedgers.value
-    return
-  }
+// Remote search debounce: reset and fetch first page
+const debouncedRemoteSearch = debounce(async () => {
+  // Only trigger remote search when at least two words are entered
+  const words = (searchQuery.value || '').trim().split(/\s+/).filter(Boolean)
+    await fetchCityLedgers(true)
+}, 300)
 
-  const searchTerm = query.toLowerCase()
-  cityLedgerOptions.value = allCityLedgers.value.filter(ledger => {
-    const name = (ledger.name || '').toLowerCase()
-    const contactPerson = (ledger.contactPerson || '').toLowerCase()
-    const email = (ledger.email || '').toLowerCase()
-    const shortCode = (ledger.shortCode || '').toLowerCase()
-    const registrationNumber = (ledger.registrationNumber || '').toLowerCase()
-
-    return name.includes(searchTerm) ||
-           contactPerson.includes(searchTerm) ||
-           email.includes(searchTerm) ||
-           shortCode.includes(searchTerm) ||
-           registrationNumber.includes(searchTerm)
-  })
-}
-
-// Debounced search function
-const debouncedSearch = debounce((query: string) => {
-  filterCityLedgers(query)
-}, 1)
-
-// Load all city ledgers
-const loadCityLedgers = async () => {
+// Fetch city ledgers with pagination and remote search
+const fetchCityLedgers = async (reset = false) => {
   try {
-    isLoading.value = true
-    const hotelId = serviceStore.serviceId!
-    const response = await getCityLedger(hotelId)
+    if (reset) {
+      page.value = 1
+      allCityLedgers.value = []
+      cityLedgerOptions.value = []
+    }
 
-    // Transform the response data
-    const ledgers = (response?.data?.data || response?.data || []).map((ledger: any) => {
-      console.log('value', ledger)
-      return {
-        id: ledger.id,
-        name: ledger.companyName,
-        contactPerson: ledger.contactPersonName,
-        contactTitle: ledger.contactPersonTitle,
-        country: ledger.country,
-        shortCode: ledger.companyCode
-      }
+    const words = (searchQuery.value || '').trim().split(/\s+/).filter(Boolean)
+    const isSearchReset = reset && words.length >= 2
+    const loadingTarget = reset ? (isSearchReset ? isSearching : isLoading) : isLoadingMore
+    loadingTarget.value = true
+    const hotelId = serviceStore.serviceId!
+    const response = await getCityLedger(hotelId, {
+      page: page.value,
+      limit: limit.value,
+      searchText: searchQuery.value?.trim() || undefined,
     })
 
-    allCityLedgers.value = ledgers
-    cityLedgerOptions.value = ledgers
+    // Extract data and meta safely
+    const payloadData = Array.isArray(response?.data)
+      ? response?.data
+      : Array.isArray(response?.data?.data)
+        ? response?.data?.data
+        : Array.isArray(response)
+          ? response
+          : []
+    const meta = response?.meta || response?.data?.meta || null
 
+    // Transform entries
+    const ledgers = payloadData.map((ledger: any) => ({
+      id: ledger.id,
+      name: ledger.companyName,
+      contactPerson: ledger.contactPersonName,
+      contactTitle: ledger.contactPersonTitle,
+      country: ledger.country,
+      shortCode: ledger.companyCode,
+    }))
+
+    allCityLedgers.value = [...allCityLedgers.value, ...ledgers]
+    cityLedgerOptions.value = allCityLedgers.value
+
+    if (meta) {
+      totalCount.value = Number(meta.total) || totalCount.value
+      lastPage.value = Number(meta.lastPage) || lastPage.value
+    } else {
+      // Fallback if meta absent
+      totalCount.value = allCityLedgers.value.length
+      lastPage.value = payloadData.length < limit.value ? page.value : page.value + 1
+    }
   } catch (error) {
     console.error('Error loading city ledgers:', error)
-    allCityLedgers.value = []
-    cityLedgerOptions.value = []
+    if (reset) {
+      allCityLedgers.value = []
+      cityLedgerOptions.value = []
+      totalCount.value = 0
+      lastPage.value = 1
+    }
   } finally {
     isLoading.value = false
+    isLoadingMore.value = false
+    isSearching.value = false
   }
 }
 // Watch for modelValue changes
@@ -213,7 +247,7 @@ watch(
     if (newVal && newVal !== selectedCityLedger.value?.id) {
       // Ensure ledgers are loaded first
       if (allCityLedgers.value.length === 0) {
-        await loadCityLedgers()
+        await fetchCityLedgers(true)
       }
 
       // Find the ledger in current options or all ledgers
@@ -222,8 +256,8 @@ watch(
       if (found) {
         selectedCityLedger.value = found
         searchQuery.value = found.name || ''
-        // Filter to show the selected item and similar ones
-        filterCityLedgers(found.name || '')
+        // Ensure options reflect current loaded list
+        cityLedgerOptions.value = allCityLedgers.value
       }
     } else if (!newVal) {
       selectedCityLedger.value = null
@@ -246,16 +280,12 @@ const handleInput = (event: Event) => {
 
   // Open dropdown and search
   isDropdownOpen.value = true
-  debouncedSearch(searchQuery.value)
+  debouncedRemoteSearch()
 }
 
 const handleFocus = () => {
-  if (!props.disabled && !isLoading.value) {
+  if (!props.disabled) {
     isDropdownOpen.value = true
-    // Load ledgers if not already loaded
-    if (allCityLedgers.value.length === 0) {
-      loadCityLedgers()
-    }
   }
 }
 
@@ -267,7 +297,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 const selectCityLedger = (ledger: CityLedgerOption) => {
-  if (!props.disabled && !isLoading.value) {
+  if (!props.disabled) {
     selectedCityLedger.value = ledger
     searchQuery.value = ledger.name || ''
     isDropdownOpen.value = false
@@ -287,11 +317,22 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
+// Infinite scroll handler
+const onScroll = (event: Event) => {
+  const target = event.target as HTMLElement
+  const nearBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 10
+  const hasMore = page.value < lastPage.value
+  if (nearBottom && hasMore && !isLoadingMore.value) {
+    page.value += 1
+    fetchCityLedgers(false)
+  }
+}
+
 // Lifecycle
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   // Load all ledgers on mount
-  loadCityLedgers()
+  fetchCityLedgers(true)
 })
 
 onBeforeUnmount(() => {

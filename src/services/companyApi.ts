@@ -194,17 +194,27 @@ export const auditCompanies = async (): Promise<ApiResponse | undefined> => {
 }
 
 
-/** get getCityLedger
- *
+/**
+ * Get City Ledger list with pagination and search
+ * Accepts optional params: page, limit, searchText
+ * Returns payload including data[] and meta
  */
-
-export const getCityLedger = async (hotelId: number): Promise<ApiResponse | undefined> => {
+export const getCityLedger = async (
+  hotelId: number,
+  options: { page?: number; limit?: number; searchText?: string } = {}
+): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await axios.get(
+    const response: AxiosResponse<any> = await axios.get(
       `${API_URL()}/city_ledger`,
-      getHeaders()
+      {
+        params: {
+          page: options.page,
+          perPage: options.limit,
+          searchText: options.searchText,
+        },
+        ...getHeaders(),
+      }
     )
-    console.log('response', response)
     return response.data
   } catch (error) {
     handleApiError(error)
@@ -253,5 +263,18 @@ export const postTransactionPayCompanyBulk = async (data: any): Promise<any> => 
     return response.data
   } catch (error) {
     handleApiError(error)
+  }
+}
+
+/**
+ * Void Folio Transaction
+ */
+export const voidFolioPayTransaction = async (id: number, data: { reason: string }): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${API_URL()}/company_folios/payments/${id}/void`, data, getHeaders())
+    return response.data
+  } catch (error) {
+    console.error('Error voiding folio transaction:', error)
+    throw error
   }
 }
