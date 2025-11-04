@@ -105,7 +105,7 @@
           </div>
           <ReusableTable :columns="columns" :data="foglioData" :loading="loading" :show-header="false"
             :actions="actionTransactions" :selectable="false" :searchable="false" :title="$t('folio')"
-            max-height="calc(100vh - 420px)">
+            max-height="calc(100vh - 420px)" :scrollableBody="true">
             <!-- Custom column templates -->
             <template #column-day="{ item }">
               <div class="text-sm text-gray-900 dark:text-gray-100">

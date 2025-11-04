@@ -1,12 +1,12 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      
+
 
       <!-- Room Types Table using ReusableTable -->
       <ReusableTable :title="t('roomTypeList')" :columns="columns" :data="roomTypes" :actions="actions"
         :search-placeholder="t('searchRoomTypes')" :empty-state-title="t('noRoomTypesFound')"
-        :empty-state-message="t('getStartedByAddingRoomType')" @action="onAction"
+        :empty-state-message="t('getStartedByAddingRoomType')" @action="onAction" @page-change="handlePageChange" :meta="paginationMeta"
         :loading="loading">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addRoomType')" :icon="Plus">
@@ -156,16 +156,16 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="isLoading"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isLoading ? t('saving') + '...' : showAddModal ? t('save') : t('update')"
                 :loading="isLoading"
               />
@@ -201,6 +201,7 @@ const isLoading = ref(false)
 const showDeleteConfirmation = ref(false)
 const roomTypeToDelete = ref(null)
 const isDeletingLoading = ref(false)
+const paginationMeta = ref({})
 
 // Form data
 const formData = ref({
@@ -368,7 +369,7 @@ const saveRoomType = async () => {
       const resp = await postRoomType(newRoomType);
       if (resp.status === 200 || resp.status === 201) {
         toast.success(t('roomTypeAddedSuccess'))
-        loadData();
+        loadData(1);
         closeModal()
       } else {
         toast.error(t('somethingWentWrong'))
@@ -394,7 +395,7 @@ const saveRoomType = async () => {
         const resp = await updateRoomTypeById(editingRoomType.value.id, updatedRoomType);
         if (resp.status === 200 || resp.status === 201) {
           toast.success(t('roomTypeUpdatedSuccess'))
-          loadData();
+          loadData(1);
           closeModal();
         } else {
           toast.error(t('somethingWentWrong'))
@@ -430,12 +431,13 @@ const closeModal = () => {
   }
 }
 
-const loadData = async () => {
+const loadData = async (pageNumber=1) => {
   loading.value = true;
   try {
-    const resp = await getRoomTypes();
+    const resp = await getRoomTypes({page:pageNumber,limit:10});
     console.log('this is the data', resp)
     roomTypes.value = resp.data.data.data;
+    paginationMeta.value = resp.data.data.meta
   } catch (error) {
     console.error('Error loading room types:', error);
     toast.error(t('errorLoadingRoomTypes'));
@@ -444,11 +446,15 @@ const loadData = async () => {
   }
 }
 
+const handlePageChange = (newPage) =>{
+  loadData(newPage)
+}
+
 const loadAmenities = async () => {
   const resp = await getAmenities();
   availableAmenities.value = resp.data.data.data;
 }
 
-loadData();
+loadData(1);
 loadAmenities();
 </script>
