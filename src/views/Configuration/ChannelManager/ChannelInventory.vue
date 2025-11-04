@@ -1,8 +1,9 @@
 <template>
-  <IframeView page="/inventory" />
+
 </template>
 
 <script setup lang="ts">
+import ChxInventoryGrid from '../../../components/channex/ChxInventoryGrid.vue';
 import IframeView from './IframeView.vue';
 
 </script>

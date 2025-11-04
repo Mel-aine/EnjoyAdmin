@@ -662,3 +662,16 @@ export const getIframUrl = (page:string): Promise<AxiosResponse<ApiResponse<{
 }
 
       
+/**
+ * Get all channel connections
+ */
+export const getRestriction = (
+  params: { date_from: string; date_to: string; restrictions: string }
+): Promise<AxiosResponse<ApiResponse<any>>> => {
+  const queryParams = new URLSearchParams()
+  queryParams.append('date_from', params.date_from)
+  queryParams.append('date_to', params.date_to)
+  queryParams.append('restrictions', params.restrictions)
+  const qs = queryParams.toString()
+  return axios.get(`${CHANNEX_API_URL}/restriction?${qs}` , getHeaders())
+}
