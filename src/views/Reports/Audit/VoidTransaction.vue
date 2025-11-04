@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Void Transaction
+          {{ $t('reports.audit.voidTransaction') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage voided transactions
+          {{ $t('reports.audit.voidTransactionDescription') }}
         </p> 
       </div>
 
@@ -16,25 +16,25 @@
           <!-- Void From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Void From
+              {{ $t('reports.audit.voidFrom') }}
             </label>
-            <InputDatepicker v-model="filters.voidFrom" placeholder="From" class="w-full" />
+            <InputDatepicker v-model="filters.voidFrom" :placeholder="$t('common.dateFrom')" class="w-full" />
           </div>
 
           <!-- Void To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ $t('common.dateTo') }}
             </label>
-            <InputDatepicker v-model="filters.voidTo" placeholder="To" class="w-full" />
+            <InputDatepicker v-model="filters.voidTo" :placeholder="$t('common.dateTo')" class="w-full" />
           </div>
 
           <!-- Void By -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Void By
+              {{ $t('reports.audit.voidBy') }}
             </label>
-            <SelectComponent v-model="filters.voidBy" :options="voidByOptions" placeholder="Select..." class="w-full" />
+            <SelectComponent v-model="filters.voidBy" :options="voidByOptions" :placeholder="$t('common.select')" class="w-full" />
           </div>
 
         </div>
@@ -48,14 +48,14 @@
                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-              <span>Report</span>
+              <span>{{ $t('common.report') }}</span>
             </ButtonComponent>
 
             <ButtonComponent @click="resetForm" variant="outline" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24">
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-              Reset
+              {{ $t('common.reset') }}
             </ButtonComponent>
           </div>
         </div>
@@ -70,17 +70,17 @@
               {{ hotelName }}
             </h2>
             <h2 class="text-lg font-semibold text-red-600 dark:text-red-400">
-              Void Transaction
+              {{ $t('reports.audit.voidTransaction') }}
             </h2>
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            <span><strong>Date From:</strong> {{ filters.voidFrom }} <strong>To:</strong> {{ filters.voidTo }}</span>
+            <span><strong>{{ $t('common.dateFrom') }}:</strong> {{ filters.voidFrom }} <strong>{{ $t('common.to') }}:</strong> {{ filters.voidTo }}</span>
           </div>
         </div>
 
         <!-- Report Table -->
         <div class="overflow-x-auto">
-          <ResultTable title="Void Transaction Details" :data="voidTransactionData" :columns="voidTransactionColumns" :show-header=false
+          <ResultTable :title="$t('reports.audit.voidTransactionDetails')" :data="voidTransactionData" :columns="voidTransactionColumns" :show-header=false
             class="w-full mb-4 min-w-max"/>
         </div>
       </div>
@@ -90,6 +90,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
@@ -100,6 +101,8 @@ import { useServiceStore } from '../../../composables/serviceStore'
 import { onMounted } from 'vue'
 import { getVoidTransactionReport } from '../../../services/reportsApi'
 import Spinner from '../../../components/spinner/Spinner.vue'
+
+const { t } = useI18n()
 
 interface FilterOptions {
   value: string;
@@ -136,8 +139,11 @@ const filters = ref<Filters>({
 const totalRecords = ref(0);
 const totalAmount = ref(0);
 // Options for selects
-const voidByOptions = ref<FilterOptions[]>([
-  { value: '', label: 'All' },
+const voidByOptionsRaw = ref<FilterOptions[]>([])
+
+const voidByOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('common.all') },
+  ...voidByOptionsRaw.value
 ])
 
 // Sample void transaction data
@@ -146,12 +152,12 @@ const voidTransactionDataRaw = ref<VoidTransactionItem[]>([
 
 // Computed properties for ResultTable
 const voidTransactionColumns = computed(() => [
-  { key: 'date', label: 'Date' },
-  { key: 'voucher', label: 'Voucher' },
-  { key: 'transaction', label: 'Transaction' },
-  { key: 'reference', label: 'Reference' },
-  { key: 'amount', label: 'Amount ' },
-  { key: 'voidByDateTime', label: 'Void By/Date/Time' }
+  { key: 'date', label: t('common.date') },
+  { key: 'voucher', label: t('common.voucherNumber') },
+  { key: 'transaction', label: t('common.transaction') },
+  { key: 'reference', label: t('common.reference') },
+  { key: 'amount', label: t('common.amount') },
+  { key: 'voidByDateTime', label: t('reports.audit.voidByDateTime') }
 ])
 const isLoading = ref(false)
 
@@ -214,7 +220,7 @@ const fetchUser = async () => {
         }
       }),
     )
-    voidByOptions.value.push(...assignmentsWithNames)
+    voidByOptionsRaw.value.push(...assignmentsWithNames)
     users.value = assignmentsWithNames
     console.log('Filtered users with user info:', users.value)
   } catch (error) {

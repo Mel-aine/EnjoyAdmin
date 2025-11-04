@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          House Status
+          {{ $t('reports.backOffice.travelAgentCommissionSummary') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View current room status and housekeeping information
+          {{ $t('reports.backOffice.travelAgentCommissionSummaryDescription') }}
         </p>
       </div>
 
@@ -16,21 +16,21 @@
           <!-- Date Range -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              From
+              {{ $t('common.dateFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.fromDate" 
-              placeholder="01/03/2020"
+              :placeholder="$t('common.dateFrom')"
               class="w-full"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ $t('common.dateTo') }}
             </label>
             <InputDatepicker 
               v-model="filters.toDate" 
-              placeholder="30/03/2020"
+              :placeholder="$t('common.dateTo')"
               class="w-full"
             />
           </div>
@@ -40,18 +40,18 @@
         <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Report Template -->
           <div class="flex items-center gap-3 w-full sm:w-auto">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Template</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.reportTemplate') }}</label>
             <div class="flex items-center gap-2 w-full sm:w-auto">
               <SelectComponent 
                 v-model="filters.reportTemplate"
                 :options="reportTemplateOptions"
-                placeholder="Default"
+                :placeholder="$t('common.reportTemplates.default')"
                 class="min-w-32 w-full sm:w-auto"
               />
               <button 
                 @click="editTemplate"
                 class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                title="Edit Template"
+                :title="$t('common.editTemplate')"
               >
                 <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -66,7 +66,7 @@
               variant="secondary"
               class="min-w-24 w-full sm:w-auto"
             >
-              Export
+              {{ $t('common.export') }}
             </ButtonComponent>
             
             <ButtonComponent 
@@ -74,7 +74,7 @@
               variant="primary"
               class="min-w-24 w-full sm:w-auto"
             >
-              Report
+              {{ $t('common.report') }}
             </ButtonComponent>
             
             <ButtonComponent 
@@ -82,7 +82,7 @@
               variant="outline"
               class="min-w-24 w-full sm:w-auto"
             >
-              Reset
+              {{ $t('common.reset') }}
             </ButtonComponent>
           </div>
         </div>
@@ -97,10 +97,10 @@
               Hotel Nihal
             </h2>
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              Travel Agent Commission Summary
+              {{ $t('reports.backOffice.travelAgentCommissionSummary') }}
             </h3>
             <div class="text-sm text-gray-600 dark:text-gray-400">
-              <span>From: {{ filters.fromDate || '01/03/2020' }} To: {{ filters.toDate || '30/03/2020' }}</span>
+              <span>{{ $t('common.from') }}: {{ filters.fromDate || '' }} {{ $t('common.to') }}: {{ filters.toDate || '' }}</span>
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@
         <!-- Table using ResultTable component -->
         <div class="overflow-x-auto">
           <ResultTable 
-            title="Travel Agent Commission Summary"
+            :title="$t('reports.backOffice.travelAgentCommissionSummary')"
             :data="formattedCommissionData"
             :columns="commissionColumns"
             class="w-full mb-4 min-w-max"
@@ -119,12 +119,12 @@
         <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
           <div class="flex justify-between items-center">
             <div class="flex gap-6 text-sm text-gray-600 dark:text-gray-400">
-              <span>Total Records: {{ commissionData.length }}</span>
-              <span>Report Generated: {{ new Date().toLocaleDateString() }}</span>
+              <span>{{ $t('reports.totalRecords') }}: {{ commissionData.length }}</span>
+              <span>{{ $t('reports.generatedAt') }} {{ new Date().toLocaleDateString() }}</span>
             </div>
             <div class="flex gap-6 text-sm font-semibold text-gray-900 dark:text-white">
-              <span>Total Room Revenue: {{ formatCurrency(totalRoomRevenue) }}</span>
-              <span>Total Commission: {{ formatCurrency(totalCommissionAmount) }}</span>
+              <span>{{ $t('reports.backOffice.totalRoomRevenue') }}: {{ formatCurrency(totalRoomRevenue) }}</span>
+              <span>{{ $t('reports.backOffice.totalCommission') }}: {{ formatCurrency(totalCommissionAmount) }}</span>
             </div>
           </div>
         </div>
@@ -177,10 +177,10 @@ const filters = ref<Filters>({
 })
 
 // Options for report template
-const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: 'Default' },
-  { value: 'detailed', label: 'Detailed' },
-  { value: 'summary', label: 'Summary' }
+const reportTemplateOptions = computed<FilterOptions[]>(() => [
+  { value: 'default', label: t('common.reportTemplates.default') },
+  { value: 'detailed', label: t('common.reportTemplates.detailed') },
+  { value: 'summary', label: t('common.reportTemplates.summary') }
 ])
 
 // Sample commission data
@@ -233,16 +233,16 @@ const commissionData = ref<CommissionData[]>([
 
 // Columns definition for ResultTable
 const commissionColumns = computed(() => [
-  { key: 'serialNumber', label: 'S.N.' },
-  { key: 'travelAgent', label: 'Travel Agent' },
-  { key: 'guestName', label: 'Guest Name' },
-  { key: 'roomNo', label: 'Room No.' },
-  { key: 'checkIn', label: 'Check-In' },
-  { key: 'checkOut', label: 'Check-Out' },
-  { key: 'nights', label: 'Nights' },
-  { key: 'roomRevenue', label: 'Room Revenue' },
-  { key: 'commissionPercent', label: 'Commission %' },
-  { key: 'commissionAmount', label: 'Commission Amount' }
+  { key: 'serialNumber', label: t('common.serialNumber') },
+  { key: 'travelAgent', label: t('common.travelAgent') },
+  { key: 'guestName', label: t('common.guestName') },
+  { key: 'roomNo', label: t('common.roomNumber') },
+  { key: 'checkIn', label: t('common.checkInDate') },
+  { key: 'checkOut', label: t('common.checkOutDate') },
+  { key: 'nights', label: t('common.nights') },
+  { key: 'roomRevenue', label: t('reports.backOffice.roomRevenue') },
+  { key: 'commissionPercent', label: t('reports.backOffice.commissionPercent') },
+  { key: 'commissionAmount', label: t('common.commission') }
 ])
 
 // Formatted data for ResultTable

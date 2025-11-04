@@ -6,7 +6,7 @@
           {{ t('reports.backOffice.revenueByRateType') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          Revenue breakdown by rate type
+          {{ $t('reports.backOffice.revenueByRateTypeDescription') }}
         </p>
       </div>
 
@@ -16,11 +16,11 @@
           <!-- Report Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('asOnDate') }}
+              {{ $t('reports.backOffice.asOnDate') }}
             </label>
             <InputDatepicker 
               v-model="filters.reportDate" 
-              placeholder="Select date"
+              :placeholder="$t('common.selectDate')"
               class="w-full"
             />
           </div>
@@ -28,12 +28,12 @@
           <!-- Rate Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('Rate Type') }}
+              {{ $t('common.rateType') }}
             </label>
             <Select 
               v-model="filters.rateType"
-              :options="rateTypeOptions"
-              placeholder="All Rate Types"
+              :options="combinedRateTypeOptions"
+              :placeholder="$t('common.allRateTypes')"
               class="w-full"
             />
           </div>
@@ -144,27 +144,36 @@ const filters = ref<Filters>({
 })
 
 // Options for rate type selection
-const rateTypeOptions = ref<FilterOptions[]>([
-  { value: '', label: 'All Rate Types' }
-])
+const rateTypeOptions = computed<FilterOptions[]>(() => {
+  const baseOptions: FilterOptions[] = [
+    { value: '', label: t('common.allRateTypes') }
+  ]
+  
+  // Les options de l'API sont ajoutées dynamiquement via loadRateTypes
+  // mais nous devons retourner les options de base ici pour la réactivité
+  return baseOptions
+})
+
+const apiRateTypes = ref<FilterOptions[]>([])
 
 const loadRateTypes = async () => {
   try {
     const response = await getRateTypes()
     console.log('response rate type', response)
-      const apiRateTypes = (response.data?.data?.data || []) .map((rateType: any) => ({
-        value: rateType.id,
-        label: rateType.rateTypeName
-      }))
-      rateTypeOptions.value = [
-        { value: '', label: 'All Rate Types' },
-        ...apiRateTypes
-      ]
-    
+    apiRateTypes.value = (response.data?.data?.data || []).map((rateType: any) => ({
+      value: rateType.id,
+      label: rateType.rateTypeName
+    }))
   } catch (error) {
     console.error('Error loading rate types:', error)
   }
 }
+
+// Combined rate type options for the select
+const combinedRateTypeOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('common.allRateTypes') },
+  ...apiRateTypes.value
+])
 
 
 
@@ -199,7 +208,7 @@ const generateReport = async (): Promise<void> => {
     console.log('📊 Revenue by rate type report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating revenue by rate type report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+    errorMessage.value = error instanceof Error ? error.message : t('reports.backOffice.failedToGenerateReport')
   } finally {
     isLoading.value = false
   }

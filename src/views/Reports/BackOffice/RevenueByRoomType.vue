@@ -6,7 +6,7 @@
           {{ t('reports.backOffice.revenueByRoomType') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          Revenue breakdown by room type
+          {{ $t('reports.backOffice.revenueByRoomTypeDescription') }}
         </p>
       </div>
 
@@ -16,11 +16,11 @@
           <!-- Report Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('asOnDate') }}
+              {{ $t('reports.backOffice.asOnDate') }}
             </label>
             <InputDatepicker 
               v-model="filters.reportDate" 
-              placeholder="Select date"
+              :placeholder="$t('common.selectDate')"
               class="w-full"
             />
           </div>
@@ -28,12 +28,12 @@
           <!-- Room Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('roomType') }}
+              {{ $t('common.roomType') }}
             </label>
             <Select 
               v-model="filters.roomType"
-              :options="roomTypeOptions"
-              placeholder="All Room Types"
+              :options="combinedRoomTypeOptions"
+              :placeholder="$t('common.allRoomTypes')"
               class="w-full"
             />
           </div>
@@ -135,29 +135,26 @@ const filters = ref<Filters>({
 })
 
 // Options for room type selection
-const roomTypeOptions = ref<FilterOptions[]>([
-  
-  { value: '', label: 'All room types' }
-])
+const apiRoomTypes = ref<FilterOptions[]>([])
 
 const loadRoomTypes = async () => {
   try {
     const response = await getRoomTypes(serviceStore.serviceId!);
     console.log('response', response)
-      const apiRoomTypes = (response.data?.data?.data || []).map((roomType: any) => ({
-        value: roomType.id,
-        label: roomType.name
-      }))
-
-      roomTypeOptions.value = [
-        { value: '', label: 'All room types' },
-        ...apiRoomTypes
-      ]
-    
+    apiRoomTypes.value = (response.data?.data?.data || []).map((roomType: any) => ({
+      value: roomType.id,
+      label: roomType.name
+    }))
   } catch (error) {
     console.error('Error loading room types:', error)
   }
 }
+
+// Combined room type options for the select
+const combinedRoomTypeOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('common.allRoomTypes') },
+  ...apiRoomTypes.value
+])
 
 
 // Computed properties for PDF generation
@@ -192,7 +189,7 @@ const generateReport = async (): Promise<void> => {
     console.log('📊 Revenue by room type report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating revenue by room type report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+    errorMessage.value = error instanceof Error ? error.message : t('reports.backOffice.failedToGenerateReport')
   } finally {
     isLoading.value = false
   }

@@ -209,13 +209,13 @@
                   {{ formatDate(expense.date) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  {{ expense.description }}
+                  {{ $t(`reports.expenseDescriptions.${expense.descriptionKey}`) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  {{ $t(`common.${expense.category}`) }}
+                  {{ $t(`common.${expense.category === 'food-beverage' ? 'foodBeverage' : expense.category}`) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  {{ expense.vendor }}
+                  {{ $t(`reports.expenseVendors.${expense.vendorKey}`) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   ${{ expense.amount.toFixed(2) }}
@@ -252,7 +252,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+
+const { t } = useI18n()
 
 // Filters
 const filters = ref({
@@ -267,45 +270,45 @@ const expenses = ref([
   {
     id: 1,
     date: '2024-01-15',
-    description: 'Electricity Bill',
+    descriptionKey: 'electricityBill',
     category: 'utilities',
-    vendor: 'Power Company',
+    vendorKey: 'powerCompany',
     amount: 1250.00,
     status: 'paid'
   },
   {
     id: 2,
     date: '2024-01-14',
-    description: 'Cleaning Supplies',
+    descriptionKey: 'cleaningSupplies',
     category: 'supplies',
-    vendor: 'CleanCorp',
+    vendorKey: 'cleanCorp',
     amount: 350.00,
     status: 'approved'
   },
   {
     id: 3,
     date: '2024-01-13',
-    description: 'HVAC Maintenance',
+    descriptionKey: 'hvacMaintenance',
     category: 'maintenance',
-    vendor: 'TechFix Solutions',
+    vendorKey: 'techFixSolutions',
     amount: 850.00,
     status: 'pending'
   },
   {
     id: 4,
     date: '2024-01-12',
-    description: 'Marketing Campaign',
+    descriptionKey: 'marketingCampaign',
     category: 'marketing',
-    vendor: 'AdAgency Pro',
+    vendorKey: 'adAgencyPro',
     amount: 2500.00,
     status: 'approved'
   },
   {
     id: 5,
     date: '2024-01-11',
-    description: 'Staff Training',
+    descriptionKey: 'staffTraining',
     category: 'staff',
-    vendor: 'Training Institute',
+    vendorKey: 'trainingInstitute',
     amount: 1200.00,
     status: 'paid'
   }
@@ -344,7 +347,7 @@ const categoryBreakdown = computed(() => {
       .filter(e => e.category === category)
       .reduce((sum, e) => sum + e.amount, 0)
     return {
-      name: category,
+      name: category === 'food-beverage' ? 'foodBeverage' : category,
       amount,
       percentage: total > 0 ? Math.round((amount / total) * 100) : 0,
       color: colors[index]
@@ -353,7 +356,14 @@ const categoryBreakdown = computed(() => {
 })
 
 const monthlyTrend = computed(() => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+  const months = [
+    t('common.months.jan'),
+    t('common.months.feb'),
+    t('common.months.mar'),
+    t('common.months.apr'),
+    t('common.months.mayShort'),
+    t('common.months.jun')
+  ]
   const amounts = [4500, 5200, 4800, 6100, 5500, 6150]
   const maxAmount = Math.max(...amounts)
   

@@ -44,10 +44,10 @@
               v-model="filters.reportType"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              <option value="daily">{{ $t('reports.daily') }}</option>
-              <option value="weekly">{{ $t('reports.weekly') }}</option>
-              <option value="monthly">{{ $t('reports.monthly') }}</option>
-              <option value="yearly">{{ $t('reports.yearly') }}</option>
+              <option value="daily">{{ $t('common.daily') }}</option>
+              <option value="weekly">{{ $t('common.weekly') }}</option>
+              <option value="monthly">{{ $t('common.monthly') }}</option>
+              <option value="yearly">{{ $t('common.yearly') }}</option>
             </select>
           </div>
         </div>
@@ -332,10 +332,10 @@ const loadFinancialSummary = async () => {
     ]
     
     monthlyTrends.value = [
-      { month: 'Jan 2024', revenue: 120000, expenses: 80000, profit: 40000, margin: 33.3, growth: 8.5 },
-      { month: 'Feb 2024', revenue: 115000, expenses: 82000, profit: 33000, margin: 28.7, growth: 5.2 },
-      { month: 'Mar 2024', revenue: 130000, expenses: 85000, profit: 45000, margin: 34.6, growth: 12.1 },
-      { month: 'Apr 2024', revenue: 125000, expenses: 83000, profit: 42000, margin: 33.6, growth: 9.8 }
+      { month: `${t('common.months.jan')} 2024`, revenue: 120000, expenses: 80000, profit: 40000, margin: 33.3, growth: 8.5 },
+      { month: `${t('common.months.feb')} 2024`, revenue: 115000, expenses: 82000, profit: 33000, margin: 28.7, growth: 5.2 },
+      { month: `${t('common.months.mar')} 2024`, revenue: 130000, expenses: 85000, profit: 45000, margin: 34.6, growth: 12.1 },
+      { month: `${t('common.months.apr')} 2024`, revenue: 125000, expenses: 83000, profit: 42000, margin: 33.6, growth: 9.8 }
     ]
     
     kpis.value = {

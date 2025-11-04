@@ -254,7 +254,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+
+const { t } = useI18n()
 
 // Filters
 const filters = ref({
