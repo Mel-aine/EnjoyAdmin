@@ -6474,5 +6474,14 @@
   "can_t_find" : "Company not found or has been deleted.",
   "back_to" : "Back to Company Database",
   "transactionType" : "Transaction Type",
-  "totalPayments" : "Total Payments"
+  "totalPayments" : "Total Payments",
+  "room_filter" : "Rooms Filter",
+  "rate_filter" : "Rates Filter",
+  "availabilityRules" : "Availability Rules",
+  "bulkUpdate" : "Bulk Update",
+  "resetChanges" : "Reset Changes",
+  "Affected Dates" : "Affected Dates",
+  "Add Date Range" : "Add Date Range",
+  "Affected Restrictions" : "Affected Restrictions",
+  "Affected Rooms" : "Affected Rooms"
 }

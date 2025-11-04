@@ -29,9 +29,12 @@
     </div>
 
     <!-- Table -->
-    <div ref="tableContainer" @scroll="handleScroll" :style="{ maxHeight: props.maxHeight}" class="custom-scrollbar">
+    <div ref="tableContainer" @scroll="handleScroll"   :class="[
+        scrollableBody ? 'custom-scrollbar overflow-y-auto' : ''
+      ]"
+      :style="scrollableBody ? { maxHeight: props.maxHeight } : {}">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-        <thead class="bg-gray-50 dark:bg-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
           <tr>
             <th v-if="selectable"
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
@@ -204,11 +207,13 @@
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ emptyStateMessage }}</p>
     </div>
   </div>
+  <div>
   <TablePagination
     v-if="!props.isInfiniteScroll && meta && meta.total > meta.perPage"
     :meta="meta"
     @page-change="(page) => emit('page-change', page)"
   />
+  </div>
 
 </template>
 
@@ -249,6 +254,7 @@ interface Props {
   }
   isInfiniteScroll?: boolean
   expandable?: boolean
+  scrollableBody?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -263,7 +269,8 @@ const props = withDefaults(defineProps<Props>(), {
   showHeader: true,
   loading: false,
   rowClass: () => '',
-  maxHeight: '80vh',
+  maxHeight: '100vh',
+  scrollableBody: false,
   isInfiniteScroll:false,
   expandable: false
 
@@ -409,38 +416,6 @@ const getItemActions = (item: any) => {
 
 
 
-// const toggleDropdown = async (index: number, event: MouseEvent) => {
-//   if (openDropdown.value === index) {
-//     openDropdown.value = null
-//     return
-//   }
-
-//   // Réinitialiser la direction avant d'ouvrir
-//   dropdownDirection.value = 'down'
-//   openDropdown.value = index
-
-//   await nextTick()
-
-//   const triggerButton = event.currentTarget as HTMLElement
-//   const menu = triggerButton.nextElementSibling as HTMLElement
-
-//   if (!menu) {
-//     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
-//     return;
-//   }
-
-//   const menuRect = menu.getBoundingClientRect()
-//   const viewportHeight = window.innerHeight
-
-//   console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
-
-//   // Vérification de la position
-//   if (menuRect.bottom > viewportHeight - 150) {
-//     console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
-//     dropdownDirection.value = 'up'
-//   }
-// }
-
 const toggleDropdown = async (index: number, event: MouseEvent) => {
   if (openDropdown.value === index) {
     openDropdown.value = null
@@ -453,27 +428,59 @@ const toggleDropdown = async (index: number, event: MouseEvent) => {
 
   await nextTick()
 
-  // Prefer template ref over DOM sibling traversal for robustness in tests and runtime
-  const menu = dropdownMenu.value as HTMLElement
+  const triggerButton = event.currentTarget as HTMLElement
+  const menu = triggerButton.nextElementSibling as HTMLElement
 
   if (!menu) {
     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
     return;
   }
 
-  // Safely compute dropdown direction only if DOM API is available
-  const getRect = (menu as any)?.getBoundingClientRect
-  if (typeof getRect === 'function') {
-    const menuRect = getRect.call(menu)
-    const viewportHeight = window.innerHeight
-    // Vérification de la position
-    if (menuRect.bottom > viewportHeight - 150) {
-      dropdownDirection.value = 'up'
-    }
-  } else {
-    dropdownDirection.value = 'down'
+  const menuRect = menu.getBoundingClientRect()
+  const viewportHeight = window.innerHeight
+
+  console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
+
+  // Vérification de la position
+  if (menuRect.bottom > viewportHeight - 150) {
+    console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
+    dropdownDirection.value = 'up'
   }
 }
+
+// const toggleDropdown = async (index: number, event: MouseEvent) => {
+//   if (openDropdown.value === index) {
+//     openDropdown.value = null
+//     return
+//   }
+
+//   // Réinitialiser la direction avant d'ouvrir
+//   dropdownDirection.value = 'down'
+//   openDropdown.value = index
+
+//   await nextTick()
+
+//   // Prefer template ref over DOM sibling traversal for robustness in tests and runtime
+//   const menu = dropdownMenu.value as HTMLElement
+
+//   if (!menu) {
+//     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
+//     return;
+//   }
+
+//   // Safely compute dropdown direction only if DOM API is available
+//   const getRect = (menu as any)?.getBoundingClientRect
+//   if (typeof getRect === 'function') {
+//     const menuRect = getRect.call(menu)
+//     const viewportHeight = window.innerHeight
+//     // Vérification de la position
+//     if (menuRect.bottom > viewportHeight - 150) {
+//       dropdownDirection.value = 'up'
+//     }
+//   } else {
+//     dropdownDirection.value = 'down'
+//   }
+// }
 const handleAction = (action: Action, item: any) => {
   action.handler(item)
   emit('action', action.label, item)

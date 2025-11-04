@@ -11,7 +11,6 @@
         search-placeholder="Search rooms..."
         :selectable="false"
         :meta="metaData"
-        :is-infinite-scroll="true"
         @page-change="handlePageChange"
         empty-state-title="No rooms found"
         empty-state-message="Click 'Add Room' to create your first room."
@@ -664,36 +663,15 @@ const saveRoom = async () => {
   }
 }
 
-// const loadData = async (pageNumber: number = 1) => {
 
-//   loading.value = true
-//   try {
-//     const resp = await getRooms()
-//     console.log('Rooms data:', resp)
-//     rooms.value = resp.data.data?.data || resp.data.data || resp.data || []
-
-//   } catch (error) {
-//     console.error('Error loading rooms:', error)
-//     toast.error(t('errorLoadingRooms'))
-//     rooms.value = []
-//   } finally {
-//     loading.value = false
-//   }
-// }
 
 const loadData = async (pageNumber: number = 1) => {
-  // Si on est déjà en cours de chargement et que ce n'est pas la première page, on arrête
-  if (loading.value && pageNumber !== 1) return
-
-  // Vérifiez si on essaie de charger une page qui n'existe pas
-  if (metaData.value && pageNumber > metaData.value.lastPage && pageNumber !== 1) return
-
   loading.value = true
 
   try {
     const params = {
       page: pageNumber,
-      limit: 7,
+      limit: 10,
     }
 
     const resp = await getRooms(params)
@@ -701,23 +679,14 @@ const loadData = async (pageNumber: number = 1) => {
     // Traitement de la réponse
     const newRooms = resp.data.data?.data || resp.data.data || resp.data || []
     const meta = resp.data.data?.meta || resp.data.meta || { total: 0, perPage: params.limit, currentPage: pageNumber, lastPage: pageNumber }
-
-    if (pageNumber === 1) {
-      // Nouvelle recherche ou première page: Remplacer les données
-      rooms.value = newRooms
-    } else {
-      // Défilement infini: Ajouter les nouvelles données
-      rooms.value.push(...newRooms)
-    }
-
+    rooms.value = newRooms
     metaData.value = meta
     currentPage.value = pageNumber
-
 
   } catch (error) {
     console.error('Error loading rooms:', error)
     toast.error(t('errorLoadingRooms'))
-    if (pageNumber === 1) rooms.value = []
+    rooms.value = []
   } finally {
     loading.value = false
   }

@@ -1,15 +1,13 @@
 <template>
-  <ChannelManagerLayout>
-    <div class="p-4">
-      <ChxInventoryGrid />
-    </div>
-  </ChannelManagerLayout>
- </template>
+  <!-- <IframeView page="/inventory" /> -->
+   <InventoryView></InventoryView>
+</template>
 
 <script setup lang="ts">
-import ChxInventoryGrid from '../../../components/channex/ChxInventoryGrid.vue'
-import ChannelManagerLayout from '../../../components/layout/ChannelManagerLayout.vue'
+import InventoryView from './InventoryView.vue';
+
 </script>
 
 <style scoped>
+/* Add any custom styles here */
 </style>

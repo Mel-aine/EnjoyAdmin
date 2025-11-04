@@ -4,7 +4,7 @@
       <!-- Rate Types Table using ReusableTable -->
       <ReusableTable :title="t('rateTypesList')" :columns="columns" :data="rateTypes" :actions="actions"
         :search-placeholder="t('searchRateTypes')" :selectable="true" :empty-state-title="t('noRateTypesFound')"
-        :empty-state-message="t('addRateTypeMessage')" @action="onAction" @selection-change="onSelectionChange"
+        :empty-state-message="t('addRateTypeMessage')" @action="onAction" @selection-change="onSelectionChange" :meta="paginationMeta" @page-change="handlePageChange"
         :loading="loading">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addRateType')" :icon="Plus">
@@ -79,16 +79,16 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="isLoading"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isLoading ? t('saving') + '...' : showAddModal ? t('addRateType') : t('updateRateType')"
                 :loading="isLoading"
               />
@@ -138,6 +138,7 @@ const rateTypeToDelete = ref<any>(null)
 const isDeletingLoading = ref(false)
 const { t } = useI18n()
 const toast = useToast()
+const paginationMeta = ref<any>(null)
 
 // Room types selection data
 const selectedRoomTypes = ref<any[]>([])
@@ -327,7 +328,7 @@ const saveRateType = async () => {
       }
       await postRateType(newRateType)
       toast.success(t('rateTypeAddedSuccessfully'))
-      await loadData()
+      await loadData(1)
     } else {
       // Update existing rate type
       const updateData = {
@@ -339,7 +340,7 @@ const saveRateType = async () => {
       console.log('Update data:', updateData)
       await updateRateTypeById(editingRateType.value.id, updateData)
       toast.success(t('rateTypeUpdatedSuccessfully'))
-      await loadData()
+      await loadData(1)
     }
     closeModal()
   } catch (error) {
@@ -390,11 +391,12 @@ const updateRoomRatesArray = () => {
 
 
 // Load data from API
-const loadData = async () => {
+const loadData = async (pageNumber=1) => {
   loading.value = true
   try {
-    const response = await getRateTypes()
+    const response = await getRateTypes({page:pageNumber,limit:10})
     rateTypes.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
   } catch (error) {
     console.error('Error loading rate types:', error)
     toast.error(t('errorLoadingRateTypes'))
@@ -402,6 +404,10 @@ const loadData = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (newPage:number)=>{
+  loadData(newPage)
 }
 
 // Load room types for dropdown
@@ -423,7 +429,7 @@ const loadRoomTypes = async () => {
 
 // Initialize data on component mount
 onMounted(() => {
-  loadData()
+  loadData(1)
   loadRoomTypes()
 })
 </script>

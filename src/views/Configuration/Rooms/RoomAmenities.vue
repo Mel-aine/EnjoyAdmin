@@ -1,12 +1,12 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-  
+
 
       <!-- Amenities Table using ReusableTable -->
       <ReusableTable :title="t('amenitiesList')" :columns="columns" :data="amenities" :actions="actions"
         :search-placeholder="t('searchAmenities')" :selectable="false" :empty-state-title="t('noAmenitiesFound')"
-        :empty-state-message="t('getStartedByAdding')" @selection-change="onSelectionChange"
+        :empty-state-message="t('getStartedByAdding')" @selection-change="onSelectionChange" @page-change="handlePageChange" :meta="paginationMeta"
         @action="onAction" :loading="loading">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addAmenity')" :icon="Plus">
@@ -84,16 +84,16 @@
             />
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="isLoading"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isLoading ? t('saving') + '...' : showAddModal ? t('Add Amenities') : t('update')"
                 :loading="isLoading"
               />
@@ -130,6 +130,7 @@ const editingAmenity = ref(null)
 const isLoading = ref(false)
 const loading =ref(false);
 const toast = useToast();
+const paginationMeta = ref({})
 // Form data
 const formData = ref({
   name: '',
@@ -192,7 +193,7 @@ const handleDeleteAmenity = async (id) => {
     try {
       const response = await deleteAmenityAPI(id);
       if (response.status === 200 || response.status === 204) {
-        loadData();
+        loadData(1);
         toast.success(t('amenityDeletedSuccess'));
       } else {
         toast.error(t('failedToDeleteAmenity'));
@@ -242,7 +243,7 @@ const deleteSelected = async () => {
     try {
       const deletePromises = selectedAmenities.value.map(id => deleteAmenityAPI(id));
       await Promise.all(deletePromises);
-      loadData();
+      loadData(1);
       selectedAmenities.value = [];
       toast.success(t('amenitiesDeletedSuccess', { count }));
     } catch (error) {
@@ -255,7 +256,7 @@ const deleteSelected = async () => {
 const saveAmenity = async () => {
   try {
     isLoading.value = true;
-    
+
     if (showAddModal.value) {
       // Add new amenity
       const newAmenity = {
@@ -269,7 +270,7 @@ const saveAmenity = async () => {
       console.log(resp);
       if (resp.status === 200 || resp.status === 201) {
         toast.success(t('amenityAddedSuccess'));
-        loadData();
+        loadData(1);
       } else {
         toast.error(t('somethingWentWrong'))
       }
@@ -287,7 +288,7 @@ const saveAmenity = async () => {
         const resp = await updateAmenity(editingAmenity.value.id, amenity);
         console.log(resp);
         if (resp.status === 200 || resp.status === 201) {
-          loadData();
+          loadData(1);
           toast.success(t('amenityUpdatedSuccess'))
         } else {
           toast.error(t('somethingWentWrong'))
@@ -302,10 +303,10 @@ const saveAmenity = async () => {
     isLoading.value = false;
   }
 }
-const loadData = async () => {
+const loadData = async (pageNumber=1) => {
   loading.value = true;
   try {
-    const response = await getAmenities();
+    const response = await getAmenities({page:pageNumber,limit:10});
     console.log(response);
     if (response.status === 200) {
       amenities.value = response.data.data.data.map((item)=>{
@@ -313,6 +314,7 @@ const loadData = async () => {
           ...item,
         }
       });
+      paginationMeta.value = response.data.data.meta
     } else {
       toast.error(t('failedToLoadAmenities'));
     }
@@ -323,6 +325,10 @@ const loadData = async () => {
   finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (newPage) =>{
+  loadData(newPage)
 }
 const closeModal = () => {
   showAddModal.value = false
@@ -335,5 +341,5 @@ const closeModal = () => {
     status: 'Available'
   }
 }
-loadData();
+loadData(1);
 </script>

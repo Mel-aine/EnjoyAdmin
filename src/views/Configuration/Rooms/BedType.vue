@@ -1,11 +1,11 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-     
+
       <!-- Bed Types Table using ReusableTable -->
       <ReusableTable :title="t('bedTypes')" :columns="columns" :data="bedTypes" :actions="actions"
         :search-placeholder="t('searchBedTypes')" :selectable="false" :empty-state-title="t('noBedTypesFound')"
-        :empty-state-message="t('clickAddBedType')" @action="onAction"
+        :empty-state-message="t('clickAddBedType')" @action="onAction" @page-change="handlePageChange"   :meta="paginationMeta"
         @selection-change="onSelectionChange" :loading="loading">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addBedType')" :icon="Plus">
@@ -90,16 +90,16 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="isLoading"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isLoading ? t('saving') + '...' : showEditModal ? t('update') : t('save')"
                 :loading="isLoading"
               />
@@ -135,6 +135,7 @@ const showEditModal = ref(false)
 const selectedBedTypes = ref<any[]>([])
 const editingBedType = ref<any>(null)
 const isLoading = ref(false)
+const paginationMeta = ref<any>(null)
 
 // Form data
 const formData = ref({
@@ -245,7 +246,7 @@ const saveBedType = async () => {
         const resp = await updateBedTypeById(editingBedType.value.id, bedtype);
         if (resp.status === 200 || resp.status === 201) {
           toast.success(t('bedTypeUpdatedSuccess'))
-          loadData();
+          loadData(1);
           closeModal()
         } else {
           toast.error(t('somethingWentWrong'))
@@ -264,7 +265,7 @@ const saveBedType = async () => {
       const resp = await postBedType(newBedType);
       if (resp.status === 200 || resp.status === 201) {
         toast.success(t('bedTypeCreatedSuccess'))
-        loadData();
+        loadData(1);
         closeModal()
       } else {
         toast.error(t('somethingWentWrong'))
@@ -276,18 +277,23 @@ const saveBedType = async () => {
     isLoading.value = false
   }
 }
-const loadData = async () => {
+const loadData = async (pageNumber=1) => {
   loading.value = true;
   try {
-    const resp = await getBedTypes();
+    const resp = await getBedTypes({page:pageNumber,limit:10});
     console.log('this is the data', resp)
     bedTypes.value = resp.data.data.data;
+    paginationMeta.value = resp.data.data.meta
   } catch (error) {
     console.error('Error loading bed types:', error);
     toast.error(t('errorLoadingBedTypes'));
   }finally{
      loading.value = false;
   }
+}
+
+const handlePageChange = (newPage:number)=>{
+  loadData(newPage)
 }
 const closeModal = () => {
   showAddModal.value = false
@@ -299,5 +305,5 @@ const closeModal = () => {
     status: 'Active'
   }
 }
-loadData()
+loadData(1)
 </script>

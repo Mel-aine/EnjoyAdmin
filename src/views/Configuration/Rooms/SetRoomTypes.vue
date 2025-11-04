@@ -1,7 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-      
+
 
       <!-- Sort Room Types Table using ReusableTable -->
       <ReusableTable
@@ -14,9 +14,11 @@
         :empty-state-message="t('createRoomTypesFirst')"
         @action="onAction"
         :loading="loading"
+        @page-change="handlePageChange"
+        :meta="paginationMeta"
       >
         <template #header-actions>
-          <BasicButton 
+          <BasicButton
             @click="saveOrder"
             :label="saving ? t('saving') : t('saveOrder')"
             :icon="Save"
@@ -43,7 +45,7 @@
 
         <template #column-roomType="{ item }">
           <div class="flex items-center space-x-3">
-            <div 
+            <div
               class="w-4 h-4 rounded-full border-2 border-gray-300"
               :style="{ backgroundColor: item.color }"
             ></div>
@@ -72,7 +74,7 @@
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             {{ t('editSortOrder') }}
           </h3>
-          
+
           <form @submit.prevent="saveSortOrder" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -85,7 +87,7 @@
                 class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
               />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('sortOrder') }} *
@@ -98,18 +100,18 @@
                 :placeholder="t('enterSortOrder')"
               />
             </div>
-            
+
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="saving"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="saving ? t('saving') + '...' : t('updateOrder')"
                 :loading="saving"
               />
@@ -143,6 +145,7 @@ const loading = ref(false)
 const saving = ref(false)
 const originalSortOrders = ref({})
 const hasChanges = ref(false)
+const paginationMeta = ref({})
 
 // Form data
 const formData = ref({
@@ -202,7 +205,7 @@ const saveOrderChange = (item) => {
 }
 
 const checkForChanges = () => {
-  hasChanges.value = roomTypes.value.some(item => 
+  hasChanges.value = roomTypes.value.some(item =>
     originalSortOrders.value[item.id] !== item.sortOrder
   )
 }
@@ -217,7 +220,7 @@ const saveOrder = async () => {
   try {
     // Sort the array by sort order and reassign
     roomTypes.value.sort((a, b) => a.sortOrder - b.sortOrder)
-    
+
     // Here you would typically make an API call to save the order
     // await updateRoomTypesOrder(roomTypes.value)
     const sortedRoomTypeChange = roomTypes.value.map(item => ({
@@ -227,12 +230,12 @@ const saveOrder = async () => {
     console.log(sortedRoomTypeChange)
     // Simulate API call
     await updateRoomTypeSortOrder(sortedRoomTypeChange)
-    
+
     // Update original sort orders after successful save
     roomTypes.value.forEach(item => {
       originalSortOrders.value[item.id] = item.sortOrder
     })
-    
+
     hasChanges.value = false
     toast.success(t('roomTypeOrderSavedSuccess'))
   } catch (error) {
@@ -271,18 +274,19 @@ const closeModal = () => {
   formData.value.sortOrder = 1
 }
 
-const loadData = async () => {
+const loadData = async (pageNumber=1) => {
   loading.value = true
   try {
-    const resp = await getRoomTypes()
+    const resp = await getRoomTypes({page:pageNumber,limit:10})
     console.log('this is the data', resp)
     roomTypes.value = resp.data.data.data
-    
+    paginationMeta.value = resp.data.data.meta
+
     // Store original sort orders for change tracking
     roomTypes.value.forEach(item => {
       originalSortOrders.value[item.id] = item.sortOrder
     })
-    
+
     hasChanges.value = false
   } catch (error) {
     console.error('Error loading room types:', error)
@@ -292,7 +296,11 @@ const loadData = async () => {
   }
 }
 
+const handlePageChange = (newPage)=>{
+  loadData(newPage)
+}
+
 onMounted(() => {
-  loadData()
+  loadData(1)
 })
 </script>

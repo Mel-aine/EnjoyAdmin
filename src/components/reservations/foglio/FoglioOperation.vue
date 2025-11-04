@@ -52,7 +52,7 @@
     <div class="w-10/12">
       <div
         class="bg-white dark:bg-gray-800 dark:text-gray-100 border-t-1 dark:border-gray-700 shadow-sm flex flex-col h-full">
-        <div class="flex-grow overflow-y-auto custom-scrollbar">
+        <div class="flex-grow">
           <!-- Header with action buttons -->
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
             <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal"
@@ -104,7 +104,8 @@
             </div>
           </div>
           <ReusableTable :columns="columns" :data="foglioData" :loading="loading" :show-header="false"
-            :actions="actionTransactions" :selectable="false" :searchable="false" :title="$t('folio')">
+            :actions="actionTransactions" :selectable="false" :searchable="false" :title="$t('folio')"
+            max-height="calc(100vh - 420px)" :scrollableBody="true">
             <!-- Custom column templates -->
             <template #column-day="{ item }">
               <div class="text-sm text-gray-900 dark:text-gray-100">
