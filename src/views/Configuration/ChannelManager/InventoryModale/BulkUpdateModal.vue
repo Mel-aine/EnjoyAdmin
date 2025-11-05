@@ -100,6 +100,7 @@
             <InputCheckBox
               label="Rate"
               id="rate"
+              :input-type="'number'"
               v-model="restrictions.rate"
             />
             <Input v-model="rateValue" placeholder="Rate" :disabled="!restrictions.rate" />

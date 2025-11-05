@@ -244,19 +244,7 @@ const resetChanges = () => {
   toast.info(t('changesReset'))
 }
 
-const handleOptionSelected = (option: any) => {
-  switch (option.id) {
-    case 'bulk':
-      showBulkUpdateModal.value = true
-      break
-    case 'availabilityRules':
-      showModal.value = true
-      break
-    case 'settings':
-      showModals.value = true
-      break
-  }
-}
+
 
 const handleBulkUpdateSave = (data: any) => {
   console.log('Bulk update data:', data)
