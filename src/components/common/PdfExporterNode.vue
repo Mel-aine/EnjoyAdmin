@@ -1,7 +1,7 @@
 <template>
   <PdfModalPreview :title="title" :is-open="isModalOpen" @close="closeModal">
    <div
-        class="inline-block align-bottom Z-[9999] bg-white h-full text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-6xl sm:w-full dark:bg-gray-800 dark:text-gray-100">
+        class="inline-block align-bottom  bg-white h-full text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-6xl sm:w-full dark:bg-gray-800 dark:text-gray-100">
         <!-- Contenu principal -->
          <div class="flex space-x-4 h-full">
             <!-- Zone de prévisualisation PDF -->
