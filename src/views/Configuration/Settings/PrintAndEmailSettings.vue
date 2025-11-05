@@ -3,19 +3,19 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Print and Email Settings</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('configuration.settings.print_and_email_settings.title') }}</h1>
           <p class="text-gray-600 dark:text-gray-300 mt-1">
-            Configure print and email settings for Front Desk operations. Set templates and preferences for various documents and communications.
+            {{ $t('configuration.settings.print_and_email_settings.description') }}
           </p>
         </div>
-        <BasicButton variant="primary" :icon="Save" :label="t('save')" @click="savePrintEmailSettings" :loading="isLoading" />
+        <BasicButton variant="primary" :icon="Save" :label="$t('configuration.settings.print_and_email_settings.save_changes')" @click="savePrintEmailSettings" :loading="isLoading" />
       </div>
       
       <div class="space-y-6">
         <!-- Print Options -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Print Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.print_and_email_settings.print_options') }}</h2>
             
             <!-- City Ledger Posting Option -->
             <div class="mb-6">
@@ -27,7 +27,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 >
                 <label for="printCityLedger" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Print City Ledger Posting on Invoice
+                  {{ $t('configuration.settings.print_and_email_settings.print_city_ledger_on_invoice') }}
                 </label>
               </div>
             </div>
@@ -35,13 +35,11 @@
             <!-- Print Templates -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div v-for="template in printTemplates" :key="template.key" class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {{ template.name }}
-                </label>
                 <Select
                   v-model="template.selectedTemplate"
+                  :lb="$t(`configuration.settings.print_and_email_settings.${template.key}`)"
                   :options="availableTemplates"
-                  :placeholder="`Select ${template.name.toLowerCase()}`"
+                  :placeholder="$t('configuration.settings.print_and_email_settings.select_template')"
                 />
               </div>
             </div>
@@ -51,15 +49,15 @@
         <!-- Email Options -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Email Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.print_and_email_settings.email_options') }}</h2>
             
             <!-- Email Templates -->
             <div class="space-y-6">
               <div v-for="emailOption in emailOptions" :key="emailOption.key" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <div class="flex items-center justify-between mb-4">
                   <div>
-                    <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ emailOption.name }}</h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ emailOption.description }}</p>
+                    <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ $t(`configuration.settings.print_and_email_settings.${emailOption.key}.name`) }}</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ $t(`configuration.settings.print_and_email_settings.${emailOption.key}.description`) }}</p>
                   </div>
                   <div class="flex items-center">
                     <input
@@ -69,30 +67,26 @@
                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                     >
                     <label :for="emailOption.key" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                      Enable
+                      {{ $t('configuration.settings.print_and_email_settings.enable') }}
                     </label>
                   </div>
                 </div>
                 
                 <div v-if="emailOption.enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Email Template
-                    </label>
                     <Select
                       v-model="emailOption.template"
+                      :lb="$t('configuration.settings.print_and_email_settings.email_template')"
                       :options="availableEmailTemplates"
-                      placeholder="Select email template"
+                      :placeholder="$t('configuration.settings.print_and_email_settings.select_email_template')"
                     />
                   </div>
                   
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Subject Line
-                    </label>
                     <Input
                       v-model="emailOption.subject"
-                      placeholder="Enter email subject"
+                      :lb="$t('configuration.settings.print_and_email_settings.subject_line')"
+                      :placeholder="$t('configuration.settings.print_and_email_settings.enter_email_subject')"
                     />
                   </div>
                 </div>
@@ -104,44 +98,38 @@
         <!-- Additional Email Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Additional Email Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.print_and_email_settings.additional_email_settings') }}</h2>
             
             <div class="space-y-6">
               <!-- Guest Review Settings -->
               <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">Guest Review Email</h4>
+                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">{{ $t('configuration.settings.print_and_email_settings.guest_review_email') }}</h4>
                 <div class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Send Review Email Link To
-                    </label>
                     <Select
                       v-model="additionalSettings.reviewEmailTarget"
+                      :lb="$t('configuration.settings.print_and_email_settings.send_review_email_link_to')"
                       :options="reviewEmailTargetOptions"
-                      placeholder="Select target audience"
+                      :placeholder="$t('configuration.settings.print_and_email_settings.select_target_audience')"
                     />
                   </div>
                   
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Review Email Template
-                    </label>
                       <Select
                         v-model="additionalSettings.reviewEmailTemplate"
+                        :lb="$t('configuration.settings.print_and_email_settings.review_email_template')"
                         :options="availableEmailTemplates"
-                        placeholder="Select review email template"
+                        :placeholder="$t('configuration.settings.print_and_email_settings.select_review_email_template')"
                       />
                     </div>
                     
                     <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Delay (hours after checkout)
-                    </label>
                       <Input
                         v-model="additionalSettings.reviewEmailDelay"
                         type="number"
-                        placeholder="Enter delay in hours"
+                        :lb="$t('configuration.settings.print_and_email_settings.delay_hours_after_checkout')"
+                        :placeholder="$t('configuration.settings.print_and_email_settings.enter_delay_in_hours')"
                       />
                     </div>
                   </div>
@@ -150,7 +138,7 @@
               
               <!-- Reservation Voucher Settings -->
               <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">Reservation Voucher Email</h4>
+                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">{{ $t('configuration.settings.print_and_email_settings.reservation_voucher_email') }}</h4>
                 <div class="space-y-4">
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="flex items-center">
@@ -161,7 +149,7 @@
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                       >
                       <label for="voucherToGuest" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                        Send to Guest
+                        {{ $t('configuration.settings.print_and_email_settings.send_to_guest') }}
                       </label>
                     </div>
                     
@@ -173,7 +161,7 @@
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                       >
                       <label for="voucherToCompany" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                        Send to Company
+                        {{ $t('configuration.settings.print_and_email_settings.send_to_company') }}
                       </label>
                     </div>
                     
@@ -185,19 +173,17 @@
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                       >
                       <label for="voucherToAgent" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                        Send to Travel Agent
+                        {{ $t('configuration.settings.print_and_email_settings.send_to_travel_agent') }}
                       </label>
                     </div>
                   </div>
                   
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Voucher Email Template
-                    </label>
                     <Select
                       v-model="additionalSettings.voucherEmailTemplate"
+                      :lb="$t('configuration.settings.print_and_email_settings.voucher_email_template')"
                       :options="availableEmailTemplates"
-                      placeholder="Select voucher email template"
+                      :placeholder="$t('configuration.settings.print_and_email_settings.select_voucher_email_template')"
                     />
                   </div>
                 </div>
@@ -237,22 +223,18 @@ const printSettings = ref({
 const printTemplates = ref([
   {
     key: 'folioTemplate',
-    name: 'Folio Template',
     selectedTemplate: 'standard_folio'
   },
   {
     key: 'receiptTemplate',
-    name: 'Receipt Template',
     selectedTemplate: 'standard_receipt'
   },
   {
     key: 'voucherTemplate',
-    name: 'Voucher Template',
     selectedTemplate: 'standard_voucher'
   },
   {
     key: 'registrationTemplate',
-    name: 'Guest Registration Card Template',
     selectedTemplate: 'standard_registration'
   }
 ])
@@ -260,29 +242,32 @@ const printTemplates = ref([
 const emailOptions = ref([
   {
     key: 'emailThanksCheckout',
-    name: 'Email Thanks at Check Out',
-    description: 'Send thank you email to guests upon checkout',
     enabled: true,
     template: 'checkout_thanks',
-    subject: 'Thank you for staying with us!'
+    subject: ''
   },
   {
     key: 'emailGuestReview',
-    name: 'Email Guest Review Request',
-    description: 'Send review request email to guests after their stay',
     enabled: true,
     template: 'review_request',
-    subject: 'How was your stay? Please share your feedback'
+    subject: ''
   },
   {
     key: 'emailReservationReleased',
-    name: 'Email for Reservation Released',
-    description: 'Send notification when reservation is released',
     enabled: false,
     template: 'reservation_released',
-    subject: 'Your reservation has been released'
+    subject: ''
   }
 ])
+
+// Initialize default subjects if empty
+const initializeDefaultSubjects = () => {
+  emailOptions.value.forEach(option => {
+    if (!option.subject) {
+      option.subject = t(`configuration.settings.print_and_email_settings.${option.key}.default_subject`)
+    }
+  })
+}
 
 const additionalSettings = ref({
   reviewEmailTarget: 'all',
@@ -294,29 +279,29 @@ const additionalSettings = ref({
   voucherEmailTemplate: 'reservation_voucher'
 })
 
-const availableTemplates = [
-  { label: 'Standard Template', value: 'standard' },
-  { label: 'Modern Template', value: 'modern' },
-  { label: 'Classic Template', value: 'classic' },
-  { label: 'Minimal Template', value: 'minimal' },
-  { label: 'Luxury Template', value: 'luxury' }
-]
+const availableTemplates = computed(() => [
+  { label: t('configuration.settings.print_and_email_settings.standard_template'), value: 'standard' },
+  { label: t('configuration.settings.print_and_email_settings.modern_template'), value: 'modern' },
+  { label: t('configuration.settings.print_and_email_settings.classic_template'), value: 'classic' },
+  { label: t('configuration.settings.print_and_email_settings.minimal_template'), value: 'minimal' },
+  { label: t('configuration.settings.print_and_email_settings.luxury_template'), value: 'luxury' }
+])
 
-const availableEmailTemplates = [
-  { label: 'Standard Email Template', value: 'standard_email' },
-  { label: 'Welcome Email Template', value: 'welcome_email' },
-  { label: 'Thank You Email Template', value: 'thankyou_email' },
-  { label: 'Review Request Template', value: 'review_request' },
-  { label: 'Reservation Confirmation Template', value: 'reservation_confirmation' },
-  { label: 'Reservation Voucher Template', value: 'reservation_voucher' },
-  { label: 'Checkout Thanks Template', value: 'checkout_thanks' },
-  { label: 'Reservation Released Template', value: 'reservation_released' }
-]
+const availableEmailTemplates = computed(() => [
+  { label: t('configuration.settings.print_and_email_settings.standard_email_template'), value: 'standard_email' },
+  { label: t('configuration.settings.print_and_email_settings.welcome_email_template'), value: 'welcome_email' },
+  { label: t('configuration.settings.print_and_email_settings.thank_you_email_template'), value: 'thankyou_email' },
+  { label: t('configuration.settings.print_and_email_settings.review_request_template'), value: 'review_request' },
+  { label: t('configuration.settings.print_and_email_settings.reservation_confirmation_template'), value: 'reservation_confirmation' },
+  { label: t('configuration.settings.print_and_email_settings.reservation_voucher_template'), value: 'reservation_voucher' },
+  { label: t('configuration.settings.print_and_email_settings.checkout_thanks_template'), value: 'checkout_thanks' },
+  { label: t('configuration.settings.print_and_email_settings.reservation_released_template'), value: 'reservation_released' }
+])
 
-const reviewEmailTargetOptions = [
-  { label: 'Web Booker Only', value: 'web_booker' },
-  { label: 'All Guests', value: 'all' }
-]
+const reviewEmailTargetOptions = computed(() => [
+  { label: t('configuration.settings.print_and_email_settings.web_booker_only'), value: 'web_booker' },
+  { label: t('configuration.settings.print_and_email_settings.all_guests'), value: 'all' }
+])
 
 // Load print email settings from current service
 const loadPrintEmailSettingsFromService = () => {
@@ -336,6 +321,8 @@ const loadPrintEmailSettingsFromService = () => {
       additionalSettings.value = { ...additionalSettings.value, ...servicePrintEmailSettings.additionalSettings }
     }
   }
+  // Initialize default subjects if empty (for both new and loaded settings)
+  initializeDefaultSubjects()
 }
 
 const savePrintEmailSettings = async () => {

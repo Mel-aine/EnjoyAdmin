@@ -3,19 +3,19 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Check In and Reservation Settings</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('configuration.settings.check_in_reservation_settings.title') }}</h1>
           <p class="text-gray-600 dark:text-gray-300 mt-1">
-            Configure check-in and checkout times, day use options, late checkout policies, cancellation fees, no-show fees, and other reservation settings.
+            {{ $t('configuration.settings.check_in_reservation_settings.description') }}
           </p>
         </div>
-        <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveSettings" :loading="isLoading" />
+        <BasicButton variant="primary" :icon="Save" :label="$t('configuration.settings.check_in_reservation_settings.save_changes')" @click="saveSettings" :loading="isLoading" />
       </div>
       
       <div class="space-y-6">
         <!-- Check In and Check Out Time Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Check In and Check Out Time Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.check_in_check_out_time_settings') }}</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -26,30 +26,26 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="twentyFourHourCheckout" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  24 Hours Check Out
+                  {{ $t('configuration.settings.check_in_reservation_settings.twenty_four_hours_check_out') }}
                 </label>
               </div>
               
               <div v-if="!timeSettings.twentyFourHourCheckout" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Check In Time
-                  </label>
                   <Input
                     v-model="timeSettings.checkInTime"
                     type="time"
-                    placeholder="Select check-in time"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.check_in_time')"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.select_check_in_time')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Check Out Time
-                  </label>
                   <Input
                     v-model="timeSettings.checkOutTime"
                     type="time"
-                    placeholder="Select check-out time"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.check_out_time')"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.select_check_out_time')"
                   />
                 </div>
               </div>
@@ -60,7 +56,7 @@
         <!-- Day Use Options -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Day Use Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.day_use_options') }}</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -71,30 +67,26 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="autoPostDayUse" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Auto Post for Day Use
+                  {{ $t('configuration.settings.check_in_reservation_settings.auto_post_for_day_use') }}
                 </label>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Grace Period (Hours)
-                  </label>
                   <Input
                     v-model="dayUseSettings.gracePeriodHours"
                     type="number"
-                    placeholder="Enter grace period in hours"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.grace_period_hours')"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_grace_period_in_hours')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    % of Room Charge
-                  </label>
                   <Input
                     v-model="dayUseSettings.roomChargePercentage"
                     type="number"
-                    placeholder="Enter percentage"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.percent_of_room_charge')"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_percentage')"
                   />
                 </div>
               </div>
@@ -105,7 +97,7 @@
         <!-- Late Check Out Options -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Late Check Out Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.late_check_out_options') }}</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -116,30 +108,26 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="autoPostLateCheckout" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Auto Post for Late Checkout
+                  {{ $t('configuration.settings.check_in_reservation_settings.auto_post_for_late_checkout') }}
                 </label>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Grace Period (Hours)
-                  </label>
                   <Input
                     v-model="lateCheckoutSettings.gracePeriodHours"
                     type="number"
-                    placeholder="Enter grace period in hours"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.grace_period_hours')"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_grace_period_in_hours')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    % of Room Charge
-                  </label>
                   <Input
                     v-model="lateCheckoutSettings.roomChargePercentage"
                     type="number"
-                    placeholder="Enter percentage"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.percent_of_room_charge')"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_percentage')"
                   />
                 </div>
               </div>
@@ -150,7 +138,7 @@
         <!-- Cancellation Fee Options -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Cancellation Fee Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.cancellation_fee_options') }}</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -161,77 +149,65 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="postCancellationFee" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Post Cancellation Fee
+                  {{ $t('configuration.settings.check_in_reservation_settings.post_cancellation_fee') }}
                 </label>
               </div>
               
               <div v-if="cancellationSettings.postFee" class="space-y-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Cancellation Fee Type
-                  </label>
                   <Select
                     v-model="cancellationSettings.feeType"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.cancellation_fee_type')"
                     :options="feeTypeOptions"
-                    placeholder="Select fee type"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.select_fee_type')"
                   />
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div v-if="cancellationSettings.feeType === 'percentage'">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Percentage (%)
-                    </label>
                     <Input
                       v-model="cancellationSettings.percentage"
                       type="number"
-                      placeholder="Enter percentage"
+                      :lb="$t('configuration.settings.check_in_reservation_settings.percentage')"
+                      :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_percentage')"
                     />
                   </div>
                   
                   <div v-if="cancellationSettings.feeType === 'fixed'">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Fixed Amount
-                    </label>
                     <Input
                       v-model="cancellationSettings.fixedAmount"
                       type="number"
-                      placeholder="Enter fixed amount"
+                      :lb="$t('configuration.settings.check_in_reservation_settings.fixed_amount')"
+                      :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_fixed_amount')"
                     />
                   </div>
                   
                   <div v-if="cancellationSettings.feeType === 'nights'">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Number of Nights
-                    </label>
                     <Input
                       v-model="cancellationSettings.numberOfNights"
                       type="number"
-                      placeholder="Enter number of nights"
+                      :lb="$t('configuration.settings.check_in_reservation_settings.number_of_nights')"
+                      :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_number_of_nights')"
                     />
                   </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Days Before Reservation
-                    </label>
                     <Input
                       v-model="cancellationSettings.daysBeforeReservation"
                       type="number"
-                      placeholder="Enter days"
+                      :lb="$t('configuration.settings.check_in_reservation_settings.days_before_reservation')"
+                      :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_days')"
                     />
                   </div>
                   
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Days Before Arrival
-                    </label>
                     <Input
                       v-model="cancellationSettings.daysBeforeArrival"
                       type="number"
-                      placeholder="Enter days"
+                      :lb="$t('configuration.settings.check_in_reservation_settings.days_before_arrival')"
+                      :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_days')"
                     />
                   </div>
                 </div>
@@ -243,7 +219,7 @@
         <!-- No Show Fee Options -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">No Show Fee Options</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.no_show_fee_options') }}</h2>
             
             <div class="space-y-6">
               <div class="flex items-center">
@@ -254,53 +230,45 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 >
                 <label for="postNoShowFee" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Post No Show Fee
+                  {{ $t('configuration.settings.check_in_reservation_settings.post_no_show_fee') }}
                 </label>
               </div>
               
               <div v-if="noShowSettings.postFee" class="space-y-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    No Show Fee Type
-                  </label>
                   <Select
                     v-model="noShowSettings.feeType"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.no_show_fee_type')"
                     :options="feeTypeOptions"
-                    placeholder="Select fee type"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.select_fee_type')"
                   />
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div v-if="noShowSettings.feeType === 'percentage'">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Percentage (%)
-                    </label>
                     <Input
                       v-model="noShowSettings.percentage"
                       type="number"
-                      placeholder="Enter percentage"
+                      :lb="$t('configuration.settings.check_in_reservation_settings.percentage')"
+                      :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_percentage')"
                     />
                   </div>
                   
                   <div v-if="noShowSettings.feeType === 'fixed'">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Fixed Amount
-                    </label>
                     <Input
                       v-model="noShowSettings.fixedAmount"
                       type="number"
-                      placeholder="Enter fixed amount"
+                      :lb="$t('configuration.settings.check_in_reservation_settings.fixed_amount')"
+                      :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_fixed_amount')"
                     />
                   </div>
                   
                   <div v-if="noShowSettings.feeType === 'nights'">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Number of Nights
-                    </label>
                     <Input
                       v-model="noShowSettings.numberOfNights"
                       type="number"
-                      placeholder="Enter number of nights"
+                      :lb="$t('configuration.settings.check_in_reservation_settings.number_of_nights')"
+                      :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_number_of_nights')"
                     />
                   </div>
                 </div>
@@ -312,30 +280,26 @@
         <!-- Financial Year Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Financial Year Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.financial_year_settings') }}</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Financial Year Start Month
-                </label>
                 <Select
                   v-model="financialSettings.startMonth"
+                  :lb="$t('configuration.settings.check_in_reservation_settings.financial_year_start_month')"
                   :options="monthOptions"
-                  placeholder="Select start month"
+                  :placeholder="$t('configuration.settings.check_in_reservation_settings.select_start_month')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Financial Year Start Day
-                </label>
                 <Input
                   v-model="financialSettings.startDay"
                   type="number"
                   min="1"
                   max="31"
-                  placeholder="Enter start day"
+                  :lb="$t('configuration.settings.check_in_reservation_settings.financial_year_start_day')"
+                  :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_start_day')"
                 />
               </div>
             </div>
@@ -345,8 +309,8 @@
         <!-- Mandatory Information -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Mandatory Information</h2>
-            <p class="text-gray-600 dark:text-gray-300 mb-6">Select information that must be provided during reservation and/or walk-in.</p>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.mandatory_information') }}</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.mandatory_information_description') }}</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div v-for="field in mandatoryFields" :key="field.key" class="flex items-center">
@@ -357,7 +321,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 >
                 <label :for="field.key" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  {{ field.name }}
+                  {{ $t(`configuration.settings.check_in_reservation_settings.${field.key}`) }}
                 </label>
               </div>
             </div>
@@ -367,7 +331,7 @@
         <!-- Other Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Other Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.check_in_reservation_settings.other_settings') }}</h2>
             
             <div class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -379,7 +343,7 @@
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   >
                   <label for="emailReservationVoucher" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                    Email Reservation Voucher
+                    {{ $t('configuration.settings.check_in_reservation_settings.email_reservation_voucher') }}
                   </label>
                 </div>
                 
@@ -391,42 +355,36 @@
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   >
                   <label for="allowOverbooking" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                    Allow Overbooking
+                    {{ $t('configuration.settings.check_in_reservation_settings.allow_overbooking') }}
                   </label>
                 </div>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Base Occupancy
-                  </label>
                   <Input
                     v-model="otherSettings.baseOccupancy"
                     type="number"
-                    placeholder="Enter base occupancy"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.base_occupancy')"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.enter_base_occupancy')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Front Rate Mode
-                  </label>
                   <Select
                     v-model="otherSettings.frontRateMode"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.front_rate_mode')"
                     :options="frontRateModeOptions"
-                    placeholder="Select rate mode"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.select_rate_mode')"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Send Review Email Link To
-                  </label>
                   <Select
                     v-model="otherSettings.sendReviewEmailTo"
+                    :lb="$t('configuration.settings.check_in_reservation_settings.send_review_email_link_to')"
                     :options="reviewEmailOptions"
-                    placeholder="Select target"
+                    :placeholder="$t('configuration.settings.check_in_reservation_settings.select_target')"
                   />
                 </div>
               </div>
@@ -500,15 +458,15 @@ const financialSettings = ref({
 })
 
 const mandatoryFields = ref([
-  { key: 'guestName', name: 'Guest Name', required: true },
-  { key: 'guestIdentity', name: 'Guest Identity', required: true },
-  { key: 'marketCode', name: 'Market Code', required: false },
-  { key: 'holdType', name: 'Hold Type', required: false },
-  { key: 'travelAgent', name: 'Travel Agent', required: false },
-  { key: 'company', name: 'Company', required: false },
-  { key: 'businessSource', name: 'Business Source', required: false },
-  { key: 'nationality', name: 'Nationality', required: true },
-  { key: 'guestAddress', name: 'Guest Address', required: true }
+  { key: 'guestName', required: true },
+  { key: 'guestIdentity', required: true },
+  { key: 'marketCode', required: false },
+  { key: 'holdType', required: false },
+  { key: 'travelAgent', required: false },
+  { key: 'company', required: false },
+  { key: 'businessSource', required: false },
+  { key: 'nationality', required: true },
+  { key: 'guestAddress', required: true }
 ])
 
 const otherSettings = ref({
@@ -519,38 +477,38 @@ const otherSettings = ref({
   sendReviewEmailTo: 'all'
 })
 
-const feeTypeOptions = [
-  { label: '% of Total Charges', value: 'percentage' },
-  { label: 'Fixed Amount', value: 'fixed' },
-  { label: 'First Night(s) Charge', value: 'nights' }
-]
+const feeTypeOptions = computed(() => [
+  { label: t('configuration.settings.check_in_reservation_settings.percent_of_total_charges'), value: 'percentage' },
+  { label: t('configuration.settings.check_in_reservation_settings.fixed_amount'), value: 'fixed' },
+  { label: t('configuration.settings.check_in_reservation_settings.first_nights_charge'), value: 'nights' }
+])
 
-const monthOptions = [
-  { label: 'January', value: 'january' },
-  { label: 'February', value: 'february' },
-  { label: 'March', value: 'march' },
-  { label: 'April', value: 'april' },
-  { label: 'May', value: 'may' },
-  { label: 'June', value: 'june' },
-  { label: 'July', value: 'july' },
-  { label: 'August', value: 'august' },
-  { label: 'September', value: 'september' },
-  { label: 'October', value: 'october' },
-  { label: 'November', value: 'november' },
-  { label: 'December', value: 'december' }
-]
+const monthOptions = computed(() => [
+  { label: t('january'), value: 'january' },
+  { label: t('february'), value: 'february' },
+  { label: t('march'), value: 'march' },
+  { label: t('april'), value: 'april' },
+  { label: t('may'), value: 'may' },
+  { label: t('june'), value: 'june' },
+  { label: t('july'), value: 'july' },
+  { label: t('august'), value: 'august' },
+  { label: t('september'), value: 'september' },
+  { label: t('october'), value: 'october' },
+  { label: t('november'), value: 'november' },
+  { label: t('december'), value: 'december' }
+])
 
-const frontRateModeOptions = [
-  { label: 'Inclusive', value: 'inclusive' },
-  { label: 'Exclusive', value: 'exclusive' },
-  { label: 'Regular', value: 'regular' },
-  { label: 'Advanced', value: 'advanced' }
-]
+const frontRateModeOptions = computed(() => [
+  { label: t('configuration.settings.check_in_reservation_settings.inclusive'), value: 'inclusive' },
+  { label: t('configuration.settings.check_in_reservation_settings.exclusive'), value: 'exclusive' },
+  { label: t('configuration.settings.check_in_reservation_settings.regular'), value: 'regular' },
+  { label: t('configuration.settings.check_in_reservation_settings.advanced'), value: 'advanced' }
+])
 
-const reviewEmailOptions = [
-  { label: 'Web Booker', value: 'web_booker' },
-  { label: 'All Guests', value: 'all' }
-]
+const reviewEmailOptions = computed(() => [
+  { label: t('configuration.settings.check_in_reservation_settings.web_booker'), value: 'web_booker' },
+  { label: t('configuration.settings.check_in_reservation_settings.all_guests'), value: 'all' }
+])
 
 // Load checkin reservation settings from current service
 const loadCheckinReservationSettingsFromService = () => {

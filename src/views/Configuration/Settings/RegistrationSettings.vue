@@ -3,19 +3,19 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Registration Settings</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('configuration.settings.registration_settings.title') }}</h1>
           <p class="text-gray-600 dark:text-gray-300 mt-1">
-            Configure guest registration requirements and mandatory fields.
+            {{ $t('configuration.settings.registration_settings.description') }}
           </p>
         </div>
-        <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveRegistrationSettings" :loading="isLoading" />
+        <BasicButton variant="primary" :icon="Save" :label="$t('configuration.settings.registration_settings.save_changes')" @click="saveRegistrationSettings" :loading="isLoading" />
       </div>
       
       <div class="space-y-6">
         <!-- Guest Registration Requirements -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Guest Registration Requirements</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.registration_settings.guest_registration_requirements') }}</h2>
             
             <div class="space-y-4">
               <div class="flex items-center">
@@ -26,7 +26,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="requireIdProof" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Require ID Proof for Registration
+                  {{ $t('configuration.settings.registration_settings.require_id_proof_for_registration') }}
                 </label>
               </div>
               
@@ -38,7 +38,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="requireSignature" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Require Guest Signature
+                  {{ $t('configuration.settings.registration_settings.require_guest_signature') }}
                 </label>
               </div>
               
@@ -50,7 +50,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="requireAddress" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Require Complete Address
+                  {{ $t('configuration.settings.registration_settings.require_complete_address') }}
                 </label>
               </div>
               
@@ -62,7 +62,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="requireEmergencyContact" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Require Emergency Contact
+                  {{ $t('configuration.settings.registration_settings.require_emergency_contact') }}
                 </label>
               </div>
             </div>
@@ -72,7 +72,7 @@
         <!-- Mandatory Fields -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Mandatory Fields</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.registration_settings.mandatory_fields') }}</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex items-center">
@@ -83,7 +83,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="mandatoryPhone" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Phone Number
+                  {{ $t('configuration.settings.registration_settings.phone_number') }}
                 </label>
               </div>
               
@@ -95,7 +95,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="mandatoryEmail" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Email Address
+                  {{ $t('configuration.settings.registration_settings.email_address') }}
                 </label>
               </div>
               
@@ -107,7 +107,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="mandatoryNationality" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Nationality
+                  {{ $t('configuration.settings.registration_settings.nationality') }}
                 </label>
               </div>
               
@@ -119,7 +119,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="mandatoryDateOfBirth" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Date of Birth
+                  {{ $t('configuration.settings.registration_settings.date_of_birth') }}
                 </label>
               </div>
               
@@ -131,7 +131,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="mandatoryGender" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Gender
+                  {{ $t('configuration.settings.registration_settings.gender') }}
                 </label>
               </div>
               
@@ -143,7 +143,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="mandatoryOccupation" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Occupation
+                  {{ $t('configuration.settings.registration_settings.occupation') }}
                 </label>
               </div>
             </div>
@@ -153,7 +153,7 @@
         <!-- Registration Card Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Registration Card Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">{{ $t('configuration.settings.registration_settings.registration_card_settings') }}</h2>
             
             <div class="space-y-4">
               <div class="flex items-center">
@@ -164,7 +164,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="printRegistrationCard" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Auto Print Registration Card on Check-in
+                  {{ $t('configuration.settings.registration_settings.auto_print_registration_card_on_check_in') }}
                 </label>
               </div>
               
@@ -176,7 +176,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="includePhoto" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Include Guest Photo on Registration Card
+                  {{ $t('configuration.settings.registration_settings.include_guest_photo_on_registration_card') }}
                 </label>
               </div>
               
@@ -188,7 +188,7 @@
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 >
                 <label for="includeSignature" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                  Include Signature Space on Registration Card
+                  {{ $t('configuration.settings.registration_settings.include_signature_space_on_registration_card') }}
                 </label>
               </div>
             </div>

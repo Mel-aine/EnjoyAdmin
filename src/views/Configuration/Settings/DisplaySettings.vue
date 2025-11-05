@@ -3,62 +3,54 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Display Settings</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('configuration.settings.display_settings.title') }}</h1>
           <p class="text-gray-600 dark:text-gray-300 mt-1">
-            Manage different display settings that you want to set by default for various fields in Front Desk operations.
+            {{ $t('configuration.settings.display_settings.description') }}
           </p>
         </div>
-        <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveDisplaySettings" :loading="isLoading" />
+        <BasicButton variant="primary" :icon="Save" :label="$t('configuration.settings.display_settings.save_changes')" @click="saveDisplaySettings" :loading="isLoading" />
       </div>
       
       <div class="space-y-6">
         <!-- Format Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Format Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">{{ $t('configuration.settings.display_settings.format_settings') }}</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Time Format
-                </label>
                 <Select
                   v-model="formatSettings.timeFormat"
+                  :lb="$t('configuration.settings.display_settings.time_format')"
                   :options="timeFormatOptions"
-                  placeholder="Select time format"
+                  :placeholder="$t('configuration.settings.display_settings.select_time_format')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Date Format
-                </label>
                 <Select
                   v-model="formatSettings.dateFormat"
+                  :lb="$t('configuration.settings.display_settings.date_format')"
                   :options="dateFormatOptions"
-                  placeholder="Select date format"
+                  :placeholder="$t('configuration.settings.display_settings.select_date_format')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Arrival/Departure Date Format
-                </label>
                 <Select
                   v-model="formatSettings.arrivalDepartureDateFormat"
+                  :lb="$t('configuration.settings.display_settings.arrival_departure_date_format')"
                   :options="dateFormatOptions"
-                  placeholder="Select arrival/departure date format"
+                  :placeholder="$t('configuration.settings.display_settings.select_arrival_departure_date_format')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Time Zone
-                </label>
                 <Select
                   v-model="formatSettings.timeZone"
+                  :lb="$t('configuration.settings.display_settings.time_zone')"
                   :options="timeZoneOptions"
-                  placeholder="Select time zone"
+                  :placeholder="$t('configuration.settings.display_settings.select_time_zone')"
                 />
               </div>
             </div>
@@ -68,26 +60,22 @@
         <!-- Caption Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Caption Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">{{ $t('configuration.settings.display_settings.caption_settings') }}</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  State Caption
-                </label>
                 <Input
                   v-model="captionSettings.stateCaption"
-                  placeholder="Enter caption for State field"
+                  :lb="$t('configuration.settings.display_settings.state_caption')"
+                  :placeholder="$t('configuration.settings.display_settings.enter_caption_for_state_field')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Zip Code Caption
-                </label>
                 <Input
                   v-model="captionSettings.zipCodeCaption"
-                  placeholder="Enter caption for Zip Code field"
+                  :lb="$t('configuration.settings.display_settings.zip_code_caption')"
+                  :placeholder="$t('configuration.settings.display_settings.enter_caption_for_zip_code_field')"
                 />
               </div>
             </div>
@@ -97,72 +85,60 @@
         <!-- Default Values -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Default Values</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">{{ $t('configuration.settings.display_settings.default_values') }}</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Select Identity
-                </label>
                 <Select
                   v-model="defaultValues.selectIdentity"
+                  :lb="$t('configuration.settings.display_settings.select_identity')"
                   :options="identityOptions"
-                  placeholder="Select default identity"
+                  :placeholder="$t('configuration.settings.display_settings.select_default_identity')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Default Reservation Type
-                </label>
                 <Select
                   v-model="defaultValues.reservationType"
+                  :lb="$t('configuration.settings.display_settings.default_reservation_type')"
                   :options="reservationTypeOptions"
-                  placeholder="Select default reservation type"
+                  :placeholder="$t('configuration.settings.display_settings.select_default_reservation_type')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Salutation
-                </label>
                 <Select
                   v-model="defaultValues.salutation"
+                  :lb="$t('configuration.settings.display_settings.salutation')"
                   :options="salutationOptions"
-                  placeholder="Select default salutation"
+                  :placeholder="$t('configuration.settings.display_settings.select_default_salutation')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Bill To
-                </label>
                 <Select
                   v-model="defaultValues.billTo"
+                  :lb="$t('configuration.settings.display_settings.bill_to')"
                   :options="billToOptions"
-                  placeholder="Select default bill to option"
+                  :placeholder="$t('configuration.settings.display_settings.select_default_bill_to_option')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Payment Mode
-                </label>
                 <Select
                   v-model="defaultValues.paymentMode"
+                  :lb="$t('configuration.settings.display_settings.payment_mode')"
                   :options="paymentModeOptions"
-                  placeholder="Select default payment mode"
+                  :placeholder="$t('configuration.settings.display_settings.select_default_payment_mode')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Select Payment Gateway
-                </label>
                 <Select
                   v-model="defaultValues.paymentGateway"
+                  :lb="$t('configuration.settings.display_settings.select_payment_gateway')"
                   :options="paymentGatewayOptions"
-                  placeholder="Select default payment gateway"
+                  :placeholder="$t('configuration.settings.display_settings.select_default_payment_gateway')"
                 />
               </div>
             </div>
@@ -172,29 +148,25 @@
         <!-- Round Off Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Round Off Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">{{ $t('configuration.settings.display_settings.round_off_settings') }}</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Round Off Type
-                </label>
                 <Select
                   v-model="roundOffSettings.type"
+                  :lb="$t('configuration.settings.display_settings.round_off_type')"
                   :options="roundOffTypeOptions"
-                  placeholder="Select round off type"
+                  :placeholder="$t('configuration.settings.display_settings.select_round_off_type')"
                 />
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Round Off Limit
-                </label>
                 <Input
                   v-model="roundOffSettings.limit"
                   type="number"
                   step="0.01"
-                  placeholder="Enter round off limit"
+                  :lb="$t('configuration.settings.display_settings.round_off_limit')"
+                  :placeholder="$t('configuration.settings.display_settings.enter_round_off_limit')"
                 />
               </div>
             </div>
@@ -204,17 +176,15 @@
         <!-- Web Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div class="p-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Web Settings</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">{{ $t('configuration.settings.display_settings.web_settings') }}</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Web Rate Mode
-                </label>
                 <Select
                   v-model="webSettings.rateMode"
+                  :lb="$t('configuration.settings.display_settings.web_rate_mode')"
                   :options="webRateModeOptions"
-                  placeholder="Select web rate mode"
+                  :placeholder="$t('configuration.settings.display_settings.select_web_rate_mode')"
                 />
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {{ getWebRateModeDescription(webSettings.rateMode) }}
@@ -222,13 +192,11 @@
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Web Inventory Mode
-                </label>
                 <Select
                   v-model="webSettings.inventoryMode"
+                  :lb="$t('configuration.settings.display_settings.web_inventory_mode')"
                   :options="webInventoryModeOptions"
-                  placeholder="Select web inventory mode"
+                  :placeholder="$t('configuration.settings.display_settings.select_web_inventory_mode')"
                 />
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {{ getWebInventoryModeDescription(webSettings.inventoryMode) }}
@@ -293,20 +261,20 @@ const webSettings = ref({
   inventoryMode: 'regular'
 })
 
-const timeFormatOptions = [
-  { label: '12-Hour Format (AM/PM)', value: '12-hour' },
-  { label: '24-Hour Format', value: '24-hour' }
-]
+const timeFormatOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.twelve_hour_format'), value: '12-hour' },
+  { label: t('configuration.settings.display_settings.twenty_four_hour_format'), value: '24-hour' }
+])
 
-const dateFormatOptions = [
+const dateFormatOptions = computed(() => [
   { label: 'DD/MM/YYYY', value: 'dd/mm/yyyy' },
   { label: 'MM/DD/YYYY', value: 'mm/dd/yyyy' },
   { label: 'YYYY-MM-DD', value: 'yyyy-mm-dd' },
   { label: 'DD-MM-YYYY', value: 'dd-mm-yyyy' },
   { label: 'MM-DD-YYYY', value: 'mm-dd-yyyy' }
-]
+])
 
-const timeZoneOptions = [
+const timeZoneOptions = computed(() => [
   { label: 'UTC+00:00 (GMT)', value: 'UTC+00:00' },
   { label: 'UTC+01:00 (CET)', value: 'UTC+01:00' },
   { label: 'UTC+02:00 (EET)', value: 'UTC+02:00' },
@@ -314,85 +282,85 @@ const timeZoneOptions = [
   { label: 'UTC+08:00 (CST)', value: 'UTC+08:00' },
   { label: 'UTC-05:00 (EST)', value: 'UTC-05:00' },
   { label: 'UTC-08:00 (PST)', value: 'UTC-08:00' }
-]
+])
 
-const identityOptions = [
-  { label: 'Passport', value: 'passport' },
-  { label: 'National ID', value: 'national_id' },
-  { label: 'Driver License', value: 'driver_license' },
-  { label: 'Voter ID', value: 'voter_id' },
-  { label: 'Other', value: 'other' }
-]
+const identityOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.passport'), value: 'passport' },
+  { label: t('configuration.settings.display_settings.national_id'), value: 'national_id' },
+  { label: t('configuration.settings.display_settings.driver_license'), value: 'driver_license' },
+  { label: t('configuration.settings.display_settings.voter_id'), value: 'voter_id' },
+  { label: t('configuration.settings.display_settings.other'), value: 'other' }
+])
 
-const reservationTypeOptions = [
-  { label: 'Confirmed', value: 'confirmed' },
-  { label: 'Tentative', value: 'tentative' },
-  { label: 'Waitlist', value: 'waitlist' },
-  { label: 'Inquiry', value: 'inquiry' }
-]
+const reservationTypeOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.confirmed'), value: 'confirmed' },
+  { label: t('configuration.settings.display_settings.tentative'), value: 'tentative' },
+  { label: t('configuration.settings.display_settings.waitlist'), value: 'waitlist' },
+  { label: t('configuration.settings.display_settings.inquiry'), value: 'inquiry' }
+])
 
-const salutationOptions = [
-  { label: 'Mr.', value: 'mr' },
-  { label: 'Mrs.', value: 'mrs' },
-  { label: 'Ms.', value: 'ms' },
-  { label: 'Dr.', value: 'dr' },
-  { label: 'Prof.', value: 'prof' }
-]
+const salutationOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.mr'), value: 'mr' },
+  { label: t('configuration.settings.display_settings.mrs'), value: 'mrs' },
+  { label: t('configuration.settings.display_settings.ms'), value: 'ms' },
+  { label: t('configuration.settings.display_settings.dr'), value: 'dr' },
+  { label: t('configuration.settings.display_settings.prof'), value: 'prof' }
+])
 
-const billToOptions = [
-  { label: 'Company', value: 'company' },
-  { label: 'Group Owner', value: 'group_owner' },
-  { label: 'Guest', value: 'guest' },
-  { label: 'Room and Tax to Company, Extra to Guest', value: 'room_tax_company_extra_guest' }
-]
+const billToOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.company'), value: 'company' },
+  { label: t('configuration.settings.display_settings.group_owner'), value: 'group_owner' },
+  { label: t('configuration.settings.display_settings.guest'), value: 'guest' },
+  { label: t('configuration.settings.display_settings.room_tax_company_extra_guest'), value: 'room_tax_company_extra_guest' }
+])
 
-const paymentModeOptions = [
-  { label: 'Cash', value: 'cash' },
-  { label: 'Credit Card', value: 'credit_card' },
-  { label: 'Debit Card', value: 'debit_card' },
-  { label: 'Bank Transfer', value: 'bank_transfer' },
-  { label: 'Check', value: 'check' }
-]
+const paymentModeOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.cash'), value: 'cash' },
+  { label: t('configuration.settings.display_settings.credit_card'), value: 'credit_card' },
+  { label: t('configuration.settings.display_settings.debit_card'), value: 'debit_card' },
+  { label: t('configuration.settings.display_settings.bank_transfer'), value: 'bank_transfer' },
+  { label: t('configuration.settings.display_settings.check'), value: 'check' }
+])
 
-const paymentGatewayOptions = [
+const paymentGatewayOptions = computed(() => [
   { label: 'Stripe', value: 'stripe' },
   { label: 'PayPal', value: 'paypal' },
   { label: 'Square', value: 'square' },
   { label: 'Authorize.Net', value: 'authorize_net' },
   { label: 'Razorpay', value: 'razorpay' }
-]
+])
 
-const roundOffTypeOptions = [
-  { label: 'Nearest', value: 'nearest' },
-  { label: 'Round Up', value: 'round_up' },
-  { label: 'Round Down', value: 'round_down' },
-  { label: 'No Rounding', value: 'no_rounding' }
-]
+const roundOffTypeOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.nearest'), value: 'nearest' },
+  { label: t('configuration.settings.display_settings.round_up'), value: 'round_up' },
+  { label: t('configuration.settings.display_settings.round_down'), value: 'round_down' },
+  { label: t('configuration.settings.display_settings.no_rounding'), value: 'no_rounding' }
+])
 
-const webRateModeOptions = [
-  { label: 'Regular', value: 'regular' },
-  { label: 'Special', value: 'special' },
-  { label: 'Allocated', value: 'allocated' }
-]
+const webRateModeOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.regular'), value: 'regular' },
+  { label: t('configuration.settings.display_settings.special'), value: 'special' },
+  { label: t('configuration.settings.display_settings.allocated'), value: 'allocated' }
+])
 
-const webInventoryModeOptions = [
-  { label: 'Regular', value: 'regular' },
-  { label: 'Allocated', value: 'allocated' }
-]
+const webInventoryModeOptions = computed(() => [
+  { label: t('configuration.settings.display_settings.regular'), value: 'regular' },
+  { label: t('configuration.settings.display_settings.allocated'), value: 'allocated' }
+])
 
 const getWebRateModeDescription = (mode) => {
   const descriptions = {
-    regular: 'The rates will be picked from eZee Absolute',
-    special: 'The rates for the travel agent will be taken into consideration',
-    allocated: 'The rates from eZee Reservation will be picked up'
+    regular: t('configuration.settings.display_settings.web_rate_mode_regular_description'),
+    special: t('configuration.settings.display_settings.web_rate_mode_special_description'),
+    allocated: t('configuration.settings.display_settings.web_rate_mode_allocated_description')
   }
   return descriptions[mode] || ''
 }
 
 const getWebInventoryModeDescription = (mode) => {
   const descriptions = {
-    regular: 'This will set the default mode to eZee Absolute inventory',
-    allocated: 'This will set the default mode to eZee Reservation inventory'
+    regular: t('configuration.settings.display_settings.web_inventory_mode_regular_description'),
+    allocated: t('configuration.settings.display_settings.web_inventory_mode_allocated_description')
   }
   return descriptions[mode] || ''
 }

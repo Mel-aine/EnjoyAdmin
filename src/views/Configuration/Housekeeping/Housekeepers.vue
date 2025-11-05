@@ -3,15 +3,15 @@
     <div class="p-6 dark:text-gray-100">
 
       <ReusableTable
-        title="Housekeepers"
+        :title="$t('housekeepers')"
         :columns="columns"
         :data="housekeepers"
         :actions="actions"
         :searchable="false"
         :loading="isLoading"
-        search-placeholder="Search housekeepers..."
-        empty-state-title="No housekeepers found"
-        empty-state-description="Get started by adding your first housekeeper."
+        :search-placeholder="$t('Search housekeepers...')"
+        :empty-state-title="$t('No housekeepers found')"
+        :empty-state-description="$t('Get started by adding your first housekeeper.')"
         @action="onAction"
       >
       <template #header-actions>
@@ -19,19 +19,19 @@
           variant="primary"
           @click="openAddModal"
           :icon="Plus"
-          label="Add Housekeeper"
+          :label="$t('Add Housekeeper')"
         />
       </template>
         <template #status="{ item }">
           <span
             :class="[
               'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-              item.status === 'Active'
+              item.status === 'Active' || item.status === $t('Active')
                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
                 : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
             ]"
           >
-            {{ item.status }}
+            {{ item.status === 'Active' ? $t('Active') : item.status }}
           </span>
         </template>
           <!-- Custom column for created info -->
@@ -57,7 +57,7 @@
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {{ isEditing ? 'Edit Housekeeper' : 'Add Housekeeper' }}
+            {{ isEditing ? $t('Edit Housekeeper') : $t('Add Housekeeper') }}
           </h3>
 
   <form @submit.prevent="saveHousekeeper">
@@ -66,7 +66,7 @@
                 v-model="formData.name"
                 :lb="$t('housekeeperName')"
                 type="text"
-                placeholder="Enter housekeeper name"
+                :placeholder="$t('Enter housekeeper name')"
                 isRequired
               />
             </div>
@@ -74,9 +74,9 @@
             <div class="mb-4">
               <InputPhone
                 v-model="formData.mobile"
-                label="Mobile Number"
-                title="Mobile Number"
-                placeholder="Enter mobile number"
+                :label="$t('Mobile Number')"
+                :title="$t('Mobile Number')"
+                :placeholder="$t('Enter mobile number')"
                 isRequired
               />
             </div>
@@ -105,7 +105,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
@@ -125,6 +126,7 @@ import {
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 // Reactive data
+const { t } = useI18n()
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
@@ -139,26 +141,26 @@ const formData = reactive({
 })
 
 // Table configuration
-const columns :Column[] = [
-  { key: 'name', label: 'Housekeeper', type: 'text' },
-  { key: 'mobile', label: 'Mobile', type: 'text' },
-  { key: 'createdInfo', label: 'Created By', type: 'custom' },
-  { key: 'modifiedInfo', label: 'Modified By', type: 'custom' },
-  { key: 'status', label: 'Status', type: 'custom' }
-]
+const columns = computed<Column[]>(() => [
+  { key: 'name', label: t('Housekeeper'), type: 'text' },
+  { key: 'mobile', label: t('mobile'), type: 'text' },
+  { key: 'createdInfo', label: t('Created By'), type: 'custom' },
+  { key: 'modifiedInfo', label: t('Modified By'), type: 'custom' },
+  { key: 'status', label: t('Status'), type: 'custom' }
+])
 
-const actions:Action[] = [
+const actions = computed<Action[]>(() => [
   {
-    label: 'Edit',
+    label: t('Edit'),
     handler: (item: any) => editHousekeeper(item),
     variant: 'primary'
   },
   {
-    label: 'Delete',
+    label: t('Delete'),
     handler: (item: any) => deleteHousekeeper(item.id),
     variant: 'danger'
   }
-]
+])
 
 const housekeepers = ref<any[]>([])
 
@@ -223,20 +225,20 @@ const saveHousekeeper = async () => {
         name: formData.name,
         phone: formData.mobile,
       })
-      toast.success('Housekeeper updated successfully')
+      toast.success(t('Housekeeper updated successfully'))
     } else {
       await postHousekeeper({
         hotel_id: hotelId,
         name: formData.name,
         phone: formData.mobile,
       })
-      toast.success('Housekeeper created successfully')
+      toast.success(t('Housekeeper created successfully'))
     }
     closeModal()
     await fetchHousekeepers()
   } catch (e) {
     console.error('Failed to save housekeeper', e)
-    toast.error('Failed to save housekeeper')
+    toast.error(t('Failed to save housekeeper'))
   } finally {
     isSaving.value = false
   }
@@ -244,14 +246,14 @@ const saveHousekeeper = async () => {
 
 const deleteHousekeeper = async (id: number) => {
   try {
-    if (!confirm('Are you sure you want to delete this housekeeper?')) return
+    if (!confirm(t('Are you sure you want to delete this housekeeper?'))) return
     isLoading.value = true
     await deleteHousekeeperById(id)
-    toast.success('Housekeeper deleted successfully')
+    toast.success(t('Housekeeper deleted successfully'))
     await fetchHousekeepers()
   } catch (e) {
     console.error('Failed to delete housekeeper', e)
-    toast.error('Failed to delete housekeeper')
+    toast.error(t('Failed to delete housekeeper'))
   } finally {
     isLoading.value = false
   }

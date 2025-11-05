@@ -66,7 +66,7 @@
           <!-- Color Input -->
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Color Code
+              {{ t('Color Code') }}
             </label>
             <div class="flex items-center space-x-3">
               <input v-model="tempColor" type="color" class="w-12 h-10 border border-gray-300 dark:border-gray-700 rounded cursor-pointer">
@@ -79,7 +79,7 @@
           <!-- Predefined Colors -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Quick Colors
+              {{ t('Quick Colors') }}
             </label>
             <div class="grid grid-cols-8 gap-2">
               <div v-for="color in predefinedColors" :key="color"
@@ -92,11 +92,11 @@
           <!-- Preview -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Preview
+              {{ t('Preview') }}
             </label>
             <div class="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
               <div class="w-6 h-6 rounded-full" :style="{ backgroundColor: tempColor }"></div>
-              <span class="text-sm text-gray-900 dark:text-white">{{ selectedStatus?.name }}</span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ selectedStatus ? t(selectedStatus.name) : '' }}</span>
               <span class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ tempColor }}</span>
             </div>
           </div>

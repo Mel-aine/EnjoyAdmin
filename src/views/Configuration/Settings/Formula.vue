@@ -3,21 +3,21 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Formula</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('configuration.settings.formula.title') }}</h1>
           <p class="text-gray-600 dark:text-gray-300 mt-1">
-            This screen allows you to view the formula and modify it based on your requirements.
+            {{ $t('configuration.settings.formula.description') }}
           </p>
         </div>
-        <BasicButton variant="primary" :icon="Save" label="Save Changes" @click="saveFormula" :loading="isLoading" />
+        <BasicButton variant="primary" :icon="Save" :label="$t('configuration.settings.formula.save_changes')" @click="saveFormula" :loading="isLoading" />
       </div>
       
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="p-6 space-y-8">
           <!-- Total Room Revenue -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Total Room Revenue</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $t('configuration.settings.formula.total_room_revenue') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-              Select which revenue components to include in the Total Room Revenue calculation:
+              {{ $t('configuration.settings.formula.select_revenue_components') }}
             </p>
             <div class="space-y-3">
               <label class="flex items-center">
@@ -26,7 +26,7 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 />
-                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Night Sold Revenue</span>
+                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.night_sold_revenue') }}</span>
               </label>
               
               <label class="flex items-center">
@@ -35,7 +35,7 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 />
-                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Day Use Revenue</span>
+                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.day_use_revenue') }}</span>
               </label>
               
               <label class="flex items-center">
@@ -44,7 +44,7 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 />
-                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Late Checkout Revenue</span>
+                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.late_checkout_revenue') }}</span>
               </label>
               
               <label class="flex items-center">
@@ -53,7 +53,7 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 />
-                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Cancellation Revenue</span>
+                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.cancellation_revenue') }}</span>
               </label>
               
               <label class="flex items-center">
@@ -62,28 +62,28 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 />
-                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">No Show Revenue</span>
+                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.no_show_revenue') }}</span>
               </label>
             </div>
             
             <div class="mt-4 p-3 bg-gray-50 dark:bg-black rounded-md">
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Current Formula:</p>
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.current_formula') }}:</p>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ totalRoomRevenueFormula }}</p>
             </div>
           </div>
           
           <!-- Total Room Sold -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Total Room Sold</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $t('configuration.settings.formula.total_room_sold') }}</h3>
             <div class="p-3 bg-gray-50 dark:bg-black rounded-md">
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Formula:</p>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Total Rooms Sold = Total Occupied Rooms</p>
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.formula') }}:</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ $t('configuration.settings.formula.total_rooms_sold_formula') }}</p>
             </div>
           </div>
           
           <!-- Total Rooms -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Total Rooms</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $t('configuration.settings.formula.total_rooms') }}</h3>
             <div class="flex items-center mb-4">
               <label class="flex items-center">
                 <input
@@ -91,39 +91,39 @@
                   type="checkbox"
                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 rounded"
                 />
-                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Include Out of Order rooms in total rooms</span>
+                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.include_out_of_order') }}</span>
               </label>
             </div>
             <div class="p-3 bg-gray-50 dark:bg-black rounded-md">
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Current Formula:</p>
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.current_formula') }}:</p>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ totalRoomsFormula }}</p>
             </div>
           </div>
           
           <!-- Average Daily Rate (ADR) -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Average Daily Rate (ADR)</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $t('configuration.settings.formula.average_daily_rate') }}</h3>
             <div class="p-3 bg-gray-50 dark:bg-black rounded-md">
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Formula:</p>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">ADR = Total Room Revenue / Total Rooms Sold</p>
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.formula') }}:</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ $t('configuration.settings.formula.adr_formula') }}</p>
             </div>
           </div>
           
           <!-- Occupancy % -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Occupancy %</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $t('configuration.settings.formula.occupancy_percent') }}</h3>
             <div class="p-3 bg-gray-50 dark:bg-black rounded-md">
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Formula:</p>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Occupancy % = (Total Room Sold × 100) / Total Rooms</p>
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.formula') }}:</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ $t('configuration.settings.formula.occupancy_formula') }}</p>
             </div>
           </div>
           
           <!-- Revenue Per Available Room (RevPAR) -->
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Revenue Per Available Room (RevPAR)</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $t('configuration.settings.formula.revpar') }}</h3>
             <div class="p-3 bg-gray-50 dark:bg-black rounded-md">
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Formula:</p>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">RevPAR = Total Room Revenue / Total Rooms</p>
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('configuration.settings.formula.formula') }}:</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ $t('configuration.settings.formula.revpar_formula') }}</p>
             </div>
           </div>
         </div>
@@ -165,23 +165,23 @@ const formula = ref({
 
 const totalRoomRevenueFormula = computed(() => {
   const components = []
-  if (formula.value.totalRoomRevenue.nightSoldRevenue) components.push('Night Sold Revenue')
-  if (formula.value.totalRoomRevenue.dayUseRevenue) components.push('Day Use Revenue')
-  if (formula.value.totalRoomRevenue.lateCheckoutRevenue) components.push('Late Checkout Revenue')
-  if (formula.value.totalRoomRevenue.cancellationRevenue) components.push('Cancellation Revenue')
-  if (formula.value.totalRoomRevenue.noShowRevenue) components.push('No Show Revenue')
+  if (formula.value.totalRoomRevenue.nightSoldRevenue) components.push(t('configuration.settings.formula.night_sold_revenue'))
+  if (formula.value.totalRoomRevenue.dayUseRevenue) components.push(t('configuration.settings.formula.day_use_revenue'))
+  if (formula.value.totalRoomRevenue.lateCheckoutRevenue) components.push(t('configuration.settings.formula.late_checkout_revenue'))
+  if (formula.value.totalRoomRevenue.cancellationRevenue) components.push(t('configuration.settings.formula.cancellation_revenue'))
+  if (formula.value.totalRoomRevenue.noShowRevenue) components.push(t('configuration.settings.formula.no_show_revenue'))
   
-  if (components.length === 0) return 'No revenue components selected'
-  if (components.length === 1) return `Total Room Revenue = ${components[0]}`
+  if (components.length === 0) return t('configuration.settings.formula.no_revenue_components')
+  if (components.length === 1) return t('configuration.settings.formula.total_room_revenue_equals', { component: components[0] })
   
-  return `Total Room Revenue = ${components.join(' + ')}`
+  return t('configuration.settings.formula.total_room_revenue_formula', { components: components.join(' + ') })
 })
 
 const totalRoomsFormula = computed(() => {
   if (formula.value.totalRooms.includeOutOfOrder) {
-    return 'Total Rooms = Available Rooms + Out of Order Rooms'
+    return t('configuration.settings.formula.total_rooms_with_out_of_order')
   }
-  return 'Total Rooms = Available Rooms'
+  return t('configuration.settings.formula.total_rooms_available_only')
 })
 
 // Load formula from current service
