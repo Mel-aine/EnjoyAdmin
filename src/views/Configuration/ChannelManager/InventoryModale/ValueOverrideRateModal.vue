@@ -1,5 +1,6 @@
+<!-- ValueOverrideModal.vue -->
 <template>
-  <div v-if="show" class="fixed inset-0 z-99999 flex items-center justify-center">
+  <div v-if="isOpen" class="fixed inset-0 z-99999 flex items-center justify-center">
     <!-- Backdrop -->
     <div class="fixed inset-0 bg-black/50" @click="handleCancel"></div>
 
@@ -7,7 +8,9 @@
     <div class="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4" @click.stop>
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b">
-        <h2 class="text-lg font-semibold text-gray-900">{{ title }}</h2>
+        <h2 class="text-lg font-semibold text-gray-900">
+          {{ title }}
+        </h2>
         <button
           @click="handleCancel"
           class="text-gray-400 hover:text-gray-600 transition-colors"
@@ -26,21 +29,20 @@
 
       <!-- Content -->
       <div class="px-6 py-5 space-y-4">
-        <!-- Room Type -->
+        <!-- -->
         <div class="flex items-center">
-          <span class="w-36 text-sm text-gray-700"> Room Type: </span>
-          <span class="text-sm text-gray-900 font-medium">{{ roomType }}</span>
+          <span class="w-36 text-sm text-gray-700">{{ $t('RoomTypes') }}:</span>
+          <span class="text-sm text-gray-900 font-medium">{{ selectedRange?.row?.roomTypeName }}</span>
         </div>
 
-        <!-- Rate Plan -->
-        <div class="flex items-center">
-          <span class="w-36 text-sm text-gray-700"> Rate Plan: </span>
-          <span class="text-sm text-gray-900">{{ ratePlan }}</span>
+        <div v-if="modalType === 'RATE'" class="flex items-center">
+          <span class="w-36 text-sm text-gray-700">{{ $t('RatePlan') }}:</span>
+          <span class="text-sm text-gray-900 font-medium">{{ selectedRange?.row?.name }}</span>
         </div>
 
         <!-- Date Range -->
         <div class="flex items-start">
-          <label class="w-36 text-sm text-gray-700 pt-2"> Date Range: </label>
+          <label class="w-36 text-sm text-gray-700 pt-2">Date Range:</label>
           <div class="flex-1 flex items-center gap-2">
             <InputDoubleDatePicker
               class="flex-1"
@@ -54,30 +56,40 @@
 
         <!-- Restriction -->
         <div class="flex items-center">
-          <label class="w-40 text-sm text-gray-700"> Restriction: </label>
+          <label class="w-40 text-sm text-gray-700">Restriction:</label>
           <div class="w-[350px]">
-            <Select v-model="restriction" :options="Restrictions" />
+            <Input
+              v-if="modalType === 'AVL'"
+              :modelValue="'Availability'"
+              disabled
+              class="bg-gray-50 text-gray-600"
+            />
+            <Select
+              v-else
+              v-model="restriction"
+              :options="rateRestrictions"
+            />
           </div>
         </div>
 
-        <!-- Current Price -->
-        <div class="flex items-center">
-          <span class="w-36 text-sm text-gray-700"> Current Price: </span>
-          <span class="text-sm text-gray-900 font-medium">{{ currentPrice }}</span>
+        <!-- Current Price (only for RATE type) -->
+        <div v-if="modalType === 'RATE'" class="flex items-center">
+          <span class="w-36 text-sm text-gray-700">Current Price:</span>
+          <span class="text-sm text-gray-900 font-medium">200000</span>
         </div>
 
         <!-- Dynamic Input Field -->
-        <div v-if="restriction" class="flex items-center">
-          <span class="w-40 text-sm text-gray-700"> {{ InputLabel }}: </span>
+        <div v-if="modalType === 'AVL' || restriction" class="flex items-center">
+          <span class="w-40 text-sm text-gray-700">{{ inputLabel }}:</span>
           <Toggle
-            v-if="InputComponent === 'InputToggle'"
+            v-if="inputComponent === 'InputToggle'"
             v-model="value"
             :id="'toggle-input'"
           />
           <Input
-            v-else-if="InputComponent === 'Input'"
+            v-else-if="inputComponent === 'Input'"
             v-model="value"
-            :placeholder="InputLabel"
+            :placeholder="inputLabel"
             type="number"
             min="0"
             class="w-[350px]"
@@ -116,19 +128,24 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Toggle from '@/components/forms/FormElements/Toggle.vue'
 import { useI18n } from 'vue-i18n'
 
-interface Props {
-  show: boolean
-  title?: string
-  roomType?: string
-  ratePlan?: string
-  currentPrice?: string
-  loading?: boolean
+interface RoomRow {
+  id: string
+  name: string
+  roomTypeName:string
+  type?: 'AVL' | 'RATE'
+  label: string
+  values: Record<string, number>
 }
 
-interface Emits {
-  (e: 'update:show', value: boolean): void
-  (e: 'confirm', data: ConfirmData): void
-  (e: 'cancel'): void
+interface SelectedRange {
+  row: RoomRow
+  startDate: string
+  endDate: string
+}
+
+interface RateRestriction {
+  label: string
+  value: string
 }
 
 interface ConfirmData {
@@ -138,37 +155,38 @@ interface ConfirmData {
   value: any
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  title: 'Value Override',
-  roomType: 'Lifestyle Suite',
-  ratePlan: 'Rate Plan for Lifestyle Suite A2',
-  currentPrice: '200000',
-  loading: false,
-})
+interface Props {
+  isOpen: boolean
+  selectedRange: SelectedRange | null
+  modalType: 'AVL' | 'RATE'
+  loading: boolean
+}
 
-const emit = defineEmits<Emits>()
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  close: []
+  confirm: [data: ConfirmData]
+}>()
+
 const { t } = useI18n()
 
 // State
-const dateFrom = ref('2025-11-05')
-const dateTo = ref('2025-11-05')
+const dateFrom = ref('')
+const dateTo = ref('')
 const restriction = ref('')
 const value = ref<any>('')
 
-// Computed date range for the picker
+// Computed
+const title = computed(() => {
+  return 'Value Override'
+})
+
 const dateRange = computed(() => ({
   start: dateFrom.value,
   end: dateTo.value
 }))
 
-// Update dates from picker
-const updateDateRange = (range: { start: string; end: string }) => {
-  dateFrom.value = range.start
-  dateTo.value = range.end
-}
-
-// Restriction options
-const Restrictions = computed(() => [
+const rateRestrictions = computed(() => [
   { label: t('Closed To Departure'), value: 'closed_departure' },
   { label: t('Stop Sell'), value: 'stop' },
   { label: t('Closed To Arrival'), value: 'closed_arrival' },
@@ -178,8 +196,8 @@ const Restrictions = computed(() => [
   { label: t('Max Stay'), value: 'max_stay' },
 ])
 
-// Determine input component type
-const InputComponent = computed(() => {
+const inputComponent = computed(() => {
+  if (props.modalType === 'AVL') return 'Input'
   if (!restriction.value) return null
 
   switch (restriction.value) {
@@ -197,8 +215,9 @@ const InputComponent = computed(() => {
   }
 })
 
-// Input label
-const InputLabel = computed(() => {
+const inputLabel = computed(() => {
+  if (props.modalType === 'AVL') return t('Value')
+
   const type = restriction.value
   if (!type) return ''
 
@@ -217,12 +236,34 @@ const InputLabel = computed(() => {
   }
 })
 
-// Form validation
 const isFormValid = computed(() => {
-  return dateFrom.value && dateTo.value && restriction.value && value.value !== ''
+  if (props.modalType === 'AVL') {
+    return dateFrom.value && dateTo.value && value.value !== ''
+  }
+
+  const isToggleType = ['closed_arrival', 'closed_departure', 'stop'].includes(restriction.value)
+  return dateFrom.value && dateTo.value && restriction.value && (isToggleType || value.value !== '')
 })
 
-// Reset value when restriction changes
+// Watchers
+watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
+    // Initialize dates from selectedRange
+    dateFrom.value = props.selectedRange?.startDate || ''
+    dateTo.value = props.selectedRange?.endDate || ''
+    console.log('selectedRange',props.selectedRange)
+
+    // Initialize restriction and value
+    if (props.modalType === 'AVL') {
+      restriction.value = 'availability'
+      value.value = ''
+    } else {
+      restriction.value = ''
+      value.value = ''
+    }
+  }
+})
+
 watch(restriction, (newVal) => {
   if (newVal === 'closed_arrival' || newVal === 'closed_departure' || newVal === 'stop') {
     value.value = false
@@ -231,7 +272,27 @@ watch(restriction, (newVal) => {
   }
 })
 
-// Handlers
+watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCancel()
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }
+})
+
+// Methods
+const updateDateRange = (range: { start: string; end: string }) => {
+  dateFrom.value = range.start
+  dateTo.value = range.end
+}
+
 const handleConfirm = () => {
   if (!isFormValid.value) return
 
@@ -244,32 +305,11 @@ const handleConfirm = () => {
 }
 
 const handleCancel = () => {
-  emit('cancel')
-  emit('update:show', false)
+  emit('close')
 }
-
-// Escape key handling
-watch(
-  () => props.show,
-  (newVal) => {
-    if (newVal) {
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          handleCancel()
-        }
-      }
-      document.addEventListener('keydown', handleEscape)
-
-      return () => {
-        document.removeEventListener('keydown', handleEscape)
-      }
-    }
-  },
-)
 </script>
 
 <style scoped>
-/* Smooth transitions */
 .fixed {
   animation: fadeIn 0.2s ease-out;
 }
@@ -283,3 +323,4 @@ watch(
   }
 }
 </style>
+

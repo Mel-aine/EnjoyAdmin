@@ -38,7 +38,7 @@
         />
       <ul
         v-if="isDropdownOpen && displayOptions.length && !isLoading"
-        class="custom-scrollbar absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700"
+        class="custom-scrollbar absolute top-full left-0 right-0 z-40 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700"
         role="listbox"
         :aria-expanded="isDropdownOpen"
         aria-hidden="false"

@@ -1,6 +1,6 @@
 <template>
-  <!-- <IframeView page="/inventory" /> -->
-   <InventoryView></InventoryView>
+  <IframeView page="/inventory" />
+   <!-- <InventoryView></InventoryView> -->
 </template>
 
 <script setup lang="ts">

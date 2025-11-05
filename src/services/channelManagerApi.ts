@@ -391,7 +391,7 @@ export const getRatesInventory = (params: {
   if (params.roomTypeId) queryParams.append('roomTypeId', params.roomTypeId.toString())
   if (params.startDate) queryParams.append('startDate', params.startDate)
   if (params.endDate) queryParams.append('endDate', params.endDate)
-  
+
   return axios.get(`${API_URL}/channel-manager/rates-inventory?${queryParams.toString()}`, getHeaders())
 }
 
@@ -512,7 +512,7 @@ export const getSyncLogs = (params: {
   if (params.logLevel) queryParams.append('logLevel', params.logLevel)
   if (params.operation) queryParams.append('operation', params.operation)
   if (params.search) queryParams.append('search', params.search)
-  
+
   return axios.get(`${API_URL}/channel-manager/logs?${queryParams.toString()}`, getHeaders())
 }
 
@@ -544,7 +544,7 @@ export const exportLogs = (params: {
   if (params.logLevel) queryParams.append('logLevel', params.logLevel)
   if (params.operation) queryParams.append('operation', params.operation)
   if (params.format) queryParams.append('format', params.format)
-  
+
   return axios.get(`${API_URL}/channel-manager/logs/export?${queryParams.toString()}`, {
     ...getHeaders(),
     responseType: 'blob'
@@ -643,7 +643,7 @@ export const getChannexBookingRevisions = (params?: {
   const queryParams = new URLSearchParams()
   if (params?.page) queryParams.append('page', params.page.toString())
   if (params?.limit) queryParams.append('limit', params.limit.toString())
-  
+
   const url = `${CHANNEX_API_URL}/booking-revisions/feed${queryParams.toString() ? '?' + queryParams.toString() : ''}`
   return axios.get(url,)
 }
@@ -661,4 +661,51 @@ export const getIframUrl = (page:string): Promise<AxiosResponse<ApiResponse<{
   }, getHeaders())
 }
 
-      
+interface RoomTypeAttributes {
+  title: string
+}
+
+interface RoomType {
+  id: string
+  attributes: RoomTypeAttributes
+}
+
+interface RoomTypesData {
+  data: RoomType[]
+}
+/**
+ * get roomtype channel
+ */
+export const getRoomTypes = (propertyId:any):Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.get(`${CHANNEX_API_URL}/properties/${propertyId}/room-types`, getHeaders())
+}
+
+/**
+ * get rateplan channel
+ */
+export const getRatesPlans = (propertyId:any):Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.get(`${CHANNEX_API_URL}/properties/${propertyId}/rate-plans`, getHeaders())
+}
+
+
+interface GetRestrictionsParams {
+  rate_plan_ids?: string[];
+  date_from: string;
+  date_to: string;
+  restrictions: string;
+}
+
+export const getRestrictions = (
+  propertyId: string | number,
+  params: GetRestrictionsParams
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.post<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${propertyId}/restrictions`,
+    params,
+    getHeaders()
+  )
+}
+
+export const getRoomTypesAndRatePlans = (propertyId:any):Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.get(`${CHANNEX_API_URL}/properties/${propertyId}/room-types-with-rate-plans`, getHeaders())
+}

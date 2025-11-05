@@ -33,7 +33,7 @@
             <!-- Filters -->
             <div class="flex gap-3 items-center">
               <div class="w-full">
-                <SelectChannel />
+                <SelectChannel @change="handleRestrictionFilterChange" />
               </div>
 
               <div class="w-full">
@@ -81,12 +81,11 @@
                 :icon="PenLine"
                 @click="showBulkUpdateModal = true"
               />
-
-
             </div>
           </div>
 
           <!-- Calendar Grid -->
+           <ChannelInventoryCalendar ref="calendarRef"></ChannelInventoryCalendar>
         </div>
       </div>
     </div>
@@ -100,53 +99,35 @@
       @save="handleBulkUpdateSave"
     />
 
-    <!--Override Modal-->
-    <OverrideModal
-      :show="showModal"
-      @update:show="showModal = $event"
-      @confirm="handleConfirm"
-      @cancel="showModal = false"
-      title="Value Override"
-      room-type="SUita"
-    />
-
-    <ValueOverrideRateModal
-    :show="showModals"
-    room-type="Lifestyle Suite"
-    rate-plan="Rate Plan for Lifestyle Suite A2"
-    current-price="200000"
-    :loading="isProcessing"
-    @update:show="showModals = $event"
-    @confirm="handleConfirm"
-    @cancel="handleCancel"
-  />
   </ChannelManagerLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, onUnmounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ChannelManagerLayout from '../../../components/layout/ChannelManagerLayout.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import SelectChannel from '@/components/forms/FormElements/SelectChannel.vue'
-import { CloudUpload, RotateCw, PenLine, Settings, Copy } from 'lucide-vue-next'
+import { CloudUpload, RotateCw, PenLine } from 'lucide-vue-next'
 import BulkUpdateModal from './InventoryModale/BulkUpdateModal.vue'
-import OverrideModal from './InventoryModale/OverrideModal.vue'
-import ValueOverrideRateModal from './InventoryModale/ValueOverrideRateModal.vue'
+import { getRoomTypesAndRatePlans } from '@/services/channelManagerApi'
+import { useServiceStore } from '@/composables/serviceStore'
+import ChannelInventoryCalendar from './ChannelInventoryCalendar.vue'
 
 // Types
 interface RoomType {
   id: string
   name: string
+  occupancy: number
+  count_of_rooms: number
 }
 
 interface RateType {
   id: string
   name: string
-  code: string
-  roomId: string // Lien avec le room
+  roomId: string
 }
 
 // Composables
@@ -162,65 +143,92 @@ const roomTypes = ref<RoomType[]>([])
 const rateTypes = ref<RateType[]>([])
 const showBulkUpdateModal = ref(false)
 const hasChanges = ref(false)
-const showModal = ref(false)
-const showModals = ref(false)
-
-
+const currentService = useServiceStore().getCurrentService
+const calendarRef = ref<any>(null)
 
 // Computed
-const roomTypesOptions = computed(() => {
-  return [
-    { label: t('allRooms'), value: 'all' },
-    ...roomTypes.value.map((rt) => ({ label: rt.name, value: rt.id })),
-  ]
-})
+const roomTypesOptions = computed(() => [
+  { label: t('allRooms'), value: 'all' },
+  ...roomTypes.value.map((r) => ({ label: r.name, value: r.id }))
+])
 
 const rateTypesOptions = computed(() => {
+  const filteredRates = selectedRoom.value === 'all'
+    ? rateTypes.value
+    : rateTypes.value.filter(rt => rt.roomId === selectedRoom.value)
+
   return [
     { label: t('allRates'), value: 'all' },
-    ...rateTypes.value.map((rt) => ({ label: rt.name, value: rt.id })),
+    ...filteredRates.map(rt => ({ label: rt.name, value: rt.id }))
   ]
 })
 
-// Methods
+// Handlers
 const handleRoomTypeChange = (value: string) => {
   selectedRoom.value = value
+  if (selectedRate.value !== 'all' && !rateTypes.value.some(rt => rt.id === selectedRate.value && rt.roomId === value)) {
+    selectedRate.value = 'all'
+  }
 }
 
 const handleRateTypeChange = (value: string) => {
   selectedRate.value = value
 }
 
+// Fetch data - MODIFIÉ POUR UTILISER UNE SEULE API
 const fetchData = async () => {
   isLoading.value = true
   error.value = null
-
   try {
-    // TODO: Remplacer par vos appels API réels
-    // const roomTypesResponse = await api.get('/room-types')
-    // const rateTypesResponse = await api.get('/rate-types')
+    const propertyId = currentService.channexPropertyId
+    const response = await getRoomTypesAndRatePlans(propertyId)
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    console.log('API Response:', response)
 
-    // Données simulées - à remplacer par votre API
-    roomTypes.value = [
-      { id: 'standard', name: 'Standard Room' },
-      { id: 'deluxe', name: 'Deluxe Room' },
-      { id: 'suite', name: 'Suite' },
-    ]
+    if (response.data?.data?.roomTypes) {
+      const apiRoomTypes = response.data.data.roomTypes
 
-    rateTypes.value = [
-      { id: 'a2-standard', name: 'Rate A2', code: 'A2', roomId: 'standard' },
-      { id: 'a3-standard', name: 'Rate A3', code: 'A3', roomId: 'standard' },
-      { id: 'a4-standard', name: 'Rate A4', code: 'A4', roomId: 'standard' },
-      { id: 'a2-deluxe', name: 'Rate A2', code: 'A2', roomId: 'deluxe' },
-      { id: 'a3-deluxe', name: 'Rate A3', code: 'A3', roomId: 'deluxe' },
-      { id: 'a2-suite', name: 'Rate A2', code: 'A2', roomId: 'suite' },
-      { id: 'a4-suite', name: 'Rate A4', code: 'A4', roomId: 'suite' },
-    ]
+      // Transformer les données de l'API
+      const transformedRoomTypes: RoomType[] = []
+      const transformedRateTypes: RateType[] = []
+
+      apiRoomTypes.forEach((item: any) => {
+        const roomType = item.roomType
+
+        // Ajouter le room type
+        transformedRoomTypes.push({
+          id: roomType.id,
+          name: roomType.title,
+          occupancy: roomType.default_occupancy || roomType.occ_adults,
+          count_of_rooms: roomType.count_of_rooms
+        })
+
+        // Ajouter les rate plans associés
+        if (item.ratePlans && item.ratePlans.length > 0) {
+          item.ratePlans.forEach((ratePlan: any) => {
+            transformedRateTypes.push({
+              id: ratePlan.id,
+              name: ratePlan.title,
+              roomId: roomType.id
+            })
+          })
+        }
+      })
+
+      roomTypes.value = transformedRoomTypes
+      rateTypes.value = transformedRateTypes
+
+      console.log('Transformed Room Types:', roomTypes.value)
+      console.log('Transformed Rate Types:', rateTypes.value)
+
+    } else {
+      throw new Error('Invalid response format')
+    }
+
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'An error occurred'
     toast.error(error.value)
+    console.error('Fetch error:', err)
   } finally {
     isLoading.value = false
   }
@@ -244,13 +252,25 @@ const resetChanges = () => {
   toast.info(t('changesReset'))
 }
 
-
-
 const handleBulkUpdateSave = (data: any) => {
   console.log('Bulk update data:', data)
   toast.success('Bulk update applied successfully')
   hasChanges.value = true
 }
+
+const handleRestrictionFilterChange = (restrictions: string[]) => {
+  if (calendarRef.value) {
+    calendarRef.value.handleRestrictionChange(restrictions)
+  }
+}
+
+// Watch pour passer les données au calendrier
+watch([roomTypes, rateTypes], () => {
+  if (calendarRef.value && roomTypes.value.length > 0 && rateTypes.value.length > 0) {
+    calendarRef.value.setRoomAndRateTypes(roomTypes.value, rateTypes.value)
+    console.log('Data sent to calendar:', { roomTypes: roomTypes.value, rateTypes: rateTypes.value })
+  }
+}, { deep: true })
 
 // Lifecycle
 onMounted(() => {

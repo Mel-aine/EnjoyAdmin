@@ -30,6 +30,7 @@
       <!-- Content -->
       <div class="flex-1 overflow-y-auto px-6 py-6">
         <!-- Affected Dates -->
+
         <div class="mb-6">
           <div
             v-for="(range, index) in dateRanges"
@@ -40,11 +41,11 @@
             <div class="flex items-center gap-3 mb-3">
               <h3
                 v-if="index === 0"
-                class="text-sm font-semibold text-gray-900 whitespace-nowrap"
+                class="w-[180px] text-sm font-semibold text-gray-900 whitespace-nowrap"
               >
                 {{ $t('Affected Dates') }}:
               </h3>
-              <div v-else class="w-[110px]"></div>
+              <div v-else class="w-[180px]"></div>
 
               <InputDoubleDatePicker
                 class="flex-1"
@@ -73,7 +74,7 @@
             </div>
 
             <!-- Cases à cocher - UN PAR RANGE -->
-            <div class="flex flex-wrap gap-4 ml-[110px]">
+            <div class="flex flex-wrap gap-2 ml-[190px]">
               <InputCheckBox label="Mo" v-model="range.days.mo" />
               <InputCheckBox label="Tu" v-model="range.days.tu" />
               <InputCheckBox label="We" v-model="range.days.we" />
@@ -92,6 +93,7 @@
           </button>
         </div>
 
+
         <!-- Affected Restrictions -->
         <div class="mb-6">
           <div class="grid grid-cols-[180px_1fr_1fr] items-center gap-3">
@@ -100,10 +102,9 @@
             <InputCheckBox
               label="Rate"
               id="rate"
-              :input-type="'number'"
               v-model="restrictions.rate"
             />
-            <Input v-model="rateValue" placeholder="Rate" :disabled="!restrictions.rate" />
+            <Input v-model="rateValue" placeholder="Rate"  :input-type="'number'" min="0" :disabled="!restrictions.rate" />
 
             <div></div>
             <InputCheckBox
