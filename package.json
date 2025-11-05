@@ -17,7 +17,10 @@
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron electron/main.js\"",
     "electron:build": "cross-env ELECTRON=true npm run build && electron-builder",
     "electron:pack": "cross-env ELECTRON=true npm run build && electron-builder --dir",
-    "electron:dist": "cross-env ELECTRON=true npm run build && electron-builder --publish=never"
+    "electron:dist": "cross-env ELECTRON=true npm run build && electron-builder --publish=never",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@cloudinary/url-gen": "^1.21.0",
@@ -74,8 +77,10 @@
     "@types/papaparse": "^5.3.16",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
+    "@vitest/coverage-v8": "^4.0.5",
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.3.0",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
     "concurrently": "^9.2.0",
     "cross-env": "^10.0.0",
@@ -83,6 +88,7 @@
     "electron-builder": "^26.0.12",
     "eslint": "^9.18.0",
     "eslint-plugin-vue": "^9.32.0",
+    "happy-dom": "^20.0.10",
     "jiti": "^2.4.2",
     "npm-run-all2": "^7.0.2",
     "postcss": "^8.5.1",
@@ -93,6 +99,7 @@
     "typescript": "~5.7.3",
     "vite": "^6.0.11",
     "vite-plugin-vue-devtools": "^7.7.0",
+    "vitest": "^4.0.5",
     "vue-tsc": "^2.2.0",
     "wait-on": "^8.0.4"
   },

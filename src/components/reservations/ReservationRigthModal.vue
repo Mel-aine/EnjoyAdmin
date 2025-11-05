@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isOpen" class="fixed inset-0 z-[99999] h-full overflow-hidden">
+    <div v-if="isOpen" class="fixed inset-0 z-[95] h-full overflow-hidden">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/25 bg-opacity-50 transition-opacity h-full"></div>
 
@@ -189,7 +189,7 @@
                                 <!-- Default content -->
                                 <div class="space-y-6 ">
                                     <!-- Buttons -->
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 dark:text-gray-100">
                                         <button class="rounded-lg bg-primary text-sm text-white px-4"
                                             @click="gotoResevationDetails">
                                             {{ $t('editreservation') }}</button>

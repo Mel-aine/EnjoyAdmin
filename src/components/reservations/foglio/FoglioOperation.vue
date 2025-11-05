@@ -43,7 +43,7 @@
             <span>{{ formatCurrency(reservation.balanceSummary.totalPayments) }}</span>
           </div>
           <div class="flex justify-between text-red-600">
-            <span>{{ $t('Balence') }}</span>
+            <span>{{ $t('Balance') }}</span>
             <span>{{ formatCurrency(reservation.balanceSummary.outstandingBalance) }}</span>
           </div>
         </div>
@@ -52,7 +52,7 @@
     <div class="w-10/12">
       <div
         class="bg-white dark:bg-gray-800 dark:text-gray-100 border-t-1 dark:border-gray-700 shadow-sm flex flex-col h-full">
-        <div class="flex-grow overflow-y-auto custom-scrollbar">
+        <div class="flex-grow">
           <!-- Header with action buttons -->
           <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
             <BasicButton :label="$t('AddPayment')" @click="openAddPaymentModal"
@@ -104,7 +104,8 @@
             </div>
           </div>
           <ReusableTable :columns="columns" :data="foglioData" :loading="loading" :show-header="false"
-            :actions="actionTransactions" :selectable="false" :searchable="false" :title="$t('folio')">
+            :actions="actionTransactions" :selectable="false" :searchable="false" :title="$t('folio')"
+            max-height="calc(100vh - 420px)" :scrollableBody="true">
             <!-- Custom column templates -->
             <template #column-day="{ item }">
               <div class="text-sm text-gray-900 dark:text-gray-100">
@@ -209,6 +210,11 @@
             :destination-folio="selectedDestinationFolio" @close="closeTransfertPostingModal"
             @success="onTransferSuccess" />
         </template>
+
+        <template v-if="isPickupAndDropoffModal">
+          <PickupAndDropModal :isOpen="isPickupAndDropoffModal"  @close="isPickupAndDropoffModal = false"/>
+
+        </template>
       </div>
     </div>
   </div>
@@ -240,6 +246,7 @@ import { generateInvoicePdfUrl, generatePosReceiptPdfUrl, generateReceiptPdfUrl 
 import ApplyDiscountModal from './ApplyDiscountModal.vue'
 import TransfertFolioModal from './TransfertFolioModal.vue'
 import TransfertPostingModal from './TransfertPostingModal.vue'
+import PickupAndDropModal from '@/components/customers/PickupAndDropModal.vue'
 
 const authStore = useAuthStore()
 
@@ -271,6 +278,7 @@ const isSplitFolioModal = ref(false);
 const isCutFolioModal = ref(false);
 const isSendFolioModal = ref(false);
 const isApplyDiscountModal = ref(false);
+const isPickupAndDropoffModal = ref(false)
 const selectedTransaction = ref<any>(null)
 // Transfer flow state
 const isTransfertFolioModalOpen = ref(false)
@@ -503,6 +511,8 @@ const EditTransaction = (item: any) => {
     isAddChargeModalOpen.value = true
   } else if (item.transactionType === 'payment') {
     isAddPaymentModalOpen.value = true
+  }else if (item.category === 'service_charge') {
+    isPickupAndDropoffModal.value = true
   }
 }
 

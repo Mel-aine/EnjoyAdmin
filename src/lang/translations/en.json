@@ -997,7 +997,6 @@
     "status": {
       "pending": "Pending",
       "inProgress": "In Progress",
-      "in-progress": "In Progress",
       "completed": "Completed",
       "cancelled": "Cancelled"
     }
@@ -1649,12 +1648,7 @@
     "dateTo": "Date To",
     "all": "All",
     "search": "Search",
-    "searchInclusions": "Search inclusions...",
     "export": "Export",
-    "csv": "CSV",
-    "pdf": "PDF",
-    "excel": "Excel",
-    "word": "Word",
     "generateReport": "Generate Report",
     "date": "Date",
     "status": "Status",
@@ -1818,7 +1812,6 @@
     "expectedCheckOut": "Expected Check-out",
     "dateRange": "Date Range",
     "messageType": "Message Type",
-    "searchMessages": "Search messages...",
     "searchPayments": "Search payments...",
     "message": "Message",
     "paymentId": "Payment ID",
@@ -1966,9 +1959,6 @@
     "housekeeping": "Housekeeping",
     "frontDesk": "Front Desk",
     "concierge": "Concierge",
-    "urgent": "Urgent",
-    "front-desk": "Front Desk",
-    "in-progress": "In Progress",
     "pending": "Pending",
     "approved": "Approved",
     "rejected": "Rejected",
@@ -2057,8 +2047,6 @@
     "executive": "Executive",
     "sendEmail": "Send Email",
     "from": "From",
-    "show": "Show",
-    "generatedAt": "Generated",
     "reportTemplate": "Report Template",
     "selectReportTemplate": "-- Select Report Template --",
     "reportTemplates": {
@@ -4469,7 +4457,6 @@
     "frontOffice": {
       "title": "Front Office Reports",
       "description": "Monitor front office operations and guest services",
-      "guestListDescription": "View and manage all guests within the selected period",
       "guestCheckedIn": "Guest Checked In",
       "guestCheckedInDescription": "View guests who have checked in",
       "checkedInGuestsResults": "Checked-In Guests Results",
@@ -4483,13 +4470,9 @@
       "totalCheckedOut": "Total Checked Out",
       "guestList": "Guest List",
       "guestMessage": "Guest Message",
-      "guestMessageDescription": "View and manage guest messages",
       "inclusionReport": "Inclusion Report",
-      "inclusionReportDescription": "View and analyze included services used by guests",
       "inventoryByRoomType": "Inventory By Room Type",
-      "inventoryByRoomTypeDescription": "View room inventory grouped by room type and status",
       "invoiceBreakdown": "Invoice Breakdown",
-      "invoiceBreakdownDescription": "Detailed breakdown of invoice components and totals",
       "nightAudit": "Night Audit",
       "nightAuditDescription": "Perform and view night audit operations",
       "runAudit": "Run Audit",
@@ -4524,20 +4507,7 @@
       "taskListReport": "Task List Report",
       "taskListReportDescription": "View and manage task assignments",
       "roomServiceReport": "Room Service Report",
-      "roomServiceReportDescription": "Track room service orders and performance",
-      "pickupDropoffDetails": {
-        "title": "Pickup / Dropoff Guest Report",
-        "description": "View and manage guest pickup and dropoff services",
-        "pickDropFrom": "Pick/Drop From",
-        "pickup": "Pickup",
-        "dropoff": "Dropoff",
-        "noPickupData": "No pickup data found for selected criteria",
-        "noDropoffData": "No dropoff data found for selected criteria",
-        "totalGuests": "Total Guest",
-        "by": "By",
-        "pickDropDateRange": "Pick Drop Date From {from} To {to}",
-        "fallbackHeader": "Pick Drop Date Time    Guest Name    Room No.    Mode    Vehicle    Description"
-      }
+      "roomServiceReportDescription": "Track room service orders and performance"
     },
     "backOffice": {
       "title": "Back Office Reports",
@@ -6140,7 +6110,6 @@
     }
   }
   },
-  
   "segment": "Segment",
   "mark_as_no_show": "Mark as No-Show",
   "void_booking": "Void Booking",
@@ -7277,5 +7246,16 @@
     "refund": "Refund",
     "adjustment": "Adjustment",
     "void": "Void"
-  }
+  },
+    "transactionType" : "Transaction Type",
+  "totalPayments" : "Total Payments",
+  "room_filter" : "Rooms Filter",
+  "rate_filter" : "Rates Filter",
+  "availabilityRules" : "Availability Rules",
+  "bulkUpdate" : "Bulk Update",
+  "resetChanges" : "Reset Changes",
+  "Affected Dates" : "Affected Dates",
+  "Add Date Range" : "Add Date Range",
+  "Affected Restrictions" : "Affected Restrictions",
+  "Affected Rooms" : "Affected Rooms"
 }

@@ -256,7 +256,7 @@ const fetchPendingReservations = async () => {
     loading.value = true
     const response = await getNightAuditPendingReservations(Number(serviceStore.serviceId), currentDate.value)
     pendingReservationsData.value = response.data?.data.pending_reservations || []
-    console.log('pending reservation Document', pendingReservationsData)
+    console.log('pending reservation Document', response)
   } catch (error) {
     console.error('Error fetching pending reservations:', error)
     toast.error(t('frontOffice.nightAudit.errors.failedLoadPendingReservations'))

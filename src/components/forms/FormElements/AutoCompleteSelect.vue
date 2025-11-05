@@ -31,8 +31,11 @@
       />
       <input type="hidden" :required="isRequired" :value="selectedOption?.value || ''" />
 
-      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs cursor-pointer">▼</span>
-
+      <span v-if="!search" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs cursor-pointer">▼</span>
+       <Search
+          v-else
+          class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 pointer-events-none"
+        />
       <ul
         v-if="isDropdownOpen && displayOptions.length && !isLoading"
         class="custom-scrollbar absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700"
@@ -86,6 +89,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import DotSpinner from '@/components/spinner/DotSpinner.vue';
+import { Search } from 'lucide-vue-next';
 
 interface Option {
   label: string

@@ -6,7 +6,7 @@
 
       <!-- Unsettled Folios Table -->
       <ReusableTable :title="$t('unsettledFolios.tableTitle')" :columns="columns" :data="filteredFolios" :actions="actions"
-        :loading="loading" :searchable="false" :selectable="true"
+        :loading="loading" :searchable="false" :selectable="true" :meta="paginationMeta" @page-change="handlePageChange"
         :empty-state-title="$t('unsettledFolios.noFoliosFound')"
         :empty-state-message="$t('unsettledFolios.noFoliosMessage')" @selection-change="onSelectionChange"
         @action="onAction">
@@ -117,6 +117,7 @@ const showPdfExporter = ref(false)
 const printLoading = ref(false)
 const pdfurl = ref<string>('')
 const selectedFolio = ref<UnsettledFolio | null>(null)
+const paginationMeta = ref<any>(null)
 
 // Breadcrumb
 const breadcrumb = [
@@ -210,6 +211,7 @@ const formatBalance = (balance: string | number) => {
 // Methods
 const handleFilter = (filters: FolioFilterItem) => {
   currentFilters.value = { ...filters }
+  fetchUnsettledFolios(1)
 }
 
 const onSelectionChange = (selected: UnsettledFolio[]) => {
@@ -275,19 +277,24 @@ const handlePdfGenerated = (_blob: Blob) => {
 const handlePdfError = (err: any) => {
   console.error('PDF generation error:', err)
 }
-const fetchUnsettledFolios = async () => {
+const fetchUnsettledFolios = async (pageNumber=1) => {
   const serviceId = serviceStore.serviceId
   loading.value = true
   try {
-    const data = await getUnsetteledFolio(serviceId!)
-    console.log('unsettled folios:', data.data.data)
+    const data = await getUnsetteledFolio(serviceId!,{page : pageNumber , limit : 20})
+    console.log('unsettled folios:', data)
     folios.value = data.data.data;
+    paginationMeta.value = data.data.meta
     console.log('Fetched unsettled folios:', folios.value)
   } catch (error) {
     console.error('Error fetching unsettled folios:', error)
   } finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (newPage: number) =>{
+  fetchUnsettledFolios(newPage)
 }
 
 
@@ -323,7 +330,7 @@ const getDaysClass = (days: number) => {
 onMounted(() => {
   // Load initial data
   loading.value = false
-  fetchUnsettledFolios()
+  fetchUnsettledFolios(1)
 })
 </script>
 

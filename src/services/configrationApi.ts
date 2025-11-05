@@ -114,8 +114,8 @@ export const deleteUnitById = (id: number | string): Promise<AxiosResponse<any>>
  * @returns {Promise<AxiosResponse<any>>}
  */
 
-export const getAmenities = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/amenities`, getHeaders())
+export const getAmenities = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/amenities`, {...getHeaders(),params})
 }
 /**
  * Post a new amenity
@@ -159,8 +159,8 @@ export const deleteAmenity = (id: number): Promise<AxiosResponse<any>> => {
  * Get all room types
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getRoomTypes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/room_types`, getHeaders())
+export const getRoomTypes = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/room_types`, {...getHeaders(),params})
 }
 
 /**
@@ -214,8 +214,8 @@ export const deleteRoomType = (id: number): Promise<AxiosResponse<any>> => {
  * Get all rooms
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getRooms = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/rooms`, getHeaders())
+export const getRooms = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/rooms`, {...getHeaders(),params})
 }
 
 /**
@@ -412,8 +412,8 @@ export const deleteRoomOwnerById = (id: number): Promise<AxiosResponse<any>> => 
  * Get all bed types
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getBedTypes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/bed_types`, getHeaders())
+export const getBedTypes = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/bed_types`, {...getHeaders(),params})
 }
 /**
  * Post a new bed type
@@ -455,8 +455,8 @@ export const deleteBedTypeById = (id: number): Promise<AxiosResponse<any>> => {
  * Get all rate types
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getRateTypes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/rate_types`, getHeaders())
+export const getRateTypes = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/rate_types`, {...getHeaders(),params})
 }
 /**
  * Post a new rate type
@@ -519,8 +519,8 @@ export const deleteRateTypeById = (id: number): Promise<AxiosResponse<any>> => {
  * Get all seasons
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getSeasons = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/seasons`, getHeaders())
+export const getSeasons = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/seasons`, {...getHeaders(),params})
 }
 /**
  * Post a new season

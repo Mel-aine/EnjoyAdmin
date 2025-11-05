@@ -1,12 +1,12 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-     
+
 
       <!-- Seasons Table using ReusableTable -->
       <ReusableTable :title="t('seasonsList')" :columns="columns" :data="seasons" :actions="actions"
         :search-placeholder="t('searchSeasons')" :selectable="false" :empty-state-title="t('noSeasonsFound')"
-        :empty-state-message="t('addSeasonMessage')" @action="onAction" @selection-change="onSelectionChange" :loading="loading">
+        :empty-state-message="t('addSeasonMessage')" @action="onAction" @selection-change="onSelectionChange" :loading="loading" @page-change="handlePageChange" :meta="paginationMeta">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addSeason')" :icon="Plus">
           </BasicButton>
@@ -54,9 +54,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Short Code -->
               <div>
-                <Input 
-                  v-model="formData.shortCode" 
-                  :placeholder="t('shortCodePlaceholder')" 
+                <Input
+                  v-model="formData.shortCode"
+                  :placeholder="t('shortCodePlaceholder')"
                   :lb="t('shortCode')"
                   :is-required="true"
                 />
@@ -64,9 +64,9 @@
 
               <!-- Season Name -->
               <div>
-                <Input 
-                  v-model="formData.seasonName" 
-                  :placeholder="t('seasonNamePlaceholder')" 
+                <Input
+                  v-model="formData.seasonName"
+                  :placeholder="t('seasonNamePlaceholder')"
                   :lb="t('seasonName')"
                   :is-required="true"
                 />
@@ -75,19 +75,19 @@
             <!-- From Day/Date and From Month -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Select 
-                  v-model="formData.fromDay" 
-                  :options="dayOptions" 
-                  :placeholder="t('selectDay')" 
+                <Select
+                  v-model="formData.fromDay"
+                  :options="dayOptions"
+                  :placeholder="t('selectDay')"
                   :lb="t('fromDay')"
                   :is-required="true"
                 />
               </div>
               <div>
-                <Select 
-                  v-model="formData.fromMonth" 
-                  :options="monthOptions" 
-                  :placeholder="t('selectMonth')" 
+                <Select
+                  v-model="formData.fromMonth"
+                  :options="monthOptions"
+                  :placeholder="t('selectMonth')"
                   :lb="t('fromMonth')"
                   :is-required="true"
                 />
@@ -97,19 +97,19 @@
             <!-- To Day/Date and To Month -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Select 
-                  v-model="formData.toDay" 
-                  :options="dayOptions" 
-                  :placeholder="t('selectDay')" 
+                <Select
+                  v-model="formData.toDay"
+                  :options="dayOptions"
+                  :placeholder="t('selectDay')"
                   :lb="t('toDay')"
                   :is-required="true"
                 />
               </div>
               <div>
-                <Select 
-                  v-model="formData.toMonth" 
-                  :options="monthOptions" 
-                  :placeholder="t('selectMonth')" 
+                <Select
+                  v-model="formData.toMonth"
+                  :options="monthOptions"
+                  :placeholder="t('selectMonth')"
                   :lb="t('toMonth')"
                   :is-required="true"
                 />
@@ -119,17 +119,17 @@
             <!-- Start Date and Expire Date -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <InputDatePicker 
-                  v-model="formData.startDate" 
-                  :placeholder="t('startDatePlaceholder')" 
+                <InputDatePicker
+                  v-model="formData.startDate"
+                  :placeholder="t('startDatePlaceholder')"
                   :title="t('startDate')"
                   :is-required="true"
                 />
               </div>
               <div>
-                <InputDatePicker 
-                  v-model="formData.expireDate" 
-                  :placeholder="t('expireDatePlaceholder')" 
+                <InputDatePicker
+                  v-model="formData.expireDate"
+                  :placeholder="t('expireDatePlaceholder')"
                   :title="t('expireDate')"
                   :is-required="true"
                 />
@@ -138,25 +138,25 @@
 
             <!-- Status -->
             <div>
-              <Select 
-                v-model="formData.status" 
-                :options="statusOptions" 
-                :placeholder="t('selectStatus')" 
+              <Select
+                v-model="formData.status"
+                :options="statusOptions"
+                :placeholder="t('selectStatus')"
                 :lb="t('status')"
               />
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="isLoading"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isLoading ? t('saving') + '...' : showAddModal ? t('addSeason') : t('updateSeason')"
                 :loading="isLoading"
               />
@@ -221,6 +221,7 @@ const isDeletingLoading = ref(false)
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
+const paginationMeta = ref({})
 // Form data
 const formData = ref({
   shortCode: '',
@@ -245,7 +246,7 @@ const columns = computed(() => [
     key: 'seasonName',
     label: t('seasonName'),
     sortable: true,
-    
+
   },
   {
     key: 'periodInfo',
@@ -320,7 +321,7 @@ const deleteSeason = (season) => {
 
 const confirmDeleteSeason = async () => {
   if (!seasonToDelete.value) return
-  
+
   isDeletingLoading.value = true
   try {
     const index = seasons.value.findIndex(s => s.id === seasonToDelete.value.id)
@@ -372,7 +373,7 @@ const deleteSelected = () => {
 
 const confirmDeleteSelected = async () => {
   if (selectedSeasons.value.length === 0) return
-  
+
   isDeletingLoading.value = true
   try {
     const deletedCount = selectedSeasons.value.length
@@ -410,12 +411,12 @@ const saveSeason = async () => {
       }
       await postSeason(newSeason)
       toast.success(t('seasonAddedSuccessfully'))
-      await loadData()
+      await loadData(1)
     } else {
       // Update existing season
       await updateSeasonById(editingSeason.value.id, formData.value)
       toast.success(t('seasonUpdatedSuccessfully'))
-      await loadData()
+      await loadData(1)
     }
     closeModal()
   } catch (error) {
@@ -448,12 +449,13 @@ const closeModal = () => {
 }
 
 // Load data from API
-const loadData = async () => {
+const loadData = async (pageNumber=1) => {
   loading.value = true
   try {
-    const response = await getSeasons()
+    const response = await getSeasons({page:pageNumber,limit:10})
     console.log('response data',response)
     seasons.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
   } catch (error) {
     console.error('Error loading seasons:', error)
     toast.error(t('errorLoadingSeasons'))
@@ -463,6 +465,10 @@ const loadData = async () => {
   }
 }
 
+const handlePageChange =(newPage) =>{
+  loadData(newPage)
+}
+
 // Initialize data on component mount
-  loadData()
+  loadData(1)
 </script>

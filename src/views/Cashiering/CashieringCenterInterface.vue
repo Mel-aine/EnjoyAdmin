@@ -7,7 +7,13 @@
       </div>
       <div class="flex space-x-2">
         <BasicButton :icon="PlusIcon" :label="$t('new_payment')" @click="openNewPaymentModal" />
-        <BasicButton :label="$t('print')" variant="secondary" :icon="PrinterIcon" />
+        <BasicButton
+          :label="$t('print')"
+          variant="secondary"
+          :icon="PrinterIcon"
+          :disabled="!selectCityLedger?.id"
+          @click="printVoucher"
+        />
       </div>
     </div>
 
@@ -39,13 +45,14 @@
         </div>
         <div class="flex gap-5 ms-4 justify-between self-center items-center align-top pe-3">
           <div class="flex flex-col gap-2 items-center self-start justify-between content-start align-top h-full">
-            <span>{{ formatCurrency(totals.cityLedgerTotal) }}</span>
+            <span>{{ formatCurrency(totals.totalCredit) }}</span>
             <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">
               {{ $t('City Ledger Total') }}</span>
           </div>
           <div class="flex flex-col gap-2 items-center justify-start align-top ">
-            <span>{{ formatCurrency(totals.unpaidInvoice) }}</span>
-            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">{{ $t('Unpaid Invoice') }}</span>
+            <span>{{ formatCurrency(totals.unpaidInvoices) }}</span>
+            <span class="text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">
+              {{ $t('Unpaid Invoice') }}</span>
           </div>
           <div class="flex flex-col gap-2 items-center justify-start align-top ">
             <span>{{ formatCurrency(totals.unassignedPayments) }}</span>
@@ -69,7 +76,7 @@
 
       <!-- Table Content -->
       <ReusableTable :columns="columns" :data="transactions" :actions="actions" :loading="loading" :searchable="false"
-        :show-header="false" :selectable="true" @selection-change="handleSelectionChange">
+        :show-header="false" :selectable="false" @selection-change="handleSelectionChange">
         <!-- Custom cell for Description column -->
         <template #column-description="{ item }">
           <div>
@@ -104,8 +111,36 @@
     <template v-if="newPaymentVisible">
       <NewPaymentCityLedger v-if="newPaymentVisible"
         :selectedCompanyId="selectCityLedger?.id || props.selectedCompanyId || null" :dateRange="dateRange"
-        :activeTab="activeTab" @close="newPaymentVisible = false" @payment-saved="onPaymentSaved" />
+        :activeTab="activeTab" :mappingMode="!!mapPaymentContext" :mapPaymentContext="mapPaymentContext"
+        @close="onModalClosed" @payment-saved="onPaymentSaved" />
     </template>
+
+    <!-- Void Transaction Modal -->
+    <template v-if="showVoidModal && voidTransactionDetails">
+      <VoidTransactionModal
+        :is-open="showVoidModal"
+        :transactionDetails="voidTransactionDetails"
+        :is-company-payment="true"
+        @close="handleVoidClose"
+        @success="handleVoidSuccess"
+        @error="handleVoidError"
+      />
+    </template>
+    <!-- Global overlay spinner shown on refresh (not first load) -->
+    <OverLoading v-if="isLoading" />
+    <!-- Direct PDF Preview (same viewer as PrintInvoice) -->
+    <div v-if="showPdfExporter">
+      <PdfExporterNode
+        @close="showPdfExporter = false"
+        :is-modal-open="showPdfExporter"
+        :title="$t(documentTitle)"
+        :is-generating="printLoading"
+        :pdf-url="pdfurl"
+        :pdf-theme="pdfTheme"
+        @pdf-generated="handlePdfGenerated"
+        @error="handlePdfError"
+      />
+    </div>
   </div>
 </template>
 
@@ -128,10 +163,14 @@ import { type Action, type Column } from '../../utils/models'
 import { formatCurrency } from '../../utils/numericUtils'
 import { getCityLedgerDetails } from '../../services/companyApi'
 import { useServiceStore } from '../../composables/serviceStore'
-import { voidFolioTransaction } from '../../services/foglioApi'
-import { generateReceiptPdfUrl } from '../../services/reportsApi'
+import { generateReceiptPdfUrl, generateCompanyReceiptPdfUrl, generateCompanyVoucherPdfUrl } from '../../services/reportsApi'
+import VoidTransactionModal from '../../components/modals/VoidTransactionModal.vue'
+import OverLoading from '@/components/spinner/OverLoading.vue'
+import { isLoading } from '@/composables/spinner'
+import PdfExporterNode from '../../components/common/PdfExporterNode.vue'
 
 const props = defineProps<{ selectedCompanyId?: number | null; isCashering?: boolean }>()
+const emit = defineEmits(['refreshed'])
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -143,8 +182,17 @@ const searchQuery = ref('')
 const activeTab = ref('posting')
 const totals = ref<any>({})
 const loading = ref(false)
+const hasLoadedOnce = ref(false)
 const newPaymentVisible = ref(false)
 const displayVoid = ref(false)
+const showVoidModal = ref(false)
+const voidTransactionDetails = ref<any | null>(null)
+// Print overlay state (aligns with FoglioOperation.vue)
+const showPdfExporter = ref(false)
+const printLoading = ref(false)
+const pdfurl = ref<string>('')
+const pdfTheme = ref<Record<string, any>>({})
+const documentTitle = ref('printReceipt')
 
 // Initialize date range with yesterday and today
 const getYesterday = () => {
@@ -205,7 +253,19 @@ const loadCityLedgerData = async () => {
     return
   }
 
-  loading.value = true
+  // Ensure full date range is selected before fetching
+  const { start, end } = dateRange.value
+  if (!start || !end) {
+    return
+  }
+
+  // Use skeleton only on first load; use global overlay spinner for refresh
+  const wasLoaded = hasLoadedOnce.value
+  if (!hasLoadedOnce.value) {
+    loading.value = true
+  } else {
+    isLoading.value = true
+  }
   try {
     const params = {
       companyAccountId: companyId,
@@ -225,7 +285,9 @@ const loadCityLedgerData = async () => {
     if (response?.data) {
       cityLedgerData.value = response.companyAccount
       totals.value = response.totals
-      transactions.value = response.data || []
+      transactions.value = (response.data || []).map((e: any) => {
+        return { ...e, noaction: e.transactionType === 'transfer' }
+      })
       originalTransactions.value = [...transactions.value]
     }
   } catch (error) {
@@ -233,6 +295,10 @@ const loadCityLedgerData = async () => {
     transactions.value = []
   } finally {
     loading.value = false
+    isLoading.value = false
+    // Emit refreshed to parent only on subsequent loads (avoid initial load)
+    if (wasLoaded) emit('refreshed')
+    hasLoadedOnce.value = true
   }
 }
 
@@ -241,16 +307,16 @@ const loadCityLedgerData = async () => {
 const actions = ref([
   {
     name: 'void', label: 'Void', icon: 'ban', danger: true,
-    handler: (item :any) => onAction('void', item),
+    handler: (item: any) => onAction('void', item),
+    condition: (item: any) => (item.transactionType === 'payment' && item.assigned <= 0),
   },
   {
     name: 'print', label: 'Print Receipt', icon: 'printer',
-    handler: (item :any) => onAction('printReceipt', item),
-    condition: (item: any) => item.transactionType === 'payment',
+    handler: (item: any) => onAction('printReceipt', item),
   },
   {
-    name: 'map', label: 'Map Payment', icon: 'map', handler: (item :any) => onAction('printReceipt', item),
-    condition: (item: any) => item.transactionType === 'payment',
+    name: 'map', label: 'Map Payment', icon: 'map', handler: (item: any) => onAction('map', item),
+    condition: (item: any) => (item.transactionType === 'payment' && item.open > 0),
   }
 ])
 
@@ -269,6 +335,12 @@ function openNewPaymentModal() {
 function onPaymentSaved() {
   newPaymentVisible.value = false
   loadCityLedgerData()
+  mapPaymentContext.value = null
+}
+
+function onModalClosed() {
+  newPaymentVisible.value = false
+  mapPaymentContext.value = null
 }
 
 // Watchers
@@ -280,50 +352,33 @@ watch(() => props.selectedCompanyId, (newId) => {
 })
 
 watch([() => dateRange.value.start, () => dateRange.value.end], () => {
-  loadCityLedgerData()
+  const { start, end } = dateRange.value
+  if (start && end) {
+    loadCityLedgerData()
+  }
 })
 
 // Handle actions from the table
 async function onAction(action: string, item: any) {
   try {
     // Defensive: derive a transaction ID
-    const transactionId = item?.id ?? item?.transactionId ?? item?.folioTransactionId ?? item?.folio_transaction_id
+    const transactionId = item?.id;
 
     switch (action) {
-      case 'void': {
-        if (!transactionId) {
-          toast.error('Missing transaction ID')
-          return
-        }
-
-        // Simple confirmation; could be replaced by a modal for reason input
-        const confirmed = window.confirm('Are you sure you want to void this transaction?')
-        if (!confirmed) return
-
-        await voidFolioTransaction(Number(transactionId), { reason: 'Voided from Cashiering Center' })
-        toast.success('Transaction voided')
-        await loadCityLedgerData()
+      case 'void': 
+        openVoidModal(item)
         break
-      }
       case 'printReceipt': {
-        if (!transactionId) {
-          toast.error('Missing transaction ID')
-          return
-        }
-
-        // Generate receipt PDF URL and open in PDF viewer route
-        const url = await generateReceiptPdfUrl(String(transactionId))
-        if (!url) {
-          toast.error('Failed to generate receipt')
-          return
-        }
-        const encodedUrl = btoa(encodeURIComponent(url))
-        const routeData = router.resolve({ name: 'PDFViewer', query: { url: encodedUrl } })
-        window.open(routeData.href, '_blank')
+        documentTitle.value = 'printReceipt'
+        await printReceipt(item)
         break
       }
       case 'map': {
-        // Open mapping modal; prefilled with current filters via props
+        // Open mapping modal; pass mapping context with selected payment transaction
+        mapPaymentContext.value = {
+          ...item,
+          transactionId: Number(transactionId),
+        }
         openNewPaymentModal()
         break
       }
@@ -334,6 +389,57 @@ async function onAction(action: string, item: any) {
     console.error('Action handling error:', error)
     toast.error('Action failed')
   }
+}
+
+// Print receipt (Company Receipt): show in PdfExporterNode
+const printReceipt = async (item: any) => {
+  try {
+    documentTitle.value = 'printReceipt'
+    printLoading.value = true
+    showPdfExporter.value = true
+    const url = await generateCompanyReceiptPdfUrl(String(item?.id))
+    pdfurl.value = url
+  } catch (error) {
+    console.error('Error printing company receipt:', error)
+    toast.error(t('errorGeneratingReceipt') || 'Failed to print company receipt')
+  } finally {
+    printLoading.value = false
+  }
+}
+
+// Print voucher for selected City Ledger and date range via PdfExporterNode
+const printVoucher = async () => {
+  try {
+    const companyId = selectCityLedger.value?.id || props.selectedCompanyId
+    if (!companyId) {
+      toast.error(t('pleaseSelectCityLedger') || 'Please select a City Ledger')
+      return
+    }
+    const { start, end } = dateRange.value
+    if (!start || !end) {
+      toast.error(t('pleaseSelectDateRange') || 'Please select a date range')
+      return
+    }
+    documentTitle.value = 'printVoucher'
+    printLoading.value = true
+    showPdfExporter.value = true
+    const url = await generateCompanyVoucherPdfUrl(companyId, start, end)
+    pdfurl.value = url
+  } catch (error) {
+    console.error('Error printing company voucher:', error)
+    toast.error(t('errorGeneratingReceipt') || 'Failed to print company voucher')
+  } finally {
+    printLoading.value = false
+  }
+}
+
+function handlePdfGenerated(_blob: Blob) {
+  // No-op for now; hook available for future enhancements
+}
+
+function handlePdfError(err: any) {
+  console.error('PDF viewer error:', err)
+  toast.error(t('errorGeneratingReceipt') || 'Failed to render PDF')
 }
 
 watch(activeTab, () => {
@@ -355,4 +461,49 @@ onMounted(() => {
   }
   loadCityLedgerData()
 })
+
+// Mapping context for New Payment modal invoked via 'map' action
+const mapPaymentContext = ref<{ transactionId: number; openAmount: number } | null>(null)
+
+// Void modal handlers
+function openVoidModal(item: any) {
+  voidTransactionDetails.value = {
+    id: Number(item?.id),
+    date: item?.date || item?.postingDate || '',
+    reference: item?.transactionNumber || item?.reference || '',
+    description: item?.description || '',
+    amount: item?.totalAmount ?? item?.amount ?? 0,
+  }
+  showVoidModal.value = true
+}
+
+function handleVoidClose() {
+  showVoidModal.value = false
+  voidTransactionDetails.value = null
+}
+
+async function handleVoidSuccess() {
+  try {
+    toast.success(t('transactionVoidedSuccessfully'))
+    const txnId = voidTransactionDetails.value?.id
+    showVoidModal.value = false
+    voidTransactionDetails.value = null
+    await loadCityLedgerData()
+    // Auto print receipt for the voided transaction
+    if (txnId) {
+      const url = await generateReceiptPdfUrl(String(txnId))
+      const encodedUrl = btoa(encodeURIComponent(url))
+      const routeData = router.resolve({ name: 'PDFViewer', query: { url: encodedUrl } })
+      window.open(routeData.href, '_blank')
+    }
+  } catch (err) {
+    console.error('Error after voiding transaction:', err)
+    toast.error(t('errorGeneratingReceipt') || 'Failed to generate receipt')
+  }
+}
+
+function handleVoidError(error: any) {
+  console.error('Void transaction error:', error)
+  toast.error(error?.message || t('errorVoidingTransaction'))
+}
 </script>

@@ -2,25 +2,27 @@
   <ConfigurationLayout>
     <div class="p-6">
       <!-- Rooms Table using ReusableTable -->
-      <ReusableTable 
-        :title="$t('Rooms')" 
-        :columns="columns" 
-        :data="rooms" 
-        :actions="actions" 
+      <ReusableTable
+        :title="$t('Rooms')"
+        :columns="columns"
+        :data="rooms"
+        :actions="actions"
         :loading="loading"
-        search-placeholder="Search rooms..." 
-        :selectable="false" 
+        search-placeholder="Search rooms..."
+        :selectable="false"
+        :meta="metaData"
+        @page-change="handlePageChange"
         empty-state-title="No rooms found"
-        empty-state-message="Click 'Add Room' to create your first room." 
+        empty-state-message="Click 'Add Room' to create your first room."
         @action="onAction"
         @selection-change="onSelectionChange">
         <template #header-actions>
           <BasicButton @click="showAddModal = true" label="Add Room" :icon="Plus" />
-          <BasicButton 
-            v-if="selectedRooms.length > 0" 
-            @click="deleteSelected" 
-            label="Delete Selected" 
-            :icon="Trash2" 
+          <BasicButton
+            v-if="selectedRooms.length > 0"
+            @click="deleteSelected"
+            label="Delete Selected"
+            :icon="Trash2"
           />
         </template>
 
@@ -39,23 +41,23 @@
         </template>
 
         <template #column-smokingAllowed="{ item }">
-          <span 
+          <span
             :class="{
               'bg-green-100 text-green-800': item.smokingAllowed,
               'bg-gray-100 text-gray-800': !item.smokingAllowed
-            }" 
+            }"
             class="px-2 py-1 text-xs font-medium rounded-full">
             {{ !item.smokingAllowed ? 'Non-Smoking' : 'Smoking Allowed' }}
           </span>
         </template>
 
         <template #column-status="{ item }">
-          <span 
+          <span
             :class="{
               'bg-green-100 text-green-800': item.status === 'available',
               'bg-red-100 text-red-800': item.status === 'maintenance',
               'bg-yellow-100 text-yellow-800': item.status === 'occupied'
-            }" 
+            }"
             class="px-2 py-1 text-xs font-medium rounded-full">
             {{ $t(item.status) }}
           </span>
@@ -77,7 +79,7 @@
       </ReusableTable>
 
       <!-- Add/Edit Room Modal -->
-      <div 
+      <div
         v-if="showAddModal || showEditModal"
         class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -182,7 +184,7 @@
                   class="flex items-start text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400">
                   <div class="relative mr-3 mt-0.5">
                     <input type="checkbox" v-model="formData.smokingAllowed" class="sr-only" />
-                    <div 
+                    <div
                       :class="formData.smokingAllowed
                         ? 'border-brand-500 bg-brand-500'
                         : 'bg-transparent border-gray-300 dark:border-gray-700'
@@ -210,18 +212,18 @@
                 {{ t('roomImage') }}
               </label>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div 
-                  v-for="(image, index) in formData.roomImages" 
+                <div
+                  v-for="(image, index) in formData.roomImages"
                   :key="index"
                   class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                   <div class="text-gray-400 mb-2">
                     <Camera class="w-8 h-8 mx-auto" />
                   </div>
                   <p class="text-xs text-gray-500 mb-2">{{ t('image') }} {{ index + 1 }}</p>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    @change="handleImageUpload($event, index)" 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    @change="handleImageUpload($event, index)"
                     class="hidden"
                     :id="`image-${index}`">
                   <label :for="`image-${index}`" class="text-xs text-blue-600 hover:text-blue-800 cursor-pointer">
@@ -243,11 +245,11 @@
                 <div class="border border-gray-300 rounded-md p-4 max-h-40 overflow-y-auto">
                   <div class="grid grid-cols-2 gap-2">
                     <div v-for="room in availableConnectRooms" :key="room.id" class="flex items-center space-x-2">
-                      <input 
-                        v-model="formData.connectedRooms" 
-                        :value="room.id" 
+                      <input
+                        v-model="formData.connectedRooms"
+                        :value="room.id"
                         type="checkbox"
-                        :id="`connect-${room.id}`" 
+                        :id="`connect-${room.id}`"
                         class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                       <label :for="`connect-${room.id}`" class="text-sm text-gray-700">
                         {{ room.roomNumber }} ({{ room.roomType.roomTypeName }})
@@ -266,9 +268,9 @@
                 <div class="border border-gray-300 rounded-md p-4 max-h-40 overflow-y-auto">
                   <div class="grid grid-cols-2 gap-2">
                     <div v-for="taxe in availableTaxes" :key="taxe.id" class="flex items-center space-x-2">
-                      <input 
-                        v-model="formData.taxRateIds" 
-                        :value="taxe.taxRateId" 
+                      <input
+                        v-model="formData.taxRateIds"
+                        :value="taxe.taxRateId"
                         type="checkbox"
                         :id="`taxes-${taxe.taxRateId}`"
                         class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
@@ -282,18 +284,18 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                :label="$t('cancel')" 
-                @click="closeModal" 
-                :disabled="saving" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                :label="$t('cancel')"
+                @click="closeModal"
+                :disabled="saving"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :icon="showEditModal ? Edit : Plus"
-                :label="saving ? t('saving') + '...' : showEditModal ? $t('update') : $t('AddRoom')" 
+                :label="saving ? t('saving') + '...' : showEditModal ? $t('update') : $t('AddRoom')"
                 :loading="saving"
                 :disabled="saving"
               />
@@ -398,6 +400,9 @@ const selectedRooms = ref<Room[]>([])
 const editingRoom = ref<Room | null>(null)
 const loading = ref(false)
 const saving = ref(false)
+const currentPage = ref(1)
+const metaData = ref<any>(null)
+
 
 // Form data with proper typing
 const formData = ref<RoomFormData>({
@@ -538,11 +543,11 @@ const formatTaxAmount = (taxe: Tax): string => {
     }
     return 'N/A'
   }
-  
+
   if (taxe.amount !== undefined) {
     return formatCurrency(taxe.amount)
   }
-  
+
   return 'N/A'
 }
 
@@ -561,7 +566,7 @@ const onAction = (action: string, item: Room) => {
 
 const editRoom = (room: Room) => {
   editingRoom.value = room
-  
+
   // Properly fill roomImages array
   const roomImages: (File | null)[] = [null, null, null, null]
   if (room.roomImages && Array.isArray(room.roomImages)) {
@@ -612,8 +617,8 @@ const handleImageUpload = (event: Event, index: number) => {
 
 const saveRoom = async () => {
   // Validation
-  if (!formData.value.shortCode || 
-      !formData.value.roomNumber || 
+  if (!formData.value.shortCode ||
+      !formData.value.roomNumber ||
       !formData.value.roomTypeId ) {
     toast.error(t('pleaseCompleteAllRequiredFields'))
     return
@@ -648,7 +653,7 @@ const saveRoom = async () => {
     }
 
     // Reload data to reflect changes
-    await loadData()
+    await loadData(1)
     closeModal()
   } catch (error) {
     console.error('Error saving room:', error)
@@ -658,12 +663,26 @@ const saveRoom = async () => {
   }
 }
 
-const loadData = async () => {
+
+
+const loadData = async (pageNumber: number = 1) => {
   loading.value = true
+
   try {
-    const resp = await getRooms()
-    console.log('Rooms data:', resp)
-    rooms.value = resp.data.data?.data || resp.data.data || resp.data || []
+    const params = {
+      page: pageNumber,
+      limit: 10,
+    }
+
+    const resp = await getRooms(params)
+
+    // Traitement de la réponse
+    const newRooms = resp.data.data?.data || resp.data.data || resp.data || []
+    const meta = resp.data.data?.meta || resp.data.meta || { total: 0, perPage: params.limit, currentPage: pageNumber, lastPage: pageNumber }
+    rooms.value = newRooms
+    metaData.value = meta
+    currentPage.value = pageNumber
+
   } catch (error) {
     console.error('Error loading rooms:', error)
     toast.error(t('errorLoadingRooms'))
@@ -671,6 +690,10 @@ const loadData = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (page: number) => {
+  loadData(page)
 }
 
 const loadRoomTypes = async () => {
@@ -737,7 +760,7 @@ const closeModal = () => {
 }
 
 // Initialize data
-loadData()
+loadData(1)
 loadRoomTypes()
 loadBedTypes()
 loadConnectingRooms()

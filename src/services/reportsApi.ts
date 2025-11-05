@@ -1192,6 +1192,134 @@ export const generatePosReceiptPdfUrl = async (transactionId: string): Promise<s
     throw error
   }
 }
+
+/**
+ * Company Receipt (PDF)
+ * Endpoint: GET /api/reports/company-receipt/:transactionId
+ * Opens the receipt PDF in a new tab (inline).
+ */
+export const printCompanyReceipt = async (transactionId: string): Promise<void> => {
+  try {
+    const url = `${API_URL}/company-receipt/${transactionId}`
+    const response = await axios.get<Blob>(url, {
+      ...getHeaders(),
+      responseType: 'blob',
+      validateStatus: (status) => status >= 200 && status < 500,
+    })
+
+    if (response.status >= 400) {
+      try {
+        const text = await response.data.text()
+        const err = JSON.parse(text)
+        throw new Error(err?.message || 'Failed to print company receipt')
+      } catch {
+        throw new Error('Failed to print company receipt')
+      }
+    }
+
+    const blobUrl = URL.createObjectURL(response.data)
+    window.open(blobUrl)
+  } catch (error) {
+    console.error('Error printing company receipt:', error)
+    throw error
+  }
+}
+
+/**
+ * Company Voucher (PDF)
+ * Endpoint: GET /api/reports/company-voucher/:companyId
+ * Query params: fromDate, toDate (YYYY-MM-DD)
+ * Opens the voucher PDF in a new tab (inline).
+ */
+export const printCompanyVoucher = async (
+  companyId: number | string,
+  fromDate: string,
+  toDate: string,
+): Promise<void> => {
+  try {
+    const url = `${API_URL}/company-voucher/${companyId}`
+    const response = await axios.get<Blob>(url, {
+      ...getHeaders(),
+      responseType: 'blob',
+      params: { fromDate, toDate },
+      validateStatus: (status) => status >= 200 && status < 500,
+    })
+
+    if (response.status >= 400) {
+      try {
+        const text = await response.data.text()
+        const err = JSON.parse(text)
+        throw new Error(err?.message || 'Failed to print company voucher')
+      } catch {
+        throw new Error('Failed to print company voucher')
+      }
+    }
+
+    const blobUrl = URL.createObjectURL(response.data)
+    window.open(blobUrl)
+  } catch (error) {
+    console.error('Error printing company voucher:', error)
+    throw error
+  }
+}
+
+// URL-generating helpers for PdfExporterNode usage
+export const generateCompanyReceiptPdfUrl = async (transactionId: string): Promise<string> => {
+  try {
+    const url = `${API_URL}/company-receipt/${transactionId}`
+    const response = await axios.get<Blob>(url, {
+      ...getHeaders(),
+      responseType: 'blob',
+      validateStatus: (status) => status >= 200 && status < 500,
+    })
+
+    if (response.status >= 400) {
+      try {
+        const text = await response.data.text()
+        const err = JSON.parse(text)
+        throw new Error(err?.message || 'Failed to generate company receipt')
+      } catch {
+        throw new Error('Failed to generate company receipt')
+      }
+    }
+
+    return URL.createObjectURL(response.data)
+  } catch (error) {
+    console.error('generateCompanyReceiptPdfUrl error:', error)
+    throw error
+  }
+}
+
+export const generateCompanyVoucherPdfUrl = async (
+  companyId: number | string,
+  fromDate: string,
+  toDate: string,
+): Promise<string> => {
+  try {
+    const url = `${API_URL}/company-voucher/${companyId}`
+    const response = await axios.get<Blob>(url, {
+      ...getHeaders(),
+      responseType: 'blob',
+      params: { fromDate, toDate },
+      validateStatus: (status) => status >= 200 && status < 500,
+    })
+
+    if (response.status >= 400) {
+      try {
+        const text = await response.data.text()
+        const err = JSON.parse(text)
+        throw new Error(err?.message || 'Failed to generate company voucher')
+      } catch {
+        throw new Error('Failed to generate company voucher')
+      }
+    }
+
+    return URL.createObjectURL(response.data)
+  } catch (error) {
+    console.error('generateCompanyVoucherPdfUrl error:', error)
+    throw error
+  }
+}
 //daily-operation-report
 export const generateOperationReport = async (params: dailyReportOration): Promise<string> => {
   try {

@@ -10,6 +10,8 @@
           :selectable="false"
           :actions="actions"
           :loading="loading"
+          :meta="paginationMeta"
+           @page-change="handlePageChange"
           :empty-state-title="$t('noWorkFound')"
           :empty-state-message="$t('noWorkMessage')"
           v-model="searchQuery"
@@ -165,6 +167,7 @@ const loadingDelete = ref(false)
 const showStatusModal = ref(false)
 const loadingStatusUpdate = ref(false)
 const workOrderToUpdateStatus = ref<any>(null)
+const paginationMeta = ref<any>(null)
 const newStatusToUpdate = ref('')
 const statusUpdateNotes = ref('')
 
@@ -365,7 +368,7 @@ const confirmStatusUpdate = async () => {
     await updateStatusWorkOrder(workOrderToUpdateStatus.value.id, payload)
 
     toast.success(t('Work order status updated successfully'))
-    await fetchWorkOrders()
+    await fetchWorkOrders(1)
 
   } catch (error: any) {
     console.error('Error updating work order status:', error)
@@ -387,7 +390,7 @@ const cancelStatusUpdate = () => {
 }
 
 // CRUD Operations
-const fetchWorkOrders = async () => {
+const fetchWorkOrders = async (pageNumber=1) => {
   loading.value = true
   try {
     const hotelId = serviceStore.serviceId
@@ -395,10 +398,11 @@ const fetchWorkOrders = async () => {
       throw new Error('Hotel ID not found')
     }
 
-    const response = await getWorkOrder(hotelId)
+    const response = await getWorkOrder(hotelId,{page:pageNumber,limit:10})
     console.log('fetchWorkOrders', response)
 
     workOrders.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
   } catch (error: any) {
     console.error('Error fetching work orders:', error)
     toast.error(error.message || t('ErrorFetchingWorkOrders'))
@@ -406,6 +410,10 @@ const fetchWorkOrders = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (newPage:number) =>{
+  fetchWorkOrders(newPage)
 }
 
 const handleWorkOrderSave = async (eventData: any) => {
@@ -440,7 +448,7 @@ const confirmDelete = async () => {
     loadingDelete.value = true
     await deleteWorkOrder(workOrderToDelete.value.id)
     toast.success(t('WorkOrderDeletedSuccessfully'))
-    await fetchWorkOrders()
+    await fetchWorkOrders(1)
   } catch (error: any) {
     console.error('Error deleting work order:', error)
     toast.error(error.message || t('ErrorDeletingWorkOrder'))
@@ -461,7 +469,7 @@ const onSearchChange = (query: string) => {
   searchQuery.value = query
   // Debounce the search to avoid too many API calls
   setTimeout(() => {
-    fetchWorkOrders()
+    fetchWorkOrders(1)
   }, 500)
 }
 
@@ -486,7 +494,7 @@ const formatDate = (dateString: string): string => {
 
 // Lifecycle
 onMounted(() => {
-  fetchWorkOrders()
+  fetchWorkOrders(1)
 })
 </script>
 
