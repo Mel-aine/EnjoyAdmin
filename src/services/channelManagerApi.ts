@@ -672,6 +672,7 @@ interface RoomType {
 
 interface RoomTypesData {
   data: RoomType[]
+  roomTypes?:any
 }
 /**
  * get roomtype channel

@@ -183,7 +183,7 @@ const fetchData = async () => {
     const propertyId = currentService.channexPropertyId
     const response = await getRoomTypesAndRatePlans(propertyId)
 
-    console.log('API Response:', response)
+    console.log('API Response:', response.data?.data?.roomTypes)
 
     if (response.data?.data?.roomTypes) {
       const apiRoomTypes = response.data.data.roomTypes
@@ -266,11 +266,12 @@ const handleRestrictionFilterChange = (restrictions: string[]) => {
 
 // Watch pour passer les données au calendrier
 watch([roomTypes, rateTypes], () => {
-  if (calendarRef.value && roomTypes.value.length > 0 && rateTypes.value.length > 0) {
+  if (calendarRef.value && roomTypes.value.length > 0) {
     calendarRef.value.setRoomAndRateTypes(roomTypes.value, rateTypes.value)
     console.log('Data sent to calendar:', { roomTypes: roomTypes.value, rateTypes: rateTypes.value })
   }
-}, { deep: true })
+}, { immediate: true })
+
 
 // Lifecycle
 onMounted(() => {

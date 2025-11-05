@@ -349,6 +349,7 @@ const restrictionMapping: Record<string, string> = {
   Rate: 'rate',
   'Stop Sell': 'SS',
   Availability: 'AVL',
+  'Closed': 'CLO',
 }
 
 const restrictionApiMapping: Record<string, string> = {
@@ -366,47 +367,86 @@ const restrictionApiMapping: Record<string, string> = {
   'Rate': 'rate',
   'Stop Sell': 'stop_sell',
   'Availability': 'availability',
+  'Closed': 'closed',
 }
 
 /* --- TRANSFORMATION DES DONNÉES API --- */
 const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
   const rows: RoomRow[] = []
-    console.log('transformApiDataToRoomRows - apiData:', apiData)
+  console.log('transformApiDataToRoomRows - apiData:', apiData)
   console.log('transformApiDataToRoomRows - roomTypes:', roomTypes.value)
   console.log('transformApiDataToRoomRows - rateTypes:', rateTypes.value)
 
-
-  // Parcourir chaque rate plan ID
-  Object.keys(apiData).forEach((ratePlanId) => {
-    const ratePlan = rateTypes.value.find(rt => rt.id === ratePlanId)
-    if (!ratePlan) return
-
-    const roomType = roomTypes.value.find(rm => rm.id === ratePlan.roomId)
-    if (!roomType) return
-
-    const ratePlanData = apiData[ratePlanId]
-
-    // Créer la ligne RATE avec les valeurs de l'API
-    const rateValues: Record<string, number> = {}
-    Object.keys(ratePlanData).forEach(date => {
-      rateValues[date] = parseInt(ratePlanData[date].rate) || 0
-    })
+  // Parcourir chaque room type pour créer les lignes AVL
+  roomTypes.value.forEach(roomType => {
+    const availabilityValues: Record<string, number> = {}
+    if (apiData.availability && apiData.availability[roomType.id]) {
+      Object.keys(apiData.availability[roomType.id]).forEach(date => {
+        availabilityValues[date] = parseInt(apiData.availability[roomType.id][date]) || 0
+      })
+    }
 
     rows.push({
-      id: `${ratePlanId}-rate`,
-      name: ratePlan.name,
-      type: 'RATE',
-      label: 'RATE',
-      values: rateValues,
+      id: `${roomType.id}-avl`,
+      name: roomType.name,
+      type: 'AVL',
+      label: 'AVL',
+      values: availabilityValues,
       roomTypeId: roomType.id,
       roomTypeName: roomType.name,
-      ratePlanId: ratePlanId,
-      ratePlanName: ratePlan.name,
     })
-
-    // Ajouter d'autres restrictions si nécessaire
-    // Pour l'instant, on ne gère que le rate
   })
+
+  // Parcourir chaque rate plan ID pour les autres restrictions
+  if (apiData.rates) {
+    Object.keys(apiData.rates).forEach((ratePlanId) => {
+      const ratePlan = rateTypes.value.find(rt => rt.id === ratePlanId)
+      if (!ratePlan) return
+
+      const roomType = roomTypes.value.find(rm => rm.id === ratePlan.roomId)
+      if (!roomType) return
+
+      const ratePlanData = apiData.rates[ratePlanId]
+
+      // Créer la ligne RATE avec les valeurs de l'API
+      const rateValues: Record<string, number> = {}
+      Object.keys(ratePlanData).forEach(date => {
+        rateValues[date] = parseInt(ratePlanData[date].rate) || 0
+      })
+
+      rows.push({
+        id: `${ratePlanId}-rate`,
+        name: ratePlan.name,
+        type: 'RATE',
+        label: 'RATE',
+        values: rateValues,
+        roomTypeId: roomType.id,
+        roomTypeName: roomType.name,
+        ratePlanId: ratePlanId,
+        ratePlanName: ratePlan.name,
+      })
+
+      // Ajouter d'autres restrictions si nécessaire
+      const restrictionValues: Record<string, any> = {}
+      Object.keys(ratePlanData).forEach(date => {
+        if (ratePlanData[date].closed !== undefined) {
+          restrictionValues[date] = ratePlanData[date].closed ? 'true' : 'false'
+        }
+      })
+
+      rows.push({
+        id: `${ratePlanId}-closed`,
+        name: ratePlan.name,
+        type: 'RATE',
+        label: 'Closed',
+        values: restrictionValues,
+        roomTypeId: roomType.id,
+        roomTypeName: roomType.name,
+        ratePlanId: ratePlanId,
+        ratePlanName: ratePlan.name,
+      })
+    })
+  }
 
   return rows
 }
@@ -442,13 +482,18 @@ const fetchRestrictions = async () => {
     console.log('📤 Fetching with params:', params)
 
     const response = await getRestrictions(propertyId, params)
+    const dataObj = response.data?.data?.data || [];
+    const firstKey :any = Object.keys(dataObj)[0];
+    const firstItem = dataObj[firstKey];
 
     console.log('📥 API response:', response)
-    console.log('📥 API response.data:', response.data)
+  console.log('📥 Premier élément UUID:', firstKey);
+console.log('📥 Premier élément data:', firstItem);
+
 
     if (response.data) {
       console.log('✅ Calling transformApiDataToRoomRows')
-      allRoomRows.value = transformApiDataToRoomRows(response.data)
+      allRoomRows.value = transformApiDataToRoomRows(firstItem)
       console.log('✅ allRoomRows:', allRoomRows.value)
     } else {
       console.log('❌ response.data is empty')
@@ -580,6 +625,10 @@ const formatCellValue = (value: any, label: string): string => {
     return new Intl.NumberFormat('en-US').format(value)
   }
 
+  if (label === 'Closed') {
+    return value === 'true' ? 'C' : 'O'
+  }
+
   // Pour les autres valeurs
   return String(value)
 }
@@ -632,6 +681,29 @@ const isCellSelected = (rowId: string, date: string): boolean => {
 const handleConfirm = (data: ConfirmData) => {
   console.log('Confirmed:', data)
   loading.value = true
+
+  const { dateFrom, dateTo, restriction, value } = data
+
+  const row = selectedRange.value?.row
+  if (!row) return
+
+  const dates = visibleDates.value
+    .map((d) => d.date)
+    .filter((d) => {
+      const currentDate = new Date(d)
+      return currentDate >= new Date(dateFrom!) && currentDate <= new Date(dateTo!)
+    })
+
+  if (restriction === 'closed') {
+    dates.forEach((date) => {
+      row.values[date] = value ? 1 : 0
+    })
+  } else {
+    dates.forEach((date) => {
+      row.values[date] = Number(value)
+    })
+  }
+
   setTimeout(() => {
     loading.value = false
     showModal.value = false
@@ -656,7 +728,7 @@ const setRoomAndRateTypes = (rooms: RoomType[], rates: RateType[]) => {
   rateTypes.value = rates
 
 
-  if (rooms.length > 0 && rates.length > 0) {
+  if (rooms.length > 0) {
     console.log('Calling fetchRestrictions...')
     fetchRestrictions()
   }
@@ -778,6 +850,7 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  fetchRestrictions()
 })
 
 onBeforeUnmount(() => {

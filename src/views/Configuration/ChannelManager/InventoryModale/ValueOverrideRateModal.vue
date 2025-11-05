@@ -190,6 +190,7 @@ const rateRestrictions = computed(() => [
   { label: t('Closed To Departure'), value: 'closed_departure' },
   { label: t('Stop Sell'), value: 'stop' },
   { label: t('Closed To Arrival'), value: 'closed_arrival' },
+  { label: t('Closed'), value: 'closed' },
   { label: t('Rate'), value: 'rate' },
   { label: t('Min Stay Arrival'), value: 'min_stay' },
   { label: t('Min Stay Through'), value: 'min_stay_through' },
@@ -204,6 +205,7 @@ const inputComponent = computed(() => {
     case 'closed_arrival':
     case 'closed_departure':
     case 'stop':
+    case 'closed':
       return 'InputToggle'
     case 'rate':
     case 'max_stay':
@@ -225,6 +227,7 @@ const inputLabel = computed(() => {
     case 'closed_arrival':
     case 'closed_departure':
     case 'stop':
+    case 'closed':
       return t('Is Active')
     case 'rate':
     case 'max_stay':
@@ -241,7 +244,7 @@ const isFormValid = computed(() => {
     return dateFrom.value && dateTo.value && value.value !== ''
   }
 
-  const isToggleType = ['closed_arrival', 'closed_departure', 'stop'].includes(restriction.value)
+  const isToggleType = ['closed_arrival', 'closed_departure', 'stop', 'closed'].includes(restriction.value)
   return dateFrom.value && dateTo.value && restriction.value && (isToggleType || value.value !== '')
 })
 
@@ -265,7 +268,7 @@ watch(() => props.isOpen, (newVal) => {
 })
 
 watch(restriction, (newVal) => {
-  if (newVal === 'closed_arrival' || newVal === 'closed_departure' || newVal === 'stop') {
+  if (newVal === 'closed_arrival' || newVal === 'closed_departure' || newVal === 'stop' || newVal === 'closed') {
     value.value = false
   } else {
     value.value = ''
