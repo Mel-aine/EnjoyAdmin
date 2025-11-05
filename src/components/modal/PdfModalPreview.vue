@@ -35,7 +35,7 @@ const close = () => {
   <!-- Backdrop -->
   <div
     v-if="isVisible"
-    class="fixed inset-0 z-50 overflow-hidden"
+    class="fixed inset-0 z-999 overflow-hidden"
     :class="{
       'opacity-100': isOpen,
       'opacity-0': !isOpen

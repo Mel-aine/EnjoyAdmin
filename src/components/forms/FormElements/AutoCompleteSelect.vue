@@ -1,69 +1,43 @@
 <template>
   <div ref="selectWrapper" class="w-full">
-    <label
-      for="autocomplete_select"
-      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-      :class="isDropdownOpen ? 'text-brand-500' : 'text-gray-500'"
-    >
+    <label for="autocomplete_select" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+      :class="isDropdownOpen ? 'text-brand-500' : 'text-gray-500'">
       {{ lb }}
       <span v-if="isRequired" class="text-red-500">*</span>
     </label>
 
-    <div
-      :class="['relative font-sans', (disabled || isLoading) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']"
-    >
+    <div :class="['relative font-sans', (disabled || isLoading) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']">
       <DotSpinner v-if="isLoading"></DotSpinner>
-      <input
-        :disabled="disabled"
-        type="text"
+      <input :disabled="disabled" type="text"
         class=" cursor-pointer flex justify-between dark:bg-dark-900 h-11 rounded-lg w-full  border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-black dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-        :class="isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-black/50'"
-        :placeholder="defaultValue"
-        v-model="search"
-        @click="openDropdown"
-        @focus="openDropdown"
-        @blur="onBlur"
-        @input="onInput"
-        @keydown.down.prevent="onArrowDown"
-        @keydown.up.prevent="onArrowUp"
-        @keydown.enter.prevent="onEnter"
-        @keydown.escape="closeDropdown"
-      />
+        :class="isDropdownOpen ? 'border-purple-500 text-gray-900' : 'border-black/50'" :placeholder="defaultValue"
+        v-model="search" @click="openDropdown" @focus="openDropdown" @blur="onBlur" @input="onInput"
+        @keydown.down.prevent="onArrowDown" @keydown.up.prevent="onArrowUp" @keydown.enter.prevent="onEnter"
+        @keydown.escape="closeDropdown" />
       <input type="hidden" :required="isRequired" :value="selectedOption?.value || ''" />
 
-      <span v-if="!search" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs cursor-pointer">▼</span>
-       <Search
-          v-else
-          class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 pointer-events-none"
-        />
-      <ul
-        v-if="isDropdownOpen && displayOptions.length && !isLoading"
-        class="custom-scrollbar absolute top-full left-0 right-0 z-40 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700"
-        role="listbox"
-        :aria-expanded="isDropdownOpen"
-        aria-hidden="false"
-      >
-        <li
-          v-for="(option, index) in displayOptions"
-          :key="option.value"
-          @mousedown.prevent="selectOption(option)"
+      <span v-if="!search"
+        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs cursor-pointer">▼</span>
+      <Search v-else class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 pointer-events-none" />
+      <ul v-if="isDropdownOpen && displayOptions.length && !isLoading"
+        class="custom-scrollbar absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700"
+        role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
+        <li v-for="(option, index) in displayOptions" :key="option.value" @mousedown.prevent="selectOption(option)"
           :class="[
             'px-5 py-2 cursor-pointer flex items-center justify-between dark:text-gray-200',
             {
               'bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100': selectedOption?.value === option.value,
               'bg-blue-50 dark:bg-blue-900': highlightedIndex === index && selectedOption?.value !== option.value,
               'hover:bg-gray-100 dark:hover:bg-gray-700': selectedOption?.value !== option.value && highlightedIndex !== index,
-              'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500': disabled ,
+              'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500': disabled,
               'hover:bg-purple-100 dark:hover:bg-purple-900': !disabled && !option.disabled,
-              'text-red-600 bg-red-50 dark:text-red-300 dark:bg-red-900/30': option.status === 'occupied',
+              'text-red-600': option.status === 'occupied',
             }
-          ]"
-          role="option"
-          :aria-selected="selectedOption?.value === option.value"
-        >
+          ]" role="option" :aria-selected="selectedOption?.value === option.value">
           <span>{{ option.label }}</span>
-          <span v-if="option.count !== undefined"   class="bg-red-200 text-red-800 px-3 py-0.5 rounded-full text-sm font-medium min-w-[24px] text-center">{{ option.count }}</span>
-            <span v-if="option.status === 'occupied'" class="ml-auto text-xs">({{ $t('Occupied') }})</span>
+          <span v-if="option.count !== undefined"
+            class="bg-red-200 text-red-800 px-1 py-0.5 rounded-md text-xs font-medium min-w-[24px] text-center">{{
+              option.count }}</span>
           <!-- <svg
             v-if="selectedOption?.value === option.value"
             class="w-4 h-4 text-purple-600"
@@ -76,10 +50,8 @@
       </ul>
 
       <!-- Message quand aucun résultat n'est trouvé -->
-      <div
-        v-if="isDropdownOpen && displayOptions.length === 0 && search && !isLoading"
-        class="absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg bg-white border-2 border-t-0 border-purple-100 px-5 py-3 text-gray-500 text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
-      >
+      <div v-if="isDropdownOpen && displayOptions.length === 0 && search && !isLoading"
+        class="absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg bg-white border-2 border-t-0 border-purple-100 px-5 py-3 text-gray-500 text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
         {{ $t('no_fund') }}
       </div>
     </div>
@@ -94,9 +66,9 @@ import { Search } from 'lucide-vue-next';
 interface Option {
   label: string
   value: string | number
-  count?:number
-  status?:string
-  disabled?:boolean
+  count?: number
+  status?: string
+  disabled?: boolean
 }
 
 const props = defineProps<{
@@ -193,9 +165,9 @@ function onBlur() {
 }
 
 function selectOption(option: Option) {
-   if (props.disabled || props.isLoading ) {
+  if (props.disabled || props.isLoading) {
     return
-  }else{
+  } else {
     selectedOption.value = option
     search.value = option.label
     hasUserTyped.value = false
@@ -268,23 +240,29 @@ onBeforeUnmount(() => {
 .cursor-not-allowed {
   cursor: not-allowed;
 }
+
 .opacity-50 {
   opacity: 0.5;
 }
+
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #b654c7e2 #e5e7eb;
 }
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: #e5e7eb;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #3b82f6;
   border-radius: 20px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #25ebe5;
 }

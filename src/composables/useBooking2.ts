@@ -1,15 +1,13 @@
 import { ref, computed, watch } from 'vue'
-import {  useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
-import { getRoomTypes } from '@/services/roomTypeApi'
-import {  getRateTypesByRoomTypes } from '@/services/rateTypeApi'
 import { createReservation } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
-import { getAvailableRoomsByTypeId, getMarketCodesByHotelId } from '../services/configrationApi'
+import { getAvailableRoomsByTypeId, getFrontofficeBookingDataId, getMarketCodesByHotelId } from '../services/configrationApi'
 import { useBookingStorage } from '@/composables/useBookingStorage'
 import { useBookingStore } from '@/composables/booking'
 
@@ -42,10 +40,10 @@ interface Reservation {
   complimentaryRoom?: boolean
   isHold: boolean
   reservationStatus: string
-  meansOfTransport:string
-  goingTo:string
-  arrivingTo:string
-  customType:string
+  meansOfTransport: string
+  goingTo: string
+  arrivingTo: string
+  customType: string
 }
 
 interface Guest {
@@ -88,9 +86,9 @@ interface PaymentData {
 interface Option {
   label: string
   value: number | string
-  count?:number
-  disabled?:boolean
-  status?:string
+  count?: number
+  disabled?: boolean
+  status?: string
 }
 
 interface RoomTypeData {
@@ -112,6 +110,7 @@ interface RoomTypeData {
   updatedByUserId: number | null
   isDeleted: boolean
   rooms: RoomData[]
+  roomRates:any[]
 }
 
 interface RoomData {
@@ -153,7 +152,7 @@ export function useBooking() {
   const isPaymentLoading = ref(false)
   const isLoadingAvailableRooms = ref(false)
   const quickGroupBooking = ref(false)
-  const {  clearBooking } = useBookingStorage()
+  const { clearBooking } = useBookingStorage()
 
   // Data refs
   const RoomTypes = ref<Option[]>([])
@@ -221,10 +220,10 @@ export function useBooking() {
     complimentaryRoom: false,
     isHold: false,
     reservationStatus: 'confirmed',
-    meansOfTransport:'',
-    goingTo:'',
-    arrivingTo:'',
-    customType:'individual'
+    meansOfTransport: '',
+    goingTo: '',
+    arrivingTo: '',
+    customType: 'individual'
   })
 
   const guest = ref<Guest>({
@@ -308,12 +307,12 @@ export function useBooking() {
     return `${formData.value.firstName} ${formData.value.lastName}`.trim()
   })
 
-   const CustomTypes = computed(()=>[
+  const CustomTypes = computed(() => [
     { label: t('individual'), value: 'individual' },
     { label: t('group'), value: 'group' },
     { label: t('Company'), value: 'company' },
     { label: t('family'), value: 'family' },
-   ])
+  ])
 
   const businessSourcesLo = ref<any>([...serviceStore.businessSources])
   const bookingTypeLo = ref<any>([...serviceStore.reservationType])
@@ -324,7 +323,7 @@ export function useBooking() {
   const BusinessSource = computed(() => businessSourcesLo.value || [])
   const BookingType = computed(() => bookingTypeLo.value || [])
   const MarketCode = computed(() => marketCodesLo.value || [])
-  console.log('BookingType',BookingType.value )
+  console.log('BookingType', BookingType.value)
   const creditTypes = computed(() => [
     { label: 'Visa', value: 'visa' },
     { label: 'MasterCard', value: 'mastercard' },
@@ -361,78 +360,78 @@ export function useBooking() {
 
 
   const validateCheckInCheckOut = (): { isValid: boolean; error: string | null } => {
-  const checkinDate = reservation.value.checkinDate
-  const checkoutDate = reservation.value.checkoutDate
-  const checkinTime = reservation.value.checkinTime
-  const checkoutTime = reservation.value.checkoutTime
+    const checkinDate = reservation.value.checkinDate
+    const checkoutDate = reservation.value.checkoutDate
+    const checkinTime = reservation.value.checkinTime
+    const checkoutTime = reservation.value.checkoutTime
 
-  // Vérifier que toutes les valeurs sont présentes
-  if (!checkinDate || !checkoutDate) {
-    return { isValid: false, error: 'validation.datesRequired' }
-  }
-
-  if (!checkinTime || !checkoutTime) {
-    return { isValid: false, error: 'validation.timesRequired' }
-  }
-
-  // Créer des objets Date complets
-  const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`)
-  const checkoutDateTime = new Date(`${checkoutDate}T${checkoutTime}`)
-
-  // Vérifier que les dates sont valides
-  // if (isNaN(checkinDateTime.getTime()) || isNaN(checkoutDateTime.getTime())) {
-  //   return { isValid: false, error: 'validation.invalidDateTime' }
-  // }
-
-  //  La date de checkout est avant la date de checkin
-  if (checkoutDateTime < checkinDateTime) {
-    return { isValid: false, error: 'validation.checkoutBeforeCheckin' }
-  }
-
-  //  Même date et même heure
-  if (checkinDate === checkoutDate && checkinTime === checkoutTime) {
-    return { isValid: false, error: 'validation.sameDateTime' }
-  }
-
-  //  Même date mais checkout avant checkin
-  if (checkinDate === checkoutDate) {
-    const [checkinHour, checkinMinute] = checkinTime.split(':').map(Number)
-    const [checkoutHour, checkoutMinute] = checkoutTime.split(':').map(Number)
-
-    const checkinMinutes = checkinHour * 60 + checkinMinute
-    const checkoutMinutes = checkoutHour * 60 + checkoutMinute
-
-    if (checkoutMinutes <= checkinMinutes) {
-      return { isValid: false, error: 'validation.checkoutTimeBeforeCheckinTime' }
+    // Vérifier que toutes les valeurs sont présentes
+    if (!checkinDate || !checkoutDate) {
+      return { isValid: false, error: 'validation.datesRequired' }
     }
-  }
 
-  //  Durée minimale (optionnel - par exemple 1 heure minimum)
-  const durationInHours = (checkoutDateTime.getTime() - checkinDateTime.getTime()) / (1000 * 60 * 60)
-  if (durationInHours < 1) {
-    return { isValid: false, error: 'validation.minimumStayDuration' }
-  }
+    if (!checkinTime || !checkoutTime) {
+      return { isValid: false, error: 'validation.timesRequired' }
+    }
 
-  return { isValid: true, error: null }
-}
+    // Créer des objets Date complets
+    const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`)
+    const checkoutDateTime = new Date(`${checkoutDate}T${checkoutTime}`)
+
+    // Vérifier que les dates sont valides
+    // if (isNaN(checkinDateTime.getTime()) || isNaN(checkoutDateTime.getTime())) {
+    //   return { isValid: false, error: 'validation.invalidDateTime' }
+    // }
+
+    //  La date de checkout est avant la date de checkin
+    if (checkoutDateTime < checkinDateTime) {
+      return { isValid: false, error: 'validation.checkoutBeforeCheckin' }
+    }
+
+    //  Même date et même heure
+    if (checkinDate === checkoutDate && checkinTime === checkoutTime) {
+      return { isValid: false, error: 'validation.sameDateTime' }
+    }
+
+    //  Même date mais checkout avant checkin
+    if (checkinDate === checkoutDate) {
+      const [checkinHour, checkinMinute] = checkinTime.split(':').map(Number)
+      const [checkoutHour, checkoutMinute] = checkoutTime.split(':').map(Number)
+
+      const checkinMinutes = checkinHour * 60 + checkinMinute
+      const checkoutMinutes = checkoutHour * 60 + checkoutMinute
+
+      if (checkoutMinutes <= checkinMinutes) {
+        return { isValid: false, error: 'validation.checkoutTimeBeforeCheckinTime' }
+      }
+    }
+
+    //  Durée minimale (optionnel - par exemple 1 heure minimum)
+    const durationInHours = (checkoutDateTime.getTime() - checkinDateTime.getTime()) / (1000 * 60 * 60)
+    if (durationInHours < 1) {
+      return { isValid: false, error: 'validation.minimumStayDuration' }
+    }
+
+    return { isValid: true, error: null }
+  }
 
   // Watcher pour valider les dates et heures en temps réel
-watch(
-  [
-    () => reservation.value.checkinDate,
-    () => reservation.value.checkoutDate,
-    () => reservation.value.checkinTime,
-    () => reservation.value.checkoutTime
-  ],
-  () => {
-    const validation = validateCheckInCheckOut()
-    if (!validation.isValid && validation.error) {
-      dateError.value = validation.error
-    } else {
-      dateError.value = null
+  watch(
+    [
+      () => reservation.value.checkinDate,
+      () => reservation.value.checkoutDate,
+      () => reservation.value.checkinTime,
+      () => reservation.value.checkoutTime
+    ],
+    () => {
+      const validation = validateCheckInCheckOut()
+      if (!validation.isValid && validation.error) {
+        dateError.value = validation.error
+      } else {
+        dateError.value = null
+      }
     }
-  }
-)
+  )
 
   watch([() => reservation.value.checkinDate, () => reservation.value.checkoutDate], async () => {
     const arrivalDate = reservation.value.checkinDate
@@ -465,11 +464,9 @@ watch(
       if (room.roomType) {
         // Reset la sélection de chambre car les chambres disponibles peuvent avoir changé
         room.roomNumber = ''
-        // await loadRoomsForRoomType(room.roomType)
-        await loadAllRoomCounts()
       }
     }
-
+    initialize()
     updateBilling()
   })
 
@@ -546,97 +543,83 @@ watch(
     const room = roomConfigurations.value.find((r) => r.id === roomId)
     if (!room || !room.roomType) return []
 
-    return roomTypeRateTypes.value.get(room.roomType) || []
+    return RoomTypes.value.find((rt) => rt.value === Number(room.roomType))?.rateTypeOptions || []
   }
 
   const getRoomsForRoom = (roomId: string): Option[] => {
     const room = roomConfigurations.value.find((r) => r.id === roomId)
     if (!room || !room.roomType) return []
-
-    return roomTypeRooms.value.get(room.roomType) || []
+    console.log('roomTypeRooms.value', RoomTypes.value)
+    return RoomTypes.value.find((rt) => rt.value === Number(room.roomType))?.roomOptions || []
   }
 
-  // Fonction pour charger les rate types pour un room type spécifique
-  const loadRateTypesForRoomType = async (roomTypeId: string, forceReload = false) => {
+  const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) => {
     if (!roomTypeId) return
 
     const roomTypeIdNumber = Number(roomTypeId)
 
     try {
-      if (roomTypeRateTypes.value.has(roomTypeId) && !forceReload) {
-        return
+      if (roomConfigId) {
+        const room = roomConfigurations.value.find(r => r.id === roomConfigId)
+        if (room) {
+          room.isLoadingRooms = true
+        }
+      } else {
+        isLoadingAvailableRooms.value = true
       }
 
-      const response = await fetchRateTypes(roomTypeIdNumber)
-      console.log('fetchRateTypes response:', response)
+      const response = await getAvailableRoomsByTypeId(
+        roomTypeIdNumber,
+        reservation.value.checkinDate,
+        reservation.value.checkoutDate,
+      )
 
-      if (response?.data?.rateTypes) {
-        const rateTypeOptions: Option[] = response.data.rateTypes.map((rateType: any) => ({
-          label: rateType.rateTypeName,
-          value: rateType.id,
+      console.log('Available rooms response:', response)
+
+      if (response?.data?.data) {
+        const roomOptions: Option[] = (response.data.data.rooms || []).map((room: any) => ({
+          label: room.roomNumber,
+          value: room.id,
+          status: room.status,
+          disabled: room.status === 'occupied'
         }))
 
-        roomTypeRateTypes.value.set(roomTypeId, rateTypeOptions)
+        roomTypeRooms.value.set(roomTypeId, roomOptions)
+
+        const availableCount = response.data.data.rooms.filter((r: any) => r.status === 'available').length
+
+
+
+        RoomTypes.value = RoomTypes.value.map(rt => {
+          const rtValueStr = rt.value
+          const matches = rtValueStr === roomTypeId
+
+
+          if (matches) {
+
+            return {
+              ...rt,
+              count: availableCount
+            }
+          }
+          return rt
+        })
+
+      } else {
+        roomTypeRooms.value.set(roomTypeId, [])
+
+        RoomTypes.value = RoomTypes.value.map(rt => {
+          if (rt.value === roomTypeId) {
+            return {
+              ...rt,
+              count: 0
+            }
+          }
+          return rt
+        })
       }
     } catch (error) {
-      console.error('Error loading rate types for room type:', error)
-
-    }
-  }
-
-const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) => {
-  if (!roomTypeId) return
-
-  const roomTypeIdNumber = Number(roomTypeId)
-
-  try {
-    if (roomConfigId) {
-      const room = roomConfigurations.value.find(r => r.id === roomConfigId)
-      if (room) {
-        room.isLoadingRooms = true
-      }
-    } else {
-      isLoadingAvailableRooms.value = true
-    }
-
-    const response = await getAvailableRoomsByTypeId(
-      roomTypeIdNumber,
-      reservation.value.checkinDate,
-      reservation.value.checkoutDate,
-    )
-
-    console.log('Available rooms response:', response)
-
-    if (response?.data?.data) {
-      const roomOptions: Option[] = (response.data.data.rooms || []).map((room: any) => ({
-        label: room.roomNumber,
-        value: room.id,
-        status: room.status,
-        disabled: room.status === 'occupied'
-      }))
-
-      roomTypeRooms.value.set(roomTypeId, roomOptions)
-
-      const availableCount = response.data.data.rooms.filter((r: any) => r.status === 'available').length
-
-
-
-      RoomTypes.value = RoomTypes.value.map(rt => {
-        const rtValueStr = rt.value
-        const matches = rtValueStr === roomTypeId
-
-
-        if (matches) {
-
-          return {
-            ...rt,
-            count: availableCount
-          }
-        }
-        return rt
-      })
-
-    } else {
+      console.error('Error loading available rooms for room type:', error)
       roomTypeRooms.value.set(roomTypeId, [])
 
       RoomTypes.value = RoomTypes.value.map(rt => {
@@ -648,110 +631,15 @@ const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) =
         }
         return rt
       })
-    }
-  } catch (error) {
-    console.error('Error loading available rooms for room type:', error)
-    roomTypeRooms.value.set(roomTypeId, [])
-
-    RoomTypes.value = RoomTypes.value.map(rt => {
-      if (rt.value === roomTypeId) {
-        return {
-          ...rt,
-          count: 0
+    } finally {
+      if (roomConfigId) {
+        const room = roomConfigurations.value.find(r => r.id === roomConfigId)
+        if (room) {
+          room.isLoadingRooms = false
         }
+      } else {
+        isLoadingAvailableRooms.value = false
       }
-      return rt
-    })
-  } finally {
-    if (roomConfigId) {
-      const room = roomConfigurations.value.find(r => r.id === roomConfigId)
-      if (room) {
-        room.isLoadingRooms = false
-      }
-    } else {
-      isLoadingAvailableRooms.value = false
-    }
-  }
-}
-
-//   const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) => {
-//   if (!roomTypeId) return
-
-//   const roomTypeIdNumber = Number(roomTypeId)
-
-//   try {
-//     // Si roomConfigId est fourni, marquer seulement cette chambre comme en chargement
-//     if (roomConfigId) {
-//       const room = roomConfigurations.value.find(r => r.id === roomConfigId)
-//       if (room) {
-//         room.isLoadingRooms = true
-//       }
-//     } else {
-
-//       isLoadingAvailableRooms.value = true
-//     }
-
-//     const response = await getAvailableRoomsByTypeId(
-//       roomTypeIdNumber,
-//       reservation.value.checkinDate,
-//       reservation.value.checkoutDate,
-//     )
-
-//     console.log('Available rooms response:', response)
-
-//     if (response?.data?.data?.rooms) {
-
-//       const roomOptions: Option[] = response.data.data.rooms.map((room: any) => ({
-//         label: room.roomNumber,
-//         value: room.id,
-//         status: room.status,
-//         disabled: room.status === 'occupied'
-//       }))
-
-//       roomTypeRooms.value.set(roomTypeId, roomOptions)
-//     } else {
-//       roomTypeRooms.value.set(roomTypeId, [])
-//     }
-//   } catch (error) {
-//     console.error('Error loading available rooms for room type:', error)
-//     roomTypeRooms.value.set(roomTypeId, [])
-//   } finally {
-//     // Arrêter le chargement pour cette chambre spécifique
-//     if (roomConfigId) {
-//       const room = roomConfigurations.value.find(r => r.id === roomConfigId)
-//       if (room) {
-//         room.isLoadingRooms = false
-//       }
-//     } else {
-//       isLoadingAvailableRooms.value = false
-//     }
-//   }
-// }
-
-  //fonction pour récupérer le base rate
-  const fetchBaseRate = async (
-    roomTypeId: string,
-    rateTypeId: string,
-    date?: string,
-  ): Promise<number | null> => {
-    try {
-      const hotelId = serviceStore.serviceId
-      if (!hotelId) {
-        throw new Error('Hotel ID not found')
-      }
-
-      const response = await getBaseRateByRoomAndRateType({
-        hotel_id: hotelId,
-        room_type_id: Number(roomTypeId),
-        rate_type_id: Number(rateTypeId),
-        date: date || reservation.value.checkinDate,
-      })
-      console.log('fetchBaseRate', response)
-
-      return response?.baseRate || null
-    } catch (error) {
-      console.error('Error fetching base rate:', error)
-      return null
     }
   }
 
@@ -767,7 +655,7 @@ const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) =
       rate: 0,
       isOpen: false,
       taxes: [],
-      extraCharges:[],
+      extraCharges: [],
       isLoadingRooms: false,
       isLoadingRate: false,
     }
@@ -790,199 +678,138 @@ const loadRoomsForRoomType = async (roomTypeId: string, roomConfigId?: string) =
   const totalRoomCharges = computed(() => billing.value.roomCharges)
   const totalAmount = computed(() => billing.value.totalAmount)
 
-  // Data fetching methods
 
-const fetchRoomTypes = async () => {
-  try {
-    isLoadingRoom.value = true
-    const hotelId = serviceStore.serviceId
-
-    if (!hotelId) {
-      throw new Error('Hotel ID not found')
-    }
-
-    const response = await getRoomTypes(hotelId)
-    console.log('fetchRoomtype', response)
-
-    if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
-      throw new Error('Invalid room types data structure')
-    }
-
-    RoomTypesData.value = response.data.data.data
-    console.log('RoomTypesData.value', RoomTypesData.value)
-
-    const roomTypeOptions: Option[] = response.data.data.data.map((room: RoomTypeData) => {
-      // const availableRooms = room.rooms?.filter(r => r.status === 'available').length || 0
-
-      return {
-        label: room.roomTypeName,
-        value: room.id,
-      }
-    })
-    RoomTypes.value = roomTypeOptions
-  } catch (error) {
-    console.error('Error fetching room types:', error)
-    RoomTypes.value = []
-    RoomTypesData.value = []
-  } finally {
-    isLoadingRoom.value = false
-  }
-}
-
-
-
-
-  const fetchRateTypes = async (roomTypeId: any) => {
-    try {
-      if (!roomTypeId) {
-        throw new Error('roomTypeId ID not found')
-      }
-
-      const response = await getRateTypesByRoomTypes(roomTypeId)
-      console.log("fetchRateTypes",response)
-
-      if (!response.data) {
-        throw new Error('Invalid rate types data structure')
-      }
-
-      return response
-    } catch (error) {
-      console.error('Error fetching rate types:', error)
-
-      return { data: { roomType: { rateTypes: [] } } }
-    }
-  }
 
   // Customer handling
- const onCustomerSelected = (customer: any | null) => {
-  if (customer) {
-    formData.value = {
-      ...formData.value,
-      firstName: customer.firstName || '',
-      lastName: customer.lastName || '',
-      phoneNumber: customer.phoneNumber || customer.phonePrimary || '',
-      email: customer.email || '',
-      companyName: customer.companyName || '',
-      groupName: customer.groupName || '',
-      title: customer.title || '',
-      fax: customer.fax || '',
-      maidenName: customer.maidenName || '',
-      contactType: customer.contactType || '',
-      placeOfBirth: customer.placeOfBirth || '',
-      dateOfBirth: customer.dateOfBirth || '',
-      nationality: customer.nationality,
-      profession: customer.profession || '',
-      id: customer.id || 0,
-      roleId: customer.roleId || null,
-      address: customer.address || customer.addressLine || '',
-      country: customer.country || '',
-      state: customer.state || customer.stateProvince || '',
-      city: customer.city || '',
-      zipcode: customer.zipcode || customer.postalCode || '',
-      idPhoto: customer.idPhoto || null,
-      profilePhoto: customer.profilePhoto || null,
-      issuingCountry: customer.issuingCountry || '',
-      issuingCity: customer.issuingCity || '',
-      contactValue: customer.contactTypeValue || '',
-    }
-
-
-     if (customer.contactType && customer.contactTypeValue) {
-          formData.value.contactTypeValue = customer.contactTypeValue
-          formData.value.contactValue = customer.contactTypeValue
+  const onCustomerSelected = (customer: any | null) => {
+    if (customer) {
+      formData.value = {
+        ...formData.value,
+        firstName: customer.firstName || '',
+        lastName: customer.lastName || '',
+        phoneNumber: customer.phoneNumber || customer.phonePrimary || '',
+        email: customer.email || '',
+        companyName: customer.companyName || '',
+        groupName: customer.groupName || '',
+        title: customer.title || '',
+        fax: customer.fax || '',
+        maidenName: customer.maidenName || '',
+        contactType: customer.contactType || '',
+        placeOfBirth: customer.placeOfBirth || '',
+        dateOfBirth: customer.dateOfBirth || '',
+        nationality: customer.nationality,
+        profession: customer.profession || '',
+        id: customer.id || 0,
+        roleId: customer.roleId || null,
+        address: customer.address || customer.addressLine || '',
+        country: customer.country || '',
+        state: customer.state || customer.stateProvince || '',
+        city: customer.city || '',
+        zipcode: customer.zipcode || customer.postalCode || '',
+        idPhoto: customer.idPhoto || null,
+        profilePhoto: customer.profilePhoto || null,
+        issuingCountry: customer.issuingCountry || '',
+        issuingCity: customer.issuingCity || '',
+        contactValue: customer.contactTypeValue || '',
       }
 
-    if (customer.passportNumber) {
-      formData.value.idType = customer.idType || 'Passport'
-      formData.value.idNumber = customer.passportNumber
-      formData.value.passportNumber = customer.passportNumber
-      formData.value.passportExpiry = customer.passportExpiry
-        ? customer.passportExpiry.substring(0, 10)
-        : ''
-      formData.value.idExpiryDate = customer.passportExpiry
-        ? customer.passportExpiry.substring(0, 10)
-        : ''
-    } else if (customer.visaNumber) {
-      formData.value.idType = customer.idType || 'Visa'
-      formData.value.idNumber = customer.visaNumber
-      formData.value.visaNumber = customer.visaNumber
-      formData.value.visaExpiry = customer.visaExpiry
-        ? customer.visaExpiry.substring(0, 10)
-        : ''
-      formData.value.idExpiryDate = customer.visaExpiry
-        ? customer.visaExpiry.substring(0, 10)
-        : ''
-    } else if (customer.idNumber) {
-      formData.value.idType = customer.idType || ''
-      formData.value.idNumber = customer.idNumber
-      formData.value.idExpiryDate = customer.idExpiryDate
-        ? customer.idExpiryDate.substring(0, 10)
-        : ''
+
+      if (customer.contactType && customer.contactTypeValue) {
+        formData.value.contactTypeValue = customer.contactTypeValue
+        formData.value.contactValue = customer.contactTypeValue
+      }
+
+      if (customer.passportNumber) {
+        formData.value.idType = customer.idType || 'Passport'
+        formData.value.idNumber = customer.passportNumber
+        formData.value.passportNumber = customer.passportNumber
+        formData.value.passportExpiry = customer.passportExpiry
+          ? customer.passportExpiry.substring(0, 10)
+          : ''
+        formData.value.idExpiryDate = customer.passportExpiry
+          ? customer.passportExpiry.substring(0, 10)
+          : ''
+      } else if (customer.visaNumber) {
+        formData.value.idType = customer.idType || 'Visa'
+        formData.value.idNumber = customer.visaNumber
+        formData.value.visaNumber = customer.visaNumber
+        formData.value.visaExpiry = customer.visaExpiry
+          ? customer.visaExpiry.substring(0, 10)
+          : ''
+        formData.value.idExpiryDate = customer.visaExpiry
+          ? customer.visaExpiry.substring(0, 10)
+          : ''
+      } else if (customer.idNumber) {
+        formData.value.idType = customer.idType || ''
+        formData.value.idNumber = customer.idNumber
+        formData.value.idExpiryDate = customer.idExpiryDate
+          ? customer.idExpiryDate.substring(0, 10)
+          : ''
+      } else {
+        formData.value.idType = customer.idType || ''
+        formData.value.idNumber = ''
+        formData.value.idExpiryDate = ''
+      }
+
+      // Mettre à jour le nom sur la carte
+      paymentData.value.cardHolderName = guestFullName.value
     } else {
-      formData.value.idType = customer.idType || ''
-      formData.value.idNumber = ''
-      formData.value.idExpiryDate = ''
+      formData.value = {
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        fax: '',
+        placeOfBirth: '',
+        dateOfBirth: '',
+        nationality: '',
+        profession: '',
+        email: '',
+        roleId: null,
+        companyName: '',
+        groupName: '',
+        title: '',
+        id: 0,
+        address: '',
+        country: '',
+        state: '',
+        city: '',
+        zipcode: '',
+        maidenName: '',
+        contactType: '',
+        contactValue: '',
+        idPhoto: '',
+        idType: '',
+        idNumber: '',
+        idExpiryDate: '',
+        issuingCountry: '',
+        issuingCity: '',
+        profilePhoto: '',
+        passportNumber: null,
+        passportExpiry: null,
+        visaNumber: null,
+        visaExpiry: null,
+      }
+      paymentData.value.cardHolderName = ''
     }
-
-    // Mettre à jour le nom sur la carte
-    paymentData.value.cardHolderName = guestFullName.value
-  } else {
-    formData.value = {
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      fax: '',
-      placeOfBirth: '',
-      dateOfBirth: '',
-      nationality: '',
-      profession: '',
-      email: '',
-      roleId: null,
-      companyName: '',
-      groupName: '',
-      title: '',
-      id: 0,
-      address: '',
-      country: '',
-      state: '',
-      city: '',
-      zipcode: '',
-      maidenName: '',
-      contactType: '',
-      contactValue: '',
-      idPhoto: '',
-      idType: '',
-      idNumber: '',
-      idExpiryDate: '',
-      issuingCountry: '',
-      issuingCity: '',
-      profilePhoto: '',
-      passportNumber: null,
-      passportExpiry: null,
-      visaNumber: null,
-      visaExpiry: null,
-    }
-    paymentData.value.cardHolderName = ''
   }
-}
   const loadAllRoomCounts = async () => {
-  if (!RoomTypes.value.length) return
+    if (!RoomTypes.value.length) return
 
-  try {
-    isLoadingAvailableRooms.value = true
+    try {
+      isLoadingAvailableRooms.value = true
 
-    // Charger les counts pour tous les types de chambres en parallèle
-    await Promise.all(
-      RoomTypes.value.map(roomType =>
-        loadRoomsForRoomType(roomType.value.toString())
+      // Charger les counts pour tous les types de chambres en parallèle
+      await Promise.all(
+        RoomTypes.value.map(roomType =>
+          loadRoomsForRoomType(roomType.value.toString())
+        )
       )
-    )
-  } catch (error) {
-    console.error('Error loading room counts:', error)
-  } finally {
-    isLoadingAvailableRooms.value = false
+    } catch (error) {
+      console.error('Error loading room counts:', error)
+    } finally {
+      isLoadingAvailableRooms.value = false
+    }
   }
-}
 
   // Fonction pour attendre que tous les uploads soient terminés
   const waitForPendingUploads = async (): Promise<boolean> => {
@@ -1019,140 +846,140 @@ const fetchRoomTypes = async () => {
   }
 
   const validateRoomNumbers = (): { isValid: boolean; errors: string[] } => {
-  const errors: string[] = []
+    const errors: string[] = []
 
-  for (const room of roomConfigurations.value) {
-    if (room.roomType && room.roomNumber) {
-      // Récupérer les options de chambres disponibles pour ce type de chambre
-      const availableRooms = getRoomsForRoom(room.id)
+    for (const room of roomConfigurations.value) {
+      if (room.roomType && room.roomNumber) {
+        // Récupérer les options de chambres disponibles pour ce type de chambre
+        const availableRooms = getRoomsForRoom(room.id)
 
-      // Vérifier si le numéro de chambre saisi existe dans les options
-      const roomExists = availableRooms.some(option =>
-        option.value.toString() === room.roomNumber.toString()
-      )
+        // Vérifier si le numéro de chambre saisi existe dans les options
+        const roomExists = availableRooms.some(option =>
+          option.value.toString() === room.roomNumber.toString()
+        )
 
-      if (!roomExists) {
-        // Récupérer le nom du type de chambre pour l'erreur
-        const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
-        errors.push(`Le numéro de chambre "${room.roomNumber}" n'est pas disponible pour le type "${roomTypeName}"`)
+        if (!roomExists) {
+          // Récupérer le nom du type de chambre pour l'erreur
+          const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
+          errors.push(`Le numéro de chambre "${room.roomNumber}" n'est pas disponible pour le type "${roomTypeName}"`)
+        }
       }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
     }
   }
 
-  return {
-    isValid: errors.length === 0,
-    errors
-  }
-}
+  const validateRoomNumberOnChange = (roomId: string, newRoomNumber: string) => {
+    const room = roomConfigurations.value.find(r => r.id === roomId)
+    if (!room || !newRoomNumber) return true
 
-const validateRoomNumberOnChange = (roomId: string, newRoomNumber: string) => {
-  const room = roomConfigurations.value.find(r => r.id === roomId)
-  if (!room || !newRoomNumber) return true
+    const availableRooms = getRoomsForRoom(roomId)
+    const isValid = availableRooms.some(option =>
+      option.value.toString() === newRoomNumber.toString()
+    )
 
-  const availableRooms = getRoomsForRoom(roomId)
-  const isValid = availableRooms.some(option =>
-    option.value.toString() === newRoomNumber.toString()
-  )
+    if (!isValid) {
+      const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
+      toast.error(`Le numéro de chambre "${newRoomNumber}" n'est pas disponible pour le type "${roomTypeName}"`) // Corrected escaping for consistency
+      // Optionnel : réinitialiser le numéro de chambre
+      // room.roomNumber = ''
+      return false
+    }
 
-  if (!isValid) {
-    const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
-    toast.error(`Le numéro de chambre "${newRoomNumber}" n'est pas disponible pour le type "${roomTypeName}"`) // Corrected escaping for consistency
-    // Optionnel : réinitialiser le numéro de chambre
-    // room.roomNumber = ''
-    return false
+    return true
   }
 
-  return true
-}
+  const validateAllRooms = () => {
+    let isValid = true;
+    const errors: string[] = [];
 
-const validateAllRooms = () => {
-  let isValid = true;
-  const errors: string[] = [];
+    for (const [index, room] of roomConfigurations.value.entries()) {
 
-  for (const [index, room] of roomConfigurations.value.entries()) {
-
-    // --- Room Type Validation ---
-    if (!room.roomType) {
-      isValid = false;
-      errors.push(t('toast.validation.roomTypeRequired', { index: index + 1 }));
-    } else {
-      const roomTypeExists = RoomTypes.value.some(option => option.value === room.roomType);
-      if (!roomTypeExists) {
+      // --- Room Type Validation ---
+      if (!room.roomType) {
         isValid = false;
-        errors.push(t('toast.validation.roomTypeInvalid', { index: index + 1, value: room.roomType }));
+        errors.push(t('toast.validation.roomTypeRequired', { index: index + 1 }));
+      } else {
+        const roomTypeExists = RoomTypes.value.some(option => option.value === room.roomType);
+        if (!roomTypeExists) {
+          isValid = false;
+          errors.push(t('toast.validation.roomTypeInvalid', { index: index + 1, value: room.roomType }));
+        }
+      }
+
+      // --- Rate Type Validation ---
+      if (!room.rateType) {
+        isValid = false;
+        errors.push(t('toast.validation.rateTypeRequired', { index: index + 1 }));
+      } else {
+        const rateTypeExists = getRateTypesForRoom(room.id).some(option => option.value === room.rateType);
+        if (!rateTypeExists) {
+          isValid = false;
+          errors.push(t('toast.validation.rateTypeInvalid', { index: index + 1, value: room.rateType }));
+        }
+      }
+
+      // --- Room Number Validation ---
+      if (room.roomType && room.roomNumber) {
+        const roomNumberExists = getRoomsForRoom(room.id).some(option =>
+          option.value.toString() === room.roomNumber.toString()
+        );
+        if (!roomNumberExists) {
+          isValid = false;
+          const roomTypeName = RoomTypes.value.find(rt => rt.value === room.roomType)?.label || 'Unknown';
+          errors.push(t('toast.validation.roomNumberInvalid', { index: index + 1, value: room.roomNumber, roomTypeName: roomTypeName }));
+        }
       }
     }
 
-    // --- Rate Type Validation ---
-    if (!room.rateType) {
-      isValid = false;
-      errors.push(t('toast.validation.rateTypeRequired', { index: index + 1 }));
-    } else {
-      const rateTypeExists = getRateTypesForRoom(room.id).some(option => option.value === room.rateType);
-      if (!rateTypeExists) {
-        isValid = false;
-        errors.push(t('toast.validation.rateTypeInvalid', { index: index + 1, value: room.rateType }));
-      }
+    return { isValid, errors };
+  };
+
+  const getAdultOptions = (roomTypeId: any | null) => {
+    if (!roomTypeId) return []
+
+    const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
+    if (!roomType) return []
+
+    const maxAdults = roomType.maxAdult || 1
+    const options: any = []
+
+    for (let i = 1; i <= maxAdults; i++) {
+      options.push({
+        label: i.toString(),
+        value: i
+      })
     }
 
-    // --- Room Number Validation ---
-    if (room.roomType && room.roomNumber) {
-      const roomNumberExists = getRoomsForRoom(room.id).some(option =>
-        option.value.toString() === room.roomNumber.toString()
-      );
-      if (!roomNumberExists) {
-        isValid = false;
-        const roomTypeName = RoomTypes.value.find(rt => rt.value === room.roomType)?.label || 'Unknown';
-        errors.push(t('toast.validation.roomNumberInvalid', { index: index + 1, value: room.roomNumber, roomTypeName: roomTypeName }));
-      }
-    }
+    return options
   }
 
-  return { isValid, errors };
-};
+  const getChildOptions = (roomTypeId: any | null) => {
+    if (!roomTypeId) return []
 
-const getAdultOptions = (roomTypeId: any | null) => {
-  if (!roomTypeId) return []
+    const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
+    if (!roomType) return []
 
-  const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
-  if (!roomType) return []
+    const maxChildren = roomType.maxChild || 0
+    const options: any = []
 
-  const maxAdults = roomType.maxAdult || 1
-  const options:any = []
-
-  for (let i = 1; i <= maxAdults; i++) {
     options.push({
-      label: i.toString(),
-      value: i
+      label: '0',
+      value: 0
     })
+
+    for (let i = 1; i <= maxChildren; i++) {
+      options.push({
+        label: i.toString(),
+        value: i
+      })
+    }
+
+    return options
   }
-
-  return options
-}
-
-const getChildOptions = (roomTypeId: any | null) => {
-  if (!roomTypeId) return []
-
-  const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
-  if (!roomType) return []
-
-  const maxChildren = roomType.maxChild || 0
-  const options: any = []
-
-  options.push({
-    label: '0',
-    value: 0
-  })
-
-  for (let i = 1; i <= maxChildren; i++) {
-    options.push({
-      label: i.toString(),
-      value: i
-    })
-  }
-
-  return options
-}
   //save reservation
   const saveReservation = async () => {
     isLoading.value = true
@@ -1163,7 +990,7 @@ const getChildOptions = (roomTypeId: any | null) => {
         throw new Error(t(validation.error || 'validation.invalidDateTime'))
       }
       // Validation
-      if (!formData.value.firstName || !formData.value.lastName  ) {
+      if (!formData.value.firstName || !formData.value.lastName) {
         throw new Error(t('Guest information is incomplete'))
       }
 
@@ -1175,34 +1002,34 @@ const getChildOptions = (roomTypeId: any | null) => {
         throw new Error(t('Service ID is missing'))
       }
 
-     /* if (!billing.value.paymentMode) {
-        throw new Error(t('Please select the payment method'))
-      }*/
+      /* if (!billing.value.paymentMode) {
+         throw new Error(t('Please select the payment method'))
+       }*/
 
-       const roomValidation = validateAllRooms()
-        if (!roomValidation.isValid) {
-          // Afficher toutes les erreurs de validation des chambres
-          roomValidation.errors.forEach(error => toast.error(error))
-          isLoading.value = false
-          return
-          // throw new Error('Validation des numéros de chambre échouée')
-        }
+      const roomValidation = validateAllRooms()
+      if (!roomValidation.isValid) {
+        // Afficher toutes les erreurs de validation des chambres
+        roomValidation.errors.forEach(error => toast.error(error))
+        isLoading.value = false
+        return
+        // throw new Error('Validation des numéros de chambre échouée')
+      }
 
       //email client
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (formData.value.email && !emailRegex.test(formData.value.email)) {
-      throw new Error(t('Invalid guest email address'))
-    }
+      if (formData.value.email && !emailRegex.test(formData.value.email)) {
+        throw new Error(t('Invalid guest email address'))
+      }
 
-    // l'email booking voucher si activé
-    if (otherInfo.value.emailBookingVouchers) {
-      if (!otherInfo.value.voucherEmail) {
-        throw new Error(t('Voucher email is required when email booking vouchers is enabled'))
+      // l'email booking voucher si activé
+      if (otherInfo.value.emailBookingVouchers) {
+        if (!otherInfo.value.voucherEmail) {
+          throw new Error(t('Voucher email is required when email booking vouchers is enabled'))
+        }
+        if (!validateVoucherEmail()) {
+          throw new Error(t('Invalid voucher email address'))
+        }
       }
-      if (!validateVoucherEmail()) {
-        throw new Error(t('Invalid voucher email address'))
-      }
-    }
       await waitForPendingUploads()
 
       uploadErrors.value = []
@@ -1282,7 +1109,7 @@ const getChildOptions = (roomTypeId: any | null) => {
         booking_source: reservation.value.bookingSource,
         business_source: reservation.value.businessSource,
         customType: reservation.value.customType,
-        payment_type: billing.value.paymentType ,
+        payment_type: billing.value.paymentType,
 
         // Hold-specific fields (only included if isHold is true)
         ...(reservation.value.isHold && {
@@ -1303,7 +1130,7 @@ const getChildOptions = (roomTypeId: any | null) => {
 
         // Room configurations avec validation
         rooms: roomConfigurations.value
-          .filter((room) => room.roomType )
+          .filter((room) => room.roomType)
           .map((room) => ({
             room_type_id: safeParseInt(room.roomType, 0),
             rate_type_id: room.rateType ? safeParseInt(room.rateType, 0) : undefined,
@@ -1312,12 +1139,12 @@ const getChildOptions = (roomTypeId: any | null) => {
             adult_count: safeParseInt(room.adultCount, 1),
             child_count: safeParseInt(room.childCount, 0),
             room_rate_id: RoomRateById.value,
-            meal_plan_id : mealPlanId.value,
-            meal_plan_rate_include: mealPlanRateInclude.value ,
-            tax_includes: taxIncludes.value ,
-            means_of_transport:reservation.value.meansOfTransport,
-            going_to:reservation.value.goingTo,
-            arriving_to:reservation.value.arrivingTo,
+            meal_plan_id: mealPlanId.value,
+            meal_plan_rate_include: mealPlanRateInclude.value,
+            tax_includes: taxIncludes.value,
+            means_of_transport: reservation.value.meansOfTransport,
+            going_to: reservation.value.goingTo,
+            arriving_to: reservation.value.arrivingTo,
             taxes:
               (!billing.value.taxExempt && room.taxes?.length
                 ? room.taxes.reduce((total, tax: any) => {
@@ -1367,7 +1194,7 @@ const getChildOptions = (roomTypeId: any | null) => {
         confirmReservation.value = true
       }
 
-      if(response.status === 'pending'){
+      if (response.status === 'pending') {
         pendingReservation.value = true
       }
 
@@ -1437,53 +1264,53 @@ const getChildOptions = (roomTypeId: any | null) => {
   //  Fonction onRateTypeChange
 
 
-const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
-  const room = roomConfigurations.value.find((r) => r.id === roomId)
-  if (!room || !room.roomType || !newRateTypeId) return
+  const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
+    const room = roomConfigurations.value.find((r) => r.id === roomId)
+    if (!room || !room.roomType || !newRateTypeId) return
 
-  try {
-    room.isLoadingRate = true
+    try {
+      room.isLoadingRate = true
 
-    // Récupérer les informations complètes du rate
-    const rateInfo = await fetchRateInfo(
-      room.roomType,
-      newRateTypeId,
-      reservation.value.checkinDate,
-    )
-
-    if (rateInfo) {
-
-      const baseInfo = roomTypeBaseInfo.value.get(room.roomType) || {
-        baseAdult: 1,
-        baseChild: 0,
-        extraAdultRate: 0,
-        extraChildRate: 0,
-      }
-
-      baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
-      baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
-      roomTypeBaseInfo.value.set(room.roomType, baseInfo)
-      room.extraCharges = rateInfo.extraCharges || []
-
-      // Calculer le tarif avec conversion explicite
-      room.rate = calculateRoomRate(
+      // Récupérer les informations complètes du rate
+      const rateInfo = await fetchRateInfo(
         room.roomType,
-        Number(room.adultCount),
-        Number(room.childCount),
-        Number(rateInfo.baseRate) || 0,
+        newRateTypeId,
+        reservation.value.checkinDate,
       )
 
-      updateBilling()
-    }
-  } catch (error) {
-    console.error('Error fetching rate info:', error)
-    toast.error(t('toast.errorFetchingBaseRate'))
-  } finally {
-    if (room) {
-      room.isLoadingRate = false
+      if (rateInfo) {
+
+        const baseInfo = roomTypeBaseInfo.value.get(room.roomType) || {
+          baseAdult: 1,
+          baseChild: 0,
+          extraAdultRate: 0,
+          extraChildRate: 0,
+        }
+
+        baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
+        baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
+        roomTypeBaseInfo.value.set(room.roomType, baseInfo)
+        room.extraCharges = rateInfo.extraCharges || []
+
+        // Calculer le tarif avec conversion explicite
+        room.rate = calculateRoomRate(
+          room.roomType,
+          Number(room.adultCount),
+          Number(room.childCount),
+          Number(rateInfo.baseRate) || 0,
+        )
+
+        updateBilling()
+      }
+    } catch (error) {
+      console.error('Error fetching rate info:', error)
+      toast.error(t('toast.errorFetchingBaseRate'))
+    } finally {
+      if (room) {
+        room.isLoadingRate = false
+      }
     }
   }
-}
 
   //  Fonction onRoomTypeChange
   const onRoomTypeChange = async (roomId: string, newRoomTypeId: string) => {
@@ -1505,20 +1332,16 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
 
     try {
       // Charger les rate types et les chambres disponibles en parallèle
-      await Promise.all([
-        loadRateTypesForRoomType(newRoomTypeId),
-       loadRoomsForRoomType(newRoomTypeId, roomId),
-      ])
-
+      console.log('RoomTypesData', RoomTypesData)
       const selectedRoomTypeData = RoomTypesData.value.find((rt) => rt.id === Number(newRoomTypeId))
       if (selectedRoomTypeData) {
-        room.adultCount =  Math.max(1, Number(selectedRoomTypeData.baseAdult) || 1)
-        room.childCount = Number(selectedRoomTypeData.baseChild) || 0
+        room.adultCount = Math.max(1)
+        room.childCount = 0
         room.rate = Number(selectedRoomTypeData.default_price) || 0
 
         roomTypeBaseInfo.value.set(newRoomTypeId, {
-          baseAdult: Math.max(1, Number(selectedRoomTypeData.baseAdult) || 1),
-          baseChild: Number(selectedRoomTypeData.baseChild) || 0,
+          baseAdult: 1,
+          baseChild: 0,
           extraAdultRate: 0,
           extraChildRate: 0,
         })
@@ -1588,129 +1411,129 @@ const onRateTypeChange = async (roomId: string, newRateTypeId: string) => {
 
 
   const fetchRateInfo = async (
-  roomTypeId: string,
-  rateTypeId: string,
-  date?: string,
-): Promise<any | null> => {
-  try {
-    const hotelId = serviceStore.serviceId
-    if (!hotelId) {
-      throw new Error('Hotel ID not found')
+    roomTypeId: string,
+    rateTypeId: string,
+    date?: string,
+  ): Promise<any | null> => {
+    try {
+      const hotelId = serviceStore.serviceId
+      if (!hotelId) {
+        throw new Error('Hotel ID not found')
+      }
+
+      const response = await getBaseRateByRoomAndRateType({
+        hotel_id: hotelId,
+        room_type_id: Number(roomTypeId),
+        rate_type_id: Number(rateTypeId),
+        date: date || reservation.value.checkinDate,
+      })
+
+      console.log('fetchRateInfo response COMPLETE:', response)
+      console.log('mealPlanRateInclude:', response?.mealPlanRateInclude)
+      console.log('extraCharges:', response?.mealPlan?.extraCharges)
+
+      RoomRateById.value = response.id
+      mealPlanId.value = response.mealPlanId
+      taxIncludes.value = response.taxInclude
+      mealPlanRateInclude.value = response.mealPlanRateInclude
+
+      // Calculer le tarif de base avec meal plan si nécessaire
+      let calculatedBaseRate = Number(response?.baseRate) || 0
+      console.log('Base rate initial:', calculatedBaseRate)
+
+      // Si mealPlanRateInclude est false, ajouter les extra charges au baseRate
+      if (response?.mealPlanRateInclude === false && response?.mealPlan?.extraCharges) {
+        isExtraChargesIncluded.value = false
+        console.log('mealPlanRateInclude est FALSE, calcul des extra charges...')
+        const extraChargesTotal = response.mealPlan.extraCharges.reduce((sum: number, charge: any) => {
+          const chargeAmount = Number(charge.rate) || 0
+          console.log(`Adding charge ${charge.name}: ${chargeAmount}`)
+          return sum + chargeAmount
+        }, 0)
+        console.log('Total extra charges:', extraChargesTotal)
+        calculatedBaseRate += extraChargesTotal
+        console.log('Base rate après ajout extra charges:', calculatedBaseRate)
+      } else {
+        isExtraChargesIncluded.value = true
+        console.log('mealPlanRateInclude est TRUE ou pas de charges, pas de modification')
+      }
+
+      // Validation et conversion explicite des données reçues
+      return {
+        baseRate: calculatedBaseRate,
+        extraAdultRate: Number(response?.extraAdultRate) || 0,
+        extraChildRate: Number(response?.extraChildRate) || 0,
+        singleOccupancyRate: Number(response?.singleOccupancyRate) || 0,
+        doubleOccupancyRate: Number(response?.doubleOccupancyRate) || 0,
+        tripleOccupancyRate: Number(response?.tripleOccupancyRate) || 0,
+        mealPlan: response?.mealPlan || null,
+        mealPlanRateInclude: response?.mealPlanRateInclude ?? true,
+        extraCharges: response?.mealPlan?.extraCharges || []
+      }
+    } catch (error) {
+      console.error('Error fetching rate info:', error)
+      return null
     }
-
-    const response = await getBaseRateByRoomAndRateType({
-      hotel_id: hotelId,
-      room_type_id: Number(roomTypeId),
-      rate_type_id: Number(rateTypeId),
-      date: date || reservation.value.checkinDate,
-    })
-
-    console.log('fetchRateInfo response COMPLETE:', response)
-    console.log('mealPlanRateInclude:', response?.mealPlanRateInclude)
-    console.log('extraCharges:', response?.mealPlan?.extraCharges)
-
-    RoomRateById.value = response.id
-    mealPlanId.value = response.mealPlanId
-    taxIncludes.value = response.taxInclude
-    mealPlanRateInclude.value = response.mealPlanRateInclude
-
-    // Calculer le tarif de base avec meal plan si nécessaire
-    let calculatedBaseRate = Number(response?.baseRate) || 0
-    console.log('Base rate initial:', calculatedBaseRate)
-
-    // Si mealPlanRateInclude est false, ajouter les extra charges au baseRate
-    if (response?.mealPlanRateInclude === false && response?.mealPlan?.extraCharges) {
-      isExtraChargesIncluded.value = false
-      console.log('mealPlanRateInclude est FALSE, calcul des extra charges...')
-      const extraChargesTotal = response.mealPlan.extraCharges.reduce((sum: number, charge: any) => {
-        const chargeAmount = Number(charge.rate) || 0
-        console.log(`Adding charge ${charge.name}: ${chargeAmount}`)
-        return sum + chargeAmount
-      }, 0)
-      console.log('Total extra charges:', extraChargesTotal)
-      calculatedBaseRate += extraChargesTotal
-      console.log('Base rate après ajout extra charges:', calculatedBaseRate)
-    } else {
-      isExtraChargesIncluded.value = true
-      console.log('mealPlanRateInclude est TRUE ou pas de charges, pas de modification')
-    }
-
-    // Validation et conversion explicite des données reçues
-    return {
-      baseRate: calculatedBaseRate,
-      extraAdultRate: Number(response?.extraAdultRate) || 0,
-      extraChildRate: Number(response?.extraChildRate) || 0,
-      singleOccupancyRate: Number(response?.singleOccupancyRate) || 0,
-      doubleOccupancyRate: Number(response?.doubleOccupancyRate) || 0,
-      tripleOccupancyRate: Number(response?.tripleOccupancyRate) || 0,
-      mealPlan: response?.mealPlan || null,
-      mealPlanRateInclude: response?.mealPlanRateInclude ?? true,
-      extraCharges: response?.mealPlan?.extraCharges || []
-    }
-  } catch (error) {
-    console.error('Error fetching rate info:', error)
-    return null
   }
-}
 
   // Fonction getRoomExtraInfo
-const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
-  const room = roomConfigurations.value.find((r) => r.id === roomId)
-  if (!room || !room.roomType) {
+  const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
+    const room = roomConfigurations.value.find((r) => r.id === roomId)
+    if (!room || !room.roomType) {
+      return {
+        baseAdult: 0,
+        baseChild: 0,
+        extraAdults: 0,
+        extraChildren: 0,
+        extraAdultRate: 0,
+        extraChildRate: 0,
+        extraAdultCost: 0,
+        extraChildCost: 0,
+        totalExtraCost: 0,
+      }
+    }
+
+    const baseInfo = roomTypeBaseInfo.value.get(room.roomType)
+    if (!baseInfo) {
+      return {
+        baseAdult: 1,
+        baseChild: 0,
+        extraAdults: 0,
+        extraChildren: 0,
+        extraAdultRate: 0,
+        extraChildRate: 0,
+        extraAdultCost: 0,
+        extraChildCost: 0,
+        totalExtraCost: 0,
+      }
+    }
+
+    const adultCount = Number(room.adultCount) || 1
+    const childCount = Number(room.childCount) || 0
+    const baseAdult = Math.max(1, Number(baseInfo.baseAdult) || 1)
+    const baseChild = Number(baseInfo.baseChild) || 0
+    const extraAdultRate = Number(baseInfo.extraAdultRate) || 0
+    const extraChildRate = Number(baseInfo.extraChildRate) || 0
+
+    const extraAdults = Math.max(0, adultCount - baseAdult)
+    const extraChildren = Math.max(0, childCount - baseChild)
+
+    const extraAdultCost = extraAdults * extraAdultRate
+    const extraChildCost = extraChildren * extraChildRate
+    const totalExtraCost = extraAdultCost + extraChildCost
+
     return {
-      baseAdult: 0,
-      baseChild: 0,
-      extraAdults: 0,
-      extraChildren: 0,
-      extraAdultRate: 0,
-      extraChildRate: 0,
-      extraAdultCost: 0,
-      extraChildCost: 0,
-      totalExtraCost: 0,
+      baseAdult,
+      baseChild,
+      extraAdults,
+      extraChildren,
+      extraAdultRate,
+      extraChildRate,
+      extraAdultCost: Number(extraAdultCost.toFixed(2)),
+      extraChildCost: Number(extraChildCost.toFixed(2)),
+      totalExtraCost: Number(totalExtraCost.toFixed(2)),
     }
   }
-
-  const baseInfo = roomTypeBaseInfo.value.get(room.roomType)
-  if (!baseInfo) {
-    return {
-      baseAdult: 1,
-      baseChild: 0,
-      extraAdults: 0,
-      extraChildren: 0,
-      extraAdultRate: 0,
-      extraChildRate: 0,
-      extraAdultCost: 0,
-      extraChildCost: 0,
-      totalExtraCost: 0,
-    }
-  }
-
-  const adultCount = Number(room.adultCount) || 1
-  const childCount = Number(room.childCount) || 0
-  const baseAdult = Math.max(1, Number(baseInfo.baseAdult) || 1)
-  const baseChild = Number(baseInfo.baseChild) || 0
-  const extraAdultRate = Number(baseInfo.extraAdultRate) || 0
-  const extraChildRate = Number(baseInfo.extraChildRate) || 0
-
-  const extraAdults = Math.max(0, adultCount - baseAdult)
-  const extraChildren = Math.max(0, childCount - baseChild)
-
-  const extraAdultCost = extraAdults * extraAdultRate
-  const extraChildCost = extraChildren * extraChildRate
-  const totalExtraCost = extraAdultCost + extraChildCost
-
-  return {
-    baseAdult,
-    baseChild,
-    extraAdults,
-    extraChildren,
-    extraAdultRate,
-    extraChildRate,
-    extraAdultCost: Number(extraAdultCost.toFixed(2)),
-    extraChildCost: Number(extraChildCost.toFixed(2)),
-    totalExtraCost: Number(totalExtraCost.toFixed(2)),
-  }
-}
 
   //  watch recalculer automatiquement quand les comptes changent
   watch(
@@ -1770,10 +1593,10 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
       updateBilling()
     } catch (error) {
       console.error('Error recalculating room rate:', error)
-    }finally {
+    } finally {
       if (room) {
-      room.isLoadingRate = false
-    }
+        room.isLoadingRate = false
+      }
     }
   }
 
@@ -1787,149 +1610,149 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
 
   const resetForm = () => {
     clearBooking()
-  // Reset reservation data
-  Object.assign(reservation.value, {
-    checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-    checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    checkoutTime: '12:00',
-    rooms: 1,
-    bookingType: '',
-    bookingSource: '',
-    businessSource: '',
-    isComplementary: false,
-    complimentaryRoom: false,
-    isHold: false,
-    reservationStatus: 'confirmed',
-    meansOfTransport:'',
-    goingTo:'',
-    arrivingTo:'',
-    customType:'individual'
-  })
+    // Reset reservation data
+    Object.assign(reservation.value, {
+      checkinDate: new Date().toISOString().split('T')[0],
+      checkinTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      checkoutTime: '12:00',
+      rooms: 1,
+      bookingType: '',
+      bookingSource: '',
+      businessSource: '',
+      isComplementary: false,
+      complimentaryRoom: false,
+      isHold: false,
+      reservationStatus: 'confirmed',
+      meansOfTransport: '',
+      goingTo: '',
+      arrivingTo: '',
+      customType: 'individual'
+    })
 
-  // Reset room configurations
-  roomConfigurations.value = [
-    {
-      id: 'room-1',
-      roomType: '',
-      rateType: '',
-      roomNumber: '',
-      adultCount: 1,
-      childCount: 0,
-      rate: 0,
-      isOpen: false,
-      taxes: [],
-      extraCharges:[],
-       isLoadingRooms: false,
-    },
-  ]
+    // Reset room configurations
+    roomConfigurations.value = [
+      {
+        id: 'room-1',
+        roomType: '',
+        rateType: '',
+        roomNumber: '',
+        adultCount: 1,
+        childCount: 0,
+        rate: 0,
+        isOpen: false,
+        taxes: [],
+        extraCharges: [],
+        isLoadingRooms: false,
+      },
+    ]
 
-  // Reset guest data
-  Object.assign(guest.value, {
-    address: '',
-    country: '',
-    state: '',
-    city: '',
-    zipcode: '',
-  })
+    // Reset guest data
+    Object.assign(guest.value, {
+      address: '',
+      country: '',
+      state: '',
+      city: '',
+      zipcode: '',
+    })
 
-  // Reset ALL formData fields - this was the missing part
-  Object.assign(formData.value, {
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    email: '',
-    roleId: null,
-    companyName: '',
-    groupName: '',
-    fax: '',
-    placeOfBirth: '',
-    dateOfBirth: '',
-    natonality: '',
-    profession: '',
-    title: '',
-    id: 0,
-    address: '',
-    country: '',
-    state: '',
-    city: '',
-    zipcode: '',
-    idPhoto: '',
-    idType: '',
-    idNumber: '',
-    idExpiryDate: '',
-    issuingCountry: '',
-    issuingCity: '',
-    profilePhoto: '',
-    maidenName: '',
-    contactType: '',
-    contactValue: '',
-  })
+    // Reset ALL formData fields - this was the missing part
+    Object.assign(formData.value, {
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      email: '',
+      roleId: null,
+      companyName: '',
+      groupName: '',
+      fax: '',
+      placeOfBirth: '',
+      dateOfBirth: '',
+      natonality: '',
+      profession: '',
+      title: '',
+      id: 0,
+      address: '',
+      country: '',
+      state: '',
+      city: '',
+      zipcode: '',
+      idPhoto: '',
+      idType: '',
+      idNumber: '',
+      idExpiryDate: '',
+      issuingCountry: '',
+      issuingCity: '',
+      profilePhoto: '',
+      maidenName: '',
+      contactType: '',
+      contactValue: '',
+    })
 
-  // Reset other info
-  Object.assign(otherInfo.value, {
-    emailBookingVouchers: false,
-    voucherEmail: '',
-    sendEmailAtCheckout: false,
-    emailTemplate: '',
-    accessToGuestPortal: false,
-    successRateOnRegistrationCard: false,
-  })
+    // Reset other info
+    Object.assign(otherInfo.value, {
+      emailBookingVouchers: false,
+      voucherEmail: '',
+      sendEmailAtCheckout: false,
+      emailTemplate: '',
+      accessToGuestPortal: false,
+      successRateOnRegistrationCard: false,
+    })
 
-  // Reset billing
-  Object.assign(billing.value, {
-    roomCharges: 0,
-    taxes: 0,
-    totalAmount: 0,
-    billTo: 'guest',
-    taxExempt: false,
-    paymentMode: undefined,
-    creditType: '',
-    paymentType: 'cash',
-  })
+    // Reset billing
+    Object.assign(billing.value, {
+      roomCharges: 0,
+      taxes: 0,
+      totalAmount: 0,
+      billTo: 'guest',
+      taxExempt: false,
+      paymentMode: undefined,
+      creditType: '',
+      paymentType: 'cash',
+    })
 
-  // Reset payment data
-  Object.assign(paymentData.value, {
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardHolderName: '',
-    amount: 0,
-    paymentMethod: 'cash',
-  })
+    // Reset payment data
+    Object.assign(paymentData.value, {
+      cardNumber: '',
+      expiryDate: '',
+      cvv: '',
+      cardHolderName: '',
+      amount: 0,
+      paymentMethod: 'cash',
+    })
 
-  // Reset hold release data
-  Object.assign(holdReleaseData.value, {
-    date: '',
-    time: '',
-    releaseTerm: '',
-    remindDays: 0,
-    dateType: 'hold_release_date'
-  })
+    // Reset hold release data
+    Object.assign(holdReleaseData.value, {
+      date: '',
+      time: '',
+      releaseTerm: '',
+      remindDays: 0,
+      dateType: 'hold_release_date'
+    })
 
-  // Reset taxes
-  taxes.value = []
+    // Reset taxes
+    taxes.value = []
 
-  // Clear maps and other state
-  roomTypeRateTypes.value.clear()
-  roomTypeRooms.value.clear()
-  roomTypeBaseInfo.value.clear()
+    // Clear maps and other state
+    roomTypeRateTypes.value.clear()
+    roomTypeRooms.value.clear()
+    roomTypeBaseInfo.value.clear()
 
-  // Reset other state variables
-  dateError.value = null
-  confirmReservation.value = false
-  pendingReservation.value = false
-  isPaymentButtonShow.value = false
-  reservationId.value = null
-  RoomRateById.value = null
-  isCustomPrize.value = false
-  isCheckedIn.value = false
-  quickGroupBooking.value = false
+    // Reset other state variables
+    dateError.value = null
+    confirmReservation.value = false
+    pendingReservation.value = false
+    isPaymentButtonShow.value = false
+    reservationId.value = null
+    RoomRateById.value = null
+    isCustomPrize.value = false
+    isCheckedIn.value = false
+    quickGroupBooking.value = false
 
-  // Clear upload tracking
-  pendingUploads.value.clear()
-  uploadErrors.value = []
-}
+    // Clear upload tracking
+    pendingUploads.value.clear()
+    uploadErrors.value = []
+  }
 
   // Initialize
   const initialize = async () => {
@@ -1940,52 +1763,39 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
       //  Fetch room types data
       const hotelId = serviceStore.serviceId
       if (!hotelId) throw new Error('Hotel ID not found')
-      const response = await getRoomTypes(hotelId)
-      if (!response.data?.data?.data || !Array.isArray(response.data.data.data)) {
+      const response = await getFrontofficeBookingDataId(
+        reservation.value.checkinDate,
+        reservation.value.checkoutDate
+      )
+
+      console.log('roomtype', response)
+      if (!response.data?.data || !Array.isArray(response.data.data)) {
         throw new Error('Invalid room types data structure')
       }
-      const roomTypesData = response.data.data.data
+      const roomTypesData = response.data.data
       RoomTypesData.value = roomTypesData
 
       //  Create a temporary array of room type options and start fetching counts
-      const roomTypePromises = roomTypesData.map(async (room: RoomTypeData) => {
-        let count = 0
-        try {
-          const countResponse = await getAvailableRoomsByTypeId(
-            Number(room.id),
-            reservation.value.checkinDate,
-            reservation.value.checkoutDate
-          )
-
-          if (countResponse?.data?.data) {
-            const roomOptions: Option[] = (countResponse.data.data.rooms || []).map((r: any) => ({
-              label: r.roomNumber,
-              value: r.id,
-              status: r.status,
-              disabled: r.status === 'occupied'
-            }))
-            roomTypeRooms.value.set(String(room.id), roomOptions)
-            count = countResponse.data.data.rooms.filter((r: any) => r.status === 'available').length || 0
-          } else {
-             roomTypeRooms.value.set(String(room.id), [])
-          }
-        } catch (error) {
-          console.error(`Failed to get count for room type ${room.id}`, error)
-          roomTypeRooms.value.set(String(room.id), [])
-        }
-
+      const roomTypePromises = roomTypesData.map((room: RoomTypeData) => {
         return {
           label: room.roomTypeName,
           value: room.id,
-          count: count
+          count: room.rooms?.length || 0,
+          ...room,
+          roomOptions: room.rooms?.map((r: any) => ({
+            label: r.roomNumber,
+            value: r.id,
+            status: r.status,
+            disabled: r.status === 'occupied'
+          })) || [],
+          rateTypeOptions: room.roomRates?.map((rm: any) => ({
+            label: rm.rateType.rateTypeName,
+            value: rm.rateType.id,
+          })) || [],
         }
       })
-
-      //  Wait for all counts to be fetched
-      const finalRoomTypeOptions = await Promise.all(roomTypePromises)
-
       // Assign to the ref once, with all data ready
-      RoomTypes.value = finalRoomTypeOptions
+      RoomTypes.value = roomTypePromises
 
       console.log('Booking composable initialized successfully')
     } catch (error) {
@@ -2012,11 +1822,11 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
         reservation.value.checkinDate,
         reservation.value.checkoutDate,
       )
-      console.log("@@response",response)
+      console.log("@@response", response)
 
       if (response?.data?.data?.rooms) {
         const selectedRoom = response.data.data.rooms.find((r: any) => r.id == roomC.roomNumber)
-         console.log('selectedRoom:', selectedRoom)
+        console.log('selectedRoom:', selectedRoom)
 
         if (selectedRoom) {
           // Si la chambre a des taxRates dans la réponse, les utiliser
@@ -2111,199 +1921,196 @@ const getRoomExtraInfo = (roomId: string): RoomExtraInfo => {
     const today = new Date().toISOString().split('T')[0]
     return reservation.value.checkinDate === today
   })
-  const canCityLedgerPay = computed(()=>{
+  const canCityLedgerPay = computed(() => {
     return authStore.hasPermission('access_to_transfer_charges_to_city_ledger')
   })
 
   const voucherEmailError = ref('')
 
-// Fonction de validation email
-const validateVoucherEmail = () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  // Fonction de validation email
+  const validateVoucherEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-  if (otherInfo.value.emailBookingVouchers && otherInfo.value.voucherEmail) {
-    if (!emailRegex.test(otherInfo.value.voucherEmail)) {
-      voucherEmailError.value = t('validation.invalidEmail')
-      return false
-    } else {
-      voucherEmailError.value = ''
-      return true
-    }
-  }
-
-  voucherEmailError.value = ''
-  return true
-}
-
-// Watcher pour valider l'email en temps réel
-watch(() => otherInfo.value.voucherEmail, () => {
-  if (otherInfo.value.voucherEmail) {
-    validateVoucherEmail()
-  }
-})
-
-
-
-// Fonction pour charger les données asynchrones après le chargement du draft
-const loadDraftData = (draftData: any) => {
-  console.log('Loading draft data into useBooking2:', draftData)
-
-  if (!draftData) {
-    console.log('No draft data to load')
-    return false
-  }
-
-  try {
-    if (draftData.reservation) {
-      Object.keys(draftData.reservation).forEach(key => {
-        if (key in reservation.value) {
-          (reservation.value as any)[key] = draftData.reservation[key]
-        }
-      })
-    }
-
-    if (draftData.roomConfigurations && draftData.roomConfigurations.length > 0) {
-      roomConfigurations.value = []
-
-      draftData.roomConfigurations.forEach((roomDraft: any) => {
-        const newRoom: RoomConfiguration = {
-          id: roomDraft.id,
-          roomType: roomDraft.roomType,
-          rateType: roomDraft.rateType,
-          roomNumber: roomDraft.roomNumber,
-          adultCount: roomDraft.adultCount || 1,
-          childCount: roomDraft.childCount || 0,
-          rate: roomDraft.rate || 0,
-          isOpen: false,
-          taxes: roomDraft.taxes || [],
-          extraCharges: roomDraft.extraCharges || [],
-          isLoadingRooms: false,
-          isLoadingRate: false,
-        }
-        roomConfigurations.value.push(newRoom)
-      })
-      console.log('Loaded room configurations:', roomConfigurations.value)
-    }
-
-    if (draftData.formData) {
-      formData.value = {
-        firstName: draftData.formData.firstName || '',
-        lastName: draftData.formData.lastName || '',
-        phoneNumber: draftData.formData.phoneNumber || '',
-        email: draftData.formData.email || '',
-        roleId: draftData.formData.roleId ?? null,
-        companyName: draftData.formData.companyName || '',
-        groupName: draftData.formData.groupName || '',
-        fax: draftData.formData.fax || '',
-        placeOfBirth: draftData.formData.placeOfBirth || '',
-        dateOfBirth: draftData.formData.dateOfBirth || '',
-        natonality: draftData.formData.natonality || '',
-        profession: draftData.formData.profession || '',
-        title: draftData.formData.title || '',
-        id: draftData.formData.id ?? 0,
-        address: draftData.formData.address || '',
-        country: draftData.formData.country || '',
-        state: draftData.formData.state || '',
-        city: draftData.formData.city || '',
-        zipcode: draftData.formData.zipcode || '',
-        idPhoto: draftData.formData.idPhoto || '',
-        idType: draftData.formData.idType || '',
-        idNumber: draftData.formData.idNumber || '',
-        idExpiryDate: draftData.formData.idExpiryDate || '',
-        issuingCountry: draftData.formData.issuingCountry || '',
-        issuingCity: draftData.formData.issuingCity || '',
-        profilePhoto: draftData.formData.profilePhoto || '',
-        maidenName: draftData.formData.maidenName || '',
-        contactType: draftData.formData.contactType || '',
-        contactValue: draftData.formData.contactValue || '',
+    if (otherInfo.value.emailBookingVouchers && otherInfo.value.voucherEmail) {
+      if (!emailRegex.test(otherInfo.value.voucherEmail)) {
+        voucherEmailError.value = t('validation.invalidEmail')
+        return false
+      } else {
+        voucherEmailError.value = ''
+        return true
       }
     }
 
-    if (draftData.otherInfo) {
-      otherInfo.value.emailBookingVouchers = draftData.otherInfo.emailBookingVouchers || false
-      otherInfo.value.voucherEmail = draftData.otherInfo.voucherEmail || ''
-    }
-
-    if (draftData.billing) {
-      billing.value.billTo = draftData.billing.billTo || 'guest'
-      billing.value.paymentType = draftData.billing.paymentType || 'cash'
-      if (draftData.billing.paymentMode) {
-        billing.value.paymentMode = draftData.billing.paymentMode
-      }
-    }
-
-    if (draftData.holdReleaseData && reservation.value.isHold) {
-      Object.keys(draftData.holdReleaseData).forEach(key => {
-        if (key in holdReleaseData.value) {
-          (holdReleaseData.value as any)[key] = draftData.holdReleaseData[key]
-        }
-      })
-    }
-
-    console.log('Draft data loaded successfully into useBooking2')
+    voucherEmailError.value = ''
     return true
-
-  } catch (error) {
-    console.error('Error loading draft data:', error)
-    return false
   }
-}
+
+  // Watcher pour valider l'email en temps réel
+  watch(() => otherInfo.value.voucherEmail, () => {
+    if (otherInfo.value.voucherEmail) {
+      validateVoucherEmail()
+    }
+  })
 
 
-const loadDraftAsyncData = async () => {
-  console.log('Loading async data for draft rooms...')
 
-  for (const room of roomConfigurations.value) {
-    if (room.roomType) {
-      // Sauvegarder le rate original avant le chargement
-      const originalRate = room.rate
+  // Fonction pour charger les données asynchrones après le chargement du draft
+  const loadDraftData = (draftData: any) => {
+    console.log('Loading draft data into useBooking2:', draftData)
 
+    if (!draftData) {
+      console.log('No draft data to load')
+      return false
+    }
 
-      await loadRateTypesForRoomType(room.roomType.toString())
-
-
-      await loadRoomsForRoomType(room.roomType.toString(), room.id)
-
-
-      if (room.rateType) {
-        try {
-          room.isLoadingRate = true
-          const rateInfo = await fetchRateInfo(
-            room.roomType,
-            room.rateType,
-            reservation.value.checkinDate
-          )
-
-          if (rateInfo) {
-
-            const baseInfo = roomTypeBaseInfo.value.get(room.roomType) || {
-              baseAdult: 1,
-              baseChild: 0,
-              extraAdultRate: 0,
-              extraChildRate: 0,
-            }
-
-            baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
-            baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
-            roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
-
-            room.extraCharges = rateInfo.extraCharges || []
-
-            room.rate = originalRate
+    try {
+      if (draftData.reservation) {
+        Object.keys(draftData.reservation).forEach(key => {
+          if (key in reservation.value) {
+            (reservation.value as any)[key] = draftData.reservation[key]
           }
-        } catch (error) {
-          console.error('Error loading rate info for draft room:', error)
-        } finally {
-          room.isLoadingRate = false
+        })
+      }
+
+      if (draftData.roomConfigurations && draftData.roomConfigurations.length > 0) {
+        roomConfigurations.value = []
+
+        draftData.roomConfigurations.forEach((roomDraft: any) => {
+          const newRoom: RoomConfiguration = {
+            id: roomDraft.id,
+            roomType: roomDraft.roomType,
+            rateType: roomDraft.rateType,
+            roomNumber: roomDraft.roomNumber,
+            adultCount: roomDraft.adultCount || 1,
+            childCount: roomDraft.childCount || 0,
+            rate: roomDraft.rate || 0,
+            isOpen: false,
+            taxes: roomDraft.taxes || [],
+            extraCharges: roomDraft.extraCharges || [],
+            isLoadingRooms: false,
+            isLoadingRate: false,
+          }
+          roomConfigurations.value.push(newRoom)
+        })
+        console.log('Loaded room configurations:', roomConfigurations.value)
+      }
+
+      if (draftData.formData) {
+        formData.value = {
+          firstName: draftData.formData.firstName || '',
+          lastName: draftData.formData.lastName || '',
+          phoneNumber: draftData.formData.phoneNumber || '',
+          email: draftData.formData.email || '',
+          roleId: draftData.formData.roleId ?? null,
+          companyName: draftData.formData.companyName || '',
+          groupName: draftData.formData.groupName || '',
+          fax: draftData.formData.fax || '',
+          placeOfBirth: draftData.formData.placeOfBirth || '',
+          dateOfBirth: draftData.formData.dateOfBirth || '',
+          natonality: draftData.formData.natonality || '',
+          profession: draftData.formData.profession || '',
+          title: draftData.formData.title || '',
+          id: draftData.formData.id ?? 0,
+          address: draftData.formData.address || '',
+          country: draftData.formData.country || '',
+          state: draftData.formData.state || '',
+          city: draftData.formData.city || '',
+          zipcode: draftData.formData.zipcode || '',
+          idPhoto: draftData.formData.idPhoto || '',
+          idType: draftData.formData.idType || '',
+          idNumber: draftData.formData.idNumber || '',
+          idExpiryDate: draftData.formData.idExpiryDate || '',
+          issuingCountry: draftData.formData.issuingCountry || '',
+          issuingCity: draftData.formData.issuingCity || '',
+          profilePhoto: draftData.formData.profilePhoto || '',
+          maidenName: draftData.formData.maidenName || '',
+          contactType: draftData.formData.contactType || '',
+          contactValue: draftData.formData.contactValue || '',
         }
       }
+
+      if (draftData.otherInfo) {
+        otherInfo.value.emailBookingVouchers = draftData.otherInfo.emailBookingVouchers || false
+        otherInfo.value.voucherEmail = draftData.otherInfo.voucherEmail || ''
+      }
+
+      if (draftData.billing) {
+        billing.value.billTo = draftData.billing.billTo || 'guest'
+        billing.value.paymentType = draftData.billing.paymentType || 'cash'
+        if (draftData.billing.paymentMode) {
+          billing.value.paymentMode = draftData.billing.paymentMode
+        }
+      }
+
+      if (draftData.holdReleaseData && reservation.value.isHold) {
+        Object.keys(draftData.holdReleaseData).forEach(key => {
+          if (key in holdReleaseData.value) {
+            (holdReleaseData.value as any)[key] = draftData.holdReleaseData[key]
+          }
+        })
+      }
+
+      console.log('Draft data loaded successfully into useBooking2')
+      return true
+
+    } catch (error) {
+      console.error('Error loading draft data:', error)
+      return false
     }
   }
 
-  // Mettre à jour la facturation après avoir chargé toutes les données
-  updateBilling()
-  console.log('Async data loading completed')
-}
+
+  const loadDraftAsyncData = async () => {
+    console.log('Loading async data for draft rooms...')
+
+    for (const room of roomConfigurations.value) {
+      if (room.roomType) {
+        // Sauvegarder le rate original avant le chargement
+        const originalRate = room.rate
+
+
+        await loadRoomsForRoomType(room.roomType.toString(), room.id)
+
+
+        if (room.rateType) {
+          try {
+            room.isLoadingRate = true
+            const rateInfo = await fetchRateInfo(
+              room.roomType,
+              room.rateType,
+              reservation.value.checkinDate
+            )
+
+            if (rateInfo) {
+
+              const baseInfo = roomTypeBaseInfo.value.get(room.roomType) || {
+                baseAdult: 1,
+                baseChild: 0,
+                extraAdultRate: 0,
+                extraChildRate: 0,
+              }
+
+              baseInfo.extraAdultRate = Number(rateInfo.extraAdultRate) || 0
+              baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
+              roomTypeBaseInfo.value.set(room.roomType.toString(), baseInfo)
+
+              room.extraCharges = rateInfo.extraCharges || []
+
+              room.rate = originalRate
+            }
+          } catch (error) {
+            console.error('Error loading rate info for draft room:', error)
+          } finally {
+            room.isLoadingRate = false
+          }
+        }
+      }
+    }
+
+    // Mettre à jour la facturation après avoir chargé toutes les données
+    updateBilling()
+    console.log('Async data loading completed')
+  }
 
 
   return {
@@ -2320,7 +2127,7 @@ const loadDraftAsyncData = async () => {
     roomTypeBaseInfo,
     validateCheckInCheckOut,
     loadDraftAsyncData,
-      loadDraftData,
+    loadDraftData,
 
     // Room type data
     RoomTypes,
@@ -2339,7 +2146,7 @@ const loadDraftAsyncData = async () => {
     isLoadingAvailableRooms,
     voucherEmailError,
     validateVoucherEmail,
-     validateRoomNumbers,
+    validateRoomNumbers,
     validateRoomNumberOnChange,
     quickGroupBooking,
 
@@ -2367,7 +2174,6 @@ const loadDraftAsyncData = async () => {
     onRateTypeChange,
     getRateTypesForRoom,
     getRoomsForRoom,
-    fetchBaseRate,
     getRoomExtraInfo,
     recalculateRoomRate,
     calculateRoomRate,

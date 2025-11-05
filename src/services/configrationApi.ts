@@ -2020,3 +2020,23 @@ export const getCompanyTransaction = (companyId: number): Promise<AxiosResponse<
   )
 }
 
+/***
+ * get availiabele room by typeId
+ */
+export const getFrontofficeBookingDataId = (
+  startDate?: string,
+  endDate?: string
+): Promise<AxiosResponse<any>> => {
+  const params = {
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate })
+  }
+
+  return axios.get(
+    `${API_URL()}/rooms/frontoffice/bookingrooom`,
+    {
+      ...getHeaders(),
+      params
+    }
+  )
+}
