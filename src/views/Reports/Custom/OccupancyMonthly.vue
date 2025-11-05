@@ -138,8 +138,16 @@ const selectedYear = ref(new Date().getFullYear()) // Current year
 const selectedHotelId = ref<number | ''>(1) // Default hotel ID or empty for default
 
 // Available options
-const availableMonths = ref(getAvailableMonths())
 const availableYears = ref(getAvailableYears())
+
+// Convert months to computed property for i18n reactivity
+const availableMonths = computed(() => {
+  const months = getAvailableMonths()
+  return months.map(month => ({
+    value: month.value,
+    label: t(`common.months.${month.label.toLowerCase()}`)
+  }))
+})
 
 
 // Computed properties

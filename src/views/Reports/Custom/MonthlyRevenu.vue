@@ -7,7 +7,7 @@
           <div>
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $t('monthlyRevenueReport') }}</h1>
             <p class="mt-1 text-sm text-gray-600 dark:text-white/80">
-              {{ $t('viewDetailedOccupancyStatistics') }}
+              {{ $t('viewDetailedRevenueStatistics') }}
             </p>
           </div>
 
@@ -119,8 +119,16 @@ const selectedYear = ref(new Date().getFullYear()) // Current year
 const selectedHotelId = ref<number | ''>(1) // Default hotel ID or empty for default
 
 // Available options
-const availableMonths = ref(getAvailableMonths())
 const availableYears = ref(getAvailableYears())
+
+// Convert months to computed property for i18n reactivity
+const availableMonths = computed(() => {
+  const months = getAvailableMonths()
+  return months.map(month => ({
+    value: month.value,
+    label: t(`common.months.${month.label.toLowerCase()}`)
+  }))
+})
 
 
 // Computed properties

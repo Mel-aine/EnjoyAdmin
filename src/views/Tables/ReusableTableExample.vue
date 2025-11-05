@@ -1,36 +1,36 @@
 <template>
   <AdminLayout>
-    <PageBreadcrumb pageTitle="Reusable Table Example" :breadcrumb="breadcrumb" />
+    <PageBreadcrumb :pageTitle="$t('tables.reusableTableExample')" :breadcrumb="breadcrumb" />
     
     <div class="space-y-6">
       <!-- Example 1: Guest Database Table -->
       <ReusableTable
-        title="Guest Database"
+        :title="$t('tables.guestDatabase')"
         :columns="guestColumns"
         :data="guestData"
         :actions="guestActions"
         :header-actions="guestHeaderActions"
-        search-placeholder="Quick Search by Name, Email, Contact..."
+        :search-placeholder="$t('tables.quickSearchGuest')"
         :selectable="true"
         :show-header="true"
-        empty-state-title="No guests found"
-        empty-state-message="Get started by adding a new guest to the database."
+        :empty-state-title="$t('tables.noGuestsFound')"
+        :empty-state-message="$t('tables.getStartedByAddingGuest')"
         @selection-change="onGuestSelectionChange"
         @action="onGuestAction"
       />
       
       <!-- Example 2: User Management Table -->
       <ReusableTable
-        title="User Management"
+        :title="$t('tables.userManagement')"
         :columns="userColumns"
         :data="userData"
         :actions="userActions"
         :header-actions="userHeaderActions"
-        search-placeholder="Search users..."
+        :search-placeholder="$t('tables.searchUsers')"
         :selectable="false"
         :show-header="true"
-        empty-state-title="No users found"
-        empty-state-message="Add users to get started."
+        :empty-state-title="$t('tables.noUsersFound')"
+        :empty-state-message="$t('tables.addUsersToGetStarted')"
         @action="onUserAction"
       >
         <!-- Custom column slot for avatar -->
@@ -43,7 +43,7 @@
             />
             <div>
               <div class="font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.role }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ getRoleLabel(item.role) }}</div>
             </div>
           </div>
         </template>
@@ -53,31 +53,43 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 
-const breadcrumb = [
-  { label: 'Tables', href: '#' },
-  { label: 'Reusable Table Example', href: '#' }
-]
+const { t } = useI18n()
+
+const breadcrumb = computed(() => [
+  { label: t('tables.tables'), href: '#' },
+  { label: t('tables.reusableTableExample'), href: '#' }
+])
+
+const getRoleLabel = (role: string) => {
+  const roleMap: Record<string, string> = {
+    'Administrator': 'tables.roles.administrator',
+    'Manager': 'tables.roles.manager',
+    'Employee': 'tables.roles.employee'
+  }
+  return t(roleMap[role] || role)
+}
 
 // Guest Database Configuration
-const guestColumns = [
-  { key: 'name', label: 'Guest Name', type: 'text' as const },
+const guestColumns = computed(() => [
+  { key: 'name', label: t('tables.guestName'), type: 'text' as const },
   { 
     key: 'country', 
-    label: 'Country', 
+    label: t('common.country'), 
     type: 'image' as const, 
     imageKey: 'countryFlag' 
   },
-  { key: 'email', label: 'Email', type: 'email' as const },
-  { key: 'phone', label: 'Phone', type: 'text' as const },
-  { key: 'mobile', label: 'Mobile', type: 'text' as const },
+  { key: 'email', label: t('Email'), type: 'email' as const },
+  { key: 'phone', label: t('tables.phone'), type: 'text' as const },
+  { key: 'mobile', label: t('tables.mobile'), type: 'text' as const },
   { 
     key: 'vipStatus', 
-    label: 'VIP Status', 
+    label: t('tables.vipStatus'), 
     type: 'badge' as const,
     badgeColors: {
       'vip': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
@@ -85,7 +97,7 @@ const guestColumns = [
       'regular': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
     }
   }
-]
+])
 
 const guestData = ref([
   {
@@ -120,59 +132,59 @@ const guestData = ref([
   }
 ])
 
-const guestActions = [
+const guestActions = computed(() => [
   {
-    label: 'View Details',
+    label: t('tables.viewDetails'),
     handler: (item: any) => console.log('View guest:', item),
     variant: 'primary' as const
   },
   {
-    label: 'Edit Guest',
+    label: t('tables.editGuest'),
     handler: (item: any) => console.log('Edit guest:', item)
   },
   {
-    label: 'Send Email',
+    label: t('tables.sendEmail'),
     handler: (item: any) => window.open(`mailto:${item.email}`),
     condition: (item: any) => !!item.email
   },
   {
-    label: 'Delete Guest',
+    label: t('tables.deleteGuest'),
     handler: (item: any) => {
-      if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+      if (confirm(t('tables.confirmDeleteGuest', { name: item.name }))) {
         const index = guestData.value.findIndex(g => g.id === item.id)
         if (index > -1) guestData.value.splice(index, 1)
       }
     },
     variant: 'danger' as const
   }
-]
+])
 
-const guestHeaderActions = [
+const guestHeaderActions = computed(() => [
   {
-    label: 'Add Guest',
+    label: t('tables.addGuest'),
     handler: () => console.log('Add new guest'),
     variant: 'primary' as const
   },
   {
-    label: 'Export',
+    label: t('common.export'),
     handler: () => console.log('Export guests'),
     variant: 'success' as const
   },
   {
-    label: 'Import',
+    label: t('tables.import'),
     handler: () => console.log('Import guests'),
     variant: 'secondary' as const
   }
-]
+])
 
 // User Management Configuration
-const userColumns = [
-  { key: 'avatar', label: 'User', type: 'custom' as const },
-  { key: 'email', label: 'Email', type: 'email' as const },
-  { key: 'department', label: 'Department', type: 'text' as const },
+const userColumns = computed(() => [
+  { key: 'avatar', label: t('common.user'), type: 'custom' as const },
+  { key: 'email', label: t('Email'), type: 'email' as const },
+  { key: 'department', label: t('tables.department'), type: 'text' as const },
   { 
     key: 'status', 
-    label: 'Status', 
+    label: t('Status'), 
     type: 'badge' as const,
     badgeColors: {
       'active': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
@@ -180,8 +192,8 @@ const userColumns = [
       'pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
     }
   },
-  { key: 'lastLogin', label: 'Last Login', type: 'text' as const }
-]
+  { key: 'lastLogin', label: t('tables.lastLogin'), type: 'text' as const }
+])
 
 const userData = ref([
   {
@@ -216,21 +228,21 @@ const userData = ref([
   }
 ])
 
-const userActions = [
+const userActions = computed(() => [
   {
-    label: 'View Profile',
+    label: t('tables.viewProfile'),
     handler: (item: any) => console.log('View user profile:', item)
   },
   {
-    label: 'Edit User',
+    label: t('tables.editUser'),
     handler: (item: any) => console.log('Edit user:', item)
   },
   {
-    label: 'Reset Password',
+    label: t('tables.resetPassword'),
     handler: (item: any) => console.log('Reset password for:', item.name)
   },
   {
-    label: 'Deactivate',
+    label: t('tables.deactivate'),
     handler: (item: any) => {
       item.status = 'inactive'
       console.log('Deactivated user:', item.name)
@@ -239,7 +251,7 @@ const userActions = [
     condition: (item: any) => item.status === 'active'
   },
   {
-    label: 'Activate',
+    label: t('tables.activate'),
     handler: (item: any) => {
       item.status = 'active'
       console.log('Activated user:', item.name)
@@ -248,29 +260,29 @@ const userActions = [
     condition: (item: any) => item.status !== 'active'
   },
   {
-    label: 'Delete User',
+    label: t('tables.deleteUser'),
     handler: (item: any) => {
-      if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+      if (confirm(t('tables.confirmDeleteUser', { name: item.name }))) {
         const index = userData.value.findIndex(u => u.id === item.id)
         if (index > -1) userData.value.splice(index, 1)
       }
     },
     variant: 'danger' as const
   }
-]
+])
 
-const userHeaderActions = [
+const userHeaderActions = computed(() => [
   {
-    label: 'Add User',
+    label: t('tables.addUser'),
     handler: () => console.log('Add new user'),
     variant: 'primary' as const
   },
   {
-    label: 'Bulk Import',
+    label: t('tables.bulkImport'),
     handler: () => console.log('Bulk import users'),
     variant: 'secondary' as const
   }
-]
+])
 
 // Event handlers
 const onGuestSelectionChange = (selectedItems: any[]) => {
