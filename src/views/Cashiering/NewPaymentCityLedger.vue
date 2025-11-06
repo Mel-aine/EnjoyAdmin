@@ -46,8 +46,14 @@
                   <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!--amount-->
                     <div class="col-span-2">
-                      <InputCurrency lb="Total Amount to Pay" v-model="formData.amount" placeholder="0.00"
-                        step="0.01" :disabled="isMappingMode" />
+                      <InputCurrency
+                        lb="Total Amount to Pay"
+                        v-model="formData.amount"
+                        v-model:currency="formData.currency"
+                        placeholder="0.00"
+                        step="0.01"
+                        :disabled="isMappingMode"
+                      />
                       <small class="text-gray-500 text-xs mt-1">Auto-calculated from assigned amounts</small>
                     </div>
                     <div class="col-span-3">
@@ -214,6 +220,7 @@ const formData = ref({
   reference: '',
   date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
   amount: 0,
+  currency: 'XAF',
   comment: '',
   dateRange: {
     start: props.dateRange?.start || getYesterday(),
