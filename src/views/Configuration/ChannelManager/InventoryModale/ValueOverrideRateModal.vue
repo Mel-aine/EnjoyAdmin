@@ -275,7 +275,7 @@ watch(() => props.isOpen, (newVal) => {
       // Preselect restriction based on the clicked row label
       restriction.value = mapLabelToRestriction(clickedLabel)
       const start = props.selectedRange?.startDate
-      const rawVal = start ? props.selectedRange?.row?.values?.[start] : ''
+      const rawVal:any = start ? props.selectedRange?.row?.values?.[start] : ''
       // Prefill value based on type
       if (['closed_arrival', 'closed_departure', 'stop', 'closed'].includes(restriction.value)) {
         value.value = rawVal === 1 || rawVal === true || rawVal === '1'

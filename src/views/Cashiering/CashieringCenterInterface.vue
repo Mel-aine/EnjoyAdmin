@@ -145,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -157,7 +157,8 @@ import { PrinterIcon } from 'lucide-vue-next'
 import Input from '../../components/forms/FormElements/Input.vue'
 import RadioGroup from '../../components/forms/FormElements/RadioGroup .vue'
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
-import NewPaymentCityLedger from './NewPaymentCityLedger.vue'
+// Lazy-load NewPaymentCityLedger to avoid mixed dynamic/static import warning
+const NewPaymentCityLedger = defineAsyncComponent(() => import('./NewPaymentCityLedger.vue'))
 import InputSelectCityLeger from '../../components/reservations/foglio/InputSelectCityLeger.vue'
 import { type Action, type Column } from '../../utils/models'
 import { formatCurrency } from '../../utils/numericUtils'
