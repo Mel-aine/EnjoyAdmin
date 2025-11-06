@@ -13,7 +13,7 @@
             <div class="px-4 py-2 sm:px-6 border-b border-gray-200 dark:border-gray-700">
               <div class="flex items-start justify-between">
                 <h2 class="text-sm font-medium text-gray-900 dark:text-white" id="slide-over-title">{{
-                  $t('New Payment') }}</h2>
+                  $t('new_payment') }}</h2>
                 <XIcon @click="closeModal" class="text-gray-300 hover:text-black" aria-label="Close panel" />
               </div>
             </div>
@@ -33,10 +33,10 @@
                     <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" :disabled="isMappingMode" />
 
                     <!-- Date -->
-                    <InputDatePicker :title="'Date'" v-model="formData.date" :isRequired="true" :disabled="isMappingMode" />
+                    <InputDatePicker :title="t('Date')" v-model="formData.date" :isRequired="true" :disabled="isMappingMode" />
 
                     <!-- Payment Type -->
-                    <Select lb="Payment Type" v-model="formData.paymentType" :options="[
+                    <Select :lb="t('Payment Type')" v-model="formData.paymentType" :options="[
                       { label: t('cash'), value: 'cash' },
                     ]" :isRequired="true" :disabled="isMappingMode" />
 
@@ -46,17 +46,16 @@
                   <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!--amount-->
                     <div class="col-span-2">
-                      <InputCurrency lb="Total Amount to Pay" v-model="formData.amount" placeholder="0.00"
+                      <InputCurrency :lb="t('Total Amount to Pay')" v-model="formData.amount" placeholder="0.00"
                         step="0.01" :disabled="isMappingMode" />
-                      <small class="text-gray-500 text-xs mt-1">Auto-calculated from assigned amounts</small>
+                      <small class="text-gray-500 text-xs mt-1">{{ t('Auto-calculated from assigned amounts') }}</small>
                     </div>
                     <div class="col-span-3">
                       <Input :lb="$t('comment')" v-model="formData.comment" :disabled="isMappingMode" />
                     </div>
                   </div>
                   <!-- Map Payment Section -->
-                  <h4 class="text-md mt-2 font-medium text-gray-900 dark:text-white mb-4">{{ $t('cashiering.mapPayment',
-                    'Map Payment') }}</h4>
+                  <h4 class="text-md mt-2 font-medium text-gray-900 dark:text-white mb-4">{{ $t('Map Payment') }}</h4>
 
                   <div class="mt-2 grid grid-cols-12 align-middle items-center gap-3">
 
@@ -65,13 +64,13 @@
                     <div class="flex flex-col gap-2 col-span-4">
                       <div>
                         <RadioGroup class="flex space-x-4" :options="[
-                          { label: 'Posting date', value: 'posting' },
-                          { label: 'Departure date', value: 'departure' },
+                          { label: t('Posting date'), value: 'posting' },
+                          { label: t('Departure date'), value: 'departure' },
                         ]" v-model="formData.filter_options" />
 
                       </div>
                       <div class="mr-4">
-                        <InputDoubleDatePicker lb="Posting Date" v-model="formData.dateRange"
+                        <InputDoubleDatePicker :lb="t('Posting Date')" v-model="formData.dateRange"
                           :allow-past-dates="true" />
                       </div>
                     </div>
@@ -307,14 +306,14 @@ const selectedGuests = ref([])
 // Table columns definition
 const guestColumns = computed<Column[]>(() => {
   return [
-    { key: 'date', label: 'Date', sortable: true, type: 'date' },
-    { key: 'name', label: 'Guest Name', sortable: true },
-    { key: 'folioNo', label: 'Folio No.', sortable: true },
-    { key: 'user', label: 'User', sortable: true },
-    { key: 'amount', label: 'Amount', sortable: true, type: 'text' },
-    { key: 'assigned', label: 'Assigned', sortable: true, type: 'text' },
-    { key: 'open', label: 'Open', sortable: true, type: 'text' },
-    { key: 'assign', label: 'Assign', sortable: false, type: 'custom' }
+    { key: 'date', label: t('Date'), sortable: true, type: 'date' },
+    { key: 'name', label: t('Guest Name'), sortable: true },
+    { key: 'folioNo', label: t('Folio No.'), sortable: true },
+    { key: 'user', label: t('User'), sortable: true },
+    { key: 'amount', label: t('Amount'), sortable: true, type: 'text' },
+    { key: 'assigned', label: t('Assigned'), sortable: true, type: 'text' },
+    { key: 'open', label: t('Open'), sortable: true, type: 'text' },
+    { key: 'assign', label: t('Assign'), sortable: false, type: 'custom' }
   ]
 })
 
@@ -344,7 +343,7 @@ const handleGuestSelectionChange = (selected: any) => {
 
   // Show warning if user tried to select items with zero balance
   if (selected.length > validSelected.length) {
-    toast.warning('Cannot select items with zero open balance')
+    toast.warning(t('Cannot select items with zero open balance'))
   }
 
   selectedGuests.value = validSelected
@@ -390,11 +389,11 @@ console.log('item',item)  // Convert to number to handle string inputs
 
   if (assignValue > openValue) {
     item.assign = openValue
-    toast.warning(`Assigned amount cannot exceed open amount of ${formatCurrency(openValue)}`)
+    toast.warning(t('Assigned amount cannot exceed open amount', { amount: formatCurrency(openValue) }))
   }
   if (assignValue < 0) {
     item.assign = 0
-    toast.warning('Assigned amount cannot be negative')
+    toast.warning(t('Assigned amount cannot be negative'))
   }
 
   // Ensure the value is properly formatted
@@ -404,7 +403,7 @@ console.log('item',item)  // Convert to number to handle string inputs
 // Search transactions with refined details
 const searchTransactions = async () => {
   if (!formData.value.cityLedgerAccountId) {
-    toast.error('Please select a city ledger account first')
+    toast.error(t('pleaseSelectCityLedger'))
     return
   }
 
@@ -416,7 +415,7 @@ const searchTransactions = async () => {
     // Reload data with current filter settings
     await loadCityLedgerData()
 
-    toast.success(`Found ${guestData.value.length} transactions`)
+    toast.success(t('Found transactions', { count: guestData.value.length.toString() }))
 
     console.log('Transaction search completed with filters:', {
       cityLedgerAccountId: formData.value.cityLedgerAccountId,
@@ -426,7 +425,7 @@ const searchTransactions = async () => {
     })
   } catch (error) {
     console.error('Search error:', error)
-    toast.error('Failed to search transactions')
+    toast.error(t('Failed to search transactions'))
   } finally {
     isSearching.value = false
   }
@@ -443,17 +442,17 @@ const savePayment = async () => {
 
     // Validate form
     if (!formData.value.cityLedgerAccountId) {
-      toast.error('Please select a city ledger account')
+      toast.error(t('pleaseSelectCityLedger'))
       return
     }
 
     if (!formData.value.paymentMethod) {
-      toast.error('Please select a payment method')
+      toast.error(t('Please select a payment method'))
       return
     }
 
     if (!formData.value.amount) {
-      toast.error('Please assign amounts to selected items')
+      toast.error(t('Please assign amounts to selected items'))
       return
     }
 
@@ -463,7 +462,7 @@ const savePayment = async () => {
       companyId: formData.value.cityLedgerAccountId,
       hotelId: serviceStore.serviceId,
       amount: formData.value.amount,
-      description: formData.value.comment || 'City Ledger Payment',
+      description: formData.value.comment || t('City Ledger Payment'),
       reference: formData.value.reference || '',
       voucher: formData.value.reference || '',
       paymentMethodId: formData.value.paymentMethod,
@@ -490,18 +489,18 @@ const savePayment = async () => {
     const response = await postTransactionPayCompanyBulk(paymentData)
 
     if (response && response.success) {
-      toast.success('Payment saved successfully!')
+      toast.success(t('Payment saved successfully'))
       // Emit event to parent component to refresh data
       emit('payment-saved')
       // Close modal after successful save
       closeModal()
     } else {
-      const errorMessage = response?.message || 'Failed to save payment. Please try again.'
+      const errorMessage = response?.message || t('Failed to save payment. Please try again.')
       toast.error(errorMessage)
     }
   } catch (error) {
     console.error('Error saving payment:', error)
-    toast.error('An error occurred while saving the payment')
+    toast.error(t('An error occurred while saving the payment'))
   } finally {
     isSaving.value = false
   }

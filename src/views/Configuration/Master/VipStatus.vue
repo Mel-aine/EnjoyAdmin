@@ -166,13 +166,13 @@ const columns = computed(() => [
   },
   {
     key: 'createdInfo',
-    label: 'Created',
+    label: t('vip_status.created'),
     sortable: true,
     type:'custom'
   },
   {
     key: 'modifiedInfo',
-    label: 'Modified',
+    label: t('vip_status.modified'),
     sortable: true,
     type:'custom'
   }
@@ -188,7 +188,7 @@ const actions = computed(() => [
   },
   {
     key: 'delete',
-    label: 'Delete',
+    label: t('vip_status.delete'),
     icon: Trash2,
     variant: 'danger'
   }

@@ -44,7 +44,7 @@
                 <i :class="`lucide-${item.vipStatuses.icon.toLowerCase()}`" class="mr-1"></i>
                 {{ item.vipStatuses.name }}
               </span>
-              <span v-else class="text-gray-400 text-xs">No status</span>
+              <span v-else class="text-gray-400 text-xs">{{ $t('noStatus') }}</span>
             </template>
 
           </ReusableTable>
@@ -376,7 +376,7 @@ const handleEditCustomer = async (payload: any) => {
     const customerId = selectedCustomer.value?.id
 
     if (!customerId) {
-      throw new Error('ID du client manquant')
+      throw new Error(t('guestDatabase.customerIdMissing'))
     }
 
     console.log('Mise à jour du client:', customerId, data)
@@ -467,7 +467,7 @@ const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: bo
   try {
     blacklisting.value = true
     const payload =
-      data.reason || (data.blacklisted ? 'Raison non spécifiée' : 'Retiré de la liste noire')
+      data.reason || (data.blacklisted ? t('guestDatabase.unspecifiedReason') : t('guestDatabase.removedFromBlacklist'))
 
     await toggleGuestBlacklist(customerToBlacklist.value.id, payload)
 
