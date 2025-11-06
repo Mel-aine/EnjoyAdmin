@@ -21,7 +21,7 @@
       <ul v-if="isDropdownOpen && !isLoading"
         class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white dark:bg-gray-900 border-2 dark:border-gray-700 border-t-0 border-purple-100"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
-        <li v-for="option in options" :key="option.value" @click="selectOption(option)" :class="[
+        <li v-for="option in options" :key="option.value" @click.stop="selectOption(option)" :class="[
           'px-5 py-2 cursor-pointer hover:bg-brand-100 dark:hover:bg-gray-700 dark:text-white ',
           disabled ? 'cursor-not-allowed text-gray-400 dark:text-gray-500' : ''
         ]" role="option" :aria-selected="selectedOption?.value === option.value">

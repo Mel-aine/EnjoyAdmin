@@ -86,7 +86,7 @@
           @click="handleCancel"
           type="button"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-          :disabled="loading"
+          :disabled="loading || isSubmitting"
         >
           Cancel
         </button>
@@ -94,9 +94,9 @@
           @click="handleConfirm"
           type="button"
           class="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded hover:bg-purple-600 transition-colors disabled:opacity-50"
-          :disabled="loading"
+          :disabled="loading || isSubmitting"
         >
-          {{ loading ? 'Processing...' : 'OK' }}
+          {{ (loading || isSubmitting) ? 'Processing...' : 'OK' }}
         </button>
       </div>
     </div>
@@ -108,18 +108,24 @@ import { ref, watch,computed } from 'vue'
 import InputDoubleDatePicker from '@/components/forms/FormElements/InputDoubleDatePicker.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
+import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
+import { updateAvaibility } from '@/services/channelManagerApi'
 
 interface Props {
   show: boolean
   title?: string
   roomType?: string
   loading?: boolean
+  propertyId?: string | number
+  roomTypeId?: string
 }
 
 interface Emits {
   (e: 'update:show', value: boolean): void
   (e: 'confirm', data: ConfirmData): void
   (e: 'cancel'): void
+  (e: 'refresh'): void
 }
 
 interface ConfirmData {
@@ -131,16 +137,19 @@ interface ConfirmData {
 
 const props = withDefaults(defineProps<Props>(), {
   title: 'Value Override',
-  roomType: 'SUita',
   loading: false,
 })
 
 const emit = defineEmits<Emits>()
 
+const toast = useToast()
+const { t } = useI18n()
+
 const dateFrom = ref('2025-11-06')
 const dateTo = ref('2025-11-07')
 const restriction = ref('availability')
 const value = ref('')
+const isSubmitting = ref(false)
 
 
 
@@ -156,13 +165,44 @@ const updateDateRange = (range: { start: string; end: string }) => {
   dateTo.value = range.end
 }
 
-const handleConfirm = () => {
-  emit('confirm', {
-    dateFrom: dateFrom.value,
-    dateTo: dateTo.value,
-    restriction: restriction.value,
-    value: value.value,
-  })
+const handleConfirm = async () => {
+  // Basic validation
+  if (!dateFrom.value || !dateTo.value) {
+    toast.error(t('toast.error'))
+    return
+  }
+  if (!props.propertyId) {
+    toast.error(t('toast.error'))
+    return
+  }
+  if (!props.roomTypeId) {
+    toast.error(t('toast.error'))
+    return
+  }
+
+  const availabilityNumber = Number(value.value)
+  const payload = [
+    {
+      property_id: props.propertyId,
+      room_type_id: props.roomTypeId,
+      date_from: dateFrom.value,
+      date_to: dateTo.value,
+      availability: Number.isFinite(availabilityNumber) ? availabilityNumber : 0,
+    },
+  ]
+
+  try {
+    isSubmitting.value = true
+    await updateAvaibility(props.propertyId as string, payload)
+    toast.success(t('toast.SucessUpdate'))
+    emit('refresh')
+  } catch (error: any) {
+    console.error('Error updating availability:', error)
+    const serverMessage = error?.response?.data?.message || error?.message
+    toast.error(serverMessage || t('toast.error'))
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const handleCancel = () => {
