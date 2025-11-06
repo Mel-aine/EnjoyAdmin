@@ -743,3 +743,18 @@ export const updateAvaibility = (
     getHeaders()
   )
 }
+
+/**
+ * Update rates for a property (Channex)
+ * Expects payload shape: { values: [{ property_id, rate_plan_id, date_from, date_to, rate }] }
+ */
+export const updateRatesValues = (
+  propertyId: string | number,
+  data: any
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.put<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${propertyId}/rates`,
+    data,
+    getHeaders()
+  )
+}
