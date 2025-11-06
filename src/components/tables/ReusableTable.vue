@@ -16,7 +16,7 @@
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <input v-model="searchQuery" type="text" :placeholder="searchPlaceholder"
+            <input v-model="searchQuery" type="text" :placeholder="translatedSearchPlaceholder"
               class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
           </div>
 
@@ -260,7 +260,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   actions: () => [],
   searchable: true,
-  searchPlaceholder: 'Search...',
+  searchPlaceholder: '',
   selectable: false,
   emptyStateTitle: 'No data found',
   emptyStateMessage: 'Get started by adding some data.',
@@ -287,6 +287,12 @@ const emptyStateMessageText = computed(() => {
   const message = typeof props.emptyStateMessage === 'function' ? props.emptyStateMessage() : props.emptyStateMessage
   return message === 'Get started by adding some data.' ? t('common.getStartedByAddingData') : message
 })
+
+const translatedSearchPlaceholder = computed(() =>
+  props.searchPlaceholder || t('Search...')
+)
+
+
 
 const emit = defineEmits<{
   'selection-change': [items: any[]]

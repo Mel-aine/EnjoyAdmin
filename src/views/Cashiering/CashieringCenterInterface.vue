@@ -29,8 +29,8 @@
           <div class="flex flex-col gap-2">
             <div>
               <RadioGroup v-model="activeTab" class="flex space-x-4" :options="[
-                { label: 'Posting date', value: 'posting' },
-                { label: 'Departure date', value: 'departure' },
+                { label: t('Posting date'), value: 'posting' },
+                { label: t('Departure date'), value: 'departure' },
               ]" />
             </div>
             <div class="mr-4">
@@ -39,7 +39,7 @@
           </div>
 
           <div class="flex justify-start gap-6">
-            <InputCheckBox v-model="displayVoid" label="Display Void" id="display-void" />
+            <InputCheckBox v-model="displayVoid" :label="$t('Display Void')" id="display-void" />
           </div>
 
         </div>
@@ -227,15 +227,15 @@ const cityLedgerData = ref<any>({
 const originalTransactions = ref<any>([])
 // Table columns
 const columns = ref<Column[]>([
-  { key: 'date', label: 'Date', type: 'date' },
-  { key: 'description', label: 'Description', type: 'custom' },
-  { key: 'paymentType', label: 'Payment Type', type: 'custom' },
-  { key: 'user', label: 'User', type: 'custom' },
-  { key: 'credit', label: 'Credit', type: 'custom' },
-  { key: 'debit', label: 'Debit', type: 'custom' },
-  { key: 'assigned', label: 'Assigned', type: 'custom' },
-  { key: 'unassigned', label: 'Unassigned', type: 'custom' },
-  { key: 'balance', label: 'Balance', type: 'custom' },
+  { key: 'date', label: t('Date'), type: 'date' },
+  { key: 'description', label: t('Description'), type: 'custom' },
+  { key: 'paymentType', label: t('Payment Type'), type: 'custom' },
+  { key: 'user', label: t('User'), type: 'custom' },
+  { key: 'credit', label: t('Credit'), type: 'custom' },
+  { key: 'debit', label: t('Debit'), type: 'custom' },
+  { key: 'assigned', label: t('Assigned'), type: 'custom' },
+  { key: 'unassigned', label: t('Unassigned'), type: 'custom' },
+  { key: 'balance', label: t('Balance'), type: 'custom' },
 ])
 
 // Sample data
@@ -365,7 +365,7 @@ async function onAction(action: string, item: any) {
     const transactionId = item?.id;
 
     switch (action) {
-      case 'void': 
+      case 'void':
         openVoidModal(item)
         break
       case 'printReceipt': {

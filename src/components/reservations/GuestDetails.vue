@@ -187,7 +187,7 @@
                       <InputDatePicker
                         :title="$t('DateOfBirth')"
                         v-model="guestData.dateOfBirth"
-                        :placeholder="$t('Select Date')"
+                        :placeholder="$t('select_date')"
                         :disabled="!isEditing"
                       />
                     </div>
@@ -238,8 +238,8 @@
                     <AutoCompleteSelect
                       v-model="guestData.contactType"
                       :options="TypesOfContact"
-                      :defaultValue="$t('contactType')"
-                      :lb="$t('contactType')"
+                      :defaultValue="$t('contact_type')"
+                      :lb="$t('contact_type')"
                       :is-required="false"
                       :use-dropdown="useDropdownBooking"
                       @clear-error="emit('clear-error')"
@@ -420,7 +420,7 @@
                   <InputCountries
                     v-model="guestData.nationality"
                     :placeholder="$t('India')"
-                    :lb="$t('Nationality')"
+                    :lb="$t('nationality')"
                     :disabled="!isEditing"
                   />
                 </div>
@@ -450,7 +450,7 @@
                     :lb="$t('RegistrationNo')"
                     v-model="guestData.registrationNo"
                     type="text"
-                    :placeholder="$t('Registration No')"
+                    :placeholder="$t('RegistrationNo')"
                     :disabled="!isEditing"
                   />
                 </div>
@@ -499,7 +499,7 @@
                         :lb="$t('IDType')"
                         v-model="guestData.idType"
                         :options="idTypeOptions"
-                        :placeholder="$t('Select ID Type')"
+                        :placeholder="$t('select_id_type')"
                         :disabled="!isEditing"
                       />
                     </div>
@@ -517,7 +517,7 @@
                       <InputDatePicker
                         :title="$t('ExpiryDate')"
                         v-model="guestData.idExpiryDate"
-                        :placeholder="$t('Select Date')"
+                        :placeholder="$t('select_date')"
                         :disabled="!isEditing"
 
                       />

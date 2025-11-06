@@ -19,6 +19,7 @@
         <Select
           :lb="$t('filtersGuest.vipStatus')"
           v-model="filters.vipStatus"
+          :placeholder="$t('select')"
           :options="vipStatusOptions"
         />
       </div>
@@ -50,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed,onMounted } from 'vue';
 import { Filter, Search, XCircle } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import RightSideModal from '@/components/modal/RightSideModal.vue';
@@ -58,11 +59,14 @@ import Input from '@/components/forms/FormElements/Input.vue';
 import Select from '@/components/forms/FormElements/Select.vue';
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue';
 import BasicButton from '@/components/buttons/BasicButton.vue';
+import { vipStatusApi } from '@/services/configrationApi'
+import { useServiceStore } from '@/composables/serviceStore'
 
 const { t } = useI18n();
 
 const emit = defineEmits(['filter']);
-
+const loading = ref(false)
+const serviceStore = useServiceStore()
 const showFilter = ref(false);
 
 // État des filtres
@@ -74,21 +78,13 @@ const filters = ref({
 });
 
 // Options pour les selects (vous pouvez les rendre dynamiques si besoin)
-const vipStatusOptions = computed(() => [
-  { label: t('filtersGuest.all'), value: '' },
-  { label: t('vipStatus.bronze'), value: 'bronze' },
-  { label: t('vipStatus.silver'), value: 'silver' },
-  { label: t('vipStatus.gold'), value: 'gold' },
-  { label: t('vipStatus.platinum'), value: 'platinum' },
-  { label: t('vipStatus.diamond'), value: 'diamond' },
-  { label: t('vipStatus.none'), value: 'none' },
-]);
+const vipStatusOptions = ref<any[]>([])
 
 const guestTypeOptions = computed(() => [
   { label: t('filtersGuest.all'), value: '' },
-  { value: 'travel_agent', label: 'Travel Agent' },
-  { value: 'corporate', label: 'Corporate' },
-  { value: 'individual', label: 'Individual' }
+  { value: 'travel_agent', label: t('GuestTypes.travel_agent') },
+  { value: 'corporate', label: t('GuestTypes.corporate') },
+  { value: 'individual', label: t('GuestTypes.individual') },
 ]);
 
 
@@ -107,6 +103,30 @@ const applyFilters = () => {
   emit('filter', apiFilters);
   showFilter.value = false;
 };
+
+const fetchVipStatuses = async () => {
+  try {
+    loading.value = true
+    const response = await vipStatusApi.getVipStatuses(serviceStore.serviceId!)
+    console.log('respinse', response)
+    vipStatusOptions.value =
+      response.data?.data.map((s: any) => {
+        return {
+          label: s.name,
+          value: s.id,
+        }
+      }) || []
+    console.log('vipStatusOptions', vipStatusOptions.value)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchVipStatuses()
+})
 
 const clearFilters = () => {
   filters.value = {

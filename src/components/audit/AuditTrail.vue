@@ -3,13 +3,16 @@
     <div>
       <ReusableTable :columns="columns" :data="paginatedData" :loading="loading" :title="''" :showPagination="true"
         :searchable="false" :show-header="false">
-      
+
         <template #column-date="{item}">
           <div>{{ formatDateT(item.createdAt) }}</div>
         </template>
-      
+
        <template #column-user="{item}">
           <div>{{ item.user?.firstName }}</div>
+        </template>
+           <template #column-action="{item}">
+          <div>{{ $t(`auditActions.${item.action}`) }}</div>
         </template>
          <template #column-ipAddress="{item}">
           <div class="flex flex-col w-xs overflow-hidden">
@@ -17,7 +20,7 @@
             <span class="text-gray-600 truncate">{{ item.userAgent }}</span>
           </div>
         </template>
-      
+
       </ReusableTable>
     </div>
   </div>
@@ -31,6 +34,7 @@ import type { AuditTrailEntry, AuditTrailQueryParams } from '@/services/auditTra
 import { useAuthStore } from '@/composables/user'
 import type { Column } from '../../utils/models'
 import { formatDateT } from '../utilities/UtilitiesFunction'
+import { useI18n } from 'vue-i18n'
 
 // State
 const loading = ref(false)
@@ -43,6 +47,7 @@ const totalPages = ref(0)
 const users = ref([])
 const authStore = useAuthStore()
 const props = defineProps<{ entityIds: number[] }>()
+const {t} = useI18n()
 
 
 // Filters
@@ -59,11 +64,11 @@ const filters = ref<AuditTrailQueryParams>({
 
 // Table columns
 const columns = ref<Column[]>([
-  { key: 'date', label: 'Date', type: 'custom' },
-  { key: 'user', label: 'User', type: 'custom' },
-  { key: 'action', label: 'Action', type: 'custom' },
-  { key: 'description', label: 'Log', type: 'custom' },
-  { key: 'ipAddress', label: 'IP', type: 'custom' },
+  { key: 'date', label: t('Date'), type: 'custom' },
+  { key: 'user', label: t('User'), type: 'custom' },
+  { key: 'action', label: t('Action'), type: 'custom' },
+  { key: 'description', label: t('Log'), type: 'custom' },
+  { key: 'ipAddress', label: t('IP'), type: 'custom' },
 ])
 
 // Computed properties

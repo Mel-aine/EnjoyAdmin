@@ -106,7 +106,7 @@
               <div class="flex items-center space-x-2">
                 <Globe class="w-4 h-4 text-gray-400 dark:text-gray-300" />
                 <span class="text-sm text-gray-900 dark:text-gray-200 font-mono">
-                  {{ log.ipAddress || 'Unknown' }}
+                  {{ log.ipAddress || $t('Unknown') }}
                 </span>
               </div>
               <div v-if="log.userAgent" class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center space-x-1">

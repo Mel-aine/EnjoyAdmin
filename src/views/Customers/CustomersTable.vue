@@ -44,7 +44,7 @@
                 <i :class="`lucide-${item.vipStatuses.icon.toLowerCase()}`" class="mr-1"></i>
                 {{ item.vipStatuses.name }}
               </span>
-              <span v-else class="text-gray-400 text-xs">No status</span>
+              <span v-else class="text-gray-400 text-xs">{{ $t('No status') }}</span>
             </template>
 
           </ReusableTable>
@@ -168,7 +168,7 @@ const columns = computed(() => [
   },
   {
     key: 'addressLine',
-    label: t('address'),
+    label: t('Address'),
     type: 'text' as const,
     sortable: true,
     translatable: true,

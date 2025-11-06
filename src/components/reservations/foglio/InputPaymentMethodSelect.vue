@@ -3,7 +3,7 @@
     <label v-if="!hideLabel" for="payment_method_select"
       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
       :class="showDropdown ? 'text-brand-500' : 'text-gray-500'">
-      {{ label || 'Payment Method' }}
+      {{ label || $t('PaymentMethod') }}
     </label>
 
     <div class="relative font-sans cursor-pointer" @click="handleFocus" :aria-disabled="props.disabled"
@@ -13,7 +13,7 @@
         :class="[ showDropdown ? 'border-purple-500 text-gray-900' : 'border-black/50', props.customClass]">
 
         <input ref="inputRef" type="text" :value="displayValue" @input="handleInput" @focus="handleFocus"
-          @keydown="handleKeydown" :placeholder="placeholder || 'Search payment methods...'" :disabled="props.disabled" :readonly="props.disabled"
+          @keydown="handleKeydown" :placeholder="placeholder || $t('Search payment methods...')" :disabled="props.disabled" :readonly="props.disabled"
           class="w-full bg-transparent outline-none border-none p-0 text-sm text-gray-800 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30'" :class="props.disabled ? 'cursor-not-allowed' : ''">
 
 
@@ -26,7 +26,7 @@
         class="custom-scrollbar absolute top-full left-0 right-0 z-999 mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         role="listbox" :aria-expanded="showDropdown" aria-hidden="false">
         <li v-if="isLoading" class="px-5 py-2 text-sm text-gray-500 dark:text-gray-400">
-          Loading payment methods...
+          {{ $t('Loading payment methods...') }}
         </li>
         <li v-else v-for="(paymentMethod, index) in filteredPaymentMethods" :key="paymentMethod.id"
           @click="selectPaymentMethod(paymentMethod)"

@@ -339,7 +339,7 @@
                           v-model="room.adultCount"
                           :options="getAdultOptions(room.roomType)"
                           :disabled="!room.roomType"
-                          :placeholder="$t('select')"
+                          placeholder="1"
                           @change="onOccupancyChange(room.id, 'adultCount', $event)"
                         />
                       </div>
@@ -351,7 +351,7 @@
                           v-model="room.childCount"
                           :options="getChildOptions(room.roomType)"
                           :disabled="!room.roomType"
-                          :placeholder="$t('select')"
+                          placeholder="0"
                           @change="onOccupancyChange(room.id, 'childCount', $event)"
                         />
                       </div>
@@ -485,6 +485,7 @@
                         :title="$t('time')"
                         v-model="holdReleaseData.time"
                         :placeholder="$t('select_time')"
+                        custom-class="rounded-lg"
                       />
                     </div>
 

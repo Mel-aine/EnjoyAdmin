@@ -66,7 +66,7 @@ const props = defineProps({
   modelValue: { type: String },
   disabled: { type: Boolean, default: false },
   isRequired: { type: Boolean, default: false },
-  lb: { type: String, default: 'profession' },
+  lb: { type: String, default: '' },
   customClass: { type: String, default: '' },
   placeholder: { type: String, default: '' },
 })

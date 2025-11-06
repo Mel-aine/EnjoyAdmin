@@ -121,11 +121,11 @@ const handleSelectionChange = (vals: any[]) => {
 }
 // Table columns definition
 const columnsFolios: Column[] = [
-    { key: 'folio', label: 'Folio No.',  },
-    { key: 'transactionDate', label: 'Date ',  },
-    { key: 'room', label: 'Room',  },
-    { key: 'description', label: 'Description',  },
-    { key: 'amount', label: 'Amount', type: 'custom',  },
+    { key: 'folio', label: t('Folio No.'),  },
+    { key: 'transactionDate', label: t('Date'),  },
+    { key: 'room', label: t('Room'),  },
+    { key: 'description', label: t('Description'),  },
+    { key: 'amount', label: t('Amount'), type: 'custom',  },
 ]
 
 const selectFolio = ref<any>(null);
@@ -213,7 +213,7 @@ onMounted(() => {
     if (props.defaultFolio) {
         selectSourceFolio(props.defaultFolio)
     }
-}) 
+})
 
 const formatAmount = (amount: number) => {
   return formatCurrency(amount)

@@ -14,7 +14,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-5 p-5">
               <div class="flex flex-col col-span-4">
-                <Input :inputType="'search'" :placeholder="$t('Search folio, Room or Guest ')" :id="'searchText'" :forLabel="'reservationsList.searchByNameOrNumber'" v-model="filters.searchText" />
+                <Input :inputType="'search'" :placeholder="$t('Search folio, Room or Guest')" :id="'searchText'" :forLabel="'reservationsList.searchByNameOrNumber'" v-model="filters.searchText" />
                 <div class="flex gap-2 mt-2">
                   <InputCheckBox :label="$t('inHouse')" :id="'inHouse'" v-model="filters.inHouse" />
                   <InputCheckBox :label="$t('Reservation')" :id="'reservation'" v-model="filters.reservation" />
@@ -96,7 +96,7 @@ onMounted(() => {
 const columnsFolios = computed<Column[]>(() => [
   { key: 'folioNumber', label: t('Folio No.'), sortable: true },
   { key: 'roomNumber', label: t('Room'), sortable: true },
-  { key: 'guest', label: t('guest '), sortable: true },
+  { key: 'guest', label: t('Guest'), sortable: true },
   { key: 'arrivedDate', label: t('arrivalDate'), type: 'date', sortable: true },
   { key: 'departureDate', label: t('departureDate'), type: 'date', sortable: true },
   { key: 'balance', label: t('balance') },

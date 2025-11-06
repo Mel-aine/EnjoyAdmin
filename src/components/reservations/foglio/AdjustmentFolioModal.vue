@@ -187,7 +187,7 @@ const saveAdjustment = async () => {
           toast.success(props.isEditMode ? t('AdjustmentUpdatedSuccessfully') : t('adjustmentAddedSuccessfully'))
           closeModal()
         } else {
-          const errorMessage = responseAdjustment?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} charge. Please try again.`
+          const errorMessage = responseAdjustment?.message || t('adjustmentError')
           toast.error(errorMessage)
         }
 
