@@ -992,7 +992,7 @@ import { onMounted, computed, ref, defineAsyncComponent, nextTick } from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
-import Input from '@/components/forms/FormElements/Input.vue'
+const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
 import { useI18n } from 'vue-i18n'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
@@ -1003,7 +1003,8 @@ import {
   ClipboardCheck,
   ClipboardList,
 } from 'lucide-vue-next'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
 import { useBooking } from '@/composables/useBooking2'

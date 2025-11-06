@@ -173,7 +173,8 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import Input from '@/components/forms/FormElements/Input.vue'
+import { defineAsyncComponent } from 'vue'
+const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
 import flatPickr from 'vue-flatpickr-component'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import 'flatpickr/dist/flatpickr.css'

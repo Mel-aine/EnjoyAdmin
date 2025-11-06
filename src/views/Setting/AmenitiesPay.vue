@@ -11,7 +11,8 @@ import { useI18n } from 'vue-i18n'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import router from '@/router'
 import AmenitiesUpsertModal from '@/components/modal/AmenitiesUpsertModal.vue'
-import ModalDelete from '@/components/modal/ModalDelete.vue'
+import { defineAsyncComponent } from 'vue'
+const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 const isLoading = ref(false)

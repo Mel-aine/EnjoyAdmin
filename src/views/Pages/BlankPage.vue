@@ -23,7 +23,8 @@
 <script setup>
 import { ref } from "vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
 
 const currentPageTitle = ref("Blank Page");
 </script>

@@ -59,11 +59,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, computed } from "vue";
+import { onMounted, ref, watch, computed, defineAsyncComponent } from "vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
+const PageBreadcrumb = defineAsyncComponent(() => import("@/components/common/PageBreadcrumb.vue"));
 import FullScreenLayout from "@/components/layout/FullScreenLayout.vue";
-import Modal from "@/components/profile/Modal.vue";
+const Modal = defineAsyncComponent(() => import("@/components/profile/Modal.vue"));
 import Input from "@/components/forms/FormElements/Input.vue";
 import { createCategory, getCategory, deleteCategory, updateCategory } from "@/services/api";
 import { useToast } from 'vue-toastification'
@@ -71,7 +71,7 @@ import { useI18n } from "vue-i18n";
 import TableComponent from "@/components/tables/TableComponent.vue";
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
-import ModalDelete from "@/components/modal/ModalDelete.vue";
+const ModalDelete = defineAsyncComponent(() => import("@/components/modal/ModalDelete.vue"));
 import { hotel_product_categories } from "@/assets/data/productCategories";
 import ReportsLayout from '@/components/layout/ReportsLayout.vue';
 // Données simulées

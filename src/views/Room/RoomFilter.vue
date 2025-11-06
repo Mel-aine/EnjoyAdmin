@@ -144,7 +144,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon } from 'lucide-vue-next'
-import Input from '@/components/forms/FormElements/Input.vue'
+import { defineAsyncComponent as defineAsyncComponentInput } from 'vue'
+const Input = defineAsyncComponentInput(() => import('@/components/forms/FormElements/Input.vue'))
 import type { RoomFilterItem } from '@/utils/models'
 import { getTypeProductByServiceId, getOptionsEquipement } from '@/services/api'
 import type { RoomTypeData } from '@/types/option'

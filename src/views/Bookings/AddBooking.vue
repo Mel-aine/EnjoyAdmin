@@ -1,4 +1,4 @@
- <template>
+<template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
@@ -152,7 +152,8 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import flatPickr from 'vue-flatpickr-component'

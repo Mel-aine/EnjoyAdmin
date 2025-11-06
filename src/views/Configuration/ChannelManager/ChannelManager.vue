@@ -3,7 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import IframeView from './IframeView.vue';
+import { defineAsyncComponent } from 'vue'
+const IframeView = defineAsyncComponent(() => import('./IframeView.vue'))
 
 </script>
 

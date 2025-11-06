@@ -222,10 +222,13 @@
 </template>
 
 <script setup lang="ts">
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import Modal from '@/components/profile/Modal.vue'
-import Input from '@/components/forms/FormElements/Input.vue'
+import { defineAsyncComponent } from 'vue'
+const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
+import { defineAsyncComponent as defineAsyncComponentInput } from 'vue'
+const Input = defineAsyncComponentInput(() => import('@/components/forms/FormElements/Input.vue'))
 import Select from '@/components/forms/FormElements/Select.vue'
 import { ref, onMounted, computed, nextTick, watchEffect, watch } from 'vue'
 import {
@@ -246,7 +249,8 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import { useBookingStore } from '@/composables/booking'
 import { useI18n } from 'vue-i18n'
-import ModalDelete from '@/components/modal/ModalDelete.vue'
+import { defineAsyncComponent as defineAsyncComponentModalDelete } from 'vue'
+const ModalDelete = defineAsyncComponentModalDelete(() => import('@/components/modal/ModalDelete.vue'))
 import TableComponent from '@/components/tables/TableComponent.vue'
 import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue'
 import PopupModal from '@/components/modal/PopupModal.vue'

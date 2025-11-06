@@ -149,10 +149,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
@@ -161,7 +162,7 @@ import { KeyRound, FileDown, Edit, Trash2,Play,CheckCircle } from 'lucide-vue-ne
 import { createRoomBlock, getRoomBlocks, deleteBlock, updateRoomBlock } from '@/services/roomBlockApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification';
-import Modal from '@/components/profile/Modal.vue'
+const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 import Select from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()

@@ -128,12 +128,13 @@
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { ref, reactive, onMounted, computed, watch, defineAsyncComponent } from 'vue'
+const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'))
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useToast } from 'vue-toastification'
-import Modal from '@/components/profile/Modal.vue'
-import Input from '@/components/forms/FormElements/Input.vue'
+const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
+import { defineAsyncComponent as defineAsyncComponentInput } from 'vue'
+const Input = defineAsyncComponentInput(() => import('@/components/forms/FormElements/Input.vue'))
 import Select from '@/components/forms/FormElements/Select.vue'
 import {
   getProduct,
@@ -148,7 +149,7 @@ import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
 import { useI18n } from 'vue-i18n'
-import ModalDelete from '@/components/modal/ModalDelete.vue'
+const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
 import TableComponent from '@/components/tables/TableComponent.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'

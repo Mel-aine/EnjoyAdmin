@@ -11,7 +11,8 @@
 
 <script setup lang="ts">
 import { ref,computed } from "vue";
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 // import ComponentCard from "@/components/common/ComponentCard.vue";
 import AllBooking from "@/components/tables/booking-tables/AllBookingTable.vue";

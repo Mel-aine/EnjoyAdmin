@@ -229,7 +229,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, defineAsyncComponent, onMounted } from 'vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'))
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'

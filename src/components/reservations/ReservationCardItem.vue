@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n';
 import ReservationAction from './ReservationAction.vue';
 import { HouseIcon, Users } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, defineAsyncComponent } from 'vue';
 import { formatCurrency, formatTimeFromTimeString } from '../utilities/UtilitiesFunction';
 import router from '../../router';
 import Child from '../../icons/Child.vue';
@@ -11,7 +11,7 @@ import Adult from '../../icons/Adult.vue';
 import { useToast } from 'vue-toastification';
 // Lazy load modal components for better code splitting
 
-import PrintModal from '../common/PrintModal.vue';
+const PrintModal = defineAsyncComponent(() => import('../common/PrintModal.vue'));
 
 
 

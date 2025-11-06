@@ -19,7 +19,8 @@
 
 <script setup lang="ts">
 import SettingTables from '../Tables/SettingTables.vue';
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import { ref, computed } from 'vue'
 import { useI18n } from "vue-i18n";

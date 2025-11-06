@@ -290,7 +290,7 @@ import type { ReservationType } from '@/types/option'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import ModalDelete from '@/components/modal/ModalDelete.vue'
+const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
 import { useBookingStore } from '@/composables/booking'
 import BookingFilter from '@/views/Bookings/BookingFilter.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'

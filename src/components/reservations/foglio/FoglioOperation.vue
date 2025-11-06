@@ -232,7 +232,7 @@ import BasicButton from '../../buttons/BasicButton.vue'
 import type { Action, Column } from '../../../utils/models'
 import { getReservationFolios } from '../../../services/foglioApi'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
-import PrintInvoice from '../../invoice/PrintInvoice.vue'
+const PrintInvoice = defineAsyncComponent(() => import('../../invoice/PrintInvoice.vue'))
 import ButtonDropdown from '../../common/ButtonDropdown.vue'
 import PdfExporterNode from '../../common/PdfExporterNode.vue'
 import { printFolioPdf } from '@/services/foglioApi'

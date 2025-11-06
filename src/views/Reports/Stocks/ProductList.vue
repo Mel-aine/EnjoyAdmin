@@ -92,10 +92,12 @@
 </template>
 
 <script setup lang="ts">
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
 import AdminLayout from "@/components/layout/AdminLayout.vue";
-import Modal from "@/components/profile/Modal.vue";
-import Input from "@/components/forms/FormElements/Input.vue";
+const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
+import { defineAsyncComponent as defineAsyncComponentInput } from 'vue'
+const Input = defineAsyncComponentInput(() => import("@/components/forms/FormElements/Input.vue"));
 import Select from "@/components/forms/FormElements/Select.vue";
 import { createProduct, getCategory, getSupplier, getProduct, updateProduct, deleteProduct } from "@/services/api";
 import Spinner from '@/components/spinner/Spinner.vue';
@@ -104,7 +106,8 @@ import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";
 import { ref, watch, onMounted, computed } from 'vue';
 import TableComponent from "@/components/tables/TableComponent.vue";
-import ModalDelete from "@/components/modal/ModalDelete.vue";
+import { defineAsyncComponent } from 'vue'
+const ModalDelete = defineAsyncComponent(() => import("@/components/modal/ModalDelete.vue"));
 import { defaultProducts } from "@/assets/data/productCategories";
 import FullScreenLayout from "@/components/layout/FullScreenLayout.vue";
 import ReportsLayout from '@/components/layout/ReportsLayout.vue';

@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { Printer, X } from 'lucide-vue-next'
@@ -70,7 +70,7 @@ import PdfExporter from '../common/PdfExporter.vue'
 import Select from '../forms/FormElements/Select.vue'
 import InputFolioSelect from '../reservations/foglio/InputFolioSelect.vue'
 import BasicButton from '../buttons/BasicButton.vue'
-import Invoicehotel from './Invoicehotel.vue'
+const Invoicehotel = defineAsyncComponent(() => import('./Invoicehotel.vue'))
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 
 interface PrintTemplate {

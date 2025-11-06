@@ -97,15 +97,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue'
 import AdminLayout from "@/components/layout/AdminLayout.vue";
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
 import { getPayment, confirmPayment } from "@/services/api";
 import { useServiceStore } from '@/composables/serviceStore';
 import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification'
-import Modal from '@/components/profile/Modal.vue';
+const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'));
 import ButtonComponent from "@/components/buttons/ButtonComponent.vue";
 import { useAuthStore } from '@/composables/user'
 import TableComponent from '@/components/tables/TableComponent.vue';

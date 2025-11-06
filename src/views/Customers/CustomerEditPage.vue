@@ -33,7 +33,8 @@ import { useServiceStore } from '@/composables/serviceStore'
 // Importez vos composants de layout et de formulaire
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
 import CustomerForm from '@/components/customers/CustomerFom.vue'
 
 const route = useRoute()

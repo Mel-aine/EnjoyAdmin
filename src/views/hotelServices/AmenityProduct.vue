@@ -9,7 +9,8 @@ import {
 import { useI18n } from 'vue-i18n'
 import TableComponent from '@/components/tables/TableComponent.vue'
 import router from '@/router'
-import ModalDelete from '@/components/modal/ModalDelete.vue'
+import { defineAsyncComponent } from 'vue'
+const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
 import AmenityProductUpsertModal from '@/components/modal/AmenityProductUpsertModal.vue'
 const loadingDelete = ref(false)
 const loading = ref(false)

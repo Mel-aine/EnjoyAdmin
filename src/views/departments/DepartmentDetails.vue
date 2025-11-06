@@ -287,7 +287,7 @@ import DepartmentTaskStaff from '../StaffManagement/DepartmentTaskStaff.vue';
 import BaseCalendar from '@/components/calendars/BaseCalendar.vue';
 import LegendItem from '@/components/calendars/LegendItem.vue';
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
-import ModalDelete from '@/components/modal/ModalDelete.vue';
+const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
 import { useToast } from 'vue-toastification';
 import type { IDepartement } from '@/types/type';
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'));

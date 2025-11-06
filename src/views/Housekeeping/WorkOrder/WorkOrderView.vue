@@ -131,7 +131,8 @@
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Plus, FileDown, Edit, Trash2, Play, CheckCircle } from 'lucide-vue-next'

@@ -56,7 +56,8 @@
 import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
+const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import UnsettledFoliosFilter from '@/components/filters/UnsettledFoliosFilter.vue'
 import { EyeIcon, PrinterIcon, MailIcon } from 'lucide-vue-next'

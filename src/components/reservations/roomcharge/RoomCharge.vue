@@ -233,12 +233,12 @@ import type { Column } from '../../../utils/models'
 import { getRoomCharges } from '../../../services/reservation'
 import ApplyDiscountRoomCharge from '../foglio/ApplyDiscountRoomCharge.vue'
 import { useToast } from 'vue-toastification';
-import AmendStay from '../foglio/AmendStay.vue'
-import CancelReseravtion from '../foglio/CancelReseravtion.vue'
+const AmendStay = defineAsyncComponent(() => import('../foglio/AmendStay.vue'))
+const CancelReseravtion = defineAsyncComponent(() => import('../foglio/CancelReseravtion.vue'))
 const CheckInReservation = defineAsyncComponent(() => import('../CheckInReservation.vue'))
 const UnAssignRoomReservation = defineAsyncComponent(() => import('../UnAssignRoomReservation.vue'))
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
-import VoidReservation from '../foglio/VoidReservation.vue'
+const VoidReservation = defineAsyncComponent(() => import('../foglio/VoidReservation.vue'))
 import UpdateReservationDetails from '@/views/FrontOffice/reservation/UpdateReservationDetails.vue'
 
 const { t } = useI18n()
