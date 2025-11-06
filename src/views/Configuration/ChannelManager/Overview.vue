@@ -88,17 +88,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ChannelManagerLayout from '../../../components/layout/ChannelManagerLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import { useToast } from 'vue-toastification'
-import { migrateCompleteHotel } from '@/services/channelManagerApi'
+import { migrateCompleteHotel, getBookings } from '@/services/channelManagerApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 
  const { t } = useI18n()
 const toast = useToast()
 const isLoading = ref(false)
+const eventsLoading = ref(false)
 const currentService = useServiceStore().getCurrentService;
 const handleMigrate = async () => {
   try {
@@ -135,89 +136,90 @@ const handleMigrate = async () => {
    }
  ])
 
- const liveEvents = ref([
-   {
-     id: 1,
-     timeAgo: 'a day ago',
-     type: 'CANCELLATION',
-     title: 'Original Missed Cancellation',
-     subtitle: '',
-     amount: '0.00 USD',
-     platform: 'B'
-   },
-   {
-     id: 2,
-     timeAgo: 'a day ago',
-     type: 'NEW BOOKING',
-     title: 'Fri, Jan 09, 2026',
-     subtitle: 'Arvind Verma • 1 room • 1 night',
-     amount: '50.00 GBP',
-     platform: 'B'
-   },
-   {
-     id: 3,
-     timeAgo: 'a day ago',
-     type: 'NEW BOOKING',
-     title: 'Sun, Sep 07, 2025',
-     subtitle: 'Pushparaj Kumaraguru • 2 rooms • 1 night',
-     amount: '810.44 GBP',
-     platform: 'B'
-   },
-   {
-     id: 4,
-     timeAgo: 'a day ago',
-     type: 'NEW BOOKING',
-     title: 'Wed, Nov 05, 2025',
-     subtitle: 'Arvind Verma • 1 room • 1 night',
-     amount: '50.00 GBP',
-     platform: 'B'
-   },
-   {
-     id: 5,
-     timeAgo: 'a day ago',
-     type: 'NEW BOOKING',
-     title: 'Fri, Sep 12, 2025',
-     subtitle: 'Kos3 Udnik3 • 1 room • 1 night',
-     amount: '110.00 GBP',
-     platform: 'B'
-   },
-   {
-     id: 6,
-     timeAgo: 'a day ago',
-     type: 'NEW BOOKING',
-     title: 'Thu, Sep 04, 2025',
-     subtitle: 'Wend Test • 1 room • 1 night',
-     amount: '629.48 GBP',
-     platform: 'B'
-   },
-   {
-     id: 7,
-     timeAgo: 'a day ago',
-     type: 'NEW BOOKING',
-     title: 'Tue, Dec 09, 2025',
-     subtitle: 'Arvind Verma • 1 room • 1 night',
-     amount: '50.00 GBP',
-     platform: 'B'
-   },
-   {
-     id: 8,
-     timeAgo: 'a day ago',
-     type: 'NEW BOOKING',
-     title: 'Fri, Feb 27, 2026',
-     subtitle: 'Arvind Verma • 1 room • 1 night',
-     amount: '50.00 GBP',
-     platform: 'B'
-   },
-   {
-     id: 9,
-     timeAgo: 'a day ago',
-     type: 'NEW BOOKING',
-     title: 'Fri, Sep 12, 2025',
-     subtitle: 'Kos4 Udnik4 • 1 room • 1 night',
-     amount: '110.00 GBP',
-     platform: 'B'
+ const liveEvents = ref<any[]>([])
+
+ // Helpers
+ const computeTimeAgo = (iso?: string) => {
+   if (!iso) return ''
+   const then = new Date(iso).getTime()
+   const now = Date.now()
+   const diffMs = Math.max(0, now - then)
+   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+   if (diffDays <= 0) return 'today'
+   if (diffDays === 1) return 'a day ago'
+   return `${diffDays} days ago`
+ }
+
+ const loadLiveEvents = async () => {
+   try {
+     eventsLoading.value = true
+     const propertyId = (currentService as any)?.channexPropertyId || useServiceStore().serviceId
+     const params = {
+       date_from: dateRange.value.start,
+       date_to: dateRange.value.end,
+     }
+     const res = await getBookings(propertyId, params as any)
+     console.log('getBookings res:', res)
+     const rawData = res?.data?.data as any
+     const items = Array.isArray(rawData?.data) ? rawData.data : Array.isArray(rawData) ? rawData : []
+
+     liveEvents.value = items.map((item: any, idx: number) => {
+       const a = item?.attributes ?? item
+       const status = String(a?.status || '').toLowerCase()
+       const type = status === 'cancelled' ? 'CANCELLATION' : 'NEW BOOKING'
+       const titleDate = a?.arrival_date || a?.rooms?.[0]?.checkin_date || a?.inserted_at
+       const title = titleDate ? formatDatePretty(titleDate) : ''
+       const firstName = a?.customer?.name || ''
+       const lastName = a?.customer?.surname || ''
+       const customerName = `${firstName} ${lastName}`.trim()
+       const roomsCount = Array.isArray(a?.rooms) ? a.rooms.length : 1
+       const nights = computeNights(
+         a?.rooms?.[0]?.checkin_date || a?.arrival_date,
+         a?.rooms?.[0]?.checkout_date || a?.departure_date
+       )
+       const subtitle = customerName
+         ? `${customerName} • ${roomsCount} room${roomsCount > 1 ? 's' : ''}${nights ? ` • ${nights} night${nights > 1 ? 's' : ''}` : ''}`
+         : ''
+       const amountStr = a?.amount && a?.currency ? `${a.amount} ${a.currency}` : ''
+       const platformInitial = (a?.ota_name?.[0] || a?.channel?.[0] || 'B').toUpperCase()
+       return {
+         id: a?.id || item?.id || idx,
+         timeAgo: computeTimeAgo(a?.inserted_at),
+         type,
+         title,
+         subtitle,
+         amount: amountStr,
+         platform: platformInitial,
+       }
+     })
+   } catch (error) {
+     console.error('getBookings error:', error)
+     toast.error(t('configuration.channelManager.common.error') || 'Failed to load bookings')
+   } finally {
+     eventsLoading.value = false
    }
- ])
+ }
+
+  const computeNights = (checkin?: string, checkout?: string) => {
+    if (!checkin || !checkout) return undefined
+    const start = new Date(checkin)
+    const end = new Date(checkout)
+    const ms = end.getTime() - start.getTime()
+    const nights = Math.round(ms / (1000 * 60 * 60 * 24))
+    return nights > 0 ? nights : undefined
+  }
+
+  const formatDatePretty = (dateStr: string) => {
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return ''
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const wd = weekdays[d.getDay()]
+    const m = months[d.getMonth()]
+    const day = String(d.getDate()).padStart(2, '0')
+    const year = d.getFullYear()
+    return `${wd}, ${m} ${day}, ${year}`
+  }
 
  // Computed properties
  const filteredEvents = computed(() => {
@@ -240,9 +242,17 @@ const handleMigrate = async () => {
    console.log('Viewing details for:', source.name)
  }
 
- onMounted(() => {
-   // Initialize component
- })
+onMounted(() => {
+  loadLiveEvents()
+})
+
+// Reload events when date range changes
+watch(
+  () => [dateRange.value.start, dateRange.value.end],
+  () => {
+    loadLiveEvents()
+  }
+)
 </script>
 
 <style scoped>

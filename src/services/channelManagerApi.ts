@@ -758,3 +758,13 @@ export const updateRatesValues = (
     getHeaders()
   )
 }
+
+export const getBookings= (
+  propertyId: string | number,
+  params: GetAvaibilitiesParams
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.get<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${propertyId}/bookings`,
+    { ...getHeaders(), params }
+  )
+}
