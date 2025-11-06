@@ -85,7 +85,7 @@
           </div>
 
           <!-- Calendar Grid -->
-           <ChannelInventoryCalendar ref="calendarRef"></ChannelInventoryCalendar>
+           <ChannelInventoryCalendar ref="calendarRef"  :roomTypes="roomTypes"></ChannelInventoryCalendar>
         </div>
       </div>
     </div>
@@ -263,15 +263,6 @@ const handleRestrictionFilterChange = (restrictions: string[]) => {
     calendarRef.value.handleRestrictionChange(restrictions)
   }
 }
-
-// Watch pour passer les données au calendrier
-watch([roomTypes, rateTypes], () => {
-  if (calendarRef.value && roomTypes.value.length > 0) {
-    calendarRef.value.setRoomAndRateTypes(roomTypes.value, rateTypes.value)
-    console.log('Data sent to calendar:', { roomTypes: roomTypes.value, rateTypes: rateTypes.value })
-  }
-}, { immediate: true })
-
 
 // Lifecycle
 onMounted(() => {

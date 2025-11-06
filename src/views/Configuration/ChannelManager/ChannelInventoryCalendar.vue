@@ -2,36 +2,25 @@
   <div class="bg-gray-50 min-h-screen">
     <div class="overflow-hidden">
       <!-- Mini Calendar Date Picker -->
-      <div
-        v-if="showDatePicker"
-        class="absolute z-50 mt-2 ml-4 bg-white border rounded-lg shadow-lg p-4"
-      >
+      <div v-if="showDatePicker" class="absolute z-50 mt-2 ml-4 bg-white border rounded-lg shadow-lg p-4">
         <div class="text-sm font-semibold text-gray-900 mb-3 text-center">
           {{ miniCalendarMonth }}
         </div>
         <div class="grid grid-cols-7 gap-1 mb-2">
-          <div
-            v-for="day in ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']"
-            :key="day"
-            class="text-xs text-gray-600 text-center font-medium p-1"
-          >
+          <div v-for="day in ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']" :key="day"
+            class="text-xs text-gray-600 text-center font-medium p-1">
             {{ day }}
           </div>
         </div>
         <div class="grid grid-cols-7 gap-1">
-          <button
-            v-for="day in miniCalendarDays"
-            :key="day.date"
-            @click="!isPastDate(day.date) && selectDate(day)"
-            :disabled="isPastDate(day.date)"
-            :class="[
+          <button v-for="day in miniCalendarDays" :key="day.date" @click="!isPastDate(day.date) && selectDate(day)"
+            :disabled="isPastDate(day.date)" :class="[
               'text-sm p-2 rounded hover:bg-gray-100 transition-colors',
               day.isCurrentMonth ? 'text-gray-900' : 'text-gray-400',
               day.isToday ? 'bg-purple-500 text-white hover:bg-purple-600' : '',
               !day.isCurrentMonth ? 'opacity-50' : '',
               isPastDate(day.date) ? 'opacity-30 cursor-not-allowed' : '',
-            ]"
-          >
+            ]">
             {{ day.day }}
           </button>
         </div>
@@ -53,26 +42,12 @@
             <tr class="bg-gray-50 border-b">
               <th>
                 <div class="flex items-center justify-between p-4">
-                  <button
-                    @click="previousMonth"
-                    :disabled="isPreviousDisabled"
-                    :class="[
-                      'p-2 rounded transition-colors',
-                      isPreviousDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100',
-                    ]"
-                  >
-                    <svg
-                      class="w-5 h-5 text-gray-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 19l-7-7 7-7"
-                      />
+                  <button @click="previousMonth" :disabled="isPreviousDisabled" :class="[
+                    'p-2 rounded transition-colors',
+                    isPreviousDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100',
+                  ]">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
 
@@ -80,53 +55,24 @@
                     <h2 class="text-lg font-semibold text-gray-900">
                       {{ currentMonthDisplay }}
                     </h2>
-                    <button
-                      ref="selectWrapper"
-                      @click="showDatePicker = !showDatePicker"
-                      class="p-2 hover:bg-gray-100 rounded transition-colors select-none"
-                    >
-                      <svg
-                        class="w-5 h-5 text-blue-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
+                    <button ref="selectWrapper" @click="showDatePicker = !showDatePicker"
+                      class="p-2 hover:bg-gray-100 rounded transition-colors select-none">
+                      <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </button>
                   </div>
 
-                  <button
-                    @click="nextMonth"
-                    class="p-2 hover:bg-gray-100 rounded transition-colors"
-                  >
-                    <svg
-                      class="w-5 h-5 text-gray-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                      />
+                  <button @click="nextMonth" class="p-2 hover:bg-gray-100 rounded transition-colors">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 </div>
               </th>
               <th></th>
-              <th
-                v-for="date in visibleDates"
-                :key="date.date"
-                class="px-2 py-3 text-center min-w-[80px]"
-              >
+              <th v-for="date in visibleDates" :key="date.date" class="px-2 py-3 text-center min-w-[80px]">
                 <div class="text-xs text-gray-600">{{ date.dayName }}</div>
                 <div class="text-sm font-semibold text-gray-900">{{ date.dayNum }}</div>
                 <div class="text-xs text-gray-500">{{ date.month }}</div>
@@ -146,18 +92,14 @@
                 <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-white">AVL</td>
 
                 <!-- Valeurs AVL -->
-                <td
-                  v-for="date in visibleDates"
-                  :key="date.date"
-                  :class="[
-                    'px-2 py-3 text-center cursor-pointer select-none transition-colors hover:bg-orange-100',
-                    isCellSelected(group.roomTypeRow.id, date.date) ? 'bg-purple-100 border-2 border-purple-400' : '',
-                    isPastDate(date.date) ? 'opacity-40 cursor-not-allowed pointer-events-none' : '',
-                  ]"
-                  @mousedown="!isPastDate(date.date) && handleCellMouseDown(group.roomTypeRow, date.date)"
-                  @mouseenter="!isPastDate(date.date) && handleCellMouseEnter(group.roomTypeRow, date.date)"
-                >
-                  <div class="inline-flex items-center justify-center min-w-[50px] px-3 py-1.5 text-sm font-medium rounded bg-red-500 text-white">
+                <td v-for="date in visibleDates" :key="date.date" :class="[
+                  'px-2 py-3 text-center cursor-pointer select-none transition-colors hover:bg-orange-100',
+                  isCellSelected(group.roomTypeRow.id, date.date) ? 'bg-purple-100 border-2 border-purple-400' : '',
+                  isPastDate(date.date) ? 'opacity-40 cursor-not-allowed pointer-events-none' : '',
+                ]" @mousedown="!isPastDate(date.date) && handleCellMouseDown(group.roomTypeRow, date.date)"
+                  @mouseenter="!isPastDate(date.date) && handleCellMouseEnter(group.roomTypeRow, date.date)">
+                  <div
+                    class="inline-flex items-center justify-center min-w-[50px] px-3 py-1.5 text-sm font-medium rounded bg-red-500 text-white">
                     {{ group.roomTypeRow.values?.[date.date] || 0 }}
                   </div>
                 </td>
@@ -165,31 +107,22 @@
 
               <!-- Lignes des RATE PLANS -->
               <template v-for="ratePlan in group.ratePlans" :key="ratePlan.id">
-                <tr
-                  v-for="(row, index) in ratePlan.restrictions"
-                  :key="row.id"
-                  class="hover:bg-gray-50 border-b border-gray-200"
-                >
+                <tr v-for="(row, index) in ratePlan.restrictions" :key="row.id"
+                  class="hover:bg-gray-50 border-b border-gray-200">
                   <!-- Nom du Rate Plan affiché une seule fois -->
-                  <td
-                    v-if="index === 0"
-                    :rowspan="ratePlan.restrictions.length"
-                    class="px-4 py-3 text-sm font-semibold text-gray-700 sticky left-0 bg-white z-10 align-top"
-                  >
+                  <td v-if="index === 0" :rowspan="ratePlan.restrictions.length"
+                    class="px-4 py-3 text-sm font-semibold text-gray-700 sticky left-0 bg-white z-10 align-top">
                     {{ ratePlan.name }}
                   </td>
 
                   <!-- Label de restriction + icône si RATE -->
-                  <td
-                    class="px-4 py-3 text-sm font-medium text-gray-900 bg-white"
-                  >
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-white">
                     <div class="flex items-center space-x-2 relative">
                       <div v-if="row.label === 'RATE'" class="relative group">
                         <UserRound class="w-4 h-4 inline-flex cursor-pointer text-gray-600" />
                         <!-- Tooltip Occupancy -->
                         <div
-                          class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-max max-w-xs px-2 py-1 text-xs text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
-                        >
+                          class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-max max-w-xs px-2 py-1 text-xs text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                           Occupancy
                         </div>
                       </div>
@@ -198,27 +131,20 @@
                   </td>
 
                   <!-- Valeurs de la restriction -->
-                  <td
-                    v-for="date in visibleDates"
-                    :key="date.date"
-                    :class="[
-                      'px-2 py-3 text-center cursor-pointer select-none transition-colors hover:bg-orange-100',
-                      isCellSelected(row.id, date.date)
-                        ? 'bg-purple-100 border-2 border-purple-400'
-                        : '',
-                      isPastDate(date.date)
-                        ? 'opacity-40 cursor-not-allowed pointer-events-none'
-                        : '',
-                    ]"
-                    @mousedown="!isPastDate(date.date) && handleCellMouseDown(row, date.date)"
-                    @mouseenter="!isPastDate(date.date) && handleCellMouseEnter(row, date.date)"
-                  >
-                    <div
-                      :class="[
-                        'inline-flex items-center justify-center min-w-[50px] px-3 py-1.5 text-sm font-medium rounded',
-                        row.label === 'RATE' ? 'bg-pink-100 text-gray-900' : 'bg-white text-gray-900',
-                      ]"
-                    >
+                  <td v-for="date in visibleDates" :key="date.date" :class="[
+                    'px-2 py-3 text-center cursor-pointer select-none transition-colors hover:bg-orange-100',
+                    isCellSelected(row.id, date.date)
+                      ? 'bg-purple-100 border-2 border-purple-400'
+                      : '',
+                    isPastDate(date.date)
+                      ? 'opacity-40 cursor-not-allowed pointer-events-none'
+                      : '',
+                  ]" @mousedown="!isPastDate(date.date) && handleCellMouseDown(row, date.date)"
+                    @mouseenter="!isPastDate(date.date) && handleCellMouseEnter(row, date.date)">
+                    <div :class="[
+                      'inline-flex items-center justify-center min-w-[50px] px-3 py-1.5 text-sm font-medium rounded',
+                      row.label === 'RATE' ? 'bg-pink-100 text-gray-900' : 'bg-white text-gray-900',
+                    ]">
                       {{ formatCellValue(row.values[date.date], row.label) }}
                     </div>
                   </td>
@@ -231,14 +157,8 @@
     </div>
 
     <!-- Value Override Modal -->
-    <ValueOverrideRateModal
-      :is-open="showModal"
-      :selected-range="selectedRange"
-      :modal-type="modalType"
-      :loading="loading"
-      @close="handleCancel"
-      @confirm="handleConfirm"
-    />
+    <ValueOverrideRateModal :is-open="showModal" :selected-range="selectedRange" :modal-type="modalType"
+      :loading="loading" @close="handleCancel" @confirm="handleConfirm" />
   </div>
 </template>
 
@@ -335,7 +255,16 @@ const allRoomRows = ref<RoomRow[]>([])
 const selectedRestrictions = ref<string[]>(['Rate And Availability'])
 const roomTypes = ref<RoomType[]>([])
 const rateTypes = ref<RateType[]>([])
+// Props
+interface Props {
+  isOpen: boolean;
+  roomTypes?: Array<{ id: string; name: string; filteredRates?: [] }>;
+  rateTypes?: Array<{ id: string; name: string; roomId?: string }>;
+}
 
+const props = withDefaults(defineProps<Props>(), {
+  roomTypes: () => [],
+});
 /* --- MAPPINGS --- */
 const restrictionMapping: Record<string, string> = {
   'Availability Offset': 'AVO',
@@ -374,11 +303,11 @@ const restrictionApiMapping: Record<string, string> = {
 const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
   const rows: RoomRow[] = []
   console.log('transformApiDataToRoomRows - apiData:', apiData)
-  console.log('transformApiDataToRoomRows - roomTypes:', roomTypes.value)
+  console.log('transformApiDataToRoomRows - roomTypes:', props.roomTypes)
   console.log('transformApiDataToRoomRows - rateTypes:', rateTypes.value)
 
   // Parcourir chaque room type pour créer les lignes AVL
-  roomTypes.value.forEach(roomType => {
+  props.roomTypes.forEach(roomType => {
     const availabilityValues: Record<string, number> = {}
     if (apiData.availability && apiData.availability[roomType.id]) {
       Object.keys(apiData.availability[roomType.id]).forEach(date => {
@@ -403,7 +332,7 @@ const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
       const ratePlan = rateTypes.value.find(rt => rt.id === ratePlanId)
       if (!ratePlan) return
 
-      const roomType = roomTypes.value.find(rm => rm.id === ratePlan.roomId)
+      const roomType = props.roomTypes.find(rm => rm.id === ratePlan.roomId)
       if (!roomType) return
 
       const ratePlanData = apiData.rates[ratePlanId]
@@ -454,7 +383,7 @@ const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
 /* --- FETCH RESTRICTIONS --- */
 const fetchRestrictions = async () => {
   console.log('🔵 fetchRestrictions STARTED')
-  console.log('roomTypes:', roomTypes.value)
+  console.log('roomTypes:', props.roomTypes)
   console.log('rateTypes:', rateTypes.value)
 
   loading.value = true
@@ -483,16 +412,12 @@ const fetchRestrictions = async () => {
 
     const response = await getRestrictions(propertyId, params)
     const dataObj = response.data?.data?.data || [];
-    const firstKey :any = Object.keys(dataObj)[0];
+    const firstKey: any = Object.keys(dataObj)[0];
     const firstItem = dataObj[firstKey];
 
-    console.log('📥 API response:', response)
-  console.log('📥 Premier élément UUID:', firstKey);
-console.log('📥 Premier élément data:', firstItem);
-
+    console.log('✅ Calling response', response)
 
     if (response.data) {
-      console.log('✅ Calling transformApiDataToRoomRows')
       allRoomRows.value = transformApiDataToRoomRows(firstItem)
       console.log('✅ allRoomRows:', allRoomRows.value)
     } else {
@@ -558,7 +483,7 @@ const groupedRoomRows = computed(() => {
           roomTypeId: row.roomTypeId,
           roomTypeName: row.roomTypeName,
         },
-        ratePlans: [],
+        ratePlans: [{}],
       }
     }
 
@@ -724,7 +649,7 @@ const handleRestrictionChange = (restrictions: string[]) => {
 
 const setRoomAndRateTypes = (rooms: RoomType[], rates: RateType[]) => {
   console.log('setRoomAndRateTypes called with:', { rooms, rates })
-  roomTypes.value = rooms
+  props.roomTypes = rooms
   rateTypes.value = rates
 
 
@@ -736,13 +661,13 @@ const setRoomAndRateTypes = (rooms: RoomType[], rates: RateType[]) => {
 
 // Remplacez le watcher à la fin
 watch(currentDate, () => {
-  if (roomTypes.value.length > 0 && rateTypes.value.length > 0) {
+  if (props.roomTypes.length > 0 && rateTypes.value.length > 0) {
     fetchRestrictions()
   }
 })
 
 watch(selectedRestrictions, () => {
-  if (roomTypes.value.length > 0 && rateTypes.value.length > 0) {
+  if (props.roomTypes.length > 0 && rateTypes.value.length > 0) {
     fetchRestrictions()
   }
 }, { deep: true })
