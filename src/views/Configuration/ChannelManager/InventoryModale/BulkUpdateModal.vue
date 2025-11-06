@@ -490,10 +490,21 @@ const handleSave = async () => {
       const days = toDaysArray(dr)
       if (days.length > 0 && days.length < 7) entry.days = days
 
-      if (restrictions.rate && rateValue.value !== '') {
-        const parsed = Number(rateValue.value)
-        entry.rate = Number.isFinite(parsed) ? parsed : rateValue.value
-      }
+  if (restrictions.rate && rateValue.value !== '') {
+    // Format rate as a decimal string per API specification
+    const formatRateString = (val: string | number): string => {
+      const raw = typeof val === 'string' ? val : String(val)
+      const normalized = raw.replace(',', '.')
+      const n = Number(normalized)
+      if (!Number.isFinite(n)) return normalized.trim()
+      return n.toString()
+    }
+    // Only include positive rates
+    const n = Number(String(rateValue.value).replace(',', '.'))
+    if (Number.isFinite(n) && n > 0) {
+      entry.rate = formatRateString(rateValue.value)
+    }
+  }
       if (restrictions.minStayArrival && minStayArrivalValue.value !== '') {
         entry.min_stay_arrival = Number(minStayArrivalValue.value)
       }

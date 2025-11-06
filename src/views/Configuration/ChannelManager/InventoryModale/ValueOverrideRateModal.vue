@@ -245,7 +245,14 @@ const isFormValid = computed(() => {
   }
 
   const isToggleType = ['closed_arrival', 'closed_departure', 'stop', 'closed'].includes(restriction.value)
-  return dateFrom.value && dateTo.value && restriction.value && (isToggleType || value.value !== '')
+  // For rate, ensure positive value
+  const isRateValid = restriction.value === 'rate'
+    ? (() => {
+        const n = Number(String(value.value).replace(',', '.'))
+        return Number.isFinite(n) && n > 0
+      })()
+    : true
+  return dateFrom.value && dateTo.value && restriction.value && (isToggleType || (value.value !== '' && isRateValid))
 })
 
 // Watchers
@@ -311,11 +318,19 @@ const updateDateRange = (range: { start: string; end: string }) => {
 const handleConfirm = () => {
   if (!isFormValid.value) return
 
+  const formatRateString = (val: string | number): string => {
+    const raw = typeof val === 'string' ? val : String(val)
+    const normalized = raw.replace(',', '.')
+    const n = Number(normalized)
+    if (!Number.isFinite(n)) return normalized.trim()
+    return n.toString()
+  }
+
   emit('confirm', {
     dateFrom: dateFrom.value,
     dateTo: dateTo.value,
     restriction: restriction.value,
-    value: value.value,
+    value: restriction.value === 'rate' ? formatRateString(value.value) : value.value,
   })
 }
 

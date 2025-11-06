@@ -35,16 +35,106 @@
                   defaultDisplayMode="limited"
                 />
               </div>
+            </div>
 
-              <!-- Rate -->
-              <Input
-                :lb="$t('Rate')"
-                v-model="entry.rate"
-                :input-type="'number'"
-                min="0"
-                :placeholder="$t('Enter rate')"
-                :is-required="true"
-              />
+            <!-- Restrictions (per entry) -->
+            <div class="mt-4">
+              <div class="grid grid-cols-[180px_1fr_1fr] items-center gap-3">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('Affected Restrictions') }} :</h3>
+
+                <!-- Rate -->
+                <InputCheckBox
+                  :label="$t('Rate')"
+                  :id="`rate-${entry.id}`"
+                  v-model="entry.enable.rate"
+                  @update:modelValue="(val:any) => onToggle(entry, 'rate', val)"
+                />
+                <Input
+                  v-model="entry.rate"
+                  :input-type="'number'"
+                  :placeholder="$t('Rate')"
+                  min="0"
+                  :disabled="!entry.enable.rate"
+                />
+
+                <div></div>
+                <!-- Stop Sell -->
+                <InputCheckBox
+                  :label="$t('Stop Sell')"
+                  :id="`stopSell-${entry.id}`"
+                  v-model="entry.enable.stopSell"
+                  @update:modelValue="(val:any) => onToggle(entry, 'stopSell', val)"
+                />
+                <Toggle v-model="entry.stopSellValue" :disabled="!entry.enable.stopSell" />
+
+                <div></div>
+                <!-- Closed To Arrival -->
+                <InputCheckBox
+                  :label="$t('Closed To Arrival')"
+                  :id="`closedToArrival-${entry.id}`"
+                  v-model="entry.enable.closedToArrival"
+                  @update:modelValue="(val:any) => onToggle(entry, 'closedToArrival', val)"
+                />
+                <Toggle v-model="entry.closedToArrivalValue" :disabled="!entry.enable.closedToArrival" />
+
+                <div></div>
+                <!-- Closed To Departure -->
+                <InputCheckBox
+                  :label="$t('Closed To Departure')"
+                  :id="`closedToDeparture-${entry.id}`"
+                  v-model="entry.enable.closedToDeparture"
+                  @update:modelValue="(val:any) => onToggle(entry, 'closedToDeparture', val)"
+                />
+                <Toggle v-model="entry.closedToDepartureValue" :disabled="!entry.enable.closedToDeparture" />
+
+                <div></div>
+                <!-- Min Stay Arrival -->
+                <InputCheckBox
+                  :label="$t('Min Stay Arrival')"
+                  :id="`minStayArrival-${entry.id}`"
+                  v-model="entry.enable.minStayArrival"
+                  @update:modelValue="(val:any) => onToggle(entry, 'minStayArrival', val)"
+                />
+                <Input
+                  v-model="entry.minStayArrivalValue"
+                  :input-type="'number'"
+                  :placeholder="$t('Min Stay Arrival')"
+                  :disabled="!entry.enable.minStayArrival"
+                  min="0"
+                />
+
+                <div></div>
+                <!-- Min Stay Through -->
+                <InputCheckBox
+                  :label="$t('Min Stay Through')"
+                  :id="`minStayThrough-${entry.id}`"
+                  v-model="entry.enable.minStayThrough"
+                  @update:modelValue="(val:any) => onToggle(entry, 'minStayThrough', val)"
+                />
+                <Input
+                  v-model="entry.minStayThroughValue"
+                  :input-type="'number'"
+                  :placeholder="$t('Min Stay Through')"
+                  :disabled="!entry.enable.minStayThrough"
+                  min="0"
+                />
+
+                <div></div>
+                <!-- Max Stay -->
+                <InputCheckBox
+                  :label="$t('Max Stay')"
+                  :id="`maxStay-${entry.id}`"
+                  v-model="entry.enable.maxStay"
+                  @update:modelValue="(val:any) => onToggle(entry, 'maxStay', val)"
+                />
+                <Input
+                  v-model="entry.maxStayValue"
+                  :input-type="'number'"
+                  :placeholder="$t('Max Stay')"
+                  :disabled="!entry.enable.maxStay"
+                  min="0"
+                />
+              </div>
             </div>
 
             <!-- Date Range -->
@@ -95,6 +185,8 @@ import { useToast } from 'vue-toastification'
 import MultipleSelect from '@/components/forms/FormElements/MultipleSelect.vue'
 import InputDoubleDatePicker from '@/components/forms/FormElements/InputDoubleDatePicker.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
+import InputCheckBox from '@/components/forms/FormElements/InputCheckBox.vue'
+import Toggle from '@/components/forms/FormElements/Toggle.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import { updateRestrictions } from '@/services/channelManagerApi'
 
@@ -131,7 +223,24 @@ type Entry = {
   selectedRatePlans: Array<{ label: string; value: string | number }>
   dateFrom: string | null
   dateTo: string | null
+  // enable toggles
+  enable: {
+    rate: boolean
+    stopSell: boolean
+    closedToArrival: boolean
+    closedToDeparture: boolean
+    minStayArrival: boolean
+    minStayThrough: boolean
+    maxStay: boolean
+  }
+  // values
   rate: string | number
+  stopSellValue: boolean
+  closedToArrivalValue: boolean
+  closedToDepartureValue: boolean
+  minStayArrivalValue: string | number
+  minStayThroughValue: string | number
+  maxStayValue: string | number
 }
 
 const entries = ref<Entry[]>([])
@@ -147,7 +256,22 @@ const initEntries = () => {
       selectedRatePlans: [],
       dateFrom: null,
       dateTo: null,
+      enable: {
+        rate: false,
+        stopSell: false,
+        closedToArrival: false,
+        closedToDeparture: false,
+        minStayArrival: false,
+        minStayThrough: false,
+        maxStay: false,
+      },
       rate: '',
+      stopSellValue: false,
+      closedToArrivalValue: false,
+      closedToDepartureValue: false,
+      minStayArrivalValue: '',
+      minStayThroughValue: '',
+      maxStayValue: '',
     }
   ]
 }
@@ -162,7 +286,22 @@ const addEntry = () => {
     selectedRatePlans: [],
     dateFrom: null,
     dateTo: null,
+    enable: {
+      rate: false,
+      stopSell: false,
+      closedToArrival: false,
+      closedToDeparture: false,
+      minStayArrival: false,
+      minStayThrough: false,
+      maxStay: false,
+    },
     rate: '',
+    stopSellValue: false,
+    closedToArrivalValue: false,
+    closedToDepartureValue: false,
+    minStayArrivalValue: '',
+    minStayThroughValue: '',
+    maxStayValue: '',
   })
 }
 
@@ -179,13 +318,65 @@ const updateDateRange = (idx: number, val: { start: string | null; end: string |
 
 const closeModal = () => emit('close')
 
+const onToggle = (entry: Entry, key: keyof Entry['enable'], val: boolean) => {
+  if (!val) {
+    switch (key) {
+      case 'rate':
+        entry.rate = ''
+        break
+      case 'stopSell':
+        entry.stopSellValue = false
+        break
+      case 'closedToArrival':
+        entry.closedToArrivalValue = false
+        break
+      case 'closedToDeparture':
+        entry.closedToDepartureValue = false
+        break
+      case 'minStayArrival':
+        entry.minStayArrivalValue = ''
+        break
+      case 'minStayThrough':
+        entry.minStayThroughValue = ''
+        break
+      case 'maxStay':
+        entry.maxStayValue = ''
+        break
+    }
+  }
+}
+
 const save = async () => {
   try {
     isSaving.value = true
     // Validate entries
-    const invalid = (Array.isArray(entries.value) ? entries.value : []).some(e => (
-      (!e.selectedRatePlans || e.selectedRatePlans.length === 0)
-    ) || !e.dateFrom || !e.dateTo || e.rate === '' || e.rate === null)
+    const invalid = (Array.isArray(entries.value) ? entries.value : []).some(e => {
+      const hasPlans = !!e.selectedRatePlans && e.selectedRatePlans.length > 0
+      const hasDates = !!e.dateFrom && !!e.dateTo
+      const anyEnabled = Object.values(e.enable).some(Boolean)
+
+      if (!hasPlans || !hasDates || !anyEnabled) return true
+
+      // If enabled, validate values
+      if (e.enable.rate) {
+        const n = Number(String(e.rate).replace(',', '.'))
+        if (!Number.isFinite(n) || n <= 0) return true
+      }
+      if (e.enable.minStayArrival) {
+        const n = parseInt(String(e.minStayArrivalValue), 10)
+        if (!Number.isFinite(n) || n <= 0) return true
+      }
+      if (e.enable.minStayThrough) {
+        const n = parseInt(String(e.minStayThroughValue), 10)
+        if (!Number.isFinite(n) || n <= 0) return true
+      }
+      if (e.enable.maxStay) {
+        const n = parseInt(String(e.maxStayValue), 10)
+        if (!Number.isFinite(n) || n <= 0) return true
+      }
+      // toggles (stopSell, closedToArrival, closedToDeparture) need no further validation
+      return false
+    })
     if (invalid) {
       toast.error(t('Please fill all fields'))
       isSaving.value = false
@@ -194,13 +385,30 @@ const save = async () => {
 
     const values: any[] = []
     const safeEntries = Array.isArray(entries.value) ? entries.value : []
+
+    const formatRateString = (val: string | number): string => {
+      // Normalize to a string to meet API requirement and avoid float issues
+      const raw = typeof val === 'string' ? val : String(val)
+      // Replace comma with dot if present
+      const normalized = raw.replace(',', '.')
+      const n = Number(normalized)
+      if (!Number.isFinite(n)) return normalized.trim()
+      // Return as plain string number (decimal string), e.g., "200" or "200.5"
+      return n.toString()
+    }
     for (const e of safeEntries) {
-      const base = {
+      const base: any = {
         property_id: String(props.propertyId),
         date_from: String(e.dateFrom),
         date_to: String(e.dateTo),
-        rate: Number(e.rate)
       }
+      if (e.enable.rate) base.rate = formatRateString(e.rate)
+      if (e.enable.stopSell) base.stop_sell = e.stopSellValue ? 1 : 0
+      if (e.enable.closedToArrival) base.closed_to_arrival = e.closedToArrivalValue ? 1 : 0
+      if (e.enable.closedToDeparture) base.closed_to_departure = e.closedToDepartureValue ? 1 : 0
+      if (e.enable.minStayArrival) base.min_stay_arrival = parseInt(String(e.minStayArrivalValue), 10)
+      if (e.enable.minStayThrough) base.min_stay_through = parseInt(String(e.minStayThroughValue), 10)
+      if (e.enable.maxStay) base.max_stay = parseInt(String(e.maxStayValue), 10)
       const ratePlans = Array.isArray(e.selectedRatePlans) ? e.selectedRatePlans : []
       for (const sel of ratePlans) {
         if (!sel || sel.value === undefined || sel.value === null) continue
