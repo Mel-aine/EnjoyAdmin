@@ -5414,10 +5414,6 @@
       "timeAgo": {
         "aDayAgo": "a day ago"
       },
-      "common": {
-        "migrating": "Migrating...",
-        "success": "Success"
-      },
       "channelsBooking": {
         "title": "Channels Booking",
         "subtitle": "Manage and monitor bookings from all connected channels",
@@ -5735,7 +5731,7 @@
         "yes": "Yes",
         "no": "No",
         "never": "Never",
-        "migrating": "Migrating"
+        "migrating": "Migrating..."
       }
     },
     "payment_method": {
@@ -7147,7 +7143,6 @@
   "adjustment_amount": "Adjustment Amount",
   "net_total": "Net Total",
   "grand_total": "Grand Total",
-  "transactions": "Transactions",
   "transaction_date": "Transaction Date",
   "transaction_type": "Transaction Type",
   "transaction_id": "Transaction ID",
