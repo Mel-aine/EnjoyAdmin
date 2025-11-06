@@ -9,17 +9,17 @@
 
   <div
     :class="[
-      'fixed top-0 right-0 h-full w-full max-w-2xl bg-white shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out',
+      'fixed top-0 right-0 h-full w-full max-w-2xl bg-white dark:bg-gray-800 dark:text-gray-100 shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out',
       isOpen ? 'translate-x-0' : 'translate-x-full'
     ]"
   >
     <div class="h-full flex flex-col">
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900">{{ $t('tooltip.Bulk Update') }}</h2>
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('tooltip.Bulk Update') }}</h2>
         <button
           @click="closeModal"
-          class="text-gray-500 hover:text-gray-700 transition-colors"
+          class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200 transition-colors"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12" />
@@ -41,7 +41,7 @@
             <div class="flex items-center gap-3 mb-3">
               <h3
                 v-if="index === 0"
-                class="w-[180px] text-sm font-semibold text-gray-900 whitespace-nowrap"
+                class="w-[180px] text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap"
               >
                 {{ $t('Affected Dates') }}:
               </h3>
@@ -58,7 +58,7 @@
               <button
                 v-if="dateRanges.length > 1"
                 @click="removeDateRange(range.id)"
-                class="text-gray-400 hover:text-red-500 transition-colors"
+                class="text-gray-400 dark:text-gray-300 hover:text-red-500 transition-colors"
               >
                 <svg
                   width="20"
@@ -97,7 +97,7 @@
         <!-- Affected Restrictions -->
         <div class="mb-6">
           <div class="grid grid-cols-[180px_1fr_1fr] items-center gap-3">
-            <h3 class="text-sm font-semibold text-gray-900">{{ $t('Affected Restrictions') }} :</h3>
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('Affected Restrictions') }} :</h3>
 
             <InputCheckBox
               label="Rate"
@@ -174,14 +174,14 @@
         <!-- Affected Rooms -->
         <div class="mb-6">
           <div class="grid grid-cols-[180px_1fr] items-start">
-            <h3 class="text-sm font-semibold text-gray-900">{{ $t('Affected Rooms') }}:</h3>
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('Affected Rooms') }}:</h3>
 
             <div class="relative">
               <input
                 type="text"
                 :placeholder="$t('common.search')"
                 v-model="searchQuery"
-                class="w-full h-10 rounded-t-lg border border-gray-300 pl-3 pr-10 text-sm focus:border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500/10"
+                class="w-full h-10 rounded-t-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400 pl-3 pr-10 focus:border-purple-300 dark:focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/10"
               />
               <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -192,7 +192,7 @@
             </div>
 
             <div></div>
-            <div class="border border-gray-200 rounded-b-lg p-4 space-y-3 max-h-64 overflow-y-auto">
+            <div class="border border-gray-200 dark:border-gray-700 rounded-b-lg p-4 space-y-3 max-h-64 overflow-y-auto bg-white dark:bg-gray-900">
               <InputCheckBox
                 :label="$t('commons.selectAll')"
                 id="selectAll"
@@ -200,7 +200,7 @@
                 @update:modelValue="handleSelectAll"
               />
 
-              <div class="space-y-3 border-t border-gray-200 pt-4">
+              <div class="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div v-for="room in filteredRoomTypesAndRates" :key="room.id" class="space-y-2">
                   <InputCheckBox
                     :label="room.name"
@@ -227,12 +227,20 @@
       </div>
 
       <!-- Footer -->
-      <div class="px-6 py-4 border-t border-gray-200">
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
         <button
           @click="handleSave"
-          class="w-full h-12 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors"
+          :disabled="isSaving"
+          class="w-full h-12 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {{ $t('Save') }}
+          <span v-if="!isSaving">{{ $t('Save') }}</span>
+          <span v-else class="flex items-center gap-2">
+            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ $t('Processing') }}
+          </span>
         </button>
       </div>
     </div>
@@ -241,6 +249,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
+import { useToast } from 'vue-toastification';
+import { useI18n } from 'vue-i18n';
+import { updateRestrictions } from '@/services/channelManagerApi';
 import InputDoubleDatePicker from '@/components/forms/FormElements/InputDoubleDatePicker.vue';
 import InputCheckBox from '@/components/forms/FormElements/InputCheckBox.vue';
 import Toggle from '@/components/forms/FormElements/Toggle.vue';
@@ -251,11 +262,13 @@ interface Props {
   isOpen: boolean;
   roomTypes?: Array<{ id: string; name: string; filteredRates?:[] }>;
   rateTypes?: Array<{ id: string; name: string; roomId?: string }>;
+  propertyId?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   roomTypes: () => [],
-  rateTypes: () => []
+  rateTypes: () => [],
+  propertyId: () => 'mock-property-id'
 });
 
 // Emits
@@ -263,7 +276,11 @@ const emit = defineEmits<{
   'update:isOpen': [value: boolean];
   'save': [data: any];
   'close': [value: boolean];
+  'refresh': [];
 }>();
+
+const toast = useToast();
+const { t } = useI18n();
 
 // Types
 interface DateRange {
@@ -298,13 +315,13 @@ const dateRanges = ref<DateRange[]>([
     start: '',
     end: '',
     days: {
-      mo: true,
-      tu: true,
-      we: true,
-      th: true,
-      fr: true,
-      sa: true,
-      su: true
+      mo: false,
+      tu: false,
+      we: false,
+      th: false,
+      fr: false,
+      sa: false,
+      su: false
     }
   }
 ]);
@@ -332,6 +349,7 @@ const searchQuery = ref('');
 const selectAll = ref(false);
 const selectedRooms = ref<Record<string, boolean>>({});
 const selectedRates = ref<Record<string, boolean>>({});
+const isSaving = ref(false);
 
 // Computed
 const getRatesForRoom = (roomId: string) => {
@@ -439,7 +457,69 @@ const handleRateChange = (roomId: string) => {
 
 
 
-const handleSave = () => {
+const handleSave = async () => {
+  // Build days array from checkbox booleans
+  const toDaysArray = (dr: DateRange) => {
+    const map: Record<string, boolean> = {
+      mo: dr.days.mo,
+      tu: dr.days.tu,
+      we: dr.days.we,
+      th: dr.days.th,
+      fr: dr.days.fr,
+      sa: dr.days.sa,
+      su: dr.days.su
+    }
+    return Object.keys(map).filter((k) => map[k])
+  }
+
+  // Selected rate plan ids
+  const ratePlanIds = Object.keys(selectedRates.value).filter((id) => selectedRates.value[id])
+
+  // Compose entries for each date range × rate plan
+  const entries = [] as any[]
+  for (const rpId of ratePlanIds) {
+    for (const dr of dateRanges.value) {
+      if (!dr.start || !dr.end) continue
+      const entry: Record<string, any> = {
+        property_id: props.propertyId,
+        rate_plan_id: rpId,
+        date_from: dr.start,
+        date_to: dr.end
+      }
+
+      const days = toDaysArray(dr)
+      if (days.length > 0 && days.length < 7) entry.days = days
+
+      if (restrictions.rate && rateValue.value !== '') {
+        const parsed = Number(rateValue.value)
+        entry.rate = Number.isFinite(parsed) ? parsed : rateValue.value
+      }
+      if (restrictions.minStayArrival && minStayArrivalValue.value !== '') {
+        entry.min_stay_arrival = Number(minStayArrivalValue.value)
+      }
+      if (restrictions.minStayThrough && minStayThroughValue.value !== '') {
+        entry.min_stay_through = Number(minStayThroughValue.value)
+      }
+      if (restrictions.maxStay && maxStayValue.value !== '') {
+        entry.max_stay = Number(maxStayValue.value)
+      }
+      if (restrictions.closedToArrival) {
+        entry.closed_to_arrival = closedToArrivalValue.value ? 1 : 0
+      }
+      if (restrictions.closedToDeparture) {
+        entry.closed_to_departure = closedToDepartureValue.value ? 1 : 0
+      }
+      if (restrictions.stopSell) {
+        entry.stop_sell = stopSellValue.value ? 1 : 0
+      }
+
+      entries.push(entry)
+    }
+  }
+
+  const payload = { values: entries }
+
+  console.log(payload)
   const data = {
     dateRanges: dateRanges.value,
     restrictions: {
@@ -455,11 +535,25 @@ const handleSave = () => {
     rooms: {
       selectedRooms: Object.keys(selectedRooms.value).filter(id => selectedRooms.value[id]),
       selectedRates: Object.keys(selectedRates.value).filter(id => selectedRates.value[id])
-    }
+    },
+    payload
   };
 
-  emit('save', data);
-  closeModal();
+  // Call backend to update restrictions
+  try {
+    isSaving.value = true
+    await updateRestrictions(props.propertyId as string, payload)
+    toast.success(t('toast.SucessUpdate'))
+    emit('save', data)
+    emit('refresh')
+    closeModal()
+  } catch (error: any) {
+    console.error('Error updating restrictions:', error)
+    const serverMessage = error?.response?.data?.message || error?.message
+    toast.error(serverMessage || t('toast.error'))
+  } finally {
+    isSaving.value = false
+  }
 };
 
 // Watch pour réinitialiser les valeurs quand on décoche

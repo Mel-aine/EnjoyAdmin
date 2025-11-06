@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, markRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSidebar } from '@/composables/useSidebar'
 
@@ -106,32 +106,32 @@ const menuItems = ref([
   {
     path: '/configuration/channel-manager',
     title: 'configuration.channelManager.overview',
-    icon: DashboardIcon
+    icon: markRaw(DashboardIcon)
   },
   {
     path: '/configuration/channel-manager/inventory-channel-booking',
     title: 'Inventory',
-    icon: BoxCubeIcon
+    icon: markRaw(BoxCubeIcon)
   },
   {
     path: '/configuration/channel-manager/channels-booking',
     title: 'Booking',
-    icon: CalenderIcon
+    icon: markRaw(CalenderIcon)
   },
   {
     path: '/configuration/channel-manager/rooms-rates',
     title: 'Room & Rates',
-    icon: RatesIcon
+    icon: markRaw(RatesIcon)
   },
   {
     path: '/configuration/channel-manager/channel-manager',
     title: 'Channels',
-    icon: ConnectionIcon
+    icon: markRaw(ConnectionIcon)
   },
   {
     path: '/configuration/channel-manager/properties',
     title: 'Properties',
-    icon: GridIcon
+    icon: markRaw(GridIcon)
   }
 ])
 

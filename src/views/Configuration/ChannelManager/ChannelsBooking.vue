@@ -1,11 +1,9 @@
 <template>
-  <!-- <IframeView page="/bookings" /> -->
-   <InventoryView></InventoryView>
+<IframeView page="/bookings" /> 
 </template>
 
 <script setup lang="ts">
 import IframeView from './IframeView.vue';
-import InventoryView from './InventoryView.vue';
 
 </script>
 
