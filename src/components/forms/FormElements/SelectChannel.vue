@@ -35,7 +35,7 @@
 
       <div
         v-if="isDropdownOpen"
-        class="absolute top-full left-0 right-0 z-10 mt-1 rounded-lg bg-white dark:bg-gray-900 border-2 border-purple-100 dark:border-purple-900 shadow-lg "
+        class="absolute top-full left-0 right-0 z-40 mt-1 rounded-lg bg-white dark:bg-gray-900 border-2 border-purple-100 dark:border-purple-900 shadow-lg "
       >
         <!-- Filtres  (groupes) -->
         <div class="border-b border-gray-200 dark:border-gray-700">
@@ -43,19 +43,19 @@
           <div
             v-for="(filters, groupName) in filterGroups"
             :key="groupName"
-            @click.stop="handleGroupClick(groupName as string)"
+            @click.stop="handleGroupClick(groupName)"
             class="px-4 py-2.5 cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center justify-between"
           >
             <span>{{ groupName }}</span>
-            <svg
-              v-if="isGroupSelected(groupName as string)"
+            <!-- <svg
+              v-if="isGroupSelected(groupName)"
               class="w-4 h-4 text-purple-500 dark:text-purple-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
+            </svg> -->
           </div>
         </div>
 
@@ -102,7 +102,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   isRequired: false,
-  modelValue: () => ['Rate'],
+  modelValue: () => ['Rate And Availability'],
   disabled: false
 })
 
@@ -118,24 +118,28 @@ const selectedFilters = ref<string[]>([...props.modelValue])
 // Définition des groupes de filtres
 const filterGroups: FilterGroups = {
   'All Restrictions': [
+    'Availability Offset',
+    'Availability Per Rate',
     'Closed To Arrival',
     'Closed To Departure',
     'Max Availability',
     'Max Stay',
     'Min Stay Arrival',
     'Min Stay Through',
+    'Rate',
     'Stop Sell'
   ],
   'Only Availability': [
-    'Max Availability'
+    'Availability'
   ],
   'Rate And Availability': [
     'Rate',
-    'Max Availability'
   ]
 }
 
 const allIndividualFilters = [
+  'Availability Offset',
+  'Availability Per Rate',
   'Closed To Arrival',
   'Closed To Departure',
   'Max Availability',
@@ -164,7 +168,7 @@ const displayLabel = computed(() => {
 })
 
 // Vérifier si un groupe est sélectionné
-const isGroupSelected = (groupName: string): boolean => {
+const isGroupSelected = (groupName: string | number): boolean => {
   const filters = filterGroups[groupName]
   const sorted1 = [...filters].sort().join(',')
   const sorted2 = [...selectedFilters.value].sort().join(',')
@@ -179,7 +183,7 @@ const handleDropdownToggle = () => {
 }
 
 // Sélection d'un groupe
-const handleGroupClick = (groupName: string) => {
+const handleGroupClick = (groupName: string | number) => {
   const filters = filterGroups[groupName]
   selectedFilters.value = [...filters]
   emit('update:modelValue', selectedFilters.value)

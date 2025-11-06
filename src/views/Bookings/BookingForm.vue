@@ -288,6 +288,7 @@
                           :is-required="false"
                           :use-dropdown="useDropdownRoomType"
                           :disabled="isLoadingRoom"
+                          :isLoading="isLoadingRoom"
                           @update:modelValue="onRoomTypeChange(room.id, $event)"
                           @clear-error="emit('clear-error')"
                           :class="{ 'border-red-500': isRoomTypeInvalid(room) }"
@@ -1164,12 +1165,10 @@ const {
   saveReservation,
   formatCurrency,
   goBack,
-  resetForm,
 
   // Room methods
   addRoom,
   removeRoom,
-  toggleDropdown,
   onRoomTypeChange,
   getRateTypesForRoom,
   getRoomsForRoom,
