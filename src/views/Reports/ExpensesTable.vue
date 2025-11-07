@@ -544,7 +544,7 @@ const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/Pa
 const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
-const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'))
+import Spinner from '@/components/spinner/Spinner.vue'
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
 const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))

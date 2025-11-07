@@ -178,7 +178,7 @@ import { useAuthStore } from '@/composables/user'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'));
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'));
-const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'));
+import Spinner from '@/components/spinner/Spinner.vue';
 const { t } = useI18n();
 const toast = useToast()
 const authStore = useAuthStore()

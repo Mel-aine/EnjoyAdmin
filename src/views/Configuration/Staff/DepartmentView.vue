@@ -177,7 +177,7 @@ interface department {
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
-const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'))
+import Spinner from '@/components/spinner/Spinner.vue'
 
 // Reactive data
 const isAddModalOpen = ref(false)

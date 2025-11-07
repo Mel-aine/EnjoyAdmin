@@ -128,7 +128,7 @@ interface Role {
 // Async Components
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
-const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'))
+import Spinner from '@/components/spinner/Spinner.vue'
 
 
 // Reactive data
