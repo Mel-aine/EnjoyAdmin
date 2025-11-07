@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch, onUnmounted } from 'vue';
 import Input from '@/components/forms/FormElements/Input.vue';
-import { getCustomer } from '@/services/reservation'
+import { getGuests } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore';
 
 const props = defineProps({
@@ -18,6 +18,8 @@ const filteredCustomers = ref<any[]>([]);
 const searchQuery = ref('');
 const selectedCustomer = ref<any>({});
 const emit = defineEmits(['customerSelected']);
+// Debounce timer for API calls
+const debounceTimeout = ref<number | null>(null);
 
 
 const filterCustomer = () => {
@@ -45,10 +47,31 @@ watch(searchQuery, (newValue) => {
     filteredCustomers.value = [];
     selectedCustomer.value = {};
     emit('customerSelected', null);
+    // Clear any pending debounce when query is emptied
+    if (debounceTimeout.value) {
+      clearTimeout(debounceTimeout.value);
+      debounceTimeout.value = null;
+    }
     return;
   }
 
-  filterCustomer();
+  // If fewer than 3 characters, do not call API; clear any pending debounce
+  if (query.length < 3) {
+    if (debounceTimeout.value) {
+      clearTimeout(debounceTimeout.value);
+      debounceTimeout.value = null;
+    }
+    filterCustomer();
+  } else {
+    // 300ms debounce before fetching customers
+    if (debounceTimeout.value) {
+      clearTimeout(debounceTimeout.value);
+    }
+    debounceTimeout.value = window.setTimeout(async () => {
+      await fetchCustomers();
+      filterCustomer();
+    }, 300);
+  }
 
   const exactMatch = filteredCustomers.value.find(c =>
     `${c.firstName?.toLowerCase()} ${c.lastName?.toLowerCase()}`.trim() === query ||
@@ -87,10 +110,10 @@ const selectCustomer = (customer: any) => {
 const fetchCustomers = async () => {
   try {
     isLoading.value = true;
-    const serviceId = serviceStore.serviceId;
-    const response = await getCustomer(serviceId!);
+    const serviceId = serviceStore.serviceId; 
+    const response = await getGuests({ hotel_id: serviceId!,search: searchQuery.value});
     console.log('Fetched customers:', response);
-    customers.value = response.data.map((c: any) => {
+    customers.value = response.data?.data.data?.map((c: any) => {
       return {
         ...c,
         firstName: c.firstName,
