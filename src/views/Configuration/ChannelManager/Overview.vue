@@ -17,7 +17,7 @@
        <!-- Booking Sources Card -->
        <div class="card booking-sources-card">
          <div class="card-header">
-           <h3>Booking Sources</h3>
+           <h3>{{ $t('configuration.channelManager.bookingSources') }}</h3>
            <div class="date-range">
              <input type="date" v-model="dateRange.start" class="date-input" />
              <span class="date-separator">-</span>
@@ -29,7 +29,7 @@
            <div class="booking-circle">
              <div class="circle-chart">
                <div class="circle-inner">
-                 <span class="bookings-label">Bookings</span>
+                 <span class="bookings-label">{{ $t('configuration.channelManager.bookings') }}</span>
                  <span class="bookings-count">{{ totalBookings }}</span>
                </div>
              </div>
@@ -48,7 +48,7 @@
                  <span class="revenue">{{ source.revenue }}</span>
                  <span class="percentage">{{ source.percentage }}%</span>
                </div>
-               <button class="details-btn" @click="viewSourceDetails(source)">Details</button>
+               <button class="details-btn" @click="viewSourceDetails(source)">{{ $t('common.details') }}</button>
              </div>
            </div>
          </div>
@@ -57,12 +57,12 @@
        <!-- Live Feed Events Card -->
        <div class="card live-feed-card">
          <div class="card-header">
-           <h3>Live Feed Events</h3>
+           <h3>{{ $t('configuration.channelManager.liveFeedEvents') }}</h3>
            <div class="filter-dropdown">
              <select v-model="selectedFilter" class="filter-select">
-               <option value="all">All Events</option>
-               <option value="bookings">New Bookings</option>
-               <option value="cancellations">Cancellations</option>
+               <option value="all">{{ $t('configuration.channelManager.allEvents') }}</option>
+               <option value="bookings">{{ $t('configuration.channelManager.newBookings') }}</option>
+               <option value="cancellations">{{ $t('configuration.channelManager.newBookings') }}</option>
              </select>
            </div>
          </div>
@@ -688,3 +688,6 @@ watch(
   }
 }
 </style>
+
+
+

@@ -56,7 +56,6 @@
                   </div>
                   <!-- Map Payment Section -->
                   <h4 class="text-md mt-2 font-medium text-gray-900 dark:text-white mb-4">{{ $t('Map Payment') }}</h4>
-                  <h4 class="text-md mt-2 font-medium text-gray-900 dark:text-white mb-4">{{ $t('Map Payment') }}</h4>
 
                   <div class="mt-2 grid grid-cols-12 align-middle items-center gap-3">
 
@@ -66,9 +65,7 @@
                       <div>
                         <RadioGroup class="flex space-x-4" :options="[
                           { label: t('Posting date'), value: 'posting' },
-                          { label: t('Departure date'), value: 'departure' },
-                          { label: t('Posting date'), value: 'posting' },
-                          { label: t('Departure date'), value: 'departure' },
+                          { label: t('Departure date'), value: 'departure' }
                         ]" v-model="formData.filter_options" />
 
                       </div>
@@ -310,14 +307,6 @@ const selectedGuests = ref([])
 // Table columns definition
 const guestColumns = computed<Column[]>(() => {
   return [
-    { key: 'date', label: t('Date'), sortable: true, type: 'date' },
-    { key: 'name', label: t('Guest Name'), sortable: true },
-    { key: 'folioNo', label: t('Folio No.'), sortable: true },
-    { key: 'user', label: t('User'), sortable: true },
-    { key: 'amount', label: t('Amount'), sortable: true, type: 'text' },
-    { key: 'assigned', label: t('Assigned'), sortable: true, type: 'text' },
-    { key: 'open', label: t('Open'), sortable: true, type: 'text' },
-    { key: 'assign', label: t('Assign'), sortable: false, type: 'custom' },
     { key: 'date', label: t('Date'), sortable: true, type: 'date' },
     { key: 'name', label: t('Guest Name'), sortable: true },
     { key: 'folioNo', label: t('Folio No.'), sortable: true },
