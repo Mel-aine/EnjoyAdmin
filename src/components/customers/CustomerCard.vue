@@ -22,6 +22,7 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import { useBooking } from '@/composables/useBooking2'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
+import InputSelectCity from '../forms/FormElements/InputSelectCity.vue'
 
 interface SelectOption {
   value: string
@@ -655,11 +656,11 @@ console.log('modalevalue', props.modelValue)
                 <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="selectedCustomer.country" />
               </div>
               <div>
-                <Input
-                  :lb="$t('hotelInformation.fields.stateProvince')"
-                  :id="'state'"
-                  v-model="selectedCustomer.state"
-                  :placeholder="$t('enterState')"
+                <InputSelectCity
+                  :lb="$t('city')"
+                  v-model="selectedCustomer.city"
+                  :placeholder="$t('city')"
+                  :country="selectedCustomer.country"
                 />
               </div>
               <div>
@@ -766,10 +767,11 @@ console.log('modalevalue', props.modelValue)
                 <div>
                   <InputCountries :lb="$t('Countryofissue')" v-model="selectedCustomer.issuingCountry" />
                 </div>
-                <Input
+                <InputSelectCity
                   :lb="$t('Cityofissue')"
                   v-model="selectedCustomer.issuingCity"
                   :placeholder="$t('Cityofissue')"
+                  :country="selectedCustomer.issuingCountry"
                 />
               </div>
             </div>
