@@ -53,13 +53,15 @@ const handleInput = (event: Event) => {
 }
 
 const selectCurrency = (currency: any) => {
-    selectedCurrency.value = currency.code
-    currencyStore.setSelectedCurrency(currency.code)
-    emit('update:currency', currency.code)
+    console.log('select', currency)
+    selectedCurrency.value = currency.currencyCode
+    currencyStore.setSelectedCurrency(currency.currencyCode)
+    emit('update:currency', currency.currencyCode)
     showDropdown.value = false
 }
 
 const toggleDropdown = () => {
+    console.log('toggleDropdown', showDropdown.value)
     if (!props.disabled && props.showCurrencySelector) {
         showDropdown.value = !showDropdown.value
     }
@@ -84,7 +86,7 @@ onMounted(async () => {
         </label>
         <div class="relative">
             <!-- Currency Selector -->
-            <div class="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+            <div class="absolute left-3 top-1/2 -translate-y-1/2 z-40">
                 <div class="relative">
                     <button
                         v-if="showCurrencySelector"
@@ -107,22 +109,22 @@ onMounted(async () => {
                     </span>
 
                     <!-- Currency Dropdown -->
-                    <div v-if="showDropdown && showCurrencySelector" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg dark:shadow-black/50 z-20 max-h-48 overflow-y-auto">
+                    <div v-if="showDropdown && showCurrencySelector" class="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg dark:shadow-black/50 z-50 max-h-48 overflow-y-auto">
                         <div v-if="isLoading" class="p-3 text-center text-sm text-gray-500">
                             Loading currencies...
                         </div>
                         <button
                             v-else
                             v-for="currency in availableCurrencies"
-                            :key="currency.id"
+                            :key="currency.currencyCode"
                             type="button"
                             @click="selectCurrency(currency)"
                             class="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between"
                             :class="{
-                                'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300': selectedCurrency === currency.code
+                                'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300': selectedCurrency === currency.currencyCode
                             }"
                         >
-                            <span class="font-medium">{{ currency.code }}</span>
+                            <span class="font-medium">{{ currency.currencyCode }}</span>
                             <span class="text-xs text-gray-500 dark:text-gray-400">{{ currency.sign }}</span>
                         </button>
                     </div>
@@ -151,10 +153,21 @@ onMounted(async () => {
         </div>
 
         <!-- Click outside to close dropdown -->
-        <div v-if="showDropdown" @click="showDropdown = false" class="fixed inset-0 z-10"></div>
+        <div v-if="showDropdown" @click="showDropdown = false" class="fixed inset-0 z-30"></div>
     </div>
 </template>
 
 <style scoped>
 /* padding-left = espace pour le symbole XAF affiché à gauche */
+/* Pour Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0; /* Important pour certains navigateurs */
+}
+
+/* Pour Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
 </style>

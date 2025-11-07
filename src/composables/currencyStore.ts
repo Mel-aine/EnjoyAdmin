@@ -7,6 +7,7 @@ export interface Currency {
   code: string;
   sign: string;
   isDefault?: boolean;
+  currencyCode: string;
 }
 
 export const useCurrencyStore = defineStore('currency', {

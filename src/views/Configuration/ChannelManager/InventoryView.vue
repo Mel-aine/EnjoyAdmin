@@ -80,6 +80,12 @@
 
               <BasicButton :label="t('bulkUpdate')" variant="light" :icon="PenLine"
                 @click="showBulkUpdateModal = true" />
+
+              <BasicButton :label="t('Availability Update')" variant="light" :icon="PenLine"
+                @click="showAvailabilityUpdateModal = true" />
+
+              <BasicButton :label="t('Rate Update')" variant="light" :icon="PenLine"
+                @click="showRateUpdateModal = true" />
             </div>
           </div>
 
@@ -101,6 +107,30 @@
         :propertyId="currentService.channexPropertyId" />
     </template>
 
+    <!-- Availability Update -->
+    <template v-if="showAvailabilityUpdateModal">
+      <AvailabilityUpdateModal
+        :is-open="showAvailabilityUpdateModal"
+        :roomTypes="roomTypes"
+        :propertyId="currentService.channexPropertyId"
+        @close="showAvailabilityUpdateModal = false"
+        @save="handleAvailabilityUpdateSave"
+        @refresh="calendarRef?.fetchRestrictions && calendarRef.fetchRestrictions()"
+      />
+    </template>
+
+    <!-- Rate Update -->
+    <template v-if="showRateUpdateModal">
+      <RateUpdateModal
+        :is-open="showRateUpdateModal"
+        :ratePlans="rateTypes"
+        :propertyId="currentService.channexPropertyId"
+        @close="showRateUpdateModal = false"
+        @save="handleRateUpdateSave"
+        @refresh="calendarRef?.fetchRestrictions && calendarRef.fetchRestrictions()"
+      />
+    </template>
+
   </ChannelManagerLayout>
 </template>
 
@@ -115,6 +145,8 @@ import SelectChannel from '@/components/forms/FormElements/SelectChannel.vue'
 import { CloudUpload, RotateCw, PenLine } from 'lucide-vue-next'
 import BulkUpdateModal from './InventoryModale/BulkUpdateModal.vue'
 import { getRoomTypesAndRatePlans, updateRestrictions, updateAvaibility } from '@/services/channelManagerApi'
+import AvailabilityUpdateModal from './InventoryModale/AvailabilityUpdateModal.vue'
+import RateUpdateModal from './InventoryModale/RateUpdateModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import ChannelInventoryCalendar from './ChannelInventoryCalendar.vue'
 
@@ -145,6 +177,8 @@ const selectedRates = ref<Array<{ label: string; value: string }>>([])
 const roomTypes = ref<RoomType[]>([])
 const rateTypes = ref<RateType[]>([])
 const showBulkUpdateModal = ref(false)
+const showAvailabilityUpdateModal = ref(false)
+const showRateUpdateModal = ref(false)
 const isSaving = ref(false)
 const hasChanges = ref(false)
 const currentService = useServiceStore().getCurrentService
@@ -320,6 +354,24 @@ const resetChanges = () => {
 const handleBulkUpdateSave = (data: any) => {
   console.log('Bulk update data:', data)
   hasChanges.value = false
+}
+
+const handleAvailabilityUpdateSave = (payload: any) => {
+  console.log('Availability update payload:', payload)
+  hasChanges.value = false
+  showAvailabilityUpdateModal.value = false
+  if (calendarRef.value?.fetchRestrictions) {
+    calendarRef.value.fetchRestrictions()
+  }
+}
+
+const handleRateUpdateSave = (payload: any) => {
+  console.log('Rate update payload:', payload)
+  hasChanges.value = false
+  showRateUpdateModal.value = false
+  if (calendarRef.value?.fetchRestrictions) {
+    calendarRef.value.fetchRestrictions()
+  }
 }
 
 const handleRestrictionFilterChange = (restrictions: string[]) => {

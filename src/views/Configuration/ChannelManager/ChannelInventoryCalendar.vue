@@ -324,7 +324,6 @@ const resetSelection = () => {
 const selectedRestrictions = ref<string[]>(['Rate And Availability'])
 // Props
 interface Props {
-  isOpen: boolean;
   roomTypes?: Array<{ id: string; name: string; filteredRates?: [] }>;
   rateTypes?: Array<{ id: string; name: string; roomId?: string }>;
 }
