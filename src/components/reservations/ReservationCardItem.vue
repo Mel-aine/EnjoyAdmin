@@ -339,22 +339,6 @@ const nightsSummary = computed(() => {
 
         </div>
 
-        <!-- <div class="flex justify-between items-center">
-          <div class="flex flex-col">
-            <span class=" font-semibold">{{ $t('Room') }}</span>
-            <span v-if="localReservation.reservationRooms && localReservation.reservationRooms.length>0 && localReservation.reservationRooms.every((room:any) => room.roomId)">
-              {{ roomRateTypeSummary }}
-            </span>
-            <AssignRoomReservation v-else
-              :reservation="localReservation"
-              @refresh="$emit('save')"
-              @assigned="handleRoomAssigned"
-            />
-          </div>
-          <div class="flex gap-1">
-            <ReservationStatus :status="localReservation.status" />
-          </div>
-        </div> -->
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
             <span class="font-semibold">{{ $t('Room') }}</span>

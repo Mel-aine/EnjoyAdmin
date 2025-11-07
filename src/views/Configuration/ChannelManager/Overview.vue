@@ -12,6 +12,7 @@
         </div>
 
       </div>
+<<<<<<< HEAD
      <!-- Main Content Grid -->
      <div class="overview-grid">
        <!-- Booking Sources Card -->
@@ -83,6 +84,9 @@
          </div>
        </div>
      </div>
+=======
+ 
+>>>>>>> c708995a42dcdb7de71d8a31258cfa099e8b5f89
    </div>
   </ChannelManagerLayout>
 </template>
@@ -150,7 +154,7 @@ const handleMigrate = async () => {
    return `${diffDays} days ago`
  }
 
- const loadLiveEvents = async () => {
+ /*const loadLiveEvents = async () => {
    try {
      eventsLoading.value = true
      const propertyId = (currentService as any)?.channexPropertyId || useServiceStore().serviceId
@@ -199,7 +203,7 @@ const handleMigrate = async () => {
      eventsLoading.value = false
    }
  }
-
+*/
   const computeNights = (checkin?: string, checkout?: string) => {
     if (!checkin || !checkout) return undefined
     const start = new Date(checkin)
@@ -242,17 +246,6 @@ const handleMigrate = async () => {
    console.log('Viewing details for:', source.name)
  }
 
-onMounted(() => {
-  loadLiveEvents()
-})
-
-// Reload events when date range changes
-watch(
-  () => [dateRange.value.start, dateRange.value.end],
-  () => {
-    loadLiveEvents()
-  }
-)
 </script>
 
 <style scoped>

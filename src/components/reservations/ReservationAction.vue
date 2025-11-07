@@ -21,21 +21,26 @@
   <!-- Action Modals -->
   <template v-if="localRes && localRes.id">
     <!-- Cancel / Void / Amend / No Show -->
-    <CancelReservation :is-open="showCancelModal" :reservation-data="localRes" :reservation-id="localRes.id"
-      :reservation-number="localRes.reservationNumber" @close="showCancelModal = false"
-      @cancel-confirmed="handleCancelConfirmed" />
+    <template v-if="showCancelModal">
+      <CancelReservation :is-open="showCancelModal" :reservation-data="localRes" :reservation-id="localRes.id"
+        :reservation-number="localRes.reservationNumber" @close="showCancelModal = false"
+        @cancel-confirmed="handleCancelConfirmed" />
+    </template>
+    <template v-if="showVoidModal">
+      <VoidReservation :is-open="showVoidModal" :reservation-data="localRes" :reservation-id="localRes.id"
+        :reservation-number="localRes.reservationNumber" @close="showVoidModal = false"
+        @void-confirmed="handleVoidConfirmed" />
+    </template>
 
-    <VoidReservation :is-open="showVoidModal" :reservation-data="localRes" :reservation-id="localRes.id"
-      :reservation-number="localRes.reservationNumber" @close="showVoidModal = false"
-      @void-confirmed="handleVoidConfirmed" />
-
-    <AmendStay :is-open="showAmendModal" :reservation-data="localRes" :reservation-id="localRes.id"
-      :reservation-number="localRes.reservationNumber" :reservation="localRes" @close="showAmendModal = false"
-      @amend-confirmed="handleAmendConfirmed" />
-
-    <NoShowReservation :is-open="showNoShowModal" :reservation-id="localRes.id" @close="showNoShowModal = false"
-      @noshow-confirmed="handleNoShowConfirmed" />
-
+    <template v-if="showAmendModal">
+      <AmendStay :is-open="showAmendModal" :reservation-data="localRes" :reservation-id="localRes.id"
+        :reservation-number="localRes.reservationNumber" :reservation="localRes" @close="showAmendModal = false"
+        @amend-confirmed="handleAmendConfirmed" />
+    </template>
+    <template v-if="showNoShowModal">
+      <NoShowReservation :is-open="showNoShowModal" :reservation-id="localRes.id" @close="showNoShowModal = false"
+        @noshow-confirmed="handleNoShowConfirmed" />
+    </template>
     <!-- Add Payment -->
     <template v-if="isAddPaymentModalOpen">
       <AddPaymentModal :reservation-id="localRes.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
@@ -113,7 +118,7 @@ const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reserv
 interface Props {
   reservation?: any
   localReservation?: any
-  default?:boolean
+  default?: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
   default: true
@@ -430,7 +435,7 @@ const closeRoomMoveModal = () => { isRoomMoveModalOpen.value = false }
 const closeExchangeRoomModal = () => { isExchangeRoomModalOpen.value = false }
 
 // Success handlers
-const handleCheckInSuccess = async(data: any) => {
+const handleCheckInSuccess = async (data: any) => {
   const updatedRooms = localRes.value.reservationRooms.map((room: any) =>
     data.updatedRooms.includes(room.id)
       ? { ...room, status: 'checked_in', actualCheckInTime: data.checkInDateTime, checkedIn: true }
@@ -445,7 +450,7 @@ const handleCheckInSuccess = async(data: any) => {
   emit('save', { action: 'checkIn', reservationId: localRes.value.id, data })
 }
 
-const handleCheckOutSuccess = async(data: any) => {
+const handleCheckOutSuccess = async (data: any) => {
   const updatedRooms = localRes.value.reservationRooms.map((room: any) =>
     data.updatedRooms.includes(room.id)
       ? { ...room, status: 'checked_out', actualCheckOutTime: data.checkOutDateTime, checkedOut: true }
