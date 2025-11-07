@@ -1,4 +1,4 @@
- <template>
+<template>
   <SpeedInsights /> 
   <ThemeProvider>  
     <SidebarProvider>    
@@ -6,6 +6,7 @@
       <ReAuthModal :is-open="isReAuthOpen && authStore.isFullyAuthenticated" @close="handleClose" 
         @success="handleSuccess" />
     </SidebarProvider> 
+    <OverLoading v-if="isLoading" />
   </ThemeProvider>
 </template>     
 <script setup lang="ts"> 
@@ -18,6 +19,8 @@ import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import { useAuthStore } from '@/composables/user'
+import OverLoading from '@/components/spinner/OverLoading.vue'
+import { isLoading } from '@/composables/spinner'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
 if (useLanguage.language) {

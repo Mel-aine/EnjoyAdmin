@@ -63,7 +63,7 @@
           </span>
         </button>
         <NotificationMenu />
-        <UserMenu />
+        <ChannelManagerUserMenu />
       </div>
     </div>
   </header>
@@ -74,7 +74,7 @@ import { ref, computed, markRaw } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import { useRoute } from 'vue-router'
 import NotificationMenu from './header/NotificationMenu.vue'
-import UserMenu from './header/UserMenu.vue'
+import ChannelManagerUserMenu from './header/ChannelManagerUserMenu.vue'
 import { useTheme } from '@/composables/theme'
 import DashboardIcon from '@/icons/DashboardIcon.vue'
 import ConnectionIcon from '@/icons/ConnectionIcon.vue'

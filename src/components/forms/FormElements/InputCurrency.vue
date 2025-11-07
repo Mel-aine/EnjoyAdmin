@@ -46,7 +46,7 @@ const selectedCurrency = ref(props.currency)
 
 const availableCurrencies = computed(() => currencyStore.getCurrencies)
 const isLoading = computed(() => currencyStore.isLoading)
-
+console.log('availableCurrencies', availableCurrencies.value);
 const handleInput = (event: Event) => {
     const input = event.target as HTMLInputElement;
     emit('update:modelValue', input.value)

@@ -121,11 +121,6 @@
     </div>
   </div>
 
-  <!-- Reservation Modal -->
-  <template v-if="isModalOpen && selectedReservation">
-    <ReservationRigthModal :is-open="isModalOpen" :title="selectedReservation.reservationNumber!"
-      :reservation-data="selectedReservation" @close="closeModal" />
-  </template>
 </template>
 
 <script setup lang="ts">
@@ -134,7 +129,7 @@ import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { filterReservation } from '@/services/hotelApi'
 import type { FitlterItem, ReservationDetails } from '@/utils/models'
-import ReservationRigthModal from '@/components/reservations/ReservationRigthModal.vue'
+// Modal moved to AppHeader; emit selection to parent instead
 import {  formatTimeFromTimeString } from '../utilities/UtilitiesFunction'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
@@ -161,8 +156,7 @@ const searchQuery = ref(props.modelValue || '')
 const searchResults = ref<ReservationDetails[]>([])
 const isLoading = ref(false)
 const showDropdown = ref(false)
-const isModalOpen = ref(false)
-const selectedReservation = ref<ReservationDetails | null>(null)
+// Selection state held in parent; component emits 'select'
 const selectedIndex = ref(-1)
 const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
@@ -225,16 +219,10 @@ const performSearch = async () => {
 }
 
 const selectResult = (result: ReservationDetails) => {
-  //searchQuery.value = result.reservationNumber || `#${result.id}`
   showDropdown.value = false
   selectedIndex.value = -1
-  selectedReservation.value = { ...result, reservation_id: result.id }
-  isModalOpen.value = true
-}
-
-const closeModal = () => {
-  isModalOpen.value = false
-  selectedReservation.value = null
+  // Emit selection to parent with augmented payload
+  emit('select', { ...result, reservation_id: result.id } as ReservationDetails)
 }
 
 
