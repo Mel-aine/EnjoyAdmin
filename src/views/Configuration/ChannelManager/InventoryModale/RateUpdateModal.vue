@@ -426,7 +426,8 @@ const save = async () => {
 
     const payload = { values }
     console.log('play load',payload)
-    await updateRestrictions(String(props.propertyId), payload)
+    const res = await updateRestrictions(String(props.propertyId), payload)
+    console.log('res call back',res)
     toast.success(t('toast.SucessUpdate'))
     emit('save', payload)
     emit('refresh')

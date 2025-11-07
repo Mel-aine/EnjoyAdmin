@@ -12,77 +12,7 @@
         </div>
         
       </div>
-     <!-- Main Content Grid -->
-     <div class="overview-grid">
-       <!-- Booking Sources Card -->
-       <div class="card booking-sources-card">
-         <div class="card-header">
-           <h3>Booking Sources</h3>
-           <div class="date-range">
-             <input type="date" v-model="dateRange.start" class="date-input" />
-             <span class="date-separator">-</span>
-             <input type="date" v-model="dateRange.end" class="date-input" />
-           </div>
-         </div>
-         
-         <div class="booking-sources-content">
-           <div class="booking-circle">
-             <div class="circle-chart">
-               <div class="circle-inner">
-                 <span class="bookings-label">Bookings</span>
-                 <span class="bookings-count">{{ totalBookings }}</span>
-               </div>
-             </div>
-           </div>
-           
-           <div class="booking-details">
-             <div class="booking-source" v-for="source in bookingSources" :key="source.name">
-               <div class="source-info">
-                 <div class="source-icon">
-                   <span class="platform-badge">{{ source.initial }}</span>
-                 </div>
-                 <span class="source-name">{{ source.name }}</span>
-               </div>
-               <div class="source-stats">
-                 <span class="booking-count">{{ source.bookings }}</span>
-                 <span class="revenue">{{ source.revenue }}</span>
-                 <span class="percentage">{{ source.percentage }}%</span>
-               </div>
-               <button class="details-btn" @click="viewSourceDetails(source)">Details</button>
-             </div>
-           </div>
-         </div>
-       </div>
  
-       <!-- Live Feed Events Card -->
-       <div class="card live-feed-card">
-         <div class="card-header">
-           <h3>Live Feed Events</h3>
-           <div class="filter-dropdown">
-             <select v-model="selectedFilter" class="filter-select">
-               <option value="all">All Events</option>
-               <option value="bookings">New Bookings</option>
-               <option value="cancellations">Cancellations</option>
-             </select>
-           </div>
-         </div>
-         
-         <div class="live-feed-content">
-           <div class="event-item" v-for="event in filteredEvents" :key="event.id">
-             <div class="event-time">{{ event.timeAgo }}</div>
-             <div class="event-badge" :class="event.type.toLowerCase().replace(' ', '-')">{{ event.type }}</div>
-             <div class="event-details">
-               <div class="event-title">{{ event.title }}</div>
-               <div class="event-subtitle" v-if="event.subtitle">{{ event.subtitle }}</div>
-             </div>
-             <div class="event-amount">{{ event.amount }}</div>
-             <div class="platform-icon">
-               <span class="platform-badge">{{ event.platform }}</span>
-             </div>
-           </div>
-         </div>
-       </div>
-     </div>
    </div>
   </ChannelManagerLayout>
 </template>
@@ -150,7 +80,7 @@ const handleMigrate = async () => {
    return `${diffDays} days ago`
  }
 
- const loadLiveEvents = async () => {
+ /*const loadLiveEvents = async () => {
    try {
      eventsLoading.value = true
      const propertyId = (currentService as any)?.channexPropertyId || useServiceStore().serviceId
@@ -199,7 +129,7 @@ const handleMigrate = async () => {
      eventsLoading.value = false
    }
  }
-
+*/
   const computeNights = (checkin?: string, checkout?: string) => {
     if (!checkin || !checkout) return undefined
     const start = new Date(checkin)
@@ -242,17 +172,6 @@ const handleMigrate = async () => {
    console.log('Viewing details for:', source.name)
  }
 
-onMounted(() => {
-  loadLiveEvents()
-})
-
-// Reload events when date range changes
-watch(
-  () => [dateRange.value.start, dateRange.value.end],
-  () => {
-    loadLiveEvents()
-  }
-)
 </script>
 
 <style scoped>
