@@ -14,7 +14,7 @@
         </template>
         <template v-slot:header-actions>
           <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
-            :label="$t('configuration.payment_method.add_payment_method')" :loading="loading" />
+            :label="$t('configuration.payment_method.add_payment_method')"  />
         </template>
         <template #status="{ item }">
           <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
@@ -121,7 +121,7 @@
 
               <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {{ $t('configuration.payment_method.extra_charge') }}
+                  {{ $t('extra_charge') }}
                 </label>
                 <select v-model="formData.extraCharge"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
@@ -144,7 +144,7 @@
                 <option value="manual">{{ $t('configuration.payment_method.manual') }}</option>
               </select>
             </div>
-          
+
             <div class="flex justify-end space-x-3 mt-6">
               <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                 :disabled="saving" />

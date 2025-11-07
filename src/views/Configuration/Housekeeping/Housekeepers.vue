@@ -11,7 +11,10 @@
         :loading="isLoading"
         :search-placeholder="$t('Search housekeepers...')"
         :empty-state-title="$t('No housekeepers found')"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
         :empty-state-description="$t('Get started by adding your first housekeeper.')"
+
         @action="onAction"
       >
       <template #header-actions>
@@ -47,6 +50,12 @@
             <div>
               <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
               <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+            </div>
+          </template>
+
+          <template #column-status="{ item }">
+            <div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ $t(`${item.status}`) }}</div>
             </div>
           </template>
       </ReusableTable>
@@ -134,6 +143,7 @@ const isLoading = ref(false)
 const serviceStore = useServiceStore()
 const isSaving = ref(false)
 const toast = useToast()
+const paginationMeta = ref<any>(null)
 
 const formData = reactive({
   name: '',
@@ -164,12 +174,19 @@ const actions = computed<Action[]>(() => [
 
 const housekeepers = ref<any[]>([])
 
-const fetchHousekeepers = async () => {
+const fetchHousekeepers = async (pageNumber=1) => {
   try {
     isLoading.value = true
-    const hotelId = serviceStore.serviceId
-    const resp = await getHousekeepers({ hotel_id: hotelId as number })
+
+    const params = {
+      hotelId : serviceStore.serviceId,
+      page:pageNumber,
+      limit:10
+    }
+    // const hotelId = serviceStore.serviceId
+    const resp = await getHousekeepers(params)
     const data = resp?.data?.data?.data ?? resp?.data ?? []
+    paginationMeta.value = resp?.data?.data?.meta
     console.log('data', resp)
     housekeepers.value = Array.isArray(data)
       ? data.map((h: any) => ({
@@ -187,8 +204,12 @@ const fetchHousekeepers = async () => {
   }
 }
 
+const handlePageChange = (page:number) =>{
+  fetchHousekeepers(page)
+}
+
 onMounted(() => {
-  fetchHousekeepers()
+  fetchHousekeepers(1)
 })
 
 // Functions
@@ -235,7 +256,7 @@ const saveHousekeeper = async () => {
       toast.success(t('Housekeeper created successfully'))
     }
     closeModal()
-    await fetchHousekeepers()
+    await fetchHousekeepers(1)
   } catch (e) {
     console.error('Failed to save housekeeper', e)
     toast.error(t('Failed to save housekeeper'))
@@ -250,7 +271,7 @@ const deleteHousekeeper = async (id: number) => {
     isLoading.value = true
     await deleteHousekeeperById(id)
     toast.success(t('Housekeeper deleted successfully'))
-    await fetchHousekeepers()
+    await fetchHousekeepers(1)
   } catch (e) {
     console.error('Failed to delete housekeeper', e)
     toast.error(t('Failed to delete housekeeper'))

@@ -71,8 +71,8 @@ export const deleteHousekeeperById = (id: number | string): Promise<AxiosRespons
  * Get all housekeeping units
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getUnits = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/units`, getHeaders())
+export const getUnits = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/units`, {...getHeaders(),params})
 }
 /**
  * Create a new housekeeping unit
@@ -160,7 +160,7 @@ export const deleteAmenity = (id: number): Promise<AxiosResponse<any>> => {
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getRoomTypes = (params:any={}): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/room_types`, {...getHeaders(),params})
+  return axios.get(`${API_URL()}/room_types`, { ...getHeaders(), params })
 }
 
 /**
@@ -563,8 +563,8 @@ export const deleteSeasonById = (id: number): Promise<AxiosResponse<any>> => {
  * Get all room rates
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getRoomRates = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/room_rates`, getHeaders())
+export const getRoomRates = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/room_rates`, {...getHeaders() ,params})
 }
 /**
  * Post a new room rate
@@ -630,8 +630,8 @@ export const getInHouseReservations = (params: {
  * @returns {Promise<AxiosResponse<any>>}
  */
 
-export const getCurrencies = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/currencies`, getHeaders())
+export const getCurrencies = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/currencies`, {...getHeaders(),params})
 }
 /**
  * Post a new currency
@@ -1398,8 +1398,8 @@ export const deleteExtraChargeById = (id: number): Promise<AxiosResponse<any>> =
  * Get all taxes
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getTaxes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/taxes`, getHeaders())
+export const getTaxes = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/taxes`, {...getHeaders(),params})
 }
 
 /**
@@ -1976,8 +1976,8 @@ export interface MealPlanPayload {
 /**
  * Get all meal plans for current hotel (from service store)
  */
-export const getMealPlans = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/meal_plans`, getHeaders())
+export const getMealPlans = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/meal_plans`, {...getHeaders(),params})
 }
 
 /**

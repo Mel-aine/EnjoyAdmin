@@ -12,6 +12,8 @@
         :empty-state-title="t('noRoomRatesFound')"
         :empty-state-message="t('clickAddRoomRate')"
         :loading="isLoading"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
         @action="onAction"
         @selection-change="onSelectionChange"
       >
@@ -60,6 +62,17 @@
             <div>
               <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
               <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatDateT(item.updatedAt) }}</div>
+            </div>
+          </template>
+          <template #column-season="{ item }">
+            <div>
+            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.season?.seasonName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-500">{{ item.season?.startDate}}- {{ item.season?.expireDate}}</div>
+            </div>
+          </template>
+           <template #column-source="{ item }">
+            <div>
+            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.source?.name }}</div>
             </div>
           </template>
       </ReusableTable>
@@ -120,9 +133,9 @@
               <Select
                 v-model="formData.mealPlanId"
                 :options="mealPlanOptions"
-                :placeholder="t('select') + ' ' + 'Meal Plan'"
+                :placeholder="t('select') + ' ' + t('Meal Plan')"
                 @update:modelValue="onMealPlanChange"
-                :lb="'Meal Plan'"
+                :lb="t('Meal Plan')"
               />
             </div>
 
@@ -132,7 +145,7 @@
               <p class="text-sm text-gray-700 dark:text-gray-300 mb-1">
                 <strong>{{ selectedMealPlanDetails.name }}</strong>
                 <span v-if="selectedMealPlanDetails.isAllInclusive" class="ml-2 text-green-600 dark:text-green-400 text-xs font-medium">
-                  ({{ t('allInclusive') || 'All Inclusive' }})
+                  ({{ t('allInclusive') }})
                 </span>
               </p>
 
@@ -154,7 +167,7 @@
               </div>
 
               <p v-else class="text-sm text-gray-500 dark:text-gray-400 italic mt-2">
-                {{ t('noChargesIncluded') || 'No extra charges included' }}
+                {{ t('noChargesIncluded') }}
               </p>
             </div>
 
@@ -176,13 +189,13 @@
               <div class="flex items-center gap-2">
                 <CheckboxInput
                   v-model="formData.tax_include"
-                  :lb="'Tax Include'"
+                  :lb="$t('Tax Include')"
                 />
               </div>
               <div class="flex items-center gap-2">
                 <CheckboxInput
                   v-model="formData.meal_plan_rate_include"
-                  :lb="'Meal Plan Rate Include'"
+                  :lb="t('Meal Plan Rate Include')"
                 />
               </div>
             </div>
@@ -294,6 +307,7 @@ const showEditModal = ref(false)
 const editingRoomRate = ref(null)
 const selectedRoomRates = ref([])
 const serviceStore = useServiceStore()
+const paginationMeta = ref()
 
 // Loading states
 const isLoading = ref(false)
@@ -340,12 +354,14 @@ const columns = ref([
   {
     key: 'season',
     label: t('season'),
-    sortable: true
+    sortable: true,
+    type:'custom'
   },
   {
-    key: 'sourceName',
+    key: 'source',
     label: t('sourceName'),
-    sortable: true
+    sortable: true,
+    type:'custom'
   },
   {
     key: 'rateInfo',
@@ -445,6 +461,7 @@ const deleteRoomRate = async (roomRate) => {
       if (index > -1) {
         roomRates.value.splice(index, 1)
       }
+      await fetchRoomRates(1)
       toast.success(t('roomRateDeletedSuccessfully'))
     } catch (error) {
       console.error('Error deleting room rate:', error)
@@ -513,11 +530,12 @@ const deleteSelected = async () => {
 }
 
 
-const fetchRoomRates = async () => {
+const fetchRoomRates = async (pageNumber=1) => {
   try {
     isLoading.value = true
-    const response = await getRoomRates()
+    const response = await getRoomRates({page:pageNumber,limit:10})
     roomRates.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
     console.log('Room rates data:', response)
   } catch (error) {
     console.error('Error fetching room rates:', error)
@@ -586,7 +604,7 @@ const saveRoomRate = async () => {
     }
 
     // Refresh the room rates list after successful save/update
-    await fetchRoomRates()
+    await fetchRoomRates(1)
     closeModal()
   } catch (error) {
     console.error('Error saving room rate:', error)
@@ -706,7 +724,7 @@ const getRates = () => {
 
 // Load all data on component mount
 onMounted(() => {
-  fetchRoomRates()
+  fetchRoomRates(1)
   loadRoomTypes();
   loadRateTypes();
   loadSeasons();
@@ -751,5 +769,9 @@ const calculateMealPlanTotal = () => {
     const quantity = component.quantityPerDay || 1
     return total + (rate * quantity)
   }, 0)
+}
+
+const handlePageChange = (page) =>{
+  fetchRoomRates(page)
 }
 </script>

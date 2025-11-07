@@ -1,11 +1,11 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-  
+
       <!-- Taxes Table using ReusableTable -->
       <ReusableTable :title="t('configuration.taxes.taxes_list')" :columns="columns" :data="taxes" :actions="actions"
         :search-placeholder="t('configuration.taxes.search_placeholder')" :selectable="false"
-        :empty-state-title="t('configuration.taxes.empty_state_title')"
+        :empty-state-title="t('configuration.taxes.empty_state_title')" :meta="paginationMeta" @page-change="handlePageChange"
         :empty-state-message="t('configuration.taxes.empty_state_message')" :loading="loading" @action="onAction"
         @selection-change="onSelectionChange">
         <template #header-actions>
@@ -90,7 +90,7 @@
                   <span class="text-sm text-gray-600 dark:text-gray-300">{{ t('configuration.taxes.days') }}</span>
                 </div>
               </div>
-              <div> 
+              <div>
                 <Select v-model="formData.postingType" :options="postingTypeOptions"
                 :lb="t('configuration.taxes.posting_type')"
                 :is-required="true"
@@ -178,16 +178,16 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="loading"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="loading ? t('saving') + '...' : showAddModal ? t('configuration.taxes.save_tax') : t('configuration.taxes.update_tax')"
                 :loading="loading"
               />
@@ -200,7 +200,7 @@
     <!-- Confirmation Modal -->
     <ModalConfirmation v-if="showDeleteModal" v-model="showConfirmModal" :title="confirmTitle" :message="confirmMessage"
       :loading="confirmLoading" :confirm-text="t('delete')" :cancel-text="t('cancel')" @confirm="handleConfirm"
-      @close="handleConfirmClose" />
+      @close="handleConfirmClose" :action="'DANGER'" />
   </ConfigurationLayout>
 </template>
 
@@ -239,6 +239,7 @@ const confirmAction = ref(null)
 const confirmMessage = ref('')
 const confirmTitle = ref('')
 const confirmLoading = ref(false)
+const paginationMeta = ref<any>(null)
 
 // Form data
 const formData = ref({
@@ -331,11 +332,12 @@ const isEditing = ref(false)
 const editingTaxId = ref(null)
 
 // Methods
-const loadTaxes = async () => {
+const loadTaxes = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getTaxes()
+    const response = await getTaxes({page:pageNumber,limit:10})
     taxes.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
     console.log('taxes',taxes.value)
   } catch (error) {
     console.error('Error loading taxes:', error)
@@ -392,6 +394,7 @@ const deleteSelected = async () => {
     await Promise.all(selectedTaxes.value.map((tax: any) => deleteTaxById(tax.taxRateId)))
     toast.success(t('configuration.taxes.delete_selected_success'))
     showConfirmModal.value = false
+    await loadTaxes(1)
     selectedTaxes.value = []
     await loadTaxes()
   } catch (error) {
@@ -449,7 +452,7 @@ const saveTax = async () => {
     }
 
     closeModal()
-    await loadTaxes()
+    await loadTaxes(1)
   } catch (error) {
     console.error('Error saving tax:', error)
     toast.error(t('something_went_wrong'))
@@ -486,9 +489,11 @@ const handleConfirmClose = () => {
   showDeleteModal.value = false
   confirmAction.value = null
 }
-
+const handlePageChange = (page:number) =>{
+  loadTaxes(page)
+}
 // Initialize data on mount
 onMounted(() => {
-  loadTaxes()
+  loadTaxes(1)
 })
 </script>

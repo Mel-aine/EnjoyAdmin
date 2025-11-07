@@ -133,7 +133,7 @@
     >
       <div
         v-if="isOpen && !disabled"
-        class="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-900 dark:border-gray-700"
+        class="absolute z-40 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-900 dark:border-gray-700"
       >
         <!-- Barre de recherche -->
         <div class="p-3 border-b border-gray-200 dark:border-gray-700">

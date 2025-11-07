@@ -3,12 +3,14 @@
     <div class="p-6">
  <ReusableTable :title="$t('Units')" :columns="columns" :data="units" :actions="actions"
          :loading="loading"
+         :meta="paginationMeta"
+         @page-change="handlePageChange"
          :search-placeholder="$t('Search units...')" :empty-state-title="$t('No units found')"
          :empty-state-description="$t('Get started by adding your first unit.')" @action="onAction">
           <template #header-actions>
             <BasicButton variant="primary" @click="openAddModal" :icon="Plus" :disabled="loading" :label="$t('Add Unit')" />
           </template>
-          <template #status="{ item }">
+          <template  #column-status="{ item }">
             <span :class="[
               'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
               item.status === 'Active' || item.status === $t('Active')
@@ -33,6 +35,11 @@
               <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
+          <!-- <template #column-status="{ item }">
+            <div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ $t(`${item.status}`) }}</div>
+            </div>
+          </template> -->
         </ReusableTable>
     </div>
 
@@ -83,6 +90,7 @@ const loading = ref(false)
 const saving = ref(false)
 const toast = useToast()
 const serviceStore = useServiceStore()
+const paginationMeta = ref<any>(null)
 
 const formData = reactive({
   name: ''
@@ -111,12 +119,13 @@ const actions = computed<Action[]>(() => [
 
 const units = ref<any[]>([])
 
-const fetchUnits = async () => {
+const fetchUnits = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getUnits()
+    const response = await getUnits({page:pageNumber,limit:10})
     console.log('responser',response);
     const list = response?.data?.data?.data ?? []
+    paginationMeta.value = response?.data?.data?.meta
     units.value = list.map((u: any) => ({
       ...u,
       id: u.id ,
@@ -170,7 +179,7 @@ const saveUnit = async () => {
     }
 
     closeModal()
-    await fetchUnits()
+    await fetchUnits(1)
   } catch (error) {
     console.error('Error saving unit:', error)
     toast.error(t('Failed to save unit'))
@@ -185,7 +194,7 @@ const deleteUnit = async (id: number) => {
       loading.value = true
       await deleteUnitById(id)
       toast.success(t('Unit deleted successfully'))
-      await fetchUnits()
+      await fetchUnits(1)
     } catch (error) {
       console.error('Error deleting unit:', error)
       toast.error(t('Failed to delete unit'))
@@ -203,7 +212,11 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:number) =>{
+  fetchUnits(page)
+}
+
 onMounted(() => {
-  fetchUnits()
+  fetchUnits(1)
 })
 </script>

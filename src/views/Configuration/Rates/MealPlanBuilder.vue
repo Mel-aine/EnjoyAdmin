@@ -3,22 +3,24 @@
     <div class="p-6">
       <!-- Meal Plans Table using ReusableTable -->
       <ReusableTable
-        title="Meal Plans"
+        :title="$t('Meal Plans')"
         :columns="columns"
         :data="mealPlans"
         :actions="actions"
-        search-placeholder="Search meal plans..."
+        :search-placeholder="$t('Search meal plans...')"
         :selectable="false"
-        empty-title="No meal plans found"
-        empty-description="Start by adding your first meal plan."
+        :empty-title="$t('No meal plans found')"
+        :empty-description="$t('Start by adding your first meal plan.')"
         :loading="isLoading"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
         @action="onAction"
         @selection-change="onSelectionChange"
       >
         <template #header-actions>
           <BasicButton
             @click="openAddModal"
-            :label="'Add Meal Plan'"
+            :label="$t('Add Meal Plan')"
             :icon="Plus"
           >
           </BasicButton>
@@ -26,7 +28,7 @@
           <BasicButton
             v-if="selectedMealPlans.length > 0"
             @click="deleteSelected"
-            :label="'Delete Selected'"
+            :label="$t('Delete Selected')"
             :icon="Trash2"
           >
           </BasicButton>
@@ -37,31 +39,31 @@
       <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">
-            {{ showAddModal ? 'Add Meal Plan' : 'Edit Meal Plan' }}
+            {{ showAddModal ? $t('Add Meal Plan') : $t('Edit Meal Plan') }}
           </h3>
 
           <form @submit.prevent="saveMealPlan" class="space-y-4">
             <!-- General Information -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Input v-model="formData.name" :lb="'Plan Name'" :placeholder="'Enter plan name'" :is-required="true" />
+                <Input v-model="formData.name" :lb="$t('Plan Name')" :placeholder="$t('Enter plan name')" :is-required="true" />
               </div>
               <div>
-                <Input v-model="formData.shortCode" :lb="'Short Code'" :placeholder="'e.g., DP, PC'" :is-required="true" />
+                <Input v-model="formData.shortCode" :lb="$t('Short Code')" :placeholder="$t('e.g., DP, PC')" :is-required="true" />
               </div>
               <div>
-                <Select v-model="formData.status" :lb="'Status'" :options="statusOptions" :placeholder="'Select status'" />
+                <Select v-model="formData.status" :lb="$t('Status')" :options="statusOptions" :placeholder="$t('Select status')" />
               </div>
               <div class="flex items-center">
                 <input id="isAllInclusive" v-model="formData.isAllInclusive" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
-                <label for="isAllInclusive" class="ml-2 text-sm text-gray-700 dark:text-gray-300">All-Inclusive (includes drinks and activities)</label>
+                <label for="isAllInclusive" class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('All-Inclusive (includes drinks and activities)') }}</label>
               </div>
             </div>
 
             <!-- Plan Construction -->
             <div class="pt-2 border-t">
-              <h2 class="text-base font-semibold text-gray-800 mb-4">Plan Components</h2>
-              <p class="text-gray-600 mb-4">Add unit charges that compose the package. Only extra charges marked as Meal Plan Component are selectable.</p>
+              <h2 class="text-base font-semibold text-gray-800 mb-4">{{ $t('Plan Components') }}</h2>
+              <p class="text-gray-600 mb-4">{{ $t('Add unit charges that compose the package. Only extra charges marked as Meal Plan Component are selectable.') }}</p>
 
               <!-- Add Component Tool -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -72,13 +74,13 @@
                   <InputExtractChargeSelect  v-model="newComponent.extraChargeId" :lb="$t('Extra Charge')" />
                 </div>
                 <div>
-                  <Input v-model.number="newComponent.quantityPerDay" :lb="'Quantity / Night'" input-type="number" :min="1" :placeholder="'1'" />
+                  <Input v-model.number="newComponent.quantityPerDay" :lb="$t('Quantity / Night')" input-type="number" :min="1" :placeholder="'1'" />
                 </div>
                 <div>
-                  <Select v-model="newComponent.targetGuestType" :lb="'Guest Type'" :options="guestTypeOptions" :placeholder="'Select guest type'" />
+                  <Select v-model="newComponent.targetGuestType" :lb="$t('Guest Type')" :options="guestTypeOptions" :placeholder="$t('Select guest type')" />
                 </div>
                 <div class="flex justify-end">
-                  <BasicButton type="button" variant="primary" :label="'Add Component'" @click="addComponent" />
+                  <BasicButton type="button" variant="primary" :label="$t('Add Component')" @click="addComponent" />
                 </div>
               </div>
 
@@ -87,9 +89,9 @@
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead class="bg-gray-50 dark:bg-black">
                     <tr>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Extra Charge</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity / Night</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest Type</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Extra Charge') }}</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Quantity / Night') }}</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $t('Guest Type') }}</th>
                       <th class="px-4 py-2"></th>
                     </tr>
                   </thead>
@@ -99,11 +101,11 @@
                       <td class="px-4 py-2">{{ comp.quantityPerDay }}</td>
                       <td class="px-4 py-2">{{ capitalize(comp.targetGuestType) }}</td>
                       <td class="px-4 py-2 text-right">
-                        <BasicButton type="button" variant="outline" :label="'Remove'" @click="removeComponent(idx)" />
+                        <BasicButton type="button" variant="outline" :label="$t('Remove')" @click="removeComponent(idx)" />
                       </td>
                     </tr>
                     <tr v-if="components.length === 0" class="dark:bg-black">
-                      <td class="px-4 py-4 text-sm text-gray-500" colspan="4">No components added yet.</td>
+                      <td class="px-4 py-4 text-sm text-gray-500" colspan="4">{{ $t('No components added yet.') }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -112,8 +114,8 @@
 
             <!-- Save -->
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" :label="'Cancel'" @click="closeModal" />
-              <BasicButton type="submit" variant="primary" :icon="Save" :label="isSaving ? 'Saving...' : (showEditModal ? 'Update Meal Plan' : 'Save Meal Plan')" :loading="isSaving" />
+              <BasicButton type="button" variant="outline" :label="$t('Cancel')" @click="closeModal" />
+              <BasicButton type="submit" variant="primary" :icon="Save" :label="isSaving ? $t('Saving...') : (showEditModal ? $t('Update Meal Plan') : $t('Save Meal Plan'))" :loading="isSaving" />
             </div>
           </form>
         </div>
@@ -135,6 +137,7 @@ import { Save, Plus, Trash2, Edit } from 'lucide-vue-next'
 import { getExtraCharges, getMealPlans, postMealPlan, updateMealPlanById, deleteMealPlanById } from '@/services/configrationApi'
 import type { Column } from '../../../utils/models'
 import InputExtractChargeSelect from '@/components/reservations/foglio/InputExtractChargeSelect.vue'
+import { useI18n } from 'vue-i18n'
 
 const toast = useToast()
 
@@ -142,16 +145,18 @@ const toast = useToast()
 const isLoading = ref(false)
 const mealPlans = ref<any[]>([])
 const selectedMealPlans = ref<any[]>([])
+const paginationMeta = ref<any>(null)
+const {t} = useI18n()
 
 const columns :Column[] = [
-  { key: 'name', label: 'Name', type: 'text' },
-  { key: 'shortCode', label: 'Short Code', type: 'text' },
-  { key: 'status', label: 'Status', type: 'badge' },
+  { key: 'name', label: t('Name'), type: 'text' },
+  { key: 'shortCode', label: t('Short Code'), type: 'text' },
+  { key: 'status', label: t('Status'), type: 'badge' },
 ]
 
 const actions = [
-  { name: 'edit', label: 'Edit', variant: 'primary', icon: Edit, handler: (item:any) => onAction('edit', item) },
-  { name: 'delete', label: 'Delete', variant: 'danger', icon: Trash2 , handler: (item:any) => onAction('delete', item) },
+  { name: 'edit', label: t('Edit'), variant: 'primary', icon: Edit, handler: (item:any) => onAction('edit', item) },
+  { name: 'delete', label: t('Delete'), variant: 'danger', icon: Trash2 , handler: (item:any) => onAction('delete', item) },
 ]
 
 // Modal state
@@ -169,13 +174,13 @@ const formData = reactive({
 })
 
 const statusOptions = [
-  { value: 'Active', label: 'Active' },
-  { value: 'Inactive', label: 'Inactive' },
+  { value: 'Active', label: t('Active') },
+  { value: 'Inactive', label: t('Inactive') },
 ]
 
 const guestTypeOptions = [
-  { value: 'adult', label: 'Adult' },
-  { value: 'child', label: 'Child' },
+  { value: 'adult', label: t('Adult') },
+  { value: 'child', label: t('Child') },
 ]
 
 // Extra charges options filtered by meal plan component flag
@@ -249,18 +254,20 @@ const fetchExtraCharges = async () => {
     extraChargeOptions.value = filtered.map((item) => ({ value: Number(item.id), label: item.name }))
   } catch (e) {
     console.error('Failed to load extra charges', e)
-    toast.error('Failed to load extra charges')
+    toast.error(t('Failed to load extra charges'))
   }
 }
 
-const fetchMealPlans = async () => {
+const fetchMealPlans = async (pageNumber=1) => {
   try {
     isLoading.value = true
-    const res = await getMealPlans()
+    const res = await getMealPlans({page:pageNumber,limit:10})
+    console.log('res',res)
     mealPlans.value = (res.data?.data?.data || res.data?.data || res.data || [])
+    paginationMeta.value = (res.data?.data?.meta || res.data?.meta || [])
   } catch (e) {
     console.error('Failed to load meal plans', e)
-    toast.error('Failed to load meal plans')
+    toast.error(t('Failed to load meal plans'))
   } finally {
     isLoading.value = false
   }
@@ -268,11 +275,11 @@ const fetchMealPlans = async () => {
 
 const saveMealPlan = async () => {
   if (!formData.name || !formData.shortCode) {
-    toast.error('Name and Short Code are required')
+    toast.error(t('Name and Short Code are required'))
     return
   }
   if (components.value.length === 0) {
-    toast.error('Add at least one component')
+    toast.error(t('Add at least one component'))
     return
   }
   isSaving.value = true
@@ -295,15 +302,15 @@ const saveMealPlan = async () => {
       res = await postMealPlan(payload)
     }
     if (res.status === 200 || res.status === 201) {
-      toast.success(showEditModal.value ? 'Meal plan updated' : 'Meal plan saved')
+      toast.success(showEditModal.value ? t('Meal plan updated') : t('Meal plan saved'))
       closeModal()
-      await fetchMealPlans()
+      await fetchMealPlans(1)
     } else {
-      toast.error('Failed to save meal plan')
+      toast.error(t('Failed to save meal plan'))
     }
   } catch (e) {
     console.error('Failed to save meal plan', e)
-    toast.error('Failed to save meal plan')
+    toast.error(t('Failed to save meal plan'))
   } finally {
     isSaving.value = false
   }
@@ -338,18 +345,19 @@ const editMealPlan = (item: any) => {
 
 const deleteMealPlan = async (item: any) => {
   if (!item?.id) {
-    toast.error('Invalid meal plan item')
+    toast.error(t('Invalid meal plan item'))
     return
   }
-  const confirmed = window.confirm(`Delete meal plan "${item.name}"? This cannot be undone.`)
+  // const confirmed = window.confirm(`Delete meal plan "${item.name}"? This cannot be undone.`)
+  const confirmed = window.confirm(t('deleteMealPlan',{message:item.name}))
   if (!confirmed) return
   try {
     await deleteMealPlanById(item.id)
-    toast.success('Meal plan deleted')
-    await fetchMealPlans()
+    toast.success(t('Meal plan deleted'))
+    await fetchMealPlans(1)
   } catch (e) {
     console.error('Failed to delete meal plan', e)
-    toast.error('Failed to delete meal plan')
+    toast.error(t('Failed to delete meal plan'))
   }
 }
 
@@ -361,7 +369,8 @@ const onSelectionChange = (selected: any[]) => {
 
 const deleteSelected = async () => {
   if (selectedMealPlans.value.length === 0) return
-  const confirmed = window.confirm(`Delete ${selectedMealPlans.value.length} selected meal plan(s)?`)
+  // const confirmed = window.confirm(`Delete ${selectedMealPlans.value.length} selected meal plan(s)?`)
+  const confirmed = window.confirm(t('deleteMealPlans',{message:selectedMealPlans.value.length}))
   if (!confirmed) return
   try {
     for (const item of selectedMealPlans.value) {
@@ -369,17 +378,20 @@ const deleteSelected = async () => {
         await deleteMealPlanById(item.id)
       }
     }
-    toast.success('Selected meal plans deleted')
+    toast.success(t('Selected meal plans deleted'))
     selectedMealPlans.value = []
-    await fetchMealPlans()
+    await fetchMealPlans(1)
   } catch (e) {
     console.error('Failed bulk delete', e)
-    toast.error('Failed to delete selected meal plans')
+    toast.error(t('Failed to delete selected meal plans'))
   }
+}
+const handlePageChange = (page:number) =>{
+  fetchMealPlans(page)
 }
 
 onMounted(() => {
-  fetchMealPlans()
+  fetchMealPlans(1)
   fetchExtraCharges()
 })
 </script>

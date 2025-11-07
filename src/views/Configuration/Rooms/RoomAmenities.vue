@@ -26,6 +26,10 @@
           </div>
         </template>
 
+        <template #column-status="{ item }">
+            <div class="text-sm text-gray-900 dark:text-white rounded-full bg-green-100 inline-flex px-2">{{ $t(`${item.status}`) }}</div>
+        </template>
+
         <template #column-modifiedInfo="{ item }">
           <div>
             <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser.firstName }}</div>
@@ -173,7 +177,7 @@ const columns = ref([
     key: 'status',
     label: t('status'),
     sortable: true,
-    component: 'badge'
+     type: 'custom'
   }
 ])
 const editAmenity = (amenity) => {
