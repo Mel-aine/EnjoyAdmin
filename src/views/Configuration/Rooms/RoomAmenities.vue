@@ -94,7 +94,7 @@
               <BasicButton
                 type="submit"
                 variant="primary"
-                :label="isLoading ? t('saving') + '...' : showAddModal ? t('Add Amenities') : t('update')"
+                :label="isLoading ? t('saving') + '...' : showAddModal ? t('addAmenities') : t('update')"
                 :loading="isLoading"
               />
             </div>

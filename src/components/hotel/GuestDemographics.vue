@@ -145,8 +145,14 @@ const initChart = async () => {
           labelLine: {
             show: false,
           },
-          data: props.originData.map((entry, index) => ({
-            name:  t(`countries_lists.${entry.nationality.toLowerCase()}`)  ,
+          data: props.originData.map((entry, index) => {
+            const countryKey = entry.nationality.toLowerCase()
+            const translatedName = t(`countries_lists.${countryKey}`)
+            const displayName = translatedName && translatedName !== `countries_lists.${countryKey}` 
+              ? translatedName 
+              : entry.nationality
+            return {
+            name: displayName,
             value: entry.count,
             itemStyle: {
               color: [
@@ -159,7 +165,7 @@ const initChart = async () => {
                 'rgba(209, 213, 219, 0.7)',
               ][index % 7],
             },
-          })),
+          }}),
         },
       ],
     })

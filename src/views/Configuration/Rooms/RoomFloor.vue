@@ -8,16 +8,16 @@
         :data="rooms"
         :actions="actions"
         :loading="loading"
-        search-placeholder="Search rooms..."
+        :search-placeholder="$t('Search rooms...')"
         :selectable="false"
         :meta="metaData"
         @page-change="handlePageChange"
-        empty-state-title="No rooms found"
-        empty-state-message="Click 'Add Room' to create your first room."
+        :empty-state-title="$t('No rooms found')"
+        :empty-state-message="$t('Click \'Add Room\' to create your first room.')"
         @action="onAction"
         @selection-change="onSelectionChange">
         <template #header-actions>
-          <BasicButton @click="showAddModal = true" label="Add Room" :icon="Plus" />
+          <BasicButton @click="showAddModal = true" :label="$t('AddRoom')" :icon="Plus" />
           <BasicButton
             v-if="selectedRooms.length > 0"
             @click="deleteSelected"

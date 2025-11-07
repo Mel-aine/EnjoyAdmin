@@ -31,10 +31,12 @@
               <RadioGroup v-model="activeTab" class="flex space-x-4" :options="[
                 { label: t('Posting date'), value: 'posting' },
                 { label: t('Departure date'), value: 'departure' },
+                { label: t('Posting date'), value: 'posting' },
+                { label: t('Departure date'), value: 'departure' },
               ]" />
             </div>
             <div class="mr-4">
-              <InputDoubleDatePicker lb="Posting Date" :allow-past-dates="true" v-model="dateRange" />
+              <InputDoubleDatePicker :lb="t('Posting Date')" :allow-past-dates="true" v-model="dateRange" />
             </div>
           </div>
 
@@ -145,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -304,18 +306,18 @@ const loadCityLedgerData = async () => {
 
 
 // Actions
-const actions = ref([
+const actions = computed(() => [
   {
-    name: 'void', label: 'Void', icon: 'ban', danger: true,
+    name: 'void', label: t('Void'), icon: 'ban', danger: true,
     handler: (item: any) => onAction('void', item),
     condition: (item: any) => (item.transactionType === 'payment' && item.assigned <= 0),
   },
   {
-    name: 'print', label: 'Print Receipt', icon: 'printer',
+    name: 'print', label: t('Print Receipt'), icon: 'printer',
     handler: (item: any) => onAction('printReceipt', item),
   },
   {
-    name: 'map', label: 'Map Payment', icon: 'map', handler: (item: any) => onAction('map', item),
+    name: 'map', label: t('Map Payment'), icon: 'map', handler: (item: any) => onAction('map', item),
     condition: (item: any) => (item.transactionType === 'payment' && item.open > 0),
   }
 ])
@@ -387,7 +389,7 @@ async function onAction(action: string, item: any) {
     }
   } catch (error) {
     console.error('Action handling error:', error)
-    toast.error('Action failed')
+    toast.error(t('Action failed'))
   }
 }
 

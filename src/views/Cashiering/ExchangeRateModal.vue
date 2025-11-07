@@ -1,15 +1,15 @@
 <template>
-    <RightSideModal :is-open="isOpen" :title="'Exchange Rate'" @close="closeModal">
+    <RightSideModal :is-open="isOpen" :title="$t('Exchange Rate')" @close="closeModal">
         <template #header>
-            <h3 class="text-lg font-semibold text-gray-900">Exchange Rate</h3>
+            <h3 class="text-lg font-semibold text-gray-900">{{ $t('Exchange Rate') }}</h3>
         </template>
         <!-- Form -->
         <div class="px-2 space-y-4">
             <!-- Currency List -->
             <div class="space-y-3">
                 <div class="grid grid-cols-3 bg-gray-400 dark:bg-black dark:text-white px-3 py-2">
-                    <div class="">Name</div>
-                    <div class="">Exchange Rate</div>
+                    <div class="">{{ $t('Name') }}</div>
+                    <div class="">{{ $t('Exchange Rate') }}</div>
                 </div>
                 <div v-for="currency in currencies" :key="currency.id" class="dark:bg-black dark:text-white border border-gray-200 rounded-lg p-4">
                     <!-- Exchange Rate Input -->
@@ -40,7 +40,7 @@
                         <div class="col-span-2">
                             <div class="flex items-center space-x-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
                                 <span class="text-sm font-semibold text-green-800">{{ currency.code }}</span>
-                                <span class="text-xs text-green-600">Base Currency - No exchange rate needed</span>
+                                <span class="text-xs text-green-600">{{ $t('Base Currency - No exchange rate needed') }}</span>
                             </div>
                         </div>
                     </div>
@@ -49,14 +49,14 @@
 
             <!-- No currencies message -->
             <div v-if="currencies.length === 0 && !isLoading" class="text-center py-8">
-                <p class="text-gray-500">No currencies available</p>
+                <p class="text-gray-500">{{ $t('No currencies available') }}</p>
             </div>
 
             <!-- Loading state -->
             <div v-if="isLoading" class="text-center py-8">
                 <div class="inline-flex items-center space-x-2">
                     <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                    <span class="text-gray-500">Loading currencies...</span>
+                    <span class="text-gray-500">{{ $t('Loading currencies...') }}</span>
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@
         <template #footer>
             <div v-if="hasRatesGreaterThanOne" class="flex justify-end space-x-2">
                 <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')"></BasicButton>
-                <BasicButton variant="primary" @click="saveExchangeRates" :label="'Save'" :loading="isSaving"
+                <BasicButton variant="primary" @click="saveExchangeRates" :label="$t('Save')" :loading="isSaving"
                     :disabled="isSaving || !hasChanges"></BasicButton>
             </div>
         </template>
@@ -153,7 +153,7 @@ const saveExchangeRates = async () => {
         // Validate exchange rates
         const invalidRates = currencies.value.filter(c => !c.isBaseCurrency && (c.exchangeRate <= 0 || isNaN(c.exchangeRate)))
         if (invalidRates.length > 0) {
-            toast.error('Please enter valid exchange rates for all currencies')
+            toast.error(t('Please enter valid exchange rates for all currencies'))
             return
         }
 
@@ -172,7 +172,7 @@ const saveExchangeRates = async () => {
             })
 
         if (updatePromises.length === 0) {
-            toast.info('No changes to save')
+            toast.info(t('No changes to save'))
             closeModal()
             return
         }
@@ -186,14 +186,14 @@ const saveExchangeRates = async () => {
         })
 
         // Show success message
-        toast.success('Exchange rates updated successfully')
+        toast.success(t('Exchange rates updated successfully'))
 
         // Emit the updated currencies
         emit('save', currencies.value)
         closeModal()
     } catch (error) {
         console.error('Error saving exchange rates:', error)
-        toast.error('Failed to update exchange rates. Please try again.')
+        toast.error(t('Failed to update exchange rates. Please try again.'))
     } finally {
         isSaving.value = false
     }
@@ -223,7 +223,7 @@ const fetchCurrencies = async () => {
 
     } catch (error) {
         console.error('Error fetching currencies:', error)
-        toast.error('Failed to load currencies')
+        toast.error(t('Failed to load currencies'))
     } finally {
         isLoading.value = false
     }

@@ -64,6 +64,7 @@
               v-model="filters.showAmount"
               :options="showAmountOptions"
               :placeholder="t('common.select')"
+              :key="`show-amount-${locale}`"
               class="w-full"
             />
           </div>
@@ -250,7 +251,7 @@ import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { useBooking } from '@/composables/useBooking2'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 interface FilterOptions {
   value: string;
@@ -347,7 +348,7 @@ const travelAgentOptions = ref<FilterOptions[]>([
   { value: 'agent2', label: t('travelAgents.agent2') }
 ])
 
-const showAmountOptions = ref<FilterOptions[]>([
+const showAmountOptions = computed<FilterOptions[]>(() => [
   { value: 'rent_per_night', label: t('reports.reservation.rentPerNight') },
   { value: 'total_amount', label: t('reports.reservation.totalAmount') }
 ])

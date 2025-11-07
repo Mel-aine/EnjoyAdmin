@@ -27,6 +27,7 @@
         role="listbox" :aria-expanded="showDropdown" aria-hidden="false">
         <li v-if="isLoading" class="px-5 py-2 text-sm text-gray-500 dark:text-gray-400">
           {{ $t('Loading payment methods...') }}
+          {{ $t('Loading payment methods...') }}
         </li>
         <li v-else v-for="(paymentMethod, index) in filteredPaymentMethods" :key="paymentMethod.id"
           @click="selectPaymentMethod(paymentMethod)"
@@ -52,6 +53,7 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '../../../composables/serviceStore'
+import { useI18n } from 'vue-i18n'
 
 interface PaymentMethod {
   id: number
@@ -84,6 +86,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 
 // Reactive state
