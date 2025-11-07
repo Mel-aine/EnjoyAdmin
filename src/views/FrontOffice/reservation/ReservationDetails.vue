@@ -32,6 +32,7 @@ import AssignRoomReservation from '../../../components/reservations/AssignRoomRe
 import { useToast } from 'vue-toastification'
 import { confirmBooking } from '@/services/reservation';
 import OverLoading from '../../../components/spinner/OverLoading.vue'
+import getOtaIconSrc from '@/utils/otaIcons'
 
 // États des modals
 const showPrintModal = ref(false)
@@ -227,6 +228,13 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en', options)
 }
 
+const otaName = computed(() =>
+  localReservation.value?.otaName ||
+  localReservation.value?.bookingSourceName ||
+  localReservation.value?.bookingSource?.name || null
+)
+const otaIconSrc = computed(() => getOtaIconSrc(otaName.value))
+
 
 const handlePrintClose = () => {
   showPrintModal.value = false
@@ -313,7 +321,8 @@ onMounted(() => {
       <div class="shadow-sm px-4 py-2 mx-4 bg-white dark:bg-gray-800 dark:text-gray-100 flex justify-between">
         <div class="flex gap-2 align-middle self-center items-center">
           <ArrowLeft @click="router.back()" class="cursor-pointer"></ArrowLeft>
-          <Building2Icon class="text-primary"></Building2Icon>
+          <img v-if="otaIconSrc" :src="otaIconSrc" alt="OTA" class="w-6 h-6"/>
+          <Building2Icon v-else class="text-primary"></Building2Icon>
           <Users v-if="localReservation.reservationRooms.length > 1" />
           <span class="font-bold">{{ localReservation.guest?.displayName }}</span>
           <div class="flex">
