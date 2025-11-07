@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch,onUnmounted } from 'vue';
+import { onMounted, ref, watch, onUnmounted } from 'vue';
 import Input from '@/components/forms/FormElements/Input.vue';
 import { getCustomer } from '@/services/reservation'
 import { useServiceStore } from '@/composables/serviceStore';
@@ -84,35 +84,27 @@ const selectCustomer = (customer: any) => {
 };
 
 
-const clearSearch = () => {
-  searchQuery.value = '';
-  filteredCustomers.value = [];
-  selectedCustomer.value = {};
-  emit('customerSelected', null);
-};
-
-
 const fetchCustomers = async () => {
   try {
-     isLoading.value = true;
+    isLoading.value = true;
     const serviceId = serviceStore.serviceId;
     const response = await getCustomer(serviceId!);
     console.log('Fetched customers:', response);
-    customers.value= response.data.map((c:any)=>{
+    customers.value = response.data.map((c: any) => {
       return {
         ...c,
-        firstName : c.firstName,
-        lastName : c.lastName,
-        phoneNumber:c.phonePrimary,
-        email:c.email
+        firstName: c.firstName,
+        lastName: c.lastName,
+        phoneNumber: c.phonePrimary,
+        email: c.email
 
       }
     })
-    console.log("customers",customers.value)
+    console.log("customers", customers.value)
 
   } catch (error) {
     console.error('Failed to fetch reservations:', error);
-  }finally {
+  } finally {
     isLoading.value = false;
   }
 
@@ -131,7 +123,6 @@ const handleClickOutside = (event: MouseEvent) => {
 
 
 onMounted(() => {
-  fetchCustomers();
   document.addEventListener('mousedown', handleClickOutside);
 });
 
@@ -147,21 +138,22 @@ onUnmounted(() => {
   <div class="relative" ref="dropdownContainer">
     <form @submit.prevent>
       <div class="relative">
-        <Input :lb="$t('FirstName')" v-model="searchQuery" @input="filterCustomer" :id="'customer-search'" custom-class="rounded-none" :placeholder="$t('FirstName')"
-          :forLabel="'customer-search'" />
+        <Input :lb="$t('FirstName')" v-model="searchQuery" @input="filterCustomer" :id="'customer-search'"
+          custom-class="rounded-none" :placeholder="$t('FirstName')" :forLabel="'customer-search'" />
       </div>
 
       <!-- Search results dropdown -->
       <ul v-if="filteredCustomers.length > 0"
         class="absolute left-0 right-0 bg-white z-20 max-h-60 overflow-y-auto rounded-b-lg shadow-lg border-l border-r border-b border-gray-200 mt-1 dark:bg-gray-800 dark:border-gray-700 dark:shadow-lg">
-        <li class="px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0 dark:hover:bg-gray-700 dark:border-gray-700"
+        <li
+          class="px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0 dark:hover:bg-gray-700 dark:border-gray-700"
           v-for="customer in filteredCustomers" :key="customer.id" @click="selectCustomer(customer)">
           <div class="flex flex-col">
             <div class="font-medium text-gray-900 dark:text-gray-100">
               {{ customer.firstName }} {{ customer.lastName }}
             </div>
             <div class="text-sm text-gray-500 flex items-center gap-4 dark:text-gray-400">
-               <span  class="text-xs">
+              <span class="text-xs">
                 ID: {{ customer.id }}
               </span>
               <span v-if="customer.phoneNumber">{{ customer.phoneNumber }}</span>

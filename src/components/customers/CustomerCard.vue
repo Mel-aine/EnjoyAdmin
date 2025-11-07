@@ -54,8 +54,6 @@ const emit = defineEmits<{
 }>()
 
 type ImageUploaderInstance = InstanceType<typeof ImageUploader>
-const customers = ref<any[]>([])
-const users = ref<any[]>([])
 const serviceStore = useServiceStore()
 const showIdentitySection = ref(true)
 const showInfoSection = ref(false)
@@ -161,22 +159,6 @@ const selectCustomer = (customer: any) => {
   emit('customerSelected', selectedCustomer.value)
 }
 
-const fetchGuest = async () => {
-  try {
-    const hotelId = serviceStore.serviceId
-    const response = await getCustomer(hotelId!)
-    console.log('fetchGuest', response)
-    customers.value = response.data.map((guest: any) => {
-      return {
-        ...guest,
-        userFullName: guest ? `${guest.firstName} ${guest.lastName}` : 'Inconnu',
-      }
-    })
-  } catch (error) {
-    console.error('Failed to fetch reservations:', error)
-  }
-}
-
 const fetchIdentityTypes = async () => {
   try {
     const hotelId = serviceStore.serviceId
@@ -266,11 +248,6 @@ const onIdPhotoSuccess = (data: { url: string; file: File }) => {
 }
 
 const onUploadError = (error: any) => {
-  console.error('Upload error:', error)
-
-  // Marquer les uploads comme échoués
-  completeUpload('profilePhoto', false, 'Profile photo upload failed')
-  completeUpload('idPhoto', false, 'ID photo upload failed')
 
   toast.error(t('Image upload failed'))
 }
