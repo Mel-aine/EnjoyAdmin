@@ -98,7 +98,7 @@
           <!-- Group Selection Info -->
           <div v-else-if="formData.avheType === 'group'" class="bg-blue-50 p-3 rounded">
             <p class="text-sm text-blue-700">
-              {{ $t('All rooms will be unassigned') }} ({{ reservationRooms.length }} {{ $t('rooms') }})
+              {{ $t('All rooms will be unassigned') }} ({{ reservationRooms.length }} {{ $t('Rooms') }})
             </p>
           </div>
         </div>

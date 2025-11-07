@@ -1,7 +1,7 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="'Room Move'" @close="$emit('close')">
+  <RightSideModal :is-open="isOpen" :title="$t('Room Move')" @close="$emit('close')">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">Room Move</h3>
+      <h3 class="text-lg font-semibold text-gray-900">{{ $t('Room Move') }}</h3>
     </template>
     <!-- Content -->
     <div class="space-y-6">
@@ -84,7 +84,7 @@
                   <span class="text-blue-600 font-medium">{{ res?.guest?.displayName || reservation.guest?.displayName
                     }}</span>
                   <div class="">
-                    <div class="text-xs text-gray-500 mb-1 mt-8 ">Room Type</div>
+                    <div class="text-xs text-gray-500 mb-1 mt-8 ">{{ $t('roomType') }}</div>
                     <div class="text-sm font-medium">{{ res.roomType?.roomTypeName }}</div>
                   </div>
                 </div>
@@ -233,11 +233,11 @@ const confirmRoomSelection = async () => {
       }
       console.log("@@@@data", data)
       await postRoomMoveReservation(props.reservationId, data)
-      toast.success(t('Room exchange completed successfully'))
+      toast.success(t('Room move completed successfully'))
       emit('success')
     } catch (error) {
       console.error('Error exchanging rooms:', error)
-      toast.error(t('Failed to exchange rooms. Please try again.'))
+      toast.error(t('Failed to move rooms. Please try again.'))
     } finally {
       isLoading.value = false
     }

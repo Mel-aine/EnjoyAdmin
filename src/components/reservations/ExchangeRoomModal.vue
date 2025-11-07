@@ -1,5 +1,5 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="'Exchange Room'" @close="$emit('close')">
+  <RightSideModal :is-open="isOpen" :title="$t('Exchange Room')" @close="$emit('close')">
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('ExchangeRoom') }}</h3>
     </template>

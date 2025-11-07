@@ -1,5 +1,5 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="'Add Transportation Request'" @close="closeModal">
+  <RightSideModal :is-open="isOpen" :title="$t('Add Transportation Request')" @close="closeModal">
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('Add Transportation Request') }}</h3>
     </template>
@@ -189,7 +189,7 @@
         <BasicButton
           variant="primary"
           @click="saveRequest"
-          :label="'Save Request'"
+          :label="$t('Save Request')"
           :loading="isSaving"
           :disabled="isSaving"
         ></BasicButton>
@@ -417,7 +417,7 @@ const saveRequest = async () => {
     const response = await createTransportationRequest(requestData)
 
     // Show success message
-    toast.success('Transportation request created successfully')
+    toast.success(t('Transportation request created successfully'))
     console.log('response', response)
 
     // // Emit the form data with API response
@@ -425,7 +425,7 @@ const saveRequest = async () => {
     closeModal()
   } catch (error) {
     console.error('Error saving transportation request:', error)
-    toast.error('Failed to create transportation request. Please try again.')
+    toast.error(t('Failed to create transportation request. Please try again.'))
   } finally {
     isSaving.value = false
   }

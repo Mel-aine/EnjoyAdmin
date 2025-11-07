@@ -101,13 +101,13 @@
                   @keydown.esc="cancelCustomReason"
                   @click.stop
                   @mousedown.stop
-                  class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   :placeholder="$t('Enter Custom Reason')"
                 />
                 <button
                   @click.prevent="addCustomReason"
                   @mousedown.stop
-                  class="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="px-3 py-1.5 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   :disabled="!customReason.trim()"
                 >
                   {{ $t('add') }}
@@ -165,7 +165,7 @@ const displayOptions = computed(() => {
     option.label.toLowerCase().includes(search.value.toLowerCase())
   )
 })
-  
+
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -181,7 +181,7 @@ watch(
   },
   { immediate: true }
 )
-  
+
 function openDropdown() {
   if (!props.disabled && !props.isLoading) {
     isDropdownOpen.value = true
@@ -208,11 +208,11 @@ function scrollToHighlighted() {
     })
   }
 }
-  
+
 function addCustomReason() {
   const trimmedReason = customReason.value.trim()
   if (!trimmedReason) return
-  
+
   emit('add-custom', trimmedReason)
   customReason.value = ''
   isDropdownOpen.value = false
@@ -223,13 +223,13 @@ function cancelCustomReason() {
   isDropdownOpen.value = false
   highlightedIndex.value = -1
 }
-  
+
 function handleInput() {
   hasUserTyped.value = true
   isDropdownOpen.value = true
   highlightedIndex.value = -1
 }
-  
+
 function onBlur(event: FocusEvent) {
   // Vérifier si le focus se déplace vers un élément dans le dropdown
   const relatedTarget = event.relatedTarget as HTMLElement
@@ -241,7 +241,7 @@ function onBlur(event: FocusEvent) {
     // Double vérification : ne fermer que si le focus n'est pas dans le wrapper
     if (!selectWrapper.value?.contains(document.activeElement)) {
       isDropdownOpen.value = false
-      
+
       if (!selectedOption.value) {
         search.value = ''
       } else {
@@ -250,7 +250,7 @@ function onBlur(event: FocusEvent) {
     }
   }, 100)
 }
-  
+
 function selectOption(option: Option) {
   if (!props.disabled && !props.isLoading) {
     selectedOption.value = option
@@ -263,7 +263,7 @@ function selectOption(option: Option) {
     emit('change', option.value)
   }
 }
-  
+
 function handleClickOutside(event: MouseEvent) {
   if (
     selectWrapper.value &&
@@ -278,7 +278,7 @@ function handleClickOutside(event: MouseEvent) {
     }
   }
 }
-  
+
 function onArrowDown() {
   if (!isDropdownOpen.value) {
     openDropdown()
@@ -290,7 +290,7 @@ function onArrowDown() {
     scrollToHighlighted()
   }
 }
-  
+
 function onArrowUp() {
   if (!isDropdownOpen.value) return
 
@@ -299,7 +299,7 @@ function onArrowUp() {
     scrollToHighlighted()
   }
 }
-  
+
 function onEnter() {
   if (!isDropdownOpen.value) {
     openDropdown()
@@ -310,17 +310,17 @@ function onEnter() {
     selectOption(displayOptions.value[highlightedIndex.value])
   }
 }
-  
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
-  
+
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
-  
+
 </script>
-  
+
 <style scoped>
 .cursor-not-allowed {
   cursor: not-allowed;

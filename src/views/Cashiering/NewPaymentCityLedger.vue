@@ -316,7 +316,7 @@ const guestColumns = computed<Column[]>(() => {
     { key: 'amount', label: t('Amount'), sortable: true, type: 'text' },
     { key: 'assigned', label: t('Assigned'), sortable: true, type: 'text' },
     { key: 'open', label: t('Open'), sortable: true, type: 'text' },
-    { key: 'assign', label: t('Assign'), sortable: false, type: 'custom' }
+    { key: 'assign', label: t('Assign'), sortable: false, type: 'custom' },
     { key: 'date', label: t('Date'), sortable: true, type: 'date' },
     { key: 'name', label: t('Guest Name'), sortable: true },
     { key: 'folioNo', label: t('Folio No.'), sortable: true },
@@ -509,7 +509,6 @@ const savePayment = async () => {
       // Close modal after successful save
       closeModal()
     } else {
-      const errorMessage = response?.message || t('Failed to save payment. Please try again.')
       const errorMessage = response?.message || t('Failed to save payment. Please try again.')
       toast.error(errorMessage)
     }

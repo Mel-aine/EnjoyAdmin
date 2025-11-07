@@ -102,7 +102,7 @@ export function useReservation() {
     } catch (error:any) {
       console.error('Check-in error:', error)
       if (!error.response || error.response.status !== 400) {
-        toast.error(t('toast.checkInError') || 'Failed to complete check-in. Please try again.')
+        toast.error(t('toast.checkInError') || t('Failed to complete check-in. Please try again.'))
       } else {
         toast.error(error.response.data?.message || t('toast.checkInError'))
       }
@@ -120,7 +120,7 @@ export function useReservation() {
       const response = await checkOutReservation(reservationId, payload)
       console.log('Check-out response:', response)
 
-      toast.success(t('toast.checkOutSuccess') || 'Check-out completed successfully!')
+      toast.success(t('toast.checkOutSuccess') || t('Check-out completed successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -145,7 +145,7 @@ export function useReservation() {
       // const response = await addReservationPayment(payload)
       console.log('Adding payment:', payload)
 
-      toast.success(t('toast.addPaymentSuccess') || 'Payment added successfully!')
+      toast.success(t('toast.addPaymentSuccess') || t('Payment added successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -154,7 +154,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Add payment error:', error)
-      toast.error(t('toast.addPaymentError') || 'Failed to add payment. Please try again.')
+      toast.error(t('toast.addPaymentError') || t('Failed to add payment. Please try again.'))
       throw error
     } finally {
       isAddingPayment.value = false
@@ -170,7 +170,7 @@ export function useReservation() {
       // const response = await amendReservationStay(payload)
       console.log('Amending stay:', payload)
 
-      toast.success(t('toast.amendStaySuccess') || 'Stay amended successfully!')
+      toast.success(t('toast.amendStaySuccess') || t('Stay amended successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -179,7 +179,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Amend stay error:', error)
-      toast.error(t('toast.amendStayError') || 'Failed to amend stay. Please try again.')
+      toast.error(t('toast.amendStayError') || t('Failed to amend stay. Please try again.'))
       throw error
     } finally {
       isAmendingStay.value = false
@@ -198,7 +198,7 @@ export function useReservation() {
       // Find the reservation room corresponding to the source room
       const targetRoom = reservationRooms.find((r: any) => r.roomId === payload.fromRoomId)
       if (!targetRoom) {
-        throw new Error('Source room not found in reservation')
+        throw new Error(t('Source room not found in reservation'))
       }
 
       // Build assign-room payload to move to the new room
@@ -216,7 +216,7 @@ export function useReservation() {
 
       await assignRoomReservation(payload.reservationId, data)
 
-      toast.success(t('toast.roomMoveSuccess') || 'Room moved successfully!')
+      toast.success(t('toast.roomMoveSuccess') || t('Room moved successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -225,7 +225,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Room move error:', error)
-      toast.error(t('toast.roomMoveError') || 'Failed to move room. Please try again.')
+      toast.error(t('toast.roomMoveError') || t('Failed to move room. Please try again.'))
       throw error
     } finally {
       isMovingRoom.value = false
@@ -241,7 +241,7 @@ export function useReservation() {
       // const response = await exchangeReservationRoom(payload)
       console.log('Exchanging room:', payload)
 
-      toast.success(t('toast.exchangeRoomSuccess') || 'Room exchanged successfully!')
+      toast.success(t('toast.exchangeRoomSuccess') || t('Room exchanged successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -250,7 +250,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Room exchange error:', error)
-      toast.error(t('toast.exchangeRoomError') || 'Failed to exchange room. Please try again.')
+      toast.error(t('toast.exchangeRoomError') || t('Failed to exchange room. Please try again.'))
       throw error
     } finally {
       isExchangingRoom.value = false
@@ -266,7 +266,7 @@ export function useReservation() {
       // const response = await stopReservationRoomMove(reservationId)
       console.log('Stopping room move for reservation:', reservationId)
 
-      toast.success(t('toast.stopRoomMoveSuccess') || 'Room move stopped successfully!')
+      toast.success(t('toast.stopRoomMoveSuccess') || t('Room move stopped successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -275,7 +275,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Stop room move error:', error)
-      toast.error(t('toast.stopRoomMoveError') || 'Failed to stop room move. Please try again.')
+      toast.error(t('toast.stopRoomMoveError') || t('Failed to stop room move. Please try again.'))
       throw error
     } finally {
       isStoppingRoomMove.value = false
@@ -291,7 +291,7 @@ export function useReservation() {
       // const response = await updateReservationInclusions(reservationId, inclusions)
       console.log('Updating inclusion list for reservation:', reservationId, inclusions)
 
-      toast.success(t('toast.inclusionListSuccess') || 'Inclusion list updated successfully!')
+      toast.success(t('toast.inclusionListSuccess') || t('Inclusion list updated successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -300,7 +300,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Update inclusion list error:', error)
-      toast.error(t('toast.inclusionListError') || 'Failed to update inclusion list. Please try again.')
+      toast.error(t('toast.inclusionListError') || t('Failed to update inclusion list. Please try again.'))
       throw error
     } finally {
       isUpdatingInclusionList.value = false
@@ -316,7 +316,7 @@ export function useReservation() {
       // const response = await cancelReservationById(payload)
       console.log('Cancelling reservation:', payload)
 
-      toast.success(t('toast.cancelReservationSuccess') || 'Reservation cancelled successfully!')
+      toast.success(t('toast.cancelReservationSuccess') || t('Reservation cancelled successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -325,7 +325,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Cancel reservation error:', error)
-      toast.error(t('toast.cancelReservationError') || 'Failed to cancel reservation. Please try again.')
+      toast.error(t('toast.cancelReservationError') || t('Failed to cancel reservation. Please try again.'))
       throw error
     } finally {
       isCancellingReservation.value = false
@@ -341,7 +341,7 @@ export function useReservation() {
       // const response = await markReservationNoShow(reservationId, reason)
       console.log('Marking no show for reservation:', reservationId, reason)
 
-      toast.success(t('toast.noShowSuccess') || 'Reservation marked as no show successfully!')
+      toast.success(t('toast.noShowSuccess') || t('Reservation marked as no show successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -350,7 +350,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Mark no show error:', error)
-      toast.error(t('toast.noShowError') || 'Failed to mark reservation as no show. Please try again.')
+      toast.error(t('toast.noShowError') || t('Failed to mark reservation as no show. Please try again.'))
       throw error
     } finally {
       isMarkingNoShow.value = false
@@ -366,7 +366,7 @@ export function useReservation() {
       // const response = await voidReservationById(reservationId, reason)
       console.log('Voiding reservation:', reservationId, reason)
 
-      toast.success(t('toast.voidReservationSuccess') || 'Reservation voided successfully!')
+      toast.success(t('toast.voidReservationSuccess') || t('Reservation voided successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -375,7 +375,7 @@ export function useReservation() {
       // return response
     } catch (error) {
       console.error('Void reservation error:', error)
-      toast.error(t('toast.voidReservationError') || 'Failed to void reservation. Please try again.')
+      toast.error(t('toast.voidReservationError') || t('Failed to void reservation. Please try again.'))
       throw error
     } finally {
       isVoidingReservation.value = false
@@ -390,7 +390,7 @@ export function useReservation() {
       const response = await unAssignRoomReservation(reservationId, payload)
       console.log('Avhe response:', response)
 
-      toast.success(t('toast.avheSuccess') || 'Room unassignment completed successfully!')
+      toast.success(t('toast.avheSuccess') || t('Room unassignment completed successfully!'))
 
       if (refreshCallback) {
         await refreshCallback()
@@ -399,7 +399,7 @@ export function useReservation() {
       return response
     } catch (error) {
       console.error('Avhe error:', error)
-      toast.error(t('toast.avheError') || 'Failed to unassign room. Please try again.')
+      toast.error(t('toast.avheError') || t('Failed to unassign room. Please try again.'))
       throw error
     } finally {
       isAvhe.value = false
@@ -419,12 +419,12 @@ export function useReservation() {
     isUndoingCheckIn.value = true
     try {
       const response = await undoCheckInReservation(reservationId, payload)
-      toast.success(t('toast.undoCheckInSuccess') || 'Check-in undone successfully!')
+      toast.success(t('toast.undoCheckInSuccess') || t('Check-in undone successfully!'))
       if (refreshCallback) { await refreshCallback() }
       return response
     } catch (error) {
       console.error('Undo check-in error:', error)
-      toast.error(t('toast.undoCheckInError') || 'Failed to undo check-in. Please try again.')
+      toast.error(t('toast.undoCheckInError') || t('Failed to undo check-in. Please try again.'))
       throw error
     } finally {
       isUndoingCheckIn.value = false

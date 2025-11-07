@@ -5,7 +5,7 @@
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('noshow_reservation') }}</h3>
         </template>
         <div class="mt-3">
-              
+
                 <!-- Loading Skeleton -->
                 <div v-if="isLoading" class="space-y-4">
                     <div class="animate-pulse">
@@ -42,7 +42,7 @@
                             <label class="flex items-center">
                                 <input v-model="formData.noShowType" type="radio" value="individual"
                                     class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary" />
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Individual Reservation') }}</span>
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('IndividualReservation') }}</span>
                             </label>
                         </div>
                     </div>
@@ -92,7 +92,7 @@
             </div>
         <template #footer>
             <div class="flex justify-end space-x-3 bg-gray-50 dark:bg-gray-800">
-               
+
                 <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                     :disabled="loading" />
                 <BasicButton type="submit" variant="danger" @click="handleSubmit" :label="$t('save')" :loading="loading" />

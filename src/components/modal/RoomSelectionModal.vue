@@ -84,7 +84,7 @@
                   <span class="text-blue-600 font-medium">{{ res?.guest?.displayName || reservation.guest?.displayName
                   }}</span>
                   <div class="">
-                    <div class="text-xs text-gray-500 mb-1 mt-8 ">Room Type</div>
+                    <div class="text-xs text-gray-500 mb-1 mt-8 ">{{ $t('Room Type') }}</div>
                     <div class="text-sm font-medium">{{ res.roomType?.roomTypeName }}</div>
                   </div>
                 </div>
@@ -135,7 +135,7 @@
         />
         <div class="flex gap-3">
           <BasicButton
-            :label="$t('Assign Room')"
+            :label="$t('AssignRoom')"
             variant="primary"
             :disabled="!isAssignButtonEnabled"
             :loading="isLoading"

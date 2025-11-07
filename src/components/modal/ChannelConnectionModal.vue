@@ -37,7 +37,7 @@
 
           <form class="flex flex-col" @submit.prevent="handleSubmit">
             <div class="custom-scrollbar h-[500px] overflow-y-auto p-2">
-              
+
               <!-- Channel Selection -->
               <div class="mb-8">
                 <h5
@@ -75,43 +75,43 @@
                 >
                   {{ t('configuration.channelManager.common.configure') }}
                 </h5>
-                
+
                 <!-- Booking.com Configuration -->
                 <div v-if="connectionForm.channelType === 'booking'" class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
                     <Input
-                      :lb="'Hotel ID'"
+                      :lb="$t('Hotel ID')"
                       :id="'booking_hotel_id'"
                       :forLabel="'booking_hotel_id'"
                       v-model="connectionForm.config.hotelId"
                       :is-required="true"
-                      :placeholder="'Enter Booking.com Hotel ID'"
+                      :placeholder="$t('Enter Booking.com Hotel ID')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'Username'"
+                      :lb="$t('Username')"
                       :id="'booking_username'"
                       :forLabel="'booking_username'"
                       v-model="connectionForm.config.username"
                       :is-required="true"
-                      :placeholder="'Enter username'"
+                      :placeholder="$t('Enter username')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'Password'"
+                      :lb="$t('Password')"
                       :id="'booking_password'"
                       :forLabel="'booking_password'"
                       :inputType="'password'"
                       v-model="connectionForm.config.password"
                       :is-required="true"
-                      :placeholder="'Enter password'"
+                      :placeholder="$t('Enter password')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'API Endpoint'"
+                      :lb="$t('API Endpoint')"
                       :id="'booking_endpoint'"
                       :forLabel="'booking_endpoint'"
                       v-model="connectionForm.config.apiEndpoint"
@@ -125,39 +125,39 @@
                 <div v-else-if="connectionForm.channelType === 'expedia'" class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
                     <Input
-                      :lb="'Hotel ID'"
+                      :lb="$t('Hotel ID')"
                       :id="'expedia_hotel_id'"
                       :forLabel="'expedia_hotel_id'"
                       v-model="connectionForm.config.hotelId"
                       :is-required="true"
-                      :placeholder="'Enter Expedia Hotel ID'"
+                      :placeholder="$t('Enter Expedia Hotel ID')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'API Key'"
+                      :lb="$t('API Key')"
                       :id="'expedia_api_key'"
                       :forLabel="'expedia_api_key'"
                       v-model="connectionForm.config.apiKey"
                       :is-required="true"
-                      :placeholder="'Enter API Key'"
+                      :placeholder="$t('Enter API Key')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'Secret Key'"
+                      :lb="$t('Secret Key')"
                       :id="'expedia_secret_key'"
                       :forLabel="'expedia_secret_key'"
                       :inputType="'password'"
                       v-model="connectionForm.config.secretKey"
                       :is-required="true"
-                      :placeholder="'Enter Secret Key'"
+                      :placeholder="$t('Enter Secret Key')"
                     />
                   </div>
                   <div>
                     <Select
                       :is-required="true"
-                      :lb="'Environment'"
+                      :lb="$t('Environment')"
                       v-model="connectionForm.config.environment"
                       :options="environmentOptions"
                     />
@@ -168,33 +168,33 @@
                 <div v-else-if="connectionForm.channelType === 'airbnb'" class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
                     <Input
-                      :lb="'Client ID'"
+                      :lb="$t('Client ID')"
                       :id="'airbnb_client_id'"
                       :forLabel="'airbnb_client_id'"
                       v-model="connectionForm.config.clientId"
                       :is-required="true"
-                      :placeholder="'Enter Client ID'"
+                      :placeholder="$t('Enter Client ID')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'Client Secret'"
+                      :lb="$t('Secret Guest')"
                       :id="'airbnb_client_secret'"
                       :forLabel="'airbnb_client_secret'"
                       :inputType="'password'"
                       v-model="connectionForm.config.clientSecret"
                       :is-required="true"
-                      :placeholder="'Enter Client Secret'"
+                      :placeholder="$t('Enter Secret Guest')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'Redirect URI'"
+                      :lb="$t('Redirect URI')"
                       :id="'airbnb_redirect_uri'"
                       :forLabel="'airbnb_redirect_uri'"
                       v-model="connectionForm.config.redirectUri"
                       :is-required="true"
-                      :placeholder="'Enter Redirect URI'"
+                      :placeholder="$t('Enter Redirect URI')"
                     />
                   </div>
                 </div>
@@ -203,28 +203,28 @@
                 <div v-else-if="connectionForm.channelType === 'channex'" class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
                     <Input
-                      :lb="'API Token'"
+                      :lb="$t('API Token')"
                       :id="'channex_api_token'"
                       :forLabel="'channex_api_token'"
                       :inputType="'password'"
                       v-model="connectionForm.config.apiToken"
                       :is-required="true"
-                      :placeholder="'Enter API Token'"
+                      :placeholder="$t('Enter API Token')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'Property ID'"
+                      :lb="$t('Property ID')"
                       :id="'channex_property_id'"
                       :forLabel="'channex_property_id'"
                       v-model="connectionForm.config.propertyId"
                       :is-required="true"
-                      :placeholder="'Enter Property ID'"
+                      :placeholder="$t('Enter Property ID')"
                     />
                   </div>
                   <div>
                     <Input
-                      :lb="'API Endpoint'"
+                      :lb="$t('API Endpoint')"
                       :id="'channex_endpoint'"
                       :forLabel="'channex_endpoint'"
                       v-model="connectionForm.config.apiEndpoint"
@@ -293,7 +293,7 @@
                   {{ t('configuration.channelManager.common.test') }}...
                 </span>
               </button>
-              
+
               <button
                 type="button"
                 @click="emit('close')"
@@ -302,7 +302,7 @@
               >
                 {{ t('configuration.channelManager.common.cancel') }}
               </button>
-              
+
               <button
                 type="submit"
                 :disabled="loading || testingConnection"
@@ -481,9 +481,9 @@ const testConnection = async () => {
 
   testingConnection.value = true
   try {
-   
+
   } catch (error: any) {
-    toast.error(`Connection test failed: ${error.message}`)
+    toast.error(t('connection.test_failed', { message: error.message }))
   } finally {
     testingConnection.value = false
   }
@@ -504,15 +504,16 @@ const handleSubmit = async () => {
 
     let result
     if (props.isEditMode && props.connection?.id) {
-      
+
     } else {
-       
+
     }
 
     emit('save', result)
     emit('close')
   } catch (error: any) {
-    toast.error(`Failed to save connection: ${error.message}`)
+    // toast.error(`Failed to save connection: ${error.message}`)
+    toast.error(t('connection.save_failed',{ message: error.message }))
   } finally {
     loading.value = false
   }

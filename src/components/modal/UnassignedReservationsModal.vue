@@ -87,7 +87,7 @@
                     getStatusClass(reservation.status),
                   ]"
                 >
-                  {{ $t(reservation.status) }}
+                  {{ $t(`${reservation.status}`) }}
                 </span>
               </div>
             </div>
