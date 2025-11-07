@@ -168,7 +168,7 @@
   <script setup lang="ts">
   import { ref ,computed,defineAsyncComponent,onMounted} from 'vue'
   import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
-  import AdminLayout from "@/components/layout/AdminLayout.vue";
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"));
   import { useToast } from 'vue-toastification'
   import Spinner from '@/components/spinner/Spinner.vue';
   import { useServiceStore } from '@/composables/serviceStore'

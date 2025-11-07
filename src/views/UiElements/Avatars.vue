@@ -36,8 +36,8 @@
 import { ref } from 'vue'
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
-import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 const ComponentCard = defineAsyncComponent(() => import('@/components/common/ComponentCard.vue'))
 // import Avatar from '@/components/ui/Avatar.vue'
 const currentPageTitle = ref('Avatars')

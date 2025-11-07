@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch, computed, defineAsyncComponent } from "vue";
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"));
 const PageBreadcrumb = defineAsyncComponent(() => import("@/components/common/PageBreadcrumb.vue"));
 import FullScreenLayout from "@/components/layout/FullScreenLayout.vue";
 const Modal = defineAsyncComponent(() => import("@/components/profile/Modal.vue"));
@@ -73,7 +73,7 @@ import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 const ModalDelete = defineAsyncComponent(() => import("@/components/modal/ModalDelete.vue"));
 import { hotel_product_categories } from "@/assets/data/productCategories";
-import ReportsLayout from '@/components/layout/ReportsLayout.vue';
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'));
 // Données simulées
 const categories = ref<any[]>([]);
 const isLoading = ref(false)

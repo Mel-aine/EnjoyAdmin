@@ -71,7 +71,8 @@
 </template>
 
 <script setup lang="ts">
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import Modal from '@/components/modal/PopupModal.vue'
 import { onMounted, ref, computed } from 'vue'
 import DetailCard from '@/components/cards/DetailCard.vue'

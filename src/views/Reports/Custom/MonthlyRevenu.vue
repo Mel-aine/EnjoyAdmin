@@ -188,7 +188,8 @@ const cleanup = () => {
 // Cleanup on unmount
 import { onUnmounted } from 'vue'
 import { useServiceStore } from '../../../composables/serviceStore'
-import ReportsLayout from '../../../components/layout/ReportsLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('../../../components/layout/ReportsLayout.vue'))
 onUnmounted(cleanup)
 </script>
 

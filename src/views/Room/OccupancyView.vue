@@ -795,7 +795,8 @@
 </template>
 
 <script setup lang="ts">
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import { ref, computed, onMounted, watch } from 'vue'
 import RoomCard from './RoomCard.vue'
 import StatusChangeModal from './StatusChangeModal.vue'

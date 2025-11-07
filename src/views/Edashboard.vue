@@ -81,7 +81,7 @@ import {
   LazyGuestDemographics as GuestDemographics,
   preloadCriticalComponents
 } from '@/utils/lazyLoader'
-import ReportsLayout from '../components/layout/ReportsLayout.vue'
+const ReportsLayout = defineAsyncComponent(() => import('../components/layout/ReportsLayout.vue'))
 const RecentBookings = defineAsyncComponent(() => import('../components/hotel/RecentBookings.vue'))
 const serviceStore = useServiceStore()
 const generalStats = ref<any>({})

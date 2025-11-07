@@ -104,7 +104,8 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { useCurrencyStore } from '@/composables/currencyStore'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
 import { getManagerReportPdfUrl } from '@/services/occupancyReportsApi'
 
 const { t } = useI18n()

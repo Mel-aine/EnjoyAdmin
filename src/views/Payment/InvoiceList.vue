@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue'
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"));
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
 import { getPayment, confirmPayment } from "@/services/api";

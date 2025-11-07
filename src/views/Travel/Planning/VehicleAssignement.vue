@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref,computed,onMounted } from 'vue';
-import AdminLayout from '@/components/layout/AdminLayout.vue';
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));
 import TableOne from '@/components/tables/TableOne.vue';
 import { useI18n } from 'vue-i18n';
 import {PlusCircle } from 'lucide-vue-next';

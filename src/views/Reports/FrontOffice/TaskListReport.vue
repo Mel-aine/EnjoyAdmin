@@ -195,7 +195,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import type { Column } from '../../../utils/models'
 

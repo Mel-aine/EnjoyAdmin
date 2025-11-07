@@ -29,7 +29,8 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import {
   getCurrencies} from '@/services/configrationApi'
 import ExchangeRateModal from './ExchangeRateModal.vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import type { Column } from '../../utils/models'
 
 const { t } = useI18n()

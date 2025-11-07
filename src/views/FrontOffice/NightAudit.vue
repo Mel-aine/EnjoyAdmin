@@ -189,7 +189,7 @@ import { ref, onMounted, computed, watch, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import AdminLayout from '../../components/layout/AdminLayout.vue'
+const AdminLayout = defineAsyncComponent(() => import('../../components/layout/AdminLayout.vue'))
 import ReusableTable from '../../components/tables/ReusableTable.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import { CheckIcon, InfoIcon } from 'lucide-vue-next'

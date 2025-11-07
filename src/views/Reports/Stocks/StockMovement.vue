@@ -127,10 +127,10 @@
 </template>
 
 <script setup lang="ts">
-import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, reactive, onMounted, computed, watch, defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'))
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
 import { useToast } from 'vue-toastification'
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 import { defineAsyncComponent as defineAsyncComponentInput } from 'vue'

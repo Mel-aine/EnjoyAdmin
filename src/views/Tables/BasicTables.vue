@@ -10,12 +10,10 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
-const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
-import AdminLayout from "@/components/layout/AdminLayout.vue";
-import { defineAsyncComponent } from 'vue'
-const ComponentCard = defineAsyncComponent(() => import("@/components/common/ComponentCard.vue"));
+import { ref, defineAsyncComponent } from 'vue'
+const PageBreadcrumb = defineAsyncComponent(() => import("@/components/common/PageBreadcrumb.vue"))
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"))
+const ComponentCard = defineAsyncComponent(() => import("@/components/common/ComponentCard.vue"))
 import BasicTableOne from "@/components/tables/basic-tables/BasicTableOne.vue";
 const currentPageTitle = ref("Basic Tables");
 </script>

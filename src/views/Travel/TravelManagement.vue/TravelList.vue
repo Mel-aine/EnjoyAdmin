@@ -8,7 +8,8 @@ import { Car} from 'lucide-vue-next';
 import Input from '@/components/forms/FormElements/Input.vue';
 import Select from '@/components/forms/FormElements/Select.vue';
 import TableOne from '@/components/tables/TableOne.vue';
-import AdminLayout from '@/components/layout/AdminLayout.vue';
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));
 import Modal from '@/components/profile/Modal.vue';
 
 interface Voyage {

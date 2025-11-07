@@ -32,7 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import ReportsLayout from '../../components/layout/ReportsLayout.vue';
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('../../components/layout/ReportsLayout.vue'));
 
 
 </script>

@@ -16,7 +16,7 @@ import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.v
 import BookingDetails from '../../../components/reservations/bookingdetails/BookingDetails.vue'
 import router from '../../../router'
 import { getReservationDetailsById } from '../../../services/api'
-import AdminLayout from '../../../components/layout/AdminLayout.vue'
+const AdminLayout = defineAsyncComponent(() => import('../../../components/layout/AdminLayout.vue'))
 import Adult from '../../../icons/Adult.vue'
 import Child from '../../../icons/Child.vue'
 import { formatTimeFromTimeString } from '../../../components/utilities/UtilitiesFunction'
@@ -24,7 +24,7 @@ import GuestDetails from '../../../components/reservations/GuestDetails.vue'
 import ReservationDetailsSkeleton from '../../../components/skeletons/ReservationDetailsSkeleton.vue'
 import ReservationAction from '../../../components/reservations/ReservationAction.vue'
 
-import PrintModal from '../../../components/common/PrintModal.vue'
+const PrintModal = defineAsyncComponent(() => import('../../../components/common/PrintModal.vue'))
 const BookingConfirmationTemplate = defineAsyncComponent(() => import('../../../components/common/templates/BookingConfirmationTemplate.vue'))
 import AuditTrail from '../../../components/audit/AuditTrail.vue'
 import ReservationStatus from '../../../components/common/ReservationStatus.vue'

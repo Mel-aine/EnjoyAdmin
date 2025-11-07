@@ -13,7 +13,8 @@
 import { ref,computed } from "vue";
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"));
 // import ComponentCard from "@/components/common/ComponentCard.vue";
 import AllBooking from "@/components/tables/booking-tables/AllBookingTable.vue";
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'

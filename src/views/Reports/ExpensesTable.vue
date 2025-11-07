@@ -547,7 +547,7 @@ const Input = defineAsyncComponent(() => import('@/components/forms/FormElements
 const Spinner = defineAsyncComponent(() => import('@/components/spinner/Spinner.vue'))
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
 const currentPageTitle = computed(() => t('expenseManagement'))
 const isDropdownOpen = ref(false)
 const addExpenseModalOpen = ref(false)

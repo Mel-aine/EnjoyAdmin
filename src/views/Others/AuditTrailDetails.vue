@@ -95,7 +95,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import { getAuditTrail, exportAuditTrail } from '@/services/auditTrail'

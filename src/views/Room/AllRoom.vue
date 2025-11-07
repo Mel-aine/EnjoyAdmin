@@ -224,13 +224,12 @@
 <script setup lang="ts">
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 import { defineAsyncComponent as defineAsyncComponentInput } from 'vue'
 const Input = defineAsyncComponentInput(() => import('@/components/forms/FormElements/Input.vue'))
 import Select from '@/components/forms/FormElements/Select.vue'
-import { ref, onMounted, computed, nextTick, watchEffect, watch } from 'vue'
+import { ref, onMounted, computed, nextTick, watchEffect, watch, defineAsyncComponent } from 'vue'
 import {
   getOptions,
   getServiceProductWithOptions,

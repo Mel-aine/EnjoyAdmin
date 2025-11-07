@@ -380,7 +380,8 @@ import { useServiceStore } from '@/composables/serviceStore'
 import { useBookingStore } from '@/composables/booking'
 import { getDailyOccupancyAndReservations } from "@/services/api"
 //import CrownIcon from '@/icons/CrownIcon.vue'
-import AdminLayout from '../layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('../layout/AdminLayout.vue'))
 import DollarsIcons from '@/icons/BookingStatus/dollarsIcone.vue'
 import CrownIcons from '@/icons/BookingStatus/CrownIcon.vue'
 import UsersIcons from '@/icons/BookingStatus/UserGroupIcon.vue'

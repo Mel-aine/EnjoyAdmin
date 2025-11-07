@@ -353,7 +353,8 @@
 </template>
 
 <script setup lang="ts">
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import { ref, onMounted, computed } from 'vue'
 import { Star, Heart, Phone, Car, Edit, Trash2, Calendar, Shield } from 'lucide-vue-next'
 import { Mail, CreditCard, Bookmark, Users } from 'lucide-vue-next'

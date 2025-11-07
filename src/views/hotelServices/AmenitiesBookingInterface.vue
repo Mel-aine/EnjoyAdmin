@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import { Plus, Minus, X, ShoppingCart, CheckCircle } from 'lucide-vue-next';
-import AdminLayout from '@/components/layout/AdminLayout.vue';
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));
 import { createAmenityBooking, getAmenitiesByServiceId, getAmenitiesProductByServiceId, getReservationDetailsById } from '@/services/api';
 import { useServiceStore } from '@/composables/serviceStore'
 import { isLoading } from '@/composables/spinner';

@@ -337,7 +337,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
 
 // Filters
 const filters = ref({

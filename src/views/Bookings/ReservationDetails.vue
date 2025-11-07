@@ -354,7 +354,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useToast } from 'vue-toastification';
-import AdminLayout from '@/components/layout/AdminLayout.vue';
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));
 import SectionHeader from '@/components/common/SectionHeader.vue';
 import DetailItem from '@/components/common/DetailItem.vue';
 import {

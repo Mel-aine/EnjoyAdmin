@@ -267,7 +267,7 @@
 </template>
 
 <script setup lang="ts">
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import { ClockIcon, User } from 'lucide-vue-next';
 import { CreditCard } from 'lucide-vue-next';

@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { ref,onMounted,watch,computed, defineAsyncComponent } from "vue";
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"));
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
 const Modal = defineAsyncComponent(() => import("@/components/profile/Modal.vue"));
@@ -100,7 +100,7 @@ import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 const ModalDelete = defineAsyncComponent(() => import("@/components/modal/ModalDelete.vue"));
 import TableComponent from "@/components/tables/TableComponent.vue";
-import ReportsLayout from '@/components/layout/ReportsLayout.vue';
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'));
 
 
 

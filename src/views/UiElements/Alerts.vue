@@ -71,11 +71,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
-const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { defineAsyncComponent } from 'vue'
+import { ref, defineAsyncComponent } from 'vue'
+const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'))
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 const ComponentCard = defineAsyncComponent(() => import('@/components/common/ComponentCard.vue'))
 // import Alert from '@/components/ui/Alert.vue'
 const currentPageTitle = ref('Alerts')

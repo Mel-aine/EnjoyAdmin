@@ -185,7 +185,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import AdminLayout from '../../components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('../../components/layout/AdminLayout.vue'))
 import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoubleDatePicker.vue'
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'

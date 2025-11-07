@@ -22,7 +22,8 @@
 
 <script setup>
 import { ref } from "vue";
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"));
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
 

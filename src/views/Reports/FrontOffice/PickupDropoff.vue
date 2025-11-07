@@ -271,7 +271,8 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
 import { generatePickupDropoff, exportData, type PickupDropoffFilters } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
 

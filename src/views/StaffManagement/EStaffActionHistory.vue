@@ -175,7 +175,8 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { actionsMock } from "@/assets/data/StaffData";
 import {getStocksHistories } from "@/services/api"
-import AdminLayout from '@/components/layout/AdminLayout.vue';
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));
 import { useServiceStore } from '@/composables/serviceStore';
 import {useAuthStore} from '@/composables/user';
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';

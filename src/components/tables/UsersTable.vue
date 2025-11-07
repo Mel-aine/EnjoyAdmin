@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import { Building2, Wrench, UserCog, User,CalendarIcon } from 'lucide-vue-next'
-import { ref, watch, computed, defineAsyncComponent, onMounted } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'

@@ -1005,7 +1005,7 @@ import {
 } from 'lucide-vue-next'
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import CustomerCard from '@/components/customers/CustomerCard.vue'
 import { useBooking } from '@/composables/useBooking2'
 const AddPaymentModal = defineAsyncComponent(

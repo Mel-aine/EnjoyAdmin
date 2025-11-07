@@ -84,7 +84,8 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import AdminLayout from '@/components/layout/AdminLayout.vue';
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'));
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue';
 import OverLoading from '@/components/spinner/OverLoading.vue';
 import { getAmenityCategoryById } from '@/services/api';

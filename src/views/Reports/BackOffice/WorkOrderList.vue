@@ -310,7 +310,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import ReportsLayout from '@/components/layout/ReportsLayout.vue';
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'));
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue';
 import ResultTable from '@/components/tables/ReusableTable.vue';
 import {

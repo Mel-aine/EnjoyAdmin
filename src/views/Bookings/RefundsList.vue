@@ -251,7 +251,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import { FilterIcon, XIcon } from 'lucide-vue-next'
 import { SearchIcon } from 'lucide-vue-next'
 import { RefreshCwIcon } from 'lucide-vue-next'

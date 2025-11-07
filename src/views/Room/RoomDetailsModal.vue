@@ -441,7 +441,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import { getServiceProductAndReservationById ,getRoomHistoryById } from '@/services/api'
 import DetailRow from './DetailRow.vue'

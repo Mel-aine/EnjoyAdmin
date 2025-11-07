@@ -353,15 +353,14 @@
 <script setup lang="ts">
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 import { defineAsyncComponent as defineAsyncComponentInput } from 'vue'
 const Input = defineAsyncComponentInput(() => import('@/components/forms/FormElements/Input.vue'))
 import Select from '@/components/forms/FormElements/Select.vue'
 import { createRoomType, getTypeProductByServiceId,getRoomCountByRoomType } from '@/services/api'
 import { useI18n } from 'vue-i18n'
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, defineAsyncComponent } from 'vue'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
 import type { RoomTypeData } from '@/types/option'

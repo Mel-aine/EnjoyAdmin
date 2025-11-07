@@ -13,7 +13,7 @@ import router from '@/router'
 import AmenitiesUpsertModal from '@/components/modal/AmenitiesUpsertModal.vue'
 import { defineAsyncComponent } from 'vue'
 const ModalDelete = defineAsyncComponent(() => import('@/components/modal/ModalDelete.vue'))
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 const isLoading = ref(false)
 const loadingDelete = ref(false)

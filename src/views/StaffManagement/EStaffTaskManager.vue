@@ -209,7 +209,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import axios from 'axios'
 import { Wrench, Building2, Shield, ClipboardList } from 'lucide-vue-next'
 import { useAuthStore } from '@/composables/user'

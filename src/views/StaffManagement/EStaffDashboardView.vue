@@ -120,7 +120,8 @@
 </template>
 
 <script setup lang="ts">
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import { ref, onMounted } from 'vue'
 // import { dashboard, schedulesM, staffData, tasks as tasksData } from '@/assets/data/StaffData'
 import {dashboard , getUserId ,getServiceProductById} from '@/services/api'

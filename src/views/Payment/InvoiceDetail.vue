@@ -116,7 +116,8 @@
 </template>
 
 <script setup lang="ts">
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"));
 import {ref,onMounted,computed} from 'vue'
 import { defineProps } from "vue";
 import { useRoute } from 'vue-router'

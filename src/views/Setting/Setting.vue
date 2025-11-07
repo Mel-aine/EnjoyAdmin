@@ -21,7 +21,8 @@
 import SettingTables from '../Tables/SettingTables.vue';
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import("@/components/common/PageBreadcrumb.vue"));
-import AdminLayout from "@/components/layout/AdminLayout.vue";
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import("@/components/layout/AdminLayout.vue"));
 import { ref, computed } from 'vue'
 import { useI18n } from "vue-i18n";
 import { UserIcon, MailIcon, ShieldCheck, Hotel, InfoIcon, CommandIcon } from 'lucide-vue-next';

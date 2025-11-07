@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import AdminLayout from '../../components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('../../components/layout/AdminLayout.vue'))
 import CashieringCenterInterface from './CashieringCenterInterface.vue'
 </script>

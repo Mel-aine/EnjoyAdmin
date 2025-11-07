@@ -116,7 +116,8 @@ import { ref, computed, onMounted, onUnmounted} from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import WordExportButton from '@/components/common/WordExportButton.vue'
 import { 

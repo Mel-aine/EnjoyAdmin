@@ -77,7 +77,8 @@ import CompanyFilter from './CompanyFilter.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import type { Action, Column } from '@/utils/models'
 import { Plus, Download, FileText, Eye, Edit, Trash2 } from 'lucide-vue-next'
-import AdminLayout from '../../components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('../../components/layout/AdminLayout.vue'))
 import { getCompanies, getFilteredCompanies, deleteCompany, exportCompanies, auditCompanies, type Company, type CompanyFilter as CompanyFilterType } from '@/services/companyApi'
 
 const { t } = useI18n()

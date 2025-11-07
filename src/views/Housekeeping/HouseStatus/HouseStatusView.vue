@@ -45,7 +45,8 @@
 import { ref } from 'vue'
 import { Search as SearchIcon, List as ListIcon, FileText as FileTextIcon } from 'lucide-vue-next'
 import RoomStatusTable from './RoomStatusTable.vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
 const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
 import { useI18n } from 'vue-i18n'

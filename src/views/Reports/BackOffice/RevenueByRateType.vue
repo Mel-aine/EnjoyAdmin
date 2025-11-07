@@ -106,7 +106,8 @@ import { useServiceStore } from '@/composables/serviceStore'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
-import ReportsLayout from '@/components/layout/ReportsLayout.vue'
+import { defineAsyncComponent } from 'vue'
+const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
 import { getRevenueByRateTypePdfUrl } from '@/services/occupancyReportsApi'
 import { getRateTypes } from '@/services/configrationApi'
 

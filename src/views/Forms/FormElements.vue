@@ -28,12 +28,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { defineAsyncComponent as defineAsyncComponentBreadcrumb } from 'vue'
-const PageBreadcrumb = defineAsyncComponentBreadcrumb(() => import('@/components/common/PageBreadcrumb.vue'))
-import AdminLayout from '@/components/layout/AdminLayout.vue'
+import { ref, defineAsyncComponent } from 'vue'
+const PageBreadcrumb = defineAsyncComponent(() => import('@/components/common/PageBreadcrumb.vue'))
+const AdminLayout = defineAsyncComponent(() => import('@/components/layout/AdminLayout.vue'))
 import DefaultInputs from '@/components/forms/FormElements/DefaultInputs.vue'
-import { defineAsyncComponent } from 'vue'
 const ComponentCard = defineAsyncComponent(() => import('@/components/common/ComponentCard.vue'))
 import SelectInput from '@/components/forms/FormElements/SelectInput.vue'
 import InputState from '@/components/forms/FormElements/InputState.vue'
