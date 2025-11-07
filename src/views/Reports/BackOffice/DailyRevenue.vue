@@ -286,7 +286,7 @@
             <span class="font-semibold ml-4">{{ $t('To') }}:</span> {{ reportData.dateRange?.toDate }} 
             <span class="font-semibold ml-4">{{ $t('dateType') }}:</span> {{ formatDateType(reportData.filters?.dateType) }} 
             <span class="font-semibold ml-4">{{ $t('showGuestUnassignedRooms') }}:</span> {{ reportData.filters?.showUnassignRooms ? $t('yes') : $t('no') }} 
-            <span class="font-semibold ml-4">{{ $t('discardUnconfirmedBookings') }}:</span> {{ reportData.filters?.discardUnconfirmedBookings ? $t('yes') : $t('no') }} 
+            <span class="font-semibold ml-4">{{ $t('Discard Unconfirmed Bookings') }}:</span> {{ reportData.filters?.discardUnconfirmedBookings ? $t('yes') : $t('no') }} 
             <!-- <span class="font-semibold ml-4">Include Unposted Inclusion:</span> {{ reportData.filters?.showUnpostedInclusion ? 'Yes' : 'No' }} -->
           </div>
           <div class="font-semibold mb-1">

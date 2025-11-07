@@ -124,7 +124,7 @@
         <!-- Report header -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ reportData?.title || t('reports.reservation.voidReservationResults') }}
+            {{ translatedReportTitle }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span>{{ t('common.generated') }}: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
@@ -474,9 +474,11 @@ const reportTitle = computed(() => {
 // Traduit des fragments HTML renvoyés par l'API (fallback côté client)
 const translateReportHtml = (html: string): string => {
   if (!html) return html
+  let out = html.replace(/&nbsp;/gi, ' ')
   const replacements: Record<string, string> = {
     // Titres et descriptions
     'Void Reservations Report': t('reports.reservation.voidReservationResults'),
+    'VOID RESERVATIONS REPORT': t('reports.reservation.voidReservationResults').toUpperCase(),
     // Entêtes (avec et sans deux-points)
     'Hotel:': t('reports.reservation.hotel') + ':',
     'Hotel': t('reports.reservation.hotel'),
@@ -534,6 +536,12 @@ const translateReportHtml = (html: string): string => {
     // Totaux
     'Total Void Reservations:': t('reports.reservation.totalVoidReservations') + ':',
     'Total Void Reservations': t('reports.reservation.totalVoidReservations'),
+    'Generated on': t('reports.generatedOn'),
+    'records': t('reports.records'),
+    'columns displayed': t('reports.columnsDisplayed'),
+    'reports.generatedOn': t('reports.generatedOn'),
+    'reports.records': t('reports.records'),
+    'reports.columnsDisplayed': t('reports.columnsDisplayed'),
     // Valeurs courantes éventuelles
     'Directly': t('bookings.sources.direct'),
     'Direct': t('bookings.sources.direct'),
@@ -546,8 +554,12 @@ const translateReportHtml = (html: string): string => {
     'N/A': t('common.na'),
   }
 
-  let out = html
-  
+  // Traduire explicitement les titres principaux (avec ou sans espaces)
+  const translatedTitle = t('reports.reservation.voidReservationResults')
+  out = out.replace(/VOID\s+RESERVATIONS\s+REPORT/gi, () => translatedTitle.toUpperCase())
+  out = out.replace(/Void\s+Reservations\s+Report/gi, () => translatedTitle)
+  out = out.replace(/>\s*Void\s+Reservations\s+Report\s*</gi, () => `>${translatedTitle}<`)
+
   // Traiter d'abord les remplacements avec balises HTML
   for (const [en, fr] of Object.entries(replacements)) {
     if (en.startsWith('>') && en.endsWith('<')) {
@@ -587,7 +599,14 @@ const translateReportHtml = (html: string): string => {
   for (const { pattern, replacement } of colonReplacements) {
     out = out.replace(pattern, replacement)
   }
-  
+ 
+  // Traduire la ligne de synthèse "Generated on ... | ... records | ... columns displayed"
+  const summaryPattern = /Generated\s+on\s+([^|]+)\|\s*(\d+)\s+records\s*\|\s*(\d+)\s+columns\s+displayed/gi
+  out = out.replace(summaryPattern, (_match, datePart, recordCount, columnCount) => {
+    const dateText = datePart.trim()
+    return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')} | ${columnCount} ${t('reports.columnsDisplayed')}`
+  })
+
   // Ensuite les autres remplacements simples (sans balises, sauf N/A et ceux avec deux-points déjà traités)
   for (const [en, fr] of Object.entries(replacements)) {
     if ((!en.startsWith('>') || !en.endsWith('<')) && !en.includes('N/A') && !en.endsWith(':')) {
@@ -602,6 +621,13 @@ const translateReportHtml = (html: string): string => {
 }
 
 const translatedHtml = computed(() => translateReportHtml(reportData.value?.html || ''))
+
+const translatedReportTitle = computed(() => {
+  const rawTitle = reportData.value?.title
+  if (!rawTitle) return t('reports.reservation.voidReservationResults')
+  const normalized = translateReportHtml(rawTitle)
+  return normalized || t('reports.reservation.voidReservationResults')
+})
 
 // Watch for filter changes
 watch(filters, (newFilters) => {

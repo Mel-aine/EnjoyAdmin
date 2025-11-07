@@ -29,7 +29,7 @@
           <!-- To Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('To') }}
+              {{ $t('common.to') }}
             </label>
             <InputDatepicker v-model="filters.receiptTo" :placeholder="$t('dateFormat')" class="w-full"
               @update:modelValue="updateDateFilter('toDate', $event)"></InputDatepicker>
@@ -159,8 +159,8 @@
 
         <!-- Date Range -->
         <div class="text-sm mb-2 space-x-3 text-gray-900 dark:text-gray-100 border-b border-gray-800 dark:border-gray-400 py-1">
-          <span><strong class="font-semibold">{{ $t('dateFrom') }}:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
-          <span><strong class="font-semibold">{{ $t('To') }}:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
+          <span><strong class="font-semibold">{{ $t('common.dateFrom') }}:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
+          <span><strong class="font-semibold">{{ $t('common.to') }}:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
         </div>
 
         <!-- Report Content HTML -->

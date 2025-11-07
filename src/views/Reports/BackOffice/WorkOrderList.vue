@@ -221,7 +221,7 @@
         <!-- En-tête du rapport -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ reportData?.data?.title || $t('reports.backOffice.workOrderReport') }}
+            {{ translatedReportTitle }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span>{{ $t('reports.generatedAt') }}: {{ formatDate(new Date()) }}</span>
@@ -232,7 +232,7 @@
         </div>
 
         <!-- Contenu HTML du rapport ou tableau -->
-        <div v-if="reportData?.data?.html" v-html="reportData.data.html" class="report-html-container p-6"></div>
+        <div v-if="reportData?.data?.html" v-html="translatedHtml" class="report-html-container p-6"></div>
 
         <!-- Affichage du rapport en fonction du type -->
         <div v-else class="p-6">
@@ -308,7 +308,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, onUpdated, computed, nextTick, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ReportsLayout from '@/components/layout/ReportsLayout.vue';
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue';
@@ -487,6 +487,403 @@ const generateReport = async (): Promise<void> => {
   }
 };
 
+// Traduit des fragments HTML renvoyés par l'API (fallback côté client)
+const translateReportHtml = (html: string): string => {
+  if (!html) return html
+  
+  // Normaliser les espaces insécables et autres entités HTML
+  let out = html.replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+  
+  // REMPLACEMENT ULTRA-AGRESSIF pour "Work Orders by Status" - en premier, avant tout
+  const workOrdersByStatus = 'Work Orders by Status'
+  const workOrdersByStatusFr = t('workOrder.reports.byStatus')
+  
+  // Toutes les variations possibles
+  const variations = [
+    workOrdersByStatus,
+    workOrdersByStatus.toUpperCase(),
+    workOrdersByStatus.toLowerCase(),
+    'Work Orders by Status',
+    'WORK ORDERS BY STATUS',
+    'work orders by status',
+    'Work&nbsp;Orders&nbsp;by&nbsp;Status',
+    'Work Orders by Status:',
+    'Work Orders by Status :',
+  ]
+  
+  variations.forEach(variation => {
+    // Remplacement direct
+    if (out.includes(variation)) {
+      out = out.split(variation).join(workOrdersByStatusFr)
+    }
+    
+    // Remplacement avec regex très permissive
+    const escaped = variation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const regex = new RegExp(escaped.replace(/\s+/g, '\\s*'), 'gi')
+    out = out.replace(regex, workOrdersByStatusFr)
+    
+    // Remplacement même si entouré de balises HTML
+    const inHtmlRegex = new RegExp(`([>\\s])${escaped.replace(/\s+/g, '\\s*')}([<\\s])`, 'gi')
+    out = out.replace(inHtmlRegex, `$1${workOrdersByStatusFr}$2`)
+  })
+  
+  // Traduire explicitement les titres de types de rapports (avant les autres remplacements)
+  // Utiliser plusieurs approches pour être sûr de capturer tous les cas
+  const reportTitleTranslations: Array<[string, string]> = [
+    ['Work Orders by Status', t('workOrder.reports.byStatus')],
+    ['Work Orders by Priority', t('workOrder.reports.byPriority')],
+    ['Work Orders by Department', t('workOrder.reports.byDepartment')],
+    ['Work Orders by Assignee', t('workOrder.reports.byAssignee')],
+    ['Overdue Work Orders', t('workOrder.reports.overdue')],
+    ['Completed Work Orders', t('workOrder.reports.completed')],
+    ['Work Orders Summary', t('workOrder.reports.summary')],
+  ]
+  
+  // Approche 1: Remplacement direct (le plus simple et efficace)
+  reportTitleTranslations.forEach(([en, fr]) => {
+    // Remplacement direct insensible à la casse
+    const escapedEn = en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const regex = new RegExp(escapedEn, 'gi')
+    out = out.replace(regex, fr)
+    
+    // Remplacement avec espaces flexibles (1 ou plusieurs espaces)
+    const flexibleEscaped = en.replace(/\s+/g, '\\s+').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const flexibleRegex = new RegExp(flexibleEscaped, 'gi')
+    out = out.replace(flexibleRegex, fr)
+    
+    // Remplacement avec espaces multiples possibles (espaces, newlines, tabs)
+    const multiSpaceEscaped = en.replace(/\s+/g, '[\\s\\n\\r\\t]+').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const multiSpaceRegex = new RegExp(multiSpaceEscaped, 'gi')
+    out = out.replace(multiSpaceRegex, fr)
+    
+    // Remplacement direct par split/join (pour cas où regex échoue)
+    // Utiliser une boucle pour remplacer toutes les occurrences
+    const lowerEn = en.toLowerCase()
+    let searchIndex = 0
+    while (true) {
+      const lowerOut = out.toLowerCase()
+      const foundIndex = lowerOut.indexOf(lowerEn, searchIndex)
+      if (foundIndex === -1) break
+      
+      // Remplacer cette occurrence
+      const before = out.substring(0, foundIndex)
+      const after = out.substring(foundIndex + en.length)
+      out = before + fr + after
+      
+      // Continuer la recherche après le texte remplacé
+      searchIndex = foundIndex + fr.length
+      if (searchIndex >= out.length) break
+    }
+  })
+  
+  // Traduire la ligne de synthèse "Generated on ... | ... records" ou "Generated on ... | ... records | ... columns displayed"
+  const summaryPattern = /Generated\s+on\s+([^|]+)\|\s*(\d+)\s+records(\s*\|\s*(\d+)\s+columns\s+displayed)?/gi
+  out = out.replace(summaryPattern, (_match, datePart, recordCount, _columnsPart, columnCount) => {
+    const dateText = datePart.trim()
+    if (columnCount) {
+      return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')} | ${columnCount} ${t('reports.columnsDisplayed')}`
+    }
+    return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')}`
+  })
+  
+  const replacements: Record<string, string> = {
+    // Titres et descriptions
+    'Work Order List Report': t('reports.backOffice.workOrderReport'),
+    'WORK ORDER LIST REPORT': t('reports.backOffice.workOrderReport').toUpperCase(),
+    'Work Order Report': t('reports.backOffice.workOrderReport'),
+    'View and manage work orders': t('reports.backOffice.workOrderListDescription'),
+    // Types de rapports
+    'Work Orders by Status': t('workOrder.reports.byStatus'),
+    'Work Orders by Status:': t('workOrder.reports.byStatus') + ':',
+    'Work Orders by Priority': t('workOrder.reports.byPriority'),
+    'Work Orders by Priority:': t('workOrder.reports.byPriority') + ':',
+    'Work Orders by Department': t('workOrder.reports.byDepartment'),
+    'Work Orders by Department:': t('workOrder.reports.byDepartment') + ':',
+    'Work Orders by Assignee': t('workOrder.reports.byAssignee'),
+    'Work Orders by Assignee:': t('workOrder.reports.byAssignee') + ':',
+    'Overdue Work Orders': t('workOrder.reports.overdue'),
+    'Overdue Work Orders:': t('workOrder.reports.overdue') + ':',
+    'Completed Work Orders': t('workOrder.reports.completed'),
+    'Completed Work Orders:': t('workOrder.reports.completed') + ':',
+    'Work Orders Summary': t('workOrder.reports.summary'),
+    'Work Orders Summary:': t('workOrder.reports.summary') + ':',
+    'Status Summary': t('workOrder.statusSummary'),
+    'Priority Summary': t('workOrder.prioritySummary'),
+    // En-têtes avec deux-points
+    'Hotel:': t('reports.reservation.hotel') + ':',
+    'Date From:': t('common.dateFrom') + ':',
+    'Date To:': t('common.dateTo') + ':',
+    'From:': t('common.from') + ':',
+    'To:': t('common.to') + ':',
+    'Status:': t('common.status') + ':',
+    'Priority:': t('common.priority') + ':',
+    'Department:': t('common.department') + ':',
+    'Assigned To:': t('common.assignedTo') + ':',
+    'Room:': t('common.room') + ':',
+    'Category:': t('common.category') + ':',
+    'Created By:': t('common.user') + ':',
+    'Order By:': t('reports.reservation.orderBy') + ':',
+    'Tax Inclusive:': t('reports.reservation.taxInclusive') + ':',
+    'Generated At:': t('reports.generatedAt') + ':',
+    'Generated:': t('reports.generatedAt') + ':',
+    // Statuts
+    'In Progress': t('taskManagement.filters.in_progress'),
+    'On Hold': t('workOrder.status.onHold'),
+    'Pending': t('taskManagement.filters.todo'),
+    'Completed': t('taskManagement.filters.done'),
+    'Cancelled': t('common.cancelled'),
+    'Overdue': t('workOrder.status.overdue'),
+    // Priorités
+    'Urgent': t('common.urgent'),
+    'High': t('taskManagement.priorities.high'),
+    'Medium': t('taskManagement.priorities.medium'),
+    'Low': t('taskManagement.priorities.low'),
+    // Colonnes du tableau
+    'Created At': t('common.createdAt'),
+    'Completed At': t('common.completedAt'),
+    'Due Date': t('common.dueDate'),
+    'Assigned To': t('common.assignedTo'),
+    'Description': t('common.description'),
+    'Priority': t('common.priority'),
+    'Status': t('common.status'),
+    'Category': t('common.category'),
+    'Department': t('common.department'),
+    'Title': t('common.title'),
+    'Room': t('common.room'),
+    'User': t('common.user'),
+    'ID': t('common.id'),
+    // Ligne de synthèse
+    'Generated on': t('reports.generatedOn'),
+    'records': t('reports.records'),
+    'columns displayed': t('reports.columnsDisplayed'),
+    // Autres
+    'Summary': t('workOrder.reports.summary'),
+    'Total': t('common.total'),
+    'N/A': t('common.na'),
+    'Yes': t('common.yes'),
+    'No': t('common.no')
+  }
+  
+  // IMPORTANT: Les textes plus longs doivent être remplacés en premier pour éviter les remplacements partiels
+  // Convertir en tableau et trier par longueur (plus longs en premier)
+  const sortedReplacements = Object.entries(replacements)
+    .filter(([en]) => !en.startsWith('>') || !en.endsWith('<'))
+    .sort(([a], [b]) => b.length - a.length)
+  
+  // Traiter d'abord les remplacements avec balises HTML
+  for (const [en, fr] of Object.entries(replacements)) {
+    if (en.startsWith('>') && en.endsWith('<')) {
+      // Remplacement avec contexte HTML
+      const regex = new RegExp(en, 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  
+  // Ensuite les remplacements simples (sans balises), dans l'ordre des plus longs aux plus courts
+  for (const [en, fr] of sortedReplacements) {
+    // Échapper les caractères spéciaux pour les regex
+    const escapedEn = en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    
+    // Créer plusieurs patterns pour différents cas
+    
+    // 1. Pattern exact avec espaces normalisés
+    const exactPattern = new RegExp(escapedEn.replace(/\s+/g, '\\s+'), 'gi')
+    out = out.replace(exactPattern, fr)
+    
+    // 2. Pattern flexible avec espaces multiples, retours à la ligne, tabs
+    const flexiblePattern = new RegExp(escapedEn.replace(/\s+/g, '[\\s\\n\\r\\t]+'), 'gi')
+    out = out.replace(flexiblePattern, fr)
+    
+    // 3. Pattern qui ignore complètement les espaces (pour cas extrêmes)
+    const noSpacePattern = new RegExp(escapedEn.replace(/\s+/g, '\\s*'), 'gi')
+    out = out.replace(noSpacePattern, fr)
+    
+    // 4. Pattern pour texte entre balises HTML
+    const inTagsPattern = new RegExp(`(>|^)([^<]*?)${escapedEn.replace(/\s+/g, '\\s+')}([^<]*?)(<|$)`, 'gi')
+    out = out.replace(inTagsPattern, (match, start, before, after, end) => {
+      return `${start}${before}${fr}${after}${end}`
+    })
+    
+    // 5. Pattern pour texte dans les attributs
+    const inAttrsPattern = new RegExp(`(["'])([^"']*?)${escapedEn.replace(/\s+/g, '\\s+')}([^"']*?)\\1`, 'gi')
+    out = out.replace(inAttrsPattern, (match, quote, before, after) => {
+      return `${quote}${before}${fr}${after}${quote}`
+    })
+    
+    // 6. Remplacement direct du texte exact (sans regex, pour cas simples)
+    if (out.includes(en)) {
+      out = out.split(en).join(fr)
+    }
+    
+    // 7. Remplacement avec variations de casse
+    const lowerEn = en.toLowerCase()
+    if (out.toLowerCase().includes(lowerEn)) {
+      // Trouver toutes les occurrences (insensible à la casse) et les remplacer
+      const caseInsensitivePattern = new RegExp(en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+      out = out.replace(caseInsensitivePattern, fr)
+    }
+  }
+  
+  // Remplacement final très agressif pour les titres de rapports (au cas où ils auraient échappé)
+  // Cette approche remplace directement le texte même dans des contextes HTML complexes
+  reportTitleTranslations.forEach(([en, fr]) => {
+    // Remplacer toutes les occurrences possibles, même dans les attributs HTML
+    // Utiliser une approche de remplacement global très simple
+    const allVariations = [
+      en, // Version exacte
+      en.toUpperCase(), // Version majuscules
+      en.toLowerCase(), // Version minuscules
+      en.replace(/\s+/g, ' '), // Version avec espaces simples
+      en.replace(/\s+/g, '&nbsp;'), // Version avec &nbsp;
+      en.replace(/\s+/g, '\n'), // Version avec newlines
+      en.replace(/\s+/g, '\t'), // Version avec tabs
+    ]
+    
+    allVariations.forEach(variation => {
+      // Remplacement direct
+      if (out.includes(variation)) {
+        out = out.split(variation).join(fr)
+      }
+      
+      // Remplacement insensible à la casse - utiliser une approche itérative
+      const lowerVariation = variation.toLowerCase()
+      let searchIndex = 0
+      while (true) {
+        const currentLowerOut = out.toLowerCase()
+        const foundIndex = currentLowerOut.indexOf(lowerVariation, searchIndex)
+        if (foundIndex === -1) break
+        
+        // Remplacer cette occurrence
+        const before = out.substring(0, foundIndex)
+        const after = out.substring(foundIndex + variation.length)
+        out = before + fr + after
+        
+        // Continuer la recherche après le texte remplacé
+        searchIndex = foundIndex + fr.length
+        if (searchIndex >= out.length) break
+      }
+    })
+  })
+  
+  // DERNIER REMPLACEMENT - Pour être absolument sûr que "Work Orders by Status" est traduit
+  // Chercher toutes les occurrences possibles, même dans des contextes HTML complexes
+  const finalWorkOrdersByStatus = 'Work Orders by Status'
+  const finalWorkOrdersByStatusFr = t('workOrder.reports.byStatus')
+  
+  // Utiliser une approche de remplacement global très simple et directe
+  // Remplacer toutes les occurrences, peu importe le contexte
+  const globalPattern = /Work\s+Orders\s+by\s+Status/gi
+  out = out.replace(globalPattern, finalWorkOrdersByStatusFr)
+  
+  // Aussi remplacer avec des espaces insécables
+  const nbspPattern = /Work\s*&nbsp;\s*Orders\s*&nbsp;\s*by\s*&nbsp;\s*Status/gi
+  out = out.replace(nbspPattern, finalWorkOrdersByStatusFr)
+  
+  // Remplacer dans les attributs HTML (title, data-title, aria-label, etc.)
+  const attrPatterns = [
+    /(title\s*=\s*["'])([^"']*?)Work\s+Orders\s+by\s+Status([^"']*?)(["'])/gi,
+    /(data-title\s*=\s*["'])([^"']*?)Work\s+Orders\s+by\s+Status([^"']*?)(["'])/gi,
+    /(aria-label\s*=\s*["'])([^"']*?)Work\s+Orders\s+by\s+Status([^"']*?)(["'])/gi,
+    /(alt\s*=\s*["'])([^"']*?)Work\s+Orders\s+by\s+Status([^"']*?)(["'])/gi,
+    /(placeholder\s*=\s*["'])([^"']*?)Work\s+Orders\s+by\s+Status([^"']*?)(["'])/gi,
+  ]
+  
+  attrPatterns.forEach(pattern => {
+    out = out.replace(pattern, (match, prefix, before, text, after, suffix) => {
+      return prefix + (before || '') + finalWorkOrdersByStatusFr + (after || '') + suffix
+    })
+  })
+  
+  // Remplacer même si c'est dans un attribut HTML ou un commentaire
+  // Utiliser une approche de remplacement de chaîne directe - itérer jusqu'à ce qu'il n'y ait plus de changements
+  let iterations = 0
+  const maxIterations = 100 // Sécurité pour éviter les boucles infinies
+  while (iterations < maxIterations) {
+    const beforeReplace = out
+    // Chercher et remplacer toutes les occurrences (insensible à la casse)
+    const lowerOut = out.toLowerCase()
+    const searchText = 'work orders by status'
+    const index = lowerOut.indexOf(searchText)
+    
+    if (index === -1) {
+      break // Plus d'occurrences trouvées
+    }
+    
+    // Trouver la longueur exacte du texte à remplacer (peut varier selon la casse)
+    let matchLength = finalWorkOrdersByStatus.length
+    // Chercher la correspondance exacte dans le texte original
+    const originalText = out.substring(index, index + matchLength)
+    
+    // Remplacer cette occurrence
+    const before = out.substring(0, index)
+    const after = out.substring(index + matchLength)
+    out = before + finalWorkOrdersByStatusFr + after
+    
+    // Si rien n'a changé, sortir
+    if (beforeReplace === out) {
+      break
+    }
+    
+    iterations++
+  }
+  
+  // Dernière tentative : remplacer directement toutes les variations possibles
+  const allPossibleVariations = [
+    'Work Orders by Status',
+    'WORK ORDERS BY STATUS',
+    'work orders by status',
+    'Work Orders By Status',
+    'Work orders by status',
+  ]
+  
+  allPossibleVariations.forEach(variation => {
+    if (out.includes(variation)) {
+      out = out.split(variation).join(finalWorkOrdersByStatusFr)
+    }
+  })
+  
+  // Remplacement final ultra-agressif : utiliser une regex qui capture le texte dans TOUS les contextes
+  // Même dans les balises, les attributs, les commentaires, etc.
+  const ultraAggressivePattern = /(Work\s+Orders\s+by\s+Status)/gi
+  out = out.replace(ultraAggressivePattern, finalWorkOrdersByStatusFr)
+  
+  // Aussi remplacer avec une approche qui ignore complètement la structure HTML
+  // Remplacer toutes les occurrences, peu importe où elles se trouvent
+  const words = ['Work', 'Orders', 'by', 'Status']
+  const frenchWords = ['Ordres', 'de', 'travail', 'par', 'statut']
+  
+  // Si on trouve la séquence exacte "Work Orders by Status" (même avec des espaces variables)
+  const sequencePattern = new RegExp(
+    words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+'),
+    'gi'
+  )
+  out = out.replace(sequencePattern, finalWorkOrdersByStatusFr)
+  
+  // Dernier recours : remplacer mot par mot si la séquence complète est trouvée
+  // Mais seulement si on trouve la séquence exacte
+  if (out.toLowerCase().includes('work orders by status')) {
+    // Remplacer toutes les occurrences de la séquence complète
+    const finalPattern = /work\s+orders\s+by\s+status/gi
+    out = out.replace(finalPattern, finalWorkOrdersByStatusFr)
+  }
+  
+  return out
+}
+
+const translatedHtml = computed(() => translateReportHtml(reportData.value?.data?.html || ''))
+
+const translatedReportTitle = computed(() => {
+  const rawTitle = reportData.value?.data?.title
+  if (!rawTitle) return t('reports.backOffice.workOrderReport')
+  const normalized = translateReportHtml(rawTitle)
+  return normalized || t('reports.backOffice.workOrderReport')
+})
+
 const formatDate = (date: Date): string => {
   return date.toLocaleString('fr-FR', {
     day: '2-digit',
@@ -495,7 +892,6 @@ const formatDate = (date: Date): string => {
     hour: '2-digit',
     minute: '2-digit'
   });
-  showResults.value = false;
 };
 
 const getTotalCount = (): number => {
@@ -649,6 +1045,105 @@ const getDefaultReports = (): AvailableReport[] => [
   }
 ];
 
+// Fonction pour traduire le texte directement dans le DOM
+const translateDomText = () => {
+  nextTick(() => {
+    // Utiliser un délai pour s'assurer que le DOM est complètement rendu
+    setTimeout(() => {
+      const workOrdersByStatus = 'Work Orders by Status'
+      const workOrdersByStatusFr = t('workOrder.reports.byStatus')
+      
+      // Chercher dans le conteneur du rapport
+      const container = document.querySelector('.report-html-container')
+      if (container) {
+        // Parcourir tous les nœuds de texte dans le conteneur
+        const walker = document.createTreeWalker(
+          container,
+          NodeFilter.SHOW_TEXT,
+          null
+        )
+        
+        const textNodes: Text[] = []
+        let node
+        while ((node = walker.nextNode())) {
+          if (node.nodeValue && node.nodeValue.toLowerCase().includes(workOrdersByStatus.toLowerCase())) {
+            textNodes.push(node as Text)
+          }
+        }
+        
+        // Remplacer le texte dans tous les nœuds trouvés
+        textNodes.forEach(textNode => {
+          if (textNode.nodeValue) {
+            textNode.nodeValue = textNode.nodeValue.replace(
+              /Work\s+Orders\s+by\s+Status/gi,
+              workOrdersByStatusFr
+            )
+          }
+        })
+        
+        // Aussi remplacer dans les attributs HTML du conteneur
+        const allElements = container.querySelectorAll('*')
+        allElements.forEach(el => {
+          // Vérifier tous les attributs possibles
+          const attrsToCheck = ['title', 'data-title', 'aria-label', 'alt', 'placeholder', 'label']
+          attrsToCheck.forEach(attr => {
+            const value = el.getAttribute(attr)
+            if (value && value.toLowerCase().includes(workOrdersByStatus.toLowerCase())) {
+              el.setAttribute(attr, value.replace(/Work\s+Orders\s+by\s+Status/gi, workOrdersByStatusFr))
+            }
+          })
+        })
+      }
+      
+      // Chercher aussi dans tout le document (pour les composants de tableau)
+      const allTextNodes: Text[] = []
+      const bodyWalker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: (node) => {
+            // Ignorer les scripts et styles
+            const parent = node.parentElement
+            if (parent && (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE')) {
+              return NodeFilter.FILTER_REJECT
+            }
+            return NodeFilter.FILTER_ACCEPT
+          }
+        }
+      )
+      
+      let bodyNode
+      while ((bodyNode = bodyWalker.nextNode())) {
+        if (bodyNode.nodeValue && bodyNode.nodeValue.toLowerCase().includes(workOrdersByStatus.toLowerCase())) {
+          allTextNodes.push(bodyNode as Text)
+        }
+      }
+      
+      // Remplacer le texte dans tous les nœuds trouvés
+      allTextNodes.forEach(textNode => {
+        if (textNode.nodeValue && textNode.nodeValue.toLowerCase().includes(workOrdersByStatus.toLowerCase())) {
+          textNode.nodeValue = textNode.nodeValue.replace(
+            /Work\s+Orders\s+by\s+Status/gi,
+            workOrdersByStatusFr
+          )
+        }
+      })
+      
+      // Remplacer dans tous les attributs HTML du document
+      const allDocumentElements = document.querySelectorAll('*')
+      allDocumentElements.forEach(el => {
+        const attrsToCheck = ['title', 'data-title', 'aria-label', 'alt', 'placeholder', 'label']
+        attrsToCheck.forEach(attr => {
+          const value = el.getAttribute(attr)
+          if (value && value.toLowerCase().includes(workOrdersByStatus.toLowerCase())) {
+            el.setAttribute(attr, value.replace(/Work\s+Orders\s+by\s+Status/gi, workOrdersByStatusFr))
+          }
+        })
+      })
+    }, 100) // Délai de 100ms pour s'assurer que le DOM est rendu
+  })
+}
+
 // Cycle de vie
 onMounted(() => {
   console.log('=== WORK ORDER REPORTS COMPONENT MOUNTED ===');
@@ -662,7 +1157,20 @@ onMounted(() => {
       selectedReportType.value = availableReports.value[0].id;
     }
   }, 0);
+  
+  // Traduire le DOM après le montage
+  translateDomText()
 });
+
+// Traduire le DOM après chaque mise à jour
+onUpdated(() => {
+  translateDomText()
+});
+
+// Watcher sur reportData pour retraduire quand les données changent
+watch(() => reportData.value, () => {
+  translateDomText()
+}, { deep: true, immediate: false })
 </script>
 
 <style scoped>
