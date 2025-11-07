@@ -244,8 +244,9 @@ const confirmDeleteRateType = async () => {
 
   isDeletingLoading.value = true
   try {
-    const response = deleteRateTypeById(rateTypeToDelete.value.id)
+    const response = await deleteRateTypeById(rateTypeToDelete.value.id)
     toast.success(t('rateTypeDeletedSuccessfully'))
+    await loadData(1)
 
   } catch (error) {
     console.error('Error deleting rate type:', error)
@@ -299,7 +300,9 @@ const confirmDeleteSelected = async () => {
         rateTypes.value.splice(index, 1)
       }
     })
+    
     toast.success(t('selectedRateTypesDeletedSuccessfully'))
+    
     selectedRateTypes.value = []
   } catch (error) {
     console.error('Error deleting selected rate types:', error)

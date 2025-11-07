@@ -163,7 +163,7 @@ const roomRateTypeSummary = computed(() => {
 
   // Si plusieurs chambres, ajouter le compte
   if (roomNumbers.length > 1) {
-    return `${roomNumbers.join(', ')} (${roomNumbers.length} rooms)`;
+    return `${roomNumbers.join(', ')} (${t('roomsCount', { count: roomNumbers.length })})`;
   }
 
   return roomNumbers[0];

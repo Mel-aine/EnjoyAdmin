@@ -64,7 +64,7 @@
                   >
 
                   <div class="flex items-center space-x-2 text-gray-750 font-normal">
-                    <div class="w-48">
+                    <div class="w-50">
                       <Select
                         :placeholder="$t('Selectoperation')"
                         :options="availableOperations"
@@ -88,7 +88,7 @@
                     <!-- Select pour le housekeeper si "Assign Housekeeper" est sélectionné -->
                     <div
                       v-if="selectedOperation === 'assign_housekeeper'"
-                      class="w-48 text-gray-750"
+                      class="w-50 text-gray-750"
                     >
                       <Select
                         :placeholder="$t('select_housekeeper')"

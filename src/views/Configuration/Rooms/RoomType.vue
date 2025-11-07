@@ -18,14 +18,14 @@
         <template #column-capacityInfo="{ item }">
           <div>
             <div class="text-sm text-gray-900">{{ item.baseAdult }}/{{ item.baseChild }}</div>
-            <div class="text-xs text-gray-400">Base A/C</div>
+            <div class="text-xs text-gray-400">{{ $t('baseCapacity') }}</div>
           </div>
         </template>
 
         <template #column-maxCapacityInfo="{ item }">
           <div>
             <div class="text-sm text-gray-900">{{ item.maxAdult }}/{{ item.maxChild }}</div>
-            <div class="text-xs text-gray-400">Max A/C</div>
+            <div class="text-xs text-gray-400">{{ $t('maxCapacity') }}</div>
           </div>
         </template>
 
@@ -61,74 +61,44 @@
           <form @submit.prevent="saveRoomType" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('shortCodeRequired') }}
-                </label>
-                <input v-model="formData.shortCode" type="text" required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  :placeholder="t('shortCodePlaceholder')">
+                <Input v-model="formData.shortCode" type="text" :isRequired="true" :lb="$t('shortCodeRequired')" :id="'short'" :forLabel="'short'"
+                  :placeholder="t('shortCodePlaceholder')"/>
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('roomTypeNameRequired') }}
-                </label>
-                <input v-model="formData.roomTypeName" type="text" required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  :placeholder="t('roomTypeNamePlaceholder')">
+              
+                <Input v-model="formData.roomTypeName" type="text" :isRequired="true" :lb="$t('roomTypeNameRequired')" :id="'name'" :forLabel="'name'"
+                  :placeholder="t('roomTypeNamePlaceholder')"/>
               </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('baseAdultRequired') }}
-                </label>
-                <input v-model.number="formData.baseAdult" type="number" min="1" required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <Input v-model.number="formData.baseAdult" :inputType="'number'" min="1" :isRequired="true" :lb="$t('baseAdultRequired')" :id="'base'" :forLabel="'base'"/>
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('baseChild') }}
-                </label>
-                <input v-model.number="formData.baseChild" type="number" min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                
+                <Input v-model.number="formData.baseChild" min="0" :inputType="'number'" :lb="$t('baseChild')" :id="'baseC'" :forLabel="'baseC'"/>
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('maxAdultRequired') }}
-                </label>
-                <input v-model.number="formData.maxAdult" type="number" min="1" required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <Input v-model.number="formData.maxAdult" min="1" :isRequired="true" :lb="$t('maxAdultRequired')" :id="'max'" :forLabel="'max'" :inputType="'number'"/>
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('maxChild') }}
-                </label>
-                <input v-model.number="formData.maxChild" type="number" min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <Input v-model.number="formData.maxChild"  min="0" :lb="$t('maxChild')" :id="'maxC'" :forLabel="'maxC'" :inputType="'number'"/>
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="flex items-center space-x-2">
-                  <input v-model="formData.publishToWebsite" type="checkbox"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                  <span class="text-sm font-medium text-gray-700">{{ t('publishToWebsite') }}</span>
-                </label>
+                <InputCheckBox :label="$t('publishToWebsite')" :id="'publish'" v-model="formData.publishToWebsite" />
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ t('defaultWebInventory') }}
-                </label>
-                <input v-model.number="formData.defaultWebInventory" type="number" min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  :placeholder="t('numberOfRooms')">
+                <Input v-model.number="formData.defaultWebInventory"  min="0" :lb="$t('defaultWebInventory')" :id="'inventory'" :forLabel="'inventory'" :inputType="'number'"
+                  :placeholder="t('numberOfRooms')"/>
               </div>
             </div>
 
@@ -146,11 +116,19 @@
               </label>
               <div class="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <label v-for="amenity in availableAmenities" :key="amenity.id" class="flex items-center space-x-2">
+                  <InputCheckBox
+                    v-for="amenity in availableAmenities"
+                    :key="amenity.id"
+                    :label="amenity.amenityName"
+                    :value="amenity.id"
+                    v-model="formData.roomAmenities"
+                  />
+
+                  <!-- <label v-for="amenity in availableAmenities" :key="amenity.id" class="flex items-center space-x-2">
                     <input v-model="formData.roomAmenities" :value="amenity.id" type="checkbox"
                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                     <span class="text-sm text-gray-700">{{ amenity.amenityName }}</span>
-                  </label>
+                  </label> -->
                 </div>
               </div>
             </div>
@@ -189,6 +167,8 @@ import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import Input from '@/components/forms/FormElements/Input.vue'
+import InputCheckBox from '@/components/forms/FormElements/InputCheckBox.vue'
 
 const { t } = useI18n()
 
@@ -331,13 +311,13 @@ const confirmDeleteRoomType = async () => {
     const response = await deleteRoomTypeApi(roomTypeToDelete.value.id)
     if (response.status === 200 || response.status === 204) {
       roomTypes.value = roomTypes.value.filter(rt => rt.id !== roomTypeToDelete.value.id)
-      toast.success(t('roomTypeDeletedSuccessfully'))
+      toast.success(t('toast.roomTypeDeleted'))
     } else {
-      toast.error(t('errorDeletingRoomType'))
+      toast.error(t('toast.roomTypeDeleteError'))
     }
   } catch (error) {
     console.error('Error deleting room type:', error)
-    toast.error(t('errorDeletingRoomType'))
+    toast.error(t('toast.roomTypeDeleteError'))
   } finally {
     isDeletingLoading.value = false
     showDeleteConfirmation.value = false

@@ -58,7 +58,7 @@
                                     value="individual"
                                     class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary"
                                 />
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Individual Reservation') }}</span>
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('IndividualReservation') }}</span>
                             </label>
                         </div>
                     </div>
