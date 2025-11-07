@@ -3,63 +3,63 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('Daily Receipt Detail Reports') }}
+          {{ $t('Daily Receipt Detail Reports') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage daily receipt details
+          {{ $t('viewAndManageDailyReceiptDetails') }}
         </p>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ t('common.filters') }}
+          {{ $t('common.filters') }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Receipt From Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Receipt From
+              {{ $t('receiptFrom') }}
             </label>
-            <InputDatepicker v-model="filters.receiptFrom" :placeholder="'DD/MM/YYYY'" class="w-full"
+            <InputDatepicker v-model="filters.receiptFrom" :placeholder="$t('dateFormat')" class="w-full"
               @update:modelValue="updateDateFilter('fromDate', $event)"></InputDatepicker>
           </div>
 
           <!-- To Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ $t('To') }}
             </label>
-            <InputDatepicker v-model="filters.receiptTo" :placeholder="'DD/MM/YYYY'" class="w-full"
+            <InputDatepicker v-model="filters.receiptTo" :placeholder="$t('dateFormat')" class="w-full"
               @update:modelValue="updateDateFilter('toDate', $event)"></InputDatepicker>
           </div>
 
           <!-- Received By -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Received By
+              {{ $t('receivedBy') }}
             </label>
             <SelectComponent v-model="filters.receivedBy" :options="receivedByOptions"
-              :placeholder="'-- Select User --'" class="w-full"></SelectComponent>
+              :placeholder="$t('select')" class="w-full"></SelectComponent>
           </div>
 
           <!-- Payment Method -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Payment Method
+              {{ $t('Payment Method') }}
             </label>
             <SelectComponent v-model="filters.paymentMethod" :options="paymentMethodOptions"
-              :placeholder="'-- Select Payment Method --'" class="w-full"></SelectComponent>
+              :placeholder="$t('select')" class="w-full"></SelectComponent>
           </div>
 
           <!-- Currency -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Currency
+              {{ $t('Currency') }}
             </label>
             <SelectComponent v-model="filters.currency" :options="currencyOptions"
-              :placeholder="'-- Select Currency --'" class="w-full"></SelectComponent>
+              :placeholder="$t('select')" class="w-full"></SelectComponent>
           </div>
         </div>
 
@@ -76,7 +76,7 @@
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                 </path>
               </svg>
-              <span v-if="!exportLoading">Export</span>
+              <span v-if="!exportLoading">{{ $t('export') }}</span>
               <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -129,7 +129,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Report
+            {{ $t('Report') }}
           </button>
 
           <!-- Reset Button -->
@@ -139,7 +139,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Reset
+            {{ $t('Reset') }}
           </button>
         </div>
       </div>
@@ -153,14 +153,14 @@
             {{ reportData?.hotelInformation?.hotelName }}
           </div>
           <div class="text-base text-red-800 dark:text-red-400 font-bold">
-            Daily Receipt - Detail
+            {{ $t('dailyReceiptDetail') }}
           </div>
         </div>
 
         <!-- Date Range -->
         <div class="text-sm mb-2 space-x-3 text-gray-900 dark:text-gray-100 border-b border-gray-800 dark:border-gray-400 py-1">
-          <span><strong class="font-semibold">Date From:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
-          <span><strong class="font-semibold">To:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
+          <span><strong class="font-semibold">{{ $t('dateFrom') }}:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
+          <span><strong class="font-semibold">{{ $t('To') }}:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
         </div>
 
         <!-- Report Content HTML -->
@@ -172,22 +172,22 @@
             <thead>
               <tr class="bg-white dark:bg-gray-800">
                 <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-                  Date
+                  {{ $t('Date') }}
                 </th>
                 <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-                  Receipt
+                  {{ $t('receipt') }}
                 </th>
                 <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-                  Reference
+                  {{ $t('reference') }}
                 </th>
                 <th class="px-3 py-2 text-right border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-                  Amount
+                  {{ $t('Amount') }}
                 </th>
                 <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-                  User
+                  {{ $t('user') }}
                 </th>
                 <th class="px-3 py-2 text-left border-b border-gray-800 dark:border-gray-300 font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-                  Entered On
+                  {{ $t('enteredOn') }}
                 </th>
               </tr>
             </thead>
@@ -236,7 +236,7 @@
                     <!-- Vide pour Date et Receipt -->
                   </td>
                   <td class="px-3 py-1 text-gray-900 dark:text-gray-100">
-                    Total {{ item.methodName }}
+                    {{ $t('Total') }} {{ item.methodName }}
                   </td>
                   <td class="px-3 py-1 text-right font-mono text-gray-900 dark:text-gray-100">
                     {{ formatCurrency(calculateMethodTotal(item.receipts)) }}
@@ -263,7 +263,7 @@
                   <!-- Vide pour Date et Receipt -->
                 </td>
                 <td class="px-3 py-2 text-gray-900 dark:text-gray-100">
-                  Grand Total
+                  {{ $t('grandTotal') }}
                 </td>
                 <td class="px-3 py-2 text-right font-mono text-gray-900 dark:text-gray-100">
                   {{ formatCurrency(reportData?.grandTotalAmount) }}
@@ -411,7 +411,7 @@ const totalEntries = computed(() => {
 })
 
 const reportTitle = computed(() => {
-  return reportData.value?.title || 'Daily Receipt Report'
+  return reportData.value?.title || t('dailyReceiptReport')
 })
 
 // Fonction pour calculer le total par méthode de paiement
@@ -521,7 +521,7 @@ const exportPDF = async (): Promise<void> => {
     console.log('📊 Daily receipt report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating daily receipt report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate PDF'
+    errorMessage.value = error instanceof Error ? error.message : t('failedToGeneratePDF')
   } finally {
     exportLoading.value = false
   }

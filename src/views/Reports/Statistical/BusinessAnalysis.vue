@@ -3,7 +3,7 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          hotel Business Report
+          {{ t('reports.statistical.businessAnalysis') }}
         </h1>
       </div>
 
@@ -14,7 +14,7 @@
           <!-- Arrival Date From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              From
+              {{ t('common.from') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
@@ -38,7 +38,7 @@
           <!-- By (Business Source) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('by') }}
+              {{ t('common.by') }}
             </label>
             <SelectComponent 
               v-model="filters.businessSource"
@@ -56,7 +56,7 @@
             <SelectComponent 
               v-model="filters.additionalFilter"
               :options="additionalFilterOptions"
-              :placeholder="'--Select--'"
+              :placeholder="t('common.selectPlaceholder')"
               class="w-full"
             />
           </div>
@@ -132,17 +132,17 @@
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ t('hotel Business Report') }}
+            {{ t('reports.statistical.businessAnalysis') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ t('Date Range') }}: {{ filters.arrivalFrom }} {{ t('to') }} {{ filters.arrivalTo }}</span> • 
-            <span>{{ t('BusinessSource') }}: {{ selectedBusinessSourceLabel }}</span>
+            <span>{{ t('common.dateRange') }}: {{ filters.arrivalFrom }} {{ t('common.to') }} {{ filters.arrivalTo }}</span> • 
+            <span>{{ t('common.businessSource') }}: {{ selectedBusinessSourceLabel }}</span>
           </div>
         </div>
         
         <div class="overflow-x-auto">
           <ResultTable 
-            :title="t('hotel Business Reports')"
+            :title="t('reports.statistical.businessAnalysis')"
             :data="reservationData"
             :columns="selectedTableColumns"
             :show-header=false
@@ -153,10 +153,10 @@
         <!-- Summary Row -->
         <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>{{ t('TotalReservations') }}: {{ totalReservations }}</div>
-            <div>{{ t('TotalGuests') }}: {{ totalGuests }}</div>
-            <div>{{ t('TotalRevenue') }}: {{ totalRevenue }}</div>
-            <div>{{ t('AvgRate') }}: {{ averageRate }}</div>
+            <div>{{ t('reports.statistical.totalReservations') }}: {{ totalReservations }}</div>
+            <div>{{ t('reports.statistical.totalGuests') }}: {{ totalGuests }}</div>
+            <div>{{ t('reports.totalRevenue') }}: {{ totalRevenue }}</div>
+            <div>{{ t('reports.statistical.avgRate') }}: {{ averageRate }}</div>
           </div>
         </div>
       </div>
@@ -221,27 +221,27 @@ const filters = ref<Filters>({
 
 // Options for selects
 const businessSourceOptions = ref<FilterOptions[]>([
-  { value: 'all', label: t('All') },
-  { value: 'direct', label: t('Direct') },
-  { value: 'online', label: t('Online') },
-  { value: 'travel_agent', label: t('Travel Agent') },
-  { value: 'corporate', label: t('Corporate') },
-  { value: 'walk_in', label: t('WalkIn') }
+  { value: 'all', label: t('common.all') },
+  { value: 'direct', label: t('bookings.sources.direct') },
+  { value: 'online', label: t('bookings.sources.online') },
+  { value: 'travel_agent', label: t('common.travelAgent') },
+  { value: 'corporate', label: t('common.corporate') },
+  { value: 'walk_in', label: t('common.walkIn') }
 ])
 
 const additionalFilterOptions = ref<FilterOptions[]>([
-  { value: 'room_type', label: t('Room Type') },
-  { value: 'rate_type', label: t('Rate Type') },
-  { value: 'guest_type', label: t('Guest Type') },
-  { value: 'package', label: t('Package') }
+  { value: 'room_type', label: t('common.roomType') },
+  { value: 'rate_type', label: t('common.rateType') },
+  { value: 'guest_type', label: t('common.guestType') },
+  { value: 'package', label: t('common.package') }
 ])
 
 const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: t('reportTemplates.default') },
-  { value: 'detailed', label: t('reportTemplates.detailed') },
-  { value: 'summary', label: t('reportTemplates.summary') },
-  { value: 'financial', label: t('reportTemplates.financial') },
-  { value: 'custom', label: t('reportTemplates.custom') }
+  { value: 'default', label: t('common.reportTemplates.default') },
+  { value: 'detailed', label: t('common.reportTemplates.detailed') },
+  { value: 'summary', label: t('common.reportTemplates.summary') },
+  { value: 'financial', label: t('common.reportTemplates.financial') },
+  { value: 'custom', label: t('common.reportTemplates.custom') }
 ])
 
 // Sample data for business report
@@ -295,23 +295,23 @@ const reservationData = ref<Reservation[]>([
 
 // Computed properties
 const selectedTableColumns = computed(() => [
-  { key: 'resNo', label: t('Reservation No') },
-  { key: 'guest', label: t('Guest Name') },
-  { key: 'room', label: t('Room No') },
-  { key: 'roomType', label: t('Room Type') },
-  { key: 'rate', label: t('Daily Rate') },
-  { key: 'arrival', label: t('check InDate') },
-  { key: 'departure', label: t('check OutDate') },
-  { key: 'nights', label: t('Nights') },
-  { key: 'pax', label: t('Guests') },
-  { key: 'businessSource', label: t('BusinessSource') },
-  { key: 'totalAmount', label: t('TotalRevenue') },
-  { key: 'user', label: t('BookedBy') }
+  { key: 'resNo', label: t('reports.reservation.columns.resNo') },
+  { key: 'guest', label: t('common.guest') },
+  { key: 'room', label: t('common.room') },
+  { key: 'roomType', label: t('common.roomType') },
+  { key: 'rate', label: t('common.ratePerNight') },
+  { key: 'arrival', label: t('common.arrival') },
+  { key: 'departure', label: t('common.departure') },
+  { key: 'nights', label: t('common.nights') },
+  { key: 'pax', label: t('common.pax') },
+  { key: 'businessSource', label: t('common.businessSource') },
+  { key: 'totalAmount', label: t('common.totalRevenue') },
+  { key: 'user', label: t('common.bookedBy') }
 ])
 
 const selectedBusinessSourceLabel = computed(() => {
   const selected = businessSourceOptions.value.find(option => option.value === filters.value.businessSource)
-  return selected ? selected.label : t('All')
+  return selected ? selected.label : t('common.all')
 })
 
 const totalReservations = computed(() => {

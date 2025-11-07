@@ -1,14 +1,14 @@
 <template>
   <ReusableTable
-    title="Guest Database"
+    :title="$t('tables.guestDatabase')"
     :columns="columns"
     :data="guests"
     :actions="actions"
     :header-actions="headerActions"
-    search-placeholder="Quick Search by Name,Email,Cont..."
+    :search-placeholder="$t('tables.quickSearchGuest')"
     :selectable="true"
-    empty-state-title="No guests found"
-    empty-state-message="Get started by adding a new guest to the database."
+    :empty-state-title="$t('tables.noGuestsFound')"
+    :empty-state-message="$t('tables.getStartedByAddingGuest')"
     @selection-change="onSelectionChange"
   >
     <template #name="{ item }">
@@ -21,10 +21,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import ReusableTable from './ReusableTable.vue'
 import type { Action, Column } from '../../utils/models'
+
+const { t } = useI18n()
 
 interface Guest {
   id: number
@@ -143,36 +146,36 @@ const guests = ref<Guest[]>([
 ])
 
 // Column configuration for ReusableTable
-const columns = ref<Column[]>([
+const columns = computed<Column[]>(() => [
   {
     key: 'name',
-    label: 'Guest Name',
+    label: t('tables.guestName'),
     type: 'custom',
   },
   {
     key: 'country',
-    label: 'Country',
+    label: t('common.country'),
     type: 'image',
     imageKey: 'countryFlag',
   },
   {
     key: 'email',
-    label: 'Email',
+    label: t('Email'),
     type: 'email',
   },
   {
     key: 'phone',
-    label: 'Phone',
+    label: t('tables.phone'),
     type: 'text',
   },
   {
     key: 'mobile',
-    label: 'Mobile',
+    label: t('tables.mobile'),
     type: 'text',
   },
   {
     key: 'vipStatus',
-    label: 'VIP Status',
+    label: t('tables.vipStatus'),
     type: 'badge',
     badgeColors: {
       'Gold': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
@@ -184,19 +187,19 @@ const columns = ref<Column[]>([
 ])
 
 // Row actions configuration
-const actions = ref<Action[]>([
+const actions = computed<Action[]>(() => [
   {
-    label: 'View',
+    label: t('common.view'),
     handler: (item)=>onAction('view',item),
     icon: 'view'
   },
   {
-    label: 'Edit',
+    label: t('common.edit'),
     handler: (item)=>onAction('edit',item),
     icon: 'edit'
   },
   {
-    label: 'Delete',
+    label: t('common.delete'),
    handler: (item)=>onAction('delete',item),
     icon: 'delete',
     variant: 'danger'
@@ -204,27 +207,27 @@ const actions = ref<Action[]>([
 ])
 
 // Header actions configuration
-const headerActions = ref([
+const headerActions = computed(() => [
   {
-    label: 'Add Guest',
+    label: t('tables.addGuest'),
     action: 'add',
     variant: 'primary',
     icon: 'plus'
   },
   {
-    label: 'Export',
+    label: t('common.export'),
     action: 'export',
     variant: 'success',
     icon: 'download'
   },
   {
-    label: 'Audit Trail',
+    label: t('audit_trial'),
     action: 'audit',
     variant: 'warning',
     icon: 'clipboard'
   },
   {
-    label: 'Search',
+    label: t('common.search'),
     action: 'search',
     variant: 'secondary',
     icon: 'search'

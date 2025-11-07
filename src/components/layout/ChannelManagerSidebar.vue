@@ -110,27 +110,27 @@ const menuItems = ref([
   },
   {
     path: '/configuration/channel-manager/inventory-channel-booking',
-    title: 'Inventory',
+    title: 'configuration.channelManager.inventory',
     icon: markRaw(BoxCubeIcon)
   },
   {
     path: '/configuration/channel-manager/channels-booking',
-    title: 'Booking',
+    title: 'configuration.channelManager.booking',
     icon: markRaw(CalenderIcon)
   },
   {
     path: '/configuration/channel-manager/rooms-rates',
-    title: 'Room & Rates',
+    title: 'configuration.channelManager.roomsRates',
     icon: markRaw(RatesIcon)
   },
   {
     path: '/configuration/channel-manager/channel-manager',
-    title: 'Channels',
+    title: 'configuration.channelManager.channels',
     icon: markRaw(ConnectionIcon)
   },
   {
     path: '/configuration/channel-manager/properties',
-    title: 'Properties',
+    title: 'configuration.channelManager.properties',
     icon: markRaw(GridIcon)
   }
 ])

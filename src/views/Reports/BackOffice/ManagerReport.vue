@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Manager Report
+          {{ $t('reports.backOffice.managerReport') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          Daily financial summary and revenue breakdown
+          {{ $t('reports.backOffice.managerReportDescription') }}
         </p>
       </div>
 
@@ -16,11 +16,11 @@
           <!-- Report Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Report Date
+              {{ $t('common.reportDate') }}
             </label>
             <InputDatepicker 
               v-model="filters.reportDate" 
-              placeholder="Select date"
+              :placeholder="$t('common.selectDate')"
               class="w-full"
             />
           </div>
@@ -28,7 +28,7 @@
           <!-- Currency -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Currency
+              {{ $t('common.currency') }}
             </label>
             <Select 
               v-model="filters.currency"
@@ -177,7 +177,7 @@ const generateReport = async (): Promise<void> => {
     console.log('📊 Manager report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating manager report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+    errorMessage.value = error instanceof Error ? error.message : t('reports.backOffice.failedToGenerateReport')
   } finally {
     isLoading.value = false
   }

@@ -14,7 +14,7 @@
           class="px-1 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded-full text-sm font-medium"
         >
           {{ unassignedReservations.length }}
-          {{ unassignedReservations.length === 1 ? $t('reservation') : $t('reservations') }}
+          {{ unassignedReservations.length === 1 ? $t('reservationLabel') : $t('reservations') }}
         </span>
       </div>
     </template>

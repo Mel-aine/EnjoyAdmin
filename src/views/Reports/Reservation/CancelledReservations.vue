@@ -3,51 +3,51 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Cancelled Reservations
+          {{ $t('reports.reservation.cancelledReservations') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage cancelled guest reservations
+          {{ $t('reports.reservation.cancelledReservationsDescription') }}
         </p>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
+          {{ $t('common.filters') }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Cancellation Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Cancellation From
+              {{ $t('reports.reservation.cancellationFrom') }}
             </label>
             <InputDatepicker
               v-model="filters.cancellationFrom"
-              placeholder="From"
+              :placeholder="$t('common.from')"
               class="w-full"
               @update:modelValue="updateDateFilter('startDate', $event)"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Cancellation To
+              {{ $t('reports.reservation.cancellationTo') }}
             </label>
             <InputDatepicker
               v-model="filters.cancellationTo"
-              placeholder="To"
+              :placeholder="$t('common.to')"
               class="w-full"
               @update:modelValue="updateDateFilter('endDate', $event)"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Room Type
+              {{ $t('common.roomType') }}
             </label>
             <SelectComponent
               v-model="filters.roomType"
               :options="roomTypeOptions"
-              placeholder="All Room Types"
+              :placeholder="$t('common.allRoomTypes')"
               class="w-full"
             />
           </div>
@@ -57,12 +57,12 @@
           <!-- Rate Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rate Type
+              {{ $t('common.rateType') }}
             </label>
             <SelectComponent
               v-model="filters.rateType"
               :options="rateTypeOptions"
-              placeholder="All Rate Types"
+              :placeholder="$t('common.allRateTypes')"
               class="w-full"
             />
           </div>
@@ -70,12 +70,12 @@
           <!-- Company -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Company
+              {{ $t('common.company') }}
             </label>
             <SelectComponent
               v-model="filters.company"
               :options="companyOptions"
-              placeholder="All Companies"
+              :placeholder="$t('common.allCompanies')"
               class="w-full"
             />
           </div>
@@ -83,28 +83,27 @@
           <!-- Business Source -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Business Source
+              {{ $t('common.businessSource') }}
             </label>
             <SelectComponent
               v-model="filters.businessSource"
               :options="businessSourceOptions"
-              placeholder="All Sources"
+              :placeholder="$t('common.allSources')"
               class="w-full"
             />
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Market
+              {{ $t('common.market') }}
             </label>
             <SelectComponent
               v-model="filters.market"
               :options="marketOptions"
-              placeholder="All Markets"
+              :placeholder="$t('common.allMarkets')"
               class="w-full"
             />
           </div>
@@ -112,12 +111,12 @@
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              User
+              {{ $t('common.user') }}
             </label>
             <SelectComponent
               v-model="filters.user"
               :options="userOptions"
-              placeholder="All Users"
+              :placeholder="$t('common.allUsers')"
               class="w-full"
             />
           </div>
@@ -127,25 +126,25 @@
           <!-- Rate Range -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rate From
+              {{ $t('common.rateFrom') }}
             </label>
             <input
               v-model="filters.rateFrom"
               type="number"
               class="w-full px-3 py-2 border border-black/50 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-              placeholder="From"
+              :placeholder="$t('common.from')"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rate To
+              {{ $t('common.rateTo') }}
             </label>
             <input
               v-model="filters.rateTo"
               type="number"
               class="w-full px-3 py-2 border border-black/50 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-              placeholder="To"
+              :placeholder="$t('common.to')"
             />
           </div>
 
@@ -157,7 +156,7 @@
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
-              Tax Inclusive Rates
+              {{ $t('reports.reservation.taxInclusiveRates') }}
             </label>
           </div>
         </div>
@@ -175,7 +174,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span v-if="!exportLoading">Export</span>
+              <span v-if="!exportLoading">{{ $t('common.export') }}</span>
               <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -191,7 +190,7 @@
                 <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                CSV
+                {{ $t('common.csv') }}
               </button>
               <button
                 @click="exportPDF"
@@ -201,7 +200,7 @@
                 <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                PDF
+                {{ $t('common.pdf') }}
               </button>
            <!--    <button
                 @click="exportExcel"
@@ -226,7 +225,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Report
+            {{ $t('common.report') }}
           </button>
 
           <!-- Bouton Reset -->
@@ -237,7 +236,7 @@
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Reset
+            {{ $t('common.reset') }}
           </button>
         </div>
       </div>
@@ -247,17 +246,17 @@
         <!-- En-tête du rapport -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Cancelled Reservations Results
+            {{ $t('reports.reservation.cancelledReservationsResults') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>Generated: {{ new Date().toLocaleString('fr-FR') }}</span>
-            <span class="ml-4">Total Records: {{ reservationData.length }}</span>
+            <span>{{ $t('common.generated') }}: {{ new Date().toLocaleString('fr-FR') }}</span>
+            <span class="ml-4">{{ $t('reports.reservation.totalRecords') }}: {{ reservationData.length }}</span>
           </div>
         </div>
 
         <!-- Message si aucune donnée -->
         <div v-if="reservationData.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
-          Aucune réservation annulée trouvée pour les critères sélectionnés.
+          {{ $t('reports.reservation.noCancelledReservationsFound') }}
         </div>
 
         <!-- Tableau des résultats -->
@@ -304,13 +303,13 @@
         <!-- Total Row -->
         <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
-            <div>Total Cancelled Reservations: {{ totalReservations }}</div>
+            <div>{{ $t('reports.reservation.totalCancelledReservations') }}: {{ totalReservations }}</div>
             <div class="flex gap-4">
-              <div>ADR: {{ totalADR }}</div>
-              <div>Car Revenue: {{ totalCarRevenue }}</div>
-              <div>Charges: {{ totalCharges }}</div>
-              <div>Paid: {{ totalPaid }}</div>
-              <div>Balance: {{ totalBalance }}</div>
+              <div>{{ $t('reports.reservation.columns.adr') }}: {{ totalADR }}</div>
+              <div>{{ $t('reports.reservation.columns.carRevenue') }}: {{ totalCarRevenue }}</div>
+              <div>{{ $t('reports.reservation.columns.charges') }}: {{ totalCharges }}</div>
+              <div>{{ $t('reports.reservation.columns.paid') }}: {{ totalPaid }}</div>
+              <div>{{ $t('reports.reservation.columns.balance') }}: {{ totalBalance }}</div>
             </div>
           </div>
         </div>
@@ -511,21 +510,21 @@ const {
 } = useBooking()
 
 const travelAgentOptions = ref<FilterOptions[]>([
-  { value: 'agent1', label: 'Travel Agent 1' },
-  { value: 'agent2', label: 'Travel Agent 2' }
+  { value: 'agent1', label: t('common.travelAgents.agent1') },
+  { value: 'agent2', label: t('common.travelAgents.agent2') }
 ])
 
 const businessSourceOptions = ref<FilterOptions[]>([
-  { value: 'online', label: 'Online' },
-  { value: 'phone', label: 'Phone' },
-  { value: 'walk_in', label: 'Walk In' },
-  { value: 'expedia', label: 'Expedia' },
-  { value: 'internet', label: 'Internet' }
+  { value: 'online', label: t('common.businessSources.online') },
+  { value: 'phone', label: t('common.businessSources.phone') },
+  { value: 'walk_in', label: t('common.businessSources.walkIn') },
+  { value: 'expedia', label: t('common.businessSources.expedia') },
+  { value: 'internet', label: t('common.businessSources.internet') }
 ])
 
 const marketOptions = ref<FilterOptions[]>([
-  { value: 'domestic', label: 'Domestic' },
-  { value: 'international', label: 'International' }
+  { value: 'domestic', label: t('common.markets.domestic') },
+  { value: 'international', label: t('common.markets.international') }
 ])
 
 // Table columns configuration
@@ -585,7 +584,7 @@ const tableDataWithRemarks = computed(() => {
     if (reservation.remarks) {
       result.push({
         id: `remarks-${index}`,
-        resNo: t('reports.reservation.remarks.label'),
+        resNo: t('reports.reservation.columns.remarks'),
         bookingDate: reservation.remarks,
         guest: '',
         rateType: '',
@@ -682,27 +681,27 @@ const generateCancelledReport = async () => {
       if (response.data.datas && response.data.datas.data) {
         // Mapper les données du backend vers le format attendu par le frontend
         reservationData.value = response.data.datas.data.map((item: any) => ({
-          resNo: item.resNo || 'N/A',
-          bookingDate: item.bookingDate || 'N/A',
-          guest: item.guest || 'N/A',
-          rateType: item.rateType || 'N/A',
-          arrival: item.arrival || 'N/A',
-          departure: item.departure || 'N/A',
-          folioNo: item.folioNo || 'N/A',
+          resNo: item.resNo || t('common.na'),
+          bookingDate: item.bookingDate || t('common.na'),
+          guest: item.guest || t('common.na'),
+          rateType: item.rateType || t('common.na'),
+          arrival: item.arrival || t('common.na'),
+          departure: item.departure || t('common.na'),
+          folioNo: item.folioNo || t('common.na'),
           adr: item.adr || '0.00',
           carRevenue: item.carRevenue || '0.00',
           charges: item.charges || '0.00',
           paid: item.paid || '0.00',
           balance: item.balance || '0.00',
-          source: item.source || 'N/A',
-          cancelledBy: item.cancelledBy || 'N/A',
-          cancelledDate: item.cancelledDate || 'N/A',
+          source: item.source || t('common.na'),
+          cancelledBy: item.cancelledBy || t('common.na'),
+          cancelledDate: item.cancelledDate || t('common.na'),
           remarks: item.remarks || ''
         }))
 
         // Stocker aussi les données pour les exports
         reportData.value = {
-          title: response.data.title || 'Cancelled Reservations Report',
+          title: response.data.title || t('reports.reservation.cancelledReservationsReport'),
           html: response.data.html, // Garder le HTML pour l'export PDF
           generatedAt: response.data.generatedAt,
           filters: response.data.filters,
@@ -736,9 +735,22 @@ const exportToCSV = () => {
 
   // En-têtes CSV
   const headers = [
-    'Res No', 'Booking Date', 'Guest', 'Rate Type', 'Arrival', 'Departure',
-    'Folio No', 'ADR', 'Car Revenue', 'Charges', 'Paid', 'Balance',
-    'Source', 'Cancelled By', 'Cancelled Date', 'Remarks'
+    t('reports.reservation.columns.resNo'),
+    t('reports.reservation.columns.bookingDate'),
+    t('reports.reservation.columns.guest'),
+    t('reports.reservation.columns.rateType'),
+    t('reports.reservation.columns.arrival'),
+    t('reports.reservation.columns.departure'),
+    t('reports.reservation.columns.folioNo'),
+    t('reports.reservation.columns.adr'),
+    t('reports.reservation.columns.carRevenue'),
+    t('reports.reservation.columns.charges'),
+    t('reports.reservation.columns.paid'),
+    t('reports.reservation.columns.balance'),
+    t('reports.reservation.columns.source'),
+    t('reports.reservation.columns.cancelledBy'),
+    t('reports.reservation.columns.cancelledDate'),
+    t('reports.reservation.columns.remarks')
   ]
 
   // Convertir les données en CSV

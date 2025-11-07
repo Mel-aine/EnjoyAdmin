@@ -153,7 +153,7 @@ const formData = ref({
 })
 
 // Table configuration
-const columns = ref([
+const columns = computed(() => [
   {
     key: 'sortOrder',
     label: t('sortOrder'),

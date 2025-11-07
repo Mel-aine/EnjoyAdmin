@@ -24,6 +24,9 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   label: String,
@@ -40,22 +43,24 @@ const props = defineProps({
 
 const isTrue = computed(() => {
   if (props.type === 'boolean') {
-    return props.value === true || props.value === 'true' || props.value === 'oui' || props.value === 'yes'
+    return props.value === true || props.value === 'true' || props.value === t('yes') || props.value === 'yes'
   }
   return false
 })
 
 const getBadgeClass = (status) => {
+  // Map status keys to classes - check both translated and original values
   const statusMap = {
+    [t('statut.available')]: 'bg-green-100 text-green-800',
     'Available': 'bg-green-100 text-green-800',
-    'Disponible': 'bg-green-100 text-green-800',
+    [t('statut.occupied')]: 'bg-red-100 text-red-800',
     'Occupied': 'bg-red-100 text-red-800',
-    'Occupée': 'bg-red-100 text-red-800',
+    [t('statut.maintenance')]: 'bg-yellow-100 text-yellow-800',
     'Maintenance': 'bg-yellow-100 text-yellow-800',
+    [t('statut.booked')]: 'bg-blue-100 text-blue-800',
     'Booked': 'bg-blue-100 text-blue-800',
-    'Réservée': 'bg-blue-100 text-blue-800',
-    'To Clean' : 'bg-red-50 text-orange-700',
-    'À Nettoyer' : 'bg-red-50 text-orange-700',
+    [t('statut.dirty')]: 'bg-red-50 text-orange-700',
+    'To Clean': 'bg-red-50 text-orange-700',
   }
   return statusMap[status] || 'bg-gray-100 text-gray-800'
 }

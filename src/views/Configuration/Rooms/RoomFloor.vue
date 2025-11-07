@@ -8,16 +8,16 @@
         :data="rooms"
         :actions="actions"
         :loading="loading"
-        search-placeholder="Search rooms..."
+        :search-placeholder="$t('Search rooms...')"
         :selectable="false"
         :meta="metaData"
         @page-change="handlePageChange"
-        empty-state-title="No rooms found"
-        empty-state-message="Click 'Add Room' to create your first room."
+        :empty-state-title="$t('No rooms found')"
+        :empty-state-message="$t('Click \'Add Room\' to create your first room.')"
         @action="onAction"
         @selection-change="onSelectionChange">
         <template #header-actions>
-          <BasicButton @click="showAddModal = true" label="Add Room" :icon="Plus" />
+          <BasicButton @click="showAddModal = true" :label="$t('AddRoom')" :icon="Plus" />
           <BasicButton
             v-if="selectedRooms.length > 0"
             @click="deleteSelected"
@@ -47,7 +47,7 @@
               'bg-gray-100 text-gray-800': !item.smokingAllowed
             }"
             class="px-2 py-1 text-xs font-medium rounded-full">
-            {{ !item.smokingAllowed ? 'Non-Smoking' : 'Smoking Allowed' }}
+            {{ !item.smokingAllowed ? $t('Non-Smoking') : $t('SmokingAllowed') }}
           </span>
         </template>
 
@@ -308,7 +308,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -459,48 +459,48 @@ const handleBedTypeChange = (value: string | number | undefined) => {
 }
 
 // Table configuration with proper Column typing - using const assertion
-const columns = ref([
+const columns = computed(() => [
   {
     key: 'sortKey',
-    label: 'Sort Key',
+    label: t('Sort Key'),
     sortable: true,
     searchable: true,
     type: 'custom' as const
   },
   {
     key: 'roomInfo',
-    label: 'Room Name',
+    label: t('RoomName'),
     sortable: true,
     searchable: true,
     type: 'custom' as const
   },
   {
     key: 'roomType',
-    label: 'Room Type',
+    label: t('roomType'),
     sortable: true,
     searchable: true,
     type: 'custom' as const
   },
   {
     key: 'bedType.bedTypeName',
-    label: 'Bed Type',
+    label: t('BedType'),
     sortable: true,
     searchable: true
   },
   {
     key: 'phoneExtension',
-    label: 'Phone Extension',
+    label: t('Phone Extension'),
     sortable: true
   },
   {
     key: 'smokingAllowed',
-    label: 'Smoking',
+    label: t('Smoking'),
     sortable: true,
     type: 'custom' as const
   },
   {
     key: 'status',
-    label: 'Status',
+    label: t('Status'),
     sortable: true,
     component: 'badge',
     type: 'custom' as const,
@@ -508,27 +508,27 @@ const columns = ref([
   },
   {
     key: 'createdInfo',
-    label: 'Created By',
+    label: t('Created By'),
     sortable: false,
     type: 'custom' as const
   },
   {
     key: 'modifiedInfo',
-    label: 'Modified By',
+    label: t('Modified By'),
     sortable: false,
     type: 'custom' as const
   }
 ])
 
-const actions = ref([
+const actions = computed(() => [
   {
-    label: 'Edit',
+    label: t('Edit'),
     icon: 'edit',
     variant: 'primary',
     handler: (item: Room) => onAction('edit', item)
   },
   {
-    label: 'Delete',
+    label: t('Delete'),
     icon: 'trash',
     variant: 'danger',
     handler: (item: Room) => onAction('delete', item)
@@ -594,13 +594,13 @@ const editRoom = (room: Room) => {
 }
 
 const deleteRoom = (room: Room) => {
-  if (confirm(`Are you sure you want to delete room "${room.roomNumber}"?`)) {
+  if (confirm(`${t('Are you sure you want to delete room')} "${room.roomNumber}"?`)) {
     rooms.value = rooms.value.filter(r => r.id !== room.id)
   }
 }
 
 const deleteSelected = () => {
-  if (confirm(`Are you sure you want to delete ${selectedRooms.value.length} selected room(s)?`)) {
+  if (confirm(`${t('Are you sure you want to delete')} ${selectedRooms.value.length} ${t('selected room(s)?')}`)) {
     const selectedIds = selectedRooms.value.map(r => r.id)
     rooms.value = rooms.value.filter(r => !selectedIds.includes(r.id))
     selectedRooms.value = []

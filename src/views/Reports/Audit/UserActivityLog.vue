@@ -227,7 +227,7 @@ const activities = ref([
     user: 'John Smith',
     action: 'login',
     module: 'system',
-    description: 'User logged into the system',
+    description: 'reports.audit.userActivity.loggedIn',
     ipAddress: '192.168.1.100',
     status: 'success'
   },
@@ -237,7 +237,7 @@ const activities = ref([
     user: 'John Smith',
     action: 'view',
     module: 'reservations',
-    description: 'Viewed reservation details for booking #12345',
+    description: 'reports.audit.userActivity.viewedReservation',
     ipAddress: '192.168.1.100',
     status: 'success'
   },
@@ -247,7 +247,7 @@ const activities = ref([
     user: 'Jane Doe',
     action: 'create',
     module: 'guests',
-    description: 'Created new guest profile for Mary Johnson',
+    description: 'reports.audit.userActivity.createdGuestProfile',
     ipAddress: '192.168.1.101',
     status: 'success'
   },
@@ -257,7 +257,7 @@ const activities = ref([
     user: 'Mike Wilson',
     action: 'update',
     module: 'rooms',
-    description: 'Updated room status for Room 205 to Clean',
+    description: 'reports.audit.userActivity.updatedRoomStatus',
     ipAddress: '192.168.1.102',
     status: 'success'
   },
@@ -267,7 +267,7 @@ const activities = ref([
     user: 'Sarah Brown',
     action: 'delete',
     module: 'billing',
-    description: 'Attempted to delete invoice #INV-001',
+    description: 'reports.audit.userActivity.attemptedDeleteInvoice',
     ipAddress: '192.168.1.103',
     status: 'failed'
   },
@@ -277,7 +277,7 @@ const activities = ref([
     user: 'Admin User',
     action: 'view',
     module: 'reports',
-    description: 'Generated occupancy report for January 2024',
+    description: 'reports.audit.userActivity.generatedReport',
     ipAddress: '192.168.1.1',
     status: 'success'
   },
@@ -287,7 +287,7 @@ const activities = ref([
     user: 'John Smith',
     action: 'logout',
     module: 'system',
-    description: 'User logged out of the system',
+    description: 'reports.audit.userActivity.loggedOut',
     ipAddress: '192.168.1.100',
     status: 'success'
   },
@@ -297,7 +297,7 @@ const activities = ref([
     user: 'Guest User',
     action: 'login',
     module: 'system',
-    description: 'Failed login attempt with invalid credentials',
+    description: 'reports.audit.userActivity.failedLogin',
     ipAddress: '192.168.1.200',
     status: 'failed'
   }
@@ -423,7 +423,7 @@ const tableColumns = computed<Column[]>(() => [
     }
   },
   { key: 'module', label: t('common.module'), type: 'text', translatable: true },
-  { key: 'description', label: t('common.description'), type: 'text' },
+  { key: 'description', label: t('common.description'), type: 'text', translatable: true },
   { key: 'ipAddress', label: t('common.ipAddress'), type: 'text' },
   { 
     key: 'status', 

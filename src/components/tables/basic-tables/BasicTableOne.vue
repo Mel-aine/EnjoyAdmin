@@ -7,19 +7,19 @@
         <thead>
           <tr class="border-b border-gray-200 dark:border-gray-700">
             <th class="px-5 py-3 text-left w-3/11 sm:px-6">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">User</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ $t('tables.basicTable.user') }}</p>
             </th>
             <th class="px-5 py-3 text-left w-2/11 sm:px-6">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Project Name</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ $t('tables.basicTable.projectName') }}</p>
             </th>
             <th class="px-5 py-3 text-left w-2/11 sm:px-6">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Team</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ $t('tables.basicTable.team') }}</p>
             </th>
             <th class="px-5 py-3 text-left w-2/11 sm:px-6">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ $t('Status') }}</p>
             </th>
             <th class="px-5 py-3 text-left w-2/11 sm:px-6">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Budget</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ $t('tables.basicTable.budget') }}</p>
             </th>
           </tr>
         </thead>
@@ -54,7 +54,7 @@
                   :key="memberIndex"
                   class="w-6 h-6 overflow-hidden border-2 border-white rounded-full dark:border-gray-900"
                 >
-                  <img :src="member" alt="team member" />
+                  <img :src="member" :alt="$t('tables.basicTable.teamMember')" />
                 </div>
               </div>
             </td>
@@ -72,7 +72,7 @@
                   },
                 ]"
               >
-                {{ user.status }}
+                {{ getStatusLabel(user.status) }}
               </span>
             </td>
             <td class="px-5 py-4 sm:px-6">
@@ -85,8 +85,20 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
+const getStatusLabel = (status: string) => {
+  const statusMap: Record<string, string> = {
+    'Active': 'tables.basicTable.status.active',
+    'Pending': 'tables.basicTable.status.pending',
+    'Cancel': 'tables.basicTable.status.cancel'
+  }
+  return t(statusMap[status] || status)
+}
 
 const users = ref([
   {

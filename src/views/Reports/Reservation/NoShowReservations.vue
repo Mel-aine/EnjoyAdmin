@@ -3,24 +3,24 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('reports.reservation.departureList') }}
+          {{ t('reports.reservation.noShowReservations') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage departing guest reservations
+          {{ t('reports.reservation.noShowReservationsDescription') }}
         </p>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
+          {{ t('common.filters') }}
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Departure Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.reservation.departure') }} From
+              {{ t('common.arrivalFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
@@ -30,7 +30,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.reservation.departure') }} To
+              {{ t('common.arrivalTo') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalTo" 
@@ -45,7 +45,7 @@
             <SelectComponent 
               v-model="filters.reservationType"
               :options="reservationTypeOptions"
-              :placeholder="t('common.select')"
+              :placeholder="$t('common.selectReservationType')"
               class="w-full"
             />
           </div>
@@ -60,7 +60,7 @@
             <SelectComponent 
               v-model="filters.user"
               :options="userOptions"
-              :placeholder="t('common.select')"
+              :placeholder="$t('common.selectUser')"
               class="w-full"
             />
           </div>
@@ -73,7 +73,7 @@
             <SelectComponent 
               v-model="filters.roomType"
               :options="roomTypeOptions"
-              :placeholder="t('common.select')"
+              :placeholder="$t('common.selectRoomType')"
               class="w-full"
             />
           </div>
@@ -86,7 +86,7 @@
             <SelectComponent 
               v-model="filters.rateType"
               :options="rateTypeOptions"
-              :placeholder="t('common.select')"
+              :placeholder="$t('common.selectRateType')"
               class="w-full"
             />
           </div>
@@ -96,7 +96,7 @@
           <!-- Rate Range -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('reports.reservation.rateFrom') }}
+              {{ t('common.rateFrom') }}
             </label>
             <input 
               v-model="filters.rateFrom" 
@@ -123,7 +123,7 @@
             <SelectComponent 
               v-model="filters.market"
               :options="marketOptions"
-              :placeholder="t('common.select')"
+              :placeholder="$t('common.selectMarket')"
               class="w-full"
             />
           </div>
@@ -138,7 +138,7 @@
             <SelectComponent 
               v-model="filters.travelAgent"
               :options="travelAgentOptions"
-              :placeholder="t('common.select')"
+              :placeholder="$t('common.selectTravelAgent')"
               class="w-full"
             />
           </div>
@@ -151,7 +151,7 @@
             <SelectComponent 
               v-model="filters.businessSource"
               :options="businessSourceOptions"
-              :placeholder="t('common.select')"
+              :placeholder="$t('common.selectBusinessSource')"
               class="w-full"
             />
           </div>
@@ -164,7 +164,7 @@
             <SelectComponent 
               v-model="filters.company"
               :options="companyOptions"
-              :placeholder="t('common.select')"
+              :placeholder="$t('common.selectCompany')"
               class="w-full"
             />
           </div>
@@ -187,18 +187,18 @@
         <div class="flex flex-col sm:flex-row items-center justify-between mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4">
           <!-- Report Template -->
           <div class="flex items-center gap-3 w-full sm:w-auto">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('reports.reportTemplate') }}</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('common.reportTemplate') }}</label>
             <div class="flex items-center gap-2 w-full sm:w-auto">
               <SelectComponent 
                 v-model="filters.reportTemplate"
                 :options="reportTemplateOptions"
-                :placeholder="t('common.default')"
+                :placeholder="t('common.selectReportTemplate')"
                 class="min-w-32 w-full sm:w-auto"
               />
               <button 
                 @click="editTemplate"
                 class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                :title="t('common.editTemplate')"
+                :title="t('common.edit')"
               >
                 <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -240,12 +240,12 @@
       <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ t('reports.reservation.departureResults') }}
+            {{ t('reports.reservation.noShowReservationsResults') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span>{{ hotelName }}</span> • 
             <span>{{ t('common.dateFrom') }}: {{ filters.arrivalFrom }} {{ t('common.to') }} {{ filters.arrivalTo }}</span> • 
-            <span>{{ t('common.orderBy') }}: {{ t('common.room') }}</span> • 
+            <span>{{ t('reports.reservation.orderBy') }}: {{ t('common.room') }}</span> • 
             <span>{{ t('reports.reservation.taxInclusiveRates') }}: {{ filters.taxInclusive ? t('common.yes') : t('common.no') }}</span>
           </div>
         </div>
@@ -253,7 +253,7 @@
         <!-- Utilisation de ResultTable avec les classes de style similaires -->
          <div class="overflow-x-auto">
           <ResultTable 
-          :title="t('reports.reservation.departureResults')"
+          :title="t('reports.reservation.noShowReservationsResults')"
           :data="reservationData"
           :columns="selectedTableColumns"
            class="w-full mb-4 min-w-max"
@@ -334,7 +334,7 @@ const filters = ref<Filters>({
   arrivalTo: '30/04/2019',
   roomType: '',
   rateType: '',
-  showAmount: t('reports.reservation.rentPerNight'),
+  showAmount: 'rent_per_night',
   rateFrom: '',
   rateTo: '',
   reservationType: '',
@@ -367,19 +367,19 @@ const rateTypeOptions = ref<FilterOptions[]>([
 ])
 
 const travelAgentOptions = ref<FilterOptions[]>([
-  { value: 'agent1', label: t('travelAgents.agent1') },
-  { value: 'agent2', label: t('travelAgents.agent2') }
+  { value: 'agent1', label: t('common.travelAgents.agent1') },
+  { value: 'agent2', label: t('common.travelAgents.agent2') }
 ])
 
 const businessSourceOptions = ref<FilterOptions[]>([
-  { value: 'online', label: t('businessSources.online') },
-  { value: 'phone', label: t('businessSources.phone') },
-  { value: 'walk_in', label: t('businessSources.walkIn') }
+  { value: 'online', label: t('common.businessSources.online') },
+  { value: 'phone', label: t('common.businessSources.phone') },
+  { value: 'walk_in', label: t('common.businessSources.walkIn') }
 ])
 
 const marketOptions = ref<FilterOptions[]>([
-  { value: 'domestic', label: t('markets.domestic') },
-  { value: 'international', label: t('markets.international') }
+  { value: 'domestic', label: t('common.markets.domestic') },
+  { value: 'international', label: t('common.markets.international') }
 ])
 
 const userOptions = ref<FilterOptions[]>([
@@ -387,53 +387,61 @@ const userOptions = ref<FilterOptions[]>([
   { value: 'admin', label: t('users.admin') }
 ])
 
+// Traduction dynamique des types de réservation
+const normalizeKey = (name: string): string => {
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
 const reservationTypeOptions = ref<FilterOptions[]>([
-  { value: 'confirmed', label: t('reservationTypes.confirmed') },
-  { value: 'tentative', label: t('reservationTypes.tentative') },
-  { value: 'cancelled', label: t('reservationTypes.cancelled') }
+  { value: 'confirmed', label: t('reservation.types.confirmed') },
+  { value: 'tentative', label: t('reservation.types.tentative') },
+  { value: 'cancelled', label: t('reservation.types.cancelled') }
 ])
 
 const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'default', label: t('reportTemplates.default') },
-  { value: 'detailed', label: t('reportTemplates.detailed') },
-  { value: 'summary', label: t('reportTemplates.summary') },
-  { value: 'financial', label: t('reportTemplates.financial') },
-  { value: 'custom', label: t('reportTemplates.custom') }
+  { value: 'default', label: t('common.reportTemplates.default') },
+  { value: 'detailed', label: t('common.reportTemplates.detailed') },
+  { value: 'summary', label: t('common.reportTemplates.summary') },
+  { value: 'financial', label: t('common.reportTemplates.financial') },
+  { value: 'custom', label: t('common.reportTemplates.custom') }
 ])
 
 // Sample data for the table
 const reservationData = ref<Reservation[]>([
   {
     resNo: 'BE306',
-    guest: t('sampleData.guest'),
-    room: `101 - ${t('roomTypes.suite')}`,
+    guest: t('common.guest') || 'Guest',
+    room: `101 - ${t('common.suite') || 'Suite'}`,
     rate: '100.00',
     arrival: '28/04/2019 11:30:00 AM',
     departure: '01/05/2019',
     pax: '1/0',
     pickUp: '',
     dropOff: '',
-    resType: t('reservationTypes.confirmed'),
+    resType: t('reservation.types.confirmed') || 'Confirmed',
     company: '',
-    user: t('users.helpdesk'),
-    BusiSour: t('businessSources.online'),
-    restyp: t('reservationTypes.confirmed')
+    user: t('common.user') || 'User',
+    BusiSour: t('common.businessSources.online') || 'Online',
+    restyp: t('reservation.types.confirmed') || 'Confirmed'
   }
 ])
 
 // Computed properties
 const selectedTableColumns = computed(() => {
   const baseColumns = [
-    { key: 'resNo', label: t('tableColumns.resNo') },
-    { key: 'guest', label: t('tableColumns.guest') },
-    { key: 'room', label: t('tableColumns.room') },
-    { key: 'rate', label: t('tableColumns.rate') },
-    { key: 'arrival', label: t('tableColumns.arrival') },
-    { key: 'departure', label: t('tableColumns.departure') },
-    { key: 'pax', label: t('tableColumns.pax') },
-    { key: 'BusiSour', label: t('tableColumns.businessSource') },
-    { key: 'restyp', label: t('tableColumns.resType') },
-    { key: 'user', label: t('tableColumns.user') }
+    { key: 'resNo', label: t('reports.reservation.columns.resNo') },
+    { key: 'guest', label: t('common.guest') },
+    { key: 'room', label: t('common.room') },
+    { key: 'rate', label: t('common.rate') },
+    { key: 'arrival', label: t('common.arrival') },
+    { key: 'departure', label: t('common.departure') },
+    { key: 'pax', label: t('common.pax') },
+    { key: 'BusiSour', label: t('common.businessSource') },
+    { key: 'restyp', label: t('reports.reservation.columns.reservationTypeShort') },
+    { key: 'user', label: t('common.user') }
   ]
   
   // Add selected columns
@@ -475,7 +483,7 @@ const resetForm = (): void => {
     arrivalTo: '',
     roomType: '',
     rateType: '',
-    showAmount: t('reports.reservation.rentPerNight'),
+    showAmount: 'rent_per_night',
     rateFrom: '',
     rateTo: '',
     reservationType: '',

@@ -61,7 +61,7 @@
                       class="flex items-center w-full px-4 py-3 text-sm text-orange-600 hover:text-orange-800 transition-colors duration-150"
                     >
                       <LogoutIcon class="w-4 h-4 mr-3" />
-                      Se déconnecter
+                      {{ $t('SignOut') }}
                     </button>
                   </div>
                 </div>

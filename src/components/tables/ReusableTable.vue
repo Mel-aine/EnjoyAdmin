@@ -203,8 +203,8 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ emptyStateTitle }}</h3>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ emptyStateMessage }}</p>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ emptyStateTitleText }}</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ emptyStateMessageText }}</p>
     </div>
   </div>
   <div>
@@ -235,8 +235,8 @@ interface Props {
   searchable?: boolean
   searchPlaceholder?: string
   selectable?: boolean
-  emptyStateTitle?: string
-  emptyStateMessage?: string
+  emptyStateTitle?: string | (() => string)
+  emptyStateMessage?: string | (() => string)
   itemKey?: string // Key to use for unique identification
   modelValue?: string // For v-model support on searchQuery
   showHeader?: boolean
@@ -274,6 +274,18 @@ const props = withDefaults(defineProps<Props>(), {
   isInfiniteScroll:false,
   expandable: false
 
+})
+
+const { t } = useI18n()
+
+const emptyStateTitleText = computed(() => {
+  const title = typeof props.emptyStateTitle === 'function' ? props.emptyStateTitle() : props.emptyStateTitle
+  return title === 'No data found' ? t('common.noDataFound') : title
+})
+
+const emptyStateMessageText = computed(() => {
+  const message = typeof props.emptyStateMessage === 'function' ? props.emptyStateMessage() : props.emptyStateMessage
+  return message === 'Get started by adding some data.' ? t('common.getStartedByAddingData') : message
 })
 
 const emit = defineEmits<{
@@ -581,8 +593,6 @@ watch(filteredData, () => {
     filteredData.value.some(item => getItemKey(item, 0) === getItemKey(selected, 0) && isItemSelectable(item))
   )
 })
-
-const { t } = useI18n()
 
 const getColumnLabel = (column: Column) => {
   // Column labels are already translated when passed as props

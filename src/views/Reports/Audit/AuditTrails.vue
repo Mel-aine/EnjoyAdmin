@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Audit Trails
+          {{ $t('reports.audit.auditTrails') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-             View and manage Audit Trails
+          {{ $t('reports.audit.auditTrailsDescription') }}
         </p>  
       </div>
 
@@ -16,33 +16,33 @@
           <!-- From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              From
+              {{ $t('common.dateFrom') }}
             </label>
-            <InputDatepicker v-model="filters.from" placeholder="2020-05-11" class="w-full" />
+            <InputDatepicker v-model="filters.from" :placeholder="$t('common.selectDate')" class="w-full" />
           </div>
 
           <!-- To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ $t('common.dateTo') }}
             </label>
-            <InputDatepicker v-model="filters.to" placeholder="2020-05-11" class="w-full" />
+            <InputDatepicker v-model="filters.to" :placeholder="$t('common.selectDate')" class="w-full" />
           </div>
 
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              User
+              {{ $t('common.user') }}
             </label>
-            <SelectComponent v-model="filters.user" :options="userOptions" placeholder="--Select--" class="w-full" />
+            <SelectComponent v-model="filters.user" :options="userOptions" :placeholder="$t('common.select')" class="w-full" />
           </div>
 
           <!-- Operation -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Operation
+              {{ $t('reports.audit.operation') }}
             </label>
-            <SelectComponent v-model="filters.operation" :options="operationOptions" placeholder="Roomrate Change"
+            <SelectComponent v-model="filters.operation" :options="operationOptions" :placeholder="$t('reports.audit.roomrateChange')"
               class="w-full" />
           </div>
         </div>
@@ -62,14 +62,14 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span >Report</span>
+            <span>{{ $t('common.report') }}</span>
           </ButtonComponent>
 
           <ButtonComponent @click="resetForm" variant="outline"  class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Reset
+            {{ $t('common.reset') }}
           </ButtonComponent>
         </div>
       </div>
@@ -82,14 +82,14 @@
               {{ hotelName }}
             </h2>
             <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mt-2">
-              Audit Trails
+              {{ $t('reports.audit.auditTrails') }}
             </h3>
 
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            <div><strong>Date From:</strong> {{ filters.from }}</div>
-            <div><strong>To:</strong> {{ filters.to }}</div>
-            <div><strong>Operation:</strong> {{ $t(filters.operation) }}</div>
+            <div><strong>{{ $t('common.dateFrom') }}:</strong> {{ filters.from }}</div>
+            <div><strong>{{ $t('common.to') }}:</strong> {{ filters.to }}</div>
+            <div><strong>{{ $t('reports.audit.operation') }}:</strong> {{ getOperationLabel(filters.operation) }}</div>
           </div>
         </div>
 
@@ -99,28 +99,28 @@
               <tr>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border">
-                  Res. No</th>
+                  {{ $t('reports.audit.resNo') }}</th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border">
-                  Folio No</th>
+                  {{ $t('common.folioNumber') }}</th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border">
-                  Guest</th>
+                  {{ $t('common.guest') }}</th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border">
-                  User</th>
+                  {{ $t('common.user') }}</th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border">
-                  Date</th>
+                  {{ $t('common.date') }}</th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider border">
-                  Time</th>
+                  {{ $t('common.time') }}</th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <tr class="bg-gray-100 dark:bg-gray-700">
                 <td colspan="6" class="px-4 py-2 text-sm font-medium text-gray-900 dark:text-white border">
-                  Operation : {{ $t(filters.operation) }}
+                  {{ $t('reports.audit.operation') }} : {{ getOperationLabel(filters.operation) }}
                 </td>
               </tr>
               <tr v-for="item in auditTrailsData" :key="item.resNo" class="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -135,7 +135,7 @@
                 <td colspan="6" class="px-4 py-3 text-sm text-gray-900 dark:text-white border">
                   <div class="space-y-1">
                     <div v-for="item in auditTrailsData" :key="'particulars-' + item.resNo">
-                      <strong>Particular :</strong> {{ item.particulars }}
+                      <strong>{{ $t('reports.audit.particular') }} :</strong> {{ item.particulars }}
                     </div>
                   </div>
                 </td>
@@ -150,6 +150,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
@@ -159,6 +160,8 @@ import { useServiceStore } from '../../../composables/serviceStore'
 import { getEmployeesForService } from '../../../services/userApi'
 import Spinner from '../../../components/spinner/Spinner.vue'
 import { getAuditReport } from '../../../services/reportsApi'
+
+const { t } = useI18n()
 
 interface FilterOptions {
   value: string;
@@ -196,18 +199,27 @@ const filters = ref<Filters>({
 })
 
 // Options for selects
-const userOptions = ref<FilterOptions[]>([
-  { value: '', label: 'All' },
+const userOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('common.all') },
+  ...userOptionsRaw.value
 ])
 
-const operationOptions = ref<FilterOptions[]>([
-  { value: '', label: 'All' },
-  { value: 'roomrate_change', label: 'Roomrate Change' },
-  { value: 'check_in', label: 'Check In' },
-  { value: 'check_out', label: 'Check Out' },
-  { value: 'room_assignment', label: 'Room Assignment' },
-  { value: 'payment', label: 'Payment' }
+const userOptionsRaw = ref<FilterOptions[]>([])
+
+const operationOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('common.all') },
+  { value: 'roomrate_change', label: t('reports.audit.roomrateChange') },
+  { value: 'check_in', label: t('common.checkIn') },
+  { value: 'check_out', label: t('common.checkOut') },
+  { value: 'room_assignment', label: t('reports.audit.roomAssignment') },
+  { value: 'payment', label: t('common.payment') }
 ])
+
+const getOperationLabel = (operation: string): string => {
+  if (!operation) return t('common.all')
+  const option = operationOptions.value.find(opt => opt.value === operation)
+  return option ? option.label : operation
+}
 
 // Sample audit trail data exactly as shown in the image
 const auditTrailsData = ref<AuditTrailData[]>([
@@ -248,7 +260,7 @@ const fetchUser = async () => {
         }
       }),
     )
-    userOptions.value.push(...assignmentsWithNames)
+    userOptionsRaw.value.push(...assignmentsWithNames)
   } catch (error) {
     console.error('fetch failed:', error)
 

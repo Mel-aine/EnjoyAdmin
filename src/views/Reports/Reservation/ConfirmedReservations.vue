@@ -44,10 +44,9 @@
             v-model="filters.roomType"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           >
-            <option value="">{{ $t('common.all') }}</option>
-            <option value="standard">{{ $t('rooms.types.standard') }}</option>
-            <option value="deluxe">{{ $t('rooms.types.deluxe') }}</option>
-            <option value="suite">{{ $t('rooms.types.suite') }}</option>
+            <option v-for="option in roomTypeOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </div>
         <div>
@@ -58,10 +57,9 @@
             v-model="filters.bookingSource"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           >
-            <option value="">{{ $t('common.all') }}</option>
-            <option value="direct">{{ $t('bookings.sources.direct') }}</option>
-            <option value="online">{{ $t('bookings.sources.online') }}</option>
-            <option value="agent">{{ $t('bookings.sources.agent') }}</option>
+            <option v-for="option in bookingSourceOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </div>
       </div>
@@ -150,7 +148,7 @@
                 {{ reservation.guestName }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ reservation.roomType }}
+                {{ translateRoomType(reservation.roomType) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                 {{ formatDate(reservation.arrivalDate) }}
@@ -165,7 +163,7 @@
                 ${{ reservation.totalAmount.toFixed(2) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                {{ $t(`bookings.sources.${reservation.bookingSource}`) }}
+                {{ translateBookingSource(reservation.bookingSource) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button
@@ -213,6 +211,22 @@ const filters = ref({
 
 const confirmedReservations = ref<ConfirmedReservation[]>([])
 
+// Options for room types
+const roomTypeOptions = computed(() => [
+  { value: '', label: t('common.all') },
+  { value: 'standard', label: t('rooms.types.standard') },
+  { value: 'deluxe', label: t('rooms.types.deluxe') },
+  { value: 'suite', label: t('rooms.types.suite') }
+])
+
+// Options for booking sources
+const bookingSourceOptions = computed(() => [
+  { value: '', label: t('common.all') },
+  { value: 'direct', label: t('bookings.sources.direct') },
+  { value: 'online', label: t('bookings.sources.online') },
+  { value: 'agent', label: t('bookings.sources.agent') }
+])
+
 const summary = computed(() => {
   const totalConfirmed = confirmedReservations.value.length
   const totalRevenue = confirmedReservations.value.reduce((sum, res) => sum + res.totalAmount, 0)
@@ -234,7 +248,7 @@ const loadConfirmedReservations = async () => {
       id: '1',
       reservationId: 'RES001',
       guestName: 'John Doe',
-      roomType: 'Standard',
+      roomType: 'standard',
       arrivalDate: '2024-01-20',
       departureDate: '2024-01-23',
       nights: 3,
@@ -245,7 +259,7 @@ const loadConfirmedReservations = async () => {
       id: '2',
       reservationId: 'RES002',
       guestName: 'Jane Smith',
-      roomType: 'Deluxe',
+      roomType: 'deluxe',
       arrivalDate: '2024-01-25',
       departureDate: '2024-01-30',
       nights: 5,
@@ -256,7 +270,7 @@ const loadConfirmedReservations = async () => {
       id: '3',
       reservationId: 'RES003',
       guestName: 'Bob Wilson',
-      roomType: 'Suite',
+      roomType: 'suite',
       arrivalDate: '2024-02-01',
       departureDate: '2024-02-05',
       nights: 4,
@@ -278,6 +292,17 @@ const formatDate = (date: string) => {
 const viewDetails = (id: string) => {
   // Implementation for viewing reservation details
   console.log('Viewing details for reservation:', id)
+}
+
+// Helper functions for translations
+const translateRoomType = (roomType: string) => {
+  if (!roomType) return ''
+  return t(`rooms.types.${roomType.toLowerCase()}`)
+}
+
+const translateBookingSource = (bookingSource: string) => {
+  if (!bookingSource) return ''
+  return t(`bookings.sources.${bookingSource}`)
 }
 
 onMounted(() => {

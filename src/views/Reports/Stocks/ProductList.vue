@@ -58,7 +58,7 @@
                   v-model="newProduct.name" />
                 <Input :lb="$t('quantity')" :placeholder="$t('quantity')" :id="'quantity'" :forLabel="'quantity'"
                   v-model.number="newProduct.quantity" />
-                <Input :lb="$t('price')" :placeholder="'1000 FCFA'" :id="'price'" :forLabel="'price'"
+                <Input :lb="$t('price')" :placeholder="$t('common.price')" :id="'price'" :forLabel="'price'"
                   v-model.number="newProduct.price" />
                 <Select :lb="$t('Suppliers')" :options="suppliers" v-model.number="newProduct.supplier" />
                 <Select :lb="$t('category')" :options="categories" v-model.number="newProduct.category" />
@@ -219,7 +219,7 @@ const titles = computed(() => [
     type: 'action',
     actions: [
       {
-        name: 'Edit',
+        name: t('common.edit'),
         event: 'edit',
         icone: ` <svg class="h-5 w-5 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
@@ -229,7 +229,7 @@ const titles = computed(() => [
           </svg>`,
       },
       {
-        name: 'Delete',
+        name: t('common.delete'),
         event: 'delete',
         icone: `<svg class="h-5 w-5 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>

@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ $t('Work Order Reports') }}
+          {{ $t('reports.backOffice.workOrderList') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          {{ $t('reports backOffice workOffice Report Description') }}
+          {{ $t('reports.backOffice.workOrderListDescription') }}
         </p>
       </div>
 
@@ -24,7 +24,7 @@
             </label>
             <InputDatepicker
               v-model="filters.startDate"
-              :placeholder="$t('selectDate')"
+              :placeholder="$t('common.selectDate')"
               class="w-full"
             />
           </div>
@@ -36,7 +36,7 @@
             </label>
             <InputDatepicker
               v-model="filters.endDate"
-              :placeholder="$t('selectDate')"
+              :placeholder="$t('common.selectDate')"
               class="w-full"
             />
           </div>
@@ -44,18 +44,18 @@
           <!-- Statut -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('status') }}
+              {{ $t('common.status') }}
             </label>
             <select
               v-model="filters.status"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              <option value="">{{ $t('select') }}</option>
-              <option value="pending">{{ $t('pending') }}</option>
-              <option value="in_progress">{{ $t('in Progress') }}</option>
-              <option value="on_hold">{{ $t('on Hold') }}</option>
-              <option value="completed">{{ $t('completed') }}</option>
-              <option value="cancelled">{{ $t('cancelled') }}</option>
+              <option value="">{{ $t('common.select') }}</option>
+              <option value="pending">{{ $t('taskManagement.filters.todo') }}</option>
+              <option value="in_progress">{{ $t('taskManagement.filters.in_progress') }}</option>
+              <option value="on_hold">{{ $t('workOrder.status.onHold') }}</option>
+              <option value="completed">{{ $t('taskManagement.filters.done') }}</option>
+              <option value="cancelled">{{ $t('common.cancelled') }}</option>
             </select>
           </div>
         </div>
@@ -71,10 +71,10 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">{{ $t('common.select') }}</option>
-              <option value="low">{{ $t('low') }}</option>
-              <option value="medium">{{ $t('medium') }}</option>
-              <option value="high">{{ $t('high') }}</option>
-              <option value="urgent">{{ $t('urgent') }}</option>
+              <option value="low">{{ $t('taskManagement.priorities.low') }}</option>
+              <option value="medium">{{ $t('taskManagement.priorities.medium') }}</option>
+              <option value="high">{{ $t('taskManagement.priorities.high') }}</option>
+              <option value="urgent">{{ $t('common.urgent') }}</option>
             </select>
           </div>
 
@@ -138,17 +138,17 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">{{ $t('common.select') }}</option>
-              <option value="maintenance">{{ $t('wmaintenance') }}</option>
-              <option value="cleaning">{{ $t('cleaning') }}</option>
-              <option value="repair">{{ $t('repair') }}</option>
-              <option value="inspection">{{ $t('inspection') }}</option>
+              <option value="maintenance">{{ $t('taskManagement.types.maintenance') }}</option>
+              <option value="cleaning">{{ $t('taskManagement.types.cleaning') }}</option>
+              <option value="repair">{{ $t('workOrder.categories.repair') }}</option>
+              <option value="inspection">{{ $t('workOrder.categories.inspection') }}</option>
             </select>
           </div>
 
           <!-- Créé par -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('User') }}
+              {{ $t('common.user') }}
             </label>
             <select
               v-model="filters.createdBy"
@@ -221,10 +221,10 @@
         <!-- En-tête du rapport -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ reportData?.data?.title || $t('Work Order Report') }}
+            {{ reportData?.data?.title || $t('reports.backOffice.workOrderReport') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ $t('common.generated') }}: {{ formatDate(new Date()) }}</span>
+            <span>{{ $t('reports.generatedAt') }}: {{ formatDate(new Date()) }}</span>
             <span v-if="reportData?.data?.summary" class="ml-4">
               {{ $t('common.total') }}: {{ getTotalCount() }}
             </span>
@@ -275,15 +275,15 @@
                 </h3>
                 <div class="space-y-2">
                   <div class="flex justify-between">
-                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('common.high') }}:</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('taskManagement.priorities.high') }}:</span>
                     <span class="font-medium text-red-600">{{ reportData.data.summary?.prioritySummary?.high || 0 }}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('common.medium') }}:</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('taskManagement.priorities.medium') }}:</span>
                     <span class="font-medium text-yellow-600">{{ reportData.data.summary?.prioritySummary?.medium || 0 }}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('common.low') }}:</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('taskManagement.priorities.low') }}:</span>
                     <span class="font-medium text-gray-600">{{ reportData.data.summary?.prioritySummary?.low || 0 }}</span>
                   </div>
                 </div>
@@ -294,7 +294,7 @@
           <!-- Tableau pour les autres types de rapports -->
           <div v-else-if="reportData?.data?.data">
             <ResultTable
-              :title="reportData.data?.title || 'Rapport'"
+              :title="reportData.data?.title || $t('common.report')"
               :data="formatTableData()"
               :columns="getTableColumns()"
               class="w-full"
@@ -308,7 +308,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { defineAsyncComponent } from 'vue'
 const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'));
@@ -354,8 +354,41 @@ const roomOptions = ref<RoomOption[]>([])
 //   reservationId,
 // } = useBooking()
 
-// Données disponibles
-const availableReports = ref<AvailableReport[]>([]);
+// Fonction pour mapper les rapports de l'API avec les traductions
+const mapReportsWithTranslations = (reports: AvailableReport[]): AvailableReport[] => {
+  return reports.map(report => {
+    // Mapping direct des IDs vers les clés de traduction
+    const translationKeys: Record<string, string> = {
+      'workOrdersByStatus': 'workOrder.reports.byStatus',
+      'workOrdersByPriority': 'workOrder.reports.byPriority',
+      'workOrdersByDepartment': 'workOrder.reports.byDepartment',
+      'workOrdersByAssignee': 'workOrder.reports.byAssignee',
+      'workOrdersOverdue': 'workOrder.reports.overdue',
+      'workOrdersCompleted': 'workOrder.reports.completed',
+      'workOrdersSummary': 'workOrder.reports.summary'
+    }
+    
+    const nameKey = translationKeys[report.id]
+    const descKey = nameKey ? `${nameKey}Desc` : null
+    
+    return {
+      ...report,
+      name: nameKey ? t(nameKey) : report.name,
+      description: descKey ? t(descKey) : report.description
+    }
+  })
+}
+
+// Données brutes de l'API
+const rawAvailableReports = ref<AvailableReport[]>([]);
+
+// Données disponibles avec traductions réactives
+const availableReports = computed(() => {
+  if (rawAvailableReports.value.length === 0) {
+    return getDefaultReports();
+  }
+  return mapReportsWithTranslations(rawAvailableReports.value);
+});
 
 // Déclarations d'exemple non utilisées supprimées pour éviter les erreurs de lint
 
@@ -557,17 +590,17 @@ const getTableColumns = (): TableColumn[] => {
 const loadAvailableReports = async () => {
   try {
     const response = await getAvailableWorkOrderReports();
-    if (response && response.success) {
-      // Fournir un tableau vide comme fallback si response.data est undefined
-      availableReports.value = response.data || [];
+    if (response && response.success && response.data) {
+      // Stocker les données brutes de l'API
+      rawAvailableReports.value = response.data;
     } else {
       // Si la réponse n'est pas success, utiliser les données par défaut
-      availableReports.value = getDefaultReports();
+      rawAvailableReports.value = getDefaultReports();
     }
   } catch (error) {
     console.error('Error loading available reports:', error);
     // Utiliser des données par défaut en cas d'erreur
-    availableReports.value = getDefaultReports();
+    rawAvailableReports.value = getDefaultReports();
   }
 };
 
@@ -575,43 +608,43 @@ const loadAvailableReports = async () => {
 const getDefaultReports = (): AvailableReport[] => [
   {
     id: 'workOrdersByStatus',
-    name: t('By Status'),
-    description: t('By StatusDesc'),
+    name: t('workOrder.reports.byStatus'),
+    description: t('workOrder.reports.byStatusDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersByPriority',
-    name: t('By Priority'),
+    name: t('workOrder.reports.byPriority'),
     description: t('workOrder.reports.byPriorityDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersByDepartment',
-    name: t('By Department'),
+    name: t('workOrder.reports.byDepartment'),
     description: t('workOrder.reports.byDepartmentDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersByAssignee',
-    name: t('By Assignee'),
+    name: t('workOrder.reports.byAssignee'),
     description: t('workOrder.reports.byAssigneeDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersOverdue',
-    name: t('Overdue'),
+    name: t('workOrder.reports.overdue'),
     description: t('workOrder.reports.overdueDesc'),
     category: 'Operations'
   },
   {
     id: 'workOrdersCompleted',
-    name: t('Completed'),
+    name: t('workOrder.reports.completed'),
     description: t('workOrder.reports.completedDesc'),
     category: 'Analytics'
   },
   {
     id: 'workOrdersSummary',
-    name: t('Summary'),
+    name: t('workOrder.reports.summary'),
     description: t('workOrder.reports.summaryDesc'),
     category: 'Analytics'
   }

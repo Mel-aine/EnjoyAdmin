@@ -82,10 +82,10 @@
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton type="button" variant="outline" @click="closeModal" :label="t('cancel')"
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="t('configuration.business_source.cancel')"
                 :disabled="saving" />
               <BasicButton type="submit" variant="primary"
-                :label="isEditing ? t('configuration.payment_method.update_payment_method') : t('configuration.payment_method.save_payment_method')"
+                :label="isEditing ? t('configuration.business_source.update') : t('configuration.business_source.save')"
                 :loading="saving" />
             </div>
           </form>
@@ -101,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
@@ -146,17 +146,17 @@ const marketCodeOptions = ref<any>([
 ])
 
 // Table configuration
-const columns: Column[] = [
-  { key: 'name', label: 'Business Source Name', type: 'text' },
-  { key: 'shortCode', label: 'Short Code', type: 'text' },
-  { key: 'color', label: 'Color', type: 'custom' },
-  { key: 'registrationNumber', label: 'Registration Number', type: 'text' },
-  { key: 'marketCode.name', label: 'Market Code', type: 'text' },
-  { key: 'modifiedInfo', label: 'Modified Info', type: 'custom' },
-  { key: 'createdInfo', label: 'Created Info', type: 'custom' }
-]
+const columns = computed<Column[]>(() => [
+  { key: 'name', label: t('configuration.business_source.name'), type: 'text' },
+  { key: 'shortCode', label: t('configuration.business_source.short_code'), type: 'text' },
+  { key: 'color', label: t('configuration.business_source.color'), type: 'custom' },
+  { key: 'registrationNumber', label: t('configuration.business_source.registration_number'), type: 'text' },
+  { key: 'marketCode.name', label: t('configuration.business_source.market_code'), type: 'text' },
+  { key: 'modifiedInfo', label: t('configuration.business_source.modified'), type: 'custom' },
+  { key: 'createdInfo', label: t('configuration.business_source.created'), type: 'custom' }
+])
 
-const actions: Action[] = [
+const actions = computed<Action[]>(() => [
   {
     label: t('common.edit'),
     handler: (item) => editBusinessSource(item),
@@ -167,7 +167,7 @@ const actions: Action[] = [
     handler: (item) => deleteBusinessSource(item.id),
     variant: 'danger'
   }
-]
+])
 
 // Load business sources data
 const loadBusinessSources = async () => {

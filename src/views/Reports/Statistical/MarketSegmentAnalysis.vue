@@ -79,7 +79,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.totalSegments') }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.statistical.totalSegments') }}</p>
               <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ summary.totalSegments }}</p>
             </div>
           </div>
@@ -107,7 +107,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.topSegment') }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.statistical.topSegment') }}</p>
               <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t(`common.${summary.topSegment}`) }}</p>
             </div>
           </div>
@@ -121,7 +121,7 @@
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.avgADR') }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $t('reports.statistical.avgADR') }}</p>
               <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ summary.avgADR.toFixed(2) }}</p>
             </div>
           </div>
@@ -132,7 +132,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {{ $t('reports.segmentRevenue') }}
+            {{ $t('reports.statistical.segmentRevenue') }}
           </h3>
           <div class="space-y-4">
             <div v-for="segment in segmentRevenue" :key="segment.name" class="flex items-center justify-between">
@@ -150,7 +150,7 @@
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {{ $t('reports.segmentBookings') }}
+            {{ $t('reports.statistical.segmentBookings') }}
           </h3>
           <div class="space-y-4">
             <div v-for="segment in segmentBookings" :key="segment.name" class="flex items-center justify-between">
@@ -171,7 +171,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {{ $t('reports.segmentPerformance') }}
+            {{ $t('reports.statistical.segmentPerformance') }}
           </h3>
           <div class="space-y-3">
             <div v-for="metric in performanceMetrics" :key="metric.segment" class="flex justify-between">
@@ -183,33 +183,33 @@
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {{ $t('reports.seasonalTrends') }}
+            {{ $t('reports.statistical.seasonalTrends') }}
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.peakSeason') }}</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ seasonalTrends.peakSeason }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.statistical.peakSeason') }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ seasonalTrendsDisplay.peakSeason }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.lowSeason') }}</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ seasonalTrends.lowSeason }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.statistical.lowSeason') }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ seasonalTrendsDisplay.lowSeason }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.growthRate') }}</span>
-              <span class="text-sm font-medium" :class="seasonalTrends.growthRate >= 0 ? 'text-green-600' : 'text-red-600'">
-                {{ seasonalTrends.growthRate >= 0 ? '+' : '' }}{{ seasonalTrends.growthRate.toFixed(1) }}%
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.statistical.growthRate') }}</span>
+              <span class="text-sm font-medium" :class="seasonalTrendsDisplay.growthRate >= 0 ? 'text-green-600' : 'text-red-600'">
+                {{ seasonalTrendsDisplay.growthRate >= 0 ? '+' : '' }}{{ seasonalTrendsDisplay.growthRate.toFixed(1) }}%
               </span>
             </div>
             <div class="flex justify-between">
-              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.volatility') }}</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ seasonalTrends.volatility.toFixed(1) }}%</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.statistical.volatility') }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ seasonalTrendsDisplay.volatility.toFixed(1) }}%</span>
             </div>
           </div>
         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {{ $t('reports.customerInsights') }}
+            {{ $t('reports.statistical.customerInsights') }}
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between">
@@ -236,7 +236,7 @@
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ $t('reports.segmentAnalysisDetails') }}
+            {{ $t('reports.statistical.segmentAnalysisDetails') }}
           </h2>
         </div>
         <div class="overflow-x-auto">
@@ -309,8 +309,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { defineAsyncComponent } from 'vue'
 const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
+
+const { t } = useI18n()
 
 // Filters
 const filters = ref({
@@ -435,11 +438,18 @@ const performanceMetrics = computed(() => {
 })
 
 const seasonalTrends = ref({
-  peakSeason: 'Summer',
-  lowSeason: 'Winter',
+  peakSeasonKey: 'summer',
+  lowSeasonKey: 'winter',
   growthRate: 12.5,
   volatility: 18.3
 })
+
+const seasonalTrendsDisplay = computed(() => ({
+  peakSeason: t(`common.${seasonalTrends.value.peakSeasonKey}`) || seasonalTrends.value.peakSeasonKey,
+  lowSeason: t(`common.${seasonalTrends.value.lowSeasonKey}`) || seasonalTrends.value.lowSeasonKey,
+  growthRate: seasonalTrends.value.growthRate,
+  volatility: seasonalTrends.value.volatility
+}))
 
 const customerInsights = computed(() => {
   const filtered = filteredSegmentData.value

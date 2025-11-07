@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          House Status
+          {{ $t('reports.backOffice.houseStatus') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View current room status and housekeeping information
+          {{ $t('reports.backOffice.houseStatusDescription') }}
         </p>
       </div>
 
@@ -16,11 +16,11 @@
           <!-- As On Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              As On Date
+              {{ $t('reports.backOffice.asOnDate') }}
             </label>
             <InputDatepicker 
               v-model="filters.asOnDate" 
-              placeholder="Select Date"
+              :placeholder="$t('common.selectDate')"
               class="w-full"
             />
           </div>
@@ -28,12 +28,12 @@
           <!-- Room Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Room Type
+              {{ $t('common.roomType') }}
             </label>
             <SelectComponent 
               v-model="filters.roomType"
               :options="roomTypeOptions"
-              placeholder="--Select--"
+              :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
@@ -41,12 +41,12 @@
           <!-- House Keeper -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              House Keeper
+              {{ $t('reports.backOffice.houseKeeper') }}
             </label>
             <SelectComponent 
               v-model="filters.houseKeeper"
               :options="houseKeeperOptions"
-              placeholder="--Select--"
+              :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
@@ -59,7 +59,7 @@
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
-              Show Only Active Rooms
+              {{ $t('reports.backOffice.showOnlyActiveRooms') }}
             </label>
           </div>
         </div>
@@ -70,7 +70,7 @@
             <!-- Status Row -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Status
+                {{ $t('common.status') }}
               </label>
               <div class="flex gap-6 flex-wrap">
                 <label class="flex items-center gap-2">
@@ -79,7 +79,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Dirty
+                  {{ $t('statut.dirty') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -87,7 +87,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Fresh
+                  {{ $t('statut.clean') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -95,7 +95,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Maintenance
+                  {{ $t('statut.maintenance') }}
                 </label>
               </div>
             </div>
@@ -103,7 +103,7 @@
             <!-- Room Status Row -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Room Status
+                {{ $t('reports.backOffice.roomStatus') }}
               </label>
               <div class="flex gap-4 flex-wrap">
                 <label class="flex items-center gap-2">
@@ -112,7 +112,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Arrival
+                  {{ $t('reports.backOffice.arrival') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -120,7 +120,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Checked Out
+                  {{ $t('reports.backOffice.checkedOut') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -128,7 +128,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Due Out
+                  {{ $t('reports.backOffice.dueOut') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -136,7 +136,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Confirmed Reservation
+                  {{ $t('reports.backOffice.confirmedReservation') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -144,7 +144,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Maintenance Block
+                  {{ $t('reports.backOffice.maintenanceBlock') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -152,7 +152,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Stayover
+                  {{ $t('reports.backOffice.stayover') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -160,7 +160,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  Dayuse
+                  {{ $t('reports.backOffice.dayuse') }}
                 </label>
                 <label class="flex items-center gap-2">
                   <input 
@@ -168,7 +168,7 @@
                     type="checkbox"
                     class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                   />
-                  To Be Checked Out
+                  {{ $t('reports.backOffice.toBeCheckedOut') }}
                 </label>
               </div>
             </div>
@@ -215,20 +215,20 @@
               Hotel Nihal
             </h2>
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-              House Status
+              {{ $t('reports.backOffice.houseStatus') }}
             </h2>
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-2 flex flex-wrap gap-4">
-            <span>As on Date: {{ filters.asOnDate || '27/04/2019' }}</span>
-            <span>Room Type: All</span>
-            <span>House Keeper: All</span>
-            <span>Status: {{ getSelectedStatusText() }}</span>
+            <span>{{ $t('reports.backOffice.asOnDate') }}: {{ filters.asOnDate || '27/04/2019' }}</span>
+            <span>{{ $t('common.roomType') }}: {{ $t('common.all') }}</span>
+            <span>{{ $t('reports.backOffice.houseKeeper') }}: {{ $t('common.all') }}</span>
+            <span>{{ $t('common.status') }}: {{ getSelectedStatusText() }}</span>
           </div>
         </div>
         
         <div class="overflow-x-auto">
           <ResultTable 
-            title="House Status"
+            :title="$t('reports.backOffice.houseStatus')"
             :data="formattedHouseStatusData"
             :columns="houseStatusColumns"
             class="w-full mb-4 min-w-max"
@@ -318,75 +318,75 @@ const filters = ref<Filters>({
 })
 
 // Options for selects
-const roomTypeOptions = ref<FilterOptions[]>([
-  { value: '', label: '--Select--' },
-  { value: 'suite', label: 'Suite Room' },
-  { value: 'deluxe', label: 'Deluxe Room' },
-  { value: 'standard', label: 'Standard Room' }
+const roomTypeOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('common.select') },
+  { value: 'suite', label: t('common.suite') },
+  { value: 'deluxe', label: t('common.deluxe') },
+  { value: 'standard', label: t('common.standard') }
 ])
 
-const houseKeeperOptions = ref<FilterOptions[]>([
-  { value: '', label: '--Select--' },
+const houseKeeperOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('common.select') },
   { value: 'bijou', label: 'Bijou' },
-  { value: 'staff1', label: 'Staff 1' },
-  { value: 'staff2', label: 'Staff 2' }
+  { value: 'staff1', label: t('reports.backOffice.staff1') },
+  { value: 'staff2', label: t('reports.backOffice.staff2') }
 ])
 
 // Sample data based on the image
-const houseStatusData = ref<HouseStatusData[]>([
+const houseStatusData = ref([
   {
     unitRoom: '001',
-    roomType: 'Suite Room',
+    roomTypeKey: 'suite',
     guest: 'Mr Bienvenu',
     pax: '1/1',
-    status: 'Dirty',
-    availability: 'In-House',
+    statusKey: 'dirty',
+    availabilityKey: 'inHouse',
     houseKeeper: 'Bijou',
     checkInDate: '27/04/2019',
     checkOutDate: '28/04/2019',
-    hkRemarks: 'clear the room fast as the guest are early check-In'
+    hkRemarksKey: 'clearRoomFastEarlyCheckIn'
   },
   {
     unitRoom: '002',
-    roomType: 'Deluxe Room',
+    roomTypeKey: 'deluxe',
     guest: '',
     pax: '',
-    status: 'Dirty',
-    availability: 'Available',
+    statusKey: 'dirty',
+    availabilityKey: 'available',
     houseKeeper: 'Bijou',
     checkInDate: '',
     checkOutDate: '',
-    hkRemarks: 'clear the room fast as the guest are early check-In'
+    hkRemarksKey: 'clearRoomFastEarlyCheckIn'
   }
 ])
 
 // Colonnes pour le composant ResultTable
 const houseStatusColumns = computed(() => [
-  { key: 'unitRoom', label: 'Unit/Room' },
-  { key: 'roomType', label: 'Room Type' },
-  { key: 'guest', label: 'Guest' },
-  { key: 'pax', label: 'Pax (A/C)' },
-  { key: 'status', label: 'Status' },
-  { key: 'availability', label: 'Availability' },
-  { key: 'houseKeeper', label: 'House Keeper' },
-  { key: 'checkInDate', label: 'Check-In Date' },
-  { key: 'checkOutDate', label: 'Check-Out Date' },
-  { key: 'hkRemarks', label: 'HK Remarks' }
+  { key: 'unitRoom', label: t('reports.backOffice.unitRoom') },
+  { key: 'roomType', label: t('common.roomType') },
+  { key: 'guest', label: t('common.guest') },
+  { key: 'pax', label: t('reports.backOffice.pax') },
+  { key: 'status', label: t('common.status') },
+  { key: 'availability', label: t('reports.backOffice.availability') },
+  { key: 'houseKeeper', label: t('reports.backOffice.houseKeeper') },
+  { key: 'checkInDate', label: t('common.checkInDate') },
+  { key: 'checkOutDate', label: t('common.checkOutDate') },
+  { key: 'hkRemarks', label: t('reports.backOffice.hkRemarks') }
 ])
 
 // Données formatées pour le tableau
 const formattedHouseStatusData = computed(() => {
   return houseStatusData.value.map(room => ({
     unitRoom: room.unitRoom,
-    roomType: room.roomType,
+    roomType: room.roomTypeKey ? t(`common.${room.roomTypeKey}`) : '',
     guest: room.guest || '',
     pax: room.pax || '',
-    status: room.status,
-    availability: room.availability,
+    status: room.statusKey ? t(`statut.${room.statusKey}`) : '',
+    availability: room.availabilityKey ? t(`reports.backOffice.availabilityTypes.${room.availabilityKey}`) : '',
     houseKeeper: room.houseKeeper,
     checkInDate: room.checkInDate || '',
     checkOutDate: room.checkOutDate || '',
-    hkRemarks: room.hkRemarks || ''
+    hkRemarks: room.hkRemarksKey ? t(`reports.backOffice.hkRemarksMessages.${room.hkRemarksKey}`) : ''
   }))
 })
 
@@ -423,10 +423,10 @@ const resetForm = (): void => {
 
 const getSelectedStatusText = (): string => {
   const selectedStatuses = []
-  if (filters.value.status.dirty) selectedStatuses.push('Dirty')
-  if (filters.value.status.fresh) selectedStatuses.push('Fresh')
-  if (filters.value.status.maintenance) selectedStatuses.push('Maintenance')
-  return selectedStatuses.length > 0 ? selectedStatuses.join(', ') : 'None'
+  if (filters.value.status.dirty) selectedStatuses.push(t('statut.dirty'))
+  if (filters.value.status.fresh) selectedStatuses.push(t('statut.clean'))
+  if (filters.value.status.maintenance) selectedStatuses.push(t('statut.maintenance'))
+  return selectedStatuses.length > 0 ? selectedStatuses.join(', ') : t('common.none')
 }
 
 const getStatusClass = (status: string): string => {

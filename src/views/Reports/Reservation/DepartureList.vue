@@ -6,7 +6,7 @@
           {{ $t('reports.reservation.departureList') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage departing guest reservations
+          {{ $t('reports.reservation.departureListDescription') }}
         </p>
       </div>
 
@@ -20,7 +20,7 @@
           <!-- Departure Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('reports.reservation.departure') }} From
+              {{ $t('common.departureFrom') }}
             </label>
             <InputDatepicker
               v-model="filters.departureFrom"
@@ -30,7 +30,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('reports.reservation.departure') }} To
+              {{ $t('common.departureTo') }}
             </label>
             <InputDatepicker
               v-model="filters.departureTo"
@@ -45,7 +45,7 @@
             <SelectComponent
               v-model="filters.company"
               :options="companyOptions"
-              :placeholder="$t('common.select')"
+              :placeholder="$t('common.selectCompany')"
               class="w-full"
             />
           </div>
@@ -60,7 +60,7 @@
             <SelectComponent
               v-model="filters.roomType"
               :options="roomTypeOptions"
-              :placeholder="$t('common.select')"
+              :placeholder="$t('common.selectRoomType')"
               class="w-full"
             />
           </div>
@@ -73,7 +73,7 @@
             <SelectComponent
               v-model="filters.travelAgent"
               :options="travelAgentOptions"
-              :placeholder="$t('common.select')"
+              :placeholder="$t('common.selectTravelAgent')"
               class="w-full"
             />
           </div>
@@ -86,7 +86,7 @@
             <SelectComponent
               v-model="filters.rateType"
               :options="rateTypeOptions"
-              :placeholder="$t('common.select')"
+              :placeholder="$t('common.selectRateType')"
               class="w-full"
             />
           </div>
@@ -100,8 +100,8 @@
             </label>
             <SelectComponent
               v-model="filters.businessSource"
-              :options="BusinessSource"
-              :placeholder="$t('common.select')"
+              :options="businessSourceOptions"
+              :placeholder="$t('common.selectBusinessSource')"
               class="w-full"
             />
           </div>
@@ -113,8 +113,8 @@
             </label>
             <SelectComponent
               v-model="filters.market"
-              :options="MarketCode"
-              :placeholder="$t('common.select')"
+              :options="marketOptions"
+              :placeholder="$t('common.selectMarket')"
               class="w-full"
             />
           </div>
@@ -127,7 +127,7 @@
             <SelectComponent
               v-model="filters.user"
               :options="userOptions"
-              :placeholder="$t('common.select')"
+              :placeholder="$t('common.selectUser')"
               class="w-full"
             />
           </div>
@@ -137,7 +137,7 @@
           <!-- Rate Range -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('reports.reservation.rateFrom') }}
+              {{ $t('common.rateFrom') }}
             </label>
             <input
               v-model="filters.rateFrom"
@@ -149,7 +149,7 @@
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.to') }}
+              {{ $t('common.rateTo') }}
             </label>
             <input
               v-model="filters.rateTo"
@@ -162,12 +162,12 @@
           <!-- Show Amount -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('reports.reservation.showAmount') }}
+              {{ $t('common.showAmount') }}
             </label>
             <SelectComponent
               v-model="filters.showAmount"
               :options="showAmountOptions"
-              :placeholder="$t('common.select')"
+              :placeholder="$t('common.selectAmountType')"
               class="w-full"
             />
           </div>
@@ -179,8 +179,8 @@
             <label class="font-medium mb-1 text-gray-600">{{ $t('common.reservationType') }}</label>
             <SelectComponent
               v-model="filters.reservationType"
-              :options="BookingType"
-              :placeholder="$t('common.select')"
+              :options="bookingTypeOptions"
+              :placeholder="$t('common.selectReservationType')"
             />
           </div>
 
@@ -226,7 +226,7 @@
                 <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                CSV
+                {{ $t('common.csv') }}
               </button>
               <button
                 @click="exportPDF"
@@ -236,7 +236,7 @@
                 <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                PDF
+                {{ $t('common.pdf') }}
               </button>
               <button
                 @click="exportExcel"
@@ -246,7 +246,7 @@
                 <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Excel
+                {{ $t('common.excel') }}
               </button>
             </div>
           </div>
@@ -289,8 +289,8 @@
           </div>
         </div>
 
-        <!-- HTML Report Content -->
-        <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
+        <!-- HTML Report Content (post-traité pour i18n) -->
+        <div v-if="reportData?.html" v-html="translatedHtml" class="report-html-container"></div>
 
         <!-- Fallback if no HTML (normal table display) -->
         <div v-else>
@@ -400,13 +400,13 @@ const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
 
 const showAmountOptions = ref<FilterOptions[]>([
-  { value: 'rent_per_night', label: t('reports.reservation.rentPerNight') },
-  { value: 'total_amount', label: t('reports.reservation.totalAmount') }
+  { value: 'rent_per_night', label: t('common.ratePerNight') },
+  { value: 'total_amount', label: t('common.totalAmount') }
 ])
 
 const travelAgentOptions = ref<FilterOptions[]>([
-  { value: 'agent1', label: t('travelAgents.agent1') },
-  { value: 'agent2', label: t('travelAgents.agent2') }
+  { value: 'agent1', label: t('common.travelAgents.agent1') },
+  { value: 'agent2', label: t('common.travelAgents.agent2') }
 ])
 
 const {
@@ -417,37 +417,65 @@ const {
   MarketCode,
 } = useBooking()
 
+// Traduction dynamique des types de réservation provenant de l'API/store
+const normalizeKey = (name: string): string => {
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+const bookingTypeOptions = computed<FilterOptions[]>(() => {
+  const list: any[] = (BookingType as any).value || []
+  return list.map((opt: any) => {
+    const rawLabel = opt.label ?? opt.name ?? ''
+    const key = `reservation.types.${normalizeKey(rawLabel)}`
+    const translated = t(key)
+    const finalLabel = translated === key ? rawLabel : translated
+    return { value: opt.value ?? String(opt.id), label: finalLabel }
+  })
+})
+
+// Traduction dynamique des sources d'affaires
+const businessSourceOptions = computed<FilterOptions[]>(() => {
+  const list: any[] = (BusinessSource as any).value || []
+  return list.map((opt: any) => {
+    const rawLabel = opt.label ?? opt.name ?? ''
+    const key = `bookings.sources.${normalizeKey(rawLabel)}`
+    const translated = t(key)
+    const finalLabel = translated === key ? rawLabel : translated
+    return { value: opt.value ?? String(opt.id), label: finalLabel }
+  })
+})
+
+// Traduction dynamique des marchés
+const marketOptions = computed<FilterOptions[]>(() => {
+  const list: any[] = (MarketCode as any).value || []
+  return list.map((opt: any) => {
+    const rawLabel = opt.label ?? opt.name ?? ''
+    const key = `common.markets.${normalizeKey(rawLabel)}`
+    const translated = t(key)
+    const finalLabel = translated === key ? rawLabel : translated
+    return { value: opt.value ?? String(opt.id), label: finalLabel }
+  })
+})
+
 // Sample data for the table
-const reservationData = ref<Reservation[]>([
-  {
-    resNo: 'BE306',
-    guest: t('sampleData.guest'),
-    room: `101 - ${t('roomTypes.suite')}`,
-    rate: '100.00',
-    arrival: '28/04/2019 11:30:00 AM',
-    departure: '01/05/2019',
-    pax: '1/0',
-    pickUp: '',
-    dropOff: '',
-    resType: t('reservationTypes.confirmed'),
-    company: '',
-    user: t('users.helpdesk')
-  }
-])
+const reservationData = ref<Reservation[]>([])
 
 // Table columns
 const tableColumns = computed(() => {
   return [
-    { key: 'resNo', label: t('tableColumns.resNo') },
-    { key: 'guest', label: t('tableColumns.guest') },
-    { key: 'room', label: t('tableColumns.room') },
-    { key: 'rate', label: t('tableColumns.rate') },
-    { key: 'arrival', label: t('tableColumns.arrival') },
-    { key: 'departure', label: t('tableColumns.departure') },
-    { key: 'pax', label: t('tableColumns.pax') },
-    { key: 'resType', label: t('tableColumns.resType') },
-    { key: 'company', label: t('tableColumns.company') },
-    { key: 'user', label: t('tableColumns.user') }
+    { key: 'resNo', label: t('reports.reservation.columns.resNo') },
+    { key: 'guest', label: t('common.guest') },
+    { key: 'room', label: t('common.room') },
+    { key: 'rate', label: t('common.rate') },
+    { key: 'arrival', label: t('common.arrival') },
+    { key: 'departure', label: t('common.departure') },
+    { key: 'pax', label: t('common.pax') },
+    { key: 'resType', label: t('reports.reservation.columns.reservationTypeShort') },
+    { key: 'company', label: t('common.company') },
+    { key: 'user', label: t('common.user') }
   ]
 })
 
@@ -603,6 +631,77 @@ const exportExcel = async (): Promise<void> => {
     exportLoading.value = false
   }
 }
+
+// Traduit des fragments HTML renvoyés par l'API (fallback côté client)
+const translateReportHtml = (html: string): string => {
+  if (!html) return html
+  const replacements: Record<string, string> = {
+    // Titres et descriptions
+    'Departure List Report': t('reports.reservation.departureResults'),
+    'View and manage departing guest reservations': t('reports.reservation.departureListDescription'),
+    // Entêtes
+    'Hotel:': t('reports.reservation.hotel') + ':',
+    'Departure From:': t('common.departureFrom') + ':',
+    'From:': t('common.from') + ':',
+    'To:': t('common.to') + ':',
+    'Order By:': t('reports.reservation.orderBy') + ':',
+    'Room': t('common.room'),
+    'Tax Inclusive:': t('reports.reservation.taxInclusive') + ':',
+    'Yes': t('common.yes'),
+    'No': t('common.no'),
+    // Colonnes - en-têtes de tableau (insensible à la casse et avec variantes)
+    '>RES\\. NO<': '>' + t('reports.reservation.columns.resNo').toUpperCase() + '<',
+    '>RES\\. NON<': '>' + t('reports.reservation.columns.resNo').toUpperCase() + '<',
+    '>GUEST<': '>' + t('reports.reservation.columns.guest').toUpperCase() + '<',
+    '>ROOM<': '>' + t('reports.reservation.columns.room').toUpperCase() + '<',
+    '>RATE<': '>' + t('reports.reservation.columns.rate').toUpperCase() + '<',
+    '>ARRIVAL<': '>' + t('reports.reservation.columns.arrival').toUpperCase() + '<',
+    '>DEPARTURE<': '>' + t('reports.reservation.columns.departure').toUpperCase() + '<',
+    '>PAX<': '>' + t('reports.reservation.columns.pax').toUpperCase() + '<',
+    '>BUSINESS SOURCE<': '>' + t('reports.reservation.columns.businessSource').toUpperCase() + '<',
+    '>RES\\.TYPE<': '>' + t('reports.reservation.columns.reservationTypeShort').toUpperCase() + '<',
+    '>USER<': '>' + t('reports.reservation.columns.user').toUpperCase() + '<',
+    // Sans les balises HTML (pour les cas où ils sont dans du texte)
+    'RES. NO': t('reports.reservation.columns.resNo').toUpperCase(),
+    'RES. NON': t('reports.reservation.columns.resNo').toUpperCase(),
+    'GUEST': t('reports.reservation.columns.guest').toUpperCase(),
+    'ROOM': t('reports.reservation.columns.room').toUpperCase(),
+    'RATE': t('reports.reservation.columns.rate').toUpperCase(),
+    'ARRIVAL': t('reports.reservation.columns.arrival').toUpperCase(),
+    'DEPARTURE': t('reports.reservation.columns.departure').toUpperCase(),
+    'PAX': t('reports.reservation.columns.pax').toUpperCase(),
+    'BUSINESS SOURCE': t('reports.reservation.columns.businessSource').toUpperCase(),
+    'RES.TYPE': t('reports.reservation.columns.reservationTypeShort').toUpperCase(),
+    'USER': t('reports.reservation.columns.user').toUpperCase(),
+    // Valeurs courantes éventuelles
+    'Directly': t('bookings.sources.direct'),
+    'Direct': t('bookings.sources.direct'),
+    'System': t('common.system'),
+    'N/A': t('common.na'),
+  }
+
+  let out = html
+  // Traiter d'abord les remplacements avec balises HTML
+  for (const [en, fr] of Object.entries(replacements)) {
+    if (en.startsWith('>') && en.endsWith('<')) {
+      // Remplacement avec contexte HTML
+      const regex = new RegExp(en, 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  // Ensuite les remplacements simples (sans balises)
+  for (const [en, fr] of Object.entries(replacements)) {
+    if (!en.startsWith('>') || !en.endsWith('<')) {
+      // Remplacement insensible à la casse pour couvrir les variantes
+      const escaped = en.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const regex = new RegExp('\\b' + escaped + '\\b', 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  return out
+}
+
+const translatedHtml = computed(() => translateReportHtml(reportData.value?.html || ''))
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''

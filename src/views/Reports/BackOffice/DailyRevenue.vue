@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ t('Daily Revenue Reports') }}
+          {{ $t('Daily Revenue Reports') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage daily revenue
+          {{ $t('viewAndManageDailyRevenue') }}
         </p>
       </div>
 
@@ -15,7 +15,7 @@
         <!-- Date Selection Radio Buttons -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            {{ t('Date') }}
+            {{ $t('Date') }}
           </label>
           <div class="flex gap-6">
             <label class="inline-flex items-center">
@@ -25,7 +25,7 @@
                 value="booking"
                 class="form-radio h-4 w-4 text-blue-600"
               >
-              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Booking') }}</span>
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Booking') }}</span>
             </label>
             <label class="inline-flex items-center">
               <input 
@@ -34,7 +34,7 @@
                 value="stay"
                 class="form-radio h-4 w-4 text-blue-600"
               >
-              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Stay') }}</span>
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Stay') }}</span>
             </label>
             <label class="inline-flex items-center">
               <input 
@@ -43,7 +43,7 @@
                 value="departure"
                 class="form-radio h-4 w-4 text-blue-600"
               >
-              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Departure') }}</span>
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Departure') }}</span>
             </label>
           </div>
         </div>
@@ -52,11 +52,11 @@
           <!-- From Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('From') }}
+              {{ $t('From') }}
             </label>
             <InputDatepicker 
               v-model="filters.fromDate" 
-              placeholder="DD/MM/YYYY"
+              :placeholder="$t('dateFormat')"
               class="w-full"
             />
           </div>
@@ -64,11 +64,11 @@
           <!-- To Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('To') }}
+              {{ $t('To') }}
             </label>
             <InputDatepicker 
               v-model="filters.toDate" 
-              placeholder="DD/MM/YYYY"
+              :placeholder="$t('dateFormat')"
               class="w-full"
             />
           </div>
@@ -76,12 +76,12 @@
           <!-- Business Source -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('Business Source') }}
+              {{ $t('Business Source') }}
             </label>
             <SelectComponent 
               v-model="filters.businessSource"
               :options="BusinessSource"
-              placeholder="--Select--"
+              :placeholder="$t('select')"
               :multiple="false"
               class="w-full"
             />
@@ -90,12 +90,12 @@
           <!-- Room -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('Room') }}
+              {{ $t('Room') }}
             </label>
             <SelectComponent 
               v-model="filters.room"
               :options="roomOptions"
-              placeholder="--Select--"
+              :placeholder="$t('select')"
               :multiple="false"
               class="w-full"
             />
@@ -110,7 +110,7 @@
               v-model="filters.showOnlyUnassignRooms"
               class="form-checkbox h-4 w-4 text-blue-600 rounded"
             >
-            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Show Only Unassign Rooms') }}</span>
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Show Only Unassign Rooms') }}</span>
           </label>
      <!--      <label class="inline-flex items-center">
             <input 
@@ -118,7 +118,7 @@
               v-model="filters.showUnpostedInclusion"
               class="form-checkbox h-4 w-4 text-blue-600 rounded"
             >
-            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Show Unposted Inclusion') }}</span>
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Show Unposted Inclusion') }}</span>
           </label> -->
           <label class="inline-flex items-center">
             <input 
@@ -126,21 +126,21 @@
               v-model="filters.discardUnconfirmedBookings"
               class="form-checkbox h-4 w-4 text-blue-600 rounded"
             >
-            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ t('Discard Unconfirmed Bookings') }}</span>
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Discard Unconfirmed Bookings') }}</span>
           </label>
         </div>
 
         <!-- Export Settings Section -->
         <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mb-6">
           <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
-            {{ t('Below Settings Available only for Export Functionality :') }}
+            {{ $t('belowSettingsAvailableOnlyForExport') }}
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
             <!-- Payment Method -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {{ t('Payment Method') }}
+                {{ $t('Payment Method') }}
               </label>
               <div class="border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
                 <div class="p-4 pb-1 border-b border-gray-300 dark:border-gray-600">
@@ -151,7 +151,7 @@
                       @change="toggleAllPaymentMethods"
                       class="form-checkbox h-4 w-4 text-blue-600 rounded"
                     >
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{{ t('Select All') }}</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{{ $t('Select All') }}</span>
                   </label>
                 </div>
                 <div class="max-h-40 overflow-y-auto p-2">
@@ -171,7 +171,7 @@
             <!-- Taxes -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {{ t('Taxes') }}
+                {{ $t('Taxes') }}
               </label>
               <div class="border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
                 <div class="p-4 pb-1 border-b border-gray-300 dark:border-gray-600">
@@ -182,7 +182,7 @@
                       @change="toggleAllTaxes"
                       class="form-checkbox h-4 w-4 text-blue-600 rounded"
                     >
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{{ t('Select All') }}</span>
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{{ $t('Select All') }}</span>
                   </label>
                 </div>
                 <div class="max-h-40 overflow-y-auto p-2">
@@ -203,7 +203,7 @@
           <!-- Note -->
           <div class="p-3 mb-4">
             <p class="text-xs text-gray-900 dark:text-gray-100">
-              <strong>{{ t('NOTE :') }}</strong> {{ t("Nights will calculate on Primary(Master) folio. In second folio, Nights will show as '-'") }}
+              <strong>{{ $t('note') }}:</strong> {{ $t('nightsCalculationNote') }}
             </p>
           </div>
         </div>
@@ -216,7 +216,7 @@
             :disabled="isLoading || !filters.fromDate || !filters.toDate"
             class="inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
           >
-            <span v-if="!isLoading">{{ t('Export') }}</span>
+            <span v-if="!isLoading">{{ $t('Export') }}</span>
             <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -229,7 +229,7 @@
             :disabled="isLoading || !filters.fromDate || !filters.toDate"
             class="inline-flex justify-center items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
           >
-            {{ t('Report') }}
+            {{ $t('Report') }}
           </button>
           
           <!-- Reset Button -->
@@ -237,7 +237,7 @@
             @click="resetForm"
             class="inline-flex justify-center items-center px-6 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
           >
-            {{ t('Reset') }}
+            {{ $t('Reset') }}
           </button>
         </div>
       </div>
@@ -272,28 +272,28 @@
         <!-- Report Header -->
         <div class="flex justify-between items-center p-6 border-b-2 border-gray-900 dark:border-gray-700">
           <h1 class="text-lg font-bold text-blue-900 dark:text-blue-400">
-            {{ reportData.hotelDetails?.hotelName || 'Hotel Name' }}
+            {{ reportData.hotelDetails?.hotelName || $t('hotelName') }}
           </h1>
           <h2 class="text-lg font-bold text-red-700 dark:text-red-400">
-            Detail Revenue Report
+            {{ $t('detailRevenueReport') }}
           </h2>
         </div>
 
         <!-- Filters Info Section -->
         <div class="px-6 py-4 text-xs border-b-2 border-gray-900 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div class="mb-2">
-            <span class="font-semibold">Query From:</span> {{ reportData.dateRange?.fromDate }} 
-            <span class="font-semibold ml-4">To:</span> {{ reportData.dateRange?.toDate }} 
-            <span class="font-semibold ml-4">Date Type:</span> {{ formatDateType(reportData.filters?.dateType) }} 
-            <span class="font-semibold ml-4">Show Guest Unassigned Rooms:</span> {{ reportData.filters?.showUnassignRooms ? 'Yes' : 'No' }} 
-            <span class="font-semibold ml-4">Discard Unconfirmed Bookings:</span> {{ reportData.filters?.discardUnconfirmedBookings ? 'Yes' : 'No' }} 
+            <span class="font-semibold">{{ $t('queryFrom') }}:</span> {{ reportData.dateRange?.fromDate }} 
+            <span class="font-semibold ml-4">{{ $t('To') }}:</span> {{ reportData.dateRange?.toDate }} 
+            <span class="font-semibold ml-4">{{ $t('dateType') }}:</span> {{ formatDateType(reportData.filters?.dateType) }} 
+            <span class="font-semibold ml-4">{{ $t('showGuestUnassignedRooms') }}:</span> {{ reportData.filters?.showUnassignRooms ? $t('yes') : $t('no') }} 
+            <span class="font-semibold ml-4">{{ $t('discardUnconfirmedBookings') }}:</span> {{ reportData.filters?.discardUnconfirmedBookings ? $t('yes') : $t('no') }} 
             <!-- <span class="font-semibold ml-4">Include Unposted Inclusion:</span> {{ reportData.filters?.showUnpostedInclusion ? 'Yes' : 'No' }} -->
           </div>
           <div class="font-semibold mb-1">
-            *Total Revenue: Revenue Only From Property (After deduction of commission)
+            *{{ $t('totalRevenueNote') }}
           </div>
           <div class="font-bold">
-            *Room Rate = Offered Rate
+            *{{ $t('roomRateNote') }}
           </div>
         </div>
 
@@ -302,27 +302,27 @@
           <table class="w-full text-xs">
             <thead>
               <tr class="border-b-2 border-gray-900 dark:border-gray-700">
-                <th class="px-2 py-3 text-center font-bold">Sr. No</th>
-                <th class="px-2 py-3 text-center font-bold">Guest Name</th>
-                <th class="px-2 py-3 text-center font-bold">Source</th>
-                <th class="px-2 py-3 text-center font-bold">Arrival</th>
-                <th class="px-2 py-3 text-center font-bold">Dept</th>
-                <th class="px-2 py-3 text-center font-bold">Nights</th>
-                <th class="px-2 py-3 text-center font-bold">Room</th>
-                <th class="px-2 py-3 text-center font-bold">Vouc No</th>
-                <th class="px-2 py-3 text-center font-bold">Rate Type</th>
-                <th class="px-2 py-3 text-center font-bold">Folio No</th>
-                <th class="px-2 py-3 text-center font-bold">Room Rate<br>(XAF)</th>
-                <th class="px-2 py-3 text-center font-bold">Charges<br>(XAF)</th>
-                <th class="px-2 py-3 text-center font-bold">Taxes<br>(XAF)</th>
-                <th class="px-2 py-3 text-center font-bold">Commission<br>(XAF)</th>
-                <th class="px-2 py-3 text-center font-bold">Revenue<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('serialNumber') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('guestName') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('source') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('arrival') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('departure') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('nights') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('Room') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('voucherNumber') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('rateType') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('folioNumber') }}</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('roomRate') }}<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('charges') }}<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('taxes') }}<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('commission') }}<br>(XAF)</th>
+                <th class="px-2 py-3 text-center font-bold">{{ $t('revenue') }}<br>(XAF)</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!reportData.reportData?.reservations || reportData.reportData.reservations.length === 0">
                 <td colspan="15" class="px-2 py-6 text-center text-gray-500 italic">
-                  No reservations found for the selected period
+                  {{ $t('noReservationsFoundForPeriod') }}
                 </td>
               </tr>
               <template v-else>
@@ -346,7 +346,7 @@
                 
                 <!-- Grand Total Row -->
                 <tr class="border-t-2 border-b-2 border-gray-900 dark:border-gray-700 bg-white dark:bg-gray-800 font-bold">
-                  <td class="px-2 py-3 text-left">Grand Total</td>
+                  <td class="px-2 py-3 text-left">{{ $t('grandTotal') }}</td>
                   <td colspan="9" class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalRoomRate) }}</td>
                   <td class="px-2 py-3 text-right">-</td>
                   <td class="px-2 py-3 text-right">{{ formatCurrency(reportData.grandTotals?.totalTaxes) }}</td>
@@ -530,12 +530,12 @@ const currentParams = computed(():DailyRevenueReportFilters => {
 
 const reportTitle = computed(() => {
   const dateTypeLabel = {
-    booking: 'Booking Date',
-    stay: 'Stay Date',
-    departure: 'Departure Date'
+    booking: t('Booking'),
+    stay: t('Stay'),
+    departure: t('Departure')
   }[filters.value.dateType]
   
-  return `Daily Revenue Report (${dateTypeLabel}) - ${filters.value.fromDate} to ${filters.value.toDate}`
+  return `${t('Daily Revenue Reports')} (${dateTypeLabel}) - ${filters.value.fromDate} ${t('To')} ${filters.value.toDate}`
 })
 
 // Methods
@@ -574,8 +574,13 @@ const formatCurrency = (value: number): string => {
 }
 
 const formatDateType = (dateType: string): string => {
-  if (!dateType) return 'Stay'
-  return dateType.charAt(0).toUpperCase() + dateType.slice(1)
+  if (!dateType) return t('Stay')
+  const dateTypeMap: Record<string, string> = {
+    booking: t('Booking'),
+    stay: t('Stay'),
+    departure: t('Departure')
+  }
+  return dateTypeMap[dateType] || dateType.charAt(0).toUpperCase() + dateType.slice(1)
 }
 
 const exportData = async (): Promise<void> => {
@@ -595,7 +600,7 @@ const exportData = async (): Promise<void> => {
     console.log('📊 Daily receipt report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating daily receipt report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate PDF'
+    errorMessage.value = error instanceof Error ? error.message : t('failedToGeneratePDF')
   } finally {
     isLoading.value = false
   }
@@ -618,7 +623,7 @@ const generateReport = async (): Promise<void> => {
     console.log('✅ Daily revenue report generated successfully:', reportTitle.value)
   } catch (error) {
     console.error('❌ Error generating daily revenue report:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+    errorMessage.value = error instanceof Error ? error.message : t('failedToGenerateReport')
   } finally {
     isLoading.value = false
   }

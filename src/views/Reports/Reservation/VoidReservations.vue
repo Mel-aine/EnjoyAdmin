@@ -3,36 +3,36 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Void Reservations
+          {{ t('reports.reservation.voidReservation') }}
         </h1>
       </div>
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Filters
+          {{ t('common.filters') }}
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Cancellation Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Void From
+              {{ t('reports.reservation.voidFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalFrom" 
-              placeholder="From"
+              :placeholder="t('common.from')"
               class="w-full"
               @update:modelValue="updateDateFilter('startDate', $event)"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Void To
+              {{ t('reports.reservation.voidTo') }}
             </label>
             <InputDatepicker 
               v-model="filters.arrivalTo" 
-              placeholder="To"
+              :placeholder="t('common.to')"
               class="w-full"
               @update:modelValue="updateDateFilter('endDate', $event)"
             />
@@ -52,7 +52,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span v-if="!exportLoading">Export</span>
+              <span v-if="!exportLoading">{{ t('common.export') }}</span>
               <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
@@ -68,7 +68,7 @@
                 <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                CSV
+                {{ t('common.csv') }}
               </button>
               <button 
                 @click="exportPDF" 
@@ -78,7 +78,7 @@
                 <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                PDF
+                {{ t('common.pdf') }}
               </button>
               <button 
                 @click="exportExcel" 
@@ -88,7 +88,7 @@
                 <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Excel
+                {{ t('common.excel') }}
               </button>
             </div>
           </div>
@@ -103,7 +103,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Report
+            {{ t('common.report') }}
           </button>
           
           <!-- Reset Button -->
@@ -114,7 +114,7 @@
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Reset
+            {{ t('common.reset') }}
           </button>
         </div>
       </div>
@@ -124,15 +124,15 @@
         <!-- Report header -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ reportData?.title || 'Void Reservations Results' }}
+            {{ reportData?.title || t('reports.reservation.voidReservationResults') }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>Generated: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
+            <span>{{ t('common.generated') }}: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
           </div>
         </div>
         
         <!-- HTML Report Content -->
-        <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
+        <div v-if="reportData?.html" v-html="translatedHtml" class="report-html-container"></div>
         
         <!-- Fallback if no HTML (normal table display) -->
         <div v-else>
@@ -173,13 +173,13 @@
           <!-- Total Row -->
           <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
             <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
-              <div>Total Cancelled Reservations: {{ totalReservations }}</div>
+              <div>{{ t('reports.reservation.totalVoidReservations') }}: {{ totalReservations }}</div>
               <div class="flex gap-4">
-                <div>ADR: {{ totalADR }}</div>
-                <div>Car Revenue: {{ totalCarRevenue }}</div>
-                <div>Charges: {{ totalCharges }}</div>
-                <div>Paid: {{ totalPaid }}</div>
-                <div>Balance: {{ totalBalance }}</div>
+                <div>{{ t('reports.reservation.columns.adr') }}: {{ totalADR }}</div>
+                <div>{{ t('reports.reservation.columns.carRevenue') }}: {{ totalCarRevenue }}</div>
+                <div>{{ t('reports.reservation.columns.charges') }}: {{ totalCharges }}</div>
+                <div>{{ t('reports.reservation.columns.paid') }}: {{ totalPaid }}</div>
+                <div>{{ t('reports.reservation.columns.balance') }}: {{ totalBalance }}</div>
               </div>
             </div>
           </div>
@@ -469,8 +469,140 @@ const totalBalance = computed(() => {
 })
 
 const reportTitle = computed(() => {
-  return reportData.value?.title || 'Void Reservations Report'
+  return reportData.value?.title || t('reports.reservation.voidReservationResults')
 })
+
+// Traduit des fragments HTML renvoyés par l'API (fallback côté client)
+const translateReportHtml = (html: string): string => {
+  if (!html) return html
+  const replacements: Record<string, string> = {
+    // Titres et descriptions
+    'Void Reservations Report': t('reports.reservation.voidReservationResults'),
+    // Entêtes (avec et sans deux-points)
+    'Hotel:': t('reports.reservation.hotel') + ':',
+    'Hotel': t('reports.reservation.hotel'),
+    'Void From:': t('reports.reservation.voidFrom') + ':',
+    'Void From': t('reports.reservation.voidFrom'),
+    'From:': t('common.from') + ':',
+    'From': t('common.from'),
+    'To:': t('common.to') + ':',
+    'To': t('common.to'),
+    'Order By:': t('reports.reservation.orderBy') + ':',
+    'Order By': t('reports.reservation.orderBy'),
+    'Room': t('common.room'),
+    'Tax Inclusive:': t('reports.reservation.taxInclusive') + ':',
+    'Tax Inclusive': t('reports.reservation.taxInclusive'),
+    'Yes': t('common.yes'),
+    'No': t('common.no'),
+    // Colonnes - en-têtes de tableau (insensible à la casse et avec variantes)
+    '>RES\\. NO<': '>' + t('reports.reservation.columns.resNo').toUpperCase() + '<',
+    '>RES\\. NON<': '>' + t('reports.reservation.columns.resNo').toUpperCase() + '<',
+    '>BOOKING DATE<': '>' + t('reports.reservation.columns.bookingDate').toUpperCase() + '<',
+    '>GUEST<': '>' + t('reports.reservation.columns.guest').toUpperCase() + '<',
+    '>RATE TYPE<': '>' + t('reports.reservation.columns.rateType').toUpperCase() + '<',
+    '>ARRIVAL<': '>' + t('reports.reservation.columns.arrival').toUpperCase() + '<',
+    '>DEPARTURE<': '>' + t('reports.reservation.columns.departure').toUpperCase() + '<',
+    '>FOLIO NO<': '>' + t('reports.reservation.columns.folioNo').toUpperCase() + '<',
+    '>FOLIO\\. NO<': '>' + t('reports.reservation.columns.folioNo').toUpperCase() + '<',
+    '>ADR<': '>' + t('reports.reservation.columns.adr').toUpperCase() + '<',
+    '>CAR REVENUE<': '>' + t('reports.reservation.columns.carRevenue').toUpperCase() + '<',
+    '>CHARGES<': '>' + t('reports.reservation.columns.charges').toUpperCase() + '<',
+    '>PAID<': '>' + t('reports.reservation.columns.paid').toUpperCase() + '<',
+    '>BALANCE<': '>' + t('reports.reservation.columns.balance').toUpperCase() + '<',
+    '>SOURCE<': '>' + t('reports.reservation.columns.source').toUpperCase() + '<',
+    '>SOURCI<': '>' + t('reports.reservation.columns.source').toUpperCase() + '<',
+    '>CANCELLED BY<': '>' + t('reports.reservation.columns.cancelledBy').toUpperCase() + '<',
+    '>CANCELLED DATE<': '>' + t('reports.reservation.columns.cancelledDate').toUpperCase() + '<',
+    // Sans les balises HTML (pour les cas où ils sont dans du texte)
+    'RES. NO': t('reports.reservation.columns.resNo').toUpperCase(),
+    'RES. NON': t('reports.reservation.columns.resNo').toUpperCase(),
+    'BOOKING DATE': t('reports.reservation.columns.bookingDate').toUpperCase(),
+    'GUEST': t('reports.reservation.columns.guest').toUpperCase(),
+    'RATE TYPE': t('reports.reservation.columns.rateType').toUpperCase(),
+    'ARRIVAL': t('reports.reservation.columns.arrival').toUpperCase(),
+    'DEPARTURE': t('reports.reservation.columns.departure').toUpperCase(),
+    'FOLIO NO': t('reports.reservation.columns.folioNo').toUpperCase(),
+    'FOLIO. NO': t('reports.reservation.columns.folioNo').toUpperCase(),
+    'ADR': t('reports.reservation.columns.adr').toUpperCase(),
+    'CAR REVENUE': t('reports.reservation.columns.carRevenue').toUpperCase(),
+    'CHARGES': t('reports.reservation.columns.charges').toUpperCase(),
+    'PAID': t('reports.reservation.columns.paid').toUpperCase(),
+    'BALANCE': t('reports.reservation.columns.balance').toUpperCase(),
+    'SOURCE': t('reports.reservation.columns.source').toUpperCase(),
+    'SOURCI': t('reports.reservation.columns.source').toUpperCase(),
+    'CANCELLED BY': t('reports.reservation.columns.cancelledBy').toUpperCase(),
+    'CANCELLED DATE': t('reports.reservation.columns.cancelledDate').toUpperCase(),
+    // Totaux
+    'Total Void Reservations:': t('reports.reservation.totalVoidReservations') + ':',
+    'Total Void Reservations': t('reports.reservation.totalVoidReservations'),
+    // Valeurs courantes éventuelles
+    'Directly': t('bookings.sources.direct'),
+    'Direct': t('bookings.sources.direct'),
+    'System': t('common.system'),
+    // Gérer N/A avec différentes variantes
+    ' N/A ': ' ' + t('common.na') + ' ',
+    ' N/A': ' ' + t('common.na'),
+    'N/A ': t('common.na') + ' ',
+    ': N/A': ': ' + t('common.na'),
+    'N/A': t('common.na'),
+  }
+
+  let out = html
+  
+  // Traiter d'abord les remplacements avec balises HTML
+  for (const [en, fr] of Object.entries(replacements)) {
+    if (en.startsWith('>') && en.endsWith('<')) {
+      // Remplacement avec contexte HTML
+      const regex = new RegExp(en, 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  
+  // Traiter ensuite N/A avec différentes variantes (ordre important : les plus spécifiques d'abord)
+  const naValue = t('common.na')
+  const naReplacements = [
+    // Avec espaces et contexte spécifiques
+    { pattern: /:\s*N\/A/gi, replacement: `: ${naValue}` },
+    { pattern: /\s+N\/A\s+/g, replacement: ` ${naValue} ` },
+    { pattern: /\s+N\/A(?=\s|$|:)/gi, replacement: ` ${naValue}` },
+    { pattern: /(?<=^|\s|:)N\/A\s+/gi, replacement: `${naValue} ` },
+    // Cas général
+    { pattern: /N\/A/gi, replacement: naValue }
+  ]
+  
+  for (const { pattern, replacement } of naReplacements) {
+    out = out.replace(pattern, replacement)
+  }
+  
+  // Ensuite les remplacements simples (sans balises, sauf N/A déjà traité)
+  // Traiter d'abord les variantes avec deux-points pour éviter les remplacements partiels
+  const colonReplacements = [
+    { pattern: /\bVoid From:\s*/gi, replacement: t('reports.reservation.voidFrom') + ': ' },
+    { pattern: /\bOrder By:\s*/gi, replacement: t('reports.reservation.orderBy') + ': ' },
+    { pattern: /\bHotel:\s*/gi, replacement: t('reports.reservation.hotel') + ': ' },
+    { pattern: /\bFrom:\s*/gi, replacement: t('common.from') + ': ' },
+    { pattern: /\bTo:\s*/gi, replacement: t('common.to') + ': ' },
+    { pattern: /\bTax Inclusive:\s*/gi, replacement: t('reports.reservation.taxInclusive') + ': ' }
+  ]
+  
+  for (const { pattern, replacement } of colonReplacements) {
+    out = out.replace(pattern, replacement)
+  }
+  
+  // Ensuite les autres remplacements simples (sans balises, sauf N/A et ceux avec deux-points déjà traités)
+  for (const [en, fr] of Object.entries(replacements)) {
+    if ((!en.startsWith('>') || !en.endsWith('<')) && !en.includes('N/A') && !en.endsWith(':')) {
+      // Remplacement insensible à la casse pour couvrir les variantes
+      const escaped = en.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const regex = new RegExp('\\b' + escaped + '\\b', 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  
+  return out
+}
+
+const translatedHtml = computed(() => translateReportHtml(reportData.value?.html || ''))
 
 // Watch for filter changes
 watch(filters, (newFilters) => {

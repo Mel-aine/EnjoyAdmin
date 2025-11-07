@@ -190,7 +190,7 @@ const user = authStore.user
 const currentMovement = reactive<StockMovement>({
   date: new Date().toISOString().split('T')[0],
   productId: null,
-  type: 'Entrée',
+  type: 'Entry',
   quantity: 1,
   sourceId: 0,
   destinationId: null,
@@ -261,7 +261,7 @@ const titles = computed(() => [
     type: 'action',
     actions: [
       {
-        name: 'Edit',
+        name: t('common.edit'),
         event: 'edit',
         icone: ` <svg class="h-5 w-5 text-blue-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
@@ -271,7 +271,7 @@ const titles = computed(() => [
           </svg>`,
       },
       {
-        name: 'Delete',
+        name: t('common.delete'),
         event: 'delete',
         icone: `<svg class="h-5 w-5 text-red-500" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z"/>
@@ -414,7 +414,7 @@ const resetForm = () => {
   Object.assign(currentMovement, {
     date: new Date().toISOString().split('T')[0],
     product: '',
-    type: 'Entrée',
+    type: 'Entry',
     quantity: 1,
     sourceId: 0,
     destinationId: 0,
@@ -500,6 +500,22 @@ const getStatusColor = (status: string) => {
   }
 }
 
+const getMovementTypeLabel = (type: string) => {
+  switch (type) {
+    case 'Entry':
+      return t('movement.entry')
+    case 'Exit':
+      return t('movement.exit')
+    case 'Transfer':
+      return t('movement.transfer')
+    case 'Ajustment':
+    case 'Adjustment':
+      return t('movement.adjustment')
+    default:
+      return type
+  }
+}
+
 onMounted(async () => {
   loading.value = true
   await fetchProduct()
@@ -534,8 +550,8 @@ const fetchMovements = async () => {
       const qtyOut = m.type === 'Exit' ? m.quantity : 0
       const stockFinal = currentStock + qtyIn - qtyOut
       const prod = product.value.find((p: any) => p.id === productId)
-      const productName = prod?.name || 'Inconnu'
-      const category = prod?.stockCategoryId ? getCategoryName(prod.stockCategoryId) : 'Non défini'
+      const productName = prod?.name || t('Unknown')
+      const category = prod?.stockCategoryId ? getCategoryName(prod.stockCategoryId) : t('common.na')
 
       console.log('Produit ID :', productId)
       console.log('Type :', m.type)
@@ -553,11 +569,11 @@ const fetchMovements = async () => {
         productName,
         category,
         statusColor: {
-          label: m.type,
+          label: getMovementTypeLabel(m.type),
           bg: statusClasses[0],
           text: statusClasses[1],
         },
-        destination: m.departmentId ? getDepartmentName(m.departmentId) : 'Non défini',
+        destination: m.departmentId ? getDepartmentName(m.departmentId) : t('common.na'),
 
         stockInitial: currentStock,
         stockFinal,

@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Travel Agent Commission
+          {{ $t('reports.backOffice.travelAgentCommissionDetail') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage travel agent commission reports
+          {{ $t('reports.backOffice.travelAgentCommissionDetailDescription') }}
         </p>
       </div>
 
@@ -16,11 +16,11 @@
           <!-- From Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              From
+              {{ $t('common.dateFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.dateFrom" 
-              placeholder="01/09/2021"
+              :placeholder="$t('common.dateFrom')"
               class="w-full"
             />
           </div>
@@ -28,11 +28,11 @@
           <!-- To Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ $t('common.dateTo') }}
             </label>
             <InputDatepicker 
               v-model="filters.dateTo" 
-              placeholder="20/09/2021"
+              :placeholder="$t('common.dateTo')"
               class="w-full"
             />
           </div>
@@ -40,7 +40,7 @@
           <!-- Travel Agent -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Travel Agent
+              {{ $t('common.travelAgent') }}
             </label>
             <SelectComponent 
               v-model="filters.travelAgent"
@@ -53,12 +53,12 @@
           <!-- Commission Plan -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Commission Plan
+              {{ $t('reports.backOffice.commissionPlan') }}
             </label>
             <SelectComponent 
               v-model="filters.commissionPlan"
               :options="commissionPlanOptions"
-              placeholder="--Select--"
+              :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
@@ -74,7 +74,7 @@
                 class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                Tax Inclusive Room Charges
+                {{ $t('reports.backOffice.taxInclusiveRoomCharges') }}
               </span>
             </label>
           </div>
@@ -82,19 +82,19 @@
           <!-- Report Template -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Report Template
+              {{ $t('common.reportTemplate') }}
             </label>
             <div class="flex items-center gap-2">
               <SelectComponent 
                 v-model="filters.reportTemplate"
                 :options="reportTemplateOptions"
-                placeholder="Default"
+                :placeholder="$t('common.reportTemplates.default')"
                 class="flex-1"
               />
               <button 
                 @click="editTemplate"
                 class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                title="Edit Template"
+                :title="$t('common.editTemplate')"
               >
                 <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -110,7 +110,7 @@
               variant="primary"
               class="min-w-20"
             >
-              Report
+              {{ $t('common.report') }}
             </ButtonComponent>
             
             <ButtonComponent 
@@ -118,7 +118,7 @@
               variant="outline"
               class="min-w-20"
             >
-              Reset
+              {{ $t('common.reset') }}
             </ButtonComponent>
           </div>
         </div>
@@ -133,18 +133,18 @@
               Karma
             </h2>
             <h2 class="text-lg font-semibold text-blue-600 dark:text-blue-400">
-              Travel Agent Commission
+              {{ $t('reports.backOffice.travelAgentCommissionDetail') }}
             </h2>
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            <span><strong>Date From:</strong> {{ filters.dateFrom }} <strong>To:</strong> {{ filters.dateTo }}</span>
+            <span><strong>{{ $t('common.dateFrom') }}:</strong> {{ filters.dateFrom }} <strong>{{ $t('common.to') }}:</strong> {{ filters.dateTo }}</span>
           </div>
         </div>
         
         <!-- Report Table -->
         <div class="overflow-x-auto">
           <ResultTable 
-            title="Travel Agent Commission Details"
+            :title="$t('reports.backOffice.travelAgentCommissionDetails')"
             :data="commissionData"
             :columns="commissionColumns"
             class="w-full mb-4 min-w-max"
@@ -153,7 +153,7 @@
           <!-- Total Row -->
           <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t">
             <div class="flex justify-between items-center font-semibold">
-              <span class="text-gray-900 dark:text-white">Total (RM)</span>
+              <span class="text-gray-900 dark:text-white">{{ $t('reports.backOffice.total') }} (RM)</span>
               <div class="flex gap-8">
                 <span class="text-gray-900 dark:text-white">1,500.00</span>
                 <span class="text-gray-900 dark:text-white">120.00</span>
@@ -168,12 +168,15 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import { defineAsyncComponent } from 'vue'
 const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
+
+const { t } = useI18n()
 
 interface FilterOptions {
   value: string;
@@ -213,23 +216,23 @@ const filters = ref<Filters>({
 })
 
 // Options for selects
-const travelAgentOptions = ref<FilterOptions[]>([
+const travelAgentOptions = computed<FilterOptions[]>(() => [
   { value: 'mahendra_travels', label: 'Mahendra Travels' },
   { value: 'kumar_tours', label: 'Kumar Tours' },
   { value: 'sunshine_travels', label: 'Sunshine Travels' }
 ])
 
-const commissionPlanOptions = ref<FilterOptions[]>([
-  { value: '', label: '--Select--' },
-  { value: 'standard', label: 'Standard Plan' },
-  { value: 'premium', label: 'Premium Plan' },
-  { value: 'custom', label: 'Custom Plan' }
+const commissionPlanOptions = computed<FilterOptions[]>(() => [
+  { value: '', label: t('common.select') },
+  { value: 'standard', label: t('reports.backOffice.commissionPlans.standard') },
+  { value: 'premium', label: t('reports.backOffice.commissionPlans.premium') },
+  { value: 'custom', label: t('reports.backOffice.commissionPlans.custom') }
 ])
 
-const reportTemplateOptions = ref<FilterOptions[]>([
-  { value: 'Default', label: 'Default' },
-  { value: 'detailed', label: 'Detailed' },
-  { value: 'summary', label: 'Summary' }
+const reportTemplateOptions = computed<FilterOptions[]>(() => [
+  { value: 'Default', label: t('common.reportTemplates.default') },
+  { value: 'detailed', label: t('common.reportTemplates.detailed') },
+  { value: 'summary', label: t('common.reportTemplates.summary') }
 ])
 
 // Sample commission data based on the image
@@ -240,7 +243,7 @@ const commissionDataRaw = ref<CommissionItem[]>([
     guestName: 'Help',
     folioNo: 'Folio204',
     voucherNo: '',
-    commissionPlan: '% on all nights (exclu. Tax)',
+    commissionPlan: 'onAllNightsExcluTax',
     roomCharges: '500.00',
     commission: '64.00',
     checkInBy: 'helpdesksupport'
@@ -251,7 +254,7 @@ const commissionDataRaw = ref<CommissionItem[]>([
     guestName: 'Help',
     folioNo: 'Folio206',
     voucherNo: '',
-    commissionPlan: '% on all nights (exclu. Tax)',
+    commissionPlan: 'onAllNightsExcluTax',
     roomCharges: '0.00',
     commission: '0.00',
     checkInBy: 'helpdesksupport'
@@ -262,7 +265,7 @@ const commissionDataRaw = ref<CommissionItem[]>([
     guestName: 'Help',
     folioNo: 'Folio205',
     voucherNo: 'N/A',
-    commissionPlan: '% on all nights (exclu. Tax)',
+    commissionPlan: 'onAllNightsExcluTax',
     roomCharges: '500.00',
     commission: '64.00',
     checkInBy: 'helpdesksupport'
@@ -271,15 +274,15 @@ const commissionDataRaw = ref<CommissionItem[]>([
 
 // Computed properties for ResultTable
 const commissionColumns = computed(() => [
-  { key: 'travelAgent', label: 'Travel Agent' },
-  { key: 'stay', label: 'Stay' },
-  { key: 'guestName', label: 'Guest Name' },
-  { key: 'folioNo', label: 'Folio No' },
-  { key: 'voucherNo', label: 'Voucher No' },
-  { key: 'commissionPlan', label: 'Commission Plan' },
-  { key: 'roomCharges', label: 'Room Charges (Tax Exclusive) (RM)' },
-  { key: 'commission', label: 'Commission (RM)' },
-  { key: 'checkInBy', label: 'Check In By' }
+  { key: 'travelAgent', label: t('common.travelAgent') },
+  { key: 'stay', label: t('common.stay') },
+  { key: 'guestName', label: t('common.guestName') },
+  { key: 'folioNo', label: t('common.folioNumber') },
+  { key: 'voucherNo', label: t('common.voucherNumber') },
+  { key: 'commissionPlan', label: t('reports.backOffice.commissionPlan') },
+  { key: 'roomCharges', label: t('reports.backOffice.roomChargesTaxExclusive') },
+  { key: 'commission', label: t('reports.backOffice.commissionAmount') },
+  { key: 'checkInBy', label: t('reports.backOffice.checkInBy') }
 ])
 
 const commissionData = computed(() => {
@@ -288,11 +291,11 @@ const commissionData = computed(() => {
     stay: item.stay,
     guestName: item.guestName,
     folioNo: item.folioNo,
-    voucherNo: item.voucherNo,
-    commissionPlan: item.commissionPlan,
+    voucherNo: item.voucherNo || t('common.na'),
+    commissionPlan: t(`reports.backOffice.commissionPlanTypes.${item.commissionPlan}`),
     roomCharges: item.roomCharges,
     commission: item.commission,
-    checkInBy: item.checkInBy
+    checkInBy: t(`reports.backOffice.users.${item.checkInBy}`) || item.checkInBy
   }))
 })
 

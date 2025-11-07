@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Expense Voucher
+          {{ $t('reports.backOffice.expenseVoucher') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          View and manage expense voucher transactions
+          {{ $t('reports.backOffice.expenseVoucherDescription') }}
         </p>
       </div>
 
@@ -16,11 +16,11 @@
           <!-- Transaction Date From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Transaction Date From
+              {{ $t('reports.backOffice.transactionDateFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.transactionDateFrom" 
-              placeholder="From date"
+              :placeholder="$t('common.dateFrom')"
               class="w-full"
             />
           </div>
@@ -28,11 +28,11 @@
           <!-- Transaction Date To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To
+              {{ $t('common.dateTo') }}
             </label>
             <InputDatepicker 
               v-model="filters.transactionDateTo" 
-              placeholder="To date"
+              :placeholder="$t('common.dateTo')"
               class="w-full"
             />
           </div>
@@ -40,12 +40,12 @@
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              User
+              {{ $t('common.user') }}
             </label>
             <SelectComponent 
               v-model="filters.user"
               :options="userOptions"
-              placeholder="--Select--"
+              :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
@@ -53,12 +53,12 @@
           <!-- Charges -->
           <div class="md:col-span-2 lg:col-span-1">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Charges
+              {{ $t('reports.backOffice.charges') }}
             </label>
             <SelectComponent 
               v-model="filters.charges"
               :options="chargesOptions"
-              placeholder="--Select--"
+              :placeholder="$t('common.select')"
               class="w-full"
             />
           </div>
@@ -71,7 +71,7 @@
             variant="outline"
             class="min-w-24"
           >
-            Reset
+            {{ $t('common.reset') }}
           </ButtonComponent>
           
           <ButtonComponent 
@@ -79,7 +79,7 @@
             variant="primary"
             class="min-w-24"
           >
-            Report
+            {{ $t('common.report') }}
           </ButtonComponent>
         </div>
       </div>
@@ -94,20 +94,21 @@
         <!-- Main Expense Voucher Table -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div class="px-6 py-4 bg-pink-500 text-white">
-            <h2 class="text-lg font-semibold">Expense Voucher</h2>
+            <h2 class="text-lg font-semibold">{{ $t('reports.backOffice.expenseVoucher') }}</h2>
           </div>
           
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Date</th>
-                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Voucher No</th>
-                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Bill To</th>
-                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Charge</th>
-                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Comment</th>
-                  <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Pay Method</th>
-                  <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">User</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.date') }}</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('reports.backOffice.voucherNo') }}</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('reports.backOffice.billTo') }}</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('reports.backOffice.charge') }}</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.comment') }}</th>
+                  <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.payMethod') }}</th>
+                  <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.user') }}</th>
+                  <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.amount') }}</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -116,14 +117,14 @@
                   <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ expense.voucherNo }}</td>
                   <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ expense.billTo }}</td>
                   <td class="px-4 py-3 text-sm">
-                    <span class="px-2 py-1 text-xs rounded" :class="getChargeClass(expense.charge)">
-                      {{ expense.charge }}
+                      <span class="px-2 py-1 text-xs rounded" :class="getChargeClass(expense.chargeKey)">
+                      {{ $t(`reports.backOffice.chargeTypes.${expense.chargeKey}`) }}
                     </span>
                   </td>
-                  <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ expense.comment }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $t(`reports.backOffice.comments.${expense.commentKey}`) }}</td>
+                  <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white font-medium">{{ $t(`common.paymentMethods.${expense.payMethodKey}`) }}</td>
+                  <td class="px-4 py-3 text-sm text-right text-gray-700 dark:text-gray-300">{{ $t(`reports.backOffice.users.${expense.userKey}`) }}</td>
                   <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white font-medium">{{ expense.amount.toLocaleString() }}</td>
-                  <td class="px-4 py-3 text-sm text-right text-gray-700 dark:text-gray-300">{{ expense.payMethod }}</td>
-                  <td class="px-4 py-3 text-sm text-right text-gray-700 dark:text-gray-300">{{ expense.user }}</td>
                 </tr>
               </tbody>
             </table>
@@ -134,7 +135,7 @@
             <div class="flex justify-end">
               <div class="text-right">
                 <span class="text-lg font-bold text-gray-900 dark:text-white">
-                  Grand Total: {{ grandTotal.toLocaleString() }}
+                  {{ $t('reports.backOffice.grandTotal') }}: {{ grandTotal.toLocaleString() }}
                 </span>
               </div>
             </div>
@@ -146,25 +147,25 @@
           <!-- Pay Method Wise Summary -->
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pay Method Wise Summary</h3>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('reports.backOffice.payMethodWiseSummary') }}</h3>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Pay Method</th>
-                    <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Amount (₹)</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.payMethod') }}</th>
+                    <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.amount') }}</th>
                   </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   <tr v-for="method in payMethodSummary" :key="method.payMethod">
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ method.payMethod }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $t(`common.paymentMethods.${method.payMethodKey}`) }}</td>
                     <td class="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white">
                       {{ method.amount.toLocaleString() }}
                     </td>
                   </tr>
                   <tr class="bg-gray-50 dark:bg-gray-700 font-bold">
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">Grand Total</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $t('reports.backOffice.grandTotal') }}</td>
                     <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
                       {{ grandTotal.toLocaleString() }}
                     </td>
@@ -177,21 +178,21 @@
           <!-- Charge Wise Summary -->
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Charge wise Summary</h3>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('reports.backOffice.chargeWiseSummary') }}</h3>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Charge Type</th>
-                    <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Amount (₹)</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('reports.backOffice.chargeType') }}</th>
+                    <th class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('common.amount') }}</th>
                   </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <tr v-for="charge in chargeWiseSummary" :key="charge.chargeType">
+                  <tr v-for="charge in chargeWiseSummary" :key="charge.chargeKey">
                     <td class="px-4 py-3 text-sm">
-                      <span class="px-2 py-1 text-xs rounded" :class="getChargeClass(charge.chargeType)">
-                        {{ charge.chargeType }}
+                      <span class="px-2 py-1 text-xs rounded" :class="getChargeClass(charge.chargeKey)">
+                        {{ $t(`reports.backOffice.chargeTypes.${charge.chargeKey}`) }}
                       </span>
                     </td>
                     <td class="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white">
@@ -199,7 +200,7 @@
                     </td>
                   </tr>
                   <tr class="bg-gray-50 dark:bg-gray-700 font-bold">
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">Grand Total</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $t('reports.backOffice.grandTotal') }}</td>
                     <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
                       {{ grandTotal.toLocaleString() }}
                     </td>
@@ -216,11 +217,14 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import { defineAsyncComponent } from 'vue'
 const ReportsLayout = defineAsyncComponent(() => import('@/components/layout/ReportsLayout.vue'))
+
+const { t } = useI18n()
 
 interface FilterOptions {
   value: string;
@@ -256,75 +260,75 @@ const filters = ref<Filters>({
 })
 
 // Options for selects
-const userOptions = ref<FilterOptions[]>([
-  { value: 'admin', label: 'admin' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'accountant', label: 'Accountant' },
-  { value: 'helpdesksupport', label: 'helpdesksupport' }
+const userOptions = computed<FilterOptions[]>(() => [
+  { value: 'admin', label: t('reports.backOffice.users.admin') },
+  { value: 'manager', label: t('reports.backOffice.users.manager') },
+  { value: 'accountant', label: t('reports.backOffice.users.accountant') },
+  { value: 'helpdesksupport', label: t('reports.backOffice.users.helpdesksupport') }
 ])
 
-const chargesOptions = ref<FilterOptions[]>([
-  { value: 'news_paper', label: 'News Paper' },
-  { value: 'electricity_bill', label: 'Electricity Bill' },
-  { value: 'water_bill', label: 'Water Bill' },
-  { value: 'internet_bill', label: 'Internet Bill' },
-  { value: 'office_supplies', label: 'Office Supplies' },
-  { value: 'maintenance', label: 'Maintenance' },
-  { value: 'fuel', label: 'Fuel' },
-  { value: 'travel', label: 'Travel Expense' }
+const chargesOptions = computed<FilterOptions[]>(() => [
+  { value: 'news_paper', label: t('reports.backOffice.chargeTypes.newsPaper') },
+  { value: 'electricity_bill', label: t('reports.backOffice.chargeTypes.electricityBill') },
+  { value: 'water_bill', label: t('reports.backOffice.chargeTypes.waterBill') },
+  { value: 'internet_bill', label: t('reports.backOffice.chargeTypes.internetBill') },
+  { value: 'office_supplies', label: t('reports.backOffice.chargeTypes.officeSupplies') },
+  { value: 'maintenance', label: t('common.maintenance') },
+  { value: 'fuel', label: t('reports.backOffice.chargeTypes.fuel') },
+  { value: 'travel', label: t('reports.backOffice.chargeTypes.travelExpense') }
 ])
 
 // Sample expense data
-const expenseData = ref<ExpenseData[]>([
+const expenseData = ref([
   {
     date: '14/04/2020',
     voucherNo: '15668',
     billTo: 'Mr. Travelguru',
-    charge: 'News Paper',
-    comment: 'Daily newspaper subscription',
+    chargeKey: 'newsPaper',
+    commentKey: 'dailyNewspaperSubscription',
     amount: 1500.00,
-    payMethod: 'Cash',
-    user: 'admin'
+    payMethodKey: 'cash',
+    userKey: 'admin'
   },
   {
     date: '14/04/2020',
     voucherNo: '15668',
     billTo: 'Mr. Travelguru',
-    charge: 'Electricity Bill',
-    comment: 'Monthly electricity charges',
+    chargeKey: 'electricityBill',
+    commentKey: 'monthlyElectricityCharges',
     amount: 100.00,
-    payMethod: 'Cash',
-    user: 'admin'
+    payMethodKey: 'cash',
+    userKey: 'admin'
   },
   {
     date: '15/04/2020',
     voucherNo: '15669',
     billTo: 'Office Supplies Inc',
-    charge: 'Office Supplies',
-    comment: 'Stationery and printing materials',
+    chargeKey: 'officeSupplies',
+    commentKey: 'stationeryAndPrintingMaterials',
     amount: 850.00,
-    payMethod: 'Bank Transfer',
-    user: 'admin'
+    payMethodKey: 'bankTransfer',
+    userKey: 'admin'
   },
   {
     date: '15/04/2020',
     voucherNo: '15670',
     billTo: 'City Water Department',
-    charge: 'Water Bill',
-    comment: 'Quarterly water charges',
+    chargeKey: 'waterBill',
+    commentKey: 'quarterlyWaterCharges',
     amount: 750.00,
-    payMethod: 'Cheque',
-    user: 'accountant'
+    payMethodKey: 'cheque',
+    userKey: 'accountant'
   },
   {
     date: '15/04/2020',
     voucherNo: '15671',
     billTo: 'Maintenance Services Ltd',
-    charge: 'Maintenance',
-    comment: 'AC maintenance and repair',
+    chargeKey: 'maintenance',
+    commentKey: 'acMaintenanceAndRepair',
     amount: 2200.00,
-    payMethod: 'Cash',
-    user: 'manager'
+    payMethodKey: 'cash',
+    userKey: 'manager'
   }
 ])
 
@@ -335,34 +339,42 @@ const grandTotal = computed(() => {
 
 const payMethodSummary = computed(() => {
   const summary: { [key: string]: number } = {}
+  const payMethodKeys: { [key: string]: string } = {}
   
   expenseData.value.forEach(expense => {
-    if (summary[expense.payMethod]) {
-      summary[expense.payMethod] += expense.amount
+    const key = expense.payMethodKey
+    if (summary[key]) {
+      summary[key] += expense.amount
     } else {
-      summary[expense.payMethod] = expense.amount
+      summary[key] = expense.amount
+      payMethodKeys[key] = expense.payMethodKey
     }
   })
   
   return Object.entries(summary).map(([payMethod, amount]) => ({
     payMethod,
+    payMethodKey: payMethodKeys[payMethod] || '',
     amount
   }))
 })
 
 const chargeWiseSummary = computed(() => {
   const summary: { [key: string]: number } = {}
+  const chargeKeys: { [key: string]: string } = {}
   
   expenseData.value.forEach(expense => {
-    if (summary[expense.charge]) {
-      summary[expense.charge] += expense.amount
+    const key = expense.chargeKey
+    if (summary[key]) {
+      summary[key] += expense.amount
     } else {
-      summary[expense.charge] = expense.amount
+      summary[key] = expense.amount
+      chargeKeys[key] = expense.chargeKey
     }
   })
   
   return Object.entries(summary).map(([chargeType, amount]) => ({
     chargeType,
+    chargeKey: chargeKeys[chargeType] || '',
     amount
   }))
 })
@@ -383,19 +395,19 @@ const resetForm = (): void => {
   showResults.value = false
 }
 
-const getChargeClass = (charge: string): string => {
+const getChargeClass = (chargeKey: string): string => {
   const chargeClasses: { [key: string]: string } = {
-    'News Paper': 'bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    'Electricity Bill': 'bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    'Water Bill': 'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    'Office Supplies': 'bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200',
-    'Maintenance': 'bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-    'Internet Bill': 'bg-indigo-200 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
-    'Fuel': 'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200',
-    'Travel Expense': 'bg-orange-200 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+    'newsPaper': 'bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    'electricityBill': 'bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    'waterBill': 'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    'officeSupplies': 'bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200',
+    'maintenance': 'bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+    'internetBill': 'bg-indigo-200 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+    'fuel': 'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200',
+    'travelExpense': 'bg-orange-200 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
   }
   
-  return chargeClasses[charge] || 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+  return chargeClasses[chargeKey] || 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
 }
 </script>
 

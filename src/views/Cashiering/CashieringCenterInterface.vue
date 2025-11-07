@@ -29,17 +29,17 @@
           <div class="flex flex-col gap-2">
             <div>
               <RadioGroup v-model="activeTab" class="flex space-x-4" :options="[
-                { label: 'Posting date', value: 'posting' },
-                { label: 'Departure date', value: 'departure' },
+                { label: t('Posting date'), value: 'posting' },
+                { label: t('Departure date'), value: 'departure' },
               ]" />
             </div>
             <div class="mr-4">
-              <InputDoubleDatePicker lb="Posting Date" :allow-past-dates="true" v-model="dateRange" />
+              <InputDoubleDatePicker :lb="t('Posting Date')" :allow-past-dates="true" v-model="dateRange" />
             </div>
           </div>
 
           <div class="flex justify-start gap-6">
-            <InputCheckBox v-model="displayVoid" label="Display Void" id="display-void" />
+            <InputCheckBox v-model="displayVoid" :label="t('Display Void')" id="display-void" />
           </div>
 
         </div>
@@ -227,16 +227,16 @@ const cityLedgerData = ref<any>({
 // Original data backup for filtering
 const originalTransactions = ref<any>([])
 // Table columns
-const columns = ref<Column[]>([
-  { key: 'date', label: 'Date', type: 'date' },
-  { key: 'description', label: 'Description', type: 'custom' },
-  { key: 'paymentType', label: 'Payment Type', type: 'custom' },
-  { key: 'user', label: 'User', type: 'custom' },
-  { key: 'credit', label: 'Credit', type: 'custom' },
-  { key: 'debit', label: 'Debit', type: 'custom' },
-  { key: 'assigned', label: 'Assigned', type: 'custom' },
-  { key: 'unassigned', label: 'Unassigned', type: 'custom' },
-  { key: 'balance', label: 'Balance', type: 'custom' },
+const columns = computed<Column[]>(() => [
+  { key: 'date', label: t('Date'), type: 'date' },
+  { key: 'description', label: t('Description'), type: 'custom' },
+  { key: 'paymentType', label: t('Payment Type'), type: 'custom' },
+  { key: 'user', label: t('User'), type: 'custom' },
+  { key: 'credit', label: t('Credit'), type: 'custom' },
+  { key: 'debit', label: t('Debit'), type: 'custom' },
+  { key: 'assigned', label: t('Assigned'), type: 'custom' },
+  { key: 'unassigned', label: t('Unassigned'), type: 'custom' },
+  { key: 'balance', label: t('Balance'), type: 'custom' },
 ])
 
 // Sample data
@@ -305,18 +305,18 @@ const loadCityLedgerData = async () => {
 
 
 // Actions
-const actions = ref([
+const actions = computed(() => [
   {
-    name: 'void', label: 'Void', icon: 'ban', danger: true,
+    name: 'void', label: t('Void'), icon: 'ban', danger: true,
     handler: (item: any) => onAction('void', item),
     condition: (item: any) => (item.transactionType === 'payment' && item.assigned <= 0),
   },
   {
-    name: 'print', label: 'Print Receipt', icon: 'printer',
+    name: 'print', label: t('Print Receipt'), icon: 'printer',
     handler: (item: any) => onAction('printReceipt', item),
   },
   {
-    name: 'map', label: 'Map Payment', icon: 'map', handler: (item: any) => onAction('map', item),
+    name: 'map', label: t('Map Payment'), icon: 'map', handler: (item: any) => onAction('map', item),
     condition: (item: any) => (item.transactionType === 'payment' && item.open > 0),
   }
 ])
@@ -388,7 +388,7 @@ async function onAction(action: string, item: any) {
     }
   } catch (error) {
     console.error('Action handling error:', error)
-    toast.error('Action failed')
+    toast.error(t('Action failed'))
   }
 }
 

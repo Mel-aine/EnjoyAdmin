@@ -15,6 +15,11 @@
           />
         </template>
 
+        <template #column-category="{ item }">
+          <span class="text-sm text-gray-900 dark:text-white">
+            {{ $t(item.category) }}
+          </span>
+        </template>
         <template #column-status="{ item }">
           <span
             :class="item.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
@@ -121,23 +126,23 @@ const formData = ref({
 
 const reasons = ref<any[]>([])
 
-// Category options
-const categoryOptions = [
-  { label: 'Block Room', value: 'Block Room' },
-  { label: 'Cancel Reservation', value: 'Cancel Reservation' },
-  { label: 'Check In', value: 'Check In' },
-  { label: 'Check Out', value: 'Check Out' },
-  { label: 'Folio Transaction', value: 'Folio Transaction' },
-  { label: 'Guest Folio', value: 'Guest Folio' },
-  { label: 'House Keeping', value: 'House Keeping' },
-  { label: 'No Show Reservation', value: 'No Show Reservation' },
-  { label: 'Package', value: 'Package' },
-  { label: 'Promotion', value: 'Promotion' },
-  { label: 'Reservation', value: 'Reservation' },
-  { label: 'Stop Room Move', value: 'Stop Room Move' },
-  { label: 'Void Checkin', value: 'Void Checkin' },
-  { label: 'Void Reservation', value: 'Void Reservation' }
-]
+// Category options with translations
+const categoryOptions = computed(() => [
+  { label: t('Block Room'), value: 'Block Room' },
+  { label: t('Cancel Reservation'), value: 'Cancel Reservation' },
+  { label: t('Check In'), value: 'Check In' },
+  { label: t('Check Out'), value: 'Check Out' },
+  { label: t('Folio Transaction'), value: 'Folio Transaction' },
+  { label: t('Guest Folio'), value: 'Guest Folio' },
+  { label: t('House Keeping'), value: 'House Keeping' },
+  { label: t('No Show Reservation'), value: 'No Show Reservation' },
+  { label: t('Package'), value: 'Package' },
+  { label: t('Promotion'), value: 'Promotion' },
+  { label: t('Reservation'), value: 'Reservation' },
+  { label: t('Stop Room Move'), value: 'Stop Room Move' },
+  { label: t('Void Checkin'), value: 'Void Checkin' },
+  { label: t('Void Reservation'), value: 'Void Reservation' }
+])
 
 // Status options with translations
 const statusOptions = computed(() => [
@@ -148,7 +153,7 @@ const statusOptions = computed(() => [
 // Table configuration with translations
 const columns = computed<Column[]>(() => [
   { key: 'reasonName', label: t('configuration.reason.reason_name'), type: 'text' },
-  { key: 'category', label: t('configuration.reason.category'), type: 'text' },
+  { key: 'category', label: t('configuration.reason.category'), type: 'custom' },
   { key: 'createdinfo', label: t('configuration.reason.created_by'), type: 'custom' },
   { key: 'modifiedInfo', label: t('configuration.reason.modified_by'), type: 'custom' },
   { key: 'status', label: t('configuration.reason.status'), type: 'custom' }

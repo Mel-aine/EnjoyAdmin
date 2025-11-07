@@ -9,7 +9,7 @@
     <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
       <div v-if="sidebarStore.isExpanded" class="flex items-center space-x-2">
         <Settings class="w-6 h-6 text-blue-600" />
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Configuration</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('Configuration') }}</h2>
       </div>
       <button @click="sidebarStore.toggleSidebar()" class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden">
         <X class="w-5 h-5" />
@@ -23,7 +23,7 @@
         <input 
           v-model="searchQuery" 
           type="text" 
-          placeholder="Search configuration..."
+          :placeholder="$t('Search configuration...')"
           class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent dark:bg-gray-900 dark:text-gray-100 dark:placeholder-gray-400" 
         />
       </div>
@@ -46,7 +46,7 @@
         >
           <div class="flex items-center space-x-3">
             <Home class="w-5 h-5 text-gray-600 dark:text-gray-100" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Rooms</span>
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $t('Rooms') }}</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
@@ -65,7 +65,7 @@
             class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
             active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
-            {{ item.label }}
+            {{ $t(item.label) }}
           </router-link>
         </div>
       </div>
@@ -81,7 +81,7 @@
         >
           <div class="flex items-center space-x-3">
             <DollarSign class="w-5 h-5 text-gray-600 dark:text-gray-100" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Rates</span>
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $t('Rates') }}</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
@@ -100,7 +100,7 @@
             class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
             active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
-            {{ item.label }}
+            {{ $t(item.label) }}
           </router-link>
         </div>
       </div>
@@ -116,7 +116,7 @@
         >
           <div class="flex items-center space-x-3">
             <Users class="w-5 h-5 text-gray-600 dark:text-gray-100" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Housekeeping</span>
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $t('Housekeeping') }}</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
@@ -135,7 +135,7 @@
             class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
             active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
-            {{ item.label }}
+            {{ $t(item.label) }}
           </router-link>
         </div>
       </div>
@@ -151,7 +151,7 @@
         >
           <div class="flex items-center space-x-3">
             <Database class="w-5 h-5 text-gray-600 dark:text-gray-100" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Master</span>
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $t('Master') }}</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
@@ -170,7 +170,7 @@
             class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
             active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
-            {{ item.label }}
+            {{ $t(item.label) }}
           </router-link>
         </div>
       </div>
@@ -186,7 +186,7 @@
         >
           <div class="flex items-center space-x-3">
             <Cog class="w-5 h-5 text-gray-600 dark:text-gray-100" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Settings</span>
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $t('Settings') }}</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
@@ -205,7 +205,7 @@
             class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
             active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
-            {{ item.label }}
+            {{ $t(item.label) }}
           </router-link>
         </div>
       </div>
@@ -221,7 +221,7 @@
         >
           <div class="flex items-center space-x-3">
             <UserCircle class="w-5 h-5 text-gray-600 dark:text-gray-100" />
-            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">Staff</span>
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $t('Staff') }}</span>
           </div>
           <ChevronDown 
             v-if="sidebarStore.isExpanded" 
@@ -240,7 +240,7 @@
             class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
             active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
           >
-            {{ item.label }}
+            {{ $t(item.label) }}
           </router-link>
         </div>
       </div>
@@ -252,6 +252,7 @@
 import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSidebar } from '@/composables/useSidebar'
+import { useI18n } from 'vue-i18n'
 import {
   Settings,
   X,
@@ -283,6 +284,7 @@ interface ExpandedSections {
 }
 
 const sidebarStore = useSidebar()
+const { t } = useI18n()
 const searchQuery = ref('')
 const route = useRoute()
 const navElement = ref<HTMLElement | null>(null)
@@ -442,44 +444,56 @@ const staffItems: MenuItem[] = [
 // Filtered items computed properties
 const filteredRoomsItems = computed<MenuItem[]>(() => {
   if (!searchQuery.value) return roomsItems
-  return roomsItems.filter(item =>
-    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  const query = searchQuery.value.toLowerCase()
+  return roomsItems.filter(item => {
+    const translatedLabel = t(item.label).toLowerCase()
+    return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
+  })
 })
 
 const filteredRatesItems = computed<MenuItem[]>(() => {
   if (!searchQuery.value) return ratesItems
-  return ratesItems.filter(item =>
-    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  const query = searchQuery.value.toLowerCase()
+  return ratesItems.filter(item => {
+    const translatedLabel = t(item.label).toLowerCase()
+    return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
+  })
 })
 
 const filteredHousekeepingItems = computed<MenuItem[]>(() => {
   if (!searchQuery.value) return housekeepingItems
-  return housekeepingItems.filter(item =>
-    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  const query = searchQuery.value.toLowerCase()
+  return housekeepingItems.filter(item => {
+    const translatedLabel = t(item.label).toLowerCase()
+    return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
+  })
 })
 
 const filteredMasterItems = computed<MenuItem[]>(() => {
   if (!searchQuery.value) return masterItems
-  return masterItems.filter(item =>
-    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  const query = searchQuery.value.toLowerCase()
+  return masterItems.filter(item => {
+    const translatedLabel = t(item.label).toLowerCase()
+    return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
+  })
 })
 
 const filteredSettingsItems = computed<MenuItem[]>(() => {
   if (!searchQuery.value) return settingsItems
-  return settingsItems.filter(item =>
-    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  const query = searchQuery.value.toLowerCase()
+  return settingsItems.filter(item => {
+    const translatedLabel = t(item.label).toLowerCase()
+    return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
+  })
 })
 
 const filteredStaffItems = computed<MenuItem[]>(() => {
   if (!searchQuery.value) return staffItems
-  return staffItems.filter(item =>
-    item.label.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  const query = searchQuery.value.toLowerCase()
+  return staffItems.filter(item => {
+    const translatedLabel = t(item.label).toLowerCase()
+    return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
+  })
 })
 </script>
 
