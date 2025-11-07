@@ -1,22 +1,22 @@
 <template>
-  <div class="bg-gray-50 min-h-screen">
+  <div class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <div class="overflow-hidden">
       <!-- Mini Calendar Date Picker -->
-      <div v-if="showDatePicker" class="absolute z-50 mt-2 ml-4 bg-white border rounded-lg shadow-lg p-4">
-        <div class="text-sm font-semibold text-gray-900 mb-3 text-center">
+      <div v-if="showDatePicker" class="absolute z-50 mt-2 ml-4 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg shadow-lg p-4">
+        <div class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 text-center">
           {{ miniCalendarMonth }}
         </div>
         <div class="grid grid-cols-7 gap-1 mb-2">
           <div v-for="day in ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']" :key="day"
-            class="text-xs text-gray-600 text-center font-medium p-1">
+            class="text-xs text-gray-600 dark:text-gray-300 text-center font-medium p-1">
             {{ day }}
           </div>
         </div>
         <div class="grid grid-cols-7 gap-1">
           <button v-for="day in miniCalendarDays" :key="day.date" @click="!isPastDate(day.date) && selectDate(day)"
             :disabled="isPastDate(day.date)" :class="[
-              'text-sm p-2 rounded hover:bg-gray-100 transition-colors',
-              day.isCurrentMonth ? 'text-gray-900' : 'text-gray-400',
+              'text-sm p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
+              day.isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500',
               day.isToday ? 'bg-purple-500 text-white hover:bg-purple-600' : '',
               !day.isCurrentMonth ? 'opacity-50' : '',
               isPastDate(day.date) ? 'opacity-30 cursor-not-allowed' : '',
@@ -28,23 +28,67 @@
 
       <!-- Main Calendar Table -->
       <div class="overflow-x-auto" @mouseup="handleMouseUp" @mouseleave="handleMouseUp">
-        <!-- Loading State -->
-        <div v-if="loading" class="flex items-center justify-center py-12">
-          <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-gray-600">Loading restrictions...</p>
+        <!-- Loading State: Skeleton Grid -->
+        <div v-if="loading" class="py-6 px-4">
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr class="bg-gray-50 border-b animate-pulse">
+                  <th class="px-4 py-3">
+                    <div class="h-6 w-32 bg-gray-200 rounded"></div>
+                  </th>
+                  <th class="px-4 py-3">
+                    <div class="h-6 w-20 bg-gray-200 rounded"></div>
+                  </th>
+                  <th v-for="date in visibleDates" :key="date.date" class="px-2 py-3 min-w-[80px]">
+                    <div class="space-y-1">
+                      <div class="h-3 w-10 bg-gray-200 rounded"></div>
+                      <div class="h-4 w-6 bg-gray-200 rounded"></div>
+                      <div class="h-3 w-12 bg-gray-200 rounded"></div>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Room type row skeletons -->
+                <tr v-for="n in 3" :key="`room-skel-${n}`" class="border-b border-gray-200 animate-pulse">
+                  <td class="px-4 py-3 sticky left-0 bg-white z-10">
+                    <div class="h-4 w-40 bg-gray-200 rounded"></div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="h-4 w-10 bg-gray-200 rounded"></div>
+                  </td>
+                  <td v-for="date in visibleDates" :key="`room-date-${n}-${date.date}`" class="px-2 py-3">
+                    <div class="h-6 w-12 bg-gray-200 rounded mx-auto"></div>
+                  </td>
+                </tr>
+
+                <!-- Rate plan row skeletons -->
+                <tr v-for="n in 4" :key="`rate-skel-${n}`" class="border-b border-gray-200 animate-pulse">
+                  <td class="px-4 py-3 sticky left-0 bg-white z-10">
+                    <div class="h-4 w-36 bg-gray-200 rounded"></div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="h-4 w-24 bg-gray-200 rounded"></div>
+                  </td>
+                  <td v-for="date in visibleDates" :key="`rate-date-${n}-${date.date}`" class="px-2 py-3">
+                    <div class="h-6 w-12 bg-gray-200 rounded mx-auto"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
         <!-- Calendar Table -->
         <table v-else class="w-full border-collapse">
           <thead>
-            <tr class="bg-gray-50 border-b">
+            <tr class="bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
               <th>
                 <div class="flex items-center justify-between p-4">
                   <button @click="previousMonth" :disabled="isPreviousDisabled" :class="[
                     'p-2 rounded transition-colors',
-                    isPreviousDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100',
+                    isPreviousDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-800',
                   ]">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -52,11 +96,11 @@
                   </button>
 
                   <div class="flex items-center gap-3">
-                    <h2 class="text-lg font-semibold text-gray-900">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {{ currentMonthDisplay }}
                     </h2>
                     <button ref="selectWrapper" @click="showDatePicker = !showDatePicker"
-                      class="p-2 hover:bg-gray-100 rounded transition-colors select-none">
+                      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors select-none">
                       <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -64,7 +108,7 @@
                     </button>
                   </div>
 
-                  <button @click="nextMonth" class="p-2 hover:bg-gray-100 rounded transition-colors">
+                  <button @click="nextMonth" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
@@ -73,9 +117,9 @@
               </th>
               <th></th>
               <th v-for="date in visibleDates" :key="date.date" class="px-2 py-3 text-center min-w-[80px]">
-                <div class="text-xs text-gray-600">{{ date.dayName }}</div>
-                <div class="text-sm font-semibold text-gray-900">{{ date.dayNum }}</div>
-                <div class="text-xs text-gray-500">{{ date.month }}</div>
+                <div class="text-xs text-gray-600 dark:text-gray-300">{{ date.dayName }}</div>
+                <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ date.dayNum }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{ date.month }}</div>
               </th>
             </tr>
           </thead>
@@ -83,13 +127,13 @@
             <!-- Boucle sur chaque groupe de RoomType -->
             <template v-for="group in groupedRoomRows" :key="group.roomTypeId">
               <!-- Ligne du ROOM TYPE (AVL uniquement) -->
-              <tr class="border-b border-gray-300 hover:bg-gray-50">
-                <td class="px-4 py-3 text-sm font-bold text-gray-900 sticky left-0 bg-white z-10">
+              <tr class="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <td class="px-4 py-3 text-sm font-bold text-gray-900 dark:text-gray-100 sticky left-0 bg-white dark:bg-gray-900 z-10">
                   {{ group.roomTypeName }}
                 </td>
 
                 <!-- Label AVL -->
-                <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-white">AVL</td>
+                <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900">AVL</td>
 
                 <!-- Valeurs AVL -->
                 <td v-for="date in visibleDates" :key="date.date" :class="[
@@ -99,7 +143,8 @@
                 ]" @mousedown="!isPastDate(date.date) && handleCellMouseDown(group.roomTypeRow, date.date)"
                   @mouseenter="!isPastDate(date.date) && handleCellMouseEnter(group.roomTypeRow, date.date)">
                   <div
-                    class="inline-flex items-center justify-center min-w-[50px] px-3 py-1.5 text-sm font-medium rounded bg-red-500 text-white">
+                    class="inline-flex items-center justify-center min-w-[50px] px-3 py-1.5 text-sm font-medium rounded"
+                    :class="group.roomTypeRow.values?.[date.date] <= 0 ? 'bg-red-500 text-white' : 'dark:bg-gray-800 text-gray-900 dark:text-gray-100'">
                     {{ group.roomTypeRow.values?.[date.date] || 0 }}
                   </div>
                 </td>
@@ -111,39 +156,56 @@
                   class="hover:bg-gray-50 border-b border-gray-200">
                   <!-- Nom du Rate Plan affiché une seule fois -->
                   <td v-if="index === 0" :rowspan="ratePlan.restrictions.length"
-                    class="px-4 py-3 text-sm font-semibold text-gray-700 sticky left-0 bg-white z-10 align-top">
+                    class="px-4 py-3 text-sm font-semibold text-gray-700 sticky left-0 bg-white dark:bg-gray-900 dark:text-white z-10 align-top">
                     {{ ratePlan.name }}
                   </td>
 
-                  <!-- Label de restriction + icône si RATE -->
-                  <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-white">
+                  <!-- Label de restriction + icône si RATE + tooltips for CTA/CTD/SS -->
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-900">
                     <div class="flex items-center space-x-2 relative">
                       <div v-if="row.label === 'RATE'" class="relative group">
-                        <UserRound class="w-4 h-4 inline-flex cursor-pointer text-gray-600" />
+                        <UserRound class="w-4 h-4 inline-flex cursor-pointer text-gray-600 dark:text-gray-300" />
                         <!-- Tooltip Occupancy -->
                         <div
-                          class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-max max-w-xs px-2 py-1 text-xs text-white bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                          class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-max max-w-xs px-2 py-1 text-xs text-white bg-gray-700 dark:bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                           Occupancy
                         </div>
                       </div>
-                      <span>{{ row.label }}</span>
+
+                      <!-- Text with tooltip for CTA/CTD/SS -->
+                      <span v-if="!['Closed To Arrival', 'Closed To Departure', 'Stop Sell'].includes(row.label)">
+                        {{ labelCode(row.label) }}
+                      </span>
+                      <span v-else class="relative group">
+                        {{ labelCode(row.label) }}
+                        <div
+                          class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-max max-w-xs px-2 py-1 text-xs text-white bg-gray-700 dark:bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                          {{ labelTooltip(row.label) }}
+                        </div>
+                      </span>
                     </div>
                   </td>
 
                   <!-- Valeurs de la restriction -->
                   <td v-for="date in visibleDates" :key="date.date" :class="[
-                    'px-2 py-3 text-center cursor-pointer select-none transition-colors hover:bg-orange-100',
+                    'px-2 py-3 text-center cursor-pointer select-none transition-colors hover:bg-orange-100 dark:hover:bg-gray-800',
                     isCellSelected(row.id, date.date)
-                      ? 'bg-purple-100 border-2 border-purple-400'
+                      ? 'bg-purple-100 border-2 border-purple-400 dark:bg-purple-900/40 dark:border-purple-500'
                       : '',
                     isPastDate(date.date)
                       ? 'opacity-40 cursor-not-allowed pointer-events-none'
-                      : '',
-                  ]" @mousedown="!isPastDate(date.date) && handleCellMouseDown(row, date.date)"
-                    @mouseenter="!isPastDate(date.date) && handleCellMouseEnter(row, date.date)">
-                    <div :class="[
+                      : isNonEditable(row.label)
+                        ? 'opacity-60 cursor-not-allowed pointer-events-none'
+                        : '',
+                  ]"
+                    @mousedown="!isPastDate(date.date) && !isNonEditable(row.label) && handleCellMouseDown(row, date.date)"
+                    @mouseenter="!isPastDate(date.date) && !isNonEditable(row.label) && handleCellMouseEnter(row, date.date)">
+                    <div v-if="isBooleanRestriction(row.label)" class="flex items-center justify-center">
+                      <input type="checkbox" class="h-4 w-4" :checked="isChecked(row.values[date.date])" />
+                    </div>
+                    <div v-else :class="[
                       'inline-flex items-center justify-center min-w-[50px] px-3 py-1.5 text-sm font-medium rounded',
-                      row.label === 'RATE' ? 'bg-pink-100 text-gray-900' : 'bg-white text-gray-900',
+                      row.label === 'RATE' ? 'bg-pink-100 text-gray-900 dark:bg-pink-900/40 dark:text-gray-100' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100',
                     ]">
                       {{ formatCellValue(row.values[date.date], row.label) }}
                     </div>
@@ -166,7 +228,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { UserRound } from 'lucide-vue-next'
 import ValueOverrideRateModal from './InventoryModale/ValueOverrideRateModal.vue'
-import { getRestrictions } from '@/services/channelManagerApi'
+import { getRestrictions, getAvailability } from '@/services/channelManagerApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
 interface RoomRow {
@@ -239,7 +301,7 @@ interface RateType {
 
 /* --- REFS --- */
 const selectWrapper = ref<HTMLElement | null>(null)
-const currentDate = ref(new Date(2025, 10, 5))
+const currentDate = ref(new Date())
 const currentService = useServiceStore().getCurrentService
 const today = new Date()
 today.setHours(0, 0, 0, 0)
@@ -252,19 +314,25 @@ const modalType = ref<'AVL' | 'RATE'>('AVL')
 const loading = ref(false)
 const allRoomRows = ref<RoomRow[]>([])
 
+// Reset local selection state (used by parent reset)
+const resetSelection = () => {
+  isSelecting.value = false
+  selectedRange.value = null
+  showModal.value = false
+}
+
 const selectedRestrictions = ref<string[]>(['Rate And Availability'])
-const roomTypes = ref<RoomType[]>([])
-const rateTypes = ref<RateType[]>([])
 // Props
 interface Props {
-  isOpen: boolean;
   roomTypes?: Array<{ id: string; name: string; filteredRates?: [] }>;
   rateTypes?: Array<{ id: string; name: string; roomId?: string }>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   roomTypes: () => [],
+  rateTypes: () => [],
 });
+const emit = defineEmits<{ (e: 'value-selected', payload: any): void }>()
 /* --- MAPPINGS --- */
 const restrictionMapping: Record<string, string> = {
   'Availability Offset': 'AVO',
@@ -278,7 +346,6 @@ const restrictionMapping: Record<string, string> = {
   Rate: 'rate',
   'Stop Sell': 'SS',
   Availability: 'AVL',
-  'Closed': 'CLO',
 }
 
 const restrictionApiMapping: Record<string, string> = {
@@ -296,7 +363,6 @@ const restrictionApiMapping: Record<string, string> = {
   'Rate': 'rate',
   'Stop Sell': 'stop_sell',
   'Availability': 'availability',
-  'Closed': 'closed',
 }
 
 /* --- TRANSFORMATION DES DONNÉES API --- */
@@ -304,7 +370,7 @@ const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
   const rows: RoomRow[] = []
   console.log('transformApiDataToRoomRows - apiData:', apiData)
   console.log('transformApiDataToRoomRows - roomTypes:', props.roomTypes)
-  console.log('transformApiDataToRoomRows - rateTypes:', rateTypes.value)
+  console.log('transformApiDataToRoomRows - rateTypes:', props.rateTypes)
 
   // Parcourir chaque room type pour créer les lignes AVL
   props.roomTypes.forEach(roomType => {
@@ -329,7 +395,7 @@ const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
   // Parcourir chaque rate plan ID pour les autres restrictions
   if (apiData.rates) {
     Object.keys(apiData.rates).forEach((ratePlanId) => {
-      const ratePlan = rateTypes.value.find(rt => rt.id === ratePlanId)
+      const ratePlan = props.rateTypes.find(rt => rt.id === ratePlanId)
       if (!ratePlan) return
 
       const roomType = props.roomTypes.find(rm => rm.id === ratePlan.roomId)
@@ -337,43 +403,66 @@ const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
 
       const ratePlanData = apiData.rates[ratePlanId]
 
-      // Créer la ligne RATE avec les valeurs de l'API
+      // Préparer toutes les maps de valeurs et les remplir en une seule passe
       const rateValues: Record<string, number> = {}
-      Object.keys(ratePlanData).forEach(date => {
-        rateValues[date] = parseInt(ratePlanData[date].rate) || 0
-      })
+      const stopSellValues: Record<string, any> = {}
+      const ctaValues: Record<string, any> = {}
+      const ctdValues: Record<string, any> = {}
+      const msaValues: Record<string, number> = {}
+      const mstValues: Record<string, number> = {}
+      const maxStayValues: Record<string, number> = {}
+      const avoValues: Record<string, number> = {}
+      const malValues: Record<string, number> = {}
+      const avlPerRateValues: Record<string, number> = {}
 
-      rows.push({
-        id: `${ratePlanId}-rate`,
-        name: ratePlan.name,
-        type: 'RATE',
-        label: 'RATE',
-        values: rateValues,
-        roomTypeId: roomType.id,
-        roomTypeName: roomType.name,
-        ratePlanId: ratePlanId,
-        ratePlanName: ratePlan.name,
-      })
-
-      // Ajouter d'autres restrictions si nécessaire
-      const restrictionValues: Record<string, any> = {}
       Object.keys(ratePlanData).forEach(date => {
-        if (ratePlanData[date].closed !== undefined) {
-          restrictionValues[date] = ratePlanData[date].closed ? 'true' : 'false'
+        const entry = ratePlanData[date] || {}
+        // Numériques
+        rateValues[date] = parseInt(entry.rate) || 0
+        if (entry.min_stay_arrival !== undefined && entry.min_stay_arrival !== null) {
+          msaValues[date] = Number(entry.min_stay_arrival) || 0
+        }
+        if (entry.min_stay_through !== undefined && entry.min_stay_through !== null) {
+          mstValues[date] = Number(entry.min_stay_through) || 0
+        }
+        if (entry.max_stay !== undefined && entry.max_stay !== null) {
+          maxStayValues[date] = Number(entry.max_stay) || 0
+        }
+        if (entry.availability_offset !== undefined && entry.availability_offset !== null) {
+          avoValues[date] = Number(entry.availability_offset) || 0
+        }
+        if (entry.max_availability !== undefined && entry.max_availability !== null) {
+          malValues[date] = Number(entry.max_availability) || 0
+        }
+        if (entry.availability !== undefined && entry.availability !== null) {
+          avlPerRateValues[date] = Number(entry.availability) || 0
+        }
+
+        // Booléens
+        if (entry.stop_sell !== undefined) {
+          stopSellValues[date] = entry.stop_sell ? 'true' : 'false'
+        }
+        if (entry.closed_to_arrival !== undefined) {
+          ctaValues[date] = entry.closed_to_arrival ? 'true' : 'false'
+        }
+        if (entry.closed_to_departure !== undefined) {
+          ctdValues[date] = entry.closed_to_departure ? 'true' : 'false'
         }
       })
 
-      rows.push({
-        id: `${ratePlanId}-closed`,
-        name: ratePlan.name,
-        type: 'RATE',
-        label: 'Closed',
-        values: restrictionValues,
-        roomTypeId: roomType.id,
-        roomTypeName: roomType.name,
-        ratePlanId: ratePlanId,
-        ratePlanName: ratePlan.name,
-      })
+      // Pousser chaque ligne restriction construite en une seule passe
+      // Order rows as requested:
+      // AVO, CTA, CTD, MAL, MXS, MSA, MST, RATE, AVL, SS
+      rows.push({ id: `${ratePlanId}-availability-offset`, name: ratePlan.name, type: 'RATE', label: 'Availability Offset', values: avoValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-cta`, name: ratePlan.name, type: 'RATE', label: 'Closed To Arrival', values: ctaValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-ctd`, name: ratePlan.name, type: 'RATE', label: 'Closed To Departure', values: ctdValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-max-availability`, name: ratePlan.name, type: 'RATE', label: 'Max Availability', values: malValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-max-stay`, name: ratePlan.name, type: 'RATE', label: 'Max Stay', values: maxStayValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-msa`, name: ratePlan.name, type: 'RATE', label: 'Min Stay Arrival', values: msaValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-mst`, name: ratePlan.name, type: 'RATE', label: 'Min Stay Through', values: mstValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-rate`, name: ratePlan.name, type: 'RATE', label: 'RATE', values: rateValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-availability-per-rate`, name: ratePlan.name, type: 'RATE', label: 'AVL', values: avlPerRateValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
+      rows.push({ id: `${ratePlanId}-stop-sell`, name: ratePlan.name, type: 'RATE', label: 'Stop Sell', values: stopSellValues, roomTypeId: roomType.id, roomTypeName: roomType.name, ratePlanId: ratePlanId, ratePlanName: ratePlan.name })
     })
   }
 
@@ -384,7 +473,7 @@ const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
 const fetchRestrictions = async () => {
   console.log('🔵 fetchRestrictions STARTED')
   console.log('roomTypes:', props.roomTypes)
-  console.log('rateTypes:', rateTypes.value)
+  console.log('rateTypes:', props.rateTypes)
 
   loading.value = true
 
@@ -408,21 +497,27 @@ const fetchRestrictions = async () => {
       restrictions: restrictionsParam || 'rate',
     }
 
-    console.log('📤 Fetching with params:', params)
+    console.log('📤 Fetching restrictions and availability with params:', params)
 
-    const response = await getRestrictions(propertyId, params)
-    const dataObj = response.data?.data?.data || [];
-    const firstKey: any = Object.keys(dataObj)[0];
-    const firstItem = dataObj[firstKey];
+    const [restrictionsRes, availabilityRes] = await Promise.all([
+      getRestrictions(propertyId, params),
+      getAvailability(propertyId, { date_from: params.date_from, date_to: params.date_to }),
+    ])
 
-    console.log('✅ Calling response', response)
+    // --- Restrictions parsing ---
+    const restrObj = restrictionsRes?.data?.data?.data || {}
+    // --- Availability parsing ---
+    const availObj = availabilityRes?.data?.data?.data || {}
 
-    if (response.data) {
-      allRoomRows.value = transformApiDataToRoomRows(firstItem)
-      console.log('✅ allRoomRows:', allRoomRows.value)
-    } else {
-      console.log('❌ response.data is empty')
+    console.log('✅ Restrictions parsed item:', restrObj, availObj)
+    // Combine for transformer
+    const combinedApiData: any = {
+      rates: restrObj,
+      availability: availObj,
     }
+
+    allRoomRows.value = transformApiDataToRoomRows(combinedApiData)
+    console.log('✅ allRoomRows:', allRoomRows.value)
   } catch (err: any) {
     console.error('❌ Fetch error:', err.response?.data || err.message)
   } finally {
@@ -432,36 +527,54 @@ const fetchRestrictions = async () => {
 }
 
 /* --- FILTRAGE --- */
+// Map long labels to short codes for display and filtering
+const labelCodeMap: Record<string, string> = {
+  'Availability Offset': 'AVO',
+  'Availability Per Rate': 'AVL',
+  'Closed To Arrival': 'CTA',
+  'Closed To Departure': 'CTD',
+  'Max Availability': 'MAL',
+  'Max Stay': 'MXS',
+  'Min Stay Arrival': 'MSA',
+  'Min Stay Through': 'MST',
+  'Stop Sell': 'SS',
+  'RATE': 'RATE',
+  'AVL': 'AVL',
+}
+
+const normalizeSelectionToCodes = (selection: string[]): string[] => {
+  if (!selection || selection.length === 0) return []
+  // Expand special combined selections
+  if (selection.includes('All Restrictions')) {
+    return ['AVO','CTA','CTD','MAL','MXS','MSA','MST','RATE','AVL','SS']
+  }
+  const codes: string[] = []
+  selection.forEach((item) => {
+    if (item === 'Rate And Availability') {
+      codes.push('RATE','AVL')
+    } else if (item === 'Only Availability' || item === 'Availability') {
+      codes.push('AVL')
+    } else if (item === 'Rate') {
+      codes.push('RATE')
+    } else if (labelCodeMap[item]) {
+      codes.push(labelCodeMap[item])
+    } else {
+      // Already a code (CTA, CTD, etc.)
+      codes.push(item)
+    }
+  })
+  return Array.from(new Set(codes))
+}
+
 const roomRows = computed(() => {
-  if (selectedRestrictions.value.length === 0) return allRoomRows.value
+  // Only display selected restrictions
+  const allowedCodes = normalizeSelectionToCodes(selectedRestrictions.value)
+  if (allowedCodes.length === 0) return []
 
-  const allowedLabels = selectedRestrictions.value.map((r) => restrictionMapping[r]).filter(Boolean)
-
-  // Si "Rate And Availability" ou les deux sont sélectionnés
-  if (
-    selectedRestrictions.value.includes('Rate And Availability') ||
-    (selectedRestrictions.value.includes('Rate') && selectedRestrictions.value.includes('Availability'))
-  ) {
-    return allRoomRows.value
-  }
-
-  // Si seulement "Only Availability"
-  if (selectedRestrictions.value.includes('Only Availability') || selectedRestrictions.value.includes('Availability')) {
-    return allRoomRows.value.filter((row) => row.label === 'AVL')
-  }
-
-  // Si "All Restrictions"
-  if (selectedRestrictions.value.includes('All Restrictions')) {
-    return allRoomRows.value
-  }
-
-  // Si seulement "Rate"
-  if (selectedRestrictions.value.includes('Rate') && !selectedRestrictions.value.includes('Availability')) {
-    return allRoomRows.value.filter((row) => row.type === 'RATE' || row.label === 'AVL')
-  }
-
-  // Filtrage par labels individuels
-  return allRoomRows.value.filter((row) => allowedLabels.includes(row.label))
+  return allRoomRows.value.filter((row) => {
+    const code = labelCodeMap[row.label] || row.label
+    return allowedCodes.includes(code)
+  })
 })
 
 /* --- GROUPEMENT PAR ROOMTYPE ET RATEPLAN --- */
@@ -483,7 +596,7 @@ const groupedRoomRows = computed(() => {
           roomTypeId: row.roomTypeId,
           roomTypeName: row.roomTypeName,
         },
-        ratePlans: [{}],
+        ratePlans: [],
       }
     }
 
@@ -510,6 +623,25 @@ const groupedRoomRows = computed(() => {
       // Ajouter la restriction au RatePlan
       ratePlan.restrictions.push(row)
     }
+  })
+  // Sort restrictions per rate plan to match required order
+  const order: Record<string, number> = {
+    'Availability Offset': 1,
+    'Closed To Arrival': 2,
+    'Closed To Departure': 3,
+    'Max Availability': 4,
+    'Max Stay': 5,
+    'Min Stay Arrival': 6,
+    'Min Stay Through': 7,
+    'RATE': 8,
+    'AVL': 9,
+    'Stop Sell': 10,
+  }
+
+  Object.values(groups).forEach((g) => {
+    g.ratePlans.forEach((rp) => {
+      rp.restrictions.sort((a, b) => (order[a.label] || 999) - (order[b.label] || 999))
+    })
   })
 
   return Object.values(groups)
@@ -550,12 +682,35 @@ const formatCellValue = (value: any, label: string): string => {
     return new Intl.NumberFormat('en-US').format(value)
   }
 
-  if (label === 'Closed') {
-    return value === 'true' ? 'C' : 'O'
+  // Max Availability: show X/A when 0
+  if (label === 'Max Availability') {
+    const n = Number(value) || 0
+    return n === 0 ? 'X/A' : String(n)
   }
 
   // Pour les autres valeurs
   return String(value)
+}
+
+// Helpers for UI behavior
+const isBooleanRestriction = (label: string) => ['Closed To Arrival', 'Closed To Departure', 'Stop Sell'].includes(label)
+const isNonEditable = (label: string) => ['Max Availability', 'Availability Offset', 'AVL'].includes(label)
+const isChecked = (val: any) => {
+  if (typeof val === 'boolean') return val
+  if (typeof val === 'number') return val === 1
+  if (typeof val === 'string') return val.toLowerCase() === 'true' || val === '1'
+  return false
+}
+const labelTooltip = (label: string) => {
+  if (label === 'Closed To Arrival') return 'Closed to arrival'
+  if (label === 'Closed To Departure') return 'Closed to departure'
+  if (label === 'Stop Sell') return 'Stop sell'
+  return ''
+}
+
+// Display short codes for labels (e.g., CTA, CTD, SS, etc.)
+const labelCode = (label: string): string => {
+  return labelCodeMap[label] || label
 }
 
 /* --- SÉLECTION --- */
@@ -604,14 +759,9 @@ const isCellSelected = (rowId: string, date: string): boolean => {
 
 /* --- MODALE --- */
 const handleConfirm = (data: ConfirmData) => {
-  console.log('Confirmed:', data)
-  loading.value = true
-
   const { dateFrom, dateTo, restriction, value } = data
-
   const row = selectedRange.value?.row
   if (!row) return
-
   const dates = visibleDates.value
     .map((d) => d.date)
     .filter((d) => {
@@ -628,13 +778,19 @@ const handleConfirm = (data: ConfirmData) => {
       row.values[date] = Number(value)
     })
   }
-
-  setTimeout(() => {
-    loading.value = false
-    showModal.value = false
-    selectedRange.value = null
-    alert('Values updated successfully!')
-  }, 1000)
+  showModal.value = false
+  emit('value-selected', {
+    type: row.type,
+    room_type_id: row.roomTypeId,
+    roomTypeName: row.roomTypeName,
+    rate_plan_id: row.ratePlanId,
+    ratePlanName: row.ratePlanName,
+    date_from: dateFrom,
+    date_to: dateTo,
+    restriction,
+    value,
+  })
+  showModal.value = false
 }
 
 const handleCancel = () => {
@@ -648,10 +804,6 @@ const handleRestrictionChange = (restrictions: string[]) => {
 
 
 const setRoomAndRateTypes = (rooms: RoomType[], rates: RateType[]) => {
-  console.log('setRoomAndRateTypes called with:', { rooms, rates })
-  props.roomTypes = rooms
-  rateTypes.value = rates
-
 
   if (rooms.length > 0) {
     console.log('Calling fetchRestrictions...')
@@ -661,13 +813,13 @@ const setRoomAndRateTypes = (rooms: RoomType[], rates: RateType[]) => {
 
 // Remplacez le watcher à la fin
 watch(currentDate, () => {
-  if (props.roomTypes.length > 0 && rateTypes.value.length > 0) {
+  if (props.roomTypes.length > 0 && props.rateTypes.length > 0) {
     fetchRestrictions()
   }
 })
 
 watch(selectedRestrictions, () => {
-  if (props.roomTypes.length > 0 && rateTypes.value.length > 0) {
+  if (props.roomTypes.length > 0 && props.rateTypes.length > 0) {
     fetchRestrictions()
   }
 }, { deep: true })
@@ -760,7 +912,9 @@ const nextMonth = () => {
 // Exposer les méthodes
 defineExpose({
   handleRestrictionChange,
-  setRoomAndRateTypes
+  setRoomAndRateTypes,
+  resetSelection,
+  fetchRestrictions
 })
 
 

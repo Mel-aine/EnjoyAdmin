@@ -1,6 +1,6 @@
 <template>
   <header
-    class="sticky top-0 flex w-full bg-gradient-to-r from-white via-gray-50 to-white border-gray-200 z-49 dark:border-gray-800 dark:bg-gradient-to-r dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 lg:border-b shadow-lg backdrop-blur-sm">
+    class="sticky top-0 flex w-full bg-gradient-to-r from-white via-gray-50 to-white border-gray-200 z-10 dark:border-gray-800 dark:bg-gradient-to-r dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 lg:border-b shadow-lg backdrop-blur-sm">
     <div class="flex flex-col items-center justify-between grow lg:flex-row dark:bg-gray-800 lg:px-8">
       <div
         class="flex items-center  justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
@@ -42,7 +42,7 @@
             </span>
           </div>
         </div>
-        <SearchBar />
+        <SearchBar @select="handleReservationSelect" />
       </div>
       <div class="lg:flex self-center justify-center align-middle hidden">
 
@@ -120,6 +120,15 @@
   <template v-if="showGuestRegistration">
     <GuestRegistrationModal v-if="showGuestRegistration" @close="showGuestRegistration = false" />
   </template>
+  <template v-if="isReservationModalOpen && selectedReservation">
+    <ReservationRigthModal
+      :is-open="isReservationModalOpen"
+      :title="selectedReservation.reservationNumber!"
+      :reservation-data="selectedReservation"
+      @close="isReservationModalOpen = false"
+    />
+  </template>
+  
 </template>
 
 <script setup lang="ts">
@@ -136,6 +145,8 @@ import BookingFormQuick from '../reservations/BookingFormQuick.vue'
 import GuestRegistrationModal from '../modal/GuestRegistrationModal.vue'
 import AddBookinIcon from '../../icons/AddBookinIcon.vue'
 import { useTheme } from '@/composables/theme'
+import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
+import type { ReservationDetails } from '@/utils/models'
 
 const authStore = useAuthStore();
 
@@ -170,6 +181,14 @@ const gotoAddReservation = () => {
 }
 const openGuestRegistration = () => {
   showGuestRegistration.value = true;
+}
+// Reservation modal state and handler
+const isReservationModalOpen = ref(false)
+const selectedReservation = ref<ReservationDetails | null>(null)
+
+const handleReservationSelect = (reservation: ReservationDetails) => {
+  selectedReservation.value = reservation
+  isReservationModalOpen.value = true
 }
 const canAddBooking = computed(() => {
   return authStore.hasPermission("add_reservation")

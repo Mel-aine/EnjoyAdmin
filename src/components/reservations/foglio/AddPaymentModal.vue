@@ -39,7 +39,10 @@
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Amount') }}</label>
         <div class="flex space-x-2">
           <div class="flex-2">
-            <InputCurrency v-model="formData.amount" :currency="formData.currency" />
+            <InputCurrency
+              v-model="formData.amount"
+              v-model:currency="formData.currency"
+            />
           </div>
         </div>
       </div>
@@ -161,10 +164,10 @@ const loadPaymentData = () => {
     formData.date = new Date(payment.postingDate).toISOString().split('T')[0]
     const methodType = payment.paymentMethod?.type?.toLowerCase() || payment.transactionCategory || 'cash'
     formData.type = methodType === 'city_ledger' ? 'city_ledger' : 'cash'
-    formData.folio = payment.folioId || ''
+    formData.folio = payment.folioId
     formData.amount = Math.abs(payment.grossAmount || payment.amount || payment.totalAmount || 0)
     formData.method = payment.paymentMethodId || 0
-    formData.currency = payment.currencyCode || ''
+    formData.currency = payment.currencyCode 
     formData.comment = payment.notes || payment.description || ''
 
     if (payment.paymentMethod) {

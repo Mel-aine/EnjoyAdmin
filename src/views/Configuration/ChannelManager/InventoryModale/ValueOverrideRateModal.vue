@@ -5,24 +5,15 @@
     <div class="fixed inset-0 bg-black/50" @click="handleCancel"></div>
 
     <!-- Modal -->
-    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4" @click.stop>
+    <div class="relative bg-white dark:bg-gray-800 dark:text-gray-100 rounded-lg shadow-xl w-full max-w-lg mx-4" @click.stop>
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b">
-        <h2 class="text-lg font-semibold text-gray-900">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {{ title }}
         </h2>
-        <button
-          @click="handleCancel"
-          class="text-gray-400 hover:text-gray-600 transition-colors"
-          type="button"
-        >
+        <button @click="handleCancel" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-200 transition-colors" type="button">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
@@ -31,88 +22,57 @@
       <div class="px-6 py-5 space-y-4">
         <!-- -->
         <div class="flex items-center">
-          <span class="w-36 text-sm text-gray-700">{{ $t('RoomTypes') }}:</span>
-          <span class="text-sm text-gray-900 font-medium">{{ selectedRange?.row?.roomTypeName }}</span>
+          <span class="w-36 text-sm text-gray-700 dark:text-gray-400">{{ $t('RoomTypes') }}:</span>
+          <span class="text-sm text-gray-900 dark:text-gray-100 font-medium">{{ selectedRange?.row?.roomTypeName }}</span>
         </div>
 
-        <div v-if="modalType === 'RATE'" class="flex items-center">
-          <span class="w-36 text-sm text-gray-700">{{ $t('RatePlan') }}:</span>
-          <span class="text-sm text-gray-900 font-medium">{{ selectedRange?.row?.name }}</span>
+        <div v-if="modalType === 'RATE' && restriction === 'rate'" class="flex items-center">
+          <span class="w-36 text-sm text-gray-700 dark:text-gray-400">{{ $t('RatePlan') }}:</span>
+          <span class="text-sm text-gray-900 dark:text-gray-100 font-medium">{{ selectedRange?.row?.name }}</span>
         </div>
 
         <!-- Date Range -->
         <div class="flex items-start">
-          <label class="w-36 text-sm text-gray-700 pt-2">Date Range:</label>
+          <label class="w-36 text-sm text-gray-700 dark:text-gray-400 pt-2">Date Range:</label>
           <div class="flex-1 flex items-center gap-2">
-            <InputDoubleDatePicker
-              class="flex-1"
-              :modelValue="dateRange"
-              @update:modelValue="updateDateRange"
-              :allowPastDates="false"
-              :is-required="false"
-            />
+            <InputDoubleDatePicker class="flex-1" :modelValue="dateRange" @update:modelValue="updateDateRange"
+              :allowPastDates="false" :is-required="false" />
           </div>
         </div>
 
         <!-- Restriction -->
         <div class="flex items-center">
-          <label class="w-40 text-sm text-gray-700">Restriction:</label>
+          <label class="w-40 text-sm text-gray-700 dark:text-gray-400">Restriction:</label>
           <div class="w-[350px]">
-            <Input
-              v-if="modalType === 'AVL'"
-              :modelValue="'Availability'"
-              disabled
-              class="bg-gray-50 text-gray-600"
-            />
-            <Select
-              v-else
-              v-model="restriction"
-              :options="rateRestrictions"
-            />
+            <Input v-if="modalType === 'AVL'" :modelValue="'Availability'" disabled class="bg-gray-50 text-gray-600 dark:bg-gray-900 dark:text-gray-300" />
+            <Select v-else v-model="restriction" :options="rateRestrictions" />
           </div>
         </div>
 
-        <!-- Current Price (only for RATE type) -->
-        <div v-if="modalType === 'RATE'" class="flex items-center">
-          <span class="w-36 text-sm text-gray-700">Current Price:</span>
-          <span class="text-sm text-gray-900 font-medium">200000</span>
+        <!-- Current Price (only when selecting Rate restriction) -->
+        <div v-if="modalType === 'RATE' && restriction === 'rate'" class="flex items-center">
+          <span class="w-36 text-sm text-gray-700 dark:text-gray-400">Current Price:</span>
+          <span class="text-sm text-gray-900 dark:text-gray-100 font-medium">{{ formattedCurrentPrice }}</span>
         </div>
 
         <!-- Dynamic Input Field -->
         <div v-if="modalType === 'AVL' || restriction" class="flex items-center">
-          <span class="w-40 text-sm text-gray-700">{{ inputLabel }}:</span>
-          <Toggle
-            v-if="inputComponent === 'InputToggle'"
-            v-model="value"
-            :id="'toggle-input'"
-          />
-          <Input
-            v-else-if="inputComponent === 'Input'"
-            v-model="value"
-            :placeholder="inputLabel"
-            type="number"
-            min="0"
-            class="w-[350px]"
-          />
+          <span class="w-40 text-sm text-gray-700 dark:text-gray-400">{{ inputLabel }}:</span>
+          <Toggle v-if="inputComponent === 'InputToggle'" v-model="value" :id="'toggle-input'" />
+          <Input v-else-if="inputComponent === 'Input'" v-model="value" :placeholder="inputLabel" type="number" min="0"
+            class="w-[350px]" />
         </div>
       </div>
 
       <!-- Footer -->
-      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t">
-        <button
-          @click="handleCancel"
-          type="button"
-          class="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-          :disabled="loading"
-        >
+      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <button @click="handleCancel" type="button"
+          class="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          :disabled="loading">
           Cancel
         </button>
-        <button
-          @click="handleConfirm"
-          type="button"
-          :disabled="loading || !isFormValid"
-          class="px-5 py-2 text-sm font-medium text-white bg-purple-600 rounded hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <button @click="handleConfirm" type="button" :disabled="loading || !isFormValid"
+          class="px-5 py-2 text-sm font-medium text-white bg-purple-600 rounded hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           {{ loading ? 'Processing...' : 'OK' }}
         </button>
       </div>
@@ -131,7 +91,7 @@ import { useI18n } from 'vue-i18n'
 interface RoomRow {
   id: string
   name: string
-  roomTypeName:string
+  roomTypeName: string
   type?: 'AVL' | 'RATE'
   label: string
   values: Record<string, number>
@@ -187,15 +147,56 @@ const dateRange = computed(() => ({
 }))
 
 const rateRestrictions = computed(() => [
-  { label: t('Closed To Departure'), value: 'closed_departure' },
-  { label: t('Stop Sell'), value: 'stop' },
   { label: t('Closed To Arrival'), value: 'closed_arrival' },
-  { label: t('Closed'), value: 'closed' },
-  { label: t('Rate'), value: 'rate' },
-  { label: t('Min Stay Arrival'), value: 'min_stay' },
-  { label: t('Min Stay Through'), value: 'min_stay_through' },
+  { label: t('Closed To Departure'), value: 'closed_departure' },
+  { label: t('Min Stay Arrival'), value: 'min_stay_arrival' },
   { label: t('Max Stay'), value: 'max_stay' },
+  { label: t('Min Stay Through'), value: 'min_stay_through' },
+  { label: t('Rate'), value: 'rate' },
+  { label: t('Stop Sell'), value: 'stop' },
 ])
+
+const currentPrice = computed(() => {
+  if (props.modalType !== 'RATE') return null
+  const date = props.selectedRange?.startDate
+  const row = props.selectedRange?.row
+  if (!date || !row) return null
+  return row.values?.[date] ?? null
+})
+
+const formattedCurrentPrice = computed(() => {
+  if (currentPrice.value === null || currentPrice.value === undefined) return '-'
+  try {
+    return new Intl.NumberFormat('en-US').format(Number(currentPrice.value))
+  } catch {
+    return String(currentPrice.value)
+  }
+})
+
+const mapLabelToRestriction = (label: string): string => {
+  switch (label) {
+    case 'Closed To Arrival':
+      return 'closed_arrival'
+    case 'Closed To Departure':
+      return 'closed_departure'
+    case 'Stop Sell':
+      return 'stop'
+    case 'Rate':
+    case 'RATE':
+      return 'rate'
+    case 'Min Stay Arrival':
+      return 'min_stay_arrival'
+    case 'Min Stay Through':
+      return 'min_stay_through'
+    case 'Max Stay':
+      return 'max_stay'
+    case 'Availability':
+    case 'AVL':
+      return 'availability'
+    default:
+      return ''
+  }
+}
 
 const inputComponent = computed(() => {
   if (props.modalType === 'AVL') return 'Input'
@@ -205,11 +206,10 @@ const inputComponent = computed(() => {
     case 'closed_arrival':
     case 'closed_departure':
     case 'stop':
-    case 'closed':
       return 'InputToggle'
     case 'rate':
     case 'max_stay':
-    case 'min_stay':
+    case 'min_stay_arrival':
     case 'min_stay_through':
       return 'Input'
     default:
@@ -231,7 +231,7 @@ const inputLabel = computed(() => {
       return t('Is Active')
     case 'rate':
     case 'max_stay':
-    case 'min_stay':
+    case 'min_stay_arrival':
     case 'min_stay_through':
       return t('Value')
     default:
@@ -245,7 +245,14 @@ const isFormValid = computed(() => {
   }
 
   const isToggleType = ['closed_arrival', 'closed_departure', 'stop', 'closed'].includes(restriction.value)
-  return dateFrom.value && dateTo.value && restriction.value && (isToggleType || value.value !== '')
+  // For rate, ensure positive value
+  const isRateValid = restriction.value === 'rate'
+    ? (() => {
+        const n = Number(String(value.value).replace(',', '.'))
+        return Number.isFinite(n) && n > 0
+      })()
+    : true
+  return dateFrom.value && dateTo.value && restriction.value && (isToggleType || (value.value !== '' && isRateValid))
 })
 
 // Watchers
@@ -254,15 +261,27 @@ watch(() => props.isOpen, (newVal) => {
     // Initialize dates from selectedRange
     dateFrom.value = props.selectedRange?.startDate || ''
     dateTo.value = props.selectedRange?.endDate || ''
-    console.log('selectedRange',props.selectedRange)
+    console.log('selectedRange', props.selectedRange)
 
     // Initialize restriction and value
+    const clickedLabel = props.selectedRange?.row?.label || ''
     if (props.modalType === 'AVL') {
       restriction.value = 'availability'
-      value.value = ''
+      // Prefill availability value for the start date if present
+      const start = props.selectedRange?.startDate
+      const v = start ? props.selectedRange?.row?.values?.[start] : ''
+      value.value = v ?? ''
     } else {
-      restriction.value = ''
-      value.value = ''
+      // Preselect restriction based on the clicked row label
+      restriction.value = mapLabelToRestriction(clickedLabel)
+      const start = props.selectedRange?.startDate
+      const rawVal:any = start ? props.selectedRange?.row?.values?.[start] : ''
+      // Prefill value based on type
+      if (['closed_arrival', 'closed_departure', 'stop', 'closed'].includes(restriction.value)) {
+        value.value = rawVal === 1 || rawVal === true || rawVal === '1'
+      } else {
+        value.value = rawVal ?? ''
+      }
     }
   }
 })
@@ -299,11 +318,19 @@ const updateDateRange = (range: { start: string; end: string }) => {
 const handleConfirm = () => {
   if (!isFormValid.value) return
 
+  const formatRateString = (val: string | number): string => {
+    const raw = typeof val === 'string' ? val : String(val)
+    const normalized = raw.replace(',', '.')
+    const n = Number(normalized)
+    if (!Number.isFinite(n)) return normalized.trim()
+    return n.toString()
+  }
+
   emit('confirm', {
     dateFrom: dateFrom.value,
     dateTo: dateTo.value,
     restriction: restriction.value,
-    value: value.value,
+    value: restriction.value === 'rate' ? formatRateString(value.value) : value.value,
   })
 }
 
@@ -321,9 +348,9 @@ const handleCancel = () => {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 </style>
-

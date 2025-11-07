@@ -42,7 +42,7 @@
 
       <!-- Amount -->
       <div>
-        <InputCurrency v-model="formData.amount" :lb="$t('amount')" />
+        <InputCurrency v-model="formData.amount" :lb="$t('amount')" :show-currency-selector="false" />
       </div>
 
       <!-- Discount -->

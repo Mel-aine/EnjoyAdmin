@@ -695,7 +695,10 @@ interface GetRestrictionsParams {
   date_to: string;
   restrictions: string;
 }
-
+interface GetAvaibilitiesParams {
+  date_from: string;
+  date_to: string;
+}
 export const getRestrictions = (
   propertyId: string | number,
   params: GetRestrictionsParams
@@ -706,7 +709,62 @@ export const getRestrictions = (
     getHeaders()
   )
 }
-
+export const getAvailability = (
+  propertyId: string | number,
+  params: GetAvaibilitiesParams
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.get<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${propertyId}/availability`,
+    { ...getHeaders(), params }
+  )
+}
 export const getRoomTypesAndRatePlans = (propertyId:any):Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
   return axios.get(`${CHANNEX_API_URL}/properties/${propertyId}/room-types-with-rate-plans`, getHeaders())
+}
+
+export const updateRestrictions = (
+  propertyId: string | number,
+  data: any
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.put<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${propertyId}/restrictions`,
+    data,
+    getHeaders()
+  )
+}
+
+export const updateAvaibility = (
+  propertyId: string | number,
+  data: any
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.put<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${propertyId}/availability`,
+    data,
+    getHeaders()
+  )
+}
+
+/**
+ * Update rates for a property (Channex)
+ * Expects payload shape: { values: [{ property_id, rate_plan_id, date_from, date_to, rate }] }
+ */
+export const updateRatesValues = (
+  propertyId: string | number,
+  data: any
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.put<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${propertyId}/rates`,
+    data,
+    getHeaders()
+  )
+}
+
+export const getBookings= (
+  propertyId: string | number,
+  params: GetAvaibilitiesParams
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.get<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${propertyId}/bookings`,
+    { ...getHeaders(), params }
+  )
 }

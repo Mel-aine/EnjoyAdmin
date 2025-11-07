@@ -216,6 +216,7 @@ const formData = ref({
   reference: '',
   date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
   amount: 0,
+  currency: 'XAF',
   comment: '',
   dateRange: {
     start: props.dateRange?.start || getYesterday(),

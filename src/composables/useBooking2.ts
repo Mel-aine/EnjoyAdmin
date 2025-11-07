@@ -88,7 +88,9 @@ interface Option {
   value: number | string
   count?: number
   disabled?: boolean
-  status?: string
+  status?: string,
+  rateTypeOptions?:any[]
+  roomOptions?:any[]
 }
 
 interface RoomTypeData {

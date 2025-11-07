@@ -1,24 +1,14 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Channel Manager Sidebar -->
-    <ChannelManagerSidebar 
-      @add-connection="handleAddConnection"
-      @sync-all="handleSyncAll"
-    />
-    
+ <ChannelManagerHeader />
     <!-- Backdrop for mobile -->
     <Backdrop />
     
     <!-- Main content area -->
-    <div :class="[
-      'transition-all duration-300 ease-in-out',
-      {
-        'lg:ml-[290px]': isExpanded || isHovered,
-        'lg:ml-[90px]': !isExpanded && !isHovered,
-      },
-    ]">
+    <div >
       <!-- Header -->
-      <AppHeader :show-sidebar='false' />
+     
       
       <!-- Page content -->
       <main class="pt-16 lg:pt-0">
@@ -46,7 +36,7 @@ import { ref } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import ChannelManagerSidebar from './ChannelManagerSidebar.vue'
 import Backdrop from './Backdrop.vue'
-import AppHeader from './AppHeader.vue'
+import ChannelManagerHeader from './ChannelManagerHeader.vue'
 import AppFooter from './AppFooter.vue'
 import ChannelConnectionModal from '@/components/modal/ChannelConnectionModal.vue'
 import { syncAllChannels } from '@/services/channelManagerApi'

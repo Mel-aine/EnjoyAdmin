@@ -7,6 +7,7 @@ export interface Currency {
   code: string;
   sign: string;
   isDefault?: boolean;
+  currencyCode: string;
 }
 
 export const useCurrencyStore = defineStore('currency', {
@@ -27,8 +28,8 @@ export const useCurrencyStore = defineStore('currency', {
   },
 
   actions: {
-    async fetchCurrencies() {
-      if (this.currencies.length > 0) {
+    async fetchCurrencies(force = false) {
+      if (!force && this.currencies.length > 0) {
         return this.currencies;
       }
 

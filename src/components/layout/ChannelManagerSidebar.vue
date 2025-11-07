@@ -43,10 +43,10 @@
 
         <nav class="h-full overflow-y-auto sidebar-scroll px-2 py-2">
           <div class="flex flex-col gap-2 pb-6">
-            
+
             <!-- Channel Manager Navigation -->
             <div class="space-y-1">
-              <router-link 
+              <router-link
                 v-for="menuItem in menuItems"
                 :key="menuItem.path"
                 :to="menuItem.path"
@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, markRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSidebar } from '@/composables/useSidebar'
 
@@ -106,32 +106,32 @@ const menuItems = ref([
   {
     path: '/configuration/channel-manager',
     title: 'configuration.channelManager.overview',
-    icon: DashboardIcon
+    icon: markRaw(DashboardIcon)
   },
   {
     path: '/configuration/channel-manager/inventory-channel-booking',
-    title: 'configuration.channelManager.inventory',
-    icon: BoxCubeIcon
+    title: 'Inventory',
+    icon: markRaw(BoxCubeIcon)
   },
   {
     path: '/configuration/channel-manager/channels-booking',
-    title: 'configuration.channelManager.booking',
-    icon: CalenderIcon
+    title: 'Booking',
+    icon: markRaw(CalenderIcon)
   },
   {
     path: '/configuration/channel-manager/rooms-rates',
-    title: 'configuration.channelManager.roomsRates',
-    icon: RatesIcon
+    title: 'Room & Rates',
+    icon: markRaw(RatesIcon)
   },
   {
     path: '/configuration/channel-manager/channel-manager',
-    title: 'configuration.channelManager.channels',
-    icon: ConnectionIcon
+    title: 'Channels',
+    icon: markRaw(ConnectionIcon)
   },
   {
     path: '/configuration/channel-manager/properties',
-    title: 'configuration.channelManager.properties',
-    icon: GridIcon
+    title: 'Properties',
+    icon: markRaw(GridIcon)
   }
 ])
 
