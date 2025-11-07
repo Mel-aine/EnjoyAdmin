@@ -28,8 +28,8 @@ export const useCurrencyStore = defineStore('currency', {
   },
 
   actions: {
-    async fetchCurrencies() {
-      if (this.currencies.length > 0) {
+    async fetchCurrencies(force = false) {
+      if (!force && this.currencies.length > 0) {
         return this.currencies;
       }
 

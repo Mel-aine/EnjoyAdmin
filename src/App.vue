@@ -21,6 +21,7 @@ import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import { useAuthStore } from '@/composables/user'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import { isLoading } from '@/composables/spinner'
+import { signOut as signOutService } from '@/services/userApi'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
 if (useLanguage.language) {
@@ -81,12 +82,16 @@ const removeActivityListeners = () => {
   activityEvents.forEach((evt) => window.removeEventListener(evt, resetOnActivity))
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (authStore.isFullyAuthenticated) {
     addActivityListeners()
-    // If re-auth was required before refresh, reopen the modal immediately
+    // If re-auth was required before refresh, immediately logout instead of reopening the modal
     if (authStore.reauthRequired && !isLoginRoute.value) {
-      isReAuthOpen.value = true
+      try {
+        await signOutService()
+      } catch (e) {
+        console.error('Failed to sign out on refresh when re-auth required:', e)
+      }
     } else {
       startIdleTimer()
     }
