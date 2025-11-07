@@ -5,7 +5,6 @@ import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import CustomerSarch from './CustomerSarch.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-// import { getCustomer } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { defineEmits } from 'vue'
 import { isEqual } from 'lodash'
@@ -417,7 +416,7 @@ const contactValue = computed({
 })
 
 onMounted(() => {
-  fetchGuest()
+  //fetchGuest()
   fetchIdentityTypes()
 })
 
