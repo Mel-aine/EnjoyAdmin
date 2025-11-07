@@ -41,7 +41,7 @@
                                 -->
 
                                 <div>
-                                    <InputCurrency :lb="$t('amount')" v-model="formData.amount" />
+                                    <InputCurrency :lb="$t('amount')" v-model="formData.amount" :showCurrencySelector=false />
                                 </div>
 
                                 <Toggle :title="$t('taxInclusive')" v-model="formData.taxInclusive" />

@@ -36,23 +36,26 @@
           </router-link>
         </li>
       </ul>
-      <router-link to="/" @click="signOut"
+      <button type="button" @click="signOut" :disabled="isLoggingOut"
         class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
-        <LogoutIcon class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
-        {{ $t('SignOut') }}
-      </router-link>
+        <LogoutIcon v-if="!isLoggingOut"
+          class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
+        <span>{{ $t('SignOut') }}</span>
+      </button>
     </div>
+
+    
+
   </div>
 </template>
 
 <script setup>
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon, PlugInIcon, HomeIcon } from '@/icons'
-import { logout } from '@/services/api';
 import { RouterLink } from 'vue-router'
-import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { isLoading } from '@/composables/spinner'
+import { signOut as signOutService } from '@/services/userApi'
 import { useAuthStore } from '@/composables/user'
-import { useServiceStore } from '@/composables/serviceStore'
-import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
 
 const dropdownOpen = ref(false)
@@ -71,8 +74,7 @@ const menuItems = computed(() => {
   }
   return menus;
 })
-const serviceStore = useServiceStore()
-const router = useRouter()
+const isLoggingOut = ref(false)
 
 const fullName = computed(() => {
   const user = authStore.user;
@@ -92,35 +94,14 @@ const picture = computed(() => {
 const signOut = async () => {
   try {
     closeDropdown();
-    authStore.forceLogout();
-    serviceStore.clearServiceId();
-    serviceStore.clearCurrentService();
-    serviceStore.clearServiceCategory();
-    serviceStore.clearPermissions();
-    serviceStore.clearUserService();
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('roleId');
-    localStorage.removeItem('UserId');
-
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('roleId');
-    sessionStorage.removeItem('UserId');
-    sessionStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_token');
-
-    await nextTick();
-
-    try {
-      await logout();
-    } catch (err) {
-      console.error('Erreur API logout:', err);
-    }
-
-    await router.replace('/');
+    isLoggingOut.value = true;
+    isLoading.value = true;
+    await signOutService();
   } catch (error) {
     console.error('Erreur lors du logout:', error);
+  } finally {
+    isLoggingOut.value = false;
+    isLoading.value = false;
   }
 };
 

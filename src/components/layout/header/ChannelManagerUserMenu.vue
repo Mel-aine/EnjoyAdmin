@@ -1,16 +1,10 @@
 <template>
-
-
-
   <div class="relative" ref="dropdownRef">
     <button class="flex items-center text-gray-700 dark:text-gray-400 space-x-1" @click.prevent="toggleDropdown">
-      <!-- <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-        <img src="" alt="User" />
-      </span> -->
       <div class="relative flex-shrink-0">
-        <!-- <img v-if="picture" :src="picture" alt="Photo utilisateur"
-          class="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-500 shadow-lg" />-->
-        <div
+        <img v-if="picture" :src="picture" alt="Photo utilisateur"
+          class="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-500 shadow-lg" />
+        <div v-else
           class="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-lg sm:text-xl font-bold border-2 border-gray-500">
           {{ userInitials }}
         </div>
@@ -36,8 +30,7 @@
       <ul class="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
         <li v-for="item in menuItems" :key="item.href">
           <router-link :to="item.href"
-            class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
-            <!-- SVG icon would go here -->
+            class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg_white/5 dark:hover:text-gray-300">
             <component :is="item.icon" class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
             {{ item.text }}
           </router-link>
@@ -50,52 +43,52 @@
         <span>{{ $t('SignOut') }}</span>
       </button>
     </div>
-    
 
-    <!-- Dropdown End v-if="user?.service?.length" -->
   </div>
 </template>
 
 <script setup>
-import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon, PlugInIcon } from '@/icons'
-import { signOut as signOutService } from '@/services/userApi'
+import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, PlugInIcon, HomeIcon } from '@/icons'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { isLoading } from '@/composables/spinner'
+import { signOut as signOutService } from '@/services/userApi'
 import { useAuthStore } from '@/composables/user'
 import { useI18n } from "vue-i18n";
+
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
 const { t } = useI18n();
 const authStore = useAuthStore()
+
+// Menu tailored for Channel Manager header: link to general configuration
 const menuItems = computed(() => {
   let menus = [
+    { href: '/', icon: HomeIcon, text: t('Go to Front') },
     { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
   ]
-  if (authStore.hasPermission('access_to_configuration_panel')) {
-    menus.push({ href: '/configuration', icon: SettingsIcon, text: t('Configuration') })
-  }
+
   if (authStore.hasPermission('access_to_channel_manager')) {
-    menus.push({ href: '/configuration/channel-manager/', icon: PlugInIcon, text: t('configuration.channelManager.title') })
+    menus.push({ href: '/configuration/', icon: SettingsIcon, text: 'Configuration' })
   }
   return menus;
 })
-
-
-// sign-out and router handling moved to userApi service
+const isLoggingOut = ref(false)
 
 const fullName = computed(() => {
   const user = authStore.user;
   return `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
 })
+
 const Email = computed(() => {
   const user = authStore.user;
   return `${user?.email ?? ''}`
 })
 
-
-
-const isLoggingOut = ref(false)
+const picture = computed(() => {
+  const user = authStore.user;
+  return user?.picture || null
+})
 
 const signOut = async () => {
   try {
@@ -123,7 +116,6 @@ const userInitials = computed(() => {
 const closeDropdown = () => {
   dropdownOpen.value = false
 }
-
 
 const handleClickOutside = (event) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {

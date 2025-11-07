@@ -26,7 +26,7 @@ const props = defineProps({
     min: Number,
     currency: {
         type: String,
-        default: 'XAF' // devise par défaut
+        default: '' // derive from store default
     },
     showCurrencySelector: {
         type: Boolean,
@@ -46,7 +46,7 @@ const selectedCurrency = ref(props.currency)
 
 const availableCurrencies = computed(() => currencyStore.getCurrencies)
 const isLoading = computed(() => currencyStore.isLoading)
-
+console.log('availableCurrencies', availableCurrencies.value);
 const handleInput = (event: Event) => {
     const input = event.target as HTMLInputElement;
     emit('update:modelValue', input.value)
@@ -68,11 +68,24 @@ const toggleDropdown = () => {
 }
 
 // Initialize currency store
+// Always resolve to the company's default currency (isDefault),
+// not the last selected currency.
+const resolveDefaultCurrency = (): string => {
+    const list = currencyStore.getCurrencies || []
+    const def = list.find((c: any) => c.isDefault) || list[0]
+    return def?.currencyCode || 'XAF'
+}
+
 onMounted(async () => {
     try {
         currencyStore.init()
-        await currencyStore.fetchCurrencies()
-        selectedCurrency.value = props.currency || currencyStore.getSelectedCurrency
+        await currencyStore.fetchCurrencies(true)
+        const fallback = resolveDefaultCurrency()
+        selectedCurrency.value = props.currency || fallback
+        // Toujours forcer la devise du store sur la isDefault (ou prop fournie)
+        currencyStore.setSelectedCurrency(selectedCurrency.value)
+        // Emit initial currency value to parent if provided
+        emit('update:currency', selectedCurrency.value)
     } catch (error) {
         console.error('Error loading currencies:', error)
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white flex items-center justify-center">
+  <div class="min-h-full bg-white flex items-center justify-center">
     <div class="text-center px-6 py-10">
       <div class="flex items-center justify-center mb-6">
         <img src="@/assets/images/header/logo2.png" alt="Enjoy PM" class="h-10 w-auto" />
