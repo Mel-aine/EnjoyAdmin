@@ -326,7 +326,7 @@
           <div><strong>{{ $t('roomType') }}:</strong></div>
           <div>{{ getSelectionInfo()?.roomType }}</div>
 
-          <div><strong>{{ $t('from') }}:</strong></div>
+          <div><strong>{{ $t('common.from') }}:</strong></div>
           <div>{{ formatDate(getSelectionInfo()?.startDate ?? new Date()) }} {{ getSelectionTimes().checkinTime }}</div>
 
           <div class="capitalize"><strong>{{ $t('to') }}:</strong></div>

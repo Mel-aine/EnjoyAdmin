@@ -37,7 +37,7 @@
                 <span
                   class="inline-flex items-center px-2 py-0.5 bg-gray-200 text-gray-800 rounded-full text-xs font-medium"
                 >
-                  {{ customer.guestType }}
+                  {{ $t(`${customer.guestType}`) }}
                 </span>
                 <span
                   v-if="customer.blacklisted"
@@ -190,7 +190,7 @@
                 />
                 <DetailRow
                   :label="$t('customerDetails.basicInfo.nationality')"
-                  :value="customer.country || 'N/A'"
+                  :value="$t(`countries_lists.${customer.country.toLowerCase()}`) || 'N/A'"
                   type="badge"
                 />
                 <DetailRow

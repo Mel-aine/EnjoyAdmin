@@ -87,8 +87,8 @@
           <AutoCompleteSelect
             v-model="form.contactType"
             :options="TypesOfContact"
-            :defaultValue="$t('contactType')"
-            :lb="$t('contactType')"
+            :defaultValue="$t('contact_type')"
+            :lb="$t('contact_type')"
             :is-required="false"
             :use-dropdown="useDropdownBooking"
             @clear-error="emit('clear-error')"

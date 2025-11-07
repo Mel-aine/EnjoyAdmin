@@ -36,7 +36,7 @@
                     <InputDatePicker :title="t('Date')" v-model="formData.date" :isRequired="true" :disabled="isMappingMode" />
 
                     <!-- Payment Type -->
-                    <Select :lb="t('Payment Type')" v-model="formData.paymentType" :options="[
+                    <Select :lb="$t('Payment Type')" v-model="formData.paymentType" :options="[
                       { label: t('cash'), value: 'cash' },
                     ]" :isRequired="true" :disabled="isMappingMode" />
 
@@ -57,10 +57,11 @@
                       <small class="text-gray-500 text-xs mt-1">Auto-calculated from assigned amounts</small>
                     </div>
                     <div class="col-span-3">
-                      <Input :lb="$t('comment')" v-model="formData.comment" :disabled="isMappingMode" />
+                      <Input :lb="$t('comment')" v-model="formData.comment" :disabled="isMappingMode" :placeholder="$t('comment')" />
                     </div>
                   </div>
                   <!-- Map Payment Section -->
+                  <h4 class="text-md mt-2 font-medium text-gray-900 dark:text-white mb-4">{{ $t('Map Payment') }}</h4>
                   <h4 class="text-md mt-2 font-medium text-gray-900 dark:text-white mb-4">{{ $t('Map Payment') }}</h4>
 
                   <div class="mt-2 grid grid-cols-12 align-middle items-center gap-3">
@@ -72,19 +73,21 @@
                         <RadioGroup class="flex space-x-4" :options="[
                           { label: t('Posting date'), value: 'posting' },
                           { label: t('Departure date'), value: 'departure' },
+                          { label: t('Posting date'), value: 'posting' },
+                          { label: t('Departure date'), value: 'departure' },
                         ]" v-model="formData.filter_options" />
 
                       </div>
                       <div class="mr-4">
-                        <InputDoubleDatePicker :lb="t('Posting Date')" v-model="formData.dateRange"
+                        <InputDoubleDatePicker :lb="$t('Posting Date')" v-model="formData.dateRange"
                           :allow-past-dates="true" />
                       </div>
                     </div>
-                    <div class="col-span-7">
+                    <!-- <div class="col-span-7">
                       <Input :lb="$t('res.no')" :disabled="true" :placeholder="$t('new')" />
-                    </div>
+                    </div> -->
                     <div class="justify-center align-middle pt-6">
-                      <BasicButton :label="t('Search')" :icon="SearchCodeIcon" @click="searchTransactions"
+                      <BasicButton :label="t('Search')" :icon="SearchCodeIcon" @click="searchTransactions" class="w-80"
                         :loading="isSearching" :disabled="loading || isSearching|| isSaving"></BasicButton>
                     </div>
                   </div>
@@ -411,7 +414,7 @@ console.log('item',item)  // Convert to number to handle string inputs
 // Search transactions with refined details
 const searchTransactions = async () => {
   if (!formData.value.cityLedgerAccountId) {
-    toast.error(t('pleaseSelectCityLedger'))
+    toast.error(t('Please select a city ledger account first'))
     return
   }
 
@@ -423,7 +426,8 @@ const searchTransactions = async () => {
     // Reload data with current filter settings
     await loadCityLedgerData()
 
-    toast.success(t('Found transactions', { count: guestData.value.length.toString() }))
+    toast.success(t('transacctions.found', { count: guestData.value.length }))
+    // toast.success(`Found ${guestData.value.length} transactions`)
 
     console.log('Transaction search completed with filters:', {
       cityLedgerAccountId: formData.value.cityLedgerAccountId,
@@ -450,16 +454,18 @@ const savePayment = async () => {
 
     // Validate form
     if (!formData.value.cityLedgerAccountId) {
-      toast.error(t('pleaseSelectCityLedger'))
+      toast.error(t('Please select a city ledger account'))
       return
     }
 
     if (!formData.value.paymentMethod) {
       toast.error(t('Please select a payment method'))
+      toast.error(t('Please select a payment method'))
       return
     }
 
     if (!formData.value.amount) {
+      toast.error(t('Please assign amounts to selected items'))
       toast.error(t('Please assign amounts to selected items'))
       return
     }
@@ -497,7 +503,7 @@ const savePayment = async () => {
     const response = await postTransactionPayCompanyBulk(paymentData)
 
     if (response && response.success) {
-      toast.success(t('Payment saved successfully'))
+      toast.success(t('Payment saved successfully!'))
       // Emit event to parent component to refresh data
       emit('payment-saved')
       // Close modal after successful save
@@ -508,6 +514,7 @@ const savePayment = async () => {
     }
   } catch (error) {
     console.error('Error saving payment:', error)
+    toast.error(t('An error occurred while saving the payment'))
     toast.error(t('An error occurred while saving the payment'))
   } finally {
     isSaving.value = false
@@ -575,6 +582,6 @@ onMounted(() => {
     loadCityLedgerData()
   }
 
-  
+
 })
 </script>

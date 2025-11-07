@@ -85,7 +85,7 @@ const columnsFolios = computed<Column[]>(() => {
     return [
         { key: 'folioNumber', label: t('Folio No.'), sortable: true },
         { key: 'roomNumber', label: t('Room'), sortable: true },
-        { key: 'guest', label: t('guest '), sortable: true },
+        { key: 'guest', label: t('Guest'), sortable: true },
         { key: 'arrivedDate', label: t('arrivalDate'), type: "date", sortable: true },
         { key: 'departureDate', label: t('departureDate'),type: "date", sortable: true },
         { key: "balance", label: t("balance") },
@@ -99,7 +99,7 @@ const columnsFolios = computed<Column[]>(() => {
         <div @click="isOpen = true"
             class=" cursor-pointer flex gap-3 dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
             <SearchIcon class="w-5 h-5 text-gray-500"></SearchIcon>
-            <input type="text" placeholder="Search folio"  :disabled="true" class="w-full" :value="selectedFolio ? (typeof selectedFolio.guest === 'object' ? selectedFolio.guest?.displayName : selectedFolio.guest) || 'Search folio' : 'Search folio'">
+            <input type="text" :placeholder="$t('Search folio')"  :disabled="true" class="w-full" :value="selectedFolio ? (typeof selectedFolio.guest === 'object' ? selectedFolio.guest?.displayName : selectedFolio.guest) || $t('Search folio') : $t('Search folio')">
             <button v-if="selectedFolio" @click.stop="clearSelectedFolio" type="button" aria-label="Clear selection"
                 class="flex items-center justify-center w-6 h-6 shrink-0 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 dark:text-white/50 dark:hover:text-white/70 dark:hover:bg-white/10">
                 <XIcon class="w-4 h-4" />
@@ -130,7 +130,7 @@ const columnsFolios = computed<Column[]>(() => {
                         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-5 p-5">
                             <!-- Search by Name/Number -->
                             <div class="flex flex-col col-span-4">
-                                <Input :inputType="'search'" :placeholder="$t('Search folio, Room or Guest ')"
+                                <Input :inputType="'search'" :placeholder="$t('Search folio, Room or Guest')"
                                     :id="'searchText'" :forLabel="'reservationsList.searchByNameOrNumber'"
                                     v-model="filters.searchText" />
                                 <div class="flex gap-2 mt-2">

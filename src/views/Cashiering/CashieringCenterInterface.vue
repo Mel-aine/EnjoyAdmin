@@ -31,6 +31,8 @@
               <RadioGroup v-model="activeTab" class="flex space-x-4" :options="[
                 { label: t('Posting date'), value: 'posting' },
                 { label: t('Departure date'), value: 'departure' },
+                { label: t('Posting date'), value: 'posting' },
+                { label: t('Departure date'), value: 'departure' },
               ]" />
             </div>
             <div class="mr-4">
@@ -39,7 +41,7 @@
           </div>
 
           <div class="flex justify-start gap-6">
-            <InputCheckBox v-model="displayVoid" :label="t('Display Void')" id="display-void" />
+            <InputCheckBox v-model="displayVoid" :label="$t('Display Void')" id="display-void" />
           </div>
 
         </div>
@@ -145,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, defineAsyncComponent } from 'vue'
+import { ref, onMounted, watch, defineAsyncComponent,computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -227,7 +229,7 @@ const cityLedgerData = ref<any>({
 // Original data backup for filtering
 const originalTransactions = ref<any>([])
 // Table columns
-const columns = computed<Column[]>(() => [
+const columns = ref<Column[]>([
   { key: 'date', label: t('Date'), type: 'date' },
   { key: 'description', label: t('Description'), type: 'custom' },
   { key: 'paymentType', label: t('Payment Type'), type: 'custom' },
@@ -366,7 +368,7 @@ async function onAction(action: string, item: any) {
     const transactionId = item?.id;
 
     switch (action) {
-      case 'void': 
+      case 'void':
         openVoidModal(item)
         break
       case 'printReceipt': {

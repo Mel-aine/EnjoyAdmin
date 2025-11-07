@@ -61,6 +61,7 @@
                       :forLabel="'item_name'"
                       v-model="lostFoundForm.itemName"
                       :is-required="true"
+                      :placeholder="$t('ItemName')"
                     />
                   </div>
 
@@ -71,6 +72,7 @@
                       :forLabel="'item_color'"
                       v-model="lostFoundForm.itemColor"
                       :is-required="true"
+                      :placeholder="$t('ItemColor')"
                     />
                   </div>
 
@@ -81,6 +83,7 @@
                       :forLabel="'found_location'"
                       v-model="lostFoundForm.foundLocation"
                       :is-required="true"
+                      :placeholder="$t('FoundLocation')"
                     />
                   </div>
 
@@ -90,6 +93,7 @@
                       :lb="$t('Room')"
                       v-model="lostFoundForm.roomId"
                       :options="rooms"
+                      :placeholder="$t('select_item')"
                     />
                   </div>
 
@@ -102,6 +106,7 @@
                       v-model="lostFoundForm.itemValue"
                       :is-required="true"
                       :currency="'MX$'"
+                      :placeholder="$t('ItemValue')"
                     />
                   </div>
                 </div>
@@ -121,6 +126,7 @@
                       :forLabel="'complainant_name'"
                       v-model="lostFoundForm.complainantName"
                       :is-required="true"
+                      :placeholder="$t('Name')"
                     />
                   </div>
 
@@ -130,6 +136,7 @@
                       v-model="lostFoundForm.phone"
                       :id="'phone'"
                       :title="$t('Phone')"
+                      :placeholder="$t('Phone')"
                     />
                   </div>
 
@@ -153,6 +160,7 @@
                       :forLabel="'city'"
                       v-model="lostFoundForm.city"
                       :is-required="true"
+                      :placeholder="$t('City')"
                     />
                   </div>
 
@@ -163,6 +171,7 @@
                       :forLabel="'state'"
                       v-model="lostFoundForm.state"
                       :is-required="true"
+                      :placeholder="$t('State')"
                     />
                   </div>
 
@@ -178,6 +187,7 @@
                       :forLabel="'zip_code'"
                       v-model="lostFoundForm.zipCode"
                       :is-required="true"
+                      :placeholder="$t('ZipCode')"
                     />
                   </div>
 
@@ -198,6 +208,7 @@
                       :forLabel="'who_found'"
                       v-model="lostFoundForm.whoFound"
                       :is-required="true"
+                      :placeholder="$t('WhoFound')"
                     />
                   </div>
 
@@ -208,6 +219,7 @@
                       :forLabel="'current_location'"
                       v-model="lostFoundForm.currentLocation"
                       :is-required="true"
+                      :placeholder="$t('CurrentLocation')"
                     />
                   </div>
                 </div>
@@ -273,6 +285,7 @@
                       :id="'item_name'"
                       :forLabel="'item_name'"
                       v-model="lostFoundForm.itemName"
+                      :placeholder="$t('ItemName')"
                       :is-required="true"
                     />
                   </div>
@@ -283,6 +296,7 @@
                       :id="'item_color'"
                       :forLabel="'item_color'"
                       v-model="lostFoundForm.itemColor"
+                      :placeholder="$t('ItemColor')"
                       :is-required="true"
                     />
                   </div>
@@ -293,6 +307,7 @@
                       :id="'lost_location'"
                       :forLabel="'lost_location'"
                       v-model="lostFoundForm.lostLocation"
+                      :placeholder="$t('LostLocation')"
                       :is-required="true"
                     />
                   </div>
@@ -302,6 +317,7 @@
                       :is-required="true"
                       :lb="$t('Room')"
                       v-model="lostFoundForm.roomId"
+                      :placeholder="$t('select_item')"
                       :options="rooms"
                     />
                   </div>
@@ -315,6 +331,7 @@
                       v-model="lostFoundForm.itemValue"
                       :is-required="true"
                       :currency="'MX$'"
+                      :placeholder="$t('ItemValue')"
                     />
                   </div>
 
@@ -336,6 +353,7 @@
                       :forLabel="'complainant_name'"
                       v-model="lostFoundForm.complainantName"
                       :is-required="true"
+                      :placeholder="$t('Name')"
                     />
                   </div>
 
@@ -368,6 +386,7 @@
                       :forLabel="'city'"
                       v-model="lostFoundForm.city"
                       :is-required="true"
+                      :placeholder="$t('City')"
                     />
                   </div>
 
@@ -378,6 +397,7 @@
                       :forLabel="'state'"
                       v-model="lostFoundForm.state"
                       :is-required="true"
+                      :placeholder="$t('State')"
                     />
                   </div>
 
@@ -393,6 +413,7 @@
                       :forLabel="'zip_code'"
                       v-model="lostFoundForm.zipCode"
                       :is-required="true"
+                      :placeholder="$t('ZipCode')"
                     />
                   </div>
 

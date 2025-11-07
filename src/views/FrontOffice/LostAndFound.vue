@@ -54,7 +54,7 @@
       <ConfirmationModal
         v-model:show="showDeleteConfirmation"
         :title="$t('confirmDelete')"
-        :message="$t('deleteBlockConfirmMessage')"
+        :message="$t('youaresure')"
         :confirm-text="$t('delete')"
         :cancel-text="$t('cancel')"
         variant="danger"
@@ -453,7 +453,7 @@ const handleSubmitLostFound = async (payload: any) => {
         lostFoundItems.value[index] = { ...lostFoundItems.value[index], ...payloadData }
       }
 
-      toast.success(t('toast.Updated'))
+      toast.success(t('toast.SucessUpdate'))
     } else {
       // Appel API pour créer
       console.log("data.send", payloadData)
@@ -462,7 +462,7 @@ const handleSubmitLostFound = async (payload: any) => {
       fetchLostFoundItems()
       console.log("data.receive", response)
 
-      toast.success(t('toast.Created'))
+      toast.success(t('toast.SuccessCreated'))
     }
 
     showModal.value = false
@@ -485,13 +485,13 @@ const confirmDelete = async () => {
   try {
     await deleteLostFoundItem(selectedItem.value?.id)
     fetchLostFoundItems()
-    toast.success(t('successBlockDeleted'))
+    toast.success(t('toast.DeletedSuccess'))
 
   } catch (error: any) {
     console.error('Error deleting block:', error)
-    const errorMsg = error.response?.data?.message || error.message || t('errorDeletingBlock')
+    const errorMsg = error.response?.data?.message || error.message || t('toast.deleteErrors')
     console.log('errorMsg',errorMsg)
-    toast.error(t('errorDeleteBlock'))
+    toast.error(t('toast.deleteErrors'))
   } finally {
     deleteLoading.value = false
     showDeleteConfirmation.value = false

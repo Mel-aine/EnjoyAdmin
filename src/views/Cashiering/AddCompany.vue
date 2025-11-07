@@ -31,7 +31,7 @@
                 :placeholder="$t('Enter short code')" id="companyCode" />
             </div>
             <div>
-              <h2 class="text-lg font-bold dark:text-white text-gray-900 mb-0">Account Details</h2>
+              <h2 class="text-lg font-bold dark:text-white text-gray-900 mb-0">{{ $t('Account Details') }}</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <!-- Registration Number -->
@@ -51,12 +51,12 @@
                 :placeholder="$t('opening balance')" id="openingBalance" @update:currency="handleCurrencyChange"
                 :showCurrencySelector="true" />
               <InputCurrency v-model="formData.creditLimit" :lb="$t('Credit Limit')" :currency="selectedCurrency"
-                :placeholder="$t('credit limit')" id="creditLimit" @update:currency="handleCurrencyChange"
+                :placeholder="$t('Credit Limit')" id="creditLimit" @update:currency="handleCurrencyChange"
                 :showCurrencySelector="true" />
 
             </div>
           </div>
-          <h2 class="text-lg font-bold dark:text-white text-gray-900 mb-3">Address</h2>
+          <h2 class="text-lg font-bold dark:text-white text-gray-900 mb-3">{{ $t('Address') }}</h2>
           <!-- Address -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -73,7 +73,7 @@
               id="state" />
             <Input v-model="formData.city" :lb="$t('City')" inputType="text" :placeholder="$t('Enter city')"
               id="city" />
-            <Input v-model="formData.postalCode" :lb="$t('Postal Code')" inputType="text"
+            <Input v-model="formData.postalCode" :lb="$t('postalCode')" inputType="text"
               :placeholder="$t('Enter postal code')" id="postalCode" />
           </div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -231,7 +231,10 @@ const handleSubmit = async () => {
 
   } catch (error) {
     console.error(`Error ${isEditMode.value ? 'updating' : 'creating'} company:`, error)
-    toast.error(t(`Error ${isEditMode.value ? 'updating' : 'creating'} company`))
+    // toast.error(t(`Error ${isEditMode.value ? 'updating' : 'creating'} company`))
+    toast.error(t('company.error.action_failed', {
+        action: isEditMode.value ? t('actions.updating') : t('actions.creating')
+      }))
   } finally {
     loading.value = false
   }

@@ -9,17 +9,17 @@
         </h2>
         <span class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
           :class="getFilterBadgeClass('totalReservations')" @click="handleFilterClick('totalReservations')">
-          {{ statistics.totalReservations }} {{ $t('reservations') }}
+          {{ statistics.totalReservations }} {{ statistics.totalReservations > 1 ? $t('reservations'): $t('notices.fields.reservation') }}
         </span>
 
         <span class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
           :class="getFilterBadgeClass('arrivals')" @click="handleFilterClick('arrivals')">
-          {{ statistics.arrivals }} {{ $t('arrivals') }}
+          {{ statistics.arrivals }} {{statistics.arrivals > 1 ?  $t('arrivals') : $t('arrival') }}
         </span>
 
         <span class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
           :class="getFilterBadgeClass('departures')" @click="handleFilterClick('departures')">
-          {{ statistics.departures }} {{ $t('departures') }}
+          {{ statistics.departures }} {{statistics.departures>1? $t('departures') : $t('departure') }}
         </span>
 
         <span class="cursor-pointer text-sm px-3 py-2 rounded-full transition-all duration-200 hover:shadow-md"
@@ -1126,7 +1126,7 @@ const getTableActionsForReservation = (reservation: any) => {
         }
 
         return {
-          label: action.label,
+          label: t(action.label),
           handler: (item: any) => handleReservationAction(action.action, item),
           variant: variantMap[action.action] || 'secondary' as const,
           description: action.description,

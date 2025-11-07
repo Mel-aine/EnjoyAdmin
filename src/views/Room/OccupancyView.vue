@@ -320,7 +320,7 @@
                             </svg>
                             {{ roomType.name }}
                             <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                              ({{ roomType.totalRooms }} {{ $t('rooms') }})
+                              ({{ roomType.totalRooms }} {{ roomType.totalRooms > 1 ? $t('Rooms') : $t('Room') }})
                             </span>
                           </div>
                         </td>

@@ -198,7 +198,8 @@ const saveRoomCharge = async () => {
           toast.success(props.isEditMode ? t('RoomChargesUpdatedSuccessfully') : t('roomChargeAddedSuccessfully'))
           closeModal()
         } else {
-          const errorMessage = responseRoomCharges?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} charge. Please try again.`
+          const errorMessage = responseRoomCharges?.message || t('room_charges.error.generic', {
+            action: props.isEditMode ? t('commons.update') : t('commons.add')})
           toast.error(errorMessage)
         }
 

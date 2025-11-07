@@ -901,7 +901,7 @@ onMounted(() => {
                           <!-- Time Input -->
                           <div class="col-span-2">
                             <InputTimePicker :title="$t('time')" v-model="holdReleaseData.time"
-                              :placeholder="$t('select_time')" />
+                              :placeholder="$t('select_time')" custom-class="rounded-lg"  />
                           </div>
 
                           <!-- Release Term -->
@@ -1015,8 +1015,8 @@ onMounted(() => {
                         <AutoCompleteSelect
                             v-model="formData.contactType"
                             :options="TypesOfContact"
-                            :defaultValue="$t('contactType')"
-                            :lb="$t('contactType')"
+                            :defaultValue="$t('contact_type')"
+                            :lb="$t('contact_type')"
                             :is-required="false"
                             :use-dropdown="useDropdownBooking"
                             @clear-error="emits('clear-error')"
@@ -1063,7 +1063,7 @@ onMounted(() => {
             <div class="flex justify-between  space-x-3">
                <BasicButton  v-if="!showCheckinButton && !pendingReservation" type="button" @click="gotoNew"
                  :disabled="isLoading" variant=""
-                :label="$t('More Options')">
+                :label="$t('more_options')">
               </BasicButton>
               <BasicButton v-if="showCheckinButton && !pendingReservation" type="button" @click="handleCheckIn"
                 :loading="isLoading" :disabled="isLoading" variant="info"
