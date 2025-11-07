@@ -508,12 +508,14 @@ const {
   reservationId,
 } = useBooking()
 
-const travelAgentOptions = ref<FilterOptions[]>([
+// Options d'agent de voyage - avec traduction dynamique
+const travelAgentOptions = computed<FilterOptions[]>(() => [
   { value: 'agent1', label: t('common.travelAgents.agent1') },
   { value: 'agent2', label: t('common.travelAgents.agent2') }
 ])
 
-const businessSourceOptions = ref<FilterOptions[]>([
+// Options de source d'affaires - garder les options originales mais avec traduction dynamique
+const businessSourceOptions = computed<FilterOptions[]>(() => [
   { value: 'online', label: t('common.businessSources.online') },
   { value: 'phone', label: t('common.businessSources.phone') },
   { value: 'walk_in', label: t('common.businessSources.walkIn') },
@@ -521,7 +523,8 @@ const businessSourceOptions = ref<FilterOptions[]>([
   { value: 'internet', label: t('common.businessSources.internet') }
 ])
 
-const marketOptions = ref<FilterOptions[]>([
+// Options de marché - avec traduction dynamique
+const marketOptions = computed<FilterOptions[]>(() => [
   { value: 'domestic', label: t('common.markets.domestic') },
   { value: 'international', label: t('common.markets.international') }
 ])

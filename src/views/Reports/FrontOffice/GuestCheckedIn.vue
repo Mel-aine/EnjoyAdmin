@@ -206,7 +206,7 @@
         <!-- En-tête du rapport -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ reportTitle }}
+            {{ translatedReportTitle }}
           </h2>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span>{{ t('reports.generatedAt') }}: {{ formatDate(new Date()) }}</span>
@@ -214,7 +214,7 @@
         </div>
         
         <!-- Contenu HTML du rapport -->
-        <div v-if="reportHtml" v-html="reportHtml" class="report-html-container p-6"></div>
+        <div v-if="reportHtml" v-html="translatedHtml" class="report-html-container p-6"></div>
         
         <!-- Fallback si pas de HTML (affichage normal du tableau) -->
         <div v-else>
@@ -530,6 +530,125 @@ const openPDFInNewPage = () => {
     window.open(routeData.href, '_blank')
   }
 }
+
+// Traduit des fragments HTML renvoyés par l'API (fallback côté client)
+const translateReportHtml = (html: string): string => {
+  if (!html) return html
+  
+  // Normaliser les espaces insécables
+  let out = html.replace(/&nbsp;/g, ' ')
+  
+  // Traduire la ligne de synthèse "Generated on ... | ... records" ou "Generated on ... | ... records | ... columns displayed"
+  const summaryPattern = /Generated\s+on\s+([^|]+)\|\s*(\d+)\s+records(\s*\|\s*(\d+)\s+columns\s+displayed)?/gi
+  out = out.replace(summaryPattern, (_match, datePart, recordCount, _columnsPart, columnCount) => {
+    const dateText = datePart.trim()
+    if (columnCount) {
+      return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')} | ${columnCount} ${t('reports.columnsDisplayed')}`
+    }
+    return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')}`
+  })
+  
+  const replacements: Record<string, string> = {
+    // Titres et descriptions
+    'Guest Checked In Report': t('reports.frontOffice.guestCheckedIn') + ' ' + t('common.report'),
+    'GUEST CHECKED IN REPORT': t('reports.frontOffice.guestCheckedIn').toUpperCase() + ' ' + t('common.report').toUpperCase(),
+    'View and manage currently checked-in Clients': t('reports.frontOffice.guestCheckedInDescription'),
+    'View and manage currently checked-in clients': t('reports.frontOffice.guestCheckedInDescription'),
+    'View and manage currently checked-in guests': t('reports.frontOffice.guestCheckedInDescription'),
+    'view and manage currently checked-in clients': t('reports.frontOffice.guestCheckedInDescription'),
+    'view and manage currently checked-in guests': t('reports.frontOffice.guestCheckedInDescription'),
+    'View guests who have checked in': t('reports.frontOffice.guestCheckedInDescription'),
+    // Entêtes avec deux-points
+    'Hotel:': t('reports.reservation.hotel') + ':',
+    'Checked-in From:': t('tableColumns.arrival') + ':',
+    'To:': t('common.to') + ':',
+    'Order By:': t('reports.reservation.orderBy') + ':',
+    'Tax Inclusive:': t('reports.reservation.taxInclusive') + ':',
+    'Direct Check-in:': t('reports.frontOffice.directCheckIn') + ':',
+    // Entêtes sans deux-points
+    'Checked-in From': t('tableColumns.arrival'),
+    'Date From': t('common.dateFrom'),
+    'Date To': t('common.dateTo'),
+    'Room Type': t('common.roomType'),
+    'Rate Type': t('common.rateType'),
+    'Business Source': t('tableColumns.businessSource'),
+    'Tax Inclusive': t('reports.reservation.taxInclusive'),
+    'Direct Check-in': t('reports.frontOffice.directCheckIn'),
+    'Order By': t('reports.reservation.orderBy'),
+    // Ligne de synthèse
+    'Generated on': t('reports.generatedOn'),
+    'records': t('reports.records'),
+    'columns displayed': t('reports.columnsDisplayed'),
+    // Colonnes du tableau
+    'Reservation Type': t('tableColumns.resType'),
+    'Res. No': t('tableColumns.resNo'),
+    'RES. NO': t('tableColumns.resNo').toUpperCase(),
+    'Departure': t('tableColumns.departure'),
+    'DEPARTURE': t('tableColumns.departure').toUpperCase(),
+    'Arrival': t('tableColumns.arrival'),
+    'ARRIVAL': t('tableColumns.arrival').toUpperCase(),
+    'Room': t('tableColumns.room'),
+    'ROOM': t('tableColumns.room').toUpperCase(),
+    'Chambre': t('tableColumns.room'),
+    'Guest': t('tableColumns.guest'),
+    'GUEST': t('tableColumns.guest').toUpperCase(),
+    'Rate': t('tableColumns.rate'),
+    'RATE': t('tableColumns.rate').toUpperCase(),
+    'PAX': t('tableColumns.pax'),
+    'User': t('tableColumns.user'),
+    'USER': t('tableColumns.user').toUpperCase(),
+    'Total': t('common.total'),
+    'Hotel': t('reports.reservation.hotel'),
+    'Direct': t('common.direct'),
+    // Totaux et résumés
+    'Total Reservations': t('reports.reservation.totalReservations'),
+    'Total PAX': t('reports.reservation.totalPax'),
+    'Rent per Night': t('reports.reservation.rentPerNight'),
+    'Total Amount': t('reports.reservation.totalAmount'),
+    // Autres
+    'Show': t('common.show'),
+    'Report': t('common.report'),
+    'Filters': t('common.filters'),
+    'Select': t('common.select'),
+    'Reset': t('common.reset'),
+    'Export': t('common.export'),
+    'No': t('common.no'),
+    'Yes': t('common.yes'),
+    'N/A': t('common.na'),
+    'Generated At': t('reports.generatedAt'),
+    'Generated at': t('reports.generatedAt'),
+    'Generated': t('reports.generatedAt')
+  }
+  
+  // Traiter d'abord les remplacements avec balises HTML
+  for (const [en, fr] of Object.entries(replacements)) {
+    if (en.startsWith('>') && en.endsWith('<')) {
+      // Remplacement avec contexte HTML
+      const regex = new RegExp(en, 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  // Ensuite les remplacements simples (sans balises)
+  for (const [en, fr] of Object.entries(replacements)) {
+    if (!en.startsWith('>') || !en.endsWith('<')) {
+      // Remplacement insensible à la casse pour couvrir les variantes
+      const escaped = en.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const regex = new RegExp('\\b' + escaped + '\\b', 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  
+  return out
+}
+
+const translatedHtml = computed(() => translateReportHtml(reportHtml.value || ''))
+
+const translatedReportTitle = computed(() => {
+  const rawTitle = reportTitle.value
+  if (!rawTitle) return t('reports.frontOffice.guestCheckedIn')
+  const normalized = translateReportHtml(rawTitle)
+  return normalized || t('reports.frontOffice.guestCheckedIn')
+})
 
 const formatDate = (date: Date): string => {
   return date.toLocaleString('fr-FR', {

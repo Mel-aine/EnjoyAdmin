@@ -95,7 +95,7 @@
           <ResultTable
             :title="$t('reports.frontOffice.guestList')"
             :columns="tableColumns"
-            :data="guests"
+            :data="displayGuests"
             :actions="tableActions"
             :searchable="true"
             :loading="loading"
@@ -108,20 +108,20 @@
       <!-- Summary -->
       <div v-if="guests.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {{ $t('Summary') }}
+          {{ $t('reports.frontOffice.guestListSummary') }}
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="text-center">
             <div class="text-2xl font-bold text-blue-600">{{ totalGuests }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('TotalGuests') }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.totalGuests') }}</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-green-600">{{ checkedInGuests }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('CheckedIn') }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.checkedInGuests') }}</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-gray-600">{{ checkedOutGuests }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('CheckedOut') }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $t('reports.frontOffice.checkedOutGuests') }}</div>
           </div>
         </div>
       </div>
@@ -176,15 +176,90 @@ const filters = ref<Filters>({
 
 // State
 const guests = ref<Guest[]>([])
+// Fonction pour normaliser et traduire le statut
+const translateStatus = (status: string): string => {
+  if (!status) return status
+  
+  // Normaliser le statut (supprimer espaces, uniformiser la casse)
+  const normalized = status.trim().replace(/\s+/g, '-')
+  
+  // Mapper les différentes variantes vers les clés de traduction
+  const statusMap: Record<string, string> = {
+    'checked-in': 'reservationStatus.Checked-in',
+    'checked_in': 'reservationStatus.checked_in',
+    'checkedin': 'reservationStatus.Checked-in',
+    'Checked-In': 'reservationStatus.Checked-in',
+    'CHECKED-IN': 'reservationStatus.Checked-in',
+    'checked-out': 'reservationStatus.Checked-out',
+    'checked_out': 'reservationStatus.checked_out',
+    'checkedout': 'reservationStatus.Checked-out',
+    'Checked-Out': 'reservationStatus.Checked-out',
+    'CHECKED-OUT': 'reservationStatus.Checked-out',
+    'pending': 'reservationStatus.Pending',
+    'Pending': 'reservationStatus.Pending',
+    'PENDING': 'reservationStatus.Pending',
+    'confirmed': 'reservationStatus.confirmed',
+    'Confirmed': 'reservationStatus.Confirmed',
+    'cancelled': 'reservationStatus.Cancelled',
+    'Cancelled': 'reservationStatus.Cancelled',
+    'no-show': 'reservationStatus.No-show',
+    'no_show': 'reservationStatus.no_show',
+    'No-show': 'reservationStatus.No-show',
+    'voided': 'reservationStatus.Voided',
+    'Voided': 'reservationStatus.Voided',
+  }
+  
+  // Chercher une correspondance exacte
+  if (statusMap[normalized]) {
+    const translated = t(statusMap[normalized])
+    return translated !== statusMap[normalized] ? translated : status
+  }
+  
+  // Chercher une correspondance insensible à la casse
+  const lowerNormalized = normalized.toLowerCase()
+  for (const [key, translationKey] of Object.entries(statusMap)) {
+    if (key.toLowerCase() === lowerNormalized) {
+      const translated = t(translationKey)
+      return translated !== translationKey ? translated : status
+    }
+  }
+  
+  // Si aucune correspondance, essayer directement avec le statut normalisé
+  const directKey = `reservationStatus.${normalized}`
+  const directTranslation = t(directKey)
+  if (directTranslation !== directKey) {
+    return directTranslation
+  }
+  
+  // Fallback : retourner le statut original
+  return status
+}
+
+const displayGuests = computed(() =>
+  guests.value.map(guest => ({
+    ...guest,
+    statusKey: guest.status,
+    statusLabel: translateStatus(guest.status),
+  }))
+)
+
+const statusBadgeColors = computed(() => ({
+  [t('reservationStatus.Checked-in')]: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+  [t('reservationStatus.checked_in')]: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+  [t('reservationStatus.Checked-out')]: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100',
+  [t('reservationStatus.checked_out')]: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100',
+  [t('reservationStatus.Pending')]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100',
+}))
+
 const loading = ref(false)
 const error = ref('')
 const showResults = ref<boolean>(false)
 
 // Options for selects
-const statusOptions = ref<FilterOptions[]>([
+const statusOptions = computed<FilterOptions[]>(() => [
   { value: '', label: t('common.all') },
-  { value: 'check_in', label: t('checked-in') },
-  { value: 'check_out', label: t('checked-out') }
+  { value: 'check_in', label: t('reservationStatus.Checked-in') },
+  { value: 'check_out', label: t('reservationStatus.Checked-out') }
 ])
 
 // Computed properties
@@ -195,11 +270,17 @@ const hotelName = computed(() => {
 const totalGuests = computed(() => guests.value.length)
 
 const checkedInGuests = computed(() => 
-  guests.value.filter(guest => guest.status === 'Checked-In').length
+  guests.value.filter(guest => {
+    const status = guest.status?.toLowerCase().replace(/[_\s-]/g, '')
+    return status === 'checkedin' || status === 'checked-in' || status === 'checked_in'
+  }).length
 )
 
 const checkedOutGuests = computed(() => 
-  guests.value.filter(guest => guest.status === 'Checked-Out').length
+  guests.value.filter(guest => {
+    const status = guest.status?.toLowerCase().replace(/[_\s-]/g, '')
+    return status === 'checkedout' || status === 'checked-out' || status === 'checked_out'
+  }).length
 )
 
 // Methods
@@ -259,14 +340,11 @@ const tableColumns = computed<Column[]>(() => [
   { key: 'checkInDate', label: t('common.checkInDate'), type: 'text' },
   { key: 'checkOutDate', label: t('common.checkOutDate'), type: 'text' },
   { 
-    key: 'status', 
+    key: 'statusLabel', 
     label: t('common.status'), 
     type: 'badge',
     translatable: true,
-    badgeColors: {
-      'Checked-In': 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
-      'Checked-Out': 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
-    }
+    badgeColors: statusBadgeColors.value,
   }
 ])
 

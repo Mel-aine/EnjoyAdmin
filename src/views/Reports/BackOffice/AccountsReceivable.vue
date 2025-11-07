@@ -1,3 +1,4 @@
+
 <template>
   <ReportsLayout>
     <div class="p-6">

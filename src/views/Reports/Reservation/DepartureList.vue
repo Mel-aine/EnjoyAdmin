@@ -634,6 +634,10 @@ const exportExcel = async (): Promise<void> => {
 // Traduit des fragments HTML renvoyés par l'API (fallback côté client)
 const translateReportHtml = (html: string): string => {
   if (!html) return html
+  
+  // Normaliser les espaces insécables
+  let out = html.replace(/&nbsp;/g, ' ')
+  
   const replacements: Record<string, string> = {
     // Titres et descriptions
     'Departure List Report': t('reports.reservation.departureResults'),
@@ -648,6 +652,9 @@ const translateReportHtml = (html: string): string => {
     'Tax Inclusive:': t('reports.reservation.taxInclusive') + ':',
     'Yes': t('common.yes'),
     'No': t('common.no'),
+    // Ligne de synthèse
+    'Generated on': t('reports.generatedOn'),
+    'records': t('reports.records'),
     // Colonnes - en-têtes de tableau (insensible à la casse et avec variantes)
     '>RES\\. NO<': '>' + t('reports.reservation.columns.resNo').toUpperCase() + '<',
     '>RES\\. NON<': '>' + t('reports.reservation.columns.resNo').toUpperCase() + '<',
@@ -679,7 +686,13 @@ const translateReportHtml = (html: string): string => {
     'N/A': t('common.na'),
   }
 
-  let out = html
+  // Traduire la ligne de synthèse "Generated on ... | ... records"
+  const summaryPattern = /Generated\s+on\s+([^|]+)\|\s*(\d+)\s+records/gi
+  out = out.replace(summaryPattern, (_match, datePart, recordCount) => {
+    const dateText = datePart.trim()
+    return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')}`
+  })
+
   // Traiter d'abord les remplacements avec balises HTML
   for (const [en, fr] of Object.entries(replacements)) {
     if (en.startsWith('>') && en.endsWith('<')) {

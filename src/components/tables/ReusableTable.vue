@@ -304,6 +304,7 @@ const emit = defineEmits<{
 }>()
 
 const searchQuery = ref(props.modelValue)
+const searchPlaceholderText = computed(() => props.searchPlaceholder || t('common.search'))
 const selectedItems = ref<any[]>([])
 const selectAll = ref(false)
 const openDropdown = ref<number | null>(null)

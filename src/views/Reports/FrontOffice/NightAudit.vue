@@ -32,7 +32,7 @@
           <!-- Currency -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ t('Common Currency') }}
+              {{ t('common.commonCurrency') }}
             </label>
             <Select 
               v-model="filters.currency" 
