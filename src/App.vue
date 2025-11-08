@@ -6,7 +6,7 @@
       <ReAuthModal :is-open="isReAuthOpen && authStore.isFullyAuthenticated" @close="handleClose" 
         @success="handleSuccess" />
     </SidebarProvider> 
-    <OverLoading v-if="isLoading" />
+    <OverLoading v-if="isLoading" /> 
   </ThemeProvider>
 </template>     
 <script setup lang="ts"> 
