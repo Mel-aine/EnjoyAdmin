@@ -2,10 +2,10 @@
   <ConfigurationLayout>
     <div class="p-6">
 
-      <ReusableTable title="Extra Charges Management" :columns="columns" :data="extraCharges" :actions="actions"
-        search-placeholder="Search extra charges..." empty-title="No extra charges found" :loading="loading"
+      <ReusableTable :title="$t('Extra Charges Management')" :columns="columns" :data="extraCharges" :actions="actions"
+        :search-placeholder="$t('Search extra charges...')" empty-title="No extra charges found" :loading="loading"
         :selectable="false"
-        empty-description="Start by adding your first extra charge." @action="onAction">
+        :empty-description="$t('Start by adding your first extra charge.')" @action="onAction">
         <template #header-actions>
           <BasicButton variant="primary" @click="openAddModal" :icon="Plus" :label="t('configuration.extra_charge.add_extra_charge')" />
         </template>
@@ -24,7 +24,7 @@
         <template #column-fixedPrice="{ item }">
           <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
             :class="item.fixedPrice ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
-            {{ item.fixedPrice ? 'Yes' : 'No' }}
+            {{ item.fixedPrice ? $t('yes') : $t('no') }}
           </span>
         </template>
         <template #column-status="{ item }">
@@ -121,7 +121,7 @@
                 <label class="flex items-center">
                   <input v-model="formData.isMealPlanComponent" type="checkbox"
                     class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Meal Plan Component</span>
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Meal Plan Component') }}</span>
                 </label>
               </div>
 
@@ -411,7 +411,7 @@ const saveExtraCharge = async () => {
       const editExtraCharge = { ...formData,  taxRateIds: taxRateIds  }
       const res = await updateExtraChargeById(editingId.value!, editExtraCharge);
       if (res.status === 200 || res.status === 201) {
-        toast.success(t('configuration.extra_charge.update_extra_charge') + ' successfully');
+        toast.success(t('configuration.extra_charge.update_extra_charge') + t('successfully'));
         closeModal()
         await loadata()
       } else {
@@ -421,7 +421,7 @@ const saveExtraCharge = async () => {
       const newExtraCgarge = { ...formData, hotelId: serviceStore.serviceId, taxRateIds: taxRateIds  }
       const res = await postExtraCharge(newExtraCgarge)
       if (res.status === 200 || res.status === 201) {
-        toast.success(t('configuration.extra_charge.save_extra_charge') + ' successfully');
+        toast.success(t('configuration.extra_charge.save_extra_charge') + t('successfully'));
         closeModal()
         await loadata()
       } else {
@@ -450,10 +450,10 @@ const confirmDelete = async () => {
     const response = await deleteExtraChargeById(itemToDelete.value.id)
 
     if (response.status === 200 || response.status === 204) {
-      toast.success(t('configuration.extra_charge.delete_success') || 'Extra charge deleted successfully')
+      toast.success(t('configuration.extra_charge.delete_success') || t('Extra charge deleted successfully'))
       await loadata()
     } else {
-      toast.error(t('configuration.extra_charge.delete_error') || 'Error deleting extra charge')
+      toast.error(t('configuration.extra_charge.delete_error') || t('Error deleting extra charge'))
     }
   } catch (error) {
     console.error('Error deleting extra charge:', error)

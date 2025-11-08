@@ -1729,6 +1729,7 @@
     "checkoutStatus": "Checkout Status",
     "checkout": "Checkout",
     "paymentStatus": "Payment Status",
+    "created" :"Created",
     "rating": "Rating",
     "invoice": "Invoice",
     "checkOutDateFrom": "Check-out Date From",
@@ -5832,7 +5833,13 @@
       "created_by": "Created By",
       "modified_by": "Modified By",
       "status": "Status",
-      "fetch_error": "Failed to load payment methods"
+      "fetch_error": "Failed to load payment methods",
+      "update_success" : "Update Payment method successfully",
+      "create_success" : "Payment Method create successfully",
+      "save_error" : "Failed to save Payment method",
+      "delete_confirm" : "Are you sure you want to delete this payment method?",
+      "delete_success" : "Payment method deleted successfully",
+      "delete_error" :"An error occurred while deleting the Payment method. Please try again."
     },
     "extra_charge": {
       "title": "Extra Charge",
@@ -7973,7 +7980,12 @@
   "Sign" : "Sign",
   "Enter currency symbol" : "Enter currency symbol",
   "Go to Front" : "Go to Front",
-  "Search..." : "Search..."
+  "Search..." : "Search...",
+  "Extra Charges Management" : "Extra Charges Management",
+  "Start by adding your first extra charge." : "Start by adding your first extra charge.",
+  "Meal Plan Component" : "Meal Plan Component",
+  "successfully" : "successfully",
+  "Extra charge deleted successfully" : "Extra charge deleted successfully"
 
  
 }

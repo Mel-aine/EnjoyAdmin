@@ -30,9 +30,7 @@
             <div>
               <RadioGroup v-model="activeTab" class="flex space-x-4" :options="[
                 { label: t('Posting date'), value: 'posting' },
-                { label: t('Departure date'), value: 'departure' },
-                { label: t('Posting date'), value: 'posting' },
-                { label: t('Departure date'), value: 'departure' },
+                { label: t('Departure date'), value: 'departure' }
               ]" />
             </div>
             <div class="mr-4">

@@ -73,7 +73,7 @@
     />
 
     <!-- Delete Confirmation Modal -->
-    <ModalConfirmation
+    <!-- <ModalConfirmation
       v-if="showDeleteModal"
       :is-loading="deleting"
       :title="$t('guestDatabase.delete_title')"
@@ -83,7 +83,18 @@
       action="DANGER"
       @close="closeDeleteModal"
       @confirm="confirmDeleteCustomer"
-    />
+    /> -->
+        <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="$t('guestDatabase.delete_title')"
+        :message=" $t('guestDatabase.delete_confirm_message', { name: customerToDelete?.userFullName })"
+        :confirm-text="$t('Delete')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="deleting"
+        @confirm="confirmDeleteCustomer"
+        @cancel="closeDeleteModal"
+      />
 
 </template>
 
@@ -110,6 +121,7 @@ import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import BlackListGuestModal from '@/components/customers/BlackListGuestModal.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
 import TablePagination from '@/components/tables/TablePagination.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 
 const { t } = useI18n()

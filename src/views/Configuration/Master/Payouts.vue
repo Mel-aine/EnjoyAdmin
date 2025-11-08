@@ -1,7 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="space-y-6">
-  
+
 
       <!-- Table -->
       <ReusableTable
@@ -17,8 +17,8 @@
         @action="handleAction"
       >
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
+          <BasicButton
+            variant="primary"
             @click="openAddModal"
             :icon="Plus"
             :label="t('configuration.payout_reasons.add_payout_reason')"
@@ -34,7 +34,7 @@
         <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           {{ isEditing ? t('configuration.payout_reasons.edit_payout_reason') : t('configuration.payout_reasons.add_payout_reason') }}
         </h2>
-        
+
         <form @submit.prevent="savePayout">
           <div class="space-y-4">
             <div>
@@ -47,7 +47,7 @@
                 required
               />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('configuration.payout_reasons.description') }}
@@ -57,7 +57,7 @@
                 :placeholder="t('configuration.payout_reasons.description_placeholder')"
               />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('configuration.payout_reasons.category') }}
@@ -69,7 +69,7 @@
                 required
               />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('configuration.payout_reasons.status') }}
@@ -82,7 +82,7 @@
               />
             </div>
           </div>
-          
+
           <div class="flex justify-end space-x-3 pt-4">
             <BasicButton
               type="button"
@@ -238,16 +238,16 @@ const savePayout = async () => {
 
     if (isEditing.value) {
       await updatePayoutReasonById(editingId.value, payload)
-      toast.success(t('toast.updateSuccess'))
+      toast.success(t('toast.SucessUpdate'))
     } else {
       await postPayoutReason(payload)
-      toast.success(t('toast.createSuccess'))
+      toast.success(t('toast.SuccessCreated'))
     }
     loseModal()
     await fetchPayoutReasons()
   } catch (error) {
     console.error('Error saving payout reason:', error)
-    toast.error(t('toast.saveError'))
+    toast.error(t('toast.ErrorCreated'))
   } finally {
     saving.value = false
   }
@@ -257,11 +257,11 @@ const deletePayout = async (item) => {
   if (confirm(t('common.deleteConfirmation', { name: item.name }))) {
     try {
       await deletePayoutReasonById(item.id)
-      toast.success(t('toast.deleteSuccess'))
+      toast.success(t('toast.DeletedSuccess'))
       await fetchPayoutReasons()
     } catch (error) {
       console.error('Error deleting payout reason:', error)
-      toast.error(t('toast.deleteError'))
+      toast.error(t('toast.deleteErrors'))
     }
   }
 }

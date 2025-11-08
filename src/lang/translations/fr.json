@@ -1738,6 +1738,7 @@
     "arrivalDateFrom": "Date d'arrivée de",
     "arrivalDateTo": "Date d'arrivée à",
     "noShowFee": "Frais de non-présentation",
+    "created" :"Crée",
     "edit": "Modifier",
     "save": "Enregistrer",
     "update": "Mettre à jour",
@@ -5836,7 +5837,13 @@
       "created_by": "Créé par",
       "modified_by": "Modifié par",
       "status": "Statut",
-      "fetch_error": "Échec du chargement des méthodes de paiement"
+      "fetch_error": "Échec du chargement des méthodes de paiement",
+       "update_success": "Mode de paiement modifié avec succès",
+  "create_success": "Mode de paiement créé avec succès", 
+  "save_error": "Échec de l'enregistrement du mode de paiement",
+  "delete_confirm": "Êtes-vous sûr de vouloir supprimer ce mode de paiement ?",
+  "delete_success": "Mode de paiement supprimé avec succès",
+  "delete_error": "Une erreur est survenue lors de la suppression du mode de paiement. Veuillez réessayer."
     },
     "extra_charge": {
       "title": "Frais supplémentaires",
@@ -8195,7 +8202,12 @@
   "Logout": "Déconnexion",
   "success_checkin": "Arrivée effectuée avec succès.",
     "Go to Front": "Aller à l'accueil",
-  "Search...": "Rechercher..."
+  "Search...": "Rechercher...",
+  "Extra Charges Management": "Gestion des suppléments",
+  "Start by adding your first extra charge.": "Commencez par ajouter votre premier supplément.",
+  "Meal Plan Component": "Composant de formule repas",
+  "successfully": "avec succès",
+  "Extra charge deleted successfully": "Supplément supprimé avec succès"
 
 
 
