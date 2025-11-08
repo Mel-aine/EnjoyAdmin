@@ -875,10 +875,12 @@
                   class="flex justify-between items-center font-medium text-gray-800 text-sm mb-2 p-1 bg-gray-50 rounded"
                 >
                   <div class="flex flex-col">
-                    <span class="font-medium text-gray-700">{{ charge.name }}</span>
+                    <span class="font-medium text-gray-700">{{ Math.max(1, Number(room.adultCount) + Number(room.childCount))}} * {{ charge.name }}</span>
                   </div>
                   <span class="text-gray-700 font-semibold">{{
-                    formatCurrency(parseFloat(charge.rate))
+                    formatCurrency(
+                      parseFloat(charge.rate) * Math.max(1, Number(room.adultCount) + Number(room.childCount))
+                    )
                   }}</span>
                 </div>
 
@@ -891,7 +893,10 @@
                   <span>
                     {{
                       formatCurrency(
-                        room.extraCharges.reduce((sum, charge) => sum + parseFloat(charge.rate), 0),
+                        room.extraCharges.reduce(
+                          (sum, charge) => sum + parseFloat(charge.rate) * Math.max(1, Number(room.adultCount) + Number(room.childCount)),
+                          0,
+                        ),
                       )
                     }}
                   </span>
@@ -1196,16 +1201,6 @@ const hasPendingUploads = computed(() => {
 })
 const isGroupReservation = computed(() => {
   return roomConfigurations.value.length > 1
-})
-
-const checkinButtonLabel = computed(() => {
-  if (pendingReservation.value) {
-    return t('Confirm Reservation')
-  }
-  if (isGroupReservation.value) {
-    return t('Check-In')
-  }
-  return t('Quick Check-In')
 })
 
 const copyFirstRoomRate = () => {

@@ -1137,7 +1137,23 @@ export function useBooking() {
             room_type_id: safeParseInt(room.roomType, 0),
             rate_type_id: room.rateType ? safeParseInt(room.rateType, 0) : undefined,
             room_id: safeParseInt(room.roomNumber, 0),
-            room_rate: prepareFolioAmount(room.rate),
+            // Exclude meal plan extra charges from the submitted room rate
+            room_rate: prepareFolioAmount(
+              (() => {
+                const pax = Math.max(1, Number(room.adultCount) + Number(room.childCount))
+                const extrasTotal = (room.extraCharges?.reduce(
+                  (sum: number, charge: any) => sum + (Number(charge?.rate) || 0),
+                  0,
+                ) || 0) * pax
+                const hasMealPlanExtras = (room as any).mealPlanRateInclude === false
+                  && Array.isArray(room.extraCharges)
+                  && room.extraCharges.length > 0
+                const baseRoomRate = hasMealPlanExtras
+                  ? Number(room.rate) - extrasTotal
+                  : Number(room.rate)
+                return Math.max(0, Number(baseRoomRate) || 0)
+              })()
+            ),
             adult_count: safeParseInt(room.adultCount, 1),
             child_count: safeParseInt(room.childCount, 0),
             room_rate_id: RoomRateById.value,
@@ -1278,6 +1294,7 @@ export function useBooking() {
         room.roomType,
         newRateTypeId,
         reservation.value.checkinDate,
+        Number(room.adultCount) + Number(room.childCount),
       )
 
       if (rateInfo) {
@@ -1293,6 +1310,8 @@ export function useBooking() {
         baseInfo.extraChildRate = Number(rateInfo.extraChildRate) || 0
         roomTypeBaseInfo.value.set(room.roomType, baseInfo)
         room.extraCharges = rateInfo.extraCharges || []
+        // Conserver l'information d'inclusion des extra charges au niveau de la chambre
+        ;(room as any).mealPlanRateInclude = rateInfo.mealPlanRateInclude
 
         // Calculer le tarif avec conversion explicite
         room.rate = calculateRoomRate(
@@ -1416,6 +1435,7 @@ export function useBooking() {
     roomTypeId: string,
     rateTypeId: string,
     date?: string,
+    pax?: number,
   ): Promise<any | null> => {
     try {
       const hotelId = serviceStore.serviceId
@@ -1447,11 +1467,17 @@ export function useBooking() {
       if (response?.mealPlanRateInclude === false && response?.mealPlan?.extraCharges) {
         isExtraChargesIncluded.value = false
         console.log('mealPlanRateInclude est FALSE, calcul des extra charges...')
-        const extraChargesTotal = response.mealPlan.extraCharges.reduce((sum: number, charge: any) => {
+        let extraChargesTotal = response.mealPlan.extraCharges.reduce((sum: number, charge: any) => {
           const chargeAmount = Number(charge.rate) || 0
           console.log(`Adding charge ${charge.name}: ${chargeAmount}`)
           return sum + chargeAmount
         }, 0)
+        // Multiplier par le nombre total de pax si fourni
+        const paxCount = Number(pax) || 0
+        if (paxCount > 0) {
+          console.log('Multiplying extra charges by pax:', paxCount)
+          extraChargesTotal = extraChargesTotal * paxCount
+        }
         console.log('Total extra charges:', extraChargesTotal)
         calculatedBaseRate += extraChargesTotal
         console.log('Base rate après ajout extra charges:', calculatedBaseRate)
@@ -1570,6 +1596,7 @@ export function useBooking() {
         room.roomType,
         room.rateType,
         reservation.value.checkinDate,
+        Number(room.adultCount) + Number(room.childCount),
       )
       if (!rateInfo) return
 
@@ -1584,6 +1611,10 @@ export function useBooking() {
         }
         roomTypeBaseInfo.value.set(room.roomType, baseInfo)
       }
+
+      // Conserver l'information d'inclusion des extra charges au niveau de la chambre
+      const currentRoom: any = room
+      currentRoom.mealPlanRateInclude = rateInfo.mealPlanRateInclude
 
       room.rate = calculateRoomRate(
         room.roomType,
