@@ -324,7 +324,7 @@ const saveCurrency = async () => {
       currencyCode: formData.value.currencyCode,
       digitsAfterDecimal: formData.value.digitsAfterDecimal,
       exchangeRate: formData.value.exchangeRate,
-      // isDefault: formData.value.isDefault
+      isDefault: formData.value.isDefault
     }
 
     if (isEditing.value && formData.value.id) {
