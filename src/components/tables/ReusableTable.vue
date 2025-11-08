@@ -34,7 +34,7 @@
       ]"
       :style="scrollableBody ? { maxHeight: props.maxHeight } : {}">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
+        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-8">
           <tr>
             <th v-if="selectable"
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">

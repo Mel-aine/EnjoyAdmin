@@ -6986,7 +6986,11 @@
     "FOLIOS_CREATED": "Folio Created",
     "default": "Unknown Action",
     "SETUP":"Initialize space",
-    "CREATE_FOLIOS" : "Create Folio"
+    "CREATE_FOLIOS" : "Create Folio",
+    "AMEND_STAY": "Amend Stay",
+    "ROOM_UNASSIGNED" : "Room Unassigned",
+    "ASSIGNED" : "Assigned",
+    "ROOM_MOVE" : "Room Move"
   },
   "auditDescriptions": {
     "create": "Profile created",
@@ -7967,7 +7971,9 @@
   "deleteMealPlan" : "Delete meal plan  {message} ? This cannot be undone.",
   "More options" : "More options",
   "Sign" : "Sign",
-  "Enter currency symbol" : "Enter currency symbol"
+  "Enter currency symbol" : "Enter currency symbol",
+  "Go to Front" : "Go to Front",
+  "Search..." : "Search..."
 
  
 }
