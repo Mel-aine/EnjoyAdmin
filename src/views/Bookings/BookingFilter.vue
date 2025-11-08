@@ -108,7 +108,7 @@ const emits = defineEmits(['filter']);
 // Get today's date and 7 days later
 const today = new Date();
 const sevenDaysLater = new Date(today);
-sevenDaysLater.setDate(today.getDate() + 7);
+sevenDaysLater.setDate(today.getDate() + 30);
 const selectedRoomType = ref<any>(null)
 const formatDate = (date: Date) => {
   return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
