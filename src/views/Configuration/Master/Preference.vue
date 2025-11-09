@@ -12,6 +12,8 @@
           :loading="loading"
           :searchPlaceholder="$t('configuration.preference.search_placeholder')"
           :selectable="false"
+          :meta="paginationMeta"
+          @page-change="handlePageChange"
         >
         <template #header-actions>
           <BasicButton
@@ -94,15 +96,16 @@
       </div>
 
       <!-- Modal Confirmation -->
-      <ModalConfirmation
-        v-if="showDeleteModal"
+       <ConfirmationModal
+        v-model:show="showDeleteModal"
         :title="$t('configuration.preference.delete_confirmation_title')"
         :message="$t('configuration.preference.delete_confirmation_message')"
-        :confirmText="$t('configuration.preference.delete')"
-        :cancelText="$t('configuration.preference.cancel')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
         variant="danger"
+        :loading="isDeleting"
         @confirm="confirmDelete"
-        @close="cancelDelete"
+        @cancel="cancelDelete"
       />
     </div>
   </ConfigurationLayout>
@@ -115,12 +118,13 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { getPreferences, getPreferenceTypes, postPreference, updatePreferenceById } from '../../../services/configrationApi'
+import { getPreferences, getPreferenceTypes, postPreference, updatePreferenceById ,deletePreferenceById} from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import Plus from '../../../icons/Plus.vue'
+import { Trash2 , Edit } from 'lucide-vue-next'
 // Edit and Save icons removed as they're no longer used in the template
 
 const { t } = useI18n()
@@ -135,6 +139,8 @@ const loading = ref(false)
 const saving = ref(false)
 const loadingPreferenceTypes = ref(false)
 const deleteItemId = ref(null)
+const isDeleting = ref(false)
+const paginationMeta = ref(null)
 
 // Data
 const preferences = ref([])
@@ -166,21 +172,25 @@ const actions = [
   {
     label: t('configuration.preference.edit'),
     handler: (item) => editPreference(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('configuration.preference.delete'),
     handler: (item) => deletePreference(item.id),
-    variant: 'danger'
+    variant: 'danger',
+    icon:Trash2
   }
 ]
 
 // Functions
-const loadPreferences = async () => {
+const loadPreferences = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getPreferences()
+    const response = await getPreferences({page:pageNumber,limit:10})
+    console.log(response)
     preferences.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
   } catch (error) {
     console.error('Error loading preferences:', error)
     toast.error(t('configuration.preference.fetch_error'))
@@ -241,7 +251,7 @@ const savePreference = async () => {
     }
 
     closeModal()
-    await loadPreferences()
+    await loadPreferences(1)
   } catch (error) {
     console.error('Error saving preference:', error)
     toast.error(t('configuration.preference.save_error'))
@@ -257,14 +267,17 @@ const deletePreference = (id) => {
 
 const confirmDelete = async () => {
   try {
-    await configrationApi.deletePreferenceById(deleteItemId.value)
+    isDeleting.value = true
+    await deletePreferenceById(deleteItemId.value)
     toast.success(t('configuration.preference.delete_success'))
     showDeleteModal.value = false
     deleteItemId.value = null
-    await loadPreferences()
+    await loadPreferences(1)
   } catch (error) {
     console.error('Error deleting preference:', error)
     toast.error(t('configuration.preference.delete_error'))
+  }finally{
+    isDeleting.value = false
   }
 }
 
@@ -288,10 +301,14 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
+const handlePageChange = (page) =>{
+  loadPreferences(page)
+}
+
 // Lifecycle
 onMounted(async () => {
   await Promise.all([
-    loadPreferences(),
+    loadPreferences(1),
     loadPreferenceTypes()
   ])
 })

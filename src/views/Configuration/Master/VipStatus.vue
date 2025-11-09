@@ -6,17 +6,19 @@
           :selectable="false"
           :search-placeholder="$t('vip_status.search')"
           :empty-title="$t('vip_status.noResults')"
-          :empty-description="$t('vip_status.noResultsMessage')">
+          :empty-description="$t('vip_status.noResultsMessage')"
+          :meta="paginationMeta"
+          @page-change="handlePageChange">
           <template v-slot:header-actions>
             <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
               :label="$t('vip_status.add')" :disabled="loading" />
           </template>
-          
+
           <!-- Custom column for color display -->
           <template #column-color="{ item }">
             <div class="flex items-center gap-2">
-              <div 
-                class="w-5 h-5 rounded border border-gray-300 dark:border-gray-700" 
+              <div
+                class="w-5 h-5 rounded border border-gray-300 dark:border-gray-700"
                 :style="{ backgroundColor: item.color }"
               ></div>
               <span class="text-sm text-gray-700 dark:text-gray-300">{{ item.color }}</span>
@@ -69,9 +71,9 @@
                 {{ $t('vip_status.color') }} *
               </label>
               <div class="flex items-center gap-3">
-                <input 
-                  type="color" 
-                  v-model="formData.color" 
+                <input
+                  type="color"
+                  v-model="formData.color"
                   class="w-12 h-10 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded cursor-pointer"
                 />
                 <Input v-model="formData.color" inputType="text" :placeholder="$t('vip_status.colorPlaceholder')" class="flex-1" />
@@ -79,9 +81,9 @@
             </div>
 
             <div class="mb-4">
-              <VipIconPicker 
-                v-model="formData.icon" 
-                :label="$t('vip_status.icon')" 
+              <VipIconPicker
+                v-model="formData.icon"
+                :label="$t('vip_status.icon')"
                 :required="true"
                 :icon-color="formData.color"
               />
@@ -98,6 +100,18 @@
         </div>
       </div>
     </div>
+
+    <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('confirmDelete')"
+        :message="t('vip_status.confirmDelete')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -105,7 +119,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
-import { 
+import {
   Plus, Save, Edit, Trash2, Crown, Star, Award, Trophy, Medal, Gem, Diamond, Heart, Shield, Zap, Sparkles, Gift, Target, Flame, Sun, Moon, Rocket, Wand2, Key, Lock, Unlock, BadgeCheck, CheckCircle, Minus, X, Settings, User, Users, UserCheck, UserPlus, UserX, Eye, EyeOff, ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, BarChart, PieChart, Activity, Briefcase, Building, Home, MapPin, Globe, Compass, Navigation, Anchor, Feather, Leaf, Flower, TreePine, Mountain, Waves, Cloud, Snowflake, Umbrella, Coffee, Wine, Utensils, Car, Plane, Ship, Train, Bike, Camera, Music, Headphones, Gamepad2, Palette, Brush, Scissors, Wrench, Hammer, Lightbulb, Battery, Wifi, Smartphone, Laptop, Monitor, Printer, HardDrive, Database, Server, Download, Upload, Share, Link, Bookmark, Tag, Flag, Bell, Volume2, VolumeX, Play, Pause, Square, SkipForward, SkipBack, Repeat, Shuffle, Calendar, Clock, Timer, AlarmClock, Hourglass, Sunrise, Sunset, CloudRain, CloudSnow, Thermometer, Droplets, Wind, Tornado, Rainbow, Cloudy
 } from 'lucide-vue-next'
 import { vipStatusApi } from '@/services/configrationApi'
@@ -116,6 +130,7 @@ import Input from '../../../components/forms/FormElements/Input.vue'
 import VipIconPicker from '../../../components/utilities/VipIconPicker.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const toast = useToast()
 const { t } = useI18n()
@@ -126,6 +141,11 @@ const showModal = ref(false)
 const isEditing = ref(false)
 const loading = ref(false)
 const saving = ref(false)
+const serviceStore = useServiceStore()
+const paginationMeta = ref(null)
+const vipStatusToDelete = ref(null)
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
 
 // Form data
 const formData = reactive({
@@ -184,23 +204,27 @@ const actions = computed(() => [
     key: 'edit',
     label: t('vip_status.edit'),
     icon: Edit,
+    handler: (item) => editVipStatus(item),
     variant: 'outline'
   },
   {
     key: 'delete',
     label: t('vip_status.delete'),
     icon: Trash2,
+    handler: (item) => deleteVipStatus(item),
     variant: 'danger'
   }
 ])
 
 // Methods
-const fetchVipStatuses = async () => {
+const fetchVipStatuses = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await vipStatusApi.getVipStatuses(useServiceStore().serviceId);
+    const response = await vipStatusApi.getVipStatuses(useServiceStore().serviceId,{  page : pageNumber,limit:10});
     console.log("respinse",response)
     vipStatuses.value = response.data?.data || []
+    paginationMeta.value = response.data?.meta || []
+    console.log(paginationMeta.value)
   } catch (error) {
     toast.error(t('vip_status.loadError'))
     console.error(error)
@@ -212,19 +236,24 @@ const fetchVipStatuses = async () => {
 const saveVipStatus = async () => {
   try {
     saving.value = true
-    
+
     if (isEditing.value) {
-      await vipStatusApi.updateVipStatus(formData.id, formData)
-      toast.success(t('vip_status.saveSuccess'))
+      const payload = {
+      ...formData,
+      hotel_id: serviceStore.serviceId
+    }
+    console.log("payload",payload)
+      await vipStatusApi.updateVipStatus(formData.id, payload)
+      toast.success(t('vip_status.updateSucess'))
     } else {
       await vipStatusApi.createVipStatus({...formData,hotelId:useServiceStore().serviceId})
       toast.success(t('vip_status.saveSuccess'))
     }
-    
+
     closeModal()
-    await fetchVipStatuses()
+    await fetchVipStatuses(1)
   } catch (error) {
-    toast.error(error.message || t('vip_status.saveError'))
+    toast.error(t('vip_status.saveError'))
     console.error(error)
   } finally {
     saving.value = false
@@ -233,7 +262,7 @@ const saveVipStatus = async () => {
 
 const onAction = async (action, item) => {
   if (action === 'edit') {
-    editVipStatus(item)
+     editVipStatus(item)
   } else if (action === 'delete') {
     await deleteVipStatus(item.id)
   }
@@ -245,16 +274,36 @@ const editVipStatus = (item) => {
   showModal.value = true
 }
 
-const deleteVipStatus = async (id) => {
+
+
+const cancelDelete = () => {
+  showDeleteModal.value = false
+  workOrderToDelete.value = null
+}
+
+
+const deleteVipStatus = (item) => {
+  vipStatusToDelete.value = item
+  console.log("vipStatusToDelete",vipStatusToDelete.value.id)
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!vipStatusToDelete.value) return
+
   try {
-    if (confirm(t('vip_status.confirmDelete'))) {
-      await vipStatusApi.deleteVipStatus(id)
+    isDeleting.value = true
+    await vipStatusApi.deleteVipStatus(vipStatusToDelete.value.id)
       toast.success(t('vip_status.deleteSuccess'))
-      await fetchVipStatuses()
-    }
+      showDeleteModal.value = false
+      await fetchVipStatuses(1)
   } catch (error) {
+    console.error('Error deleting vip status:', error)
     toast.error(t('vip_status.deleteError'))
-    console.error(error)
+  } finally {
+    isDeleting.value = false
+
+    vipStatusToDelete.value = null
   }
 }
 
@@ -278,9 +327,13 @@ const closeModal = () => {
   resetForm()
 }
 
+const handlePageChange = (page) =>{
+  fetchVipStatuses(page)
+}
+
 // Lifecycle
 onMounted(() => {
-  fetchVipStatuses()
+  fetchVipStatuses(1)
 })
 </script>
 

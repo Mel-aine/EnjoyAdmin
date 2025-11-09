@@ -14,6 +14,8 @@
         :empty-state-message="t('configuration.market_code.empty_state_message')"
         :loading="loading"
         @action="onAction"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
       >
         <template #header-actions>
           <BasicButton
@@ -99,13 +101,16 @@
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation
-        v-if="showDeleteConfirmation"
-        @close="showDeleteConfirmation = false; marketCodeToDelete = null"
-        @confirm="deleteMarketCode"
-        :action="'DANGER'"
+       <ConfirmationModal
+        v-model:show="showDeleteConfirmation"
         :title="t('configuration.market_code.delete_confirmation_title')"
         :message="t('configuration.market_code.delete_confirmation_message', { name: marketCodeToDelete?.name || '' })"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="deleteMarketCode"
+        @cancel="showDeleteConfirmation = false"
       />
     </div>
   </ConfigurationLayout>
@@ -120,7 +125,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
   getMarketCodes,
@@ -132,6 +137,7 @@ import {
 import type { Action, Column } from '../../../utils/models'
 import PlusIcon from '../../../icons/PlusIcon.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -145,7 +151,10 @@ const loading = ref(false)
 const saving = ref(false)
 const showDeleteConfirmation = ref(false)
 const marketCodeToDelete = ref<any>(null)
+const paginationMeta = ref<any>(null)
 const marketCodes = ref([])
+const isDeleting = ref(false)
+
 
 const formData = ref({
   name: '',
@@ -205,21 +214,24 @@ const actions = computed(() => [
   {
     label: t('configuration.market_code.edit'),
     variant: 'primary',
-    handler: (item: any) => editMarketCode(item)
+    handler: (item: any) => editMarketCode(item),
+    icon:Edit
   },
   {
     label: t('configuration.market_code.delete'),
     variant: 'danger',
-    handler: (item: any) => confirmDeleteMarketCode(item)
+    handler: (item: any) => confirmDeleteMarketCode(item),
+    icon:Trash2
   }
 ])
 
 // API Functions
-const fetchMarketCodes = async () => {
+const fetchMarketCodes = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getMarketCodes()
+    const response = await getMarketCodes({page:pageNumber,limit:10})
     marketCodes.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
   } catch (error) {
     console.error('Error fetching market codes:', error)
     toast.error(t('configuration.market_code.fetch_error'))
@@ -286,7 +298,7 @@ const saveMarketCode = async () => {
     }
 
     closeModal()
-    await fetchMarketCodes()
+    await fetchMarketCodes(1)
   } catch (error) {
     console.error('Error saving market code:', error)
     const errorMessage = isEditing.value
@@ -305,14 +317,18 @@ const confirmDeleteMarketCode = (marketCode: any) => {
 
 const deleteMarketCode = async () => {
   try {
+    isDeleting.value = true
     await deleteMarketCodeById(marketCodeToDelete.value.id)
     toast.success(t('configuration.market_code.delete_success'))
     showDeleteConfirmation.value = false
     marketCodeToDelete.value = null
-    await fetchMarketCodes()
+    await fetchMarketCodes(1)
   } catch (error) {
     console.error('Error deleting market code:', error)
     toast.error(t('configuration.market_code.delete_error'))
+  }finally{
+    isDeleting.value = false
+    marketCodeToDelete.value = null
   }
 }
 
@@ -324,8 +340,12 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:number) =>{
+  fetchMarketCodes(page)
+}
+
 // Lifecycle
 onMounted(() => {
-  fetchMarketCodes()
+  fetchMarketCodes(1)
 })
 </script>

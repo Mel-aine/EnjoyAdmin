@@ -5,7 +5,7 @@
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <ReusableTable :title="t('configuration.business_source.title')" :columns="columns" :data="businessSources"
           :actions="actions" :loading="loading"
-          :searchPlaceholder="t('configuration.business_source.search_placeholder')" :selectable="false">
+          :searchPlaceholder="t('configuration.business_source.search_placeholder')" :selectable="false" :meta="paginationMeta" @page-change="handlePageChange">
 
           <template #header-actions>
             <BasicButton variant="primary" :icon="Plus" :label="t('configuration.business_source.add_button')"
@@ -93,9 +93,17 @@
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation v-if="showDeleteModal" :title="t('configuration.business_source.delete_confirmation_title')"
-        :message="t('configuration.business_source.delete_confirmation_message')" :confirmText="t('common.delete')"
-        :cancelText="t('common.cancel')" action="DANGER" @confirm="confirmDelete" @close="cancelDelete" />
+      <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('configuration.business_source.delete_confirmation_title')"
+        :message="t('configuration.business_source.delete_confirmation_message')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+      />
     </div>
   </ConfigurationLayout>
 </template>
@@ -105,7 +113,6 @@ import { ref, onMounted, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
-import ModalConfirmation from '../../../components/modal/ModalConfirmation.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import * as configrationApi from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
@@ -115,6 +122,8 @@ import Plus from '../../../icons/Plus.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import Select from '../../../components/forms/FormElements/Select.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import {Edit, Trash2} from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -128,6 +137,8 @@ const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
 const deleteItemId = ref<any>(null)
+const paginationMeta = ref<any>(null)
+const isDeleting = ref(false)
 
 // Data
 const businessSources = ref([])
@@ -160,22 +171,25 @@ const actions = computed<Action[]>(() => [
   {
     label: t('common.edit'),
     handler: (item) => editBusinessSource(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon: Edit
   },
   {
     label: t('common.delete'),
     handler: (item) => deleteBusinessSource(item.id),
-    variant: 'danger'
+    variant: 'danger',
+    icon: Trash2,
   }
 ])
 
 // Load business sources data
-const loadBusinessSources = async () => {
+const loadBusinessSources = async (pageNumber=1) => {
   loading.value = true
   try {
-    const response = await configrationApi.getBusinessSources()
+    const response = await configrationApi.getBusinessSources({page:pageNumber,limit:10})
     console.log('data', response)
     businessSources.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
   } catch (error) {
     console.error('Error loading business sources:', error)
     toast.error(t('configuration.business_source.fetch_error'))
@@ -228,7 +242,7 @@ const saveBusinessSource = async () => {
     }
 
     closeModal()
-    await loadBusinessSources()
+    await loadBusinessSources(1)
   } catch (error) {
     console.error('Error saving business source:', error)
     toast.error(t('configuration.business_source.save_error'))
@@ -244,14 +258,18 @@ const deleteBusinessSource = (id: string) => {
 
 const confirmDelete = async () => {
   try {
+    isDeleting.value = true
     await configrationApi.deleteBusinessSourceById(deleteItemId.value)
     toast.success(t('configuration.business_source.delete_success'))
     showDeleteModal.value = false
     deleteItemId.value = null
-    await loadBusinessSources()
+    await loadBusinessSources(1)
   } catch (error) {
     console.error('Error deleting business source:', error)
     toast.error(t('configuration.business_source.delete_error'))
+  }finally{
+    isDeleting.value = true
+
   }
 }
 
@@ -289,9 +307,13 @@ const fetchMarketCode = async () => {
     loading.value = false
   }
 }
+
+const handlePageChange = (page:number) =>{
+  loadBusinessSources(page)
+}
 // Load data on component mount
 onMounted(() => {
-  loadBusinessSources();
+  loadBusinessSources(1);
   fetchMarketCode();
 })
 </script>

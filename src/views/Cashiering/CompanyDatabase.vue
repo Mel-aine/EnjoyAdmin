@@ -241,6 +241,7 @@ const confirmDeleteCompany = async () => {
     toast.error(t('companyDatabase.delete_error'))
   } finally {
     deleting.value = false
+     closeDeleteModal()
   }
 }
 

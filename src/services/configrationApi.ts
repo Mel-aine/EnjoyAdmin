@@ -1014,8 +1014,8 @@ export const getBlackListReasons = (): Promise<AxiosResponse<any>> => {
  * Get all black list reasons
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getBlackListReasonsByHotel = (hotelId:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/black_list_reasons?hotelId=${hotelId}`, getHeaders())
+export const getBlackListReasonsByHotel = (hotelId:number,params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/black_list_reasons?hotelId=${hotelId}`, {...getHeaders(),params})
 }
 
 /**
@@ -1062,8 +1062,8 @@ export const deleteBlackListReasonById = (id: number): Promise<AxiosResponse<any
  * Get all market codes
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getMarketCodes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/market_codes`, getHeaders())
+export const getMarketCodes = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/market_codes`, {...getHeaders(),params})
 }
 
 /**
@@ -1117,8 +1117,8 @@ export const deleteMarketCodeById = (id: number): Promise<AxiosResponse<any>> =>
  * Get all reservation types
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getReservationTypes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/reservation_types`, getHeaders())
+export const getReservationTypes = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/reservation_types`, {...getHeaders(),params})
 }
 
 /**
@@ -1173,8 +1173,8 @@ export const deleteReservationTypeById = (id: number): Promise<AxiosResponse<any
  * Get all preference types
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getPreferenceTypes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/preference_types`, getHeaders())
+export const getPreferenceTypes = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/preference_types`, {...getHeaders(),params})
 }
 
 /**
@@ -1221,8 +1221,8 @@ export const deletePreferenceTypeById = (id: number): Promise<AxiosResponse<any>
  * Get all preferences
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getPreferences = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/preferences`, getHeaders())
+export const getPreferences = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/preferences`, {...getHeaders(),params})
 }
 
 /**
@@ -1276,8 +1276,8 @@ export const getPreferencesByHotelId = (hotelId: number): Promise<AxiosResponse<
  * Get all business sources
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getBusinessSources = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/business_sources`, getHeaders())
+export const getBusinessSources = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/business_sources`, {...getHeaders(),params})
 }
 
 /**

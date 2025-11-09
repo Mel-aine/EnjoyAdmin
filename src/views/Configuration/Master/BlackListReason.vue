@@ -13,6 +13,8 @@
         :empty-state-message="t('configuration.blacklist_reason.empty_state_message')"
         :loading="loading"
         @action="onAction"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
       >
         <template #header-actions>
           <BasicButton
@@ -111,6 +113,18 @@
         </div>
       </div>
     </div>
+
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('confirmDelete')"
+        :message="t('youaresure')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -125,6 +139,7 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { useServiceStore } from '@/composables/serviceStore'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import {
   getBlackListReasonsByHotel,
   postBlackListReason,
@@ -134,6 +149,7 @@ import {
 import type { Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -146,6 +162,10 @@ const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
 const blacklistReasons = ref([])
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
+const deleteItemId = ref<any>(null)
+const paginationMeta = ref<any>(null)
 
 const formData = ref({
   reason: '',
@@ -211,24 +231,27 @@ const actions = computed(() => [
   {
     label: t('configuration.blacklist_reason.edit'),
     variant: 'primary',
-    handler:(item:any)=>editBlacklistReason(item)
+    handler:(item:any)=>editBlacklistReason(item),
+    icon:Edit
   },
   {
     label: t('configuration.blacklist_reason.delete'),
     variant: 'danger',
-    handler:(item:any)=>deleteBlacklistReason(item)
+    handler:(item:any)=>deleteBlacklistReason(item),
+    icon:Trash2
   }
 ])
 
 
 
 // API Functions
-const fetchBlacklistReasons = async () => {
+const fetchBlacklistReasons = async (pageNumber=1) => {
   try {
     loading.value = true
     const hotelId = serviceStore.serviceId
-    const response = await getBlackListReasonsByHotel(hotelId!)
+    const response = await getBlackListReasonsByHotel(hotelId!,{page:pageNumber,limit:10})
     blacklistReasons.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
   } catch (error) {
     console.error('Error fetching blacklist reasons:', error)
     toast.error(t('configuration.blacklist_reason.fetch_error'))
@@ -295,7 +318,7 @@ const saveBlacklistReason = async () => {
     }
 
     closeModal()
-    await fetchBlacklistReasons()
+    await fetchBlacklistReasons(1)
   } catch (error) {
     console.error('Error saving blacklist reason:', error)
     const errorMessage = isEditing.value
@@ -307,14 +330,26 @@ const saveBlacklistReason = async () => {
   }
 }
 
-const deleteBlacklistReason = async (id: number) => {
+
+const deleteBlacklistReason = (item: any) => {
+  deleteItemId.value = item
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
   try {
-    await deleteBlackListReasonById(id)
+    isDeleting.value = true
+    await deleteBlackListReasonById(deleteItemId.value.id)
     toast.success(t('configuration.blacklist_reason.delete_success'))
-    await fetchBlacklistReasons()
+    showDeleteModal.value = false
+    deleteItemId.value = null
+    await fetchBlacklistReasons(1)
   } catch (error) {
     console.error('Error deleting blacklist reason:', error)
     toast.error(t('configuration.blacklist_reason.delete_error'))
+  }finally{
+    isDeleting.value = true
+
   }
 }
 
@@ -328,8 +363,12 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:number) =>{
+  fetchBlacklistReasons(page)
+}
+
 // Lifecycle
 onMounted(() => {
-  fetchBlacklistReasons()
+  fetchBlacklistReasons(1)
 })
 </script>

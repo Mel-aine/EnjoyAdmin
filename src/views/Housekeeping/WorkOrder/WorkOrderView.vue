@@ -448,13 +448,13 @@ const confirmDelete = async () => {
     loadingDelete.value = true
     await deleteWorkOrder(workOrderToDelete.value.id)
     toast.success(t('WorkOrderDeletedSuccessfully'))
+    showDeleteModal.value = false
     await fetchWorkOrders(1)
   } catch (error: any) {
     console.error('Error deleting work order:', error)
     toast.error(error.message || t('ErrorDeletingWorkOrder'))
   } finally {
     loadingDelete.value = false
-    showDeleteModal.value = false
     workOrderToDelete.value = null
   }
 }
