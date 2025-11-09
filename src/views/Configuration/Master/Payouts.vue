@@ -254,7 +254,7 @@ const savePayout = async () => {
 }
 
 const deletePayout = async (item) => {
-  if (confirm(t('common.deleteConfirmation', { name: item.name }))) {
+  if (confirm(t('deletePayoutConfirmation', { name: item.name }))) {
     try {
       await deletePayoutReasonById(item.id)
       toast.success(t('toast.DeletedSuccess'))

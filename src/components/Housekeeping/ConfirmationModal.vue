@@ -66,7 +66,7 @@
 
         <slot name="content"></slot>
 
-        
+
         <!-- Actions -->
         <div class="flex gap-3 px-6 py-4 bg-gray-50">
           <!-- Bouton Cancel -->
@@ -114,7 +114,7 @@
               />
             </svg>
             <span v-if="!props.loading">{{ confirmText }}</span>
-            <span v-else>Loading...</span>
+            <span v-else>{{ $t('Loading...') }}</span>
           </button>
         </div>
       </div>

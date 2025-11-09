@@ -1,7 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-     
+
 
       <ReusableTable
         :title="t('configuration.market_code.table_title')"
@@ -16,8 +16,8 @@
         @action="onAction"
       >
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
+          <BasicButton
+            variant="primary"
             :icon="PlusIcon"
             :label="t('configuration.market_code.add_market_code')"
             @click="openAddModal"
@@ -47,38 +47,38 @@
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             {{ isEditing ? t('configuration.market_code.edit_market_code') : t('configuration.market_code.add_new_market_code') }}
           </h3>
-          
+
           <form @submit.prevent="saveMarketCode" class="space-y-4">
-            <Input 
+            <Input
               :lb="t('configuration.market_code.market_name')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.name"
               :placeholder="t('configuration.market_code.market_name_placeholder')"
             />
-            
-            <Input 
+
+            <Input
               :lb="t('configuration.market_code.market_code')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.code"
               :placeholder="t('configuration.market_code.market_code_placeholder')"
             />
-            
-            <Select 
+
+            <Select
               :lb="t('configuration.market_code.market_segment')"
               v-model="formData.segment"
               :options="segmentOptions"
               :defaultValue="t('configuration.market_code.market_segment_placeholder')"
             />
-            
-            <Input 
+
+            <Input
               :lb="t('configuration.market_code.description')"
               :inputType="'text'"
               v-model="formData.description"
               :placeholder="t('configuration.market_code.description_placeholder')"
             />
-            
+
             <div class="flex justify-end space-x-3 pt-4">
               <BasicButton
                 type="button"
@@ -122,11 +122,11 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { 
-  getMarketCodes, 
-  postMarketCode, 
-  updateMarketCodeById, 
-  deleteMarketCodeById 
+import {
+  getMarketCodes,
+  postMarketCode,
+  updateMarketCodeById,
+  deleteMarketCodeById
 } from '@/services/configrationApi'
 // Save icon removed as it's no longer used in the template
 import type { Action, Column } from '../../../utils/models'
@@ -156,20 +156,20 @@ const formData = ref({
 
 // Segment options
 const segmentOptions = [
-  { label: 'Business', value: 'Business' },
-  { label: 'Leisure', value: 'Leisure' },
-  { label: 'Group', value: 'Group' },
-  { label: 'OTA', value: 'OTA' },
-  { label: 'Government', value: 'Government' },
-  { label: 'Events', value: 'Events' },
-  { label: 'Other', value: 'Other' }
+  { label: t('Business'), value: 'Business' },
+  { label: t('Leisure'), value: 'Leisure' },
+  { label: t('Group'), value: 'Group' },
+  { label: t('OTA'), value: 'OTA' },
+  { label: t('Government'), value: 'Government' },
+  { label: t('Events'), value: 'Events' },
+  { label: t('Other'), value: 'Other' }
 ]
 
 // Computed properties
 const columns = computed<Column[]>(() => [
   {
     key: 'name',
-    label: t('name'),
+    label: t('Name'),
     sortable: true
   },
   {
@@ -268,7 +268,7 @@ const closeModal = () => {
 const saveMarketCode = async () => {
   try {
     saving.value = true
-    
+
     const payload = {
       name: formData.value.name,
       code: formData.value.code,
@@ -284,13 +284,13 @@ const saveMarketCode = async () => {
       await postMarketCode(payload)
       toast.success(t('configuration.market_code.create_success'))
     }
-    
+
     closeModal()
     await fetchMarketCodes()
   } catch (error) {
     console.error('Error saving market code:', error)
-    const errorMessage = isEditing.value 
-      ? t('configuration.market_code.update_error')
+    const errorMessage = isEditing.value
+      ? t('toast.updateError')
       : t('configuration.market_code.save_error')
     toast.error(errorMessage)
   } finally {

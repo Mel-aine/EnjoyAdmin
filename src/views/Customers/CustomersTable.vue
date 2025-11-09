@@ -73,17 +73,6 @@
     />
 
     <!-- Delete Confirmation Modal -->
-    <!-- <ModalConfirmation
-      v-if="showDeleteModal"
-      :is-loading="deleting"
-      :title="$t('guestDatabase.delete_title')"
-      :message="
-        $t('guestDatabase.delete_confirm_message', { name: customerToDelete?.userFullName })
-      "
-      action="DANGER"
-      @close="closeDeleteModal"
-      @confirm="confirmDeleteCustomer"
-    /> -->
         <ConfirmationModal
         v-model:show="showDeleteModal"
         :title="$t('guestDatabase.delete_title')"

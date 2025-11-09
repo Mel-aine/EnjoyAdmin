@@ -1,7 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-     
+
       <ReusableTable
         :title="t('configuration.blacklist_reason.table_title')"
         :columns="columns"
@@ -48,7 +48,7 @@
             }"
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
           >
-            {{ item.severity }}
+            {{ $t(`${item.severity}`) }}
           </span>
         </template>
       </ReusableTable>
@@ -62,47 +62,47 @@
 
           <form @submit.prevent="saveBlacklistReason" class="space-y-4">
             <Input
-              :lb="'Reason Name'"
+              :lb="$t('configuration.blacklist_reason.ReasonName')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.reason"
-              :placeholder="'Enter blacklist reason name'"
+              :placeholder="$t('Enter blacklist reason name')"
             />
 
             <Select
-               :lb="'Category'"
+               :lb="$t('configuration.blacklist_reason.Category')"
                :isRequired="true"
                v-model="formData.category"
                :options="categoryOptions"
-               :defaultValue="'Select category'"
+               :defaultValue="$t('Select category')"
              />
 
              <Select
-               :lb="'Severity'"
+               :lb="$t('configuration.blacklist_reason.Severity')"
                :isRequired="true"
                v-model="formData.severity"
                :options="severityOptions"
-               :defaultValue="'Select severity level'"
+               :defaultValue="$t('Select severity level')"
              />
 
             <Input
-              :lb="'Description'"
+              :lb="$t('Description')"
               :inputType="'text'"
               v-model="formData.description"
-              :placeholder="'Enter description (optional)'"
+              :placeholder="$t('Enter description (optional)')"
             />
 
            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="saving"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isEditing ? t('update') : t('save')"
                 :loading="saving"
               />
@@ -156,39 +156,40 @@ const formData = ref({
 
 // Options for select fields
 const categoryOptions = ref([
-  { value: 'Behavior', label: 'Behavior' },
-  { value: 'Payment', label: 'Payment' },
-  { value: 'Damage', label: 'Damage' },
-  { value: 'Fraud', label: 'Fraud' },
-  { value: 'Other', label: 'Other' }
+  { value: 'Behavior', label: t('Behavior' )},
+  { value: 'Payment', label: t('Payment') },
+  { value: 'Damage', label: t('Damage') },
+  { value: 'Fraud', label: t('Fraud') },
+  { value: 'Other', label: t('Other') }
 ])
 
 const severityOptions = ref([
-  { value: 'Low', label: 'Low' },
-  { value: 'Medium', label: 'Medium' },
-  { value: 'High', label: 'High' }
+  { value: 'Low', label: t('Low') },
+  { value: 'Medium', label: t('Medium') },
+  { value: 'High', label: t('High') }
 ])
 
 // Computed properties
 const columns = computed<Column[]>(() => [
   {
     key: 'reason',
-    label: 'Reason Name',
+    label: t('configuration.blacklist_reason.ReasonName'),
     sortable: true
   },
   {
     key: 'category',
-    label: 'Category',
+    label: t('configuration.blacklist_reason.Category'),
     sortable: true
   },
   {
     key: 'severity',
-    label: 'Severity',
-    sortable: true
+    label: t('configuration.blacklist_reason.Severity'),
+    sortable: true,
+    type : 'custom'
   },
   {
-    key: 'description',
-    label: 'Description',
+    key: 'description' ,
+    label: t('Description'),
     sortable: true
   },
   {
@@ -290,7 +291,7 @@ const saveBlacklistReason = async () => {
       toast.success(t('configuration.blacklist_reason.update_success'))
     } else {
       await postBlackListReason(payload)
-      toast.success(t('configuration.blacklist_reason.save_success'))
+      toast.success(t('configuration.blacklist_reason.create_success'))
     }
 
     closeModal()
@@ -298,7 +299,7 @@ const saveBlacklistReason = async () => {
   } catch (error) {
     console.error('Error saving blacklist reason:', error)
     const errorMessage = isEditing.value
-      ? t('configuration.blacklist_reason.update_error')
+      ? t('toast.updateError')
       : t('configuration.blacklist_reason.save_error')
     toast.error(errorMessage)
   } finally {

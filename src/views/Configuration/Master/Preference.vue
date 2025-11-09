@@ -14,7 +14,7 @@
           :selectable="false"
         >
         <template #header-actions>
-          <BasicButton 
+          <BasicButton
           variant="primary"
           :icon="Plus"
           :label="$t('configuration.preference.add_preference')"
@@ -46,12 +46,12 @@
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ isEditing ? $t('configuration.preference.edit_preference') : $t('configuration.preference.add_preference') }}
           </h3>
-          
+
           <form @submit.prevent="savePreference">
             <!-- Name -->
             <div class="mb-4">
-              
-              <Input 
+
+              <Input
                 v-model="formData.name"
                 :lb=" $t('configuration.preference.name')"
                 :placeholder="$t('configuration.preference.name_placeholder')"
@@ -65,7 +65,7 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t('configuration.preference.preference_type') }} *
               </label>
-              <Select 
+              <Select
                 v-model="formData.preferenceTypeId"
                 :options="preferenceTypeOptions"
                 :placeholder="$t('configuration.preference.preference_type_placeholder')"
@@ -183,7 +183,7 @@ const loadPreferences = async () => {
     preferences.value = response.data.data.data || []
   } catch (error) {
     console.error('Error loading preferences:', error)
-    toast.error(t('preference.fetch_error'))
+    toast.error(t('configuration.preference.fetch_error'))
   } finally {
     loading.value = false
   }
@@ -196,7 +196,7 @@ const loadPreferenceTypes = async () => {
     preferenceTypes.value = response.data.data.data || []
   } catch (error) {
     console.error('Error loading preference types:', error)
-    toast.error(t('preference_type.fetch_error'))
+    toast.error(t('configuration.preference_type.fetch_error'))
   } finally {
     loadingPreferenceTypes.value = false
   }
@@ -225,7 +225,7 @@ const editPreference = (item) => {
 const savePreference = async () => {
   try {
     saving.value = true
-    
+
     const payload = {
       name: formData.value.name,
       preferenceTypeId: formData.value.preferenceTypeId,
@@ -234,17 +234,17 @@ const savePreference = async () => {
 
     if (isEditing.value) {
       await updatePreferenceById(editingId.value, payload)
-      toast.success(t('preference.update_success'))
+      toast.success(t('configuration.preference.update_success'))
     } else {
       await postPreference(payload)
-      toast.success(t('preference.create_success'))
+      toast.success(t('configuration.preference.create_success'))
     }
-    
+
     closeModal()
     await loadPreferences()
   } catch (error) {
     console.error('Error saving preference:', error)
-    toast.error(t('preference.save_error'))
+    toast.error(t('configuration.preference.save_error'))
   } finally {
     saving.value = false
   }
@@ -258,13 +258,13 @@ const deletePreference = (id) => {
 const confirmDelete = async () => {
   try {
     await configrationApi.deletePreferenceById(deleteItemId.value)
-    toast.success(t('preference.delete_success'))
+    toast.success(t('configuration.preference.delete_success'))
     showDeleteModal.value = false
     deleteItemId.value = null
     await loadPreferences()
   } catch (error) {
     console.error('Error deleting preference:', error)
-    toast.error(t('preference.delete_error'))
+    toast.error(t('configuration.preference.delete_error'))
   }
 }
 

@@ -47,8 +47,10 @@ import {  getDepartment } from '@/services/departmentApi'
 import { useServiceStore } from '@/composables/serviceStore';
 import Select from '../forms/FormElements/Select.vue';
 import BasicButton from '../buttons/BasicButton.vue';
+import { useI18n } from 'vue-i18n';
 const isLoadingRole = ref(false);
 const isLoadingDepartment = ref(false);
+const {t} = useI18n()
 
 const emits = defineEmits(['filter']);
 defineProps({
@@ -97,7 +99,7 @@ const fetchRole = async () => {
         const hotelId = serviceStore.serviceId
         const response = await getRoles(hotelId)
         console.log('role', response.data)
-        roles.value = [{ label: 'All', value: '' }].concat(response.data.map((r: any) => {
+        roles.value = [{ label: t('All'), value: '' }].concat(response.data.map((r: any) => {
             return {
                 label: r.roleName,
                 value: r.id,
@@ -117,7 +119,7 @@ const fetchDepartment = async () => {
         console.log('hotelId :', hotelId);
 
         const departmentsResponse = await getDepartment(hotelId);
-        departments.value = [{ label: 'All', value: '' }].concat(departmentsResponse.data.data.data.map((d: any) => {
+        departments.value = [{ label: t('All'), value: '' }].concat(departmentsResponse.data.data.data.map((d: any) => {
             return {
                 ...d,
                 label: d.name,
