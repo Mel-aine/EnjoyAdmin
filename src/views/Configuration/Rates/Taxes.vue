@@ -175,6 +175,19 @@
                 </label>
                 <Select v-model="formData.status" :options="statusOptions" :placeholder="t('select_status')" class="w-full" />
               </div>
+              <!-- Tax Type (optional) -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ t('configuration.taxes.tax_type') }}
+                </label>
+                <Select
+                  v-model="formData.type"
+                  :options="taxTypeOptions"
+                  :placeholder="t('configuration.taxes.select_tax_type')"
+                  class="w-full"
+                />
+                <p v-if="typeError" class="mt-1 text-xs text-red-600">{{ typeError }}</p>
+              </div>
             </div>
 
             <div class="flex justify-end space-x-3 mt-6">
@@ -253,7 +266,8 @@ const formData = ref({
   applyTax: '',
   applyTaxOnRackRate: false,
   status: 'Active',
-  taxApplyAfter: []
+  taxApplyAfter: [],
+  type: ''
 })
 
 // Table columns
@@ -325,6 +339,27 @@ const statusOptions = computed(() => [
   { value: 'active', label: t('configuration.taxes.status_active') },
   { value: 'inactive', label: t('configuration.taxes.status_inactive') }
 ])
+
+// Tax type options (optional selection)
+const taxTypeOptions = computed(() => [
+  { value: 'vat', label: t('configuration.taxes.vat') },
+  { value: 'service_fee', label: t('configuration.taxes.service_fee') },
+  { value: 'city_tax', label: t('configuration.taxes.city_tax') }
+])
+
+// Optional enum validation for tax type
+const allowedTaxTypes = ['vat', 'service_fee', 'city_tax'] as const
+const typeError = ref('')
+const validateTaxType = () => {
+  typeError.value = ''
+  const v = formData.value.type
+  if (!v) return true
+  const isValid = allowedTaxTypes.includes(v as any)
+  if (!isValid) {
+    typeError.value = t('configuration.taxes.invalid_tax_type') || 'Invalid tax type'
+  }
+  return isValid
+}
 
 // Additional reactive variables
 const isEditing = ref(false)
@@ -432,6 +467,12 @@ const onSelectionChange = (selected:any) => {
 const saveTax = async () => {
   try {
     loading.value = true
+    // Optional tax type validation (mimics vine.enum([...]).optional())
+    const isTypeValid = validateTaxType()
+    if (!isTypeValid) {
+      loading.value = false
+      return
+    }
     const taxData = {
       ...formData.value,
       amount: Number(formData.value.amount),
@@ -471,10 +512,12 @@ const resetForm = () => {
     applyTax: '',
     applyTaxOnRackRate: false,
     status: 'active',
-    taxApplyAfter: []
+    taxApplyAfter: [],
+    type: ''
   }
   isEditing.value = false
   editingTaxId.value = null
+  typeError.value = ''
 }
 
 const  handleConfirm = async () => {

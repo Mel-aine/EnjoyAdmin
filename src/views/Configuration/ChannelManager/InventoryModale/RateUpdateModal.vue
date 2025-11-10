@@ -385,24 +385,26 @@ const save = async () => {
 
     const values: any[] = []
     const safeEntries = Array.isArray(entries.value) ? entries.value : []
+    
+    const formatRateStringStrict = (val: string | number): string => {
+    const raw = typeof val === 'string' ? val : String(val);
+    const normalized = raw.replace(',', '.');
+    let n = Number(normalized);
 
-    const formatRateString = (val: string | number): string => {
-      // Normalize to a string to meet API requirement and avoid float issues
-      const raw = typeof val === 'string' ? val : String(val)
-      // Replace comma with dot if present
-      const normalized = raw.replace(',', '.')
-      const n = Number(normalized)
-      if (!Number.isFinite(n)) return normalized.trim()
-      // Return as plain string number (decimal string), e.g., "200" or "200.5"
-      return n.toString()
+    // 1. Gérer les entrées invalides ou non numériques
+    if (!Number.isFinite(n)) {
+        // Retourne la chaîne d'origine si elle n'est pas un nombre valide
+        return normalized.trim(); 
     }
+    return n.toFixed(2);
+};
     for (const e of safeEntries) {
       const base: any = {
         property_id: String(props.propertyId),
         date_from: String(e.dateFrom),
         date_to: String(e.dateTo),
       }
-      if (e.enable.rate) base.rate = formatRateString(e.rate)
+      if (e.enable.rate) base.rate = formatRateStringStrict(e.rate)
       if (e.enable.stopSell) base.stop_sell = e.stopSellValue ? 1 : 0
       if (e.enable.closedToArrival) base.closed_to_arrival = e.closedToArrivalValue ? 1 : 0
       if (e.enable.closedToDeparture) base.closed_to_departure = e.closedToDepartureValue ? 1 : 0
@@ -424,7 +426,8 @@ const save = async () => {
 
     const payload = { values }
     console.log('play load',payload)
-    await updateRestrictions(String(props.propertyId), payload)
+    const res = await updateRestrictions(String(props.propertyId), payload)
+    console.log('res call back',res)
     toast.success(t('toast.SucessUpdate'))
     emit('save', payload)
     emit('refresh')

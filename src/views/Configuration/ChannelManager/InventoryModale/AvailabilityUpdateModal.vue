@@ -3,17 +3,16 @@
   <div v-if="isOpen" class="fixed inset-0 bg-black/50 z-[9998]" @click="closeModal" />
 
   <!-- Right side panel -->
-  <div
-    :class="[
-      'fixed top-0 right-0 h-full w-full max-w-2xl bg-white dark:bg-gray-800 dark:text-gray-100 shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out',
-      isOpen ? 'translate-x-0' : 'translate-x-full'
-    ]"
-  >
+  <div :class="[
+    'fixed top-0 right-0 h-full w-full max-w-2xl bg-white dark:bg-gray-800 dark:text-gray-100 shadow-2xl z-[9999] transform transition-transform duration-300 ease-in-out',
+    isOpen ? 'translate-x-0' : 'translate-x-full'
+  ]">
     <div class="h-full flex flex-col">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-lg font-semibold">{{ $t('Availability Update') }}</h2>
-        <button @click="closeModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200">
+        <button @click="closeModal"
+          class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12" />
           </svg>
@@ -23,49 +22,33 @@
       <!-- Content -->
       <div class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
         <div class="space-y-4">
-          <div v-for="(entry, idx) in entries" :key="entry.id" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <div v-for="(entry, idx) in entries" :key="entry.id"
+            class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Room Types -->
               <div class="w-full">
-                <MultipleSelect
-                  v-model="entry.selectedRoomTypes"
-                  :options="roomTypeOptions"
-                  :lb="$t('Room Types')"
-                  :maxVisibleTags="1"
-                  defaultDisplayMode="limited"
-                />
+                <MultipleSelect v-model="entry.selectedRoomTypes" :options="roomTypeOptions" :lb="$t('Room Types')"
+                  :maxVisibleTags="1" defaultDisplayMode="limited" />
               </div>
 
               <!-- Apply to all room types removed -->
 
               <!-- Availability -->
-              <Input
-                :lb="$t('Availability')"
-                v-model="entry.availability"
-                :input-type="'number'"
-                min="0"
-                :placeholder="$t('Enter availability')"
-                :is-required="true"
-              />
+              <Input :lb="$t('Availability')" v-model="entry.availability" :input-type="'number'" min="0"
+                :placeholder="$t('Enter availability')" :is-required="true" />
             </div>
 
             <!-- Date Range -->
             <div class="mt-4">
-              <InputDoubleDatePicker
-                :modelValue="{ start: entry.dateFrom, end: entry.dateTo }"
-                @update:modelValue="(val:any) => updateDateRange(idx, val)"
-                :allowPastDates="false"
-                :is-required="true"
-              />
+              <InputDoubleDatePicker :modelValue="{ start: entry.dateFrom, end: entry.dateTo }"
+                @update:modelValue="(val: any) => updateDateRange(idx, val)" :allowPastDates="false"
+                :is-required="true" />
             </div>
 
             <!-- Remove row -->
             <div class="mt-4 flex justify-end">
-              <button
-                v-if="entries.length > 1"
-                @click="removeEntry(entry.id)"
-                class="text-gray-400 dark:text-gray-300 hover:text-red-500 transition-colors"
-              >
+              <button v-if="entries.length > 1" @click="removeEntry(entry.id)"
+                class="text-gray-400 dark:text-gray-300 hover:text-red-500 transition-colors">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                 </svg>
@@ -87,7 +70,7 @@
       </div>
     </div>
   </div>
-  
+
 </template>
 
 <script setup lang="ts">
@@ -106,7 +89,7 @@ interface RoomType {
   name: string
 }
 
-const props = defineProps<{ 
+const props = defineProps<{
   isOpen: boolean
   propertyId: string | number
   roomTypes: RoomType[]
@@ -183,7 +166,7 @@ const save = async () => {
       isSaving.value = false
       return
     }
-    console.log('entries.value',entries.value)
+    console.log('entries.value', entries.value)
     const values: any[] = []
     const safeEntries = Array.isArray(entries.value) ? entries.value : []
     for (const e of safeEntries) {
@@ -208,7 +191,8 @@ const save = async () => {
 
     const payload = { values }
 
-    await updateAvaibility(String(props.propertyId), payload)
+    const res = await updateAvaibility(String(props.propertyId), payload)
+    console.log('res call back', res)
     toast.success(t('toast.SucessUpdate'))
     emit('save', payload)
     emit('refresh')

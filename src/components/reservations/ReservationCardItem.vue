@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import ReservationAction from './ReservationAction.vue';
-import { HouseIcon, Users } from 'lucide-vue-next';
+import { Building2Icon, Users } from 'lucide-vue-next';
+import getOtaIconSrc from '@/utils/otaIcons'
 import { computed, ref, watch } from 'vue';
 import { formatCurrency, formatTimeFromTimeString } from '../utilities/UtilitiesFunction';
 import router from '../../router';
@@ -45,6 +46,13 @@ const emit = defineEmits<Emits>()
 
 // Créer une copie réactive des données de réservation
 const localReservation = ref<any>(null)
+
+const otaName = computed(() =>
+  localReservation.value?.otaName ||
+  localReservation.value?.bookingSourceName ||
+  localReservation.value?.bookingSource?.name || null
+)
+const otaIconSrc = computed(() => getOtaIconSrc(otaName.value))
 
 
 
@@ -277,7 +285,8 @@ const nightsSummary = computed(() => {
       <div class="p-4 border-b border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-start mb-2">
           <div @click="handleViewDetails" class="flex items-center align-middle self-center gap-2 cursor-pointer">
-            <HouseIcon class="w-8 h-8 text-primary" />
+            <img v-if="otaIconSrc" :src="otaIconSrc" alt="OTA" class="w-8 h-8" />
+            <Building2Icon v-else class="w-8 h-8 text-primary" />
             <Users v-if="localReservation.reservationRooms.length > 1" />
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white text-lg truncate capitalize">
@@ -339,22 +348,6 @@ const nightsSummary = computed(() => {
 
         </div>
 
-        <!-- <div class="flex justify-between items-center">
-          <div class="flex flex-col">
-            <span class=" font-semibold">{{ $t('Room') }}</span>
-            <span v-if="localReservation.reservationRooms && localReservation.reservationRooms.length>0 && localReservation.reservationRooms.every((room:any) => room.roomId)">
-              {{ roomRateTypeSummary }}
-            </span>
-            <AssignRoomReservation v-else
-              :reservation="localReservation"
-              @refresh="$emit('save')"
-              @assigned="handleRoomAssigned"
-            />
-          </div>
-          <div class="flex gap-1">
-            <ReservationStatus :status="localReservation.status" />
-          </div>
-        </div> -->
         <div class="flex justify-between items-center">
           <div class="flex flex-col">
             <span class="font-semibold">{{ $t('Room') }}</span>

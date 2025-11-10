@@ -21,7 +21,7 @@
           </div>
           <div v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber">
             <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
-            <div v-for="(fo, index) in folioList" :key="index">
+            <div v-for="(fo, index) in folioList.filter(fo => fo.reservationRoomId === re.id)" :key="index">
               <div
                 class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
                 :class="selectedFolio?.id === fo.id

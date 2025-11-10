@@ -113,7 +113,8 @@
                         class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                         <div class="flex items-center space-x-3">
                             <div class="flex-shrink-0">
-                                <HouseIcon class="w-8 h-8 text-primary" />
+                                <img v-if="otaIconSrc" :src="otaIconSrc" alt="OTA" class="w-8 h-8" />
+                                <Building2Icon v-else class="w-8 h-8 text-primary" />
                             </div>
                             <div>
                                 <div>
@@ -382,7 +383,8 @@ import type { ReservationDetails } from '@/utils/models'
 import ButtonDropdown from '../common/ButtonDropdown.vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, HouseIcon, List, MapPin, MapPlusIcon, PhoneCall, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X ,MessageCircle,Mail } from 'lucide-vue-next'
+import { ArrowUpDown, Calendar, CheckCircle, CreditCard, Eye, FileCheck, Building2Icon, List, MapPin, MapPlusIcon, PhoneCall, Printer, SendHorizonal, StopCircle, Trash2, UserMinus, X ,MessageCircle,Mail } from 'lucide-vue-next'
+import getOtaIconSrc from '@/utils/otaIcons'
 import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
 
@@ -437,6 +439,13 @@ const closeModal = () => {
 }
 
 const localReservation = ref<any>(null)
+
+const otaName = computed(() =>
+    reservation.value?.otaName ||
+    reservation.value?.bookingSourceName ||
+    reservation.value?.bookingSource?.name || null
+)
+const otaIconSrc = computed(() => getOtaIconSrc(otaName.value))
 
 // Watcher pour mettre à jour les données locales quand les props changent
 watch(() => reservation.value, (newReservation) => {

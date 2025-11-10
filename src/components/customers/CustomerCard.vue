@@ -5,7 +5,6 @@ import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import CustomerSarch from './CustomerSarch.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-// import { getCustomer } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { defineEmits } from 'vue'
 import { isEqual } from 'lodash'
@@ -22,6 +21,7 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import { useBooking } from '@/composables/useBooking2'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
+import InputSelectCity from '../forms/FormElements/InputSelectCity.vue'
 
 interface SelectOption {
   value: string
@@ -54,8 +54,6 @@ const emit = defineEmits<{
 }>()
 
 type ImageUploaderInstance = InstanceType<typeof ImageUploader>
-const customers = ref<any[]>([])
-const users = ref<any[]>([])
 const serviceStore = useServiceStore()
 const showIdentitySection = ref(true)
 const showInfoSection = ref(false)
@@ -161,22 +159,6 @@ const selectCustomer = (customer: any) => {
   emit('customerSelected', selectedCustomer.value)
 }
 
-const fetchGuest = async () => {
-  try {
-    const hotelId = serviceStore.serviceId
-    const response = await getCustomer(hotelId!)
-    console.log('fetchGuest', response)
-    customers.value = response.data.map((guest: any) => {
-      return {
-        ...guest,
-        userFullName: guest ? `${guest.firstName} ${guest.lastName}` : 'Inconnu',
-      }
-    })
-  } catch (error) {
-    console.error('Failed to fetch reservations:', error)
-  }
-}
-
 const fetchIdentityTypes = async () => {
   try {
     const hotelId = serviceStore.serviceId
@@ -266,11 +248,6 @@ const onIdPhotoSuccess = (data: { url: string; file: File }) => {
 }
 
 const onUploadError = (error: any) => {
-  console.error('Upload error:', error)
-
-  // Marquer les uploads comme échoués
-  completeUpload('profilePhoto', false, 'Profile photo upload failed')
-  completeUpload('idPhoto', false, 'ID photo upload failed')
 
   toast.error(t('Image upload failed'))
 }
@@ -416,7 +393,7 @@ const contactValue = computed({
 })
 
 onMounted(() => {
-  fetchGuest()
+  //fetchGuest()
   fetchIdentityTypes()
 })
 
@@ -655,11 +632,11 @@ console.log('modalevalue', props.modelValue)
                 <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="selectedCustomer.country" />
               </div>
               <div>
-                <Input
-                  :lb="$t('hotelInformation.fields.stateProvince')"
-                  :id="'state'"
-                  v-model="selectedCustomer.state"
-                  :placeholder="$t('enterState')"
+                <InputSelectCity
+                  :lb="$t('city')"
+                  v-model="selectedCustomer.city"
+                  :placeholder="$t('city')"
+                  :country="selectedCustomer.country"
                 />
               </div>
               <div>
@@ -766,10 +743,11 @@ console.log('modalevalue', props.modelValue)
                 <div>
                   <InputCountries :lb="$t('Countryofissue')" v-model="selectedCustomer.issuingCountry" />
                 </div>
-                <Input
+                <InputSelectCity
                   :lb="$t('Cityofissue')"
                   v-model="selectedCustomer.issuingCity"
                   :placeholder="$t('Cityofissue')"
+                  :country="selectedCustomer.issuingCountry"
                 />
               </div>
             </div>
