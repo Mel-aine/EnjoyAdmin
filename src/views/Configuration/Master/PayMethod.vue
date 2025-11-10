@@ -4,7 +4,7 @@
       <ReusableTable :title="$t('configuration.payment_method.table_title')" :columns="columns" :data="payMethods"
         :actions="actions" :loading="loading" @action="onAction"
         :search-placeholder="$t('configuration.payment_method.search_placeholder')"
-        :empty-title="$t('configuration.payment_method.empty_title')"
+        :empty-title="$t('configuration.payment_method.empty_title')" :meta="paginationMeta" @page-change="handlePageChange"
         :empty-description="$t('configuration.payment_method.empty_description')">
         <template #cardProcessing="{ item }">
           <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
@@ -156,6 +156,19 @@
         </div>
       </div>
     </div>
+
+     <ConfirmationModal
+      v-model:show="showConfirmModal"
+      :is-open="showConfirmModal"
+      :loading="isDeletingLoading"
+      :title="t('configuration.extra_charge.confirm_delete_title')"
+      :message="t('configuration.payment_method.delete_confirm')"
+      action="DANGER"
+      :confirm-text="$t('Confirm')"
+      :cancel-text="$t('Cancel')"
+      @close="showConfirmModal=false"
+      @confirm="confirmDelete"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -170,6 +183,7 @@ import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import {
   getPaymentMethods,
   postPaymentMethod,
@@ -177,6 +191,7 @@ import {
   deletePaymentMethodById
 } from '@/services/configrationApi'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -186,6 +201,10 @@ const showModal = ref(false)
 const isEditing = ref(false)
 const loading = ref(false)
 const saving = ref(false)
+const showConfirmModal = ref(false)
+const isDeletingLoading = ref(false)
+const paginationMeta = ref<any>(null)
+const itemToDelete = ref<any>(null)
 
 const columns = computed<Column[]>(() => [
   { key: 'shortCode', label: t('configuration.payment_method.short_code'), type: 'text' },
@@ -198,8 +217,8 @@ const columns = computed<Column[]>(() => [
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('edit'), handler: (item: any) => editPayMethod(item), variant: 'primary' },
-  { label: t('delete'), handler: (item: any) => deletePayMethod(item), variant: 'danger' }
+  { label: t('edit'), handler: (item: any) => editPayMethod(item), variant: 'primary',icon:Edit },
+  { label: t('delete'), handler: (item: any) => deletePayMethod(item), variant: 'danger',icon:Trash2 }
 ])
 
 const formData = ref({
@@ -218,11 +237,12 @@ const formData = ref({
 const payMethods = ref<any[]>([])
 
 // Fetch payment methods from API
-const fetchPaymentMethods = async () => {
+const fetchPaymentMethods = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getPaymentMethods()
+    const response = await getPaymentMethods({page:pageNumber,limit:10})
     payMethods.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
     console.log('payment methode',payMethods.value)
   } catch (error) {
     console.error('Error fetching payment methods:', error)
@@ -286,9 +306,9 @@ const savePayMethod = async () => {
       await postPaymentMethod(paymentMethodData)
       toast.success(t('configuration.payment_method.create_success'))
     }
-
-    await fetchPaymentMethods()
     closeModal()
+    await fetchPaymentMethods(1)
+
   } catch (error) {
     console.error('Error saving payment method:', error)
     toast.error(t('configuration.payment_method.save_error'))
@@ -297,22 +317,32 @@ const savePayMethod = async () => {
   }
 }
 
-const deletePayMethod = async (method: any) => {
-  if (confirm(t('configuration.payment_method.delete_confirm'))) {
+const deletePayMethod =  (method: any) => {
+  itemToDelete.value = method
+  showConfirmModal.value = true
+
+}
+const confirmDelete = async() =>{
+
     try {
-      loading.value = true
-      await deletePaymentMethodById(method.id)
+      isDeletingLoading.value = true
+      await deletePaymentMethodById(itemToDelete.value.id)
+       itemToDelete.value = null
+      showConfirmModal.value = false
       toast.success(t('configuration.payment_method.delete_success'))
-      await fetchPaymentMethods()
+      await fetchPaymentMethods(1)
     } catch (error) {
       console.error('Error deleting payment method:', error)
       toast.error(t('configuration.payment_method.delete_error'))
     } finally {
-      loading.value = false
+      isDeletingLoading.value = false
     }
-  }
+
 }
 
+const handlePageChange = (page:number) =>{
+  fetchPaymentMethods(page)
+}
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     editPayMethod(item)
@@ -323,6 +353,6 @@ const onAction = (action: string, item: any) => {
 
 // Load payment methods on component mount
 onMounted(() => {
-  fetchPaymentMethods()
+  fetchPaymentMethods(1)
 })
 </script>

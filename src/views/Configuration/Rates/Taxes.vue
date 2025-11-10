@@ -211,9 +211,18 @@
     </div>
 
     <!-- Confirmation Modal -->
-    <ModalConfirmation v-if="showDeleteModal" v-model="showConfirmModal" :title="confirmTitle" :message="confirmMessage"
-      :loading="confirmLoading" :confirm-text="t('delete')" :cancel-text="t('cancel')" @confirm="handleConfirm"
-      @close="handleConfirmClose" :action="'DANGER'" />
+
+      <ConfirmationModal
+      v-model:show="showDeleteModal"
+      :loading="confirmLoading"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      action="DANGER"
+      :confirm-text="$t('Confirm')"
+      :cancel-text="$t('Cancel')"
+      @close="handleConfirmClose"
+      @confirm="handleConfirm"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -228,7 +237,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getTaxes, postTax, updateTaxById, deleteTaxById } from '@/services/configrationApi'
 import type { Action, Column } from '../../../utils/models'

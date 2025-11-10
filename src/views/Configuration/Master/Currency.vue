@@ -129,7 +129,7 @@
                   type="number"
                   step="0.0001"
                   required
-                  class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  class="flex-1 dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                   :placeholder="$t('Enter exchange rate')"
                 />
                 <span class="text-sm text-gray-600 dark:text-gray-300">{{ $t('XAF') }}</span>
@@ -187,6 +187,7 @@ import {
   deleteCurrencyById
 } from '@/services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -245,8 +246,8 @@ const deleteCurrency = async (currency: any) => {
 }
 
 const actions = computed<Action[]>(() => [
-  { label: t('Edit'), handler:(item)=> editCurrency(item), variant: 'primary' },
-  { label: t('Delete'), handler:(item)=> deleteCurrency(item), variant: 'danger' }
+  { label: t('Edit'), handler:(item)=> editCurrency(item), variant: 'primary',icon:Edit },
+  { label: t('Delete'), handler:(item)=> deleteCurrency(item), variant: 'danger',icon:Trash2 }
 ])
 
 const showModal = ref(false)
@@ -271,8 +272,8 @@ const fetchCurrencies = async (pageNumber=1) => {
   try {
     loading.value = true
     const response = await getCurrencies({page:pageNumber,limit:10})
-    currencies.value = response.data.data || []
-    paginationMeta.value = response.data.meta
+    currencies.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
     console.log('currecy',response)
   } catch (error) {
     console.error('Error fetching currencies:', error)
@@ -340,9 +341,9 @@ const saveCurrency = async () => {
       await postCurrency(newCurrency)
       toast.success(t('Currency added successfully'))
     }
-
-    await fetchCurrencies(1)
     closeModal()
+    await fetchCurrencies(1)
+
   } catch (error) {
     console.error('Error saving currency:', error)
     toast.error(t('Failed to save currency'))

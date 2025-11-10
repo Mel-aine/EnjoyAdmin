@@ -141,16 +141,7 @@
               </div>
 
               <div class="mb-4">
-                <Select/>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {{ t('configuration.extra_charge.voucher_no') }}
-                </label>
-                <select v-model="formData.voucherNo"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                  <option value="auto_general">{{ t('configuration.extra_charge.auto_general') }}</option>
-                  <option value="auto_private">{{ t('configuration.extra_charge.auto_private') }}</option>
-                  <option value="manual">{{ t('configuration.extra_charge.manual') }}</option>
-                </select>
+                <Select :lb="t('configuration.extra_charge.voucher_no')" :placeholder="$t('select')" :options="Vouchers" v-model="formData.voucherNo"/>
               </div>
             </div>
 
@@ -160,32 +151,18 @@
                 {{ t('configuration.extra_charge.description') }}
               </label>
               <textarea v-model="formData.description" rows="3"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
+                class="w-full px-3 py-2 border border-black/50 rounded-lg focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
                 :placeholder="t('configuration.extra_charge.description_placeholder')"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4 mt-2">
+
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {{ t('configuration.extra_charge.charge_applies_on') }}
-                </label>
-                <select v-model="formData.chargeAppliesOn"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
-                  <option value="per_quantity">{{ t('configuration.extra_charge.per_quantity') }}</option>
-                  <option value="per_night">{{ t('configuration.extra_charge.per_night') }}</option>
-                  <option value="per_stay">{{ t('configuration.extra_charge.per_stay') }}</option>
-                </select>
+                <Select :lb="t('configuration.extra_charge.charge_applies_on')" :placeholder="$t('select')" :options="ChargeApply" v-model="formData.chargeAppliesOn"/>
               </div>
 
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {{ t('configuration.extra_charge.apply_above_charge_on') }}
-                </label>
-                <select v-model="formData.applyChargeOn"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
-                  <option value="only_on_check_in">{{ t('configuration.extra_charge.only_on_check_in') }}</option>
-                  <option value="daily">{{ t('configuration.extra_charge.daily') }}</option>
-                  <option value="on_checkout">{{ t('configuration.extra_charge.on_checkout') }}</option>
-                </select>
+                <Select :lb="t('configuration.extra_charge.apply_above_charge_on')" :placeholder="$t('select')" :options="ChargeApplyOn" v-model="formData.applyChargeOn"/>
+
               </div>
             </div>
             <div>
@@ -245,7 +222,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive,onMounted } from 'vue'
+import { ref, reactive,onMounted,computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
@@ -284,6 +261,24 @@ const columns: Column[] = [
   { key: 'rateInclusiveTax', label: t('configuration.extra_charge.rate_inclusive_tax'), type: 'text' },
   { key: 'fixedPrice', label: t('configuration.extra_charge.fixed_price'), type: 'custom' },
 ]
+
+
+const Vouchers = computed(()=>[
+  {label:t('configuration.extra_charge.auto_general'),value:'auto_general'},
+  {label:t('configuration.extra_charge.auto_private'),value:'auto_private'},
+  {label:t('configuration.extra_charge.manual'),value:'manual'},
+])
+const ChargeApply = computed(()=>[
+  {label:t('configuration.extra_charge.per_quantity'),value:'per_quantity'},
+  {label:t('configuration.extra_charge.per_night'),value:'per_night'},
+  {label:t('configuration.extra_charge.per_stayl'),value:'per_stay'},
+])
+const ChargeApplyOn = computed(()=>[
+  {label:t('configuration.extra_charge.only_on_check_in'),value:'only_on_check_in'},
+  {label:t('configuration.extra_charge.daily'),value:'daily'},
+  {label:t('configuration.extra_charge.on_checkout'),value:'on_checkout'},
+])
+
 
 const actions: Action[] = [
   { label: t('edit'), variant: 'primary', handler: (item: any) => editExtraCharge(item),icon:Edit },
@@ -427,7 +422,7 @@ const saveExtraCharge = async () => {
       if (res.status === 200 || res.status === 201) {
         toast.success(t('configuration.extra_charge.save_extra_charge') + t('successfully'));
         closeModal()
-        await loadata()
+        await loadata(1)
       } else {
         toast.error(t('something_went_wrong'))
       }

@@ -676,8 +676,8 @@ export const deleteCurrencyById = (id: number): Promise<AxiosResponse<any>> => {
  * Get all payment methods
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getPaymentMethods = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/payment_methods`, getHeaders())
+export const getPaymentMethods = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/payment_methods`, {...getHeaders(),params})
 }
 /**
  * Post a new payment method
