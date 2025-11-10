@@ -104,7 +104,7 @@
                 {{ t('configuration.extra_charge.rate_inclusive_tax') }}
               </label>
               <input v-model="formData.rateInclusiveTax" type="number" step="0.01" readonly
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 focus:ring-blue-500 focus:border-blue-500"
+                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                 :placeholder="t('configuration.extra_charge.rate_inclusive_tax_placeholder')" />
             </div>
 
@@ -141,6 +141,7 @@
               </div>
 
               <div class="mb-4">
+                <Select/>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ t('configuration.extra_charge.voucher_no') }}
                 </label>
@@ -231,10 +232,12 @@
      <ConfirmationModal
       v-model:show="showConfirmModal"
       :is-open="showConfirmModal"
-      :is-loading="isDeletingLoading"
+      :loading="isDeletingLoading"
       :title="t('configuration.extra_charge.confirm_delete_title')"
       :message="t('configuration.extra_charge.confirm_delete', { name: itemToDelete?.name || '' })"
       action="DANGER"
+      :confirm-text="$t('Confirm')"
+      :cancel-text="$t('Cancel')"
       @close="closeConfirmModal"
       @confirm="confirmDelete"
     />
@@ -254,9 +257,10 @@ import Plus from '../../../icons/Plus.vue'
 import { getExtraCharges, getTaxes, postExtraCharge, updateExtraChargeById,deleteExtraChargeById } from '../../../services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { Save } from 'lucide-vue-next'
+import { Edit, Save, Trash2 } from 'lucide-vue-next'
 import TablePagination from '@/components/tables/TablePagination.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import Select from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()
 
@@ -282,8 +286,8 @@ const columns: Column[] = [
 ]
 
 const actions: Action[] = [
-  { label: t('edit'), variant: 'primary', handler: (item: any) => editExtraCharge(item) },
-  { label: t('delete'), variant: 'danger', handler: (item: any) => deleteExtraCharge(item) }
+  { label: t('edit'), variant: 'primary', handler: (item: any) => editExtraCharge(item),icon:Edit },
+  { label: t('delete'), variant: 'danger', handler: (item: any) => deleteExtraCharge(item),icon:Trash2 }
 ]
 
 const formData = reactive({
@@ -451,7 +455,8 @@ const confirmDelete = async () => {
 
     if (response.status === 200 || response.status === 204) {
       toast.success(t('configuration.extra_charge.delete_success') || t('Extra charge deleted successfully'))
-      await loadata()
+       closeConfirmModal()
+      await loadata(1)
     } else {
       toast.error(t('configuration.extra_charge.delete_error') || t('Error deleting extra charge'))
     }
@@ -460,7 +465,6 @@ const confirmDelete = async () => {
     toast.error(t('something_went_wrong'))
   } finally {
     isDeletingLoading.value = false
-    closeConfirmModal()
   }
 }
 
@@ -515,7 +519,6 @@ const fetchTaxes = async () => {
     console.log("taxes",taxes.value)
   } catch (error) {
     console.error('Error fetching taxes:', error)
-    toast.error(t('configuration.tax.fetch_error'))
   }
 }
 

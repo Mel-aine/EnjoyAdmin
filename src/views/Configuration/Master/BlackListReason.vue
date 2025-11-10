@@ -116,8 +116,8 @@
 
      <ConfirmationModal
         v-model:show="showDeleteModal"
-        :title="t('confirmDelete')"
-        :message="t('youaresure')"
+        :title="t('configuration.blacklist_reason.delete_title')"
+        :message="t('configuration.blacklist_reason.delete_message',{ name : deleteItemId?.reason})"
         :confirm-text="$t('Confirm')"
         :cancel-text="$t('Cancel')"
         variant="danger"

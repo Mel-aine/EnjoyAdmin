@@ -720,8 +720,8 @@ export const deletePaymentMethodById = (id: number): Promise<AxiosResponse<any>>
  * Get all identity types
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getIdentityTypes = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/identity_types`, getHeaders())
+export const getIdentityTypes = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/identity_types`, {...getHeaders(),params})
 }
 /**
  * Post a new identity type
@@ -771,8 +771,8 @@ export const getIdentityTypesByHotelId = (hotelId: number): Promise<AxiosRespons
  * Get all reasons
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getReasons = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/reasons`, getHeaders())
+export const getReasons = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/reasons`, {...getHeaders(),params})
 }
 
 /**
@@ -824,8 +824,8 @@ export const deleteReasonById = (id: number): Promise<AxiosResponse<any>> => {
  * Get all discounts
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getDiscounts = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/discounts`, getHeaders())
+export const getDiscounts = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/discounts`, {...getHeaders(),params})
 }
 /**
  * Post a new discount
@@ -866,8 +866,8 @@ export const deleteDiscountById = (id: number): Promise<AxiosResponse<any>> => {
  * Get all transportation modes
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getTransportationModes = (hotelId:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/transportation_modes?hotelId=${hotelId}`, getHeaders())
+export const getTransportationModes = (hotelId:number,params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/transportation_modes?hotelId=${hotelId}`, {...getHeaders(),params})
 }
 /**
  * Post a new transportation mode
@@ -910,8 +910,8 @@ export const deleteTransportationModeById = (id: number): Promise<AxiosResponse<
  * Get all payout reasons
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getPayoutReasons = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/payout_reasons`, getHeaders())
+export const getPayoutReasons = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/payout_reasons`, {...getHeaders(),params})
 }
 
 /**
@@ -958,8 +958,8 @@ export const deletePayoutReasonById = (id: number): Promise<AxiosResponse<any>> 
  * Get all template categories
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getTemplateCategories = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/template_categories`, getHeaders())
+export const getTemplateCategories = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/template_categories`, {...getHeaders(),params})
 }
 
 /**
@@ -1331,8 +1331,8 @@ export const deleteBusinessSourceById = (id: number): Promise<AxiosResponse<any>
  * Get all business sources
  * @returns {Promise<AxiosResponse<any>>}
  */
-export const getBookingSources = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/booking_sources`, getHeaders())
+export const getBookingSources = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/booking_sources`, {...getHeaders(),params})
 }
 
 /**

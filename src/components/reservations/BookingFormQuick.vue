@@ -663,8 +663,8 @@ onMounted(() => {
                           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                               {{ $t('nights') }}
                           </label>
-                          <input type="text" id="id" disabled :value="numberOfNights.toString()"
-                              class="dark:bg-dark-900 h-11 w-full rounded-none  bg-black text-white px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
+                          <span
+                              class="dark:bg-dark-900 h-11 w-full rounded-none  bg-black text-white px-2 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">{{ numberOfNights }}</span>
                         </div>
 
                       <!-- Check-Out -->
