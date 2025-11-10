@@ -1418,8 +1418,6 @@ const loadDraft = async () => {
   }
 }
 onMounted(async () => {
-  await initialize()
-
   const draftLoaded = await loadDraft()
 
   if (!draftLoaded) {
@@ -1429,6 +1427,8 @@ onMounted(async () => {
     console.log('Draft loaded and components updated')
   }
 })
+
+initialize()
 </script>
 
 <style scoped>
