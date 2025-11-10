@@ -1328,7 +1328,7 @@ export const deleteBusinessSourceById = (id: number): Promise<AxiosResponse<any>
 // this section is for booking source
 
 /**
- * Get all booking source
+ * Get all business sources
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getBookingSources = (): Promise<AxiosResponse<any>> => {
@@ -1336,14 +1336,52 @@ export const getBookingSources = (): Promise<AxiosResponse<any>> => {
 }
 
 /**
- * Get all booking source by hotel
+ * Get all business sources by hotel
  * @returns {Promise<AxiosResponse<any>>}
  */
 export const getBookingSourcesByHotelId = (hotelId: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL()}/booking_sources?hotelId=${hotelId}`, getHeaders())
 }
-// this section is for Extra Charge
 
+/**
+ * Post a new business source
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const postBookingSource = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL()}/booking_sources`, data, getHeaders())
+}
+
+/**
+ * Get a business source by ID
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getBookingSourceById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/booking_sources/${id}`, getHeaders())
+}
+
+/**
+ * Update a business source
+ * @param id
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateBookingSourceById = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL()}/booking_sources/${id}`, data, getHeaders())
+}
+
+/**
+ * Delete a business source
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteBookingSourceById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL()}/booking_sources/${id}`, getHeaders())
+}
+
+
+// this section is for Extra Charge
 /**
  * Get all extra charges
  * @returns {Promise<AxiosResponse<any>>}
