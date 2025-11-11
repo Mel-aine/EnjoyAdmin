@@ -591,7 +591,7 @@
             class="flex flex-col sm:flex-row justify-end items-center border-t border-gray-300 px-6 py-4 gap-4"
           >
             <BasicButton
-              v-if="!showCheckinButton && !pendingReservation"
+              v-if="!showCheckinButton && !pendingReservation && noshowCancelButton "
               type="button"
               @click="goBack"
               :disabled="isLoading"
@@ -1097,6 +1097,7 @@ const useDropdownRoomType = ref(true)
 const useDropdownRateType = ref(true)
 const useDropdownRoom = ref(true)
 const useDropdownBooking = ref(true)
+const noshowCancelButton = ref(true)
 
 const submitted = ref(false)
 
@@ -1262,12 +1263,13 @@ const handleCheckIn = async () => {
 
       if (result) {
         handleCheckInComplete()
-        clearBooking()
+        noshowCancelButton.value = false
+        // clearBooking()
 
-        await router.push({
-          name: 'ReservationDetails',
-          params: { id: reservationId.value },
-        })
+        // await router.push({
+        //   name: 'ReservationDetails',
+        //   params: { id: reservationId.value },
+        // })
       }
     }
   } catch (error) {

@@ -64,6 +64,18 @@
         </div>
       </div>
     </div>
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('confirmDelete')"
+        :message="
+          t('Are you sure you want to delete this unit?')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -74,12 +86,13 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
-import { Plus } from 'lucide-vue-next'
+import { Edit, Plus, Trash2 } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getUnits, postUnit, updateUnitById, deleteUnitById } from '@/services/configrationApi'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 // Reactive data
 const { t } = useI18n()
@@ -88,9 +101,12 @@ const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 const loading = ref(false)
 const saving = ref(false)
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
 const toast = useToast()
 const serviceStore = useServiceStore()
 const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
 
 const formData = reactive({
   name: ''
@@ -108,12 +124,14 @@ const actions = computed<Action[]>(() => [
   {
     label: t('Edit'),
     handler: (item: any) => editUnit(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('Delete'),
-    handler: (item: any) => deleteUnit(item.id),
-    variant: 'danger'
+    handler: (item: any) => deleteUnit(item),
+    variant: 'danger',
+    icon:Trash2
   }
 ])
 
@@ -188,27 +206,33 @@ const saveUnit = async () => {
   }
 }
 
-const deleteUnit = async (id: number) => {
-  if (confirm(t('Are you sure you want to delete this unit?'))) {
+const deleteUnit =  (item: any) => {
+  deleteItem.value = item
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async() =>{
     try {
-      loading.value = true
-      await deleteUnitById(id)
+      isDeleting.value = true
+      await deleteUnitById(Number(deleteItem.value.id))
+      deleteItem.value = null
+      showDeleteModal.value = false
       toast.success(t('Unit deleted successfully'))
       await fetchUnits(1)
     } catch (error) {
       console.error('Error deleting unit:', error)
       toast.error(t('Failed to delete unit'))
     } finally {
-      loading.value = false
+      isDeleting.value = false
     }
-  }
+
 }
 
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     editUnit(item)
   } else if (action === 'delete') {
-    deleteUnit(item.id)
+    deleteUnit(item)
   }
 }
 

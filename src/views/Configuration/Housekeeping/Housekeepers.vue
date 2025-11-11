@@ -109,7 +109,18 @@
         </div>
       </div>
     </div>
-
+      <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('confirmDelete')"
+        :message="
+          t('Are you sure you want to delete this housekeeper?')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -120,7 +131,7 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
-import { Edit, Plus, Save } from 'lucide-vue-next'
+import { Edit, Plus, Save, Trash2 } from 'lucide-vue-next'
 import type { Action, Column } from '../../../utils/models'
 import InputPhone from '../../../components/forms/FormElements/InputPhone.vue'
 import Spinner from '@/components/spinner/Spinner.vue'
@@ -133,6 +144,7 @@ import {
   deleteHousekeeperById
 } from '@/services/configrationApi'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 // Reactive data
 const { t } = useI18n()
@@ -142,8 +154,11 @@ const editingId = ref<number | null>(null)
 const isLoading = ref(false)
 const serviceStore = useServiceStore()
 const isSaving = ref(false)
+const isDeleting = ref(false)
+const showDeleteModal = ref(false)
 const toast = useToast()
 const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
 
 const formData = reactive({
   name: '',
@@ -163,12 +178,14 @@ const actions = computed<Action[]>(() => [
   {
     label: t('Edit'),
     handler: (item: any) => editHousekeeper(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('Delete'),
-    handler: (item: any) => deleteHousekeeper(item.id),
-    variant: 'danger'
+    handler: (item: any) => deleteHousekeeper(item),
+    variant: 'danger',
+    icon:Trash2
   }
 ])
 
@@ -265,18 +282,23 @@ const saveHousekeeper = async () => {
   }
 }
 
-const deleteHousekeeper = async (id: number) => {
+const deleteHousekeeper =  (item: any) => {
+  deleteItem.value = item
+  showDeleteModal.value = true
+}
+const confirmDelete = async() =>{
   try {
-    if (!confirm(t('Are you sure you want to delete this housekeeper?'))) return
-    isLoading.value = true
-    await deleteHousekeeperById(id)
+    isDeleting.value = true
+    await deleteHousekeeperById(deleteItem.value.id)
+     deleteItem.value = null
+    showDeleteModal.value = false
     toast.success(t('Housekeeper deleted successfully'))
     await fetchHousekeepers(1)
   } catch (e) {
     console.error('Failed to delete housekeeper', e)
     toast.error(t('Failed to delete housekeeper'))
   } finally {
-    isLoading.value = false
+    isDeleting.value = false
   }
 }
 

@@ -7240,6 +7240,7 @@
   "info": "Information",
   "guest": "Guest",
   "child": "Child",
+  "Child": "Child",
   "children": "Children",
   "infant": "Infant",
   "infants": "Infants",
@@ -8127,5 +8128,8 @@
   "Selected": "selected",
   "AddressInformation": "Address Information",
   "BasicInformation": "Basic Information",
-  "front_office": "Front Office"
+  "front_office": "Front Office",
+  "true" : "True",
+  "false" : "False",
+  "suffix" : "Suffixe"
 }

@@ -151,7 +151,7 @@ const {t} = useI18n()
 const columns :Column[] = [
   { key: 'name', label: t('Name'), type: 'text' },
   { key: 'shortCode', label: t('Short Code'), type: 'text' },
-  { key: 'status', label: t('Status'), type: 'badge' },
+  { key: 'status', label: t('Status'), type: 'badge', translatable:true },
 ]
 
 const actions = [
