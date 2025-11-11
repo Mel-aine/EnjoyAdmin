@@ -27,16 +27,16 @@
            <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt )}}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
         </ReusableTable>
@@ -125,6 +125,7 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import Plus from '../../../icons/Plus.vue'
 import { Trash2 , Edit } from 'lucide-vue-next'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 // Edit and Save icons removed as they're no longer used in the template
 
 const { t } = useI18n()

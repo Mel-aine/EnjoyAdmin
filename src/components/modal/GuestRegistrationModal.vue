@@ -336,7 +336,7 @@
               </div>
             </button>
 
-            <div v-show="showIdentitySection" class="mt-6 transition-all duration-300 ease-in-out">
+            <div v-show="showIdentitySection" class="mt-2 transition-all duration-300 ease-in-out">
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <Select :lb="$t('IDType')" v-model="formData.idType" :options="idTypeOptions"
@@ -658,7 +658,7 @@ const fetchIdentityTypes = async () => {
 
     const res = await getIdentityTypesByHotelId(hotelId)
 
-    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+    idTypeOptions.value = res.data.data.data.map((type: any): RichSelectOption => {
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {

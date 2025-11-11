@@ -1640,7 +1640,7 @@ export function useBooking() {
       ...getRoomExtraInfo(room.id),
     }))
   })
-
+const formDataKey = ref(Date.now())
   const resetForm = () => {
     clearBooking()
     // Reset reservation data
@@ -1785,6 +1785,7 @@ export function useBooking() {
     // Clear upload tracking
     pendingUploads.value.clear()
     uploadErrors.value = []
+    formDataKey.value = Date.now()
   }
 
   // Initialize
@@ -2231,6 +2232,7 @@ export function useBooking() {
     holdReleaseData,
     isExtraChargesIncluded,
     getChildOptions,
-    getAdultOptions
+    getAdultOptions,
+    formDataKey
   }
 }

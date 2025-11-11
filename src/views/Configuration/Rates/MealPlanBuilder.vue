@@ -121,6 +121,17 @@
         </div>
       </div>
     </div>
+     <ConfirmationModal
+        v-model:show="show"
+        :title="$t('confirmDelete')"
+        :message="$t('deleteMealPlan',{message:deleteItem?.name})"
+        :confirm-text="$t('delete')"
+        :cancel-text="$t('cancel')"
+        variant="danger"
+        :loading="loadingDelete"
+        @confirm="confirmDelete"
+        @cancel="show = false"
+      />
   </ConfigurationLayout>
 
 </template>
@@ -138,14 +149,18 @@ import { getExtraCharges, getMealPlans, postMealPlan, updateMealPlanById, delete
 import type { Column } from '../../../utils/models'
 import InputExtractChargeSelect from '@/components/reservations/foglio/InputExtractChargeSelect.vue'
 import { useI18n } from 'vue-i18n'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const toast = useToast()
 
 // Table state
 const isLoading = ref(false)
+const show = ref(false)
+const loadingDelete = ref(false)
 const mealPlans = ref<any[]>([])
 const selectedMealPlans = ref<any[]>([])
 const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
 const {t} = useI18n()
 
 const columns :Column[] = [
@@ -343,21 +358,23 @@ const editMealPlan = (item: any) => {
 
 }
 
-const deleteMealPlan = async (item: any) => {
-  if (!item?.id) {
-    toast.error(t('Invalid meal plan item'))
-    return
-  }
-  // const confirmed = window.confirm(`Delete meal plan "${item.name}"? This cannot be undone.`)
-  const confirmed = window.confirm(t('deleteMealPlan',{message:item.name}))
-  if (!confirmed) return
+const deleteMealPlan =  (item: any) => {
+  deleteItem.value = item
+  show.value = true
+}
+  const confirmDelete = async() =>{
   try {
-    await deleteMealPlanById(item.id)
+    loadingDelete.value = true
+    await deleteMealPlanById(deleteItem.value.id)
+     deleteItem.value = null
+    show.value = false
     toast.success(t('Meal plan deleted'))
     await fetchMealPlans(1)
   } catch (e) {
     console.error('Failed to delete meal plan', e)
     toast.error(t('Failed to delete meal plan'))
+  }finally{
+    loadingDelete.value = false
   }
 }
 

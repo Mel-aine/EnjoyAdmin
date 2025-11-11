@@ -72,6 +72,7 @@ const toggleDropdown = () => {
 // not the last selected currency.
 const resolveDefaultCurrency = (): string => {
     const list = currencyStore.getCurrencies || []
+    console.log('list',list)
     const def = list.find((c: any) => c.isDefault) || list[0]
     return def?.currencyCode || 'XAF'
 }

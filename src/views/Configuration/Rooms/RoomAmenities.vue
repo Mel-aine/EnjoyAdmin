@@ -1,18 +1,30 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-
-
       <!-- Amenities Table using ReusableTable -->
-      <ReusableTable :title="t('amenitiesList')" :columns="columns" :data="amenities" :actions="actions"
-        :search-placeholder="t('searchAmenities')" :selectable="false" :empty-state-title="t('noAmenitiesFound')"
-        :empty-state-message="t('getStartedByAdding')" @selection-change="onSelectionChange" @page-change="handlePageChange" :meta="paginationMeta"
-        @action="onAction" :loading="loading">
+      <ReusableTable
+        :title="t('amenitiesList')"
+        :columns="columns"
+        :data="amenities"
+        :actions="actions"
+        :search-placeholder="t('searchAmenities')"
+        :selectable="false"
+        :empty-state-title="t('noAmenitiesFound')"
+        :empty-state-message="t('getStartedByAdding')"
+        @selection-change="onSelectionChange"
+        @page-change="handlePageChange"
+        :meta="paginationMeta"
+        @action="onAction"
+        :loading="loading"
+      >
         <template #header-actions>
           <BasicButton @click="showAddModal = true" :label="t('addAmenity')" :icon="Plus">
           </BasicButton>
-          <button v-if="selectedAmenities.length > 0" @click="deleteSelected"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
+          <button
+            v-if="selectedAmenities.length > 0"
+            @click="deleteSelected"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2"
+          >
             <Trash2 class="w-4 h-4" />
             <span>{{ t('deleteSelected') }} ({{ selectedAmenities.length }})</span>
           </button>
@@ -21,27 +33,43 @@
         <!-- Custom column for created/modified info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser.firstName }}</div>
-            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt )}}</div>
+            <div class="text-sm text-gray-900 dark:text-white">
+              {{ item.createdByUser.fullName }}
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">
+              {{ formatDateT(item.createdAt) }}
+            </div>
           </div>
         </template>
 
         <template #column-status="{ item }">
-            <div class="text-sm text-gray-900 dark:text-white rounded-full bg-green-100 inline-flex px-2">{{ $t(`${item.status}`) }}</div>
+          <div
+            class="text-sm text-green-600 dark:text-white rounded-full bg-green-100 inline-flex px-2"
+          >
+            {{ $t(`${item.status}`) }}
+          </div>
         </template>
 
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser.firstName }}</div>
-            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">
+              {{ item.updatedByUser.fullName }}
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">
+              {{ formatDateT(item.updatedAt) }}
+            </div>
           </div>
         </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
-      <div v-if="showAddModal || showEditModal"
-        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 dark:border-gray-700 border rounded-lg p-6 w-full max-w-md mx-4">
+      <div
+        v-if="showAddModal || showEditModal"
+        class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50"
+      >
+        <div
+          class="bg-white dark:bg-gray-800 dark:border-gray-700 border rounded-lg p-6 w-full max-w-md mx-4"
+        >
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ showAddModal ? t('addNewAmenity') : t('editAmenity') }}
           </h3>
@@ -64,7 +92,7 @@
               :options="[
                 { value: 'Room', label: t('room') },
                 { value: 'Hotel', label: t('hotel') },
-                { value: 'Both', label: t('both') }
+                { value: 'Both', label: t('both') },
               ]"
               class="w-full"
             />
@@ -81,9 +109,7 @@
             <Select
               :lb="t('status')"
               v-model="formData.status"
-              :options="[
-                { value: 'Available', label: t('available') },
-              ]"
+              :options="[{ value: 'Available', label: t('available') }]"
               class="w-full"
             />
 
@@ -98,7 +124,9 @@
               <BasicButton
                 type="submit"
                 variant="primary"
-                :label="isLoading ? t('saving') + '...' : showAddModal ? t('addAmenities') : t('update')"
+                :label="
+                  isLoading ? t('saving') + '...' : showAddModal ? t('addAmenities') : t('update')
+                "
                 :loading="isLoading"
               />
             </div>
@@ -106,6 +134,25 @@
         </div>
       </div>
     </div>
+
+    <ConfirmationModal
+      v-model:show="showDeleteConfirmation"
+      :title="$t('confirmDeleteTitle')"
+      :message="
+        t('confirmDeleteAmenity', {
+          name: amenitieToDelete?.amenityName,
+        })
+      "
+      :confirm-text="$t('delete')"
+      :cancel-text="$t('cancel')"
+      variant="danger"
+      :loading="isDeletingLoading"
+      @confirm="confirmDelete"
+      @cancel="
+        showDeleteConfirmation = false;
+        amenitieToDelete = null
+      "
+    />
   </ConfigurationLayout>
 </template>
 
@@ -117,11 +164,17 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { Plus, Edit, Trash2, X } from 'lucide-vue-next'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { getAmenities, postAmenity, updateAmenity, deleteAmenity as deleteAmenityAPI } from '../../../services/configrationApi'
+import {
+  getAmenities,
+  postAmenity,
+  updateAmenity,
+  deleteAmenity as deleteAmenityAPI,
+} from '../../../services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useI18n } from 'vue-i18n'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const serviceStore = useServiceStore()
 const { t } = useI18n()
@@ -131,16 +184,19 @@ const showAddModal = ref(false)
 const showEditModal = ref(false)
 const selectedAmenities = ref([])
 const editingAmenity = ref(null)
+const amenitieToDelete = ref(null)
 const isLoading = ref(false)
-const loading =ref(false);
-const toast = useToast();
+const showDeleteConfirmation = ref(false)
+const isDeletingLoading = ref(false)
+const loading = ref(false)
+const toast = useToast()
 const paginationMeta = ref({})
 // Form data
 const formData = ref({
   name: '',
   type: '',
   sortKey: 0,
-  status: 'Available'
+  status: 'Available',
 })
 
 // Table configuration
@@ -149,78 +205,90 @@ const columns = ref([
     key: 'amenityName',
     label: t('amenityName'),
     sortable: true,
-    searchable: true
+    searchable: true,
   },
   {
     key: 'amenityType',
     label: t('amenityType'),
-    sortable: true
+    sortable: true,
   },
   {
     key: 'sortKey',
     label: t('sortKey'),
-    sortable: true
+    sortable: true,
   },
   {
     key: 'createdInfo',
     label: t('createdBy'),
     sortable: false,
-    type: 'custom'
+    type: 'custom',
   },
   {
     key: 'modifiedInfo',
     label: t('modifiedBy'),
     sortable: false,
-    type: 'custom'
+    type: 'custom',
   },
   {
     key: 'status',
     label: t('status'),
     sortable: true,
-     type: 'custom'
-  }
+    type: 'custom',
+  },
 ])
 const editAmenity = (amenity) => {
   editingAmenity.value = amenity
-  console.log('data',amenity)
+  console.log('data', amenity)
   formData.value = {
     name: amenity.amenityName,
     type: amenity.amenityType,
     sortKey: amenity.sortKey,
-    status: amenity.status
+    status: amenity.status,
   }
   showEditModal.value = true
 }
 
-const handleDeleteAmenity = async (id) => {
-  if (confirm(t('confirmDeleteAmenity'))) {
+const handleDeleteAmenity =  (item) => {
+  amenitieToDelete.value = item
+  showDeleteConfirmation.value = true
+}
+
+const confirmDelete = async() =>{
+
     try {
-      const response = await deleteAmenityAPI(id);
+      isDeletingLoading.value = true
+      const response = await deleteAmenityAPI(amenitieToDelete.value.id)
       if (response.status === 200 || response.status === 204) {
-        loadData(1);
-        toast.success(t('amenityDeletedSuccess'));
+        amenitieToDelete.value = null
+        showDeleteConfirmation.value = false
+        loadData(1)
+        toast.success(t('amenityDeletedSuccess'))
       } else {
-        toast.error(t('failedToDeleteAmenity'));
+        toast.error(t('failedToDeleteAmenity'))
       }
     } catch (error) {
-      console.error('Error deleting amenity:', error);
-      toast.error(t('errorDeletingAmenity'));
+      console.error('Error deleting amenity:', error)
+      toast.error(t('errorDeletingAmenity'))
+    }finally{
+      isDeletingLoading.value = false
     }
-  }
+
 }
 const actions = ref([
   {
     label: t('edit'),
     icon: 'edit',
     variant: 'primary',
-    handler: (item)=>editAmenity(item)
+    handler: (item) => editAmenity(item),
+    icon: Edit,
   },
   {
     label: t('delete'),
     icon: 'delete',
     variant: 'danger',
-    handler: (item)=>handleDeleteAmenity(item.id)
-  }
+    handler: (item) => handleDeleteAmenity(item),
+    icon: Trash2,
+  },
 ])
 
 // Reactive data
@@ -235,31 +303,29 @@ const onAction = (action, item) => {
   if (action === 'edit') {
     editAmenity(item)
   } else if (action === 'delete') {
-    handleDeleteAmenity(item.id)
+    handleDeleteAmenity(item)
   }
 }
 
-
-
 const deleteSelected = async () => {
-  const count = selectedAmenities.value.length;
+  const count = selectedAmenities.value.length
   if (confirm(t('confirmDeleteSelected', { count }))) {
     try {
-      const deletePromises = selectedAmenities.value.map(id => deleteAmenityAPI(id));
-      await Promise.all(deletePromises);
-      loadData(1);
-      selectedAmenities.value = [];
-      toast.success(t('amenitiesDeletedSuccess', { count }));
+      const deletePromises = selectedAmenities.value.map((id) => deleteAmenityAPI(id))
+      await Promise.all(deletePromises)
+      loadData(1)
+      selectedAmenities.value = []
+      toast.success(t('amenitiesDeletedSuccess', { count }))
     } catch (error) {
-      console.error('Error deleting amenities:', error);
-      toast.error(t('errorDeletingSelectedAmenities'));
+      console.error('Error deleting amenities:', error)
+      toast.error(t('errorDeletingSelectedAmenities'))
     }
   }
 }
 
 const saveAmenity = async () => {
   try {
-    isLoading.value = true;
+    isLoading.value = true
 
     if (showAddModal.value) {
       // Add new amenity
@@ -268,70 +334,71 @@ const saveAmenity = async () => {
         amenityType: formData.value.type,
         sortKey: formData.value.sortKey,
         status: formData.value.status,
-        hotelId: serviceStore.serviceId
+        hotelId: serviceStore.serviceId,
       }
-      const resp = await postAmenity(newAmenity);
-      console.log(resp);
+      const resp = await postAmenity(newAmenity)
+      console.log(resp)
       if (resp.status === 200 || resp.status === 201) {
-        toast.success(t('amenityAddedSuccess'));
-        loadData(1);
+        closeModal()
+        toast.success(t('amenityAddedSuccess'))
+        loadData(1)
       } else {
         toast.error(t('somethingWentWrong'))
       }
       amenities.value.push(newAmenity)
     } else {
       // Update existing amenity
-      const index = amenities.value.findIndex(amenity => amenity.id === editingAmenity.value.id)
+      const index = amenities.value.findIndex((amenity) => amenity.id === editingAmenity.value.id)
       if (index !== -1) {
         const amenity = {
           name: formData.value.name,
           type: formData.value.type,
           sortKey: formData.value.sortKey,
-          status: formData.value.status
+          status: formData.value.status,
         }
-        const resp = await updateAmenity(editingAmenity.value.id, amenity);
-        console.log(resp);
+        const resp = await updateAmenity(editingAmenity.value.id, amenity)
+        console.log(resp)
         if (resp.status === 200 || resp.status === 201) {
-          loadData(1);
+          closeModal()
+          loadData(1)
           toast.success(t('amenityUpdatedSuccess'))
         } else {
           toast.error(t('somethingWentWrong'))
         }
       }
     }
-    closeModal()
+
   } catch (error) {
-    console.error('Error saving amenity:', error);
-    toast.error(t('errorSavingAmenity'));
+    console.error('Error saving amenity:', error)
+    toast.error(t('errorSavingAmenity'))
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
-const loadData = async (pageNumber=1) => {
-  loading.value = true;
+const loadData = async (pageNumber = 1) => {
+  loading.value = true
   try {
-    const response = await getAmenities({page:pageNumber,limit:10});
-    console.log(response);
+    const response = await getAmenities({ page: pageNumber, limit: 10 })
+    console.log(response)
     if (response.status === 200) {
-      amenities.value = response.data.data.data.map((item)=>{
+      amenities.value = response.data.data.data.map((item) => {
         return {
           ...item,
         }
-      });
+      })
       paginationMeta.value = response.data.data.meta
     } else {
-      toast.error(t('failedToLoadAmenities'));
+      toast.error(t('failedToLoadAmenities'))
     }
   } catch (error) {
-    console.error('Error loading amenities:', error);
-    toast.error(t('errorLoadingAmenities'));
-  }
-  finally {
+    console.error('Error loading amenities:', error)
+    toast.error(t('errorLoadingAmenities'))
+  } finally {
     loading.value = false
   }
 }
 
-const handlePageChange = (newPage) =>{
+const handlePageChange = (newPage) => {
   loadData(newPage)
 }
 const closeModal = () => {
@@ -342,8 +409,8 @@ const closeModal = () => {
     name: '',
     type: '',
     sortKey: 0,
-    status: 'Available'
+    status: 'Available',
   }
 }
-loadData(1);
+loadData(1)
 </script>

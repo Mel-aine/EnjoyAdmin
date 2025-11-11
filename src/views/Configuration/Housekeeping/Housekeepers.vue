@@ -55,7 +55,7 @@
 
           <template #column-status="{ item }">
             <div>
-              <div class="text-sm text-gray-900 dark:text-white">{{ $t(`${item.status}`) }}</div>
+              <div class="text-sm text-green-600 dark:text-white rounded-full bg-green-100 inline-flex px-2">{{ $t(`${item.status}`) }}</div>
             </div>
           </template>
       </ReusableTable>

@@ -52,15 +52,15 @@
 <!-- Custom column for created info -->
           <template #column-createdInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
-              <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatDateT(item.updatedAt) }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.creator?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatDateT(item.createdAt) }}</div>
             </div>
           </template>
 
           <!-- Custom column for modified info -->
           <template #column-modifiedInfo="{ item }">
             <div>
-              <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.modifier?.fullName }}</div>
               <div class="text-xs text-gray-400 dark:text-gray-500">{{ formatDateT(item.updatedAt) }}</div>
             </div>
           </template>
@@ -277,6 +277,18 @@
         </div>
       </div>
     </div>
+
+     <ConfirmationModal
+        v-model:show="show"
+        :title="$t('confirmDelete')"
+        :message="$t('confirmDeleteRoomRate', { roomType: deleteItem?.roomType.roomTypeName, rateType: deleteItem?.rateType.rateTypeName })"
+        :confirm-text="$t('delete')"
+        :cancel-text="$t('cancel')"
+        variant="danger"
+        :loading="loadingDelete"
+        @confirm="confirmDelete"
+        @cancel="show = false ; deleteItem = null"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -291,11 +303,12 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import CheckboxInput from '@/components/forms/FormElements/InputCheckBox.vue'
-import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
+import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 import { getBusinessSources, getRateTypes, getRoomTypes, getSeasons, postRoomRate, updateRoomRateById, deleteRoomRateById, getRoomRates } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { format } from 'date-fns'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 // Load meal plans
 import { getMealPlans } from '../../../services/configrationApi'
 const { t } = useI18n()
@@ -304,10 +317,13 @@ const toast = useToast()
 // Reactive data
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const show = ref(false)
+const loadingDelete = ref(false)
 const editingRoomRate = ref(null)
 const selectedRoomRates = ref([])
 const serviceStore = useServiceStore()
 const paginationMeta = ref()
+const deleteItem = ref()
 
 // Loading states
 const isLoading = ref(false)
@@ -452,15 +468,18 @@ const editRoomRate = (roomRate) => {
   showEditModal.value = true
 }
 
-const deleteRoomRate = async (roomRate) => {
-  if (confirm(t('confirmDeleteRoomRate', { roomType: roomRate.roomType.roomTypeName, rateType: roomRate.rateType.rateTypeName }))) {
+const deleteRoomRate =  (roomRate) => {
+deleteItem.value = roomRate
+show.value = true
+
+}
+  const confirmDelete = async() =>{
+
     try {
-      isLoading.value = true
-      await deleteRoomRateById(roomRate.id)
-      const index = roomRates.value.findIndex(r => r.id === roomRate.id)
-      if (index > -1) {
-        roomRates.value.splice(index, 1)
-      }
+      loadingDelete.value = true
+      await deleteRoomRateById(deleteItem.value.id)
+      deleteItem.value = null
+      show.value = false
       await fetchRoomRates(1)
       toast.success(t('roomRateDeletedSuccessfully'))
     } catch (error) {
@@ -470,7 +489,7 @@ const deleteRoomRate = async (roomRate) => {
       isLoading.value = false
     }
   }
-}
+
 
 // Actions configuration
 const actions = ref([
@@ -482,7 +501,7 @@ const actions = ref([
   {
     label: t('delete'),
     handler: (item) => onAction('delete', item),
-    icon: Trash,
+    icon: Trash2,
     variant: 'danger'
   }
 ])
@@ -602,10 +621,10 @@ const saveRoomRate = async () => {
 
       toast.success(t('roomRateUpdated'))
     }
-
+     closeModal()
     // Refresh the room rates list after successful save/update
     await fetchRoomRates(1)
-    closeModal()
+
   } catch (error) {
     console.error('Error saving room rate:', error)
     toast.error(t('errorSavingRoomRate'))

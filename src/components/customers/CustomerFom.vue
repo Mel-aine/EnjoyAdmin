@@ -806,7 +806,7 @@ const fetchIdentityTypes = async () => {
 
     const res = await getIdentityTypesByHotelId(hotelId)
 
-    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+    idTypeOptions.value = res.data.data.data.map((type: any): RichSelectOption => {
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {

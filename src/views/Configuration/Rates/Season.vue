@@ -166,14 +166,17 @@
       </div>
 
       <!-- Delete Season Confirmation Modal -->
-      <ModalConfirmation
-        v-if="showDeleteConfirmation"
-        @close="showDeleteConfirmation = false; seasonToDelete = null"
-        @confirm="confirmDeleteSeason"
-        :isLoading="isDeletingLoading"
-        :action="'DANGER'"
-        :title="t('confirmDeleteTitle')"
+
+       <ConfirmationModal
+        v-model:show="showDeleteConfirmation"
+        :title="$t('confirmDelete')"
         :message="t('confirmDeleteSeason', { seasonName: seasonToDelete?.seasonName || '' })"
+        :confirm-text="$t('delete')"
+        :cancel-text="$t('cancel')"
+        variant="danger"
+        :loading="isDeletingLoading"
+        @confirm="confirmDeleteSeason"
+        @cancel="showDeleteConfirmation = false; seasonToDelete = null"
       />
 
       <!-- Delete Selected Seasons Confirmation Modal -->
@@ -200,10 +203,11 @@ import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
-import { getSeasons, postSeason, updateSeasonById } from '@/services/configrationApi'
+import { getSeasons, postSeason, updateSeasonById ,deleteSeasonById } from '@/services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 // Reactive data
 const showAddModal = ref(false)
@@ -322,20 +326,19 @@ const deleteSeason = (season) => {
 const confirmDeleteSeason = async () => {
   if (!seasonToDelete.value) return
 
-  isDeletingLoading.value = true
   try {
-    const index = seasons.value.findIndex(s => s.id === seasonToDelete.value.id)
-    if (index > -1) {
-      seasons.value.splice(index, 1)
+      isDeletingLoading.value = true
+      await deleteSeasonById(seasonToDelete.value.id)
+       showDeleteConfirmation.value = false
+      seasonToDelete.value = null
       toast.success(t('seasonDeletedSuccessfully'))
-    }
+      loadData(1)
   } catch (error) {
     console.error('Error deleting season:', error)
     toast.error(t('errorDeletingSeason'))
   } finally {
     isDeletingLoading.value = false
-    showDeleteConfirmation.value = false
-    seasonToDelete.value = null
+
   }
 }
 
@@ -349,8 +352,8 @@ const actions = computed(() => [
   {
     label: t('delete'),
     handler: deleteSeason,
-    icon: Trash,
-    class: 'text-red-600 hover:text-red-800'
+    icon: Trash2,
+    variant: 'danger'
   }
 ])
 
@@ -411,14 +414,16 @@ const saveSeason = async () => {
       }
       await postSeason(newSeason)
       toast.success(t('seasonAddedSuccessfully'))
+       closeModal()
       await loadData(1)
     } else {
       // Update existing season
       await updateSeasonById(editingSeason.value.id, formData.value)
       toast.success(t('seasonUpdatedSuccessfully'))
+       closeModal()
       await loadData(1)
     }
-    closeModal()
+
   } catch (error) {
     console.error('Error saving season:', error)
     if (showAddModal.value) {
