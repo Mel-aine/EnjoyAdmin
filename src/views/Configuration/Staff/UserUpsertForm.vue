@@ -437,7 +437,7 @@ const updateFormData = async () => {
     const roleLabel = selectedRole ? selectedRole.label : ''
 
     if (!userId.value) {
-      toast.error('Aucun utilisateur sélectionné pour la mise à jour.')
+      toast.error(t('No user selected for the update.'))
       return
     }
 
@@ -532,13 +532,13 @@ onMounted(async () => {
               </h1>
             </div>
             <div class="flex items-center space-x-3">
-              <BasicButton 
-              type="button" 
-              variant="outline" 
-              @click="goBack" 
+              <BasicButton
+              type="button"
+              variant="outline"
+              @click="goBack"
               :label="$t('cancel')"
             />
-              
+
               <button
                 @click="handleSubmit"
                 :disabled="isLoading || isLoadingUser"
@@ -572,7 +572,7 @@ onMounted(async () => {
                       <!-- Basic Information -->
                       <div>
                         <h3 class="text-lg font-medium text-gray-800 dark:text-gray-100 mb-6">
-                          {{ t('Basic Information') }}
+                          {{ t('BasicInformation') }}
                         </h3>
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                           <Input
@@ -726,7 +726,7 @@ onMounted(async () => {
                       <!-- Address Information -->
                       <div class="border-t pt-8">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
-                          {{ t('Address Information') }}
+                          {{ t('AddressInformation') }}
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                           <div class="col-span-4">
@@ -861,13 +861,13 @@ onMounted(async () => {
                                 {{ category.category }}
                               </h4>
                               <span class="text-sm text-gray-500 dark:text-gray-400"
-                                >({{ category.items.length }} items)</span
+                                >({{ category.items.length }} {{ $t('items') }})</span
                               >
                             </div>
                             <div class="flex items-center space-x-2">
                               <span class="text-sm text-gray-500 dark:text-gray-400">
                                 {{ getSelectedCountPrivileges(category.category) }} /
-                                {{ category.items.length }} selected
+                                {{ category.items.length }} {{ $t('Selected') }}
                               </span>
                               <ChevronDown
                                 :class="[
@@ -965,13 +965,13 @@ onMounted(async () => {
                                 {{ category.category }}
                               </h4>
                               <span class="text-sm text-gray-500 dark:text-gray-400 "
-                                >({{ category.items.length }} items)</span
+                                >({{ category.items.length }} {{ $t('items') }} )</span
                               >
                             </div>
                             <div class="flex items-center space-x-2">
                               <span class="text-sm text-gray-500 dark:text-gray-400">
                                 {{ getSelectedCountReports(category.category) }} /
-                                {{ category.items.length }} selected
+                                {{ category.items.length }} {{ $t('Selected') }}
                               </span>
                               <ChevronDown
                                 :class="[

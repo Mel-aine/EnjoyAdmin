@@ -352,7 +352,9 @@ const handleSubmit = async () => {
            toast.success(props.isEditMode ? t('discountUpdatedSuccessfully') : t('discountAppliedSuccessfully'))
           closeModal()
         } else {
-          const errorMessage = responseDiscount?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} charge. Please try again.`
+          const errorMessage = responseDiscount?.message || t('Discountes.error.generic', {
+            action: props.isEditMode ? t('commons.update') : t('commons.add')
+          })
           toast.error(errorMessage)
         }
 

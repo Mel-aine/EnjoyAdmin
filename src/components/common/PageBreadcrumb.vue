@@ -59,10 +59,10 @@ const { t } = useI18n()
 const computedBreadcrumbs = computed(() => {
   if (!props.breadcrumb || props.breadcrumb.length === 0) {
     return [
-      { label: t('Home'), href: '/dashboard' },
+      { label: t('Home'), href: '/front-office/dashboard' },
       { label: props.pageTitle }
     ]
   }
-  return [{ label: t('Home'), href: '/dashboard' }, ...props.breadcrumb]
+  return [{ label: t('Home'), href: '/front-office/dashboard' }, ...props.breadcrumb]
 })
 </script>

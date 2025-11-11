@@ -1,7 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="space-y-6">
-  
+
 
       <!-- Table -->
       <ReusableTable
@@ -12,18 +12,29 @@
         :search-placeholder="t('configuration.payout_reasons.search_placeholder')"
         :selectable="false"
         :loading="loading"
-        :empty-state-title="t('configuration.payout_reasons.no_data_title')"
-        :empty-state-message="t('configuration.payout_reasons.no_data_message')"
+        :empty-state-title="t('configuration.payout_reasons.empty_state_title')"
+        :empty-state-message="t('configuration.payout_reasons.empty_state_message')"
         @action="handleAction"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
       >
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
+          <BasicButton
+            variant="primary"
             @click="openAddModal"
             :icon="Plus"
             :label="t('configuration.payout_reasons.add_payout_reason')"
             :disabled="loading"
           />
+        </template>
+        <template #column-status = "{item}">
+          <span :class="[
+            'text-sm rounded-full px-2',
+            item.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+          ]">
+            {{ $t(`${item.status}`) }}
+          </span>
+
         </template>
       </ReusableTable>
     </div>
@@ -34,7 +45,7 @@
         <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           {{ isEditing ? t('configuration.payout_reasons.edit_payout_reason') : t('configuration.payout_reasons.add_payout_reason') }}
         </h2>
-        
+
         <form @submit.prevent="savePayout">
           <div class="space-y-4">
             <div>
@@ -47,7 +58,7 @@
                 required
               />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('configuration.payout_reasons.description') }}
@@ -57,7 +68,7 @@
                 :placeholder="t('configuration.payout_reasons.description_placeholder')"
               />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('configuration.payout_reasons.category') }}
@@ -69,7 +80,7 @@
                 required
               />
             </div>
-            
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ t('configuration.payout_reasons.status') }}
@@ -82,7 +93,7 @@
               />
             </div>
           </div>
-          
+
           <div class="flex justify-end space-x-3 pt-4">
             <BasicButton
               type="button"
@@ -101,6 +112,18 @@
         </form>
       </div>
     </div>
+
+    <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('configuration.payout_reasons.delete_title')"
+        :message="t('configuration.payout_reasons.delete_confirm', { name : deleteItem?.reason })"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -114,6 +137,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 import {
   getPayoutReasons,
@@ -129,11 +153,15 @@ const serviceStore = useServiceStore()
 
 // Reactive data
 const showModal = ref(false)
+const showDeleteModal = ref(false)
 const isEditing = ref(false)
 const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
+const isDeleting = ref(false)
 const payoutReasons = ref([])
+const deleteItem = ref(null)
+const paginationMeta = ref(null)
 
 // Form data
 const formData = reactive({
@@ -185,11 +213,7 @@ const columns = computed(() => [
     key: 'status',
     label: t('configuration.payout_reasons.status'),
     sortable: true,
-    type: 'badge',
-    badgeColors: {
-      'active': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-      'inactive': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-    }
+    type: 'custom',
   },
   {
     key: 'createdAt',
@@ -215,11 +239,12 @@ const actions = computed(() => [
 ])
 
 // API Functions
-const fetchPayoutReasons = async () => {
+const fetchPayoutReasons = async (pageNumber=1) => {
   loading.value = true
   try {
-    const response = await getPayoutReasons(serviceStore.serviceId)
+    const response = await getPayoutReasons({page:pageNumber,limit:10})
     payoutReasons.value = response.data.data || []
+    paginationMeta.value = response.data.meta || []
   } catch (error) {
     console.error('Error fetching payout reasons:', error)
     toast.error(t('toast.fetchError'))
@@ -238,33 +263,43 @@ const savePayout = async () => {
 
     if (isEditing.value) {
       await updatePayoutReasonById(editingId.value, payload)
-      toast.success(t('toast.updateSuccess'))
+      toast.success(t('toast.SucessUpdate'))
     } else {
       await postPayoutReason(payload)
-      toast.success(t('toast.createSuccess'))
+      toast.success(t('toast.SuccessCreated'))
     }
-    loseModal()
-    await fetchPayoutReasons()
+    closeModal()
+    await fetchPayoutReasons(1)
   } catch (error) {
     console.error('Error saving payout reason:', error)
-    toast.error(t('toast.saveError'))
+    toast.error(t('toast.ErrorCreated'))
   } finally {
     saving.value = false
   }
 }
 
-const deletePayout = async (item) => {
-  if (confirm(t('common.deleteConfirmation', { name: item.name }))) {
-    try {
-      await deletePayoutReasonById(item.id)
-      toast.success(t('toast.deleteSuccess'))
-      await fetchPayoutReasons()
-    } catch (error) {
+const deletePayout = (item) => {
+  deleteItem.value = item
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async() =>{
+  try {
+    isDeleting.value = true
+    await deletePayoutReasonById(Number(deleteItem.value.id))
+    deleteItem.value = null
+    showDeleteModal.value = false
+    toast.success(t('toast.DeletedSuccess'))
+    await fetchPayoutReasons(1)
+  } catch (error) {
       console.error('Error deleting payout reason:', error)
-      toast.error(t('toast.deleteError'))
-    }
+      toast.error(t('toast.deleteErrors'))
+  }finally{
+    isDeleting.value = false
   }
 }
+
+
 
 // Modal functions
 const openAddModal = () => {
@@ -308,8 +343,12 @@ const handleAction = (action, item) => {
   }
 }
 
+const handlePageChange = (page) =>{
+  fetchPayoutReasons(page)
+}
+
 // Initialize data
 onMounted(() => {
-  fetchPayoutReasons()
+  fetchPayoutReasons(1)
 })
 </script>

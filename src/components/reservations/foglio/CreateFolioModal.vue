@@ -1,7 +1,7 @@
 <template>
-    <RightSideModal :is-open="isOpen" :title="$t('New Folio')" @close="closeModal">
+    <RightSideModal :is-open="isOpen" :title="$t('NewFolio')" @close="closeModal">
         <template #header>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('New Folio') }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('NewFolio') }}</h3>
         </template>
 
         <!-- Form -->
@@ -9,12 +9,12 @@
             <!-- Guest Selection -->
             <div>
                 <Select v-model="formData.guestId" :options="guestOptions" :lb="$t('Guest') + ' *'"
-                    :placeholder="$t('Select Guest')" />
+                    :placeholder="$t('SelectGuest')" />
             </div>
 
             <!-- GSTIN No -->
             <div>
-                <Input v-model="formData.gstinNo" type="text" :lb="$t('GSTIN No')" placeholder="Enter GSTIN Number" />
+                <Input v-model="formData.gstinNo" type="text" :lb="$t('GSTINNo')" :placeholder="$t('Enter GSTIN Number')" />
             </div>
 
             <!-- Show Tariff on Print Folio -->
@@ -26,11 +26,11 @@
                 </label>
             </div>
 
-            <!-- Post Commission to TA on Guest Checkout 
+            <!-- Post Commission to TA on Guest Checkout
       <div class="flex items-center">
-        <input 
-          v-model="formData.postCommissionToTA" 
-          type="checkbox" 
+        <input
+          v-model="formData.postCommissionToTA"
+          type="checkbox"
           id="postCommissionToTA"
           class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
         />
@@ -39,11 +39,11 @@
         </label>
       </div>
 -->
-            <!-- Generate Invoice Number On Post Checkout 
+            <!-- Generate Invoice Number On Post Checkout
       <div class="flex items-center">
-        <input 
-          v-model="formData.generateInvoiceNumber" 
-          type="checkbox" 
+        <input
+          v-model="formData.generateInvoiceNumber"
+          type="checkbox"
           id="generateInvoiceNumber"
           class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
         />
@@ -61,7 +61,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Notes') }}</label>
                 <textarea v-model="formData.notes" rows="3"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-500"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-500"
                     :placeholder="$t('Enter any additional notes...')"></textarea>
             </div>
         </div>

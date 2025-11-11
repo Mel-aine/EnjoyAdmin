@@ -59,7 +59,7 @@
           <component :is="isDarkMode ? Sun : Moon" class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
           <span
             class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
-            {{ isDarkMode ? 'Thème clair' : 'Mode sombre' }}
+            {{ isDarkMode ? $t('clearTheme') : $t('darkMode') }}
           </span>
         </button>
         <NotificationMenu />
@@ -104,27 +104,27 @@ const menuItems = ref([
   },
   {
     path: '/configuration/channel-manager/inventory-channel-booking',
-    title: 'Inventory',
+    title: 'configuration.channelManager.inventory',
     icon: markRaw(BoxCubeIcon)
   },
   {
     path: '/configuration/channel-manager/channels-booking',
-    title: 'Booking',
+    title: 'configuration.channelManager.booking',
     icon: markRaw(CalenderIcon)
   },
   {
     path: '/configuration/channel-manager/rooms-rates',
-    title: 'Room & Rates',
+    title: 'configuration.channelManager.roomsRates',
     icon: markRaw(RatesIcon)
   },
   {
     path: '/configuration/channel-manager/channel-manager',
-    title: 'Channels',
+    title: 'configuration.channelManager.channels',
     icon: markRaw(ConnectionIcon)
   },
   {
     path: '/configuration/channel-manager/properties',
-    title: 'Properties',
+    title: 'configuration.channelManager.properties',
     icon: markRaw(GridIcon)
   }
 ])

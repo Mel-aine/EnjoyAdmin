@@ -46,7 +46,7 @@
             @click.stop="handleGroupClick(groupName)"
             class="px-4 py-2.5 cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center justify-between"
           >
-            <span>{{ groupName }}</span>
+            <span>{{ $t(`restrictions.groups.${groupName}`) }}</span>
             <!-- <svg
               v-if="isGroupSelected(groupName)"
               class="w-4 h-4 text-purple-500 dark:text-purple-400"
@@ -69,7 +69,7 @@
             class="px-4 py-2.5 cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center justify-between "
             :class="{'bg-purple-50 dark:bg-gray-800': selectedFilters.includes(filter)}"
           >
-            <span>{{ filter }}</span>
+            <span>{{ $t(`restrictions.${filter}`) }}</span>
             <svg
               v-if="selectedFilters.includes(filter)"
               class="w-4 h-4 text-purple-500 dark:text-purple-400"
@@ -88,6 +88,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface FilterGroups {
   [key: string]: string[]
@@ -102,7 +103,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   isRequired: false,
-  modelValue: () => ['Rate And Availability'],
+  modelValue: () => ['Rate','Availability'],
   disabled: false
 })
 
@@ -114,6 +115,8 @@ const emit = defineEmits<{
 const isDropdownOpen = ref(false)
 const selectWrapper = ref<HTMLElement | null>(null)
 const selectedFilters = ref<string[]>([...props.modelValue])
+const {t} = useI18n()
+
 
 // Définition des groupes de filtres
 const filterGroups: FilterGroups = {
@@ -133,7 +136,7 @@ const filterGroups: FilterGroups = {
     'Availability'
   ],
   'Rate And Availability': [
-    'Rate',
+    'Rate','Availability'
   ]
 }
 
@@ -152,20 +155,23 @@ const allIndividualFilters = [
 
 // Label à afficher dans le select
 const displayLabel = computed(() => {
-  if (selectedFilters.value.length === 0) return 'Sélectionner des filtres'
+  if (selectedFilters.value.length === 0)
+    return t('restrictions.select_filters')
 
-  // Vérifier si c'est un groupe prédéfini
-  for (const [groupName, filters] of Object.entries(filterGroups)) {
+  for (const [groupKey, filters] of Object.entries(filterGroups)) {
     const sorted1 = [...filters].sort().join(',')
     const sorted2 = [...selectedFilters.value].sort().join(',')
     if (sorted1 === sorted2) {
-      return groupName
+      return t(`restrictions.groups.${groupKey}`)
     }
   }
 
-  if (selectedFilters.value.length === 1) return selectedFilters.value[0]
-  return `${selectedFilters.value.length} restrictions`
+  if (selectedFilters.value.length === 1)
+    return t(`restrictions.${selectedFilters.value[0]}`)
+
+  return `${selectedFilters.value.length} ${t('restrictions.multiple_restrictions')}`
 })
+
 
 // Vérifier si un groupe est sélectionné
 const isGroupSelected = (groupName: string | number): boolean => {

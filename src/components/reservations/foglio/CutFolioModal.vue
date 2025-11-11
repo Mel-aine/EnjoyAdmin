@@ -17,44 +17,44 @@
                                     aria-label="Close panel" />
                             </div>
                         </div>
-                        
+
                         <!-- Content -->
                         <div class="flex-1 px-4 py-6 space-y-4 dark:text-gray-100">
-                            <Toggle 
+                            <Toggle
                                 :title="$t('all')"
                                 v-model="toggleStates.all"
                                 @update:modelValue="onAllToggleChange"
                             />
-                            <Toggle 
-                                :title="$t('Room charges')"
+                            <Toggle
+                                :title="$t('RoomCharges')"
                                 v-model="toggleStates.roomCharges"
                                 @update:modelValue="onIndividualToggleChange"
                             />
-                            <Toggle 
-                                :title="$t('Extract charges')"
+                            <Toggle
+                                :title="$t('ExtraCharges')"
                                 v-model="toggleStates.extractCharges"
                                 @update:modelValue="onIndividualToggleChange"
                             />
-                            <Toggle 
+                            <Toggle
                                 :title="$t('Payment(Bank,cash & city ledger)')"
                                 v-model="toggleStates.payment"
                                 @update:modelValue="onIndividualToggleChange"
                             />
                         </div>
-                        
+
                         <!-- Footer -->
                         <div class="border-t border-gray-200 bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-900">
                             <div class="flex justify-end space-x-2">
-                                <BasicButton 
-                                    variant="secondary" 
-                                    @click="closeModal" 
+                                <BasicButton
+                                    variant="secondary"
+                                    @click="closeModal"
                                     :label="$t('Cancel')"
                                     :disabled="isLoading"
                                 />
-                                <BasicButton 
-                                    variant="primary" 
+                                <BasicButton
+                                    variant="primary"
                                     @click="cutFolioTransaction"
-                                    :label="isLoading ? $t('Processing') + '...' : $t('save')" 
+                                    :label="isLoading ? $t('Processing') + '...' : $t('save')"
                                     :disabled="isLoading || !hasToggleSelection"
                                     :loading="isLoading"
                                 />
@@ -167,7 +167,7 @@ const cutFolioTransaction = async () => {
         }
 
         const response = await cutFolioHandler(payload)
-        
+
         if (response && response.data) {
             toast.success(t('cutFolioSuccess'))
             closeModal();

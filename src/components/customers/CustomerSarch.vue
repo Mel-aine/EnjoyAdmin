@@ -110,7 +110,7 @@ const selectCustomer = (customer: any) => {
 const fetchCustomers = async () => {
   try {
     isLoading.value = true;
-    const serviceId = serviceStore.serviceId; 
+    const serviceId = serviceStore.serviceId;
     const response = await getGuests({ hotel_id: serviceId!,search: searchQuery.value});
     console.log('Fetched customers:', response);
     customers.value = response.data?.data.data?.map((c: any) => {

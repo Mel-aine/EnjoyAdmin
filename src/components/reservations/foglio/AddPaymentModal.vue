@@ -19,7 +19,7 @@
       <!-- Rec/Vou # -->
       <div>
         <Input v-model="formData.recVouNumber" type="text" :lb="$t('Rec/Vou #')"
-          placeholder="Enter receipt/voucher number" :disabled="true" />
+          :placeholder="$t('Enter receipt/voucher number')" :disabled="true" />
       </div>
 
       <div class="grid grid-cols-2 gap-4">
@@ -36,7 +36,7 @@
 
       <!-- Amount -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Amount') }}</label>
         <div class="flex space-x-2">
           <div class="flex-2">
             <InputCurrency
@@ -49,10 +49,10 @@
 
       <!-- Comment -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comment</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Comment') }}</label>
         <textarea v-model="formData.comment" rows="3"
           class="w-full px-3 py-2 border rounded-lg border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-          placeholder="Enter any additional comments..."></textarea>
+          :placeholder="$t('Enter any additional comments...')"></textarea>
       </div>
     </div>
 
@@ -108,6 +108,7 @@ const serviceStore = useServiceStore()
 const toast = useToast()
 const { t } = useI18n()
 
+
 const typeOptions = computed(() => {
   const canCityLedgerPay = useAuthStore().hasPermission('access_to_transfer_charges_to_city_ledger')
   return [
@@ -140,6 +141,7 @@ const initializeFormData = () => {
     currency: 'XAF',
     comment: ''
   })
+  methodeSelected.value = null
 
   if (props.reservationData) {
     if (props.reservationData.payment_type) {
@@ -167,6 +169,14 @@ const loadPaymentData = () => {
     formData.method = payment.paymentMethodId || 0
     formData.currency = payment.currencyCode 
     formData.comment = payment.notes || payment.description || ''
+
+    if (payment.paymentMethod) {
+      methodeSelected.value = {
+        id: payment.paymentMethodId,
+        methodName: payment.paymentMethod.name || payment.paymentMethod.methodName || 'Unknown',
+        ...payment.paymentMethod
+      }
+    }
 
   }
 }
@@ -209,14 +219,14 @@ const savePayment = async () => {
 
   try {
     isSaving.value = true
-
+     const methodName = methodeSelected.value?.methodName || methodeSelected.value?.name || 'Payment'
     // Prepare transaction data for API with safe numeric conversion
     const transactionData:any = {
       folioId: safeParseInt(formData.folio),
       transactionType: 'payment',
       //transactionCategory: formData.type,
       category: 'payment',
-      description: `Payment - ${methodeSelected.value.methodName}`,
+      description: `Payment - ${methodName}`,
       amount: prepareFolioAmount(formData.amount),
       reference: formData.recVouNumber,
       notes: formData.comment,
@@ -244,7 +254,9 @@ const savePayment = async () => {
            toast.success(props.isEditMode ? t('UpdateSuccessfully') : t('Payment saved successfully'))
           closeModal()
         } else {
-          const errorMessage = response?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} payment. Please try again.`
+          const errorMessage = response?.message || t('payments.error.generic', {
+            action: props.isEditMode ? t('commons.update') : t('commons.add')
+          })
           toast.error(errorMessage)
         }
 
@@ -276,7 +288,7 @@ const savePayment = async () => {
     closeModal()
   } catch (error) {
     console.error('Error saving payment:', error)
-    toast.error('Failed to save payment. Please try again.')
+    toast.error(t('Failed to save payment. Please try again.'))
   } finally {
     isSaving.value = false
   }

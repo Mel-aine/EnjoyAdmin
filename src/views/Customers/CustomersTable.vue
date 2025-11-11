@@ -44,7 +44,7 @@
                 <i :class="`lucide-${item.vipStatuses.icon.toLowerCase()}`" class="mr-1"></i>
                 {{ item.vipStatuses.name }}
               </span>
-              <span v-else class="text-gray-400 text-xs">No status</span>
+              <span v-else class="text-gray-400 text-xs">{{ $t('No status') }}</span>
             </template>
 
           </ReusableTable>
@@ -73,17 +73,17 @@
     />
 
     <!-- Delete Confirmation Modal -->
-    <ModalConfirmation
-      v-if="showDeleteModal"
-      :is-loading="deleting"
-      :title="$t('guestDatabase.delete_title')"
-      :message="
-        $t('guestDatabase.delete_confirm_message', { name: customerToDelete?.userFullName })
-      "
-      action="DANGER"
-      @close="closeDeleteModal"
-      @confirm="confirmDeleteCustomer"
-    />
+        <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="$t('guestDatabase.delete_title')"
+        :message=" $t('guestDatabase.delete_confirm_message', { name: customerToDelete?.userFullName })"
+        :confirm-text="$t('Delete')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="deleting"
+        @confirm="confirmDeleteCustomer"
+        @cancel="closeDeleteModal"
+      />
 
 </template>
 
@@ -110,6 +110,7 @@ import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import BlackListGuestModal from '@/components/customers/BlackListGuestModal.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
 import TablePagination from '@/components/tables/TablePagination.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 
 const { t } = useI18n()
@@ -168,7 +169,7 @@ const columns = computed(() => [
   },
   {
     key: 'addressLine',
-    label: t('address'),
+    label: t('Address'),
     type: 'text' as const,
     sortable: true,
     translatable: true,
@@ -376,7 +377,7 @@ const handleEditCustomer = async (payload: any) => {
     const customerId = selectedCustomer.value?.id
 
     if (!customerId) {
-      throw new Error('ID du client manquant')
+      throw new Error(t('guestDatabase.customerIdMissing'))
     }
 
     console.log('Mise à jour du client:', customerId, data)
@@ -467,7 +468,7 @@ const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: bo
   try {
     blacklisting.value = true
     const payload =
-      data.reason || (data.blacklisted ? 'Raison non spécifiée' : 'Retiré de la liste noire')
+      data.reason || (data.blacklisted ? t('guestDatabase.unspecifiedReason') : t('guestDatabase.removedFromBlacklist'))
 
     await toggleGuestBlacklist(customerToBlacklist.value.id, payload)
 

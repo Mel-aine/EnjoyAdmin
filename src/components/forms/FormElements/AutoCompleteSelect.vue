@@ -1,6 +1,6 @@
 <template>
   <div ref="selectWrapper" class="w-full">
-    <label for="autocomplete_select" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+    <label for="autocomplete_select" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 truncate"
       :class="isDropdownOpen ? 'text-brand-500' : 'text-gray-500'">
       {{ lb }}
       <span v-if="isRequired" class="text-red-500">*</span>

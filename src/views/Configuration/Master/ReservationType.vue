@@ -6,7 +6,7 @@
         :actions="actions" :search-placeholder="t('configuration.reservation_type.search_placeholder')"
         :selectable="false" :empty-state-title="t('configuration.reservation_type.empty_state_title')"
         :empty-state-message="t('configuration.reservation_type.empty_state_message')" :loading="loading"
-        @action="onAction">
+        @action="onAction" :meta="paginationMeta" @page-change="handlePageChange">
         <template #header-actions>
           <BasicButton variant="primary" :icon="PlusIcon"
             :label="t('configuration.reservation_type.add_reservation_type')" @click="openAddModal" />
@@ -54,12 +54,19 @@
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation v-if="showDeleteConfirmation"
+
+
+        <ConfirmationModal
+        v-model:show="showDeleteConfirmation"
         :title="t('configuration.reservation_type.delete_confirmation_title')"
         :message="t('configuration.reservation_type.delete_confirmation_message')"
-        :confirm-text="t('configuration.reservation_type.delete')"
-        :cancel-text="t('configuration.reservation_type.cancel')" @confirm="deleteReservationType"
-        @close="showDeleteConfirmation = false; reservationTypeToDelete = null" />
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="deleteReservationType"
+        @cancel="showDeleteConfirmation = false"
+      />
     </div>
   </ConfigurationLayout>
 </template>
@@ -73,6 +80,7 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { Action, Column } from '../../../utils/models'
 // Icons removed as they're no longer used in the template
@@ -84,6 +92,7 @@ import {
 } from '@/services/configrationApi'
 import PlusIcon from '../../../icons/Plus.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 // Initialize composables
 const { t } = useI18n()
@@ -97,7 +106,9 @@ const editingId = ref<number | null>(null)
 const loading = ref(false)
 const saving = ref(false)
 const showDeleteConfirmation = ref(false)
+const isDeleting = ref(false)
 const reservationTypeToDelete = ref<any>(null)
+const paginationMeta = ref<any>(null)
 
 const reservationTypes = ref<any[]>([])
 
@@ -119,21 +130,24 @@ const actions = computed((): Action[] => [
   {
     label: t('configuration.reservation_type.edit'),
     handler: (item: any) => editReservationType(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('configuration.reservation_type.delete'),
     handler: (item: any) => confirmDeleteReservationType(item),
-    variant: 'danger'
+    variant: 'danger',
+    icon:Trash2
   }
 ])
 
 // API Functions
-const fetchReservationTypes = async () => {
+const fetchReservationTypes = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getReservationTypes()
+    const response = await getReservationTypes({page:pageNumber,limit:10})
     reservationTypes.value = response.data.data.data
+    paginationMeta.value = response.data.data.meta
   } catch (error) {
     console.error('Error fetching reservation types:', error)
     toast.error(t('configuration.reservation_type.fetch_error'))
@@ -191,7 +205,7 @@ const saveReservationType = async () => {
     }
 
     closeModal()
-    await fetchReservationTypes()
+    await fetchReservationTypes(1)
   } catch (error) {
     console.error('Error saving reservation type:', error)
     toast.error(t('configuration.reservation_type.save_error'))
@@ -209,14 +223,18 @@ const deleteReservationType = async () => {
   if (!reservationTypeToDelete.value) return
 
   try {
+    isDeleting.value = true
     await deleteReservationTypeById(reservationTypeToDelete.value.id)
     toast.success(t('configuration.reservation_type.delete_success'))
     showDeleteConfirmation.value = false
     reservationTypeToDelete.value = null
-    await fetchReservationTypes()
+    await fetchReservationTypes(1)
   } catch (error) {
     console.error('Error deleting reservation type:', error)
     toast.error(t('configuration.reservation_type.delete_error'))
+  }finally{
+    isDeleting.value = false
+    reservationTypeToDelete.value = null
   }
 }
 
@@ -228,8 +246,12 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:any) =>{
+  fetchReservationTypes(page)
+}
+
 // Mount hook
 onMounted(() => {
-  fetchReservationTypes()
+  fetchReservationTypes(1)
 })
 </script>

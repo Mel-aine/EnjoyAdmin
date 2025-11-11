@@ -12,10 +12,12 @@
         :empty-state-message="$t('configuration.discount.empty_state_message')"
         :loading="loading"
         @action="onAction"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
       >
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
+          <BasicButton
+            variant="primary"
             :icon="Plus"
             :label="$t('configuration.discount.add_discount')"
             @click="openAddModal"
@@ -25,12 +27,12 @@
  <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.creator?.fullName }}</div>
             <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.createdAt }}</div>
           </div>
         </template>
         <template #column-status="{ item }">
-          <span 
+          <span
             :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
           >
@@ -39,11 +41,11 @@
         </template>
 
         <template #column-openDiscount="{ item }">
-          <span 
+          <span
             :class="item.openDiscount ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'"
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
           >
-            {{ item.openDiscount ? 'Yes' : 'No' }}
+            {{ item.openDiscount ? $t('yes') : $t('no') }}
           </span>
         </template>
       </ReusableTable>
@@ -54,18 +56,18 @@
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             {{ isEditing ? $t('configuration.discount.edit_discount') : $t('configuration.discount.add_new_discount') }}
           </h3>
-          
+
           <form @submit.prevent="saveDiscount" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input 
+              <Input
                 :lb="$t('configuration.discount.short_code')"
                 :inputType="'text'"
                 :isRequired="true"
                 v-model="formData.shortCode"
                 :placeholder="$t('configuration.discount.short_code_placeholder')"
               />
-              
-              <Input 
+
+              <Input
                 :lb="$t('configuration.discount.discount_name')"
                 :inputType="'text'"
                 :isRequired="true"
@@ -73,17 +75,17 @@
                 :placeholder="$t('configuration.discount.discount_name_placeholder')"
               />
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Select 
+              <Select
                 :lb="$t('configuration.discount.type')"
                 :isRequired="true"
                 v-model="formData.type"
                 :options="typeOptions"
                 :defaultValue="$t('configuration.discount.select_type')"
               />
-              
-              <Input 
+
+              <Input
                 :lb="$t('configuration.discount.value')"
                 :inputType="'number'"
                 :isRequired="true"
@@ -93,17 +95,17 @@
                 :max="formData.type === 'percentage' ? 100 : undefined"
               />
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Select 
+              <Select
                 :lb="$t('configuration.discount.apply_on')"
                 :isRequired="true"
                 v-model="formData.applyOn"
                 :options="applyOnOptions"
                 :defaultValue="$t('configuration.discount.select_application')"
               />
-              
-              <Select 
+
+              <Select
                 :lb="$t('configuration.discount.status')"
                 :isRequired="true"
                 v-model="formData.status"
@@ -111,11 +113,11 @@
                 :defaultValue="$t('configuration.discount.select_status')"
               />
             </div>
-            
+
             <div class="flex items-center space-x-2">
-              <input 
-                type="checkbox" 
-                id="openDiscount" 
+              <input
+                type="checkbox"
+                id="openDiscount"
                 v-model="formData.openDiscount"
                 class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-700 text-blue-600 focus:ring-blue-500"
               />
@@ -123,19 +125,19 @@
                 {{ $t('configuration.discount.open_discount_label') }}
               </label>
             </div>
-            
-            
+
+
            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="$t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="$t('cancel')"
                 :disabled="saving"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isEditing ? $t('configuration.discount.update_discount') : $t('configuration.discount.save_discount')"
                 :loading="saving"
               />
@@ -144,6 +146,18 @@
         </div>
       </div>
     </div>
+
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('configuration.discount.delete_title')"
+        :message="t('configuration.discount.delete_confirm',{ name : deleteItem?.name})"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -159,12 +173,14 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import type { Action, Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import {
   getDiscounts,
   postDiscount,
   updateDiscountById,
   deleteDiscountById
 } from '@/services/configrationApi'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -174,6 +190,8 @@ const serviceStore = useServiceStore()
 const showModal = ref(false)
 const isEditing = ref(false)
 const loading = ref(false)
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
 const saving = ref(false)
 
 const formData = ref({
@@ -188,7 +206,8 @@ const formData = ref({
 })
 
 const discounts = ref<any[]>([])
-
+const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
 
 
 // Options with translations
@@ -220,16 +239,17 @@ const columns = computed<Column[]>(() => [
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('edit'), handler: (item: any) => editDiscount(item), variant: 'primary' },
-  { label: t('delete'), handler: (item: any) => deleteDiscount(item), variant: 'danger' }
+  { label: t('edit'), handler: (item: any) => editDiscount(item), variant: 'primary',icon:Edit },
+  { label: t('delete'), handler: (item: any) => deleteDiscount(item), variant: 'danger',icon:Trash2 }
 ])
 
 // Fetch discounts from API
-const fetchDiscounts = async () => {
+const fetchDiscounts = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getDiscounts()
+    const response = await getDiscounts({page:pageNumber,limit:10})
     discounts.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
   } catch (error) {
     console.error('Error fetching discounts:', error)
     toast.error(t('configuration.discount.fetch_error'))
@@ -291,7 +311,7 @@ const saveDiscount = async () => {
     }
     closeModal()
 
-    await fetchDiscounts()
+    await fetchDiscounts(1)
   } catch (error) {
     console.error('Error saving discount:', error)
     toast.error(t('configuration.discount.save_error'))
@@ -301,20 +321,26 @@ const saveDiscount = async () => {
 }
 
 const deleteDiscount = async (discount: any) => {
-  if (confirm(t('configuration.discount.delete_confirm'))) {
-    try {
-      loading.value = true
-      await deleteDiscountById(discount.id)
+  deleteItem.value = discount
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async() =>{
+  try {
+      isDeleting.value = true
+      await deleteDiscountById(Number(deleteItem.value.id))
+      deleteItem.value = null
+      showDeleteModal.value = false
       toast.success(t('configuration.discount.delete_success'))
-      await fetchDiscounts()
-    } catch (error) {
-      console.error('Error deleting discount:', error)
-      toast.error(t('configuration.discount.delete_error'))
-    } finally {
-      loading.value = false
-    }
+      await fetchDiscounts(1)
+  } catch (error) {
+    console.error('Error deleting discount:', error)
+    toast.error(t('configuration.discount.delete_error'))
+  }finally{
+    isDeleting.value = false
   }
 }
+
 
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
@@ -324,8 +350,12 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:number) =>{
+  fetchDiscounts(page)
+}
+
 // Load discounts on component mount
 onMounted(() => {
-  fetchDiscounts()
+  fetchDiscounts(1)
 })
 </script>

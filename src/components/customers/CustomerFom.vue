@@ -87,8 +87,8 @@
           <AutoCompleteSelect
             v-model="form.contactType"
             :options="TypesOfContact"
-            :defaultValue="$t('contactType')"
-            :lb="$t('contactType')"
+            :defaultValue="$t('contact_type')"
+            :lb="$t('contact_type')"
             :is-required="false"
             :use-dropdown="useDropdownBooking"
             @clear-error="emit('clear-error')"
@@ -806,7 +806,7 @@ const fetchIdentityTypes = async () => {
 
     const res = await getIdentityTypesByHotelId(hotelId)
 
-    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+    idTypeOptions.value = res.data.data.data.map((type: any): RichSelectOption => {
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {

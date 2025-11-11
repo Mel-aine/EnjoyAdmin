@@ -99,15 +99,30 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <ModalConfirmation v-if="showDeleteConfirmation" action="DANGER" :title="t('confirmDeleteTitle')"
-      :message="t('confirmDeleteRateType', { name: rateTypeToDelete?.rateTypeName || rateTypeToDelete?.rateType })"
-      :isLoading="isDeletingLoading" @close="showDeleteConfirmation = false; rateTypeToDelete = null"
-      @confirm="confirmDeleteRateType" />
+      <ConfirmationModal
+        v-model:show="showDeleteConfirmation"
+        :title="$t('confirmDeleteTitle')"
+        :message="t('confirmDeleteRateType', { name: rateTypeToDelete?.rateTypeName || rateTypeToDelete?.rateType })"
+        :confirm-text="$t('delete')"
+        :cancel-text="$t('cancel')"
+        variant="danger"
+        :loading="isDeletingLoading"
+        @confirm="confirmDeleteRateType"
+        @cancel="showDeleteConfirmation = false; rateTypeToDelete = null"
+      />
 
     <!-- Delete Selected Confirmation Modal -->
-    <ModalConfirmation v-if="showDeleteSelectedConfirmation" action="DANGER" :title="t('confirmDeleteTitle')"
-      :message="t('confirmDeleteSelectedRateTypes', { count: selectedRateTypes.length })" :isLoading="isDeletingLoading"
-      @close="showDeleteSelectedConfirmation = false" @confirm="confirmDeleteSelected" />
+       <ConfirmationModal
+        v-model:show="showDeleteSelectedConfirmation"
+        :title="$t('confirmDeleteTitle')"
+        :message="t('confirmDeleteSelectedRateTypes', { count: selectedRateTypes.length })" :isLoading="isDeletingLoading"
+        :confirm-text="$t('delete')"
+        :cancel-text="$t('cancel')"
+        variant="danger"
+        :loading="isDeletingLoading"
+        @confirm="confirmDeleteSelected"
+        @cancel="showDeleteSelectedConfirmation = false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -125,6 +140,7 @@ import { getRateTypes, postRateType, updateRateTypeById, getRoomTypes, deleteRat
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 // Reactive data
 const showAddModal = ref(false)
@@ -244,16 +260,18 @@ const confirmDeleteRateType = async () => {
 
   isDeletingLoading.value = true
   try {
-    const response = deleteRateTypeById(rateTypeToDelete.value.id)
+    const response = await deleteRateTypeById(rateTypeToDelete.value.id)
+    showDeleteConfirmation.value = false
+    rateTypeToDelete.value = null
     toast.success(t('rateTypeDeletedSuccessfully'))
+    await loadData(1)
 
   } catch (error) {
     console.error('Error deleting rate type:', error)
     toast.error(t('errorDeletingRateType'))
   } finally {
     isDeletingLoading.value = false
-    showDeleteConfirmation.value = false
-    rateTypeToDelete.value = null
+
   }
 }
 
@@ -262,12 +280,14 @@ const actions: Action[] = [
   {
     label: t('edit'),
     handler: editRateType,
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('delete'),
     handler: deleteRateType,
-    variant: 'danger'
+    variant: 'danger',
+    icon:Trash2
   }
 ]
 
@@ -299,7 +319,9 @@ const confirmDeleteSelected = async () => {
         rateTypes.value.splice(index, 1)
       }
     })
+
     toast.success(t('selectedRateTypesDeletedSuccessfully'))
+
     selectedRateTypes.value = []
   } catch (error) {
     console.error('Error deleting selected rate types:', error)
@@ -327,6 +349,7 @@ const saveRateType = async () => {
         hotelId: serviceStore.serviceId,
       }
       await postRateType(newRateType)
+      closeModal()
       toast.success(t('rateTypeAddedSuccessfully'))
       await loadData(1)
     } else {
@@ -339,10 +362,11 @@ const saveRateType = async () => {
       }
       console.log('Update data:', updateData)
       await updateRateTypeById(editingRateType.value.id, updateData)
+      closeModal()
       toast.success(t('rateTypeUpdatedSuccessfully'))
       await loadData(1)
     }
-    closeModal()
+
   } catch (error) {
     console.error('Error saving rate type:', error)
     if (showAddModal.value) {

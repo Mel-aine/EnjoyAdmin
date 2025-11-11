@@ -10,22 +10,27 @@
         :empty-title="$t('No currencies found')"
         :empty-description="$t('Start by adding your first currency.')"
         :loading="loading"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
         @action="onAction"
       >
       <template v-slot:header-actions>
-        <BasicButton 
-          variant="primary" 
-          @click="openAddModal" 
-          :icon="PlusIcon" 
+        <BasicButton
+          variant="primary"
+          @click="openAddModal"
+          :icon="PlusIcon"
           :label="$t('Add Currency')"
-          :loading="loading"
         />
       </template>
-        <template #isDefault="{ item }">
-          <span v-if="item.isDefault" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-            {{ $t('Default') }}
+        <template #column-isDefault="{ item }">
+          <span  :class="[
+            'inline-flex px-2 py-1 text-xs font-semibold rounded-full ',
+            item.isDefault == true ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+          ]">
+            {{ $t(`${item.isDefault}`) }}
           </span>
         </template>
+
       </ReusableTable>
     </div>
 
@@ -36,7 +41,7 @@
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
             {{ isEditing ? $t('Edit Currency') : $t('Add Currency') }}
           </h3>
-          
+
           <form @submit.prevent="saveCurrency">
                          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -47,45 +52,45 @@
                 @change="onCountryChange"
               />
             </div>
-            
+
             <div class="mb-4">
-              <Input 
-                v-model="formData.name" 
+              <Input
+                v-model="formData.name"
                 :lb="$t('Currency') "
-                inputType="text" 
+                inputType="text"
                 :isRequired="true"
                 :placeholder="$t('Enter currency name')"
               />
             </div>
-            
+
             <div class="mb-4">
-              <Input 
-                v-model="formData.sign" 
+              <Input
+                v-model="formData.sign"
                 :lb="$t('Sign')"
-                inputType="text" 
+                inputType="text"
                 :isRequired="true"
                 :placeholder="$t('Enter currency symbol')"
               />
             </div>
-            
+
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {{ $t('Prefix/Suffix') }} *
+                {{ $t('prefixSuffix') }} *
               </label>
               <div class="flex space-x-2">
                 <label class="flex items-center">
-                  <input 
-                    v-model="formData.prefixSuffix" 
-                    type="radio" 
+                  <input
+                    v-model="formData.prefixSuffix"
+                    type="radio"
                     value="prefix"
                     class="text-blue-600 focus:ring-blue-500"
                   />
                   <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Prefix') }}</span>
                 </label>
                 <label class="flex items-center">
-                  <input 
-                    v-model="formData.prefixSuffix" 
-                    type="radio" 
+                  <input
+                    v-model="formData.prefixSuffix"
+                    type="radio"
                     value="suffix"
                     class="text-blue-600 focus:ring-blue-500"
                   />
@@ -93,29 +98,29 @@
                 </label>
               </div>
             </div>
-            
+
             <div class="mb-4">
-              <Input 
-                v-model="formData.currencyCode" 
+              <Input
+                v-model="formData.currencyCode"
                 :lb="$t('Currency Code') + ' *'"
-                inputType="text" 
+                inputType="text"
                 :isRequired="true"
                 :placeholder="$t('Ex: USD (For United States)')"
               />
             </div>
-            
+
             <div class="mb-4">
-              <Input 
-                v-model="formData.digitsAfterDecimal" 
+              <Input
+                v-model="formData.digitsAfterDecimal"
                 :lb="$t('Digits after Decimal')"
-                inputType="number" 
+                inputType="number"
                 :min="0"
                 :max="4"
                 :isRequired="true"
                 :placeholder="$t('Enter digits after decimal')"
               />
             </div>
-            
+
             <div class="mb-4 col-span-2">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t('Exchange Rate') }}
@@ -123,23 +128,23 @@
               <div class="flex items-center space-x-2" >
                 <span class="text-sm text-gray-600 dark:text-gray-300">1</span>
                 <span class="text-sm text-gray-600 dark:text-gray-300">=</span>
-                <input 
-                  v-model="formData.exchangeRate" 
-                  type="number" 
+                <input
+                  v-model="formData.exchangeRate"
+                  type="number"
                   step="0.0001"
                   required
-                  class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  class="flex-1 dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                   :placeholder="$t('Enter exchange rate')"
                 />
                 <span class="text-sm text-gray-600 dark:text-gray-300">{{ $t('XAF') }}</span>
               </div>
             </div>
-            
+
             <div class="mb-4">
               <label class="flex items-center">
-                <input 
-                  v-model="formData.isDefault" 
-                  type="checkbox" 
+                <input
+                  v-model="formData.isDefault"
+                  type="checkbox"
                   class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-700 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
                 <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Set as default currency') }}</span>
@@ -147,17 +152,17 @@
             </div>
             </div>
             <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="$t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="$t('cancel')"
                 :disabled="saving"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
-                :label="isEditing ? $t('configuration.payment_method.update_payment_method') : $t('configuration.payment_method.save_payment_method')"
+              <BasicButton
+                type="submit"
+                variant="primary"
+                :label="isEditing ? $t('update') : $t('save')"
                 :loading="saving"
               />
             </div>
@@ -165,6 +170,19 @@
         </div>
       </div>
     </div>
+
+      <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('confirmDelete')"
+        :message="
+          t('Are you sure you want to delete this currency?')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -178,14 +196,16 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import type { Action, Column } from '../../../utils/models'
-import { 
-  getCurrencies, 
-  postCurrency, 
-  updateCurrencyById, 
-  deleteCurrencyById 
+import {
+  getCurrencies,
+  postCurrency,
+  updateCurrencyById,
+  deleteCurrencyById
 } from '@/services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -194,6 +214,11 @@ const currencies = ref<any[]>([])
 const loading = ref(false)
 const saving = ref(false)
 const serviceStore = useServiceStore();
+const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
+const isDeleting = ref(false)
+const showDeleteModal = ref(false)
+
 const columns = computed<Column[]>(() => [
   { key: 'currencyCode', label: t('Currency Code'), type: 'text' },
   { key: 'name', label: t('Currency Name'), type: 'text' },
@@ -227,24 +252,29 @@ const editCurrency = (currency: any) => {
 }
 
 const deleteCurrency = async (currency: any) => {
-  if (confirm(t('Are you sure you want to delete this currency?'))) {
+  deleteItem.value = currency
+  showDeleteModal.value = true
+}
+const confirmDelete = async() =>{
     try {
-      loading.value = true
-      await deleteCurrencyById(currency.id)
+      isDeleting.value = true
+      await deleteCurrencyById(deleteItem.value.id)
+      deleteItem.value = null
+      showDeleteModal.value = false
       toast.success(t('Currency deleted successfully'))
-      await fetchCurrencies()
+      await fetchCurrencies(1)
     } catch (error) {
       console.error('Error deleting currency:', error)
       toast.error(t('Failed to delete currency'))
     } finally {
-      loading.value = false
+      isDeleting.value = false
     }
-  }
+
 }
 
 const actions = computed<Action[]>(() => [
-  { label: t('Edit'), handler:(item)=> editCurrency(item), variant: 'primary' },
-  { label: t('Delete'), handler:(item)=> deleteCurrency(item), variant: 'danger' }
+  { label: t('Edit'), handler:(item)=> editCurrency(item), variant: 'primary',icon:Edit },
+  { label: t('Delete'), handler:(item)=> deleteCurrency(item), variant: 'danger',icon:Trash2 }
 ])
 
 const showModal = ref(false)
@@ -265,11 +295,12 @@ const formData = ref({
 
 
 // Fetch currencies from API
-const fetchCurrencies = async () => {
+const fetchCurrencies = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getCurrencies()
-    currencies.value = response.data.data || []
+    const response = await getCurrencies({page:pageNumber,limit:10})
+    currencies.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
     console.log('currecy',response)
   } catch (error) {
     console.error('Error fetching currencies:', error)
@@ -312,7 +343,7 @@ const closeModal = () => {
 const saveCurrency = async () => {
   try {
     saving.value = true
-    
+
     const currencyData = {
       country: formData.value.country,
       name: formData.value.name,
@@ -323,7 +354,7 @@ const saveCurrency = async () => {
       exchangeRate: formData.value.exchangeRate,
       isDefault: formData.value.isDefault
     }
-    
+
     if (isEditing.value && formData.value.id) {
       // Update existing currency
       await updateCurrencyById(parseInt(formData.value.id), currencyData)
@@ -337,9 +368,9 @@ const saveCurrency = async () => {
       await postCurrency(newCurrency)
       toast.success(t('Currency added successfully'))
     }
-    
-    await fetchCurrencies()
     closeModal()
+    await fetchCurrencies(1)
+
   } catch (error) {
     console.error('Error saving currency:', error)
     toast.error(t('Failed to save currency'))
@@ -350,10 +381,12 @@ const saveCurrency = async () => {
 
 // Load currencies on component mount
 onMounted(() => {
-  fetchCurrencies()
+  fetchCurrencies(1)
 })
 
-
+const handlePageChange = (page:number) =>{
+  fetchCurrencies(page)
+}
 
 const onAction = (action: string, item: any) => {
   console.log('Action:', action, 'Item:', item)

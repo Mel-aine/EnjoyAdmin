@@ -4,7 +4,7 @@
       <ReusableTable :title="$t('configuration.template_category.table_title')" :columns="columns"
         :data="templateCategories" :actions="actions" :loading="loading" @action="onAction"
         :search-placeholder="$t('configuration.template_category.search_placeholder')"
-        :empty-title="$t('configuration.template_category.empty_state_title')"
+        :empty-title="$t('configuration.template_category.empty_state_title')" :meta="paginationMeta" @page-change="handlePageChange"
         :empty-description="$t('configuration.template_category.empty_state_message')">
         <template v-slot:header-actions>
           <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
@@ -56,6 +56,18 @@
         </div>
       </div>
     </div>
+
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('configuration.template_category.delete_title')"
+        :message="t('configuration.template_category.delete_confirm',{ name : deleteItem?.category})"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -76,8 +88,9 @@ import {
   updateTemplateCategoryById,
   deleteTemplateCategoryById
 } from '@/services/configrationApi'
-import { Save } from 'lucide-vue-next'
+import { Edit, Save, Trash2 } from 'lucide-vue-next'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -87,6 +100,10 @@ const showModal = ref(false)
 const isEditing = ref(false)
 const loading = ref(false)
 const saving = ref(false)
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
+const deleteItem = ref<any>(null)
+const paginationMeta = ref<any>(null)
 
 const columns = computed<Column[]>(() => [
   { key: 'category', label: t('configuration.template_category.category_name'), type: 'text' },
@@ -95,8 +112,8 @@ const columns = computed<Column[]>(() => [
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('edit'), handler: (item: any) => editTemplateCategory(item), variant: 'primary' },
-  { label: t('delete'), handler: (item: any) => deleteTemplateCategory(item), variant: 'danger' }
+  { label: t('edit'), handler: (item: any) => editTemplateCategory(item), variant: 'primary',icon:Edit },
+  { label: t('delete'), handler: (item: any) => deleteTemplateCategory(item), variant: 'danger',icon:Trash2 }
 ])
 
 const formData = ref<any>({
@@ -106,11 +123,12 @@ const formData = ref<any>({
 const templateCategories = ref<any[]>([])
 
 // Fetch template categories from API
-const fetchTemplateCategories = async () => {
+const fetchTemplateCategories = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getTemplateCategories()
+    const response = await getTemplateCategories({page:pageNumber,limit:10})
     templateCategories.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
   } catch (error) {
     console.error('Error fetching template categories:', error)
     toast.error(t('configuration.template_category.fetch_error'))
@@ -157,7 +175,7 @@ const saveTemplateCategory = async () => {
       toast.success(t('configuration.template_category.create_success'))
     }
     closeModal()
-    await fetchTemplateCategories()
+    await fetchTemplateCategories(1)
   } catch (error) {
     console.error('Error saving template category:', error)
     toast.error(t('configuration.template_category.save_error'))
@@ -166,19 +184,25 @@ const saveTemplateCategory = async () => {
   }
 }
 
-const deleteTemplateCategory = async (templateCategory: any) => {
-  if (confirm(t('configuration.template_category.delete_confirm'))) {
-    try {
-      loading.value = true
-      await deleteTemplateCategoryById(templateCategory.id)
-      toast.success(t('configuration.template_category.delete_success'))
-      await fetchTemplateCategories()
-    } catch (error) {
-      console.error('Error deleting template category:', error)
+const deleteTemplateCategory = async (item: any) => {
+  deleteItem.value = item
+  showDeleteModal.value = true
+}
+
+
+const confirmDelete = async() =>{
+  try {
+    isDeleting.value=true
+    await deleteTemplateCategoryById(Number(deleteItem.value.id))
+    toast.success(t('configuration.template_category.delete_success'))
+    deleteItem.value = null
+    showDeleteModal.value = false
+    await fetchTemplateCategories(1)
+  } catch (error) {
+    console.error('Error deleting template category:', error)
       toast.error(t('configuration.template_category.delete_error'))
-    } finally {
-      loading.value = false
-    }
+  }finally{
+    isDeleting.value=false
   }
 }
 
@@ -190,8 +214,12 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:number) =>{
+  fetchTemplateCategories(page)
+}
+
 // Load template categories on component mount
 onMounted(() => {
-  fetchTemplateCategories()
+  fetchTemplateCategories(1)
 })
 </script>

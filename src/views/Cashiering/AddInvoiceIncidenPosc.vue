@@ -69,7 +69,7 @@
                   <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('sr_no') }}</th>
                   <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{  
-                    $t('particular') }}</th>
+                    $t('Particulars') }}</th>
                   <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('Qty') }}</th>
                   <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
@@ -188,9 +188,9 @@ const form = ref({
 
 // Options
 const contactTypeOptions = ref([
-  { label: 'Guest', value: 'guest' },
-  { label: 'Vendor', value: 'vendor' },
-  { label: 'Company', value: 'company' }
+  { label: t('Guest'), value: 'guest' },
+  { label: t('Vendor'), value: 'vendor' },
+  { label: t('Company'), value: 'company' }
 ])
 
 

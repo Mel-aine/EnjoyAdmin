@@ -16,7 +16,7 @@
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <input v-model="searchQuery" type="text" :placeholder="searchPlaceholder"
+            <input v-model="searchQuery" type="text" :placeholder="translatedSearchPlaceholder"
               class="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
           </div>
 
@@ -34,7 +34,7 @@
       ]"
       :style="scrollableBody ? { maxHeight: props.maxHeight } : {}">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
+        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-8">
           <tr>
             <th v-if="selectable"
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
@@ -130,7 +130,7 @@
                   <div class="relative" v-if="getItemActions(item).length > 0">
                     <button @click="toggleDropdown(index, $event)"
                       class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                      :title="'More options'">
+                      :title="$t('More options')">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -260,7 +260,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   actions: () => [],
   searchable: true,
-  searchPlaceholder: 'Search...',
+  searchPlaceholder: '',
   selectable: false,
   emptyStateTitle: 'No data found',
   emptyStateMessage: 'Get started by adding some data.',
@@ -288,6 +288,12 @@ const emptyStateMessageText = computed(() => {
   return message === 'Get started by adding some data.' ? t('common.getStartedByAddingData') : message
 })
 
+const translatedSearchPlaceholder = computed(() =>
+  props.searchPlaceholder || t('Search...')
+)
+
+
+
 const emit = defineEmits<{
   'selection-change': [items: any[]]
   'action': [action: string, item: any]
@@ -298,6 +304,7 @@ const emit = defineEmits<{
 }>()
 
 const searchQuery = ref(props.modelValue)
+const searchPlaceholderText = computed(() => props.searchPlaceholder || t('common.search'))
 const selectedItems = ref<any[]>([])
 const selectAll = ref(false)
 const openDropdown = ref<number | null>(null)

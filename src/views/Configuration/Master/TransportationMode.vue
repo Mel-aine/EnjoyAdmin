@@ -6,6 +6,7 @@
         :search-placeholder="t('configuration.transportation_mode.search_placeholder')" :selectable="false"
         :empty-state-title="t('configuration.transportation_mode.empty_state_title')"
         :empty-state-message="t('configuration.transportation_mode.empty_state_message')" :loading="loading"
+        :meta="paginationMeta" @page-change="handlePageChange"
         @action="onAction">
         <template #header-actions>
           <BasicButton variant="primary" :icon="PlusIcon"
@@ -15,7 +16,7 @@
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.creator?.fullName }}</div>
             <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
@@ -23,7 +24,7 @@
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.modifier?.fullName }}</div>
             <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
@@ -56,6 +57,17 @@
         </div>
       </div>
     </div>
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('configuration.transportation_mode.delete_title')"
+        :message="t('configuration.transportation_mode.delete_confirm', { name : deleteItem?.name })"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -77,6 +89,8 @@ import {
   deleteTransportationModeById
 } from '@/services/configrationApi'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Trash2 } from 'lucide-vue-next'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 // Composables
 const { t } = useI18n()
@@ -89,7 +103,11 @@ const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 const loading = ref(false)
 const saving = ref(false)
+const showDeleteModal = ref(false)
 const transportationModes = ref([])
+const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
+const isDeleting = ref(false)
 
 const formData = ref({
   id: null,
@@ -109,22 +127,25 @@ const actions = computed((): Action[] => [
   {
     label: t('configuration.transportation_mode.edit'),
     handler: (item: any) => editTransportationMode(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('configuration.transportation_mode.delete'),
-    handler: (item: any) => deleteTransportationMode(item.id),
-    variant: 'danger'
+    handler: (item: any) => deleteTransportationMode(item),
+    variant: 'danger',
+    icon:Trash2
   }
 ])
 
 // API Functions
-const fetchTransportationModes = async () => {
+const fetchTransportationModes = async (pageNumber=1) => {
   try {
     const hotelId = serviceStore.serviceId
     loading.value = true
-    const response = await getTransportationModes(hotelId!)
+    const response = await getTransportationModes(hotelId!,{page:pageNumber,limit:10})
     transportationModes.value = response.data.data.data
+    paginationMeta.value = response.data.data.meta
     console.log('data', transportationModes)
   } catch (error) {
     console.error('Error fetching transportation modes:', error)
@@ -185,7 +206,7 @@ const saveTransportationMode = async () => {
       toast.success(t('configuration.transportation_mode.create_success'))
     }
 
-    await fetchTransportationModes()
+    await fetchTransportationModes(1)
     closeModal()
   } catch (error) {
     console.error('Error saving transportation mode:', error)
@@ -195,16 +216,26 @@ const saveTransportationMode = async () => {
   }
 }
 
-const deleteTransportationMode = async (id: number) => {
-  if (confirm(t('configuration.transportation_mode.delete_confirm'))) {
-    try {
-      await deleteTransportationModeById(id)
-      toast.success(t('configuration.transportation_mode.delete_success'))
-      await fetchTransportationModes()
-    } catch (error) {
-      console.error('Error deleting transportation mode:', error)
-      toast.error(t('configuration.transportation_mode.delete_error'))
-    }
+const deleteTransportationMode =  (item:any) => {
+  deleteItem.value = item
+  showDeleteModal.value = true
+
+}
+
+const confirmDelete = async() =>{
+  try {
+    isDeleting.value = true
+    await deleteTransportationModeById(Number(deleteItem.value.id))
+    deleteItem.value = null
+    showDeleteModal.value = false
+    toast.success(t('configuration.transportation_mode.delete_success'))
+    await fetchTransportationModes(1)
+
+  } catch (error) {
+    console.error('Error deleting transportation mode:', error)
+    toast.error(t('configuration.transportation_mode.delete_error'))
+  }finally{
+    isDeleting.value = false
   }
 }
 
@@ -212,8 +243,12 @@ const onAction = (action: string, item: any) => {
   console.log('Action:', action, 'Item:', item)
 }
 
+const handlePageChange = (page:number) =>{
+  fetchTransportationModes(page)
+}
+
 // Lifecycle
 onMounted(() => {
-  fetchTransportationModes()
+  fetchTransportationModes(1)
 })
 </script>

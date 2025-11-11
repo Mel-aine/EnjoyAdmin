@@ -75,13 +75,13 @@
 
             <!-- Cases à cocher - UN PAR RANGE -->
             <div class="flex flex-wrap gap-2 ml-[190px]">
-              <InputCheckBox label="Mo" v-model="range.days.mo" />
-              <InputCheckBox label="Tu" v-model="range.days.tu" />
-              <InputCheckBox label="We" v-model="range.days.we" />
-              <InputCheckBox label="Th" v-model="range.days.th" />
-              <InputCheckBox label="Fr" v-model="range.days.fr" />
-              <InputCheckBox label="Sa" v-model="range.days.sa" />
-              <InputCheckBox label="Su" v-model="range.days.su" />
+              <InputCheckBox :label="$t('Mo')" v-model="range.days.mo" />
+              <InputCheckBox :label="$t('Tu')" v-model="range.days.tu" />
+              <InputCheckBox :label="$t('We')" v-model="range.days.we" />
+              <InputCheckBox :label="$t('Th')" v-model="range.days.th" />
+              <InputCheckBox :label="$t('Fr')" v-model="range.days.fr" />
+              <InputCheckBox :label="$t('Sa')" v-model="range.days.sa" />
+              <InputCheckBox :label="$t('Su')" v-model="range.days.su" />
             </div>
           </div>
 
@@ -100,15 +100,15 @@
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('Affected Restrictions') }} :</h3>
 
             <InputCheckBox
-              label="Rate"
+              :label="$t('Rate')"
               id="rate"
               v-model="restrictions.rate"
             />
-            <Input v-model="rateValue" placeholder="Rate"  :input-type="'number'" min="0" :disabled="!restrictions.rate" />
+            <Input v-model="rateValue" :placeholder="$t('Rate')"  :input-type="'number'" min="0" :disabled="!restrictions.rate" />
 
             <div></div>
             <InputCheckBox
-              label="Stop Sell"
+              :label="$t('Stop Sell')"
               id="stopSell"
               v-model="restrictions.stopSell"
             />
@@ -116,7 +116,7 @@
 
             <div></div>
             <InputCheckBox
-              label="Closed To Arrival"
+              :label="$t('Closed To Arrival')"
               id="closedToArrival"
               v-model="restrictions.closedToArrival"
             />
@@ -124,7 +124,7 @@
 
             <div></div>
             <InputCheckBox
-              label="Closed To Departure"
+              :label="$t('Closed To Departure')"
               id="closedToDeparture"
               v-model="restrictions.closedToDeparture"
             />
@@ -132,40 +132,40 @@
 
             <div></div>
             <InputCheckBox
-              label="Min Stay Arrival"
+              :label="$t('Min Stay Arrival')"
               id="minStayArrival"
               v-model="restrictions.minStayArrival"
             />
             <Input
               v-model="minStayArrivalValue"
               :input-type="'number'"
-              placeholder="Min Stay Arrival"
+              :placeholder="$t('Min Stay Arrival')"
               :disabled="!restrictions.minStayArrival"
             />
 
             <div></div>
             <InputCheckBox
-              label="Min Stay Through"
+              :label="$t('Min Stay Through')"
               id="minStayThrough"
               v-model="restrictions.minStayThrough"
             />
             <Input
               v-model="minStayThroughValue"
               :input-type="'number'"
-              placeholder="Min Stay Through"
+              :placeholder="$t('Min Stay Through')"
               :disabled="!restrictions.minStayThrough"
             />
 
             <div></div>
             <InputCheckBox
-              label="Max Stay"
+              :label="$t('Max Stay')"
               id="maxStay"
               v-model="restrictions.maxStay"
             />
             <Input
               v-model="maxStayValue"
               :input-type="'number'"
-              placeholder="Max Stay"
+              :placeholder="$t('Max Stay')"
               :disabled="!restrictions.maxStay"
             />
           </div>

@@ -1,11 +1,11 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-     
+
       <Modal v-if="isAddModalOpen" @close="isAddModalOpen = false">
         <template #body>
           <div
-            class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
+            class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-lg bg-white p-4 dark:bg-gray-900 lg:p-11"
           >
             <button
               @click="closeAddDepartmentModal"
@@ -49,16 +49,16 @@
               </div>
 
               <div class="flex justify-end space-x-3 mt-6">
-                <BasicButton 
-                  type="button" 
-                  variant="outline" 
-                  @click="closeAddDepartmentModal" 
+                <BasicButton
+                  type="button"
+                  variant="outline"
+                  @click="closeAddDepartmentModal"
                   :label="$t('cancel')"
                   :disabled="isLoading"
                 />
-                <BasicButton 
-                  type="submit" 
-                  variant="primary" 
+                <BasicButton
+                  type="submit"
+                  variant="primary"
                   :label="isLoading ? $t('processing') + '...' : isEditing ? $t('update') : $t('save')"
                   :loading="isLoading"
                 />

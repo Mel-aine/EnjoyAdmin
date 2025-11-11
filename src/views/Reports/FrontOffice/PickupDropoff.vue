@@ -176,7 +176,7 @@
         </div>
         
         <!-- Contenu HTML du rapport -->
-        <div v-if="reportData?.html" v-html="reportData.html" class="report-html-container"></div>
+        <div v-if="reportData?.html" v-html="translatedHtml" class="report-html-container"></div>
         
         <!-- Fallback si pas de HTML (affichage normal) -->
         <div v-else class="px-6 py-4">
@@ -353,10 +353,10 @@ const apiFilters = ref<PickupDropoffFilters>({
 })
 
 // Options pour les sélecteurs - correspondent aux valeurs attendues par le backend
-const typeOptions = ref<FilterOptions[]>([
-  { value: 'Pickup', label: 'Pickup' },
-  { value: 'Dropoff', label: 'Dropoff' },
-  { value: 'Both', label: 'Both' }
+const typeOptions = computed<FilterOptions[]>(() => [
+  { value: 'Pickup', label: t('reports.frontOffice.pickupDropoffDetails.pickup') },
+  { value: 'Dropoff', label: t('reports.frontOffice.pickupDropoffDetails.dropoff') },
+  { value: 'Both', label: t('reports.frontOffice.pickupDropoffDetails.both') }
 ])
 
 // Computed
@@ -475,6 +475,78 @@ const openPDFInNewPage = () => {
     window.open(routeData.href, '_blank')
   }
 }
+
+// Traduit des fragments HTML renvoyés par l'API (fallback côté client)
+const translateReportHtml = (html: string): string => {
+  if (!html) return html
+  
+  // Normaliser les espaces insécables
+  let out = html.replace(/&nbsp;/g, ' ')
+  
+  // Traduire la ligne de synthèse "Generated on ... | ... records" ou "Generated on ... | ... records | ... columns displayed"
+  const summaryPattern = /Generated\s+on\s+([^|]+)\|\s*(\d+)\s+records(\s*\|\s*(\d+)\s+columns\s+displayed)?/gi
+  out = out.replace(summaryPattern, (_match, datePart, recordCount, _columnsPart, columnCount) => {
+    const dateText = datePart.trim()
+    if (columnCount) {
+      return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')} | ${columnCount} ${t('reports.columnsDisplayed')}`
+    }
+    return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')}`
+  })
+  
+  const replacements: Record<string, string> = {
+    // Titres et descriptions
+    'Pickup/Dropoff Report': t('reports.frontOffice.pickupDropoffDetails.title'),
+    'PICKUP/DROPOFF REPORT': t('reports.frontOffice.pickupDropoffDetails.title').toUpperCase(),
+    'Pickup Dropoff Report': t('reports.frontOffice.pickupDropoffDetails.title'),
+    // Entêtes
+    'Hotel:': t('reports.reservation.hotel') + ':',
+    'From:': t('common.from') + ':',
+    'To:': t('common.to') + ':',
+    'Type:': t('common.type') + ':',
+    'Pickup': t('reports.frontOffice.pickupDropoffDetails.pickup'),
+    'Dropoff': t('reports.frontOffice.pickupDropoffDetails.dropoff'),
+    'Both': t('reports.frontOffice.pickupDropoffDetails.both'),
+    // Ligne de synthèse
+    'Generated on': t('reports.generatedOn'),
+    'records': t('reports.records'),
+    'columns displayed': t('reports.columnsDisplayed'),
+    // Colonnes du tableau
+    'Date/Time': t('common.date') + '/' + t('common.time'),
+    'Guest Name': t('common.guestName'),
+    'Room No': t('common.roomNumber'),
+    'Mode': t('common.mode'),
+    'Vehicle': t('common.vehicle'),
+    'Description': t('common.description'),
+    'Total Guests': t('reports.frontOffice.pickupDropoffDetails.totalGuests'),
+    // Autres
+    'Generated At': t('reports.generatedAt'),
+    'Generated at': t('reports.generatedAt'),
+    'Generated': t('reports.generatedAt'),
+    'By': t('reports.frontOffice.pickupDropoffDetails.by')
+  }
+  
+  // Traiter d'abord les remplacements avec balises HTML
+  for (const [en, fr] of Object.entries(replacements)) {
+    if (en.startsWith('>') && en.endsWith('<')) {
+      // Remplacement avec contexte HTML
+      const regex = new RegExp(en, 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  // Ensuite les remplacements simples (sans balises)
+  for (const [en, fr] of Object.entries(replacements)) {
+    if (!en.startsWith('>') || !en.endsWith('<')) {
+      // Remplacement insensible à la casse pour couvrir les variantes
+      const escaped = en.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const regex = new RegExp('\\b' + escaped + '\\b', 'gi')
+      out = out.replace(regex, fr)
+    }
+  }
+  
+  return out
+}
+
+const translatedHtml = computed(() => translateReportHtml(reportData.value?.html || ''))
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''

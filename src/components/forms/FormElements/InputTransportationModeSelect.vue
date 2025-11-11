@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <label class="block text-sm font-medium text-gray-700 mb-1.5">
-      Transportation Mode
+      {{ $t('Transportation Mode') }}
       <span v-if="isRequired" class="text-red-500">*</span>
     </label>
     <div class="relative">

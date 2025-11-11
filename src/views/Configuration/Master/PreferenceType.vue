@@ -8,7 +8,9 @@
         :searchPlaceholder="$t('configuration.preference_type.search_placeholder')"
         :emptyStateTitle="$t('configuration.preference_type.empty_state_title')"
         :emptyStateMessage="$t('configuration.preference_type.empty_state_message')" :selectable="false"
-        @action="onAction">
+        @action="onAction"
+        :meta="paginationMeta"
+        @page-change="handlePageChange">
         <!-- Header Actions -->
         <template #header-actions>
           <BasicButton variant="primary" :icon="PlusIcon"
@@ -64,10 +66,17 @@
       </div>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation v-if="showDeleteConfirmation"
+        <ConfirmationModal
+        v-model:show="showDeleteConfirmation"
         :title="$t('configuration.preference_type.delete_confirmation_title')"
-        :message="$t('configuration.preference_type.delete_confirmation_message')" @confirm="confirmDelete"
-        @close="cancelDelete" />
+        :message="$t('configuration.preference_type.delete_confirmation_message')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+      />
     </div>
   </ConfigurationLayout>
 </template>
@@ -80,7 +89,7 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
-import ModalConfirmation from '../../../components/modal/ModalConfirmation.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import {
   getPreferenceTypes,
@@ -90,6 +99,7 @@ import {
 } from '../../../services/configrationApi'
 import PlusIcon from '../../../icons/PlusIcon.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Trash2 ,Edit } from 'lucide-vue-next'
 
 // Composables
 const { t } = useI18n()
@@ -105,6 +115,8 @@ const saving = ref(false)
 const showDeleteConfirmation = ref(false)
 const preferenceTypeToDelete = ref(null)
 const preferenceTypes = ref([])
+const paginationMeta = ref(null)
+const isDeleting = ref(false)
 
 // Form data
 const formData = ref({
@@ -122,21 +134,24 @@ const actions = computed(() => [
   {
     label: t('configuration.preference_type.edit'),
     handler: (item) => editPreferenceType(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('configuration.preference_type.delete'),
     handler: (item) => confirmDeletePreferenceType(item),
-    variant: 'danger'
+    variant: 'danger',
+    icon:Trash2
   }
 ])
 
 // Functions
-const fetchPreferenceTypes = async () => {
+const fetchPreferenceTypes = async (PageNumber=1) => {
   try {
     loading.value = true
-    const response = await getPreferenceTypes()
+    const response = await getPreferenceTypes({page:PageNumber,limit:10})
     preferenceTypes.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
   } catch (error) {
     console.error('Error fetching preference types:', error)
     toast.error(t('configuration.preference_type.fetch_error'))
@@ -182,7 +197,7 @@ const savePreferenceType = async () => {
     }
 
     closeModal()
-    await fetchPreferenceTypes()
+    await fetchPreferenceTypes(1)
   } catch (error) {
     console.error('Error saving preference type:', error)
     toast.error(t('configuration.preference_type.save_error'))
@@ -198,14 +213,17 @@ const confirmDeletePreferenceType = (item) => {
 
 const confirmDelete = async () => {
   try {
+    isDeleting.value = true
     await deletePreferenceTypeById(preferenceTypeToDelete.value.id)
     toast.success(t('configuration.preference_type.delete_success'))
     showDeleteConfirmation.value = false
     preferenceTypeToDelete.value = null
-    await fetchPreferenceTypes()
+    await fetchPreferenceTypes(1)
   } catch (error) {
     console.error('Error deleting preference type:', error)
     toast.error(t('configuration.preference_type.delete_error'))
+  }finally{
+    isDeleting.value = false
   }
 }
 
@@ -236,8 +254,11 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
+const handlePageChange = (page) =>{
+  fetchPreferenceTypes(page)
+}
 // Lifecycle
 onMounted(() => {
-  fetchPreferenceTypes()
+  fetchPreferenceTypes(1)
 })
 </script>

@@ -236,10 +236,10 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div>
-                <InputDatePicker :title="$t('Date of Birth')"  v-model="formData.dateOfBirth" :placeholder="$t('Select date')" />
+                <InputDatePicker :title="$t('DateOfBirth')"  v-model="formData.dateOfBirth" :placeholder="$t('select_date')" />
               </div>
 
-              <Input :lb="$t('Place of Birth')" v-model="formData.placeOfBirth" :placeholder="$t('Place of Birth')" />
+              <Input :lb="$t('placeOfBirth')" v-model="formData.placeOfBirth" :placeholder="$t('placeOfBirth')" />
 
               <div>
                 <InputCountries :lb="$t('nationality')" v-model="formData.nationality"
@@ -263,8 +263,8 @@
               <AutoCompleteSelect
                   v-model="formData.contactType"
                   :options="TypesOfContact"
-                  :defaultValue="$t('contactType')"
-                  :lb="$t('contactType')"
+                  :defaultValue="$t('contact_type')"
+                  :lb="$t('contact_type')"
                   :is-required="false"
                   :use-dropdown="useDropdownBooking"
                   @clear-error="emit('clear-error')"
@@ -336,11 +336,11 @@
               </div>
             </button>
 
-            <div v-show="showIdentitySection" class="mt-6 transition-all duration-300 ease-in-out">
+            <div v-show="showIdentitySection" class="mt-2 transition-all duration-300 ease-in-out">
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <Select :lb="$t('IDType')" v-model="formData.idType" :options="idTypeOptions"
-                    :placeholder="$t('Select ID Type')" />
+                    :placeholder="$t('select_id_type')" />
                 </div>
                 <div class="">
                   <Input :lb="idNumberLabel" v-model="formData.idNumber" type="text" :placeholder="idNumberLabel" />
@@ -350,7 +350,7 @@
 
                 <div>
                   <InputDatePicker :title="$t('ExpiryDate')" v-model="formData.idExpiryDate"
-                    :placeholder="$t('Select Date')" />
+                    :placeholder="$t('select_date')" />
                 </div>
                 <div>
                   <InputCountries :lb="$t('Countryofissue')" v-model="formData.issuingCountry" />
@@ -554,7 +554,7 @@ const renderPrintHtml = () => {
     style.textContent = `
     .filled-value{font-weight:normal;color:#111;font-size:9pt;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .line-dot,.line-empty{overflow:hidden;}
-   
+
     @media print {
       @page { size: A4 portrait; margin: 10mm; }
       .label-fr {
@@ -658,7 +658,7 @@ const fetchIdentityTypes = async () => {
 
     const res = await getIdentityTypesByHotelId(hotelId)
 
-    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+    idTypeOptions.value = res.data.data.data.map((type: any): RichSelectOption => {
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {

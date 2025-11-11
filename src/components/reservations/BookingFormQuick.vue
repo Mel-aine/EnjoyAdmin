@@ -663,8 +663,8 @@ onMounted(() => {
                           <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                               {{ $t('nights') }}
                           </label>
-                          <input type="text" id="id" disabled :value="numberOfNights.toString()"
-                              class="dark:bg-dark-900 h-11 w-full rounded-none  bg-black text-white px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">
+                          <span
+                              class="flex items-center dark:bg-dark-900 h-11 w-full rounded-none  bg-black text-white px-2 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800">{{ numberOfNights }}</span>
                         </div>
 
                       <!-- Check-Out -->
@@ -901,7 +901,7 @@ onMounted(() => {
                           <!-- Time Input -->
                           <div class="col-span-2">
                             <InputTimePicker :title="$t('time')" v-model="holdReleaseData.time"
-                              :placeholder="$t('select_time')" />
+                              :placeholder="$t('select_time')" custom-class="rounded-lg"  />
                           </div>
 
                           <!-- Release Term -->
@@ -1015,8 +1015,8 @@ onMounted(() => {
                         <AutoCompleteSelect
                             v-model="formData.contactType"
                             :options="TypesOfContact"
-                            :defaultValue="$t('contactType')"
-                            :lb="$t('contactType')"
+                            :defaultValue="$t('contact_type')"
+                            :lb="$t('contact_type')"
                             :is-required="false"
                             :use-dropdown="useDropdownBooking"
                             @clear-error="emits('clear-error')"
@@ -1063,7 +1063,7 @@ onMounted(() => {
             <div class="flex justify-between  space-x-3">
                <BasicButton  v-if="!showCheckinButton && !pendingReservation" type="button" @click="gotoNew"
                  :disabled="isLoading" variant=""
-                :label="$t('More Options')">
+                :label="$t('more_options')">
               </BasicButton>
               <BasicButton v-if="showCheckinButton && !pendingReservation" type="button" @click="handleCheckIn"
                 :loading="isLoading" :disabled="isLoading" variant="info"

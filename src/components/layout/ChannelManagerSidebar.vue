@@ -43,10 +43,10 @@
 
         <nav class="h-full overflow-y-auto sidebar-scroll px-2 py-2">
           <div class="flex flex-col gap-2 pb-6">
-            
+
             <!-- Channel Manager Navigation -->
             <div class="space-y-1">
-              <router-link 
+              <router-link
                 v-for="menuItem in menuItems"
                 :key="menuItem.path"
                 :to="menuItem.path"

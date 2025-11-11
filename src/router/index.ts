@@ -1216,6 +1216,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/configuration/master/booking-source',
+      name: 'BookingSource',
+      component: () => import('../views/Configuration/Master/BookingSource.vue'),
+      meta: {
+        title: 'Booking Source',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/configuration/master/vip-status',
       name: 'VipStatus',
       component: () => import('../views/Configuration/Master/VipStatus.vue'),

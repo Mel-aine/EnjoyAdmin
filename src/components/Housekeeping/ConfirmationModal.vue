@@ -66,7 +66,7 @@
 
         <slot name="content"></slot>
 
-        
+
         <!-- Actions -->
         <div class="flex gap-3 px-6 py-4 bg-gray-50">
           <!-- Bouton Cancel -->
@@ -80,7 +80,7 @@
           </button>
 
           <!-- Bouton Confirm -->
-          <button
+          <!-- <button
             type="button"
             :disabled="loading"
             :class="[
@@ -114,7 +114,42 @@
               />
             </svg>
             <span v-if="!props.loading">{{ confirmText }}</span>
-            <span v-else>Loading...</span>
+            <span v-else>{{ $t('Loading...') }}</span>
+          </button> -->
+          <button
+            type="button"
+            :disabled="loading"
+            :class="[
+              'flex-1 rounded-md px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors flex items-center justify-center',
+              variant === 'danger'
+                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                : 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
+              loading ? 'opacity-70 cursor-not-allowed' : '',
+            ]"
+            @click="handleConfirm"
+          >
+            <svg
+              v-if="loading"
+              class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            {{ loading ? $t('Loading...') : confirmText }}
           </button>
         </div>
       </div>
@@ -151,7 +186,7 @@ const emit = defineEmits<Emits>()
 
 const handleConfirm = () => {
   emit('confirm')
-  emit('update:show', false)
+  // emit('update:show', false)
 }
 
 const handleCancel = () => {

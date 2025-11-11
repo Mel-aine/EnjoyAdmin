@@ -5,16 +5,16 @@
       <ReusableTable :title="$t('configuration.identity_type.table_title')" :columns="columns" :data="identityTypes"
         :actions="actions" :loading="loading" @action="onAction" :selectable="false"
         :search-placeholder="$t('configuration.identity_type.search_placeholder')"
-        :empty-title="$t('configuration.identity_type.empty_title')"
+        :empty-title="$t('configuration.identity_type.empty_title')" :meta="paginationMeta" @page-change="handlePageChange"
         :empty-description="$t('configuration.identity_type.empty_description')">
         <template v-slot:header-actions>
           <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
-            :label="$t('configuration.identity_type.add_identity_type')" :loading="loading" />
+            :label="$t('configuration.identity_type.add_identity_type')" />
         </template>
         <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdBy?.fullName }}</div>
             <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
@@ -22,7 +22,7 @@
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedBy?.fullName }}</div>
             <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
@@ -69,6 +69,17 @@
         </div>
       </div>
     </div>
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('configuration.identity_type.delete_title')"
+        :message="t('configuration.identity_type.delete_confirm',{ name : deleteItem?.name})"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 <script setup lang="ts">
@@ -82,6 +93,7 @@ import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import {
   getIdentityTypes,
   postIdentityType,
@@ -89,6 +101,7 @@ import {
   deleteIdentityTypeById
 } from '@/services/configrationApi'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Trash2 } from 'lucide-vue-next'
 // Save icon removed as it's no longer used in the template
 
 const { t } = useI18n()
@@ -99,6 +112,10 @@ const showModal = ref(false)
 const isEditing = ref(false)
 const loading = ref(false)
 const saving = ref(false)
+const isDeleting = ref(false)
+const showDeleteModal = ref(false)
+const deleteItem = ref<any>(null)
+const paginationMeta = ref<any>(null)
 
 const columns = computed<Column[]>(() => [{ key: 'shortCode', label: t('shortCode'), type: 'custom' }
   ,
@@ -108,8 +125,8 @@ const columns = computed<Column[]>(() => [{ key: 'shortCode', label: t('shortCod
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('edit'), handler: (item: any) => editIdentityType(item), variant: 'primary' },
-  { label: t('delete'), handler: (item: any) => deleteIdentityType(item), variant: 'danger' }
+  { label: t('edit'), handler: (item: any) => editIdentityType(item), variant: 'primary',icon:Edit },
+  { label: t('delete'), handler: (item: any) => deleteIdentityType(item), variant: 'danger',icon:Trash2 }
 ])
 
 const formData = ref({
@@ -121,11 +138,13 @@ const formData = ref({
 const identityTypes = ref<any[]>([])
 
 // Fetch identity types from API
-const fetchIdentityTypes = async () => {
+const fetchIdentityTypes = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getIdentityTypes()
-    identityTypes.value = response.data.data || []
+    const response = await getIdentityTypes({page:pageNumber,limit:10})
+    identityTypes.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
+    console.log('response',response)
   } catch (error) {
     console.error('Error fetching identity types:', error)
     toast.error(t('configuration.identity_type.fetch_error'))
@@ -160,7 +179,7 @@ const saveIdentityType = async () => {
     saving.value = true
 
     const identityTypeData = {
-      reason: formData.value.name,
+      name: formData.value.name,
       shortCode: formData.value.shortCode,
       hotelId: serviceStore.serviceId
     }
@@ -176,7 +195,7 @@ const saveIdentityType = async () => {
     }
     closeModal()
 
-    await fetchIdentityTypes()
+    await fetchIdentityTypes(1)
   } catch (error) {
     console.error('Error saving identity type:', error)
     toast.error(t('configuration.identity_type.save_error'))
@@ -186,18 +205,24 @@ const saveIdentityType = async () => {
 }
 
 const deleteIdentityType = async (identityType: any) => {
-  if (confirm(t('configuration.identity_type.delete_confirm'))) {
-    try {
-      loading.value = true
-      await deleteIdentityTypeById(identityType.id)
-      toast.success(t('configuration.identity_type.delete_success'))
-      await fetchIdentityTypes()
-    } catch (error) {
-      console.error('Error deleting identity type:', error)
-      toast.error(t('configuration.identity_type.delete_error'))
-    } finally {
-      loading.value = false
-    }
+  deleteItem.value = identityType
+  showDeleteModal.value = true
+}
+
+
+const confirmDelete = async() =>{
+  try {
+    isDeleting.value = true
+    await deleteIdentityTypeById(Number(deleteItem.value.id))
+    deleteItem.value = null
+    showDeleteModal.value = false
+    toast.success(t('configuration.identity_type.delete_success'))
+    await fetchIdentityTypes(1)
+  } catch (error) {
+    console.error('Error deleting identity type:', error)
+    toast.error(t('configuration.identity_type.delete_error'))
+  }finally{
+    isDeleting.value = false
   }
 }
 
@@ -209,8 +234,12 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:number) =>{
+  fetchIdentityTypes(page)
+}
+
 // Load identity types on component mount
 onMounted(() => {
-  fetchIdentityTypes()
+  fetchIdentityTypes(1)
 })
 </script>

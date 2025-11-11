@@ -12,9 +12,11 @@
           :loading="loading"
           :searchPlaceholder="$t('configuration.preference.search_placeholder')"
           :selectable="false"
+          :meta="paginationMeta"
+          @page-change="handlePageChange"
         >
         <template #header-actions>
-          <BasicButton 
+          <BasicButton
           variant="primary"
           :icon="Plus"
           :label="$t('configuration.preference.add_preference')"
@@ -25,16 +27,16 @@
            <!-- Custom column for created info -->
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.createdAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt )}}</div>
           </div>
         </template>
 
         <!-- Custom column for modified info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400 dark:text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
         </ReusableTable>
@@ -46,12 +48,12 @@
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {{ isEditing ? $t('configuration.preference.edit_preference') : $t('configuration.preference.add_preference') }}
           </h3>
-          
+
           <form @submit.prevent="savePreference">
             <!-- Name -->
             <div class="mb-4">
-              
-              <Input 
+
+              <Input
                 v-model="formData.name"
                 :lb=" $t('configuration.preference.name')"
                 :placeholder="$t('configuration.preference.name_placeholder')"
@@ -65,7 +67,7 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t('configuration.preference.preference_type') }} *
               </label>
-              <Select 
+              <Select
                 v-model="formData.preferenceTypeId"
                 :options="preferenceTypeOptions"
                 :placeholder="$t('configuration.preference.preference_type_placeholder')"
@@ -94,15 +96,16 @@
       </div>
 
       <!-- Modal Confirmation -->
-      <ModalConfirmation
-        v-if="showDeleteModal"
+       <ConfirmationModal
+        v-model:show="showDeleteModal"
         :title="$t('configuration.preference.delete_confirmation_title')"
         :message="$t('configuration.preference.delete_confirmation_message')"
-        :confirmText="$t('configuration.preference.delete')"
-        :cancelText="$t('configuration.preference.cancel')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
         variant="danger"
+        :loading="isDeleting"
         @confirm="confirmDelete"
-        @close="cancelDelete"
+        @cancel="cancelDelete"
       />
     </div>
   </ConfigurationLayout>
@@ -115,12 +118,14 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { getPreferences, getPreferenceTypes, postPreference, updatePreferenceById } from '../../../services/configrationApi'
+import { getPreferences, getPreferenceTypes, postPreference, updatePreferenceById ,deletePreferenceById} from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import Plus from '../../../icons/Plus.vue'
+import { Trash2 , Edit } from 'lucide-vue-next'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 // Edit and Save icons removed as they're no longer used in the template
 
 const { t } = useI18n()
@@ -135,6 +140,8 @@ const loading = ref(false)
 const saving = ref(false)
 const loadingPreferenceTypes = ref(false)
 const deleteItemId = ref(null)
+const isDeleting = ref(false)
+const paginationMeta = ref(null)
 
 // Data
 const preferences = ref([])
@@ -166,24 +173,28 @@ const actions = [
   {
     label: t('configuration.preference.edit'),
     handler: (item) => editPreference(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('configuration.preference.delete'),
     handler: (item) => deletePreference(item.id),
-    variant: 'danger'
+    variant: 'danger',
+    icon:Trash2
   }
 ]
 
 // Functions
-const loadPreferences = async () => {
+const loadPreferences = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getPreferences()
+    const response = await getPreferences({page:pageNumber,limit:10})
+    console.log(response)
     preferences.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta
   } catch (error) {
     console.error('Error loading preferences:', error)
-    toast.error(t('preference.fetch_error'))
+    toast.error(t('configuration.preference.fetch_error'))
   } finally {
     loading.value = false
   }
@@ -196,7 +207,7 @@ const loadPreferenceTypes = async () => {
     preferenceTypes.value = response.data.data.data || []
   } catch (error) {
     console.error('Error loading preference types:', error)
-    toast.error(t('preference_type.fetch_error'))
+    toast.error(t('configuration.preference_type.fetch_error'))
   } finally {
     loadingPreferenceTypes.value = false
   }
@@ -225,7 +236,7 @@ const editPreference = (item) => {
 const savePreference = async () => {
   try {
     saving.value = true
-    
+
     const payload = {
       name: formData.value.name,
       preferenceTypeId: formData.value.preferenceTypeId,
@@ -234,17 +245,17 @@ const savePreference = async () => {
 
     if (isEditing.value) {
       await updatePreferenceById(editingId.value, payload)
-      toast.success(t('preference.update_success'))
+      toast.success(t('configuration.preference.update_success'))
     } else {
       await postPreference(payload)
-      toast.success(t('preference.create_success'))
+      toast.success(t('configuration.preference.create_success'))
     }
-    
+
     closeModal()
-    await loadPreferences()
+    await loadPreferences(1)
   } catch (error) {
     console.error('Error saving preference:', error)
-    toast.error(t('preference.save_error'))
+    toast.error(t('configuration.preference.save_error'))
   } finally {
     saving.value = false
   }
@@ -257,14 +268,17 @@ const deletePreference = (id) => {
 
 const confirmDelete = async () => {
   try {
-    await configrationApi.deletePreferenceById(deleteItemId.value)
-    toast.success(t('preference.delete_success'))
+    isDeleting.value = true
+    await deletePreferenceById(deleteItemId.value)
+    toast.success(t('configuration.preference.delete_success'))
     showDeleteModal.value = false
     deleteItemId.value = null
-    await loadPreferences()
+    await loadPreferences(1)
   } catch (error) {
     console.error('Error deleting preference:', error)
-    toast.error(t('preference.delete_error'))
+    toast.error(t('configuration.preference.delete_error'))
+  }finally{
+    isDeleting.value = false
   }
 }
 
@@ -288,10 +302,14 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
+const handlePageChange = (page) =>{
+  loadPreferences(page)
+}
+
 // Lifecycle
 onMounted(async () => {
   await Promise.all([
-    loadPreferences(),
+    loadPreferences(1),
     loadPreferenceTypes()
   ])
 })

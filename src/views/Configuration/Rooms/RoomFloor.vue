@@ -8,16 +8,16 @@
         :data="rooms"
         :actions="actions"
         :loading="loading"
-        search-placeholder="Search rooms..."
+        :search-placeholder="$t('Search rooms...')"
         :selectable="false"
         :meta="metaData"
         @page-change="handlePageChange"
-        empty-state-title="No rooms found"
-        empty-state-message="Click 'Add Room' to create your first room."
+        :empty-state-title="$t('No rooms found')"
+        :empty-state-message="$t('Click \'Add Room\' to create your first room.')"
         @action="onAction"
         @selection-change="onSelectionChange">
         <template #header-actions>
-          <BasicButton @click="showAddModal = true" label="Add Room" :icon="Plus" />
+          <BasicButton @click="showAddModal = true" :label="$t('AddRoom')" :icon="Plus" />
           <BasicButton
             v-if="selectedRooms.length > 0"
             @click="deleteSelected"
@@ -207,7 +207,68 @@
             </div>
 
             <!-- Room Images -->
-            <div>
+             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  {{ t('roomImage') }} <span class="text-red-500">*</span>
+                  <span class="text-xs text-gray-500">({{ t('maximumImage') }})</span>
+                </label>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div
+                    v-for="(_, index) in [0, 1]"
+                    :key="index"
+                    class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
+
+                    <!-- Prévisualisation de l'image -->
+                    <div v-if="imagePreviews[index]" class="relative">
+                      <img
+                        :src="imagePreviews[index]"
+                        :alt="`Preview ${index + 1}`"
+                        class="w-full h-48 object-cover"
+                      />
+                      <button
+                        type="button"
+                        @click="removeImage(index)"
+                        class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition shadow-lg">
+                        <Trash2 class="w-4 h-4" />
+                      </button>
+                      <div class="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                        {{ t('Image') }} {{ index + 1 }}
+                      </div>
+                    </div>
+
+                    <!-- Zone de sélection si pas d'image -->
+                    <div v-else class="p-4 text-center">
+                      <div class="text-gray-400 mb-2">
+                        <Camera class="w-8 h-8 mx-auto" />
+                      </div>
+                      <p class="text-xs text-gray-500 mb-2">{{ t('Image') }} {{ index + 1 }}</p>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/jpg,image/webp"
+                        @change="handleImageUpload($event, index)"
+                        class="hidden"
+                        :id="`image-${index}`"
+                        :disabled="selectedFiles.filter(f => f).length >= 2 && !selectedFiles[index]">
+                      <label
+                        :for="`image-${index}`"
+                        :class="[
+                          'text-xs cursor-pointer inline-block px-4 py-2 rounded transition',
+                          selectedFiles.filter(f => f).length >= 2 && !selectedFiles[index]
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'bg-orange-600 text-white hover:bg-orange-700'
+                        ]">
+                        {{ t('choose') }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="text-xs text-gray-500 mt-2">
+                  💡 {{ t('maxImage') }} • {{ t('format') }}
+                </p>
+              </div>
+            <!-- <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 {{ t('roomImage') }}
               </label>
@@ -234,7 +295,7 @@
                 </div>
               </div>
               <p class="text-xs text-gray-500 mt-2">{{ t('roomImageDescription') }}</p>
-            </div>
+            </div> -->
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Connect Rooms -->
@@ -304,6 +365,18 @@
         </div>
       </div>
     </div>
+     <ConfirmationModal
+      v-model:show="showConfirmModal"
+      :is-open="showConfirmModal"
+      :loading="isDeletingLoading"
+      :title="t('confirmDelete')"
+      :message="t('deleteRoomConfirmation' , {name: deleteItem?.roomNumber})"
+      action="DANGER"
+      :confirm-text="$t('Confirm')"
+      :cancel-text="$t('Cancel')"
+      @close="showConfirmModal=false;deleteItem=null"
+      @confirm="confirmDelete"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -315,11 +388,12 @@ import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { Plus, Trash2, Edit, Trash, Camera } from 'lucide-vue-next'
-import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes } from '../../../services/configrationApi'
+import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes,deleteRoomById } from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { formatCurrency, formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 // Types
 interface Room {
@@ -332,7 +406,7 @@ interface Room {
   keyCardAlias: string
   sortKey: number
   smokingAllowed: boolean
-  roomImages: (File | null)[]
+  images: string[]
   connectedRooms: number[]
   taxRates?: Array<{ taxRateId: number }>
   roomType: {
@@ -400,8 +474,14 @@ const selectedRooms = ref<Room[]>([])
 const editingRoom = ref<Room | null>(null)
 const loading = ref(false)
 const saving = ref(false)
+const isDeletingLoading = ref(false)
+const showConfirmModal = ref(false)
 const currentPage = ref(1)
 const metaData = ref<any>(null)
+const deleteItem = ref<any>(null)
+const imagePreviews = ref<string[]>([])
+const selectedFiles = ref<File[]>([])
+
 
 
 // Form data with proper typing
@@ -523,13 +603,13 @@ const columns = computed(() => [
 const actions = computed(() => [
   {
     label: t('Edit'),
-    icon: 'edit',
     variant: 'primary',
-    handler: (item: Room) => onAction('edit', item)
+    handler: (item: Room) => onAction('edit', item),
+    icon:Edit
   },
   {
     label: t('Delete'),
-    icon: 'trash',
+    icon: Trash2,
     variant: 'danger',
     handler: (item: Room) => onAction('delete', item)
   }
@@ -567,12 +647,17 @@ const onAction = (action: string, item: Room) => {
 const editRoom = (room: Room) => {
   editingRoom.value = room
 
-  // Properly fill roomImages array
-  const roomImages: (File | null)[] = [null, null, null, null]
-  if (room.roomImages && Array.isArray(room.roomImages)) {
-    room.roomImages.forEach((img, index) => {
-      if (index < 4) {
-        roomImages[index] = img
+  // Réinitialiser les previews et les fichiers
+  imagePreviews.value = []
+  selectedFiles.value = []
+
+  // 🆕 Charger les images existantes dans les previews
+  if (room.images && Array.isArray(room.images)) {
+    room.images.slice(0, 2).forEach((imageUrl, index) => {
+      if (imageUrl && typeof imageUrl === 'string') {
+        imagePreviews.value[index] = imageUrl
+        // On ne met pas de fichier car c'est une URL existante
+        selectedFiles.value[index] = null as any
       }
     })
   }
@@ -586,16 +671,36 @@ const editRoom = (room: Room) => {
     keyCardAlias: room.keyCardAlias,
     sortKey: room.sortKey,
     smokingAllowed: room.smokingAllowed,
-    roomImages: roomImages,
+    roomImages: [null, null, null, null],
     connectedRooms: room.connectedRooms || [],
     taxRateIds: room.taxRates ? room.taxRates.map(e => e.taxRateId) : []
   }
+
   showEditModal.value = true
 }
 
+
 const deleteRoom = (room: Room) => {
-  if (confirm(`${t('Are you sure you want to delete room')} "${room.roomNumber}"?`)) {
-    rooms.value = rooms.value.filter(r => r.id !== room.id)
+ deleteItem.value = room
+ showConfirmModal.value = true
+
+}
+
+const confirmDelete = async() =>{
+  try {
+    isDeletingLoading.value= true
+    await deleteRoomById(deleteItem.value.id)
+    deleteItem.value = null
+    showConfirmModal.value = false
+    toast.success(t('toast.roomDelete'))
+    loadData(1)
+
+  } catch (error) {
+    console.error(error)
+    toast.error(t('toast.deleteErrors'))
+
+  }finally{
+    isDeletingLoading.value = false
   }
 }
 
@@ -607,19 +712,107 @@ const deleteSelected = () => {
   }
 }
 
+
 const handleImageUpload = (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
+
   if (file) {
-    formData.value.roomImages[index] = file
+    // Vérifier la limite de 2 images
+    const currentImagesCount = selectedFiles.value.filter(f => f !== null).length
+
+    if (currentImagesCount >= 2 && !selectedFiles.value[index]) {
+      toast.error(t('maxAuthorized'))
+      return
+    }
+
+    // Valider le type et la taille
+    if (!file.type.startsWith('image/')) {
+      toast.error(t('pleaseValidation'))
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB max
+      toast.error(t('sizeImage'))
+      return
+    }
+
+    // Stocker le fichier
+    selectedFiles.value[index] = file
+
+    // Créer une prévisualisation
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imagePreviews.value[index] = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
   }
 }
+
+// Fonction pour supprimer une image
+const removeImage = (index: number) => {
+  selectedFiles.value[index] = null as any
+  imagePreviews.value[index] = ''
+
+  const inputElement = document.getElementById(`image-${index}`) as HTMLInputElement
+  if (inputElement) {
+    inputElement.value = ''
+  }
+}
+
+// const saveRoom = async () => {
+//   // Validation
+//   if (!formData.value.shortCode ||
+//       !formData.value.roomNumber ||
+//       !formData.value.roomTypeId ) {
+//     toast.error(t('pleaseCompleteAllRequiredFields'))
+//     return
+//   }
+
+//   saving.value = true
+
+//   try {
+//     const roomData = {
+//       shortCode: formData.value.shortCode,
+//       roomNumber: formData.value.roomNumber,
+//       roomTypeId: formData.value.roomTypeId,
+//       bedTypeId: formData.value.bedTypeId,
+//       phoneExtension: formData.value.phoneExtension,
+//       keyCardAlias: formData.value.keyCardAlias,
+//       sortKey: formData.value.sortKey,
+//       smokingAllowed: formData.value.smokingAllowed,
+//       roomImages: formData.value.roomImages.filter(img => img !== null),
+//       connectedRooms: formData.value.connectedRooms,
+//       hotelId: serviceStore.serviceId,
+//       taxRateIds: formData.value.taxRateIds,
+//     }
+
+//     if (showEditModal.value && editingRoom.value) {
+//       // Update existing room
+//       await updateRoomById(editingRoom.value.id, roomData)
+//       toast.success(t('roomUpdatedSuccessfully'))
+//     } else {
+//       // Add new room
+//       await postRoom(roomData)
+//       toast.success(t('roomAddedSuccessfully'))
+//     }
+//     closeModal()
+//     // Reload data to reflect changes
+//     await loadData(1)
+
+//   } catch (error) {
+//     console.error('Error saving room:', error)
+//     toast.error(showEditModal.value ? t('errorUpdatingRoom') : t('errorAddingRoom'))
+//   } finally {
+//     saving.value = false
+//   }
+// }
 
 const saveRoom = async () => {
   // Validation
   if (!formData.value.shortCode ||
       !formData.value.roomNumber ||
-      !formData.value.roomTypeId ) {
+      !formData.value.roomTypeId) {
     toast.error(t('pleaseCompleteAllRequiredFields'))
     return
   }
@@ -627,41 +820,71 @@ const saveRoom = async () => {
   saving.value = true
 
   try {
-    const roomData = {
-      shortCode: formData.value.shortCode,
-      roomNumber: formData.value.roomNumber,
-      roomTypeId: formData.value.roomTypeId,
-      bedTypeId: formData.value.bedTypeId,
-      phoneExtension: formData.value.phoneExtension,
-      keyCardAlias: formData.value.keyCardAlias,
-      sortKey: formData.value.sortKey,
-      smokingAllowed: formData.value.smokingAllowed,
-      roomImages: formData.value.roomImages.filter(img => img !== null),
-      connectedRooms: formData.value.connectedRooms,
-      hotelId: serviceStore.serviceId,
-      taxRateIds: formData.value.taxRateIds,
+    const formDataToSend = new FormData()
+
+    // Ajouter les données textuelles
+    formDataToSend.append('shortCode', formData.value.shortCode)
+    formDataToSend.append('roomNumber', formData.value.roomNumber)
+    formDataToSend.append('roomTypeId', formData.value.roomTypeId.toString())
+    formDataToSend.append('hotelId', serviceStore.serviceId!.toString())
+    formDataToSend.append('sortKey', formData.value.sortKey.toString())
+    formDataToSend.append('smokingAllowed', formData.value.smokingAllowed.toString())
+
+    // Champs optionnels
+    if (formData.value.bedTypeId) {
+      formDataToSend.append('bedTypeId', formData.value.bedTypeId.toString())
+    }
+    if (formData.value.phoneExtension) {
+      formDataToSend.append('phoneExtension', formData.value.phoneExtension)
+    }
+    if (formData.value.keyCardAlias) {
+      formDataToSend.append('keyCardAlias', formData.value.keyCardAlias)
+    }
+
+    // Ajouter les tableaux
+    formData.value.connectedRooms.forEach(roomId => {
+      formDataToSend.append('connectedRooms[]', roomId.toString())
+    })
+
+    formData.value.taxRateIds.forEach(taxId => {
+      formDataToSend.append('taxRateIds[]', taxId.toString())
+    })
+
+    // 🆕 Ajouter uniquement les NOUVEAUX fichiers uploadés
+    // Si aucun nouveau fichier n'est uploadé en mode édition,
+    // le backend conservera les anciennes images
+    const hasNewImages = selectedFiles.value.some(file => file !== null)
+
+    if (hasNewImages) {
+      selectedFiles.value.forEach((file) => {
+        if (file) {
+          formDataToSend.append('roomImages', file)
+        }
+      })
     }
 
     if (showEditModal.value && editingRoom.value) {
-      // Update existing room
-      await updateRoomById(editingRoom.value.id, roomData)
+      await updateRoomById(editingRoom.value.id, formDataToSend)
       toast.success(t('roomUpdatedSuccessfully'))
     } else {
-      // Add new room
-      await postRoom(roomData)
+      await postRoom(formDataToSend)
       toast.success(t('roomAddedSuccessfully'))
     }
 
-    // Reload data to reflect changes
-    await loadData(1)
     closeModal()
-  } catch (error) {
+    await loadData(currentPage.value)
+
+  } catch (error: any) {
     console.error('Error saving room:', error)
+    if (error.response) {
+      console.error('Réponse erreur:', error.response.data)
+    }
     toast.error(showEditModal.value ? t('errorUpdatingRoom') : t('errorAddingRoom'))
   } finally {
     saving.value = false
   }
 }
+
 
 
 
@@ -744,6 +967,8 @@ const closeModal = () => {
   showAddModal.value = false
   showEditModal.value = false
   editingRoom.value = null
+  selectedFiles.value = []
+  imagePreviews.value = []
   formData.value = {
     shortCode: '',
     roomNumber: '',

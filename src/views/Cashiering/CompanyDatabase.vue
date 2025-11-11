@@ -52,15 +52,18 @@
         </template>
       </ReusableTable>
        <!-- Delete Confirmation Modal -->
-        <ModalConfirmation
-          v-if="showDeleteModal"
-          :is-loading="deleting"
-          :title="$t('companyDatabase.delete_title')"
-          :message="$t('companyDatabase.delete_confirm_message', { name: companyToDelete?.companyName })"
-          action="DANGER"
-          @close="closeDeleteModal"
-          @confirm="confirmDeleteCompany"
-        />
+
+        <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="$t('companyDatabase.delete_title')"
+        :message="$t('companyDatabase.delete_confirm_message', { name: companyToDelete?.companyName })"
+        :confirm-text="$t('Delete')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="deleting"
+        @confirm="confirmDeleteCompany"
+        @cancel="closeDeleteModal"
+      />
     </div>
 
   </AdminLayout>
@@ -79,6 +82,7 @@ import type { Action, Column } from '@/utils/models'
 import { Plus, Download, FileText, Eye, Edit, Trash2 } from 'lucide-vue-next'
 import AdminLayout from '../../components/layout/AdminLayout.vue'
 import { getCompanies, getFilteredCompanies, deleteCompany, exportCompanies, auditCompanies, type Company, type CompanyFilter as CompanyFilterType } from '@/services/companyApi'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -237,6 +241,7 @@ const confirmDeleteCompany = async () => {
     toast.error(t('companyDatabase.delete_error'))
   } finally {
     deleting.value = false
+     closeDeleteModal()
   }
 }
 

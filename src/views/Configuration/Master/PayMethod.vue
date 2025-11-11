@@ -4,7 +4,7 @@
       <ReusableTable :title="$t('configuration.payment_method.table_title')" :columns="columns" :data="payMethods"
         :actions="actions" :loading="loading" @action="onAction"
         :search-placeholder="$t('configuration.payment_method.search_placeholder')"
-        :empty-title="$t('configuration.payment_method.empty_title')"
+        :empty-title="$t('configuration.payment_method.empty_title')" :meta="paginationMeta" @page-change="handlePageChange"
         :empty-description="$t('configuration.payment_method.empty_description')">
         <template #cardProcessing="{ item }">
           <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
@@ -14,7 +14,7 @@
         </template>
         <template v-slot:header-actions>
           <BasicButton variant="primary" @click="openAddModal" :icon="Plus"
-            :label="$t('configuration.payment_method.add_payment_method')" :loading="loading" />
+            :label="$t('configuration.payment_method.add_payment_method')"  />
         </template>
         <template #status="{ item }">
           <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
@@ -53,13 +53,13 @@
           <form @submit.prevent="savePayMethod">
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <Input v-model="formData.shortCode" :lb="$t('configuration.payment_method.short_code') + ' *'"
+                <Input v-model="formData.shortCode" :lb="$t('configuration.payment_method.short_code')"
                   inputType="text" :isRequired="true"
                   :placeholder="$t('configuration.payment_method.short_code_placeholder')" />
               </div>
 
               <div class="mb-4">
-                <Input v-model="formData.name" :lb="$t('configuration.payment_method.payment_method') + ' *'"
+                <Input v-model="formData.name" :lb="$t('configuration.payment_method.payment_method')"
                   inputType="text" :isRequired="true"
                   :placeholder="$t('configuration.payment_method.name_placeholder')" />
               </div>
@@ -67,15 +67,7 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {{ $t('configuration.payment_method.type') }} *
-                </label>
-                <select v-model="formData.type" required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
-                  <option value="">{{ $t('configuration.payment_method.select_type') }}</option>
-                  <option value="CASH">{{ $t('configuration.payment_method.type_cash') }}</option>
-                  <option value="BANK">{{ $t('configuration.payment_method.type_bank') }}</option>
-                </select>
+                <Select :lb="$t('configuration.payment_method.type')" v-model="formData.type" :is-required="true" :options="Types" :placeholder="$t('configuration.payment_method.select_type')"/>
               </div>
 
               <div class="mb-4 items-center self-center">
@@ -121,7 +113,7 @@
 
               <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {{ $t('configuration.payment_method.extra_charge') }}
+                  {{ $t('extra_charge') }}
                 </label>
                 <select v-model="formData.extraCharge"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
@@ -144,7 +136,7 @@
                 <option value="manual">{{ $t('configuration.payment_method.manual') }}</option>
               </select>
             </div>
-          
+
             <div class="flex justify-end space-x-3 mt-6">
               <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                 :disabled="saving" />
@@ -156,6 +148,19 @@
         </div>
       </div>
     </div>
+
+     <ConfirmationModal
+      v-model:show="showConfirmModal"
+      :is-open="showConfirmModal"
+      :loading="isDeletingLoading"
+      :title="t('configuration.extra_charge.confirm_delete_title')"
+      :message="t('configuration.payment_method.delete_confirm')"
+      action="DANGER"
+      :confirm-text="$t('Confirm')"
+      :cancel-text="$t('Cancel')"
+      @close="showConfirmModal=false"
+      @confirm="confirmDelete"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -170,6 +175,7 @@ import BasicButton from '../../../components/buttons/BasicButton.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import type { Action, Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import {
   getPaymentMethods,
   postPaymentMethod,
@@ -177,6 +183,8 @@ import {
   deletePaymentMethodById
 } from '@/services/configrationApi'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Trash2 } from 'lucide-vue-next'
+import Select from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -186,6 +194,10 @@ const showModal = ref(false)
 const isEditing = ref(false)
 const loading = ref(false)
 const saving = ref(false)
+const showConfirmModal = ref(false)
+const isDeletingLoading = ref(false)
+const paginationMeta = ref<any>(null)
+const itemToDelete = ref<any>(null)
 
 const columns = computed<Column[]>(() => [
   { key: 'shortCode', label: t('configuration.payment_method.short_code'), type: 'text' },
@@ -198,8 +210,18 @@ const columns = computed<Column[]>(() => [
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('edit'), handler: (item: any) => editPayMethod(item), variant: 'primary' },
-  { label: t('delete'), handler: (item: any) => deletePayMethod(item), variant: 'danger' }
+  { label: t('edit'), handler: (item: any) => editPayMethod(item), variant: 'primary',icon:Edit },
+  { label: t('delete'), handler: (item: any) => deletePayMethod(item), variant: 'danger',icon:Trash2 }
+])
+
+const Types = computed(()=>[
+  {label:t('configuration.payment_method.type_cash') ,value:'CASH'},
+  {label:t('configuration.payment_method.type_bank') ,value:'BANK'},
+])
+
+const surChargesTypes = computed(()=>[
+  {label:t('configuration.payment_method.amount') ,value:'amount'},
+  {label:t('configuration.payment_method.percentage') ,value:'percent'},
 ])
 
 const formData = ref({
@@ -218,11 +240,12 @@ const formData = ref({
 const payMethods = ref<any[]>([])
 
 // Fetch payment methods from API
-const fetchPaymentMethods = async () => {
+const fetchPaymentMethods = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getPaymentMethods()
+    const response = await getPaymentMethods({page:pageNumber,limit:10})
     payMethods.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
     console.log('payment methode',payMethods.value)
   } catch (error) {
     console.error('Error fetching payment methods:', error)
@@ -286,9 +309,9 @@ const savePayMethod = async () => {
       await postPaymentMethod(paymentMethodData)
       toast.success(t('configuration.payment_method.create_success'))
     }
-
-    await fetchPaymentMethods()
     closeModal()
+    await fetchPaymentMethods(1)
+
   } catch (error) {
     console.error('Error saving payment method:', error)
     toast.error(t('configuration.payment_method.save_error'))
@@ -297,22 +320,32 @@ const savePayMethod = async () => {
   }
 }
 
-const deletePayMethod = async (method: any) => {
-  if (confirm(t('configuration.payment_method.delete_confirm'))) {
+const deletePayMethod =  (method: any) => {
+  itemToDelete.value = method
+  showConfirmModal.value = true
+
+}
+const confirmDelete = async() =>{
+
     try {
-      loading.value = true
-      await deletePaymentMethodById(method.id)
+      isDeletingLoading.value = true
+      await deletePaymentMethodById(itemToDelete.value.id)
+       itemToDelete.value = null
+      showConfirmModal.value = false
       toast.success(t('configuration.payment_method.delete_success'))
-      await fetchPaymentMethods()
+      await fetchPaymentMethods(1)
     } catch (error) {
       console.error('Error deleting payment method:', error)
       toast.error(t('configuration.payment_method.delete_error'))
     } finally {
-      loading.value = false
+      isDeletingLoading.value = false
     }
-  }
+
 }
 
+const handlePageChange = (page:number) =>{
+  fetchPaymentMethods(page)
+}
 const onAction = (action: string, item: any) => {
   if (action === 'edit') {
     editPayMethod(item)
@@ -323,6 +356,6 @@ const onAction = (action: string, item: any) => {
 
 // Load payment methods on component mount
 onMounted(() => {
-  fetchPaymentMethods()
+  fetchPaymentMethods(1)
 })
 </script>

@@ -1,7 +1,7 @@
 <template>
   <ConfigurationLayout>
     <div class="p-6">
-     
+
       <ReusableTable
         :title="t('configuration.blacklist_reason.table_title')"
         :columns="columns"
@@ -13,6 +13,8 @@
         :empty-state-message="t('configuration.blacklist_reason.empty_state_message')"
         :loading="loading"
         @action="onAction"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
       >
         <template #header-actions>
           <BasicButton
@@ -48,7 +50,7 @@
             }"
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
           >
-            {{ item.severity }}
+            {{ $t(`${item.severity}`) }}
           </span>
         </template>
       </ReusableTable>
@@ -62,47 +64,47 @@
 
           <form @submit.prevent="saveBlacklistReason" class="space-y-4">
             <Input
-              :lb="'Reason Name'"
+              :lb="$t('configuration.blacklist_reason.ReasonName')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.reason"
-              :placeholder="'Enter blacklist reason name'"
+              :placeholder="$t('Enter blacklist reason name')"
             />
 
             <Select
-               :lb="'Category'"
+               :lb="$t('configuration.blacklist_reason.Category')"
                :isRequired="true"
                v-model="formData.category"
                :options="categoryOptions"
-               :defaultValue="'Select category'"
+               :defaultValue="$t('Select category')"
              />
 
              <Select
-               :lb="'Severity'"
+               :lb="$t('configuration.blacklist_reason.Severity')"
                :isRequired="true"
                v-model="formData.severity"
                :options="severityOptions"
-               :defaultValue="'Select severity level'"
+               :defaultValue="$t('Select severity level')"
              />
 
             <Input
-              :lb="'Description'"
+              :lb="$t('Description')"
               :inputType="'text'"
               v-model="formData.description"
-              :placeholder="'Enter description (optional)'"
+              :placeholder="$t('Enter description (optional)')"
             />
 
            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton 
-                type="button" 
-                variant="outline" 
-                @click="closeModal" 
-                :label="t('cancel')" 
+              <BasicButton
+                type="button"
+                variant="outline"
+                @click="closeModal"
+                :label="t('cancel')"
                 :disabled="saving"
               />
-              <BasicButton 
-                type="submit" 
-                variant="primary" 
+              <BasicButton
+                type="submit"
+                variant="primary"
                 :label="isEditing ? t('update') : t('save')"
                 :loading="saving"
               />
@@ -111,6 +113,18 @@
         </div>
       </div>
     </div>
+
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('configuration.blacklist_reason.delete_title')"
+        :message="t('configuration.blacklist_reason.delete_message',{ name : deleteItemId?.reason})"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -125,6 +139,7 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { useServiceStore } from '@/composables/serviceStore'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import {
   getBlackListReasonsByHotel,
   postBlackListReason,
@@ -134,6 +149,7 @@ import {
 import type { Column } from '../../../utils/models'
 import Plus from '../../../icons/Plus.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -146,6 +162,10 @@ const editingId = ref(null)
 const loading = ref(false)
 const saving = ref(false)
 const blacklistReasons = ref([])
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
+const deleteItemId = ref<any>(null)
+const paginationMeta = ref<any>(null)
 
 const formData = ref({
   reason: '',
@@ -156,39 +176,40 @@ const formData = ref({
 
 // Options for select fields
 const categoryOptions = ref([
-  { value: 'Behavior', label: 'Behavior' },
-  { value: 'Payment', label: 'Payment' },
-  { value: 'Damage', label: 'Damage' },
-  { value: 'Fraud', label: 'Fraud' },
-  { value: 'Other', label: 'Other' }
+  { value: 'Behavior', label: t('Behavior' )},
+  { value: 'Payment', label: t('Payment') },
+  { value: 'Damage', label: t('Damage') },
+  { value: 'Fraud', label: t('Fraud') },
+  { value: 'Other', label: t('Other') }
 ])
 
 const severityOptions = ref([
-  { value: 'Low', label: 'Low' },
-  { value: 'Medium', label: 'Medium' },
-  { value: 'High', label: 'High' }
+  { value: 'Low', label: t('Low') },
+  { value: 'Medium', label: t('Medium') },
+  { value: 'High', label: t('High') }
 ])
 
 // Computed properties
 const columns = computed<Column[]>(() => [
   {
     key: 'reason',
-    label: 'Reason Name',
+    label: t('configuration.blacklist_reason.ReasonName'),
     sortable: true
   },
   {
     key: 'category',
-    label: 'Category',
+    label: t('configuration.blacklist_reason.Category'),
     sortable: true
   },
   {
     key: 'severity',
-    label: 'Severity',
-    sortable: true
+    label: t('configuration.blacklist_reason.Severity'),
+    sortable: true,
+    type : 'custom'
   },
   {
-    key: 'description',
-    label: 'Description',
+    key: 'description' ,
+    label: t('Description'),
     sortable: true
   },
   {
@@ -210,24 +231,27 @@ const actions = computed(() => [
   {
     label: t('configuration.blacklist_reason.edit'),
     variant: 'primary',
-    handler:(item:any)=>editBlacklistReason(item)
+    handler:(item:any)=>editBlacklistReason(item),
+    icon:Edit
   },
   {
     label: t('configuration.blacklist_reason.delete'),
     variant: 'danger',
-    handler:(item:any)=>deleteBlacklistReason(item)
+    handler:(item:any)=>deleteBlacklistReason(item),
+    icon:Trash2
   }
 ])
 
 
 
 // API Functions
-const fetchBlacklistReasons = async () => {
+const fetchBlacklistReasons = async (pageNumber=1) => {
   try {
     loading.value = true
     const hotelId = serviceStore.serviceId
-    const response = await getBlackListReasonsByHotel(hotelId!)
+    const response = await getBlackListReasonsByHotel(hotelId!,{page:pageNumber,limit:10})
     blacklistReasons.value = response.data.data.data || []
+    paginationMeta.value = response.data.data.meta || []
   } catch (error) {
     console.error('Error fetching blacklist reasons:', error)
     toast.error(t('configuration.blacklist_reason.fetch_error'))
@@ -290,15 +314,15 @@ const saveBlacklistReason = async () => {
       toast.success(t('configuration.blacklist_reason.update_success'))
     } else {
       await postBlackListReason(payload)
-      toast.success(t('configuration.blacklist_reason.save_success'))
+      toast.success(t('configuration.blacklist_reason.create_success'))
     }
 
     closeModal()
-    await fetchBlacklistReasons()
+    await fetchBlacklistReasons(1)
   } catch (error) {
     console.error('Error saving blacklist reason:', error)
     const errorMessage = isEditing.value
-      ? t('configuration.blacklist_reason.update_error')
+      ? t('toast.updateError')
       : t('configuration.blacklist_reason.save_error')
     toast.error(errorMessage)
   } finally {
@@ -306,14 +330,26 @@ const saveBlacklistReason = async () => {
   }
 }
 
-const deleteBlacklistReason = async (id: number) => {
+
+const deleteBlacklistReason = (item: any) => {
+  deleteItemId.value = item
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
   try {
-    await deleteBlackListReasonById(id)
+    isDeleting.value = true
+    await deleteBlackListReasonById(deleteItemId.value.id)
     toast.success(t('configuration.blacklist_reason.delete_success'))
-    await fetchBlacklistReasons()
+    showDeleteModal.value = false
+    deleteItemId.value = null
+    await fetchBlacklistReasons(1)
   } catch (error) {
     console.error('Error deleting blacklist reason:', error)
     toast.error(t('configuration.blacklist_reason.delete_error'))
+  }finally{
+    isDeleting.value = true
+
   }
 }
 
@@ -327,8 +363,12 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:number) =>{
+  fetchBlacklistReasons(page)
+}
+
 // Lifecycle
 onMounted(() => {
-  fetchBlacklistReasons()
+  fetchBlacklistReasons(1)
 })
 </script>

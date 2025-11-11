@@ -1,7 +1,7 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="props.isEditMode ? $t('Edit Charge') : $t('Add Charge')" @close="closeModal">
+  <RightSideModal :is-open="isOpen" :title="props.isEditMode ? $t('Edit Charge') : $t('tooltip.Add Charge')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ props.isEditMode ? $t('Edit Charge') : $t('Add Charge') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ props.isEditMode ? $t('Edit Charge') : $t('tooltip.Add Charge') }}</h3>
     </template>
     <!-- Form -->
     <div class="px-2 space-y-4 text-gray-900 dark:text-gray-100">
@@ -20,7 +20,7 @@
       <!-- Rec/Vou # -->
       <div>
         <Input v-model="formData.recVouNumber" type="text" :lb="$t('Rec/Vou #')" :disabled="true"
-          placeholder="Enter receipt/voucher number" />
+          :placeholder="$t('Enter receipt/voucher number')" />
       </div>
 
 
@@ -52,10 +52,10 @@
 
       <!-- Comment -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comment</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Comment') }}</label>
         <textarea v-model="formData.comment" rows="3"
           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-          placeholder="Enter any additional comments..."></textarea>
+          :placeholder="$t('Enter any additional comments...')"></textarea>
       </div>
     </div>
 
@@ -82,6 +82,7 @@ import InputDiscountSelect from './InputDiscountSelect.vue'
 import { postTransaction ,updateTransaction } from '@/services/foglioApi'
 import { prepareFolioAmount, safeParseFloat, isValidMonetaryAmount } from '@/utils/numericUtils'
 import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
 
 
 interface Props {
@@ -106,6 +107,7 @@ const emit = defineEmits<Emits>()
 const selectedCharge = ref<any>(null)
 const isLoading = ref(false)
 const toast = useToast()
+const {t} = useI18n()
 const formData = reactive({
   date: new Date().toISOString().split('T')[0],
   folio: props.folioId as any,
@@ -181,15 +183,19 @@ const saveCharge = async () => {
 
     if (responseCharges && responseCharges.success !== false) {
       emit('refresh')
-      toast.success(props.isEditMode ? 'Charge updated successfully!' : 'Charge added successfully!')
+      toast.success(props.isEditMode ? t('Charge updated successfully!') : t('Charge added successfully!'))
       closeModal()
     } else {
-      const errorMessage = responseCharges?.message || `Failed to ${props.isEditMode ? 'update' : 'add'} charge. Please try again.`
+      const errorMessage = responseCharges?.message || t('charge.error.generic', {
+        action: props.isEditMode ? t('commons.update') : t('commons.add')
+      })
       toast.error(errorMessage)
     }
   } catch (error: any) {
     console.error('Error saving charge:', error)
-    const errorMessage = error?.response?.data?.message || error?.message || `An error occurred while ${props.isEditMode ? 'updating' : 'adding'} the charge. Please try again.`
+    const errorMessage = error?.response?.data?.message || error?.message || t('charge.error.generic', {
+        action: props.isEditMode ? t('commons.update') : t('commons.add')
+      })
     toast.error(errorMessage)
   } finally {
     isLoading.value = false

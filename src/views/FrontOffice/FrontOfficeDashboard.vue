@@ -167,7 +167,7 @@
                         <span>{{ $t('occupied') }}: {{ suite.occupied }}</span>
                         <span>{{ $t('available') }}: {{ suite.free }}</span>
                         <span class="">
-                          {{ $t('occupancyRate') }}:
+                          {{ $t('reports.frontOffice.occupancyRate') }}:
                           <span :class="{
                             'text-green-600 font-semibold': parseFloat(suite.occupancyRate) < 50,
                             'text-yellow-600 font-semibold':

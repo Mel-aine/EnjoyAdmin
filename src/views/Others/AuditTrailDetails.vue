@@ -11,7 +11,7 @@
                         </button>
                         <FileText class="w-6 h-6 text-primary" />
                         <div class="flex flex-col">
-                            <span class="font-bold text-lg">{{ $t('AuditTrail') }}</span>
+                            <span class="font-bold text-lg">{{ $t('audit_trial') }}</span>
                             <div class="flex items-center gap-2 mt-1">
                                 <span v-if="entityType && entityId"
                                     class="inline-flex items-center px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
@@ -44,28 +44,28 @@
                 <div class="mx-4 mt-4 bg-white rounded-lg shadow-sm p-4 dark:bg-gray-800">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
-                            <InputDatePicker v-model="filters.startDate" placeholder="gg/mm/YY" :title="$t('StartDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
+                            <InputDatePicker v-model="filters.startDate" :placeholder="$t('dd/mm/yyyy')" :title="$t('StartDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
                         </div>
                         <div>
-                            <InputDatePicker v-model="filters.endDate" placeholder="gg/mm/YY" :title="$t('EndDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
+                            <InputDatePicker v-model="filters.endDate" :placeholder="$t('dd/mm/yyyy')" :title="$t('EndDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
                         </div>
                         <div>
               <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Action') }}</label>
-              <SelectComponent 
-                v-model="filters.action" 
-                :options="actionOptions" 
-                placeholder="Select action..." 
-                class="w-full" 
+              <SelectComponent
+                v-model="filters.action"
+                :options="actionOptions"
+                :placeholder="$t('Select action...')"
+                class="w-full"
                 @change="fetchAuditTrail"
               />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('User') }}</label>
-              <SelectComponent 
-                v-model="filters.userId" 
-                :options="userOptions" 
-                placeholder="Select user..." 
-                class="w-full" 
+              <SelectComponent
+                v-model="filters.userId"
+                :options="userOptions"
+                :placeholder="$t('Select user...')"
+                class="w-full"
                 @change="fetchAuditTrail"
               />
             </div>

@@ -37,6 +37,7 @@ interface RichSelectOption extends SelectOption {
 
 const props = defineProps({
   customer_id: String,
+  disabled:Boolean,
   modelValue: Object,
   showImage: {
     type: Boolean,
@@ -165,8 +166,9 @@ const fetchIdentityTypes = async () => {
     if (!hotelId) return
 
     const res = await getIdentityTypesByHotelId(hotelId)
+    console.log('res',res)
 
-    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+    idTypeOptions.value = res.data.data.data.map((type: any): RichSelectOption => {
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {
@@ -494,7 +496,7 @@ console.log('modalevalue', props.modelValue)
                   <InputDatePicker
                     :title="$t('DateOfBirth')"
                     v-model="selectedCustomer.dateOfBirth"
-                    :placeholder="$t('Select Date')"
+                    :placeholder="$t('select_date')"
                   />
                 </div>
 
@@ -541,8 +543,8 @@ console.log('modalevalue', props.modelValue)
                 <AutoCompleteSelect
                   v-model="selectedCustomer.contactType"
                   :options="TypesOfContact"
-                  :defaultValue="$t('contactType')"
-                  :lb="$t('contactType')"
+                  :defaultValue="$t('contact_type')"
+                  :lb="$t('contact_type')"
                   :is-required="false"
                   :use-dropdown="useDropdownBooking"
                   @clear-error="emit('clear-error')"
@@ -719,7 +721,7 @@ console.log('modalevalue', props.modelValue)
                     :lb="$t('IDType')"
                     v-model="selectedCustomer.idType"
                     :options="idTypeOptions"
-                    :placeholder="$t('Select ID Type')"
+                    :placeholder="$t('select_id_type')"
                   />
                 </div>
                 <div class="md:col-span-2">
@@ -737,7 +739,7 @@ console.log('modalevalue', props.modelValue)
                   <InputDatePicker
                     :title="$t('ExpiryDate')"
                     v-model="selectedCustomer.idExpiryDate"
-                    :placeholder="$t('Select Date')"
+                    :placeholder="$t('select_date')"
                   />
                 </div>
                 <div>

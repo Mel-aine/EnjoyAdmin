@@ -3,7 +3,7 @@
     <div class="p-6">
       <ReusableTable :title="$t('configuration.reason.title')" :columns="columns" :data="reasons" :actions="actions"
         :search-placeholder="$t('configuration.reason.search_placeholder')" :selectable="false"
-        :empty-state-title="$t('configuration.reason.empty_state_title')"
+        :empty-state-title="$t('configuration.reason.empty_state_title')" :meta="paginationMeta" @page-change="handlePageChange"
         :empty-state-message="$t('configuration.reason.empty_state_message')" :loading="loading" @action="onAction">
         <template #header-actions>
           <BasicButton
@@ -28,11 +28,18 @@
               $t('configuration.reason.status_inactive') }}
           </span>
         </template>
-        <!-- Custom column for modified info -->
+         <!-- Custom column for cree info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{formatDateT(item.updatedAt) }}</div>
+          </div>
+        </template>
+        <!-- Custom column for modified info -->
+        <template #column-createdinfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
         <template #status="{ item }">
@@ -84,6 +91,18 @@
       </div>
     </div>
 
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('configuration.reason.delete_title')"
+        :message="t('configuration.reason.delete_confirm',{ name : deleteItem?.reasonName})"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
+
   </ConfigurationLayout>
 </template>
 
@@ -99,21 +118,29 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import type { Action, Column } from '../../../utils/models'
 import PlusIcon from '../../../icons/Plus.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import {
   getReasons,
   postReason,
   updateReasonById,
   deleteReasonById
 } from '@/services/configrationApi'
+import { Edit, Trash2 } from 'lucide-vue-next'
 
 
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
+const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
+
 
 // Reactive data
 const showModal = ref(false)
 const isEditing = ref(false)
+const isDeleting = ref(false)
+const showDeleteModal = ref(false)
 const loading = ref(false)
 const saving = ref(false)
 
@@ -160,16 +187,17 @@ const columns = computed<Column[]>(() => [
 ])
 
 const actions = computed<Action[]>(() => [
-  { label: t('edit'), handler: (item: any) => editReason(item), variant: 'primary' },
-  { label: t('delete'), handler: (item: any) => deleteReason(item), variant: 'danger' }
+  { label: t('edit'), handler: (item: any) => editReason(item), variant: 'primary',icon:Edit },
+  { label: t('delete'), handler: (item: any) => deleteReason(item), variant: 'danger',icon:Trash2 }
 ])
 
 // Fetch reasons from API
-const fetchReasons = async () => {
+const fetchReasons = async (pageNumber=1) => {
   try {
     loading.value = true
-    const response = await getReasons()
+    const response = await getReasons({page:pageNumber,limit:10})
     reasons.value = response.data.data || []
+    paginationMeta.value = response.data.meta || []
   } catch (error) {
     console.error('Error fetching reasons:', error)
     toast.error(t('configuration.reason.fetch_error'))
@@ -223,7 +251,7 @@ const saveReason = async () => {
     }
     closeModal()
 
-    await fetchReasons()
+    await fetchReasons(1)
   } catch (error) {
     console.error('Error saving reason:', error)
     toast.error(t('configuration.reason.save_error'))
@@ -232,19 +260,24 @@ const saveReason = async () => {
   }
 }
 
-const deleteReason = async (reason: any) => {
-  if (confirm(t('configuration.reason.delete_confirm'))) {
-    try {
-      loading.value = true
-      await deleteReasonById(reason.id)
+const deleteReason =  (reason: any) => {
+ deleteItem.value=reason
+ showDeleteModal.value = true
+}
+
+const confirmDelete = async() =>{
+  try {
+      isDeleting.value = true
+      await deleteReasonById(Number(deleteItem.value.id))
+      deleteItem.value=null
+      showDeleteModal.value = false
       toast.success(t('configuration.reason.delete_success'))
-      await fetchReasons()
-    } catch (error) {
-      console.error('Error deleting reason:', error)
+      await fetchReasons(1)
+  } catch (error) {
+     console.error('Error deleting reason:', error)
       toast.error(t('configuration.reason.delete_error'))
-    } finally {
-      loading.value = false
-    }
+  }finally{
+    isDeleting.value = false
   }
 }
 
@@ -256,8 +289,12 @@ const onAction = (action: string, item: any) => {
   }
 }
 
+const handlePageChange = (page:number)=>{
+  fetchReasons(page)
+}
+
 // Load reasons on component mount
 onMounted(() => {
-  fetchReasons()
+  fetchReasons(1)
 })
 </script>

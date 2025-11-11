@@ -60,7 +60,7 @@
       <div v-if="showColorPicker" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
           <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ t('selectColorFor', { status: t(`roomStatus.${selectedStatus?.name}`) }) }}
+            {{ t('selectColorFor', { status: t(`${selectedStatus?.name}`) }) }}
           </h3>
 
           <!-- Color Input -->

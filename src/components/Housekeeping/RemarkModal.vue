@@ -20,7 +20,7 @@
               for="remarkDescription"
               class="block text-sm font-medium text-gray-700 mb-1.5 text-left"
             >
-              {{ $t('remark') }} <span class="text-red-500">*</span>
+              {{ $t('Remark') }} <span class="text-red-500">*</span>
             </label>
             <textarea
               id="remarkDescription"
@@ -105,7 +105,7 @@
               </h5>
               <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full font-medium">
                 {{ existingRemarkData.length }}
-                {{ existingRemarkData.length > 1 ? $t('remarks') : $t('remark') }}
+                {{ existingRemarkData.length > 1 ? $t('Remarks') : $t('Remark') }}
               </span>
             </div>
 

@@ -6,37 +6,54 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  // Backward-compat for existing usage with `lb`
   lb: {
     type: String,
     default: '',
   },
   modelValue: {
-    type: Boolean,
+    type: [Boolean, Array],
     default: false,
+  },
+  value: {
+    type: [String, Number],
+    default: null,
   },
   id: {
     type: String,
     default: null,
   },
 })
+
 const emits = defineEmits(['update:modelValue'])
-const checked = ref(props.modelValue)
-watch(checked, (newValue) => {
-  emits('update:modelValue', newValue)
-})
+const isArray = computed(() => Array.isArray(props.modelValue))
+const checked = ref(false)
 
-
+// Synchronisation initiale
 watch(
   () => props.modelValue,
   (newValue) => {
-    checked.value = newValue
-  }
+    checked.value = isArray.value
+      ? newValue.includes(props.value)
+      : !!newValue
+  },
+  { immediate: true }
 )
 
-// Prefer `label`, fallback to `lb` for legacy calls
-const labelText = computed(() => props.label || props.lb || '')
+// Quand l’utilisateur coche/décoche
+watch(checked, (newVal) => {
+  if (isArray.value) {
+    const newArray = [...props.modelValue]
+    const index = newArray.indexOf(props.value)
+    if (newVal && index === -1) newArray.push(props.value)
+    else if (!newVal && index !== -1) newArray.splice(index, 1)
+    emits('update:modelValue', newArray)
+  } else {
+    emits('update:modelValue', newVal)
+  }
+})
 
+// Label final
+const labelText = computed(() => props.label || props.lb || '')
 </script>
 
 <template>

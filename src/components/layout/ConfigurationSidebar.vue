@@ -419,7 +419,8 @@ const masterItems: MenuItem[] = [
   { path: '/configuration/master/preference-type', label: 'Preference Type' },
   { path: '/configuration/master/preference', label: 'Preference' },
   { path: '/configuration/master/vip-status', label: 'vip status' },
-  { path: '/configuration/master/business-source', label: 'Business Source' }
+  { path: '/configuration/master/business-source', label: 'Business Source' },
+  { path: '/configuration/master/booking-source', label: 'Booking Source' }
 ]
 
 const settingsItems: MenuItem[] = [

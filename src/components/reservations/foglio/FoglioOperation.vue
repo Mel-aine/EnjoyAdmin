@@ -99,7 +99,7 @@
                 {{ selectedFolio ? `${$t('transactionsFor')}: ${selectedFolio.folioName}` : $t('allTransactions') }}
               </h3>
               <span class="text-xs text-gray-500 dark:text-gray-400">
-                {{ $t('total') }}: {{ foglioData.length }} {{ $t('transactions') }}
+                {{ $t('total') }}: {{ foglioData.length }} {{ foglioData.length > 1 ? $t('transactions') : $t('transaction') }}
               </span>
             </div>
           </div>

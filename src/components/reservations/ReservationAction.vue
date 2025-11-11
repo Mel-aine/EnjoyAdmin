@@ -188,7 +188,7 @@ const dropdownOptions = computed(() => {
     .filter((action: any) => action.available)
     .map((action: any) => ({
       id: action.action,
-      label: action.label,
+      label: t(action.label),
       description: action.description,
       route: action.route,
       icon: actionIconMap[action.action as keyof typeof actionIconMap] || List,
