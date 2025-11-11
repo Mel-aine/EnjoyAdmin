@@ -7,7 +7,7 @@
         @success="handleSuccess" />
     </SidebarProvider> 
     <OverLoading v-if="isLoading" /> 
-  </ThemeProvider>
+  </ThemeProvider> 
 </template>     
 <script setup lang="ts"> 
 import ThemeProvider from './components/layout/ThemeProvider.vue'
