@@ -38,7 +38,7 @@
               class="w-full"
             />
           </div>
-          <div>
+<!--           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.company') }}
             </label>
@@ -48,23 +48,22 @@
               :placeholder="$t('common.selectCompany')"
               class="w-full"
             />
-          </div>
+          </div> -->
+          <!-- Room Type -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {{ $t('common.roomType') }}
+              </label>
+              <SelectComponent
+                v-model="filters.roomType"
+                :options="roomTypeOptions"
+                :placeholder="$t('common.selectRoomType')"
+                class="w-full"
+              />
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Room Type -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.roomType') }}
-            </label>
-            <SelectComponent
-              v-model="filters.roomType"
-              :options="roomTypeOptions"
-              :placeholder="$t('common.selectRoomType')"
-              class="w-full"
-            />
-          </div>
-
           <!-- Travel Agent -->
 <!--           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -102,10 +101,7 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-
+          
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -118,7 +114,9 @@
               class="w-full"
             />
           </div>
+        </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -143,11 +141,7 @@
               :placeholder="$t('common.from')"
             />
           </div>
-
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-
+          
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.rateTo') }}
@@ -159,6 +153,10 @@
               :placeholder="$t('common.to')"
             />
           </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
 
           <!-- Show Amount -->
           <div>

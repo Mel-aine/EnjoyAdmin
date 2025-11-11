@@ -87,7 +87,7 @@
             </label>
             <SelectComponent
               v-model="filters.businessSource"
-              :options="businessSourceOptions"
+              :options="BusinessSource"
               :placeholder="$t('common.allSources')"
               class="w-full"
             />
@@ -102,7 +102,7 @@
             </label>
             <SelectComponent
               v-model="filters.market"
-              :options="marketOptions"
+              :options="MarketCode"
               :placeholder="$t('common.allMarkets')"
               class="w-full"
             />

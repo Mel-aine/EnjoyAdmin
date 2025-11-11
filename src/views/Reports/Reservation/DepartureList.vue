@@ -38,7 +38,7 @@
               class="w-full"
             />
           </div>
-          <div>
+<!--           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.company') }}
             </label>
@@ -48,11 +48,8 @@
               :placeholder="$t('common.selectCompany')"
               class="w-full"
             />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Room Type -->
+          </div> -->
+                    <!-- Room Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.roomType') }}
@@ -64,20 +61,9 @@
               class="w-full"
             />
           </div>
+        </div>
 
-          <!-- Travel Agent -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.travelAgent') }}
-            </label>
-            <SelectComponent
-              v-model="filters.travelAgent"
-              :options="travelAgentOptions"
-              :placeholder="$t('common.selectTravelAgent')"
-              class="w-full"
-            />
-          </div>
-
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <!-- Rate Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -90,10 +76,7 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Business Source -->
+                    <!-- Business Source -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.businessSource') }}
@@ -105,7 +88,6 @@
               class="w-full"
             />
           </div>
-
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -118,6 +100,9 @@
               class="w-full"
             />
           </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
 
           <!-- User -->
           <div>
@@ -131,10 +116,7 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Rate Range -->
+                    <!-- Rate Range -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.rateFrom') }}
@@ -158,6 +140,9 @@
               :placeholder="$t('common.to')"
             />
           </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
 
           <!-- Show Amount -->
           <div>
@@ -171,10 +156,7 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Reservation Type -->
+                    <!-- Reservation Type -->
           <div>
             <label class="font-medium mb-1 text-gray-600">{{ $t('common.reservationType') }}</label>
             <SelectComponent
@@ -183,7 +165,9 @@
               :placeholder="$t('common.selectReservationType')"
             />
           </div>
+        </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <!-- Tax Inclusive -->
           <div class="mt-12">
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
