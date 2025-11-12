@@ -490,7 +490,7 @@ const changePassword = async () => {
       password: passwordForm.value.newPassword,
       password_confirmation: passwordForm.value.confirmPassword,
     };
-    const token = localStorage.getItem('token');
+    const token = authStore.token;
 
     try {
       console.log('Payload envoyé à l’API :', userData);

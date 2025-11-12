@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { useBookingDraftStore } from '@/composables/bookingDraftStore'
 
 export interface Tax {
   id: number
@@ -41,16 +42,12 @@ export interface BookingData {
 }
 
 const bookingData = ref<BookingData | null>(null)
+const bookingDraftStore = useBookingDraftStore()
 
 export function useBookingSummaryStore() {
   const setBookingData = (data: BookingData) => {
     bookingData.value = data
-
-    try {
-      localStorage.setItem('booking_data', JSON.stringify(data))
-    } catch (e) {
-      console.warn('Could not save booking data to localStorage', e)
-    }
+    bookingDraftStore.setDraft(data)
   }
 
   const getBookingData = (): BookingData | null => {
@@ -59,15 +56,10 @@ export function useBookingSummaryStore() {
       return bookingData.value
     }
 
-    // Sinon, essayer de récupérer depuis localStorage
-    try {
-      const stored = localStorage.getItem('booking_data')
-      if (stored) {
-        bookingData.value = JSON.parse(stored)
-        return bookingData.value
-      }
-    } catch (e) {
-      console.warn('Could not load booking data from localStorage', e)
+    // Sinon, essayer de récupérer depuis Pinia persisted store
+    if (bookingDraftStore.data) {
+      bookingData.value = bookingDraftStore.data as BookingData
+      return bookingData.value
     }
 
     return null
@@ -75,11 +67,7 @@ export function useBookingSummaryStore() {
 
   const clearBookingData = () => {
     bookingData.value = null
-    try {
-      localStorage.removeItem('booking_data')
-    } catch (e) {
-      console.warn('Could not clear booking data from localStorage', e)
-    }
+    bookingDraftStore.clearDraft()
   }
 
   return {

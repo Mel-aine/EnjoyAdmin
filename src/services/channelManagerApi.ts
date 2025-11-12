@@ -768,3 +768,13 @@ export const getBookings= (
     { ...getHeaders(), params }
   )
 }
+export const fullSync = (
+  hotelId: string | number,
+  data: any
+): Promise<AxiosResponse<ApiResponse<RoomTypesData>>> => {
+  return axios.post<ApiResponse<RoomTypesData>>(
+    `${CHANNEX_API_URL}/properties/${hotelId}/ari`,
+    data,
+    getHeaders()
+  )
+}

@@ -372,15 +372,6 @@ const isRoomMoveModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
 const currentAction = ref<string | null>(null)
 
-// Utility functions
-const safeTranslate = (key: string) => {
-  try {
-    return t?.(key) || key
-  } catch (e) {
-    console.warn('Translation error:', e)
-    return key
-  }
-}
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {

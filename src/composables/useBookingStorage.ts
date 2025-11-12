@@ -1,7 +1,6 @@
 // composables/useBookingStorage.ts
 import { ref } from 'vue'
-
-const STORAGE_KEY = 'quick_booking'
+import { useBookingDraftStore } from '@/composables/bookingDraftStore'
 
 export interface Booking {
   reservation: {
@@ -70,6 +69,7 @@ export interface Booking {
 }
 
 export function useBookingStorage() {
+  const draftStore = useBookingDraftStore()
   const saveBooking = (data: Partial<Booking>) => {
     try {
       const draft: Booking = {
@@ -77,7 +77,7 @@ export function useBookingStorage() {
         timestamp: Date.now()
       } as Booking
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(draft))
+      draftStore.setDraft(draft)
       return true
     } catch (error) {
       console.error('Error saving booking draft:', error)
@@ -87,12 +87,9 @@ export function useBookingStorage() {
 
   const loadBooking = (): Booking | null => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (!stored) return null
-
-      const draft = JSON.parse(stored) as Booking
-
-      return draft
+      const data = draftStore.data as Booking | null
+      if (!data) return null
+      return data
     } catch (error) {
       console.error('Error loading booking draft:', error)
       return null
@@ -101,7 +98,7 @@ export function useBookingStorage() {
 
   const clearBooking = () => {
     try {
-      localStorage.removeItem(STORAGE_KEY)
+      draftStore.clearDraft()
       return true
     } catch (error) {
       console.error('Error clearing booking draft:', error)
@@ -110,7 +107,7 @@ export function useBookingStorage() {
   }
 
   const hasBookingDraft = (): boolean => {
-    return localStorage.getItem(STORAGE_KEY) !== null
+    return draftStore.hasDraft
   }
 
   return {

@@ -1446,7 +1446,7 @@ const onQuickGroupBookingChange = (event: Event) => {
 // Fonction
 const loadDraft = async () => {
   const draft = loadBooking()
-  console.log('Loading draft from localStorage:', draft)
+  console.log('Loading draft from:', draft)
 
   if (!draft) {
     console.log('No draft found')

@@ -19,14 +19,15 @@ import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n';
+import { useLanguageStore } from '@/lang/language';
 
 
 import messages from '@/lang/index';
 
 const i18n = createI18n({
     legacy: false,
-    locale: localStorage.getItem('language') || 'en', // set locale
-    fallbackLocale: 'en', // set fallback locale
+    locale: 'en',
+    fallbackLocale: 'en',
     messages,
 })
 
@@ -43,6 +44,12 @@ app.use(pinia)
 app.use(router)
 app.use(i18n)
 app.use(Toast, options)
+
+// Sync i18n locale from Pinia language store after Pinia is ready
+const languageStore = useLanguageStore()
+if (languageStore.language) {
+  i18n.global.locale.value = languageStore.language
+}
 
 
 app.mount('#app')

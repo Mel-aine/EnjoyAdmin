@@ -21,11 +21,13 @@ import { useAuthStore } from '../../composables/user'
 import { useServiceStore } from '../../composables/serviceStore'
 import { useStatusColor } from '../../composables/statusColorStore'
 import { useI18n } from 'vue-i18n'
+import { useLanguageStore } from '@/lang/language'
 import { auth, initSpace } from '../../services/api'
 import router from '../../router'
 
 
 const { locale } = useI18n()
+const languageStore = useLanguageStore()
 const isLoading = ref(false);
 const authStore = useAuthStore()
 const serviceStore = useServiceStore()
@@ -71,7 +73,7 @@ const initializeSpace = async () => {
     if (user) {
       if (user.language) {
         locale.value = user.language;
-        localStorage.setItem('language', user.language);
+        languageStore.set(user.language);
       }
       const userServices = res.data.data.userServices || [];
 

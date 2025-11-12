@@ -333,12 +333,9 @@ const handleGlobalClick = (event: MouseEvent): void => {
 }
 
 // Toggle section with type-safe parameter
-const toggleSection = (section: SectionKey): void => {
-  expandedSections.value[section] = !expandedSections.value[section]
-  
-  // Save state to localStorage
-  localStorage.setItem('sidebar-expanded-sections', JSON.stringify(expandedSections.value))
-  
+  const toggleSection = (section: SectionKey): void => {
+    expandedSections.value[section] = !expandedSections.value[section]
+    
   // Restore position after animation
   if (expandedSections.value[section]) {
     setTimeout(restoreScrollPosition, 300)
@@ -347,16 +344,6 @@ const toggleSection = (section: SectionKey): void => {
 
 // Component lifecycle
 onMounted(() => {
-  // Restore expanded sections from localStorage
-  const savedSections = localStorage.getItem('sidebar-expanded-sections')
-  if (savedSections) {
-    try {
-      const parsed = JSON.parse(savedSections) as ExpandedSections
-      expandedSections.value = parsed
-    } catch (error) {
-      console.error('Failed to parse saved sections:', error)
-    }
-  }
   
   // Restore scroll position on initial load
   restoreScrollPosition()

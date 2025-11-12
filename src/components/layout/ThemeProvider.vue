@@ -3,37 +3,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, onMounted, watch, computed, type ComputedRef } from 'vue'
+import { provide, onMounted, watch, computed, type ComputedRef } from 'vue'
+import { useThemeStore } from '@/composables/themeStore'
 
-type Theme = 'light' | 'dark'
+const themeStore = useThemeStore()
 
-const theme = ref<Theme>('light')
-const isInitialized = ref(false)
-
-const isDarkMode = computed(() => theme.value === 'dark')
+const isDarkMode = computed(() => themeStore.isDark)
 
 const toggleTheme = () => {
-  theme.value = theme.value === 'light' ? 'dark' : 'light'
+  themeStore.toggle()
 }
 
-
-
 onMounted(() => {
-  const savedTheme = localStorage.getItem('theme') as Theme | null
-  const initialTheme = savedTheme || 'light' // Default to light theme
-
-  theme.value = initialTheme
-  isInitialized.value = true
+  themeStore.markInitialized()
+  // Apply current theme to document
+  if (themeStore.isDark) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
 })
 
-watch([theme, isInitialized], ([newTheme, newIsInitialized]:any) => {
-  if (newIsInitialized) {
-    localStorage.setItem('theme', newTheme)
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
+watch(() => themeStore.theme, (newTheme) => {
+  if (newTheme === 'dark') {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
   }
 })
 

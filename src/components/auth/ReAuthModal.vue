@@ -65,8 +65,6 @@ const handleReAuth = async () => {
     authStore.setRoleId(user.roleId)
     authStore.setUserId(user.id)
 
-    localStorage.setItem('auth_token', userToken)
-
     toast.success(t('reauth.success'))
     emits('success')
     close()

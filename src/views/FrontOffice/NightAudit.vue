@@ -218,7 +218,6 @@ const getYesterday = () => {
   date.setDate(date.getDate() - 1)
   return date.toISOString().split('T')[0]
 }
-// State - Load saved step from localStorage or default to 1
 
 const currentStep = ref(1)
 const loading = ref(false)
@@ -753,10 +752,6 @@ const finishNightAudit = async () => {
   }
 }
 
-// Watch currentStep and save to localStorage
-watch(currentStep, (newStep) => {
-  localStorage.setItem('nightAuditCurrentStep', newStep.toString())
-}, { immediate: true })
 
 // Load data on mount
 onMounted(() => {

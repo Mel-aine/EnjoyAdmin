@@ -142,13 +142,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
 import { auth, validateEmail, validatePassword } from '@/services/api'
 import Spinner from '@/components/spinner/Spinner.vue';
-import ButtonLanguage from '@/components/buttons/ButtonLanguage.vue'
 import { useI18n } from 'vue-i18n'
 import { useStatusColor } from '@/composables/statusColorStore'
 
@@ -187,11 +185,7 @@ const handleSubmit = async () => {
     const token = user_token.token;
     console.log('login response', res.data.data);
 
-    if (keepLoggedIn.value) {
-      localStorage.setItem('auth_token', token);
-    } else {
-      sessionStorage.setItem('auth_token', token);
-    }
+    // Persist handled by Pinia persistedstate; no manual storage
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
