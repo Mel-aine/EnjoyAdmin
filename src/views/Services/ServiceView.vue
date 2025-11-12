@@ -478,17 +478,7 @@ const signOut = async () => {
     serviceStore.clearServiceCategory();
     serviceStore.clearPermissions();
     serviceStore.clearUserService();
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('roleId');
-    localStorage.removeItem('UserId');
-
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('roleId');
-    sessionStorage.removeItem('UserId');
-    sessionStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_token');
+    // All persistence handled by Pinia; remove direct localStorage/sessionStorage usage
 
     await nextTick();
 

@@ -257,7 +257,6 @@ const copyFirstRoomRate = () => {
 
 
 const gotoNew = () => {
-  // Sauvegarder les données actuelles dans localStorage
   const draftData:any = {
     reservation: {
       checkinDate: reservation.value.checkinDate,
@@ -331,7 +330,6 @@ const gotoNew = () => {
     })
   }
 
-  // Sauvegarder dans localStorage
   const saved = saveBooking(draftData)
 
   if (saved) {

@@ -12,8 +12,8 @@ export interface Currency {
 
 export const useCurrencyStore = defineStore('currency', {
   state: () => ({
-    currencies: JSON.parse(localStorage.getItem('currencies') || '[]') as Currency[],
-    selectedCurrency: localStorage.getItem('selectedCurrency') || 'XAF',
+    currencies: [] as Currency[],
+    selectedCurrency: 'XAF',
     loading: false,
   }),
 
@@ -37,7 +37,6 @@ export const useCurrencyStore = defineStore('currency', {
       try {
         const response = await getCurrencies();
         this.currencies = response.data.data.data;
-        localStorage.setItem('currencies', JSON.stringify(this.currencies));
         return this.currencies;
       } catch (error) {
         console.error('Error fetching currencies:', error);
@@ -49,26 +48,15 @@ export const useCurrencyStore = defineStore('currency', {
 
     setSelectedCurrency(currencyCode: string) {
       this.selectedCurrency = currencyCode;
-      localStorage.setItem('selectedCurrency', currencyCode);
     },
 
     init() {
-      const storedCurrencies = localStorage.getItem('currencies');
-      const storedSelectedCurrency = localStorage.getItem('selectedCurrency');
-
-      if (storedCurrencies) {
-        this.currencies = JSON.parse(storedCurrencies);
-      }
-
-      if (storedSelectedCurrency) {
-        this.selectedCurrency = storedSelectedCurrency;
-      }
+      // Pinia persisted state will hydrate automatically; nothing to do here
     },
 
     clearCache() {
       this.currencies = [];
-      localStorage.removeItem('currencies');
-      localStorage.removeItem('selectedCurrency');
     }
   },
+  persist: true,
 });

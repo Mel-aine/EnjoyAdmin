@@ -151,41 +151,6 @@ export const signOut = async (): Promise<void> => {
     bookingStore.$reset();
     currencyStore.$reset();
 
-    // Remove common auth/session keys
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('roleId');
-    localStorage.removeItem('UserId');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('reauth_required');
-
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('roleId');
-    sessionStorage.removeItem('UserId');
-    sessionStorage.removeItem('auth_token');
-    sessionStorage.removeItem('reauth_required');
-
-    // Clear Pinia persistedstate keys (default key = store id)
-    const piniaPersistedKeys = [
-      'auth',
-      'service',
-      'statusColor',
-      'language',
-      'booking',
-      'currency',
-    ];
-    piniaPersistedKeys.forEach((key) => {
-      try {
-        localStorage.removeItem(key);
-        sessionStorage.removeItem(key);
-      } catch { }
-    });
-
-    // Clear custom cached keys used by stores/utilities
-    localStorage.removeItem('currencies');
-    localStorage.removeItem('selectedCurrency');
-
     await router.push('/');
   } catch (error) {
     console.error('Erreur lors du logout:', error);

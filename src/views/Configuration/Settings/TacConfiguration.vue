@@ -295,11 +295,12 @@ const saveTacSettings = async () => {
     }
     serviceStore.setCurrentService(updatedService)
 
-    // Cache TAC settings per hotel for quicker local restore
     try {
-      localStorage.setItem(`tacSettings:${serviceStore.serviceId}`, JSON.stringify(tacSettings.value))
+      const { useTacSettingsStore } = await import('@/composables/tacSettingsStore')
+      const tacStore = useTacSettingsStore()
+      tacStore.setForService(serviceStore.serviceId, tacSettings.value)
     } catch (e) {
-      console.warn('Failed to cache TAC settings locally', e)
+      console.warn('Failed to cache TAC settings in store', e)
     }
 
     toast.success(t('configuration.settings.tac_configuration.tax_rates_saved_and_configuration_updated'))

@@ -34,7 +34,7 @@ export const stopAuthAutoRefresh = () => {
   }
 }
 
-export const startAuthAutoRefresh = (intervalMs = 8 * 60 * 100) => {
+export const startAuthAutoRefresh = (intervalMs = 8 * 60 * 1000) => {
   // Avoid multiple timers
   stopAuthAutoRefresh()
   refreshIntervalId = (setInterval(async () => {
@@ -51,29 +51,22 @@ export const startAuthAutoRefresh = (intervalMs = 8 * 60 * 100) => {
 }
 
 export const refreshToken = async (): Promise<AxiosResponse<any>> => {
-  console.log('resp')
-  // Récupère le refresh_token stocké si disponible
-  let storedRefresh: string | null = null
-  try {
-    storedRefresh = localStorage.getItem('refresh_token')
-  } catch {}
+  const authStore = useAuthStore()
+  const currentRefresh = authStore.refreshToken
 
-  const payload = storedRefresh ? { refresh_token: storedRefresh } : {}
+  const payload = currentRefresh ? { refresh_token: currentRefresh } : {}
 
-  const resp = await axios.post(`${API_URL}/refresh-token`, payload, { withCredentials: true })
-  
+  const resp = await axios.post(`${API_URL}/refresh-token`, payload, getRefreshHeaders())
   // Accepte plusieurs clés possibles pour le token d'accès
-  const newToken = resp.data?.access_token || resp.data?.accessToken || resp.data?.user_token || null
+  const newToken = resp.data?.data?.access_token?.token
   if (newToken) {
-    const authStore = useAuthStore()
     authStore.token = newToken
-    try { localStorage.setItem('token', newToken) } catch {}
   }
 
   // Si le backend fait tourner le refresh_token, on le met à jour
-  const newRefresh = resp.data?.refresh_token || resp.data?.refreshToken || null
+  const newRefresh = resp.data?.data?.refresh_token?.token || null
   if (newRefresh) {
-    try { localStorage.setItem('refresh_token', newRefresh) } catch {}
+    authStore.refreshToken = newRefresh
   }
 
   return resp
@@ -84,6 +77,15 @@ const getHeaders = () => {
   return {
     headers: {
       Authorization: `Bearer ${authStore.token}`,
+    },
+    withCredentials: true,
+  }
+}
+const getRefreshHeaders = () => {
+  const authStore = useAuthStore()
+  return {
+    headers: {
+      Authorization: `Bearer ${authStore.refreshToken ?? ''}`,
     },
     withCredentials: true,
   }
@@ -433,17 +435,18 @@ export function auth(credentials: { email: string; password: string; keepLoggedI
   return axios
     .post(`${API_URL}/authLogin`, credentials, { withCredentials: true })
     .then((resp) => {
+      console.log('resp', resp)
       // Récupère l'access token (plusieurs clés possibles)
-      const token = resp.data?.access_token || resp.data?.accessToken || resp.data?.user_token || null
+      const token = resp.data.data?.access_token?.token
       if (token) {
         const authStore = useAuthStore()
         authStore.token = token
-        try { localStorage.setItem('token', token) } catch {}
       }
       // Stocke le refresh_token si renvoyé par le backend
-      const refresh = resp.data?.refresh_token || resp.data?.refreshToken || null
+      const refresh = resp.data?.data?.refresh_token?.token;
       if (refresh) {
-        try { localStorage.setItem('refresh_token', refresh) } catch {}
+        const authStore = useAuthStore()
+        authStore.refreshToken = refresh
       }
       // Start auto refresh every 8 minutes after successful login
       startAuthAutoRefresh()
@@ -976,25 +979,7 @@ export const getDailyOccupancyAndReservations = (
   )
 }
 
-//create contract
-export const createContract = (contract: IContract): Promise<AxiosResponse<{ id: number }>> => {
-  return axios.post(`${API_URL}/employment_contracts`, contract, getHeaders())
-}
-export const updateContract = (contract: IContract): Promise<AxiosResponse<{ id: number }>> => {
-  return axios.put(`${API_URL}/employment_contracts/${contract.contract_id}`, contract, getHeaders())
-}
-export const terminateContract = (contractId: string): Promise<AxiosResponse<{ id: number }>> => {
-  return axios.put(`${API_URL}/employment_contracts/${contractId}/terminate`, {}, getHeaders())
-}
 
-//payroll
-export const getPayrollsByContractId = (contractId: string): Promise<AxiosResponse<IPayroll[]>> => {
-  return axios.get(`${API_URL}/payroll/by-contract/${contractId}`, getHeaders())
-}
-
-export const createPayroll = (payload: IPayroll): Promise<AxiosResponse<IPayroll>> => {
-  return axios.post(`${API_URL}/payroll`, payload, getHeaders())
-}
 export const getReservationInvoice = (
   reservationId: string,
 ): Promise<AxiosResponse<IPayroll[]>> => {
