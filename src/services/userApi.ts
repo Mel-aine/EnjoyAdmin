@@ -125,7 +125,11 @@ export const signOut = async (): Promise<void> => {
   try {
     await nextTick();
 
-    await logout();
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+    }
 
     const authStore = useAuthStore();
     const serviceStore = useServiceStore();

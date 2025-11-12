@@ -24,6 +24,61 @@ import type { IContract, IPayroll, ICreatePayroll } from '@/types/type'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 
+// --- Token Refresh (every 8 minutes) ---
+let refreshIntervalId: number | null = null
+
+export const stopAuthAutoRefresh = () => {
+  if (refreshIntervalId) {
+    clearInterval(refreshIntervalId)
+    refreshIntervalId = null
+  }
+}
+
+export const startAuthAutoRefresh = (intervalMs = 8 * 60 * 100) => {
+  // Avoid multiple timers
+  stopAuthAutoRefresh()
+  refreshIntervalId = (setInterval(async () => {
+    try {
+      await refreshToken()
+      // Reset reauth flag on successful refresh
+      try { useAuthStore().setReauthRequired(false) } catch {}
+    } catch (err) {
+      // Mark reauth required so UI can prompt login
+      try { useAuthStore().setReauthRequired(true) } catch {}
+      console.error('Erreur lors du refresh token:', err)
+    }
+  }, intervalMs) as unknown) as number
+}
+
+export const refreshToken = async (): Promise<AxiosResponse<any>> => {
+  console.log('resp')
+  // Récupère le refresh_token stocké si disponible
+  let storedRefresh: string | null = null
+  try {
+    storedRefresh = localStorage.getItem('refresh_token')
+  } catch {}
+
+  const payload = storedRefresh ? { refresh_token: storedRefresh } : {}
+
+  const resp = await axios.post(`${API_URL}/refresh-token`, payload, { withCredentials: true })
+  
+  // Accepte plusieurs clés possibles pour le token d'accès
+  const newToken = resp.data?.access_token || resp.data?.accessToken || resp.data?.user_token || null
+  if (newToken) {
+    const authStore = useAuthStore()
+    authStore.token = newToken
+    try { localStorage.setItem('token', newToken) } catch {}
+  }
+
+  // Si le backend fait tourner le refresh_token, on le met à jour
+  const newRefresh = resp.data?.refresh_token || resp.data?.refreshToken || null
+  if (newRefresh) {
+    try { localStorage.setItem('refresh_token', newRefresh) } catch {}
+  }
+
+  return resp
+}
+
 const getHeaders = () => {
   const authStore = useAuthStore()
   return {
@@ -375,15 +430,33 @@ export const createPayment = (paymentData: any): Promise<AxiosResponse<any>> => 
 // services/authService.ts
 
 export function auth(credentials: { email: string; password: string; keepLoggedIn?: boolean }) {
-  return axios.post(`${API_URL}/authLogin`, credentials, {
-    withCredentials: true,
-  })
+  return axios
+    .post(`${API_URL}/authLogin`, credentials, { withCredentials: true })
+    .then((resp) => {
+      // Récupère l'access token (plusieurs clés possibles)
+      const token = resp.data?.access_token || resp.data?.accessToken || resp.data?.user_token || null
+      if (token) {
+        const authStore = useAuthStore()
+        authStore.token = token
+        try { localStorage.setItem('token', token) } catch {}
+      }
+      // Stocke le refresh_token si renvoyé par le backend
+      const refresh = resp.data?.refresh_token || resp.data?.refreshToken || null
+      if (refresh) {
+        try { localStorage.setItem('refresh_token', refresh) } catch {}
+      }
+      // Start auto refresh every 8 minutes after successful login
+      startAuthAutoRefresh()
+      return resp
+    })
 }
 
 export function initSpace(credentials: { userId: number }) {
   return axios.post(`${API_URL}/initSpace`, credentials, getHeaders())
 }
 export function logout() {
+  // Stop auto refresh when logging out
+  stopAuthAutoRefresh()
   return axios.post(
     `${API_URL}/authLogout`,
     {},

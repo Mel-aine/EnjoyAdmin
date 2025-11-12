@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
+import { signOut as signOutService } from '@/services/userApi'
 import { isLoading } from '@/composables/spinner'
 import { useServiceStore } from '@/composables/serviceStore'
 
@@ -1857,6 +1858,20 @@ router.beforeEach(async (to, from, next) => {
 
     // Utiliser la getter isFullyAuthenticated
     const isAuthenticated = authStore.isFullyAuthenticated
+
+    // Si une réauthentification est requise, forcer la déconnexion peu importe la route
+    // (sauf la page de login '/').
+    const isLoginRoute = to.path === '/' || (to.name && String(to.name).toLowerCase() === 'login') || to.path.includes('/login')
+    if (authStore.reauthRequired && !isLoginRoute) {
+      try {
+        await signOutService()
+      } catch (e) {
+        console.error('Erreur lors de la déconnexion forcée (reauthRequired):', e)
+        // Même en cas d'erreur API, nettoyer côté client
+        authStore.forceLogout()
+      }
+      return next('/')
+    }
 
     // Si la route nécessite une auth
     if (to.meta.requiresAuth && !isAuthenticated) {

@@ -19,7 +19,7 @@
       <!-- Main Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-0 mb-8 shadow-md">
         <!-- Arrival Card -->
-        <div class="border-e-2">
+        <div class="border-e-2 bg-white dark:bg-gray-800 p-6">
           <DashboardCircle :title="$t('frontOffice.dashboard.arrival')" :isLoading="isLoading" :data="{
             pending: dashboardData?.arrival?.pending || 0,
             arrived: dashboardData?.arrival?.arrived || 0,
@@ -27,21 +27,21 @@
         </div>
 
         <!-- Checked Out Card -->
-        <div class="border-e-2">
+        <div class="border-e-2 bg-white dark:bg-gray-800 ">
           <DashboardCircle :title="$t('frontOffice.dashboard.checkedOut')" :isLoading="isLoading" :data="{
             pending: dashboardData?.departure?.pending || 0,
             checkedOut: dashboardData?.departure?.checkedOut || 0,
           }" :colors="['#f59e0b', '#10b981']" />
         </div>
         <!-- Guest In House Card -->
-        <div class="border-e-2">
+        <div class="border-e-2 bg-white dark:bg-gray-800 ">
           <DashboardCircle :title="$t('frontOffice.dashboard.guestInHouse')" :isLoading="isLoading" :data="{
             adult: dashboardData?.guestInHouse?.adult || 0,
             child: dashboardData?.guestInHouse?.child || 0,
           }" :colors="['#3b82f6', '#10b981']" />
         </div>
         <!-- Room Status Card -->
-        <div class="border-e-2">
+        <div class="border-e-2 bg-white dark:bg-gray-800  ">
           <DashboardCircle :title="$t('frontOffice.dashboard.roomStatus')" :isLoading="isLoading" :data="{
             available: dashboardData?.roomStatus?.availableRooms || 0,
             sold: dashboardData?.roomStatus?.sold || 0,
@@ -52,7 +52,7 @@
         </div>
         <!-- Housekeeping Status Card -->
 
-        <div class="lg:col-span-1">
+        <div class="lg:col-span-1 bg-white dark:bg-gray-800 ">
           <div class="bg-white dark:bg-gray-800 p-6">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 justify-center">
               {{ $t('frontOffice.dashboard.housekeepingStatus') }}
