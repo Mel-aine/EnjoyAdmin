@@ -1,6 +1,6 @@
 <template>
   <FullScreenLayout>
-    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader   :currency="selectedCurrency" :brand="brand" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6">
       <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
         <section class="bg-white rounded-xl shadow-sm border p-5">
@@ -120,7 +120,7 @@
 
         <aside class="bg-white rounded-xl shadow-sm border p-5">
           <div class="font-semibold mb-2">Need help?</div>
-          <p class="text-sm text-gray-700">Reach us via the <router-link to="/ota/contact-us" class="text-blue-700 hover:underline">Contact page</router-link>.</p>
+          <p class="text-sm text-gray-700">Reach us via the <router-link :to="`/ota/contact-us?hotelId=${hotelId}`" class="text-blue-700 hover:underline">Contact page</router-link>.</p>
           <div class="mt-4">
             <div class="font-semibold mb-1">Cancellation policy</div>
             <ul class="text-sm text-gray-700 space-y-1 list-disc pl-5">
@@ -141,10 +141,11 @@ import { getCancellationSummary } from '@/views/ota/services/otaApi'
 import { cancelReservation } from '@/services/reservation'
 import { getHotelInfo } from '@/views/ota/services/otaApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import { useRoute } from 'vue-router'
 
 const selectedCurrency = ref<string>('XAF')
 function setCurrency(c: string) { selectedCurrency.value = c }
-
+const route = useRoute()
 const reservationId = ref<number | null>(null)
 const reason = ref<string>('')
 const summary = ref<any | null>(null)
@@ -156,6 +157,8 @@ const loadingCancel = ref<boolean>(false)
 const serviceStore = useServiceStore()
 const hotelData = ref<any>(null)
 const loading = ref<boolean>(true)
+const hotelId:any = computed(()=>route.query.hotelId as string)
+const brand = computed(()=> hotelData.value?.name || '' )
 const cancellationPolicy = computed(() => hotelData.value?.policy?.cancellationPolicy || '')
 async function loadSummary() {
   error.value = ''
@@ -222,8 +225,7 @@ function resetForm() {
 const fetchHotelInfo = async () => {
   try {
     loading.value = true
-    const hotelId = serviceStore.serviceId
-    const response = await getHotelInfo(hotelId!)
+    const response = await getHotelInfo(hotelId.value)
     hotelData.value = response.data.data
     console.log('Fetched hotel info:', hotelData.value)
 

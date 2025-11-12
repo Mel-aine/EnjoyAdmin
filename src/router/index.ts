@@ -3,6 +3,7 @@ import { useAuthStore } from '@/composables/user'
 import { signOut as signOutService } from '@/services/userApi'
 import { isLoading } from '@/composables/spinner'
 import { useServiceStore } from '@/composables/serviceStore'
+import { checkHotelExists } from '@/services/configrationApi'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -85,15 +86,38 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/ota/web-booking',
+    // {
+    //   path: '/ota/booking/:id',
+    //   name: 'WebBooking',
+    //   component: () => import('../views/ota/WebBooking.vue'),
+    //   meta: {
+    //     title: 'Web Booking',
+    //     requiresAuth: false,
+    //   },
+    // },
+   {
+      path: '/ota/booking/:id(\\d+)',
       name: 'WebBooking',
       component: () => import('../views/ota/WebBooking.vue'),
-      meta: {
-        title: 'Web Booking',
-        requiresAuth: false,
-      },
+      meta: { title: 'Web Booking', requiresAuth: false },
+      beforeEnter: async (to, from, next) => {
+        const hotelId = to.params.id;
+
+        try {
+          const response = await checkHotelExists(hotelId);
+          if (response.data?.exists) {
+            next();
+          } else {
+            console.warn(`Hôtel ${hotelId} n'existe pas ou est inactif`);
+            next('/404');
+          }
+        } catch (error: any) {
+          console.error('Erreur lors de la vérification de l\'hôtel:', error);
+          next('/404');
+        }
+      }
     },
+
     {
       path: '/ota/hotel-info',
       name: 'OtaHotelInfo',

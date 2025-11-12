@@ -1,6 +1,6 @@
 <template>
   <FullScreenLayout>
-    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" :brand="brand" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6 space-y-6">
       <!-- Hero -->
       <section class="relative rounded-lg overflow-hidden shadow">
@@ -46,9 +46,9 @@
               <div
                 v-for="(amenity, index) in filteredAmenities"
                 :key="index"
-                class="text-[12px] bg-gray-50 rounded border p-2"
+                class="text-[12px] bg-gray-50 rounded border p-2 flex flex-col items-center"
               >
-                {{ amenity }}
+                {{ amenity.amenityName }}
               </div>
               <div v-if="!filteredAmenities.length" class="text-[12px] text-gray-400">
                 No amenities available.
@@ -106,15 +106,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
 import StaredIcon from '@/icons/StaredIcon.vue'
 import { getHotelInfo } from '@/views/ota/services/otaApi'
-import { useServiceStore } from '@/composables/serviceStore'
 
 const router = useRouter()
-const serviceStore = useServiceStore()
+const route = useRoute()
+const hotelId: any = computed(() => route.query.hotelId as string)
 
 // Hotel data from API
 const hotelData = ref<any>(null)
@@ -137,14 +137,24 @@ const cancellationPolicy = computed(() => hotelData.value?.policy?.cancellationP
 const hotelPolicies = computed(() => {
   const policy = hotelData.value?.policy?.hotelPolicy
   if (!policy) return []
-  return policy.includes('|') ? policy.split('|').filter((p:any) => p.trim()) : [policy]
+  return policy.includes('|') ? policy.split('|').filter((p: any) => p.trim()) : [policy]
 })
 
 const selectedCurrency = ref<string>('XAF')
 function setCurrency(c: string) { selectedCurrency.value = c }
-function goContact() { router.push('/ota/contact-us') }
-function goMap() { router.push('/ota/map') }
-function goBooking() { router.push('/ota/web-booking') }
+function goContact() {
+  router.push({
+    name: 'OtaContactUs',
+    query: { hotelId: hotelId.value }
+  })
+}
+function goMap() {
+  router.push({
+    name: 'OtaMap',
+    query: { hotelId: hotelId.value }
+  })
+}
+function goBooking() { router.push({ name: 'WebBooking', params: { id: hotelId.value } }) }
 
 // Gallery state
 const galleryImages = ref<string[]>([])
@@ -159,10 +169,14 @@ function nextImage() { activeIndex.value = (activeIndex.value + 1) % galleryImag
 const fetchHotelInfo = async () => {
   try {
     loading.value = true
-    const hotelId = serviceStore.serviceId
-    const response = await getHotelInfo(hotelId!)
+    const response = await getHotelInfo(hotelId.value)
     hotelData.value = response.data.data
     console.log('Fetched hotel info:', hotelData.value)
+
+    //  galerie
+    if (hotelData.value?.images && Array.isArray(hotelData.value.images)) {
+      galleryImages.value = hotelData.value.images
+    }
 
     // Update currency from API if available
     if (hotelData.value?.finance?.currencyCode) {
@@ -174,20 +188,19 @@ const fetchHotelInfo = async () => {
     loading.value = false
   }
 }
+
 const filteredAmenities = computed(() => {
   if (!hotelData.value?.amenities) return []
 
   if (typeof hotelData.value.amenities === 'object' && !Array.isArray(hotelData.value.amenities)) {
     return Object.values(hotelData.value.amenities).filter(Boolean)
   }
-  // Sinon, si c'est déjà un tableau
   return hotelData.value.amenities.filter(Boolean)
 })
+
 onMounted(() => {
   fetchHotelInfo()
 })
-
 </script>
-
 <style scoped>
 </style>

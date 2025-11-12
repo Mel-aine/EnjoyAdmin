@@ -1,6 +1,6 @@
 <template>
   <FullScreenLayout>
-    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" :brand="brand" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6">
       <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6">
         <section class="bg-white rounded-lg shadow-sm border p-4">
@@ -49,17 +49,20 @@
 
 <script setup lang="ts">
 import { ref,computed,onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter,useRoute } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
 import { getHotelInfo } from '@/views/ota/services/otaApi'
-import { useServiceStore } from '@/composables/serviceStore'
+
 
 const router = useRouter()
+const route = useRoute()
+const hotelId:any = computed(() => route.query.hotelId as string)
 const brand = computed(() => hotelData.value?.name || '')
 const hotelData = ref<any>(null)
 const selectedCurrency = ref<string>('XAF')
-const serviceStore = useServiceStore()
+
+
 const loading = ref<boolean>(true)
 function setCurrency(c: string) { selectedCurrency.value = c }
 const hotelAddress = computed(() => {
@@ -81,8 +84,7 @@ function submit() {
 const fetchHotelInfo = async () => {
   try {
     loading.value = true
-    const hotelId = serviceStore.serviceId
-    const response = await getHotelInfo(hotelId!)
+    const response = await getHotelInfo(hotelId.value)
     hotelData.value = response.data.data
     console.log('Fetched hotel info:', hotelData.value)
 
@@ -100,7 +102,13 @@ const fetchHotelInfo = async () => {
 onMounted(() => {
   fetchHotelInfo()
 })
-function goCancel() { router.push('/ota/cancel-booking') }
+function goCancel() {
+  router.push({
+    name: 'OtaCancelBooking',
+    query: { hotelId: hotelId.value }
+  })
+}
+
 </script>
 
 <style scoped>

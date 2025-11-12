@@ -1,6 +1,6 @@
 <template>
   <FullScreenLayout>
-    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" :brand="brand" @currency-change="setCurrency" />
     <!-- Hero with dark background image -->
     <section class="relative pt-12">
       <img src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1600&q=60" alt="Hotel hero" class="absolute inset-0 w-full h-40 md:h-52 object-cover" />
@@ -9,8 +9,8 @@
           <div class="text-white">
             <div class="text-sm font-semibold">{{ brand }}</div>
             <div class="mt-1 text-xs space-y-0.5">
-              <div>Carrefour Bastos, 2723, Yaounde, Cameroon</div>
-              <div>reservation@suita-hotel.com • (+237) 658885585</div>
+              <div>{{ hotelAddress }}</div>
+              <div>{{ hotelEmail }} • {{ hotelPhone }}</div>
             </div>
           </div>
           <div class="bg-white rounded-lg shadow p-4 text-center w-40">
@@ -136,13 +136,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref,onMounted,computed } from 'vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
+import { useRoute } from 'vue-router'
+import { getHotelInfo } from '@/views/ota/services/otaApi'
 
-const brand = 'TAMI SARL (SUITA HOTEL)'
+const brand = computed(() => hotelData.value?.name)
 const selectedCurrency = ref<string>('XAF')
+const hotelData = ref<any>(null)
+const loading = ref<boolean>(true)
 function setCurrency(c: string) { selectedCurrency.value = c }
+const route = useRoute()
+const hotelAddress = computed(() => {
+  const addr = hotelData.value?.address
+  if (!addr) return ''
+  return `${addr.address}, ${addr.city}, ${addr.country.toUpperCase()}`
+})
+const hotelPhone = computed(() => hotelData.value?.contacts?.phoneNumber || '')
+const hotelEmail = computed(() => hotelData.value?.contacts?.email || '')
+
+const fetchHotelInfo = async () => {
+  try {
+    loading.value = true
+    const hotelId:any = route.query.hotelId
+    const response = await getHotelInfo(hotelId)
+    hotelData.value = response.data.data
+    console.log('Fetched hotel info:', hotelData.value)
+
+  } catch (error) {
+    console.error('Error fetching hotel info:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchHotelInfo()
+})
 </script>
 
 <style scoped>
