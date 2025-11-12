@@ -68,7 +68,7 @@
           </div>
 
           <!-- Company -->
-          <div>
+<!--           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.company') }}
             </label>
@@ -79,7 +79,7 @@
               class="w-full"
             />
           </div>
-
+ -->
           <!-- Business Source -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -92,9 +92,6 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -108,6 +105,8 @@
             />
           </div>
 
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <!-- User -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -120,10 +119,7 @@
               class="w-full"
             />
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <!-- Rate Range -->
+           <!-- Rate Range -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.rateFrom') }}
@@ -147,6 +143,10 @@
               :placeholder="$t('common.to')"
             />
           </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
 
           <!-- Tax Inclusive -->
           <div class="flex items-end">
