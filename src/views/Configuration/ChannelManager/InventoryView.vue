@@ -39,63 +39,57 @@
               </div>
 
               <div class="w-full">
-                <MultipleSelect
-                  v-model="selectedRooms"
-                  :options="roomTypesOptions"
-                  :maxVisibleTags="1"
-                  defaultDisplayMode="limited"
-                  class="w-full"
-                />
+                <MultipleSelect v-model="selectedRooms" :options="roomTypesOptions" :maxVisibleTags="1"
+                  defaultDisplayMode="limited" class="w-full" />
               </div>
 
               <div class="w-full">
-                <MultipleSelect
-                  v-model="selectedRates"
-                  :options="rateTypesOptions"
-                  :maxVisibleTags="1"
-                  defaultDisplayMode="limited"
-                  class="w-full"
-                />
+                <MultipleSelect v-model="selectedRates" :options="rateTypesOptions" :maxVisibleTags="1"
+                  defaultDisplayMode="limited" class="w-full" />
               </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex gap-2">
-              <BasicButton
-                :label="t('saveChanges')"
-                :variant="hasChanges ? 'success' : 'light'"
-                :disabled="!hasChanges"
-                :icon="CloudUpload"
-                :loading="isSaving"
-                @click="saveChanges"
-              />
+            <div class="flex gap-2 items-center">
+              <BasicButton :label="t('saveChanges')" :variant="hasChanges ? 'success' : 'light'" :disabled="!hasChanges"
+                :icon="CloudUpload" :loading="isSaving" @click="saveChanges" />
 
-              <BasicButton
-                :label="t('resetChanges')"
-                :variant="hasChanges ? 'danger' : 'light'"
-                :disabled="!hasChanges"
-                :icon="RotateCw"
-                @click="resetChanges"
-              />
+              <BasicButton :label="t('resetChanges')" :variant="hasChanges ? 'danger' : 'light'" :disabled="!hasChanges"
+                :icon="RotateCw" @click="resetChanges" />
 
               <BasicButton :label="t('bulkUpdate')" variant="light" :icon="PenLine"
                 @click="showBulkUpdateModal = true" />
 
-              <BasicButton :label="t('Availability Update')" variant="light" :icon="PenLine"
-                @click="showAvailabilityUpdateModal = true" />
+              <!-- Actions Dropdown -->
+              <div class="relative">
+                <BasicButton :label="t('Action')" variant="light" :icon="PenLine" @click="toggleActionMenu" />
 
-              <BasicButton :label="t('Rate Update')" variant="light" :icon="PenLine"
-                @click="showRateUpdateModal = true" />
+                <div v-if="showActionMenu" class="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
+                  <ul class="py-1">
+                    <li>
+                      <button @click="openAvailabilityUpdate" class="w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-purple-600 dark:hover:bg-gray-700">
+                        {{ t('Availability Update') }}
+                      </button>
+                    </li>
+                    <li>
+                      <button @click="openRateUpdate" class="w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-purple-600 dark:hover:bg-gray-700">
+                        {{ t('Rate Update') }}
+                      </button>
+                    </li>
+                    <li>
+                      <button @click="openFullSync" class="w-full text-left px-4 py-2 hover:bg-purple-50 hover:text-purple-600 dark:hover:bg-gray-700">
+                        {{ t('Full Sync') }}
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Calendar Grid -->
-          <ChannelInventoryCalendar
-            ref="calendarRef"
-            :roomTypes="filteredRoomTypes"
-            :rateTypes="filteredRateTypes"
-            @value-selected="onValueSelected"
-          ></ChannelInventoryCalendar>
+          <ChannelInventoryCalendar ref="calendarRef" :roomTypes="filteredRoomTypes" :rateTypes="filteredRateTypes"
+            @value-selected="onValueSelected"></ChannelInventoryCalendar>
         </div>
       </div>
     </div>
@@ -109,26 +103,24 @@
 
     <!-- Availability Update -->
     <template v-if="showAvailabilityUpdateModal">
-      <AvailabilityUpdateModal
-        :is-open="showAvailabilityUpdateModal"
-        :roomTypes="roomTypes"
-        :propertyId="currentService.channexPropertyId"
-        @close="showAvailabilityUpdateModal = false"
+      <AvailabilityUpdateModal :is-open="showAvailabilityUpdateModal" :roomTypes="roomTypes"
+        :propertyId="currentService.channexPropertyId" @close="showAvailabilityUpdateModal = false"
         @save="handleAvailabilityUpdateSave"
-        @refresh="calendarRef?.fetchRestrictions && calendarRef.fetchRestrictions()"
-      />
+        @refresh="calendarRef?.fetchRestrictions && calendarRef.fetchRestrictions()" />
     </template>
 
     <!-- Rate Update -->
     <template v-if="showRateUpdateModal">
-      <RateUpdateModal
-        :is-open="showRateUpdateModal"
-        :ratePlans="rateTypes"
-        :propertyId="currentService.channexPropertyId"
-        @close="showRateUpdateModal = false"
-        @save="handleRateUpdateSave"
-        @refresh="calendarRef?.fetchRestrictions && calendarRef.fetchRestrictions()"
-      />
+      <RateUpdateModal :is-open="showRateUpdateModal" :ratePlans="rateTypes"
+        :propertyId="currentService.channexPropertyId" @close="showRateUpdateModal = false" @save="handleRateUpdateSave"
+        @refresh="calendarRef?.fetchRestrictions && calendarRef.fetchRestrictions()" />
+    </template>
+
+    <!-- Full Sync -->
+    <template v-if="showFullSyncModal">
+      <FullSyncModal  :is-open="showFullSyncModal" :roomTypes="roomTypes" :rateTypes="rateTypes"
+        @close="showFullSyncModal = false" @save="handleFullSyncSave"
+        :propertyId="currentService.channexPropertyId" />
     </template>
 
   </ChannelManagerLayout>
@@ -149,6 +141,7 @@ import AvailabilityUpdateModal from './InventoryModale/AvailabilityUpdateModal.v
 import RateUpdateModal from './InventoryModale/RateUpdateModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import ChannelInventoryCalendar from './ChannelInventoryCalendar.vue'
+import FullSyncModal from './InventoryModale/FullSync.vue'
 
 // Types
 interface RoomType {
@@ -179,11 +172,13 @@ const rateTypes = ref<RateType[]>([])
 const showBulkUpdateModal = ref(false)
 const showAvailabilityUpdateModal = ref(false)
 const showRateUpdateModal = ref(false)
+const showFullSyncModal = ref(false)
 const isSaving = ref(false)
 const hasChanges = ref(false)
 const currentService = useServiceStore().getCurrentService
 const calendarRef = ref<any>(null)
 const pendingChange = ref<any | null>(null)
+const showActionMenu = ref(false)
 
 // Computed
 const roomTypesOptions = computed(() =>
@@ -251,7 +246,7 @@ const fetchData = async () => {
           name: roomType.title,
           occupancy: roomType.default_occupancy || roomType.occ_adults,
           count_of_rooms: roomType.count_of_rooms,
-          ratePlans:item.ratePlans
+          ratePlans: item.ratePlans
         })
 
         // Ajouter les rate plans associés
@@ -356,6 +351,12 @@ const handleBulkUpdateSave = (data: any) => {
   hasChanges.value = false
 }
 
+const handleFullSyncSave = (data: any) => {
+  console.log('Full sync data:', data)
+  hasChanges.value = false
+}
+
+
 const handleAvailabilityUpdateSave = (payload: any) => {
   console.log('Availability update payload:', payload)
   hasChanges.value = false
@@ -385,8 +386,41 @@ const onValueSelected = (payload: any) => {
   hasChanges.value = true
 }
 
+// Actions dropdown handlers
+const toggleActionMenu = () => {
+  showActionMenu.value = !showActionMenu.value
+}
+
+const closeActionMenu = () => {
+  showActionMenu.value = false
+}
+
+const openAvailabilityUpdate = () => {
+  showAvailabilityUpdateModal.value = true
+  closeActionMenu()
+}
+
+const openRateUpdate = () => {
+  showRateUpdateModal.value = true
+  closeActionMenu()
+}
+
+const openFullSync = () => {
+  showFullSyncModal.value = true
+  closeActionMenu()
+}
+
 // Lifecycle
 onMounted(() => {
   fetchData()
+  // Close dropdown when clicking outside
+  const handleClickOutside = (e: MouseEvent) => {
+    const target = e.target as HTMLElement
+    // If click is outside any element with class 'relative' and menu is open, close it
+    if (showActionMenu.value && !target.closest('.relative')) {
+      showActionMenu.value = false
+    }
+  }
+  document.addEventListener('click', handleClickOutside)
 })
 </script>
