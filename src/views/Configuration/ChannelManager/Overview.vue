@@ -85,7 +85,7 @@
           </div>
         </div>
       </div>
-      
+
     </div>
 
     <div>
@@ -137,14 +137,14 @@
           <Building2Icon v-else class="w-8 h-8 text-primary" />
         </template>
 
-         
+
       </ReusableTable>
     </div>
   </ChannelManagerLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted,watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ChannelManagerLayout from '../../../components/layout/ChannelManagerLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
@@ -301,7 +301,7 @@ onMounted(() => {
 })
 
 // Keep keys in sync with MultipleSelect and enforce max limit
-import { watch } from 'vue'
+
 watch(selectedColumnsModel, (newVal, oldVal) => {
   if (newVal.length > maxColumns) {
     // revert if exceeds limit
@@ -383,35 +383,120 @@ const reservationTypeOptions = ref([
   { value: 'unconfirmed_booking_inquiry', label: 'Unconfirmed Booking Inquiry' }
 ])
 
+// const mapFiltersToApi = () => {
+//   const api: any = {}
+
+//   // Texte de recherche (guest name ou reservation number)
+//   const searchText = filters.value.guestName || filters.value.reservationNumber
+//   if (searchText) {
+//     api.searchText = searchText
+//   }
+
+//   // Room type
+//   if (filters.value.roomType) {
+//     api.roomType = filters.value.roomType
+//   }
+
+//   // Status (reservation type)
+//   if (filters.value.reservationType) {
+//     api.status = filters.value.reservationType
+//   }
+
+//   // Source
+//   if (filters.value.source) {
+//     api.source = filters.value.source
+//   }
+
+//   const start = filters.value.dateRange?.start
+//   const end = filters.value.dateRange?.end
+//   const stayStart = filters.value.stayRange?.start
+//   const stayEnd = filters.value.stayRange?.end
+
+//   // Prefer explicit stay range if provided
+//   if (stayStart && stayEnd) {
+//     api.checkInDate = stayStart
+//     api.checkOutDate = stayEnd
+//   } else if (start && end) {
+//     if (filters.value.dateType === 'arrival') {
+//       api.checkInDate = start
+//       api.checkOutDate = end
+//     } else if (filters.value.dateType === 'departure') {
+//       api.checkInDate = start
+//       api.checkOutDate = end
+//     }
+//   }
+
+//   return api
+// }
+
 const mapFiltersToApi = () => {
-  // Map our filter UI to API supported filters
-  const api: any = {
-    searchText: filters.value.guestName || filters.value.reservationNumber || '',
-    roomType: filters.value.roomType || '',
-    status: filters.value.reservationType || ''
+  const api: any = {}
+
+  // Combiner Guest name ET Reservation number dans searchText
+  const searchTerms = []
+  if (filters.value.guestName) {
+    searchTerms.push(filters.value.guestName)
+  }
+  if (filters.value.reservationNumber) {
+    searchTerms.push(filters.value.reservationNumber)
+  }
+  if (searchTerms.length > 0) {
+    api.searchText = searchTerms.join(' ') // ou juste le premier : searchTerms[0]
   }
 
-  const start = filters.value.dateRange?.start || ''
-  const end = filters.value.dateRange?.end || ''
-  const stayStart = filters.value.stayRange?.start || ''
-  const stayEnd = filters.value.stayRange?.end || ''
-
-  // Prefer explicit stay range if provided
-  if (stayStart || stayEnd) {
-    api.checkInDate = stayStart
-    api.checkOutDate = stayEnd
-  } else if (filters.value.dateType === 'arrival') {
-    api.checkInDate = start
-    api.checkOutDate = end
-  } else if (filters.value.dateType === 'departure') {
-    api.checkOutDate = end
+  // Room type - envoyer l'ID au lieu du nom
+  if (filters.value.roomType) {
+    const match = roomTypeOptions.value.find((opt: any) => opt.value === filters.value.roomType)
+    if (match?.id) {
+      api.roomType = match.id
+    }
   }
-  // created/cancelled currently unsupported by filterReservation
+
+  // Rate type
+  if (filters.value.rateType) {
+    api.rateType = filters.value.rateType
+  }
+
+  // Status (reservation type)
+  if (filters.value.reservationType) {
+    api.status = filters.value.reservationType
+  }
+
+  // Source
+  if (filters.value.source) {
+    api.source = filters.value.source
+  }
+
+  // Date range based on dateType
+  const start = filters.value.dateRange?.start
+  const end = filters.value.dateRange?.end
+
+  if (start && end) {
+    api.dateType = filters.value.dateType
+    api.dateStart = start
+    api.dateEnd = end
+  }
+
+  // Stay range
+  const stayStart = filters.value.stayRange?.start
+  const stayEnd = filters.value.stayRange?.end
+
+  if (stayStart && stayEnd) {
+    api.stayCheckInDate = stayStart
+    api.stayCheckOutDate = stayEnd
+  }
+
+  // Debug pour voir ce qui est envoyé
+  console.log('API Filters:', api)
+
   return api
 }
 
+
+
 const onSearch = () => {
   const apiFilters = mapFiltersToApi()
+   console.log('Filters envoyés:', apiFilters)
   applyFilter(apiFilters)
 }
 
@@ -442,7 +527,7 @@ onMounted(() => {
       roomTypesData.value = data
       roomTypeOptions.value = data.map((rt: any) => ({
         label: rt.roomTypeName,
-        value: rt.roomTypeName, // keep value as name so existing API mapping works
+        value: rt.id, // keep value as name so existing API mapping works
         id: rt.id,
       }))
     } catch (e) {
@@ -457,7 +542,7 @@ onMounted(() => {
   filter.value = {
     checkInDate: getTodayDate(),
     checkOutDate: getTodayDate(),
-    roomType: '',
+    roomType: null,
     searchText: '',
     status: '',
   }

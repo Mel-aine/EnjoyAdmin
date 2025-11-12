@@ -547,6 +547,7 @@ async function bookNow() {
         query: {
           reservationId: response.reservationId,
           email: guest.value.email,
+          hotelId:hotelId.value
         },
       })
     } else {

@@ -132,27 +132,46 @@ export const updateHotelTaxRates = (id:number,data:any): Promise<AxiosResponse<a
 
 
 // Find reservation
+// export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
+//   let qs = ``
+//   if (filter.checkInDate) {
+//     if (qs) qs += `&checkInDate=${filter.checkInDate}`
+//     else qs += `?checkInDate=${filter.checkInDate}`
+//   }
+//   if (filter.checkOutDate) {
+//     if (qs) qs += `&checkOutDate=${filter.checkOutDate}`
+//     else qs += `?checkOutDate=${filter.checkOutDate}`
+//   }
+//   if (filter.roomType) {
+//     if (qs) qs += `&roomType=${filter.roomType}`
+//     else qs += `?roomType=${filter.roomType}`
+//   }
+//   if (filter.searchText) {
+//     if (qs) qs += `&searchText=${filter.searchText}`
+//     else qs += `?searchText=${filter.searchText}`
+//   }
+//   if (filter.status) {
+//     if (qs) qs += `&status=${filter.status}`
+//     else qs += `?status=${filter.status}`
+//   }
+//   return axios.get(`${API_URL}/${id}/reservation/search${qs}`, getHeaders())
+// }
 export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
-  let qs = ``
-  if (filter.checkInDate) {
-    if (qs) qs += `&checkInDate=${filter.checkInDate}`
-    else qs += `?checkInDate=${filter.checkInDate}`
-  }
-  if (filter.checkOutDate) {
-    if (qs) qs += `&checkOutDate=${filter.checkOutDate}`
-    else qs += `?checkOutDate=${filter.checkOutDate}`
-  }
-  if (filter.roomType) {
-    if (qs) qs += `&roomType=${filter.roomType}`
-    else qs += `?roomType=${filter.roomType}`
-  }
-  if (filter.searchText) {
-    if (qs) qs += `&searchText=${filter.searchText}`
-    else qs += `?searchText=${filter.searchText}`
-  }
-  if (filter.status) {
-    if (qs) qs += `&status=${filter.status}`
-    else qs += `?status=${filter.status}`
-  }
-  return axios.get(`${API_URL}/${id}/reservation/search${qs}`, getHeaders())
+  const params = new URLSearchParams()
+
+  if (filter.checkInDate) params.append('checkInDate', filter.checkInDate)
+  if (filter.checkOutDate) params.append('checkOutDate', filter.checkOutDate)
+  if (filter.roomType) params.append('roomType', filter.roomType.toString())
+  if (filter.rateType) params.append('rateType', filter.rateType)
+  if (filter.searchText) params.append('searchText', filter.searchText)
+  if (filter.status) params.append('status', filter.status)
+  if (filter.source) params.append('source', filter.source)
+  if (filter.dateType) params.append('dateType', filter.dateType)
+  if (filter.dateStart) params.append('dateStart', filter.dateStart)
+  if (filter.dateEnd) params.append('dateEnd', filter.dateEnd)
+  if (filter.stayCheckInDate) params.append('stayCheckInDate', filter.stayCheckInDate)
+  if (filter.stayCheckOutDate) params.append('stayCheckOutDate', filter.stayCheckOutDate)
+
+  const qs = params.toString()
+  return axios.get(`${API_URL}/${id}/reservation/search${qs ? '?' + qs : ''}`, getHeaders())
 }
