@@ -45,10 +45,17 @@
       </ReusableTable>
 
       <!-- Delete Confirmation Modal -->
-      <ModalConfirmation v-if="showDeleteConfirmation" action="DANGER" :title="t('confirmDeleteTitle')"
-        :message="t('confirmDeleteRoomType', { name: roomTypeToDelete?.roomTypeName || roomTypeToDelete?.shortCode })"
-        :isLoading="isDeletingLoading" @close="showDeleteConfirmation = false; roomTypeToDelete = null"
-        @confirm="confirmDeleteRoomType" />
+         <ConfirmationModal
+            v-model:show="showDeleteConfirmation"
+            :title="$t('confirmDeleteTitle')"
+            :message="t('confirmDeleteRoomType', { name: roomTypeToDelete?.roomTypeName || roomTypeToDelete?.shortCode })"
+            :confirm-text="$t('delete')"
+            :cancel-text="$t('cancel')"
+            variant="danger"
+            :loading="isDeletingLoading"
+            @confirm="confirmDeleteRoomType"
+            @cancel="showDeleteConfirmation = false; roomTypeToDelete = null"
+          />
 
       <!-- Add/Edit Modal -->
       <div v-if="showAddModal || showEditModal"
@@ -66,7 +73,7 @@
               </div>
 
               <div>
-              
+
                 <Input v-model="formData.roomTypeName" type="text" :isRequired="true" :lb="$t('roomTypeNameRequired')" :id="'name'" :forLabel="'name'"
                   :placeholder="t('roomTypeNamePlaceholder')"/>
               </div>
@@ -78,7 +85,7 @@
               </div>
 
               <div>
-                
+
                 <Input v-model.number="formData.baseChild" min="0" :inputType="'number'" :lb="$t('baseChild')" :id="'baseC'" :forLabel="'baseC'"/>
               </div>
 
@@ -165,10 +172,10 @@ import { getAmenities, getRoomTypes, postRoomType, updateRoomTypeById, deleteRoo
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
-import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import Input from '@/components/forms/FormElements/Input.vue'
 import InputCheckBox from '@/components/forms/FormElements/InputCheckBox.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const { t } = useI18n()
 
@@ -257,13 +264,15 @@ const actions = ref([
     label: t('edit'),
     icon: 'edit',
     variant: 'primary',
-    handler: (item) => onAction('edit', item)
+    handler: (item) => onAction('edit', item),
+    icon:Edit
   },
   {
     label: t('delete'),
     icon: 'delete',
     variant: 'danger',
-    handler: (item) => onAction('delete', item)
+    handler: (item) => onAction('delete', item),
+    icon:Trash2
   }
 ])
 
@@ -309,9 +318,11 @@ const confirmDeleteRoomType = async () => {
   isDeletingLoading.value = true
   try {
     const response = await deleteRoomTypeApi(roomTypeToDelete.value.id)
+      showDeleteConfirmation.value = false
+    roomTypeToDelete.value = null
     if (response.status === 200 || response.status === 204) {
-      roomTypes.value = roomTypes.value.filter(rt => rt.id !== roomTypeToDelete.value.id)
       toast.success(t('toast.roomTypeDeleted'))
+      loadData(1);
     } else {
       toast.error(t('toast.roomTypeDeleteError'))
     }
@@ -320,8 +331,6 @@ const confirmDeleteRoomType = async () => {
     toast.error(t('toast.roomTypeDeleteError'))
   } finally {
     isDeletingLoading.value = false
-    showDeleteConfirmation.value = false
-    roomTypeToDelete.value = null
   }
 }
 
@@ -349,8 +358,9 @@ const saveRoomType = async () => {
       const resp = await postRoomType(newRoomType);
       if (resp.status === 200 || resp.status === 201) {
         toast.success(t('roomTypeAddedSuccess'))
-        loadData(1);
         closeModal()
+        loadData(1);
+
       } else {
         toast.error(t('somethingWentWrong'))
         console.error('Error adding room type:', resp);
@@ -375,8 +385,9 @@ const saveRoomType = async () => {
         const resp = await updateRoomTypeById(editingRoomType.value.id, updatedRoomType);
         if (resp.status === 200 || resp.status === 201) {
           toast.success(t('roomTypeUpdatedSuccess'))
+           closeModal();
           loadData(1);
-          closeModal();
+
         } else {
           toast.error(t('somethingWentWrong'))
           console.error('Error updating room type:', resp);

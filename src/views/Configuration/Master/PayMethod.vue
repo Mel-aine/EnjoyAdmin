@@ -53,13 +53,13 @@
           <form @submit.prevent="savePayMethod">
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <Input v-model="formData.shortCode" :lb="$t('configuration.payment_method.short_code') + ' *'"
+                <Input v-model="formData.shortCode" :lb="$t('configuration.payment_method.short_code')"
                   inputType="text" :isRequired="true"
                   :placeholder="$t('configuration.payment_method.short_code_placeholder')" />
               </div>
 
               <div class="mb-4">
-                <Input v-model="formData.name" :lb="$t('configuration.payment_method.payment_method') + ' *'"
+                <Input v-model="formData.name" :lb="$t('configuration.payment_method.payment_method')"
                   inputType="text" :isRequired="true"
                   :placeholder="$t('configuration.payment_method.name_placeholder')" />
               </div>
@@ -67,15 +67,7 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {{ $t('configuration.payment_method.type') }} *
-                </label>
-                <select v-model="formData.type" required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200">
-                  <option value="">{{ $t('configuration.payment_method.select_type') }}</option>
-                  <option value="CASH">{{ $t('configuration.payment_method.type_cash') }}</option>
-                  <option value="BANK">{{ $t('configuration.payment_method.type_bank') }}</option>
-                </select>
+                <Select :lb="$t('configuration.payment_method.type')" v-model="formData.type" :is-required="true" :options="Types" :placeholder="$t('configuration.payment_method.select_type')"/>
               </div>
 
               <div class="mb-4 items-center self-center">
@@ -192,6 +184,7 @@ import {
 } from '@/services/configrationApi'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import { Edit, Trash2 } from 'lucide-vue-next'
+import Select from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -219,6 +212,16 @@ const columns = computed<Column[]>(() => [
 const actions = computed<Action[]>(() => [
   { label: t('edit'), handler: (item: any) => editPayMethod(item), variant: 'primary',icon:Edit },
   { label: t('delete'), handler: (item: any) => deletePayMethod(item), variant: 'danger',icon:Trash2 }
+])
+
+const Types = computed(()=>[
+  {label:t('configuration.payment_method.type_cash') ,value:'CASH'},
+  {label:t('configuration.payment_method.type_bank') ,value:'BANK'},
+])
+
+const surChargesTypes = computed(()=>[
+  {label:t('configuration.payment_method.amount') ,value:'amount'},
+  {label:t('configuration.payment_method.percentage') ,value:'percent'},
 ])
 
 const formData = ref({

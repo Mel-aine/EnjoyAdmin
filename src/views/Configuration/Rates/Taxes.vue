@@ -148,7 +148,7 @@
                 </label>
                 <div class="bg-blue-50 border border-blue-200 dark:bg-gray-900 dark:border-gray-700 rounded-lg p-4 max-h-48 overflow-y-auto">
                   <div class="grid grid-cols-2 gap-2 text-sm">
-                    <div class="flex items-center space-x-2" v-for="(tax, ind) in taxes">
+                    <div class="flex items-center space-x-2" v-for="(tax) in taxes" :key="tax.taxRateId">
                       <input type="checkbox" id="vat"  v-model="formData.taxApplyAfter" :value="tax.taxRateId"
                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
                       <label for="vat" class="text-gray-700 dark:text-gray-300">{{ tax.taxName }}</label>
@@ -405,8 +405,11 @@ const closeModal = () => {
 const editTax = (tax: any) => {
   isEditing.value = true
   editingTaxId.value = tax.taxRateId
-  formData.value = { ...tax }
+  formData.value = { ...tax,
+    taxApplyAfter : tax.taxApplyAfter.map((item:any)=>item.taxRateId)
+   }
   showEditModal.value = true
+  console.log('tax',tax)
 }
 
 const confirmDeleteTax = (tax: any) => {

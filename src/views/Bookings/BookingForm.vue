@@ -23,7 +23,7 @@
         <div class="p-5">
           <form class="grid grid-cols-1 xl:grid-cols-1 gap-6 p-6">
             <!-- Left Side: Reservation Form -->
-            <div class="space-y-6">
+            <div class="space-y-6" :class="{ 'pointer-events-none opacity-60': isCheckedIn }" >
               <div class="flex md:flex-nowrap flex-wrap items-start gap-4">
                 <!-- Check-In + Nights + Check-Out  -->
                 <div class="flex flex-col flex-1">
@@ -42,8 +42,9 @@
                           :allowPastDates="false"
                           :placeholder="$t('Selectdate')"
                           :custom-class="'rounded-r-none'"
+
                         />
-                        <InputTimePicker v-model="reservation.checkinTime" class="rounded-none" />
+                        <InputTimePicker v-model="reservation.checkinTime" class="rounded-none"  />
                       </div>
                     </div>
 
@@ -76,10 +77,12 @@
                           v-model="reservation.checkoutDate"
                           :placeholder="$t('Selectdate')"
                           :custom-class="'rounded-none'"
+
                         />
                         <InputTimePicker
                           v-model="reservation.checkoutTime"
                           customClass="rounded-r-lg"
+
                         />
                       </div>
                     </div>
@@ -99,6 +102,7 @@
                     :is-required="false"
                     :use-dropdown="useDropdownBooking"
                     @clear-error="emit('clear-error')"
+
                   />
                 </div>
 
@@ -112,6 +116,7 @@
                     :is-required="false"
                     :use-dropdown="useDropdownBooking"
                     @clear-error="emit('clear-error')"
+
                   />
                 </div>
               </div>
@@ -123,6 +128,7 @@
                     :options="CustomTypes"
                     :placeholder="$t('select_custom_type')"
                     v-model="reservation.customType"
+
                   />
                 </div>
 
@@ -135,6 +141,7 @@
                     :is-required="false"
                     :use-dropdown="useDropdownBooking"
                     @clear-error="emit('clear-error')"
+
                   />
                 </div>
 
@@ -145,6 +152,7 @@
                   :forLabel="'arriving'"
                   :placeholder="$t('ArrivingTo')"
                   v-model="reservation.arrivingTo"
+
                 />
 
                 <!--going to-->
@@ -154,6 +162,7 @@
                   :forLabel="'going'"
                   :placeholder="$t('GoingTo')"
                   v-model="reservation.goingTo"
+
                 />
                 <!--means of transportation-->
                 <AutoCompleteSelect
@@ -164,6 +173,7 @@
                   :is-required="false"
                   :use-dropdown="useDropdownBooking"
                   @clear-error="emit('clear-error')"
+
                 />
               </div>
 
@@ -195,6 +205,7 @@
                         class="form-checkbox"
                         v-model="quickGroupBooking"
                         @change="onQuickGroupBookingChange"
+
                       />
                       <span class="ml-2">{{ $t('QuickGroupBooking') }}</span>
                     </label>
@@ -426,6 +437,7 @@
                           <input
                             type="number"
                             v-model.number="room.rate"
+
                             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                           />
                         </div>
@@ -459,7 +471,6 @@
                       {{ $t('AddRoom') }}
                     </button>
                   </div>
-
                 </div>
               </section>
               <section class="border-t border-gray-300 pt-4 space-y-4" v-if="reservation.isHold">
@@ -476,6 +487,7 @@
                         :title="$t('date')"
                         v-model="holdReleaseData.date"
                         :placeholder="$t('select_date')"
+
                       />
                     </div>
 
@@ -486,6 +498,7 @@
                         v-model="holdReleaseData.time"
                         :placeholder="$t('select_time')"
                         custom-class="rounded-lg"
+
                       />
                     </div>
 
@@ -497,13 +510,14 @@
                           v-model="holdReleaseData.releaseTerm"
                           :placeholder="$t('value')"
                           class="flex-1 rounded-r-none"
+
                         />
                       </div>
                     </div>
 
                     <!-- Remind Guest Before -->
                     <div class="col-span-6">
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">{{
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1.5">{{
                         $t('remind_guest_before')
                       }}</label>
                       <div class="flex items-center space-x-2">
@@ -512,6 +526,7 @@
                           v-model="holdReleaseData.remindDays"
                           :placeholder="'0'"
                           class="w-22"
+
                         />
                         <span class="text-sm text-gray-600">{{ $t('days') }}</span>
 
@@ -523,6 +538,7 @@
                               v-model="holdReleaseData.dateType"
                               value="hold_release_date"
                               class="form-radio text-blue-600"
+
                             />
                             <span class="text-sm text-gray-700">{{ $t('hold_release_date') }}</span>
                           </label>
@@ -547,7 +563,7 @@
                   {{ $t('guest_info') }}
                 </h2>
                 <div>
-                  <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" />
+                  <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" :key="formDataKey"/>
                 </div>
               </section>
 
@@ -591,13 +607,32 @@
             class="flex flex-col sm:flex-row justify-end items-center border-t border-gray-300 px-6 py-4 gap-4"
           >
             <BasicButton
-              v-if="!showCheckinButton && !pendingReservation"
+              v-if="!showCheckinButton && !pendingReservation && !isCheckedIn"
               type="button"
               @click="goBack"
               :disabled="isLoading"
               :label="$t('Cancel')"
             >
             </BasicButton>
+
+             <BasicButton
+                v-if="isCheckedIn"
+                type="button"
+                @click="handleNewBooking"
+                :disabled="isLoading"
+                :label="$t('NewBooking')"
+                variant="link"
+              >
+              </BasicButton>
+
+              <BasicButton
+                v-if="isCheckedIn"
+                type="button"
+                @click="handleViewDetails"
+                :disabled="isLoading"
+                :label="$t('tables.viewDetails')"
+              >
+              </BasicButton>
 
             <div class="flex space-x-3">
               <BasicButton
@@ -658,12 +693,14 @@
       </div>
 
       <!-- Right Side: Billing Summary -->
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 h-fit lg:col-span-1 lg:sticky">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-5 h-fit lg:col-span-1 lg:sticky">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="font-semibold text-lg text-gray-800 dark:text-white">{{ $t('BillingSummary') }}</h2>
+          <h2 class="font-semibold text-lg text-gray-800 dark:text-white">
+            {{ $t('BillingSummary') }}
+          </h2>
           <span
             v-if="pendingReservation"
-            class="bg-yellow-500 text-white  text-sm py-2 px-4 rounded hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            class="bg-yellow-500 text-white text-sm py-2 px-4 rounded hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             {{ $t('Unconfirmed Booking Inquiry') }}
           </span>
@@ -675,7 +712,9 @@
           </span>
         </div>
 
-        <div class="flex justify-between text-sm text-gray-600 dark:text-white mb-4 border-b border-gray-300 pb-3">
+        <div
+          class="flex justify-between text-sm text-gray-600 dark:text-white mb-4 border-b border-gray-300 pb-3"
+        >
           <div class="flex flex-col">
             <span>{{ $t('CheckIn') }}</span>
             <span class="font-medium">{{ reservation.checkinDate }}</span>
@@ -732,7 +771,10 @@
             </div>
 
             <!-- Détails des occupants et extras -->
-            <div v-if="getRoomExtraInfo(room.id)" class="mt-2 text-xs text-gray-600 dark:text-white">
+            <div
+              v-if="getRoomExtraInfo(room.id)"
+              class="mt-2 text-xs text-gray-600 dark:text-white"
+            >
               <div class="flex items-center justify-between">
                 <!-- Informations sur les occupants -->
                 <div class="flex items-center space-x-4">
@@ -790,7 +832,9 @@
                 @click="toggleTaxDetails(room.id)"
               >
                 <div class="flex items-center">
-                  <span class="text-sm font-medium text-gray-700 dark:text-white">{{ $t('detailsOfTaxes') }}</span>
+                  <span class="text-sm font-medium text-gray-700 dark:text-white">{{
+                    $t('detailsOfTaxes')
+                  }}</span>
                   <svg
                     class="w-4 h-4 ml-2 transform transition-transform duration-200"
                     :class="{ 'rotate-180': showTaxDetails[room.id] }"
@@ -875,11 +919,15 @@
                   class="flex justify-between items-center font-medium text-gray-800 text-sm mb-2 p-1 bg-gray-50 rounded"
                 >
                   <div class="flex flex-col">
-                    <span class="font-medium text-gray-700">{{ Math.max(1, Number(room.adultCount) + Number(room.childCount))}} * {{ charge.name }}</span>
+                    <span class="font-medium text-gray-700"
+                      >{{ Math.max(1, Number(room.adultCount) + Number(room.childCount)) }} *
+                      {{ charge.name }}</span
+                    >
                   </div>
                   <span class="text-gray-700 font-semibold">{{
                     formatCurrency(
-                      parseFloat(charge.rate) * Math.max(1, Number(room.adultCount) + Number(room.childCount))
+                      parseFloat(charge.rate) *
+                        Math.max(1, Number(room.adultCount) + Number(room.childCount)),
                     )
                   }}</span>
                 </div>
@@ -894,7 +942,10 @@
                     {{
                       formatCurrency(
                         room.extraCharges.reduce(
-                          (sum, charge) => sum + parseFloat(charge.rate) * Math.max(1, Number(room.adultCount) + Number(room.childCount)),
+                          (sum, charge) =>
+                            sum +
+                            parseFloat(charge.rate) *
+                              Math.max(1, Number(room.adultCount) + Number(room.childCount)),
                           0,
                         ),
                       )
@@ -1097,7 +1148,6 @@ const useDropdownRoomType = ref(true)
 const useDropdownRateType = ref(true)
 const useDropdownRoom = ref(true)
 const useDropdownBooking = ref(true)
-
 const submitted = ref(false)
 
 const isRoomTypeInvalid = (room: any) => {
@@ -1148,7 +1198,7 @@ const {
   isCustomPrize,
   isCheckedIn,
   voucherEmailError,
-  validateRoomNumberOnChange,
+  resetForm,
   validateVoucherEmail,
   quickGroupBooking,
 
@@ -1193,6 +1243,7 @@ const {
   loadDraftAsyncData,
   getChildOptions,
   getAdultOptions,
+  formDataKey
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours
@@ -1262,12 +1313,12 @@ const handleCheckIn = async () => {
 
       if (result) {
         handleCheckInComplete()
-        clearBooking()
+        // clearBooking()
 
-        await router.push({
-          name: 'ReservationDetails',
-          params: { id: reservationId.value },
-        })
+        // await router.push({
+        //   name: 'ReservationDetails',
+        //   params: { id: reservationId.value },
+        // })
       }
     }
   } catch (error) {
@@ -1309,7 +1360,9 @@ const handleConfirmReservation = async () => {
   } catch (error: any) {
     console.error('Error confirming reservation:', error)
     const errorMessage =
-      error.response?.data?.message || error.message || t('bookings.errors.confirmReservationFailed')
+      error.response?.data?.message ||
+      error.message ||
+      t('bookings.errors.confirmReservationFailed')
     toast.error(errorMessage)
   } finally {
     isConfirmingReservation.value = false
@@ -1415,6 +1468,28 @@ const loadDraft = async () => {
   } catch (error) {
     console.error('Error loading draft:', error)
     return false
+  }
+}
+
+const handleNewBooking = () => {
+  clearBooking()
+  resetForm()
+  isCheckedIn.value = false
+  confirmReservation.value = false
+  pendingReservation.value = false
+  reservationId.value = null
+
+  // Réinitialiser le formulaire avec les valeurs par défaut
+  initializeForm()
+
+}
+
+const handleViewDetails = () => {
+  if (reservationId.value) {
+    router.push({
+      name: 'ReservationDetails',
+      params: { id: reservationId.value },
+    })
   }
 }
 onMounted(async () => {

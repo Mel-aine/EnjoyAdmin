@@ -37,6 +37,7 @@ interface RichSelectOption extends SelectOption {
 
 const props = defineProps({
   customer_id: String,
+  disabled:Boolean,
   modelValue: Object,
   showImage: {
     type: Boolean,
@@ -165,8 +166,9 @@ const fetchIdentityTypes = async () => {
     if (!hotelId) return
 
     const res = await getIdentityTypesByHotelId(hotelId)
+    console.log('res',res)
 
-    idTypeOptions.value = res.data.data.map((type: any): RichSelectOption => {
+    idTypeOptions.value = res.data.data.data.map((type: any): RichSelectOption => {
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {

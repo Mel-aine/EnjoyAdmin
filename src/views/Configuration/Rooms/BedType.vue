@@ -27,14 +27,14 @@
 
         <template #column-createdInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.createdBy?.fullName }}</div>
             <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
 
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedByUser?.firstName }}</div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.updatedBy?.fullName }}</div>
             <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
           </div>
         </template>
@@ -108,6 +108,17 @@
         </div>
       </div>
     </div>
+      <ConfirmationModal
+        v-model:show="showDeleteConfirmation"
+        :title="$t('confirmDelete')"
+        :message="t('confirmDeleteBedType', { name: deleteItem?.bedTypeName })"
+        :confirm-text="$t('delete')"
+        :cancel-text="$t('cancel')"
+        variant="danger"
+        :loading="isDeletingLoading"
+        @confirm="confirmDelete"
+        @cancel="showDeleteConfirmation = false; deleteItem = null"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -120,11 +131,12 @@ import { Plus, Trash2, Edit, Trash } from 'lucide-vue-next'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import type { Action, Column } from '../../../utils/models'
-import { getBedTypes, postBedType, updateBedTypeById } from '../../../services/configrationApi'
+import { getBedTypes, postBedType, updateBedTypeById,deleteBedTypeById } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -135,7 +147,10 @@ const showEditModal = ref(false)
 const selectedBedTypes = ref<any[]>([])
 const editingBedType = ref<any>(null)
 const isLoading = ref(false)
+const isDeletingLoading = ref(false)
+const showDeleteConfirmation = ref(false)
 const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
 
 // Form data
 const formData = ref({
@@ -175,14 +190,16 @@ const columns: Column[] = [
 
 const actions: Action[] = [
   {
-    label: 'Edit',
+    label: t('edit'),
     handler: (item: any) => editBedType(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
-    label: 'Delete',
-    handler: (item: any) => deleteBedType(item.id),
-    variant: 'danger'
+    label: t('delete'),
+    handler: (item: any) => deleteBedType(item),
+    variant: 'danger',
+    icon:Trash2
   }
 ]
 
@@ -215,9 +232,23 @@ const editBedType = (bedType: any) => {
 }
 
 const deleteBedType = (bedType: any) => {
-  if (confirm(t('confirmDeleteBedType', { name: bedType.bedTypeName }))) {
-    bedTypes.value = bedTypes.value.filter(bt => bt.id !== bedType.id)
+ deleteItem.value = bedType
+ showDeleteConfirmation.value = true
+ console.log('bedType',bedType)
+}
+
+const confirmDelete = async() =>{
+  try {
+    isDeletingLoading.value = true
+    await deleteBedTypeById(deleteItem.value.id)
+    deleteItem.value = null
+    showDeleteConfirmation.value = false
     toast.success(t('bedTypeDeletedSuccess'))
+    loadData(1)
+
+  } catch (error) {
+    console.error(error)
+    toast.error(t('toast.deleteErrors'))
   }
 }
 
@@ -246,8 +277,9 @@ const saveBedType = async () => {
         const resp = await updateBedTypeById(editingBedType.value.id, bedtype);
         if (resp.status === 200 || resp.status === 201) {
           toast.success(t('bedTypeUpdatedSuccess'))
-          loadData(1);
           closeModal()
+          loadData(1);
+
         } else {
           toast.error(t('somethingWentWrong'))
           console.error('Error updating bed type:', resp);
@@ -265,8 +297,9 @@ const saveBedType = async () => {
       const resp = await postBedType(newBedType);
       if (resp.status === 200 || resp.status === 201) {
         toast.success(t('bedTypeCreatedSuccess'))
-        loadData(1);
         closeModal()
+        loadData(1);
+
       } else {
         toast.error(t('somethingWentWrong'))
         console.error('Error adding bed type:', resp);

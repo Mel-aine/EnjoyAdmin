@@ -28,11 +28,18 @@
               $t('configuration.reason.status_inactive') }}
           </span>
         </template>
-        <!-- Custom column for modified info -->
+         <!-- Custom column for cree info -->
         <template #column-modifiedInfo="{ item }">
           <div>
-            <div class="text-sm text-gray-900">{{ item.updatedByUser?.firstName }}</div>
-            <div class="text-xs text-gray-400">{{ item.updatedAt }}</div>
+            <div class="text-sm text-gray-900">{{ item.updatedByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{formatDateT(item.updatedAt) }}</div>
+          </div>
+        </template>
+        <!-- Custom column for modified info -->
+        <template #column-createdinfo="{ item }">
+          <div>
+            <div class="text-sm text-gray-900">{{ item.createdByUser?.fullName }}</div>
+            <div class="text-xs text-gray-400">{{ formatDateT(item.createdAt) }}</div>
           </div>
         </template>
         <template #status="{ item }">
@@ -112,6 +119,7 @@ import Select from '@/components/forms/FormElements/Select.vue'
 import type { Action, Column } from '../../../utils/models'
 import PlusIcon from '../../../icons/Plus.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import {
   getReasons,
   postReason,

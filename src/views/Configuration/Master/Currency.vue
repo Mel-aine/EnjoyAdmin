@@ -22,11 +22,15 @@
           :label="$t('Add Currency')"
         />
       </template>
-        <template #isDefault="{ item }">
-          <span v-if="item.isDefault" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-            {{ $t('Default') }}
+        <template #column-isDefault="{ item }">
+          <span  :class="[
+            'inline-flex px-2 py-1 text-xs font-semibold rounded-full ',
+            item.isDefault == true ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+          ]">
+            {{ $t(`${item.isDefault}`) }}
           </span>
         </template>
+
       </ReusableTable>
     </div>
 
@@ -158,7 +162,7 @@
               <BasicButton
                 type="submit"
                 variant="primary"
-                :label="isEditing ? $t('configuration.payment_method.update_payment_method') : $t('configuration.payment_method.save_payment_method')"
+                :label="isEditing ? $t('update') : $t('save')"
                 :loading="saving"
               />
             </div>
@@ -166,6 +170,19 @@
         </div>
       </div>
     </div>
+
+      <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="t('confirmDelete')"
+        :message="
+          t('Are you sure you want to delete this currency?')"
+        :confirm-text="$t('Confirm')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="isDeleting"
+        @confirm="confirmDelete"
+        @cancel="showDeleteModal=false"
+      />
   </ConfigurationLayout>
 </template>
 
@@ -179,6 +196,7 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
 import PlusIcon from '@/icons/PlusIcon.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import type { Action, Column } from '../../../utils/models'
 import {
   getCurrencies,
@@ -197,6 +215,10 @@ const loading = ref(false)
 const saving = ref(false)
 const serviceStore = useServiceStore();
 const paginationMeta = ref<any>(null)
+const deleteItem = ref<any>(null)
+const isDeleting = ref(false)
+const showDeleteModal = ref(false)
+
 const columns = computed<Column[]>(() => [
   { key: 'currencyCode', label: t('Currency Code'), type: 'text' },
   { key: 'name', label: t('Currency Name'), type: 'text' },
@@ -230,19 +252,24 @@ const editCurrency = (currency: any) => {
 }
 
 const deleteCurrency = async (currency: any) => {
-  if (confirm(t('Are you sure you want to delete this currency?'))) {
+  deleteItem.value = currency
+  showDeleteModal.value = true
+}
+const confirmDelete = async() =>{
     try {
-      loading.value = true
-      await deleteCurrencyById(currency.id)
+      isDeleting.value = true
+      await deleteCurrencyById(deleteItem.value.id)
+      deleteItem.value = null
+      showDeleteModal.value = false
       toast.success(t('Currency deleted successfully'))
       await fetchCurrencies(1)
     } catch (error) {
       console.error('Error deleting currency:', error)
       toast.error(t('Failed to delete currency'))
     } finally {
-      loading.value = false
+      isDeleting.value = false
     }
-  }
+
 }
 
 const actions = computed<Action[]>(() => [

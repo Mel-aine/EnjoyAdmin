@@ -143,7 +143,7 @@ const loadRoomTypes = async () => {
     console.log('response', response)
     apiRoomTypes.value = (response.data?.data?.data || []).map((roomType: any) => ({
       value: roomType.id,
-      label: roomType.name
+      label: roomType.roomTypeName
     }))
   } catch (error) {
     console.error('Error loading room types:', error)
