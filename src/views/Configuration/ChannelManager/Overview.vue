@@ -1,6 +1,7 @@
 <template>
   <ChannelManagerLayout>
-    <div class="h-full">
+    <div class="h-screen">
+    <div class="">
       <div class="flex justify-end" v-if="!currentService.channexPropertyId">
         <BasicButton
           :label="isLoading ? t('configuration.channelManager.common.migrating') : t('configuration.channelManager.migrateHotelData')"
@@ -12,73 +13,73 @@
       <div class=" gap-4">
         <div class="grid grid-cols-7 gap-3 mb-4">
           <!-- Guest Name -->
-          <FormInput lb="Guest Name" v-model="filters.guestName" placeholder="Enter name" />
+          <FormInput :lb="$t('Guest Name')" v-model="filters.guestName" :placeholder="$t('Enter name')" />
 
           <!-- Reservation Number -->
-          <FormInput lb="Res No" v-model="filters.reservationNumber" placeholder="Enter number" />
+          <FormInput :lb="$t('Res No')" v-model="filters.reservationNumber" :placeholder="$t('Enter number')" />
 
           <div class="col-span-2 flex">
             <div>
               <!-- Date Type -->
-              <FormSelect lb="Date" v-model="filters.dateType" :options="dateTypeOptions" placeholder="--Select--" />
+              <FormSelect :lb="$t('Date')" v-model="filters.dateType" :options="dateTypeOptions" :placeholder="$t('--Select--')" />
             </div>
 
             <div class="w-full"> <!-- Date range using custom double date picker -->
-              <InputDoubleDatePicker title="Selected Period" v-model="filters.dateRange" />
+              <InputDoubleDatePicker :title="$t('Selected Period')" v-model="filters.dateRange" :allowPastDates="true"/>
             </div>
           </div>
 
           <!-- Room Type (AutoComplete) -->
-          <AutoCompleteSelect v-model="filters.roomType" :options="roomTypeOptions" :defaultValue="'Select Room Type'"
-            :lb="'Room Type'" :is-required="false" :use-dropdown="true" :isLoading="isLoadingRoomTypes"
+          <AutoCompleteSelect v-model="filters.roomType" :options="roomTypeOptions" :defaultValue="$t('Select Room Type')"
+            :lb="$t('Room Type')" :is-required="false" :use-dropdown="true" :isLoading="isLoadingRoomTypes"
             @update:modelValue="onRoomTypeChange" />
 
           <!-- Rate Type (AutoComplete, depends on Room Type) -->
-          <AutoCompleteSelect v-model="filters.rateType" :options="rateTypeOptions" :defaultValue="'Select Rate Type'"
-            :lb="'Rate Type'" :is-required="false" :use-dropdown="true" :disabled="!selectedRoomTypeId"
+          <AutoCompleteSelect v-model="filters.rateType" :options="rateTypeOptions" :defaultValue="$t('Select Rate Type')"
+            :lb="$t('Rate Type')" :is-required="false" :use-dropdown="true" :disabled="!selectedRoomTypeId"
             :isLoading="isLoadingRateTypes" />
 
           <!-- Source -->
-          <FormSelect lb="Source" v-model="filters.source" :options="sourceOptions" placeholder="--Select--" />
+          <FormSelect :lb="$t('BusinessSource')" v-model="filters.source" :options="sourceOptions" :placeholder="$t('--Select--')" />
         </div>
         <div class="grid grid-cols-4 gap-3">
           <div class="flex">
             <!-- Reservation Type -->
             <div>
-              <FormSelect lb="Type" v-model="filters.reservationType" :options="reservationTypeOptions"
-                placeholder="--Select--" />
+              <FormSelect :lb="$t('Type')" v-model="filters.reservationType" :options="reservationTypeOptions"
+                :placeholder="$t('--Select--')" />
             </div>
 
             <div class="w-full">
               <!-- Stay Date range using double date picker -->
-              <InputDoubleDatePicker title="Stay Date" v-model="filters.stayRange" />
+              <InputDoubleDatePicker :title="$t('Stay Date')" v-model="filters.stayRange" :allowPastDates="true"/>
             </div>
           </div>
 
           <!-- Show Bookings -->
           <div class="flex items-center gap-3 align-middle self-end content-end">
-            <span class="text-xs text-gray-600 dark:text-gray-300">Show Bookings:</span>
-            <Toggle title="Web" v-model="filters.show.web" />
-            <Toggle title="Channel" v-model="filters.show.channel" />
-            <Toggle title="PMS" v-model="filters.show.pms" />
+            <span class="text-xs text-gray-600 dark:text-gray-300">{{ $t('Show Bookings') }}:</span>
+            <Toggle :title="$t('Web')" v-model="filters.show.web" />
+            <Toggle :title="$t('Channel')" v-model="filters.show.channel" />
+            <Toggle :title="$t('PMS')" v-model="filters.show.pms" />
           </div>
 
           <!-- Buttons + Dropdown Column Manager -->
           <div class="ml-auto relative flex gap-2 col-span-2 justify-end self-end content-center">
-            <BasicButton variant="secondary" :label="'Reset'" @click="resetFilters" />
-            <BasicButton variant="primary" :label="'Manage Columns'" @click="toggleColumnManager" />
-            <BasicButton variant="primary" :label="'Search'" @click="onSearch" />
+            <BasicButton variant="secondary" :label="$t('Reset')" @click="resetFilters" />
+            <BasicButton variant="primary" :label="$t('Manage Columns')" @click="toggleColumnManager" />
+            <BasicButton variant="primary" :label="$t('Search')" @click="onSearch" />
 
             <!-- Dropdown Column Manager -->
             <div v-if="showColumnPanel" class="absolute right-0 mt-2 w-96 z-50 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
               <div class="flex justify-between items-center px-3 py-2">
-                <span class="text-sm font-medium">Select Columns (max {{ maxColumns }})</span>
-                <span class="text-xs text-gray-600 dark:text-gray-300">Selected: {{ selectedColumnsModel.length }}/{{ maxColumns }}</span>
+                <span class="text-sm font-medium">{{ $t('Select Columns') }} (max {{ maxColumns }})</span>
+                <span class="text-xs text-gray-600 dark:text-gray-300">{{ $t('Selected') }}: {{ selectedColumnsModel.length }}/{{ maxColumns }}</span>
               </div>
               <div class="px-3 pb-3">
-                <MultipleSelect :lb="'Columns'" v-model="selectedColumnsModel" :options="columnOptions" :max-visible-tags="6" :default-display-mode="'limited'" />
+                <MultipleSelect :lb="$t('Columns')" v-model="selectedColumnsModel" :options="columnOptions" :max-visible-tags="6" :default-display-mode="'limited'" />
                 <div class="flex justify-end gap-2 mt-2">
-                  <BasicButton variant="secondary" :label="'Close'" @click="showColumnPanel = false" />
+                  <BasicButton variant="secondary" :label="$t('Close')" @click="showColumnPanel = false" />
                 </div>
               </div>
             </div>
@@ -89,7 +90,7 @@
     </div>
 
     <div>
-      <ReusableTable :showHeader="false" :columns="tableColumns" :data="paginatedReservations" :searchable="false"
+      <ReusableTable :showHeader="true" :columns="tableColumns" :data="paginatedReservations" :searchable="false"
         :empty-state-title="$t('No reservations')" :loading="loading"
         :empty-state-description="$t('Get started by creating a new reservation.')" :title="$t('Reservations')">
         <!-- Custom column for reservation number -->
@@ -126,6 +127,12 @@
           </div>
         </template>
 
+        <template #column-deposit="{ item }">
+          <div class="text-sm font-medium text-gray-900 dark:text-white">
+            {{ formatCurrency(item.deposit) }}
+          </div>
+        </template>
+
         <!-- Custom column for status -->
         <template #column-status="{ item }">
           <div class="flex-col gap-1 inline-flex">
@@ -139,6 +146,7 @@
 
 
       </ReusableTable>
+    </div>
     </div>
   </ChannelManagerLayout>
 </template>
@@ -164,6 +172,7 @@ import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSele
 import MultipleSelect from '@/components/forms/FormElements/MultipleSelect.vue'
 import { getFrontofficeBookingDataId } from '@/services/configrationApi'
 import getOtaIconSrc from '@/utils/otaIcons'
+import ReservationStatus from '@/components/common/ReservationStatus.vue'
 const allReservation = ref([])
 const paginatedReservations = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
@@ -204,7 +213,7 @@ const totalPages = computed(() => {
   return Math.ceil(allReservation.value.length / pageSize.value)
 })
 
-
+const bookingTypeLo = ref<any>([...serviceStore.reservationType])
 // Methods
 const applyFilter = async (filterItem: any) => {
   loading.value = true
@@ -218,14 +227,38 @@ const applyFilter = async (filterItem: any) => {
 
       const mappedReservations = res.data?.reservations.map((res: any) => {
         const user = res.guest
+        const firstRoom = res.reservationRooms?.[0]
+         let preferencesText = ''
+        if (user?.preferences && Array.isArray(user.preferences)) {
+          preferencesText = user.preferences
+            .map((pref: any) => pref.label || pref.value || pref)
+            .filter(Boolean)
+            .join(', ')
+        }
+
 
         return {
           ...res,
           date: res.arrivedDate,
           dateD: res.departDate,
           email: user?.email || '',
-          phone: user?.phoneNumber || '',
+          phone: user?.phonePrimary || '',
+          city: user?.city || '',
+          country: user?.country || '',
+          state : user?.stateProvince || '',
+          zipCode : user?.postalCode || '',
+          preference: preferencesText || 'N/A',
           userFullName: user ? `${user.firstName} ${user.lastName}` : 'Inconnu',
+          room: {
+            name: firstRoom?.room?.roomNumber || 'N/A'
+          },
+          pax: res.guestCount  || res.adults ||  0,
+          deposit: res.paidAmount || '0.00',
+          folioNumber : res.folios?.[0].folioNumber,
+          rateType: {
+            name: firstRoom?.rateType?.rateTypeName || 'N/A'
+          },
+
         }
       })
 
@@ -242,37 +275,37 @@ const applyFilter = async (filterItem: any) => {
 const maxColumns = 10
 const showColumnPanel = ref(false)
 const availableColumns: Column[] = [
-  { key: 'reservationNumber', label: 'Res No', type: 'custom' },
-  { key: 'bookingDate', label: 'Booking Date', type: 'date' },
-  { key: 'guest', label: 'Guest Name', type: 'custom' },
-  { key: 'dates', label: 'Dates', type: 'custom' },
-  { key: 'room.name', label: 'Room', type: 'text' },
-  { key: 'rateType.name', label: 'Rate Type', type: 'text' },
-  { key: 'pax', label: 'Pax', type: 'text' },
-  { key: 'totalAmount', label: 'Total', type: 'custom' },
-  { key: 'balanceSummary.adr', label: 'ADR', type: 'text' },
-  { key: 'deposit', label: 'Deposit', type: 'text' },
-  { key: 'source', label: 'Source', type: 'custom' },
-  { key: 'balanceSummary.totalTaxes', label: 'Total Tax', type: 'text' },
-  { key: 'balanceSummary.totalCharges', label: 'Total Charges', type: 'text' },
-  { key: 'commission', label: 'Commission', type: 'text' },
-  { key: 'voucher', label: 'Voucher', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' },
-  { key: 'dueAmount', label: 'Due Amt.', type: 'text' },
-  { key: 'email', label: 'Email', type: 'email' },
-  { key: 'phone', label: 'Mobile No', type: 'text' },
-  { key: 'city', label: 'City', type: 'text' },
-  { key: 'country', label: 'Country', type: 'text' },
-  { key: 'zipCode', label: 'Zip Code', type: 'text' },
-  { key: 'state', label: 'State', type: 'text' },
-  { key: 'folioNumber', label: 'Folio No', type: 'text' },
-  { key: 'preference', label: 'Preference', type: 'text' },
-  { key: 'userFullName', label: 'User', type: 'text' },
-  { key: 'travelAgent', label: 'Travel Agent', type: 'text' },
-  { key: 'reservationType', label: 'Reservation Type', type: 'text' },
-  { key: 'paymentStatus', label: 'Payment', type: 'badge' },
-  { key: 'nights', label: 'No Of Nights', type: 'text' },
-  { key: 'bookingTime', label: 'Booking Time', type: 'text' }
+  { key: 'reservationNumber', label: t('Res No'), type: 'custom' },
+  { key: 'bookingDate', label: t('Booking Date'), type: 'date' },
+  { key: 'guest', label: t('Guest Name'), type: 'custom' },
+  { key: 'dates', label: t('Dates'), type: 'custom' },
+  { key: 'room.name', label: t('Room'), type: 'text' },
+  { key: 'rateType.name', label: t('Rate Type'), type: 'text' },
+  { key: 'pax', label: t('Pax'), type: 'text' },
+  { key: 'totalAmount', label: t('Total'), type: 'custom' },
+  { key: 'balanceSummary.adr', label: t('ADR'), type: 'text' },
+  { key: 'deposit', label: t('Deposit'), type: 'custom' },
+  { key: 'source', label: t('Source'), type: 'custom' },
+  { key: 'balanceSummary.totalTaxes', label: t('Total Tax'), type: 'text' },
+  { key: 'balanceSummary.totalCharges', label: t('Total Charges'), type: 'text' },
+  { key: 'commission', label: t('Commission'), type: 'text' },
+  { key: 'voucher', label: t('Voucher'), type: 'text' },
+  { key: 'status', label: t('Status'), type: 'custom' },
+  { key: 'dueAmount', label: t('Due Amt.'), type: 'text' },
+  { key: 'email', label: t('Email'), type: 'email' },
+  { key: 'phone', label: t('Mobile No'), type: 'text' },
+  { key: 'city', label: t('City'), type: 'text' },
+  { key: 'country', label: t('Country'), type: 'text' },
+  { key: 'zipCode', label: t('Zip Code'), type: 'text' },
+  { key: 'state', label: t('State'), type: 'text' },
+  { key: 'folioNumber', label: t('Folio No'), type: 'text' },
+  { key: 'preference', label: t('Preference'), type: 'text' },
+  { key: 'userFullName', label: t('User'), type: 'text' },
+  { key: 'travelAgent', label: t('Travel Agent'), type: 'text' },
+  { key: 'reservationType.name', label: t('ReservationType'), type: 'text' },
+  { key: 'paymentStatus', label: t('Payment'), type: 'badge' },
+  { key: 'numberOfNights', label: t('No Of Nights'), type: 'text' },
+  { key: 'bookingTime', label: t('Booking Time'), type: 'text' }
 ]
 
 // Column selection via MultipleSelect
@@ -317,11 +350,11 @@ const tableColumns = computed<Column[]>(() => {
   availableColumns.forEach(c => map[c.key] = c)
   // Always ensure custom slots exist for these keys
   const ensureCustom: Record<string, Column> = {
-    reservationNumber: { key: 'reservationNumber', label: 'Res No', type: 'custom' },
-    guest: { key: 'guest', label: 'Guest Name', type: 'custom' },
-    dates: { key: 'dates', label: 'Dates', type: 'custom' },
-    totalAmount: { key: 'totalAmount', label: 'Total', type: 'custom' },
-    status: { key: 'status', label: 'Status', type: 'custom' }
+    reservationNumber: { key: 'reservationNumber', label: t('Res No'), type: 'custom' },
+    guest: { key: 'guest', label: t('Guest Name'), type: 'custom' },
+    dates: { key: 'dates', label: t('Dates'), type: 'custom' },
+    totalAmount: { key: 'totalAmount', label: t('Total'), type: 'custom' },
+    status: { key: 'status', label: t('Status'), type: 'custom' }
   }
   return selectedColumnKeys.value.map(k => ensureCustom[k] || map[k]).filter(Boolean)
 })
@@ -350,16 +383,16 @@ const filters = ref({
   rateType: '',
   source: '',
   reservationType: '',
-  stayRange: { start: getTodayDate(), end: getTodayDate() },
+  stayRange: { start: '', end: '' },
   incompleteOnly: false,
   show: { web: true, channel: true, pms: true }
 })
 
 const dateTypeOptions = [
-  { label: 'Created', value: 'created' },
-  { label: 'Arrival', value: 'arrival' },
-  { label: 'Departure', value: 'departure' },
-  { label: 'Cancelled', value: 'cancelled' }
+  { label: t('Created'), value: 'created' },
+  { label: t('Arrival'), value: 'arrival' },
+  { label: t('Departure'), value: 'departure' },
+  { label: t('Cancelled'), value: 'cancelled' }
 ]
 
 // Dynamic options for Room Type / Rate Type
@@ -369,71 +402,17 @@ const isLoadingRoomTypes = ref(false)
 const isLoadingRateTypes = ref(false)
 const selectedRoomTypeId = ref<number | null>(null)
 const roomTypesData = ref<any[]>([])
-const sourceOptions = ref([
-  { value: 'web', label: 'Web' },
-  { value: 'channel', label: 'Channel' },
-  { value: 'pms', label: 'PMS' }
-])
-const reservationTypeOptions = ref([
-  { value: 'confirm_booking', label: 'Confirm Booking' },
-  { value: 'hold_confirm_booking', label: 'Hold Confirm Booking' },
-  { value: 'hold_unconfirm_booking', label: 'Hold Unconfirm Booking' },
-  { value: 'online_failed_booking', label: 'Online Failed Booking' },
-  { value: 'released', label: 'Released' },
-  { value: 'unconfirmed_booking_inquiry', label: 'Unconfirmed Booking Inquiry' }
-])
+const sourceOptions = computed(() => businessSourcesLo.value || [])
 
-// const mapFiltersToApi = () => {
-//   const api: any = {}
+const reservationTypeOptions = computed(() => bookingTypeLo.value || [])
+ const businessSourcesLo = ref<any>([...serviceStore.businessSources])
 
-//   // Texte de recherche (guest name ou reservation number)
-//   const searchText = filters.value.guestName || filters.value.reservationNumber
-//   if (searchText) {
-//     api.searchText = searchText
-//   }
-
-//   // Room type
-//   if (filters.value.roomType) {
-//     api.roomType = filters.value.roomType
-//   }
-
-//   // Status (reservation type)
-//   if (filters.value.reservationType) {
-//     api.status = filters.value.reservationType
-//   }
-
-//   // Source
-//   if (filters.value.source) {
-//     api.source = filters.value.source
-//   }
-
-//   const start = filters.value.dateRange?.start
-//   const end = filters.value.dateRange?.end
-//   const stayStart = filters.value.stayRange?.start
-//   const stayEnd = filters.value.stayRange?.end
-
-//   // Prefer explicit stay range if provided
-//   if (stayStart && stayEnd) {
-//     api.checkInDate = stayStart
-//     api.checkOutDate = stayEnd
-//   } else if (start && end) {
-//     if (filters.value.dateType === 'arrival') {
-//       api.checkInDate = start
-//       api.checkOutDate = end
-//     } else if (filters.value.dateType === 'departure') {
-//       api.checkInDate = start
-//       api.checkOutDate = end
-//     }
-//   }
-
-//   return api
-// }
 
 const mapFiltersToApi = () => {
   const api: any = {}
 
   // Combiner Guest name ET Reservation number dans searchText
-  const searchTerms = []
+  const searchTerms:any[] = []
   if (filters.value.guestName) {
     searchTerms.push(filters.value.guestName)
   }
@@ -441,10 +420,10 @@ const mapFiltersToApi = () => {
     searchTerms.push(filters.value.reservationNumber)
   }
   if (searchTerms.length > 0) {
-    api.searchText = searchTerms.join(' ') // ou juste le premier : searchTerms[0]
+    api.searchText = searchTerms.join(' ')
   }
 
-  // Room type - envoyer l'ID au lieu du nom
+  // Room type
   if (filters.value.roomType) {
     const match = roomTypeOptions.value.find((opt: any) => opt.value === filters.value.roomType)
     if (match?.id) {
@@ -459,12 +438,21 @@ const mapFiltersToApi = () => {
 
   // Status (reservation type)
   if (filters.value.reservationType) {
-    api.status = filters.value.reservationType
+    api.reservationType = filters.value.reservationType
   }
 
   // Source
   if (filters.value.source) {
     api.source = filters.value.source
+  }
+
+  const showToggles :any = []
+  if (filters.value.show.web) showToggles.push('web')
+  if (filters.value.show.channel) showToggles.push('channel')
+  if (filters.value.show.pms) showToggles.push('pms')
+
+  if (showToggles.length > 0 && showToggles.length < 3) {
+    api.showBookings = showToggles.join(',')
   }
 
   // Date range based on dateType
@@ -483,8 +471,10 @@ const mapFiltersToApi = () => {
 
   if (stayStart && stayEnd) {
     api.stayCheckInDate = stayStart
-    api.stayCheckOutDate = stayEnd
+    api.stayCheckOutDate  = stayEnd
   }
+
+
 
   // Debug pour voir ce qui est envoyé
   console.log('API Filters:', api)
@@ -505,7 +495,7 @@ const resetFilters = () => {
     guestName: '', reservationNumber: '', dateType: 'arrival',
     dateRange: { start: getTodayDate(), end: getTodayDate() },
     roomType: '', rateType: '', source: '', reservationType: '',
-    stayRange: { start: getTodayDate(), end: getTodayDate() },
+    stayRange: { start: '', end: '' },
     incompleteOnly: false, show: { web: true, channel: true, pms: true }
   }
 }

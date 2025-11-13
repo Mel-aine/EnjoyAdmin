@@ -2,7 +2,7 @@
   <div>
     <label
       :for="inputId"
-      class="flex items-center justify-between text-sm font-medium text-gray-700 select-none dark:text-gray-400"
+      class="flex items-center justify-between text-sm font-medium text-gray-700 select-none dark:text-gray-400 gap-1"
       :class="{ 'opacity-50 cursor-not-allowed': disabled, 'cursor-pointer': !disabled }"
     >
       <span>{{ title }}</span>

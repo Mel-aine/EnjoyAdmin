@@ -307,6 +307,8 @@ export interface FitlterItem {
   dateEnd?: string
   stayCheckInDate?: string
   stayCheckOutDate?: string
+  reservationType?:string
+  showBookings?:string
 }
 export interface TaskFitlterItem {
   userId: string
