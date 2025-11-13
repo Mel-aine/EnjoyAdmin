@@ -4,6 +4,8 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: null as string | null,
     refreshToken: null as string | null,
+    tokenData: null as any,
+    refreshTokenData: null as any,
     user: null as Record<string, any> | null,
     roleId: null as number | null,
     UserId: null as number | null,
@@ -14,7 +16,34 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isLoggedIn: (state) => !!state.user,
     isFullyAuthenticated: (state) => !!(state.token && state.user && state.UserId),// && state.roleId
-    getUser: (state) => state.user
+    getUser: (state) => state.user,
+    isAuthenticated: (state) => !!state.token,
+
+    // Calcule le temps restant avant expiration (en millisecondes)
+    tokenTimeRemaining(): number | null {
+      if (!this.tokenData?.expiresAt) return null
+      const expiryTime = new Date(this.tokenData.expiresAt).getTime()
+      const remaining = expiryTime - Date.now()
+      return Math.max(0, remaining)
+    },
+
+    // Vérifie si le token va expirer dans moins d'une minute
+    tokenExpiringSoon(): boolean {
+      const remaining = this.tokenTimeRemaining
+      if (remaining === null) return false
+      return remaining < 60 * 1000 // Moins de 60 secondes
+    },
+
+    // Temps restant en format lisible (optionnel pour debug)
+    tokenTimeRemainingFormatted(): string {
+      const remaining = this.tokenTimeRemaining
+      if (remaining === null) return 'Inconnu'
+
+      const minutes = Math.floor(remaining / 60000)
+      const seconds = Math.floor((remaining % 60000) / 1000)
+
+      return `${minutes}m ${seconds}s`
+    }
   },
 
   actions: {
@@ -62,6 +91,16 @@ export const useAuthStore = defineStore('auth', {
       console.log("permissions",permissions)
        this.reportsPermissions = permissions;
     },
+     updateToken(token: string, tokenData: any) {
+      this.token = token
+      this.tokenData = tokenData
+    },
+
+    // Met à jour le refresh token et ses données
+    updateRefreshToken(refreshToken: string, refreshTokenData: any) {
+      this.refreshToken = refreshToken
+      this.refreshTokenData = refreshTokenData
+    },
 
     /**
      * Vérifie si l'utilisateur a une ou plusieurs permissions
@@ -79,7 +118,7 @@ export const useAuthStore = defineStore('auth', {
         if (Array.isArray(this.user.permisReports)) {
           return this.user.permisReports.includes(permissionName);
         }
-        
+
         // Sinon, on essaie de le parser comme une chaîne JSON
         if (typeof this.user.permisReports === 'string') {
           const permissions = JSON.parse(this.user.permisReports);
