@@ -54,48 +54,6 @@ const isLoading = ref(false)
 const hasLoadedOnce = ref(false)
 const showDeleteModal = ref(false)
 const deleting = ref(false)
-const foglioData = ref([])
-const loading = ref(false)
-const searchQuery = ref('')
-
-const columns = computed<Column[]>(() => [
-  {
-    key: 'day',
-    label: t('Date'),
-    type: 'custom',
-    sortable: true,
-  },
-  {
-    key: 'description',
-    label: t('Description'),
-    sortable: false,
-  },
-  {
-    key: 'amount',
-    label: t('Amount'),
-    type: 'custom',
-    sortable: true,
-  },
-  {
-    key: 'particular',
-    label: t('particular'),
-    type: 'text',
-    sortable: true,
-  },
-  {
-    key: 'status',
-    label: t('status'),
-    type: 'custom',
-    sortable: true,
-  },
-  {
-    key: 'type',
-    label: t('transactionType'),
-    type: 'text',
-    sortable: true,
-  },
-])
-
 
 
 // Icon mapping for different actions (centralized)
@@ -226,31 +184,6 @@ const getStatusClass = (status: string) => {
   }
 }
 
-const getStatusClasses = (status: string) => {
-  switch (status?.toLowerCase()) {
-    case 'posted':
-      return 'bg-green-100 text-green-800'
-    case 'closed':
-      return 'bg-orange-100 text-orange-800'
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800'
-    case 'voided':
-      return 'bg-blue-100 text-blue-800'
-    case 'transferred':
-      return 'bg-purple-100 text-purple-800'
-    case 'disputed':
-      return 'bg-pink-100 text-pink-800'
-    case 'cancelled':
-    case 'failed':
-      return 'bg-red-100 text-red-800'
-    case 'completed':
-      return 'bg-green-100 text-green-800'
-    case 'correction':
-      return 'bg-brand-100 text-brand-800'
-    default:
-      return 'bg-gray-100 text-gray-800'
-  }
-}
 
 
 
@@ -261,57 +194,9 @@ const formatAmount = (amount: number) => {
   }).format(Math.abs(amount))
 }
 
-
-// Fonction pour récupérer les transactions de l'entreprise
-const fetchCompanyTransaction = async () => {
-  loading.value = true
-  try {
-    const companyId = router.currentRoute.value.params.id
-
-    console.log('Fetching transactions for company:', companyId)
-
-    const response = await getCompanyTransaction(Number(companyId))
-
-    console.log('fetchCompanyTransaction response:', response)
-
-    if (response?.data?.success) {
-      const folioData = response.data.data
-
-      if (folioData?.transactions && Array.isArray(folioData.transactions)) {
-        foglioData.value = folioData.transactions.map((transaction: any) => ({
-          id: transaction.id,
-          day: transaction.postingDate || transaction.date,
-          description: transaction.description || transaction.reference || '-',
-          totalAmount: transaction.amount || 0,
-          particular: transaction.particular,
-          type: transaction.transactionType || 'transaction',
-          status: transaction.status,
-        }))
-      } else {
-        foglioData.value = []
-      }
-
-      console.log('Processed transactions:', foglioData.value)
-    } else {
-      console.warn('No transactions found or invalid response')
-      foglioData.value = []
-    }
-  } catch (error) {
-    console.error('Error fetching company transactions:', error)
-    foglioData.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-const onSearchChange = (query: string) => {
-  console.log('Search query changed:', query)
-}
-
 // Load company details on component mount
 onMounted(() => {
   getCompanyDetailsById()
-  fetchCompanyTransaction()
 })
 
 // Refresh company details without showing skeleton (used when CashieringCenter refreshes)
@@ -396,7 +281,7 @@ const refreshCompanyDetailsNoSkeleton = async () => {
                   <User class="text-gray-500 w-4 h-4" />
                   <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{
                     company.contactPersonName || '-'
-                    }}</span>
+                  }}</span>
                 </div>
 
                 <!-- Email -->
@@ -404,7 +289,7 @@ const refreshCompanyDetailsNoSkeleton = async () => {
                   <Mail class="text-gray-500 w-4 h-4" />
                   <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{
                     company.primaryEmail || '-'
-                    }}</span>
+                  }}</span>
                 </div>
 
                 <!-- Phone -->
@@ -412,7 +297,7 @@ const refreshCompanyDetailsNoSkeleton = async () => {
                   <Phone class="text-gray-500 w-4 h-4" />
                   <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{
                     company.primaryPhone || '-'
-                    }}</span>
+                  }}</span>
                 </div>
                 <div class="flex items-start gap-1">
                   <MapPin class="text-gray-500 w-4 h-4 mt-1" />
@@ -424,7 +309,7 @@ const refreshCompanyDetailsNoSkeleton = async () => {
                           company.billingCity,
                           company.billingStateProvince,
                           company.billingPostalCode,
-                          $t(`countries_lists.${company.billingCountry?.toLowerCase?.()}`),
+                          company.billingCountry ? $t(`countries_lists.${company.billingCountry?.toLowerCase?.()}`) : ''
                         ]
                           .filter(Boolean)
                           .join(', ')
@@ -452,7 +337,7 @@ const refreshCompanyDetailsNoSkeleton = async () => {
 
               <span class="text-sm text-gray-500 dark:text-gray-100">{{
                 t('current_balance')
-                }}</span>
+              }}</span>
               <span class="text-base font-semibold text-red-500 dark:text-red-500">
                 {{ formatAmount(company.currentBalance || 0) }} FCFA
               </span>
@@ -462,12 +347,8 @@ const refreshCompanyDetailsNoSkeleton = async () => {
         </div>
       </div>
 
-      <CashieringCenterInterface
-        v-if="company"
-        :selectedCompanyId="company?.id"
-        :isCashering="false"
-        @refreshed="refreshCompanyDetailsNoSkeleton"
-      />
+      <CashieringCenterInterface v-if="company" :selectedCompanyId="company?.id" :isCashering="false"
+        @refreshed="refreshCompanyDetailsNoSkeleton" />
     </div>
   </AdminLayout>
 </template>

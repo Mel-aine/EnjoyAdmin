@@ -125,7 +125,7 @@ interface CityLedgerOption {
 interface Props {
   lb?: string
   isRequired?: boolean
-  modelValue?: number | string
+  modelValue?: number | string | null
   placeholder?: string
   disabled?: boolean
   customClass?: string

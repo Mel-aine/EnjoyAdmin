@@ -381,6 +381,7 @@ import { checkInReservation,checkOutReservation } from '@/services/reservation'
 import { useAuthStore } from '@/composables/user'
 import { BedDouble, CalendarClock, CalendarX ,FileSearch} from 'lucide-vue-next';
 import Spinner from '@/components/spinner/Spinner.vue'
+import OverLoading from '@/components/spinner/OverLoading.vue'
 import {  ArrowLeft } from 'lucide-vue-next'
 import { useServiceStore } from '@/composables/serviceStore'
 import { CarTaxiFront } from 'lucide-vue-next';

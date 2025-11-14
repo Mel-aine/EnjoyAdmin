@@ -11,7 +11,7 @@
           :label="$t('print')"
           variant="secondary"
           :icon="PrinterIcon"
-          :disabled="!selectCityLedger?.id"
+          :disabled="!selectedCityLedgerId"
           @click="printVoucher"
         />
       </div>
@@ -24,7 +24,7 @@
         class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-200 dark:border-gray-700">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
           <div class="mr-4 w-52" v-if="props.isCashering">
-            <InputSelectCityLeger v-model="selectCityLedger" @select="handChangeCityLedger" />
+            <InputSelectCityLeger v-model="selectedCityLedgerId" @select="handChangeCityLedger" />
           </div>
           <div class="flex flex-col gap-2">
             <div>
@@ -110,7 +110,7 @@
 
     <template v-if="newPaymentVisible">
       <NewPaymentCityLedger v-if="newPaymentVisible"
-        :selectedCompanyId="selectCityLedger?.id || props.selectedCompanyId || null" :dateRange="dateRange"
+        :selectedCompanyId="selectedCityLedgerId || props.selectedCompanyId || null" :dateRange="dateRange"
         :activeTab="activeTab" :mappingMode="!!mapPaymentContext" :mapPaymentContext="mapPaymentContext"
         @close="onModalClosed" @payment-saved="onPaymentSaved" />
     </template>
@@ -213,6 +213,7 @@ const dateRange = ref({
 
 // City Ledger data
 const selectCityLedger = ref<any>(null)
+const selectedCityLedgerId = ref<number | null>(null)
 const cityLedgerData = ref<any>({
   transactions: [],
   totals: {
@@ -243,12 +244,13 @@ const columns = ref<Column[]>([
 const transactions = ref<any[]>([])
 const handChangeCityLedger = (item: any) => {
   selectCityLedger.value = item;
+  selectedCityLedgerId.value = Number(item?.id) || null
   loadCityLedgerData()
 }
 
 // Load city ledger data function
 const loadCityLedgerData = async () => {
-  const companyId = selectCityLedger.value?.id ?? props.selectedCompanyId
+  const companyId = selectedCityLedgerId.value ?? props.selectedCompanyId
   if (!companyId) {
     transactions.value = []
     return
@@ -347,7 +349,7 @@ function onModalClosed() {
 // Watchers
 watch(() => props.selectedCompanyId, (newId) => {
   if (newId) {
-    selectCityLedger.value = { id: newId }
+    selectedCityLedgerId.value = newId
     loadCityLedgerData()
   }
 })
@@ -411,7 +413,7 @@ const printReceipt = async (item: any) => {
 // Print voucher for selected City Ledger and date range via PdfExporterNode
 const printVoucher = async () => {
   try {
-    const companyId = selectCityLedger.value?.id || props.selectedCompanyId
+    const companyId = selectedCityLedgerId.value || props.selectedCompanyId
     if (!companyId) {
       toast.error(t('pleaseSelectCityLedger') || 'Please select a City Ledger')
       return
@@ -458,7 +460,7 @@ watch(searchQuery, () => {
 // Lifecycle hooks
 onMounted(() => {
   if (props.selectedCompanyId) {
-    selectCityLedger.value = { id: props.selectedCompanyId }
+    selectedCityLedgerId.value = props.selectedCompanyId
   }
   loadCityLedgerData()
 })
