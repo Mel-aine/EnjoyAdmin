@@ -20,7 +20,8 @@
 //   }
 // }
 
-import { ref, computed, onMounted, onUnmounted, provide, inject, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, provide, inject } from 'vue'
+import { useSidebarStore } from './sidebarStore'
 import type { Ref } from 'vue' //
 
 interface SidebarContextType {
@@ -42,8 +43,8 @@ interface SidebarContextType {
 const SidebarSymbol = Symbol()
 
 export function useSidebarProvider() {
-  const STORAGE_KEY = 'sidebar:isExpanded'
-  const isExpanded = ref(true)
+  const store = useSidebarStore()
+  const isExpanded = ref(store.isExpanded)
   const isMobileOpen = ref(false)
   const isMobile = ref(false)
   const isHovered = ref(false)
@@ -60,15 +61,8 @@ export function useSidebarProvider() {
   }
 
   onMounted(() => {
-    // Restore persisted desktop expanded state
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored !== null) {
-        isExpanded.value = stored === 'true'
-      }
-    } catch (_) {
-      // ignore storage access errors
-    }
+    // Initialize from Pinia store
+    isExpanded.value = store.isExpanded
     handleResize()
     window.addEventListener('resize', handleResize)
   })
@@ -81,7 +75,8 @@ export function useSidebarProvider() {
     if (isMobile.value) {
       isMobileOpen.value = !isMobileOpen.value
     } else {
-      isExpanded.value = !isExpanded.value
+      store.toggleExpanded()
+      isExpanded.value = store.isExpanded
     }
   }
 
@@ -126,15 +121,6 @@ export function useSidebarProvider() {
   }
 
   provide(SidebarSymbol, context)
-
-  // Persist desktop expanded/collapsed state
-  watch(isExpanded, (val) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(val))
-    } catch (_) {
-      // ignore storage access errors
-    }
-  })
 
   return context
 }
