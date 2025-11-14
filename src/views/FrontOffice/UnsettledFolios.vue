@@ -6,7 +6,7 @@
 
       <!-- Unsettled Folios Table -->
       <ReusableTable :title="$t('unsettledFolios.tableTitle')" :columns="columns" :data="filteredFolios" :actions="actions"
-        :loading="loading" :searchable="false" :selectable="true" :meta="paginationMeta" @page-change="handlePageChange"
+        :loading="loading" :searchable="false" :selectable="false" :meta="paginationMeta" @page-change="handlePageChange"
         :empty-state-title="$t('unsettledFolios.noFoliosFound')"
         :empty-state-message="$t('unsettledFolios.noFoliosMessage')" @selection-change="onSelectionChange"
         @action="onAction">
@@ -40,6 +40,7 @@
     <!-- Add Payment Modal -->
     <template v-if="isAddPaymentModalOpen && selectedFolio">
       <AddPaymentModal :reservation-id="selectedFolio.reservationId" :is-open="isAddPaymentModalOpen"
+        :folio-id="selectedFolio.id"
         @close="closeAddPaymentModal" @save="handleSavePayment" />
     </template>
 
@@ -53,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
+import { ref, computed, onMounted, defineAsyncComponent, markRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
@@ -64,6 +65,7 @@ import { getUnsetteledFolio, printFolioPdf } from '@/services/foglioApi.ts'
 import { useServiceStore } from '@/composables/serviceStore'
 import PaymentIcon from '../../icons/PaymentIcon.vue'
 import PdfExporterNode from '@/components/common/PdfExporterNode.vue'
+import { formatCurrency } from '../../components/utilities/UtilitiesFunction'
 
 // Async components
 const AddPaymentModal = defineAsyncComponent(() => import('@/components/reservations/foglio/AddPaymentModal.vue'))
@@ -145,13 +147,13 @@ const actions = ref([
   {
     label: t('AddPayment'),
     action: 'add',
-    icon: PaymentIcon,
+    icon: markRaw(PaymentIcon),
     handler: (item: any) => onAction('add', item)
   },
   {
     label: t('printInvoice'),
     action: 'print',
-    icon: PrinterIcon,
+    icon: markRaw(PrinterIcon),
     handler: (item: any) => onAction('print', item)
   },
   /*{
@@ -206,7 +208,7 @@ const filteredFolios = computed(() => {
 const formatBalance = (balance: string | number) => {
   // Convertir en nombre si c'est une string
   const balanceValue = typeof balance === 'string' ? parseFloat(balance) : balance
-  return balanceValue.toFixed(2)
+  return formatCurrency(balanceValue)
 }
 // Methods
 const handleFilter = (filters: FolioFilterItem) => {

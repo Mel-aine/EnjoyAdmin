@@ -116,6 +116,7 @@ const isLoading = ref(false)
 const searchQuery = ref('')
 const folioOptions = ref<FolioOption[]>([])
 const selectedFolio = ref<FolioOption | null>(null)
+const lastEmittedId = ref<number | null>(null)
 
 // Computed
 const formatCurrency = computed(() => {
@@ -138,10 +139,16 @@ watch(
       if (found) {
         selectedFolio.value = found
         searchQuery.value = `${t('Folio')} #${found.id} - ${found.guestName}`
+        if (lastEmittedId.value !== found.id) {
+          emit('select', found)
+          emit('change', found.id)
+          lastEmittedId.value = found.id
+        }
       }
     } else if (!newVal) {
       selectedFolio.value = null
       searchQuery.value = ''
+      lastEmittedId.value = null
     }
   },
   { immediate: true }
@@ -157,6 +164,11 @@ watch(
         if (found) {
           selectedFolio.value = found
           searchQuery.value = `${t('Folio')} #${found.id} - ${found.guestName}`
+          if (lastEmittedId.value !== found.id) {
+            emit('select', found)
+            emit('change', found.id)
+            lastEmittedId.value = found.id
+          }
         }
       }
     } else if (!newVal) {
@@ -319,6 +331,7 @@ const selectFolio = (folio: FolioOption) => {
     emit('update:modelValue', folio.id)
     emit('select', folio)
     emit('change', folio.id)
+    lastEmittedId.value = folio.id
   }
 }
 
