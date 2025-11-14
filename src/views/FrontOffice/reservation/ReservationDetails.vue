@@ -4,31 +4,32 @@ import {
   Building2Icon,
   Users,
 } from 'lucide-vue-next'
-import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
+import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
 
 const props = defineProps<{
   id: string
 }>()
 
 import { useI18n } from 'vue-i18n'
-import FoglioOperation from '../../../components/reservations/foglio/FoglioOperation.vue'
-import RoomCharge from '../../../components/reservations/roomcharge/RoomCharge.vue'
-import BookingDetails from '../../../components/reservations/bookingdetails/BookingDetails.vue'
+const FoglioOperation = defineAsyncComponent(() => import('../../../components/reservations/foglio/FoglioOperation.vue'))
+const RoomCharge = defineAsyncComponent(() => import('../../../components/reservations/roomcharge/RoomCharge.vue'))
+const BookingDetails = defineAsyncComponent(() => import('../../../components/reservations/bookingdetails/BookingDetails.vue'))
 import router from '../../../router'
+import { useRoute } from 'vue-router'
 import { getReservationDetailsById } from '../../../services/api'
 import AdminLayout from '../../../components/layout/AdminLayout.vue'
 import Adult from '../../../icons/Adult.vue'
 import Child from '../../../icons/Child.vue'
 import { formatTimeFromTimeString } from '../../../components/utilities/UtilitiesFunction'
-import GuestDetails from '../../../components/reservations/GuestDetails.vue'
+const GuestDetails = defineAsyncComponent(() => import('../../../components/reservations/GuestDetails.vue'))
 import ReservationDetailsSkeleton from '../../../components/skeletons/ReservationDetailsSkeleton.vue'
 import ReservationAction from '../../../components/reservations/ReservationAction.vue'
 
 import PrintModal from '../../../components/common/PrintModal.vue'
 const BookingConfirmationTemplate = defineAsyncComponent(() => import('../../../components/common/templates/BookingConfirmationTemplate.vue'))
-import AuditTrail from '../../../components/audit/AuditTrail.vue'
-import ReservationStatus from '../../../components/common/ReservationStatus.vue'
-import AssignRoomReservation from '../../../components/reservations/AssignRoomReservation.vue'
+const AuditTrail = defineAsyncComponent(() => import('../../../components/audit/AuditTrail.vue'))
+const ReservationStatus = defineAsyncComponent(() => import('../../../components/common/ReservationStatus.vue'))
+const AssignRoomReservation = defineAsyncComponent(() => import('../../../components/reservations/AssignRoomReservation.vue'))
 import { useToast } from 'vue-toastification'
 import { confirmBooking } from '@/services/reservation';
 import OverLoading from '../../../components/spinner/OverLoading.vue'
@@ -54,7 +55,38 @@ const tabs = computed(() => [
   { id: 'room_charges', label: t('Room Charges') },
   { id: 'audit_trial', label: t('Audit Trail') },
 ])
-const activeTab = ref<string>('folio_operations')
+const VALID_TAB_IDS = new Set<string>([
+  'folio_operations',
+  'booking_details',
+  'guest_details',
+  'room_charges',
+  'audit_trial',
+])
+
+const route = useRoute()
+
+const coerceTab = (value: unknown): string => {
+  const str = typeof value === 'string' ? value : ''
+  return VALID_TAB_IDS.has(str) ? str : 'folio_operations'
+}
+
+const activeTab = ref<string>(coerceTab(route.query.tab))
+
+const onTabClick = (tabId: string) => {
+  if (!VALID_TAB_IDS.has(tabId)) return
+  activeTab.value = tabId
+  router.replace({ query: { ...route.query, tab: tabId } })
+}
+
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    const resolved = coerceTab(newTab)
+    if (resolved !== activeTab.value) {
+      activeTab.value = resolved
+    }
+  },
+)
 
 // ====== FONCTION CLÉ : Mise à jour locale ======
 const updateLocalReservation = (updates: any) => {
@@ -306,6 +338,10 @@ const ReservationConfirm = async () => {
 }
 
 onMounted(() => {
+  // Ensure URL carries the current tab on initial mount
+  if (!route.query.tab || !VALID_TAB_IDS.has(String(route.query.tab))) {
+    router.replace({ query: { ...route.query, tab: activeTab.value } })
+  }
   getBookingDetailsById()
 })
 </script>
@@ -406,7 +442,7 @@ onMounted(() => {
         <div class="flex justify-between w-full">
           <div class="border-b border-gray-200 dark:border-gray-700">
             <nav class="flex space-x-8 px-6">
-              <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
+              <button v-for="tab in tabs" :key="tab.id" @click="onTabClick(tab.id)" :class="[
                 'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
