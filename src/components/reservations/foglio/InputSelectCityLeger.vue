@@ -91,7 +91,7 @@ import DotSpinner from '@/components/spinner/DotSpinner.vue'
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { getCityLedger } from '@/services/companyApi'
 import { useI18n } from 'vue-i18n'
-import { debounce, filter } from 'lodash'
+import { debounce } from 'lodash'
 import { useServiceStore } from '@/composables/serviceStore'
 
 interface CityLedgerOption {
@@ -179,7 +179,7 @@ const fetchCityLedgers = async (reset = false) => {
     const loadingTarget = reset ? (isSearchReset ? isSearching : isLoading) : isLoadingMore
     loadingTarget.value = true
     const hotelId = serviceStore.serviceId!
-    let filter :any = {
+    const filter :any = {
       page: page.value,
       limit: limit.value,
       searchText: searchQuery.value?.trim() || undefined,

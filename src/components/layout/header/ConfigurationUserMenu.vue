@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon, PlugInIcon, HomeIcon } from '@/icons'
+import { UserCircleIcon, ChevronDownIcon, LogoutIcon, PlugInIcon, HomeIcon } from '@/icons'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { isLoading } from '@/composables/spinner'
@@ -64,7 +64,7 @@ const { t } = useI18n();
 const authStore = useAuthStore()
 
 const menuItems = computed(() => {
-  let menus = [
+  const menus = [
     { href: '/', icon: HomeIcon, text: t('Go to Front') },
     { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
   ]

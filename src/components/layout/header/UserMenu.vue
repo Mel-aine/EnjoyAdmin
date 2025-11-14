@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon, PlugInIcon } from '@/icons'
+import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, PlugInIcon } from '@/icons'
 import { signOut as signOutService } from '@/services/userApi'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
@@ -69,7 +69,7 @@ const dropdownRef = ref(null)
 const { t } = useI18n();
 const authStore = useAuthStore()
 const menuItems = computed(() => {
-  let menus = [
+  const menus = [
     { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
   ]
   if (authStore.hasPermission('access_to_configuration_panel')) {

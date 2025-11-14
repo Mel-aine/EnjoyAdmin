@@ -146,7 +146,7 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Action, Column } from '../../../utils/models'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 

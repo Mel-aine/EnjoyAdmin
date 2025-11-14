@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, watch } from 'vue'
+import { ref, defineAsyncComponent, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
 import {

@@ -423,7 +423,7 @@ const roundToTwo = (num: number) => {
 // Compute discount amount based on selected folio balance and discount type
 const recomputeDiscountAmount = () => {
     const discount = selectedDiscount.value
-    let rawBalance = selectedFolio.value?.balance
+    const rawBalance = selectedFolio.value?.balance
 
 
     if (!discount) {

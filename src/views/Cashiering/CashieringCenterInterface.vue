@@ -160,7 +160,7 @@ import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue
 // Lazy-load NewPaymentCityLedger to avoid mixed dynamic/static import warning
 const NewPaymentCityLedger = defineAsyncComponent(() => import('./NewPaymentCityLedger.vue'))
 import InputSelectCityLeger from '../../components/reservations/foglio/InputSelectCityLeger.vue'
-import { type Action, type Column } from '../../utils/models'
+import { type Column } from '../../utils/models'
 import { formatCurrency } from '../../utils/numericUtils'
 import { getCityLedgerDetails } from '../../services/companyApi'
 import { useServiceStore } from '../../composables/serviceStore'

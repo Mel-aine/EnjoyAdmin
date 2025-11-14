@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { Building2, Wrench, UserCog, User, Edit, Trash2, Eye } from 'lucide-vue-next'
+import { Edit, Trash2, Eye } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'

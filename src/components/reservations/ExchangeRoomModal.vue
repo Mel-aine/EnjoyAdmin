@@ -308,7 +308,6 @@ import Select from '../forms/FormElements/Select.vue'
 import BasicButton from '../buttons/BasicButton.vue'
 import { getReservationDetailsById, postExchangeRoomReservation } from '../../services/reservation'
 import {
-  getAvailableRoomsByTypeId,
   getInHouseReservations,
   getRoomsByTypeId,
 } from '../../services/configrationApi'

@@ -1044,7 +1044,7 @@ export function useBooking() {
         throw new Error(t('ID photo upload incomplete'))
       }
 
-      let identityPayload = {
+      const identityPayload = {
         idPhoto: formData.value.idPhoto || null,
         idType: formData.value.idType,
         idNumber: formData.value.idNumber,

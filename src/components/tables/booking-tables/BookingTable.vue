@@ -8,10 +8,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, type PropType } from 'vue'
-import {
-    deleteReservation,
-} from '@/services/api'
-import { useServiceStore } from '@/composables/serviceStore'
+
+
 import type { ReservationType } from '@/types/option'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'

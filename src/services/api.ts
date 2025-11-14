@@ -18,9 +18,8 @@ import type {
   RoomFilterItem,
   TaskFitlterItem,
   UpdateAmenityBookingPayload,
-  UpdateAmenityCategoryPayload,
 } from '@/utils/models'
-import type { IContract, IPayroll, ICreatePayroll } from '@/types/type'
+import type { IPayroll } from '@/types/type'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 

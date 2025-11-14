@@ -1,5 +1,4 @@
 // composables/useBookingStorage.ts
-import { ref } from 'vue'
 import { useBookingDraftStore } from '@/composables/bookingDraftStore'
 
 export interface Booking {

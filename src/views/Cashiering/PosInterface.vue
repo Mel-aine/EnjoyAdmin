@@ -190,7 +190,7 @@ import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoub
 import InputCheckBox from '../../components/forms/FormElements/InputCheckBox.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import PlusIcon from '../../icons/PlusIcon.vue'
-import { PrinterIcon, Edit as EditIcon, DollarSign, Coffee, Utensils, Car, Wifi, Phone } from 'lucide-vue-next'
+import { PrinterIcon, Edit as EditIcon } from 'lucide-vue-next'
 import AddInvoiceIncidenPosc from './AddInvoiceIncidenPosc.vue'
 import ReusableTable from '../../components/tables/ReusableTable.vue'
 import VoidInvoice from '../../components/invoice/VoidInvoice.vue'

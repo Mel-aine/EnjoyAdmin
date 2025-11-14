@@ -580,6 +580,7 @@ const editTemplate = (): void => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .flex-col > div {

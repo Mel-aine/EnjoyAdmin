@@ -185,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, defineAsyncComponent } from 'vue'
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
@@ -706,7 +706,7 @@ const postSelectedCharges = async () => {
         return {
           reservationId: ch.reservation_id,
           folioId: ch.folio_id,
-          description: `Night Audit - ${currentDate} posting`,
+          description: `Night Audit - ${currentDate.value} posting`,
           amount: ch.rate,
         }
       })

@@ -454,13 +454,9 @@ import BaseCalendar from '@/components/calendars/BaseCalendar.vue'
 import LegendItem from '@/components/calendars/LegendItem.vue'
 
 import {
-  Edit as EditIcon,
-  Trash2 as Trash2Icon,
   Info as InfoIcon,
   Clock as ClockIcon,
   Calendar as CalendarIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
   Building as BuildingIcon,
   Home as HomeIcon,
   Star as StarIcon,
@@ -468,11 +464,6 @@ import {
   Eye as EyeIcon,
   Shield as ShieldIcon,
   FileSearch,
-  User as UserIcon,
-  Settings as SettingsIcon,
-  XCircle as XCircleIcon,
-  Activity as ActivityIcon,
-  CheckCircle as CheckCircleIcon,
   DollarSign as DollarSignIcon,
 } from 'lucide-vue-next'
 
@@ -573,7 +564,7 @@ const calendarEvents = computed<any[]>(() => {
 
   selectedRoomData.reservations?.forEach((reservation: any) => {
     if (reservation.status !== 'checked-in') return
-    let current = new Date(reservation.checkIn)
+    const current = new Date(reservation.checkIn)
     const checkOut = new Date(reservation.checkOut)
 
     while (normalizeDate(current) <= normalizeDate(checkOut)) {
@@ -588,7 +579,7 @@ const calendarEvents = computed<any[]>(() => {
 
   const maintenance = selectedRoomData.maintenance
   if (maintenance) {
-    let current = new Date(maintenance.startDate)
+    const current = new Date(maintenance.startDate)
     const end = new Date(maintenance.endDate)
 
     while (normalizeDate(current) <= normalizeDate(end)) {

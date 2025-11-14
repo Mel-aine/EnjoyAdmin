@@ -77,7 +77,6 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import Select from '@/components/forms/FormElements/Select.vue'
 import MultipleSelect from '@/components/forms/FormElements/MultipleSelect.vue'
 import InputDoubleDatePicker from '@/components/forms/FormElements/InputDoubleDatePicker.vue'
 import Input from '@/components/forms/FormElements/Input.vue'

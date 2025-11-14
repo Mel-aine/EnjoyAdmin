@@ -389,7 +389,7 @@ const save = async () => {
     const formatRateStringStrict = (val: string | number): string => {
     const raw = typeof val === 'string' ? val : String(val);
     const normalized = raw.replace(',', '.');
-    let n = Number(normalized);
+    const n = Number(normalized);
 
     // 1. Gérer les entrées invalides ou non numériques
     if (!Number.isFinite(n)) {

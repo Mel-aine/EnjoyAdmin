@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import DotSpinner from '@/components/spinner/DotSpinner.vue'
-import { ref, onMounted, onBeforeUnmount, watch, computed, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { searchFolios, getReservationFolios } from '@/services/foglioApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useI18n } from 'vue-i18n'

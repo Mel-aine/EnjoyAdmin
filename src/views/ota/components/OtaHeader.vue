@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,onMounted,computed } from 'vue'
+import { ref,computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import HomeIcon from '@/icons/HomeIcon.vue'
 import InfoIcon from '@/icons/InfoIcon.vue'
@@ -75,7 +75,6 @@ import MappingIcon from '@/icons/MappingIcon.vue'
 import Message2Line from '@/icons/Message2Line.vue'
 import CheckIcon from '@/icons/CheckIcon.vue'
 import StaredIcon from '@/icons/StaredIcon.vue'
-import { getHotelInfo } from '@/views/ota/services/otaApi'
 
 
 const props = defineProps<{  currency?: string , brand?: any}>()

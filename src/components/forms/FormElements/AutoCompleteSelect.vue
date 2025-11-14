@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import DotSpinner from '@/components/spinner/DotSpinner.vue';
 import { Search } from 'lucide-vue-next';
 

@@ -280,10 +280,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  Home,
   Star,
-  Wrench,
-  ChevronDown,
   DollarSign,
 } from 'lucide-vue-next'
 import { getFrontOfficeDashboard } from '@/services/dashboard'

@@ -85,12 +85,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref,onMounted,watch,computed } from "vue";
+import { ref,onMounted,computed } from "vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import Modal from "@/components/profile/Modal.vue";
 import Input from "@/components/forms/FormElements/Input.vue";
-import ComponentCard from "@/components/common/ComponentCard.vue";
 import { createSupplier,getSupplier,deleteSupplier,updateSupplier} from "@/services/api";
 import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";

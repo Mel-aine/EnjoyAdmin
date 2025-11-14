@@ -14,7 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { ref } from 'vue'
 import { useAuthStore } from '../../composables/user'
@@ -22,7 +21,7 @@ import { useServiceStore } from '../../composables/serviceStore'
 import { useStatusColor } from '../../composables/statusColorStore'
 import { useI18n } from 'vue-i18n'
 import { useLanguageStore } from '@/lang/language'
-import { auth, initSpace } from '../../services/api'
+import { initSpace } from '../../services/api'
 import router from '../../router'
 
 

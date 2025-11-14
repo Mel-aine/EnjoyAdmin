@@ -157,7 +157,6 @@ import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { getEmployeesForService } from '../../../services/userApi'
-import Spinner from '../../../components/spinner/Spinner.vue'
 import { getAuditReport } from '../../../services/reportsApi'
 
 const { t } = useI18n()

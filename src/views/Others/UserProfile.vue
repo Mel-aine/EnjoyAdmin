@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, computed, ref, reactive, watch, onMounted } from 'vue'
+import { defineAsyncComponent, computed } from 'vue'
 import { useAuthStore } from '@/composables/user'
 
 import StaffDetailsPage from '../StaffManagement/StaffDetailsPage.vue'

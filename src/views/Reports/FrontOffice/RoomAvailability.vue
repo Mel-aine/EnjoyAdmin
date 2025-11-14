@@ -126,11 +126,9 @@
 
 <script setup lang="ts">
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { type Action, type Column } from '../../../utils/models'
 import roomAvailabilityService from '@/services/frontOfficeReport'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { useServiceStore } from '@/composables/serviceStore'

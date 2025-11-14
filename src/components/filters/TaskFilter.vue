@@ -65,14 +65,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import {
-    Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon, List as ListIcon
+    Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon
 } from 'lucide-vue-next';
 import RightSideModal from '@/components/modal/RightSideModal.vue';
 import Input from '@/components/forms/FormElements/Input.vue';
 import BasicButton from '@/components/buttons/BasicButton.vue';
 
 import type { TaskFitlterItem } from '@/utils/models';
-import { getDepartment, getRole } from '@/services/api';
+import { getDepartment } from '@/services/api';
 import { useServiceStore } from '@/composables/serviceStore';
 import Select from '../forms/FormElements/Select.vue';
 import flatPickr from 'vue-flatpickr-component'

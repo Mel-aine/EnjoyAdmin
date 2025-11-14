@@ -242,7 +242,7 @@ const formData = ref({
     applyOn: 'stay',
     date: new Date().toISOString().split('T')[0],
     notes: '',
-    transactionIds: [] as Number[]
+    transactionIds: [] as number[]
 })
 
 // Computed: Get selected rate type details

@@ -436,7 +436,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
         const date = new Date(startDate)
         date.setDate(startDate.getDate() + i)
 
-        let isReserved = false
+        const isReserved = false
 
         days.push({
             date,

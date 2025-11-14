@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { signOut as signOutService } from '@/services/userApi'
 import { isLoading } from '@/composables/spinner'
-import { useServiceStore } from '@/composables/serviceStore'
 import { checkHotelExists } from '@/services/configrationApi'
 
 const router = createRouter({

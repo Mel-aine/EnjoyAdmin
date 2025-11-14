@@ -112,14 +112,13 @@
  * @version 1.0.0
  */
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 import {
   getMonthlyOccupancyPDFUrl,
-  downloadMonthlyOccupancyPDF,
   validateMonthlyOccupancyParams,
   getAvailableMonths,
   getAvailableYears,

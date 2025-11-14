@@ -92,7 +92,6 @@ import { computed, defineProps, defineEmits } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ReusableTable from '@/components/tables/ReusableTable.vue';
 import { CreditCard } from 'lucide-vue-next';
-import { Eye, Undo2, Printer } from 'lucide-vue-next';
 
 const { t } = useI18n();
 

@@ -47,9 +47,6 @@ import RightSideModal from '@/components/modal/RightSideModal.vue';
 import Input from '@/components/forms/FormElements/Input.vue';
 import Select from '@/components/forms/FormElements/Select.vue';
 import BasicButton from '@/components/buttons/BasicButton.vue';
-import { getTypeProductByServiceId } from '@/services/api';
-import type { RoomTypeData } from '@/types/option';
-import { useServiceStore } from '@/composables/serviceStore';
 import InputDoubleDatePicker from '../forms/FormElements/InputDoubleDatePicker.vue';
 // i18n
 const { t } = useI18n();

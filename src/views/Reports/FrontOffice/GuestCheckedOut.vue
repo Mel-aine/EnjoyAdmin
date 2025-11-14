@@ -341,13 +341,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { GuestCheckoutFilters } from '@/services/reportsApi'
 import { generateGuestCheckedOut } from '@/services/reportsApi'
-import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'

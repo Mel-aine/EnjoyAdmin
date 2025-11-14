@@ -1,41 +1,19 @@
 <script setup lang="ts">
 import {
   ArrowLeft,
-  Building2Icon,
-  PencilIcon,
-  CheckCircle,
-  CreditCard,
-  Calendar,
-  ArrowUpDown,
-  StopCircle,
-  List,
-  X,
-  Eye,
-  Trash2,
-  UserMinus,
-  ChevronUp,
-  ChevronDown,
   User,
   Mail,
   Phone,
   MapPin,
-  Receipt,
-  FileText,
 } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import ButtonDropdown from '../../components/common/ButtonDropdown.vue'
 import { useRouter, useRoute } from 'vue-router'
 import AdminLayout from '../../components/layout/AdminLayout.vue'
-import Spinner from '../../components/spinner/Spinner.vue'
 import { useToast } from 'vue-toastification'
-import { getCompanyById, deleteCompany, type Company } from '../../services/companyApi'
+import { getCompanyById, deleteCompany } from '../../services/companyApi'
 import ModalConfirmation from '../../components/modal/ModalConfirmation.vue'
-import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { ActionIcons } from '@/utils/ActionIcons'
-import { getCompanyTransaction } from '@/services/configrationApi'
-import type { Column } from '@/utils/models'
-import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
 import ButtomDropdownAction from '@/components/common/ButtomDropdownAction.vue'
 import CashieringCenterInterface from './CashieringCenterInterface.vue'
 

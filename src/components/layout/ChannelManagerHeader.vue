@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, markRaw } from 'vue'
+import { ref, markRaw } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import { useRoute } from 'vue-router'
 import NotificationMenu from './header/NotificationMenu.vue'

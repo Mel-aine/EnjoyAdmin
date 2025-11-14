@@ -1,6 +1,5 @@
 // services/roomstatusAPI.ts
 import axios from 'axios';
-import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 import type { AxiosResponse } from 'axios'
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`;

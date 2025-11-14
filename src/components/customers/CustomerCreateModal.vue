@@ -288,10 +288,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, defineAsyncComponent, watch, onMounted } from 'vue'
+import { ref, reactive, computed, defineAsyncComponent, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import { createGuest } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getIdentityTypesByHotelId, getPreferencesByHotelId } from '@/services/configrationApi'
 import { CLOUDINARY_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/config'

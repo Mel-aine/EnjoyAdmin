@@ -381,13 +381,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { Plus, Trash2, Edit, Trash, Camera } from 'lucide-vue-next'
+import { Plus, Trash2, Edit, Camera } from 'lucide-vue-next'
 import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes,deleteRoomById } from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'

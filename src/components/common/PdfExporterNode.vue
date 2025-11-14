@@ -68,7 +68,7 @@
  * @version 2.1.0
  */
 
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import PdfModalPreview from '../modal/PdfModalPreview.vue'
 import VuePdfApp from "vue3-pdf-app"
 import "vue3-pdf-app/dist/icons/main.css"

@@ -102,7 +102,7 @@ import Spinner from '@/components/spinner/Spinner.vue';
 import { useServiceStore } from '@/composables/serviceStore';
 import { useToast } from 'vue-toastification'
 import { useI18n } from "vue-i18n";
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import TableComponent from "@/components/tables/TableComponent.vue";
 import ModalDelete from "@/components/modal/ModalDelete.vue";
 import { defaultProducts } from "@/assets/data/productCategories";

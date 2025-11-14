@@ -145,7 +145,7 @@ import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
-import { auth, validateEmail, validatePassword } from '@/services/api'
+import { auth, validateEmail } from '@/services/api'
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useI18n } from 'vue-i18n'
 import { useStatusColor } from '@/composables/statusColorStore'
