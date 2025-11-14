@@ -1,8 +1,16 @@
 <template>
   <div class="p-6">
     <div>
-      <ReusableTable :columns="columns" :data="paginatedData" :loading="loading" :title="''" :showPagination="true"
-        :searchable="false" :show-header="false">
+      <ReusableTable
+        :columns="columns"
+        :data="paginatedData"
+        :loading="loading"
+        :title="''"
+        :searchable="false"
+        :show-header="false"
+        :meta="auditMeta"
+        @page-change="handlePageChange"
+      >
 
         <template #column-date="{item}">
           <div>{{ formatDateT(item.createdAt) }}</div>
@@ -44,6 +52,7 @@ const itemsPerPage = ref(10)
 const auditData = ref<AuditTrailEntry[]>([])
 const totalItems = ref(0)
 const totalPages = ref(0)
+// keep itemsPerPage in sync with API meta.per_page when available
 const users = ref([])
 const authStore = useAuthStore()
 const props = defineProps<{ entityIds: number[] }>()
@@ -66,7 +75,7 @@ const filters = ref<AuditTrailQueryParams>({
 const columns = ref<Column[]>([
   { key: 'date', label: t('Date'), type: 'custom' },
   { key: 'user', label: t('User'), type: 'custom' },
-  { key: 'action', label: t('Action'), type: 'custom' },
+  { key: 'action', label: t('Actions'), type: 'custom' },
   { key: 'description', label: t('Log'), type: 'custom' },
   { key: 'ipAddress', label: t('IP'), type: 'custom' },
 ])
@@ -75,6 +84,13 @@ const columns = ref<Column[]>([
 const paginatedData = computed(() => {
   return auditData.value
 })
+
+const auditMeta = computed(() => ({
+  total: totalItems.value,
+  perPage: itemsPerPage.value,
+  currentPage: currentPage.value,
+  lastPage: totalPages.value
+}))
 
 
 
@@ -118,6 +134,9 @@ const fetchAuditTrail = async () => {
       auditData.value = result.data
       totalItems.value = result.meta.total
       totalPages.value = result.meta.last_page
+      if (typeof result.meta.per_page === 'number') {
+        itemsPerPage.value = result.meta.per_page
+      }
     } else {
       auditData.value = []
       totalItems.value = 0
@@ -129,6 +148,11 @@ const fetchAuditTrail = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+  fetchAuditTrail()
 }
 
 const exportAuditData = async () => {

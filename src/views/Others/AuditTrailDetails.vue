@@ -50,7 +50,7 @@
                             <InputDatePicker v-model="filters.endDate" :placeholder="$t('dd/mm/yyyy')" :title="$t('EndDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
                         </div>
                         <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Action') }}</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Actions') }}</label>
               <SelectComponent
                 v-model="filters.action"
                 :options="actionOptions"
