@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref ,watch} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import PopupModal from '@/components/modal/PopupModal.vue'
 import Spinner from '@/components/spinner/Spinner.vue'
-import { auth } from '@/services/api'
+import { auth,startAuthAutoRefresh  } from '@/services/api'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 
@@ -21,10 +21,28 @@ const error = ref<string | null>(null)
 const authStore = useAuthStore()
 const serviceStore = useServiceStore()
 
+
+
+
+
+// Réinitialiser le formulaire quand la modale s'ouvre
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    password.value = ''
+    error.value = null
+    showPassword.value = false
+  }
+})
+
 const close = () => {
+  // Ne pas permettre de fermer si réauth est requis
+  if (authStore.reauthRequired) {
+    console.log('⚠️ Impossible de fermer: réauth requis')
+    return
+  }
   password.value = ''
   error.value = null
-//  emits('close')
+  emits('close')
 }
 
 const togglePasswordVisibility = () => {
@@ -36,9 +54,12 @@ const handleReAuth = async () => {
     error.value = t('reauth.error.missingEmail')
     return
   }
+
   isLoading.value = true
   error.value = null
+
   try {
+    console.log('🔐 Tentative de réauthentification...')
     const res = await auth({
       email: authStore.user.email,
       password: password.value,
@@ -53,6 +74,7 @@ const handleReAuth = async () => {
       throw new Error(t('reauth.error.generic'))
     }
 
+    // Mettre à jour les services et permissions si présents
     if (data?.userServices) {
       serviceStore.setService(data.userServices)
       serviceStore.setPermissions(data.permissions ?? [])
@@ -65,10 +87,17 @@ const handleReAuth = async () => {
     authStore.setRoleId(user.roleId)
     authStore.setUserId(user.id)
 
+    // IMPORTANT: Réinitialiser le flag reauthRequired
+    authStore.setReauthRequired(false)
+
+    // Redémarrer le refresh automatique
+    startAuthAutoRefresh()
+
+    console.log('✅ Réauthentification réussie')
     toast.success(t('reauth.success'))
     emits('success')
-    close()
   } catch (e: any) {
+    console.error('❌ Erreur réauthentification:', e)
     const msg = e?.response?.data?.message || e?.message || t('reauth.error.generic')
     error.value = msg
     toast.error(msg)

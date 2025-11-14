@@ -18,32 +18,6 @@ export const useAuthStore = defineStore('auth', {
     isFullyAuthenticated: (state) => !!(state.token && state.user && state.UserId),// && state.roleId
     getUser: (state) => state.user,
     isAuthenticated: (state) => !!state.token,
-
-    // Calcule le temps restant avant expiration (en millisecondes)
-    tokenTimeRemaining(): number | null {
-      if (!this.tokenData?.expiresAt) return null
-      const expiryTime = new Date(this.tokenData.expiresAt).getTime()
-      const remaining = expiryTime - Date.now()
-      return Math.max(0, remaining)
-    },
-
-    // Vérifie si le token va expirer dans moins d'une minute
-    tokenExpiringSoon(): boolean {
-      const remaining = this.tokenTimeRemaining
-      if (remaining === null) return false
-      return remaining < 60 * 1000 // Moins de 60 secondes
-    },
-
-    // Temps restant en format lisible (optionnel pour debug)
-    tokenTimeRemainingFormatted(): string {
-      const remaining = this.tokenTimeRemaining
-      if (remaining === null) return 'Inconnu'
-
-      const minutes = Math.floor(remaining / 60000)
-      const seconds = Math.floor((remaining % 60000) / 1000)
-
-      return `${minutes}m ${seconds}s`
-    }
   },
 
   actions: {
