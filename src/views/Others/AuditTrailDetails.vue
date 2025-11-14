@@ -73,14 +73,14 @@
                 </div>
 
                 <!-- Error Message -->
-                <div v-if="error" class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg dark:bg-red-900/30 dark:border-red-700">
+                <!-- <div v-if="error" class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg dark:bg-red-900/30 dark:border-red-700">
                     <div class="flex items-start">
                         <AlertCircle class="h-5 w-5 text-red-500 mt-0.5 dark:text-red-400" />
                         <div class="ml-3">
                             <p class="text-sm text-red-700 dark:text-red-300">{{ error }}</p>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Audit Trail Table -->
                 <div class="mx-4 mt-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">

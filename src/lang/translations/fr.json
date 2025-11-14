@@ -312,7 +312,7 @@
   "DueOut": "Départ prévu",
   "Departed": "Parti",
   "Void": "Annulé",
-  "NoShow": "Non présenté",
+  "NoShow": "No Show",
   "InHouse": "Présent",
   "Cancel": "Annuler",
   "Remark": "Remarque",
@@ -6705,6 +6705,7 @@
     "export_success": "Les données de la société ont été exportées avec succès.",
     "export_error": "Une erreur est survenue lors de l'export des données de la société. Veuillez réessayer.",
     "noCompaniesMessage": "Aucune entreprise ne correspond à vos filtres actuels",
+    "empty_title" :"Aucune Entreprise trouvée",
     "columns": {
       "name": "Nom",
       "contactPerson": "Personne de contact",
@@ -7080,7 +7081,27 @@
     "AMEND_STAY": "Modifier le séjour",
     "ROOM_UNASSIGNED": "Chambre désaffectée",
     "ASSIGNED": "Affecté",
-    "ROOM_MOVE": "Déplacement de chambre"
+    "ROOM_MOVE": "Déplacement de chambre",
+    "GUEST_RESERVATION_VOIDED": "Réservation annulée",
+    "VOID_RESERVATION": "Réservation annulée",
+    "CREATE_FOLIO": "Folio créé",
+    "ERROR": "Erreur",
+    "CREATED": "Créé",
+    "UPDATED": "Mis à jour",
+    "DELETED": "Supprimé",
+    "FOLIO_ADJUSTMENT_ADDED": "Ajustement du folio ajouté",
+    "mark_no_show": "No-show",
+    "ROOM_CHARGE_ADDED": "Frais de chambre ajoutés",
+    "UNDO_CHECK_OUT": "Annuler le check-out",
+    "UNDO_CHECK_IN": "Annuler le check-in",
+    "MARK_NO_SHOW": "No-show",
+    "CHANNEX_ACKNOWLEDGE_SENT": "Accusé envoyé à Channex",
+    "ROOM_CHARGE_UPDATE": "Mise à jour des frais de chambre",
+    "FOLIO_ADJUSTMENT_UPDATED": "Ajustement du folio mis à jour",
+    "TRANSACTION_UPDATED": "Transaction mise à jour"
+
+
+
   },
   "auditDescriptions": {
     "create": "Profil créé",
@@ -8347,7 +8368,23 @@
   "anErrorOcured" : "Une erreur s'est produite",
   "connectionError" : "Erreur lors de la connexion",
   "Create new guest information": "Créer de nouvelles informations sur l’invité",
-  "Guest information and details": "Informations et détails de l’invité"
+  "Guest information and details": "Informations et détails de l’invité",
+  "page": "Page",
+  "Suspended": "Suspendu",
+  "actif": "Actif",
+  "inactif": "Inactif",
+  "en attente": "En attente",
+  "suspendu" : "Suspended",
+  "Confirm Action": "Confirmer l'action",
+  "Are you sure?": "Êtes-vous sûr ?",
+  "Block": "Bloquer",
+  "clean": "Nettoyer",
+  "Unconfirmed Booking Inquiry": "Demande de réservation non confirmée",
+  "FailedToLoadAuditTrail": "Échec du chargement de l’audit"
+
+
+
+
 
 
 }

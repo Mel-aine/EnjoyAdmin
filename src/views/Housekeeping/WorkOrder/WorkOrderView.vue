@@ -405,7 +405,7 @@ const fetchWorkOrders = async (pageNumber=1) => {
     paginationMeta.value = response.data.data.meta
   } catch (error: any) {
     console.error('Error fetching work orders:', error)
-    toast.error(error.message || t('ErrorFetchingWorkOrders'))
+    toast.error(t('ErrorFetchingWorkOrders'))
     workOrders.value = []
   } finally {
     loading.value = false

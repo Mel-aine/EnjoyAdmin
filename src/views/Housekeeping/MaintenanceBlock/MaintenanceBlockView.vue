@@ -586,7 +586,7 @@ const fetchBlocks = async (pageNumber=1) => {
     console.log('Fetched blocks:', blocks.value)
   } catch (error: any) {
     console.error('Error loading blocks:', error)
-    const errorMsg = error.response?.data?.data.message || error.message || t('errorLoadingBlocks')
+    const errorMsg =t('errorLoadingBlocks')
     console.log('errorMsg',errorMsg)
     // toast.error( t('errorLoadingBlocks'))
     blocks.value = []

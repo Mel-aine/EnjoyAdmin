@@ -37,7 +37,7 @@ const fetchUser = async () => {
     }
 
     const response = await getUserById(userId);
-    user.value = response.data;
+    user.value = response.data.data;
 
   } catch (error) {
     console.error('Failed to fetch user:', error);

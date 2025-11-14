@@ -55,7 +55,7 @@
                         getActionBadgeColor(log.action)
                       ]"
                     >
-                      {{  $t(`${log.action}`) }}
+                      {{  $t(`auditActions.${log.action}`) }}
                     </span>
 
                   </div>

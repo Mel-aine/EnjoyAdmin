@@ -6,9 +6,9 @@
 
 
     <!-- Error message -->
-    <div v-if="errorMessage" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
+    <!-- <div v-if="errorMessage" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
       <p class="text-sm text-red-600">{{ errorMessage }}</p>
-    </div>
+    </div> -->
 
     <!-- Form -->
     <div  class="space-y-6">
@@ -158,7 +158,7 @@ import Select from '../forms/FormElements/Select.vue'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
 import InputDoubleDatePicker from '../forms/FormElements/InputDoubleDatePicker.vue'
 import { Trash2 } from 'lucide-vue-next'
-import { getRoomTypes } from '@/services/roomTypeApi'
+import { getRoomTypesIndex } from '@/services/roomTypeApi'
 import { createRoomBlock, updateRoomBlock } from '@/services/roomBlockApi'
 import { useServiceStore } from '@/composables/serviceStore'
 
@@ -300,45 +300,6 @@ const isFormValid = computed(() => {
 })
 
 // Methods
-// const populateFormData = () => {
-//   if (props.blockData && props.isEditing) {
-//     console.log('Populating form data for editing:', props.blockData)
-
-//     // Sélectionner le type de chambre - Correction
-//     const roomTypeId = props.blockData.roomType?.id || props.blockData.room?.roomType?.id
-//     if (roomTypeId) {
-//       selectedRoomTypeId.value = Number(roomTypeId)
-
-//       // Attendre que les options soient chargées et que Vue mette à jour le computed
-//       nextTick(() => {
-//         // Une fois que filteredRooms est mis à jour, sélectionner la chambre
-//         if (filteredRooms.value.length > 0) {
-//           const roomToSelect = filteredRooms.value.find((room:any) =>
-//             room.value === props.blockData!.room.id
-//           )
-
-//           if (roomToSelect) {
-//             formData.selectedRooms = [roomToSelect]
-//             console.log('Room selected:', roomToSelect)
-//           }
-//         }
-//       })
-//     }
-
-//     // Définir les dates
-//     formData.dateRanges = [{
-//       start: props.blockData.blockFromDate || null,
-//       end: props.blockData.blockToDate || null
-//     }]
-
-//     formData.reason = props.blockData.reason || ''
-//     formData.status = props.blockData.status || ''
-//     formData.status = props.blockData.description || ''
-//   }
-//   else {
-//     resetForm()
-//   }
-// }
 
 
 const populateFormData = () => {
@@ -760,8 +721,9 @@ onMounted(async () => {
     }
 
     // Load room types
-    console.log(' Loading room types for hotel:', hotel_id)
-    const roomTypesResponse = await getRoomTypes(hotel_id)
+
+    const roomTypesResponse = await getRoomTypesIndex(hotel_id)
+       console.log(' Loading room types for hotel:', roomTypesResponse)
     const roomTypesData = roomTypesResponse.data?.data?.data || roomTypesResponse.data?.data || roomTypesResponse.data
 
     if (Array.isArray(roomTypesData)) {

@@ -515,7 +515,7 @@ const fetchUsers = async () => {
     }))
   } catch (error) {
     console.error('Failed to fetch users:', error)
-    toast.error(t('ErrorFetchingUsers'))
+
   }
 }
 
@@ -533,7 +533,7 @@ const fetchRooms = async () => {
     }))
   } catch (error) {
     console.error('Failed to fetch rooms:', error)
-    toast.error(t('ErrorFetchingRooms'))
+
   }finally{
     loading.value=false
   }
