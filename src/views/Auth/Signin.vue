@@ -192,7 +192,6 @@ const handleSubmit = async () => {
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
-    startAuthAutoRefresh();
     router.push({ path: '/setup'});
   } catch (err: any) {
     if (err.response?.status === 401) {
