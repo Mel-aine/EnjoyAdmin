@@ -486,7 +486,7 @@ show.value = true
       console.error('Error deleting room rate:', error)
       toast.error(t('errorDeletingRoomRate'))
     } finally {
-      isLoading.value = false
+      loadingDelete.value = false
     }
   }
 
