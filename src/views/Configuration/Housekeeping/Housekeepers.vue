@@ -13,7 +13,7 @@
         :empty-state-title="$t('No housekeepers found')"
         :meta="paginationMeta"
         @page-change="handlePageChange"
-        :empty-state-description="$t('Get started by adding your first housekeeper.')"
+        :empty-state-message="$t('Get started by adding your first housekeeper.')"
 
         @action="onAction"
       >

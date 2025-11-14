@@ -125,7 +125,7 @@
     <div v-else-if="viewMode === 'list'" >
       <ReusableTable :showHeader="false" :columns="tableColumns" :data="paginatedReservations"
         :get-actions="getTableActionsForReservation" :searchable="false" :empty-state-title="$t('No reservations')"
-        :empty-state-description="$t('Get started by creating a new reservation.')" @action="onTableAction"
+        :empty-state-message="$t('Get started by creating a new reservation.')" @action="onTableAction"
         :title="$t('Reservations')">
         <!-- Custom column for reservation number -->
         <template #column-reservationNumber="{ item }">

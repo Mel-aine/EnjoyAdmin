@@ -85,7 +85,7 @@
     <div>
       <ReusableTable :showHeader="true" :columns="tableColumns" :data="paginatedReservations" :searchable="false"
         :empty-state-title="$t('No reservations')" :loading="loading"
-        :empty-state-description="$t('Get started by creating a new reservation.')" :title="$t('Reservations')">
+        :empty-state-message="$t('Get started by creating a new reservation.')" :title="$t('Reservations')">
         <!-- Custom column for reservation number -->
         <template #column-reservationNumber="{ item }">
           <div class="text-sm font-medium text-gray-900 dark:text-white">
