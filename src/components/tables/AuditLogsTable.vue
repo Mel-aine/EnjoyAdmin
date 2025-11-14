@@ -221,7 +221,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed,watch } from 'vue'
+import { ref } from 'vue'
 import {
   CalendarCheck,
   User,
@@ -230,7 +230,6 @@ import {
   CalendarX,
   ShieldOff,
   ShieldCheck,
-  Filter,
   FileSearch,
   Clock,
   Plus,

@@ -105,7 +105,6 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import { X } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import { markNoShow, getReservationDetailsById } from '../../../services/reservation'

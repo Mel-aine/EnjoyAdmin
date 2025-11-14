@@ -6,7 +6,7 @@
          :meta="paginationMeta"
          @page-change="handlePageChange"
          :search-placeholder="$t('Search units...')" :empty-state-title="$t('No units found')"
-         :empty-state-description="$t('Get started by adding your first unit.')" @action="onAction">
+         :empty-state-message="$t('Get started by adding your first unit.')" @action="onAction">
           <template #header-actions>
             <BasicButton variant="primary" @click="openAddModal" :icon="Plus" :disabled="loading" :label="$t('Add Unit')" />
           </template>

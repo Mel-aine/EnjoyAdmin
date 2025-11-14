@@ -2053,7 +2053,7 @@ export const deleteMealPlanById = (id: number | string): Promise<AxiosResponse<a
  * get company transactions
  */
 export const getCompanyTransaction = (companyId: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/company_folios/${companyId}`,
+  return axios.get(`${API_URL()}/company_accounts/company_folios/${companyId}`,
     getHeaders()
   )
 }

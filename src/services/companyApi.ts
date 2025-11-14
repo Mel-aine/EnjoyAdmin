@@ -201,7 +201,7 @@ export const auditCompanies = async (): Promise<ApiResponse | undefined> => {
  */
 export const getCityLedger = async (
   hotelId: number,
-  options: { page?: number; limit?: number; searchText?: string } = {}
+  options: { page?: number; limit?: number; searchText?: string; companyId?: number } = {}
 ): Promise<any> => {
   try {
     const response: AxiosResponse<any> = await axios.get(
@@ -211,6 +211,7 @@ export const getCityLedger = async (
           page: options.page,
           perPage: options.limit,
           searchText: options.searchText,
+          companyId: options.companyId,
         },
         ...getHeaders(),
       }

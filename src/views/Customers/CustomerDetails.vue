@@ -355,11 +355,10 @@
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, onMounted, computed } from 'vue'
-import { Star, Heart, Phone, Car, Edit, Trash2, Calendar, Shield } from 'lucide-vue-next'
+import { Heart, Edit, Trash2, Calendar, Shield } from 'lucide-vue-next'
 import { Mail, CreditCard, Bookmark, Users } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import InfoIcon from '@/icons/InfoIcon.vue'
-import CalendarIcon from '@/icons/CalendarIcon.vue'
 import { isLoading } from '@/composables/spinner'
 import DetailRow from '../Room/DetailRow.vue'
 import { getCustomerProfile, deleteGuest, toggleGuestBlacklist ,getGuestsActivityLogs,getCustomerReservations,getCustomerTransactions} from '@/services/guestApi'
@@ -368,22 +367,18 @@ import { Ban } from 'lucide-vue-next'
 import PaymentModal from '../Bookings/PaymentModal.vue'
 import FolioTable from '@/components/tables/FolioTable.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
-import BaseCalendar from '@/components/calendars/BaseCalendar.vue'
-import LegendItem from '@/components/calendars/LegendItem.vue'
 import BlackListGuestModal from '@/components/customers/BlackListGuestModal.vue'
 import ReservationHistoryTable from '../../components/tables/ReservationHistoryTable.vue'
 import AuditLogsTable from '@/components/tables/AuditLogsTable.vue'
 // import PickupDropoffModal from '@/components/modal/PickupDropoffModal.vue'
 import { useToast } from 'vue-toastification'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
-import type { CalendarEvent } from '@/components/calendars/BaseCalendar.vue'
 import { checkInReservation,checkOutReservation } from '@/services/reservation'
 import { useAuthStore } from '@/composables/user'
-import { BedDouble, CalendarClock, CalendarX ,FileSearch} from 'lucide-vue-next';
-import Spinner from '@/components/spinner/Spinner.vue'
+import { FileSearch} from 'lucide-vue-next';
+import OverLoading from '@/components/spinner/OverLoading.vue'
 import {  ArrowLeft } from 'lucide-vue-next'
 import { useServiceStore } from '@/composables/serviceStore'
-import { CarTaxiFront } from 'lucide-vue-next';
 import * as LucideIcons from 'lucide-vue-next'
 
 

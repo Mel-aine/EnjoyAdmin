@@ -1185,7 +1185,7 @@ const resetMaintenanceForm = () => {
 
 const handleStatusChange = async (payload: any) => {
   let roomId: number, newStatus: string
-  let force = false
+  const force = false
 
   if (payload.roomId && payload.newStatus) {
     roomId = payload.roomId

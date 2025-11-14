@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CalendarIcon, ArrowLeft, Save, User, Shield, FileText, Percent } from 'lucide-vue-next'
+import { ArrowLeft, Save, Shield, FileText, Percent } from 'lucide-vue-next'
 import { ref, defineAsyncComponent, onMounted, computed } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useRoute, useRouter } from 'vue-router'

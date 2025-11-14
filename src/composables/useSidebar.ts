@@ -21,6 +21,7 @@
 // }
 
 import { ref, computed, onMounted, onUnmounted, provide, inject } from 'vue'
+import { useSidebarStore } from './sidebarStore'
 import type { Ref } from 'vue' //
 
 interface SidebarContextType {
@@ -42,7 +43,8 @@ interface SidebarContextType {
 const SidebarSymbol = Symbol()
 
 export function useSidebarProvider() {
-  const isExpanded = ref(true)
+  const store = useSidebarStore()
+  const isExpanded = ref(store.isExpanded)
   const isMobileOpen = ref(false)
   const isMobile = ref(false)
   const isHovered = ref(false)
@@ -59,6 +61,8 @@ export function useSidebarProvider() {
   }
 
   onMounted(() => {
+    // Initialize from Pinia store
+    isExpanded.value = store.isExpanded
     handleResize()
     window.addEventListener('resize', handleResize)
   })
@@ -71,7 +75,8 @@ export function useSidebarProvider() {
     if (isMobile.value) {
       isMobileOpen.value = !isMobileOpen.value
     } else {
-      isExpanded.value = !isExpanded.value
+      store.toggleExpanded()
+      isExpanded.value = store.isExpanded
     }
   }
 

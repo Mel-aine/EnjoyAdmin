@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Bed as BedIcon, MessageSquareMore,BedDouble } from 'lucide-vue-next'
+import { Bed as BedIcon, MessageSquareMore } from 'lucide-vue-next'
 import RemarkModal from '@/components/Housekeeping/RemarkModal.vue'
 
 interface StatusBadgeProps {

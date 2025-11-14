@@ -2,9 +2,8 @@
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
-import type {
-  RoomTypeData,
-} from '@/types/option'
+
+
 
 // Folio-related TypeScript interfaces
 export interface CreateFolioData {

@@ -142,7 +142,6 @@ import { formatCurrency, generateTransactionId } from '@/components/utilities/Ut
 import { Wallet, DollarSign, CreditCard, Banknote, CheckCircle, AlertCircle, ShoppingCart } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import { useAuthStore } from '@/composables/user';
 import { amenitiesPaymentByReservationId } from '@/services/api'; // Assuming this API call exists
 import { useRouter } from 'vue-router';
 import DotSpinner from '@/components/spinner/DotSpinner.vue';

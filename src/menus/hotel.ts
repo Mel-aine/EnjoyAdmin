@@ -2,10 +2,8 @@ import {
   Building2,
   CreditCard,
   Home,
-  Settings,
   BarChart3,
-  ClipboardList,
-  Lock
+  ClipboardList
 } from 'lucide-vue-next'
 import ExchangeRateModal from '../views/Cashiering/ExchangeRateModal.vue'
 

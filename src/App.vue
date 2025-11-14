@@ -24,7 +24,6 @@ import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import { useAuthStore } from '@/composables/user'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import { isLoading } from '@/composables/spinner'
-import { signOut as signOutService } from '@/services/userApi'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
 if (useLanguage.language) {

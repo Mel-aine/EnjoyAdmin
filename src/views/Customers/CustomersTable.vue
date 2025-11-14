@@ -89,14 +89,12 @@
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import { ref, onMounted, computed, reactive } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { useAuthStore } from '@/composables/user'
 import type { ReservationType } from '@/types/option'
 import { useI18n } from 'vue-i18n'
 import { Plus, FileDown, FileTextIcon, CheckCircle } from 'lucide-vue-next'
 import { getGuests } from '@/services/guestApi'
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useRouter } from 'vue-router'
@@ -106,10 +104,8 @@ import BasicButton from '../../components/buttons/BasicButton.vue'
 import GuestFilter from '@/components/filters/GuestFilter.vue'
 import { createGuest, updateGuest, deleteGuest } from '@/services/guestApi'
 import { Eye, Edit, Trash2, List, Ban } from 'lucide-vue-next'
-import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import BlackListGuestModal from '@/components/customers/BlackListGuestModal.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
-import TablePagination from '@/components/tables/TablePagination.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 

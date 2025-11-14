@@ -86,7 +86,7 @@ import RightSideModal from '../../modal/RightSideModal.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import Select from '../../forms/FormElements/Select.vue'
 import Input from '../../forms/FormElements/Input.vue'
-import { createFoglio, createFolioForReservation } from '../../../services/foglioApi'
+import { createFoglio } from '../../../services/foglioApi'
 
 interface Props {
     isOpen: boolean

@@ -173,7 +173,7 @@
 import { ref, defineAsyncComponent, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification'
-import { updateUser, getUserId, getService } from '@/services/api'
+import { updateUser, getUserId } from '@/services/api'
 import { useAuthStore } from '@/composables/user'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'));

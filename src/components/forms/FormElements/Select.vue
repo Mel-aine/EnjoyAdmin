@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import DotSpinner from '@/components/spinner/DotSpinner.vue';
-import { ref, onMounted, onBeforeUnmount, watch, type Ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 
 interface Option {
   label: string

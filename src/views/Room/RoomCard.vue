@@ -174,11 +174,10 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive } from 'vue'
+import { computed, ref } from 'vue'
 import {
-  Wifi, Utensils, Bed, Car, Sun, Coffee, Tv, LogIn, LogOut, Wrench,
-  PlusCircle, CheckCircle, Calendar, Clock, User, Settings, AlertTriangle,
-  Sparkles, Search, RefreshCw, Loader2, X
+  Wifi, Utensils, Bed, Car, Sun, Coffee, Tv, LogIn, LogOut, Wrench, CheckCircle, Calendar, Clock, User, AlertTriangle,
+  Sparkles, Search, X
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 

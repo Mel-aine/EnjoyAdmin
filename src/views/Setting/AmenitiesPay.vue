@@ -5,7 +5,6 @@ import { useServiceStore } from '@/composables/serviceStore'
 import {
     deleteAmenityCategory,
     getAmenitiesByServiceId,
-    getEmployeesForService,
 } from '@/services/api'
 import { useI18n } from 'vue-i18n'
 import TableComponent from '@/components/tables/TableComponent.vue'

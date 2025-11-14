@@ -228,7 +228,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { Plus, Trash2, Edit, Eye } from 'lucide-vue-next'
+import { Plus, Trash2, Edit } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
@@ -240,9 +240,7 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getTaxes, postTax, updateTaxById, deleteTaxById } from '@/services/configrationApi'
-import type { Action, Column } from '../../../utils/models'
-import { formatDateDisplay } from '../../../utils/dateUtils'
-import { formatDate } from 'date-fns'
+import type { Column } from '../../../utils/models'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 
 const { t } = useI18n()

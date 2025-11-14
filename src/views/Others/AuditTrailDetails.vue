@@ -50,7 +50,7 @@
                             <InputDatePicker v-model="filters.endDate" :placeholder="$t('dd/mm/yyyy')" :title="$t('EndDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
                         </div>
                         <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Action') }}</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Actions') }}</label>
               <SelectComponent
                 v-model="filters.action"
                 :options="actionOptions"
@@ -99,7 +99,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import { getAuditTrail, exportAuditTrail } from '@/services/auditTrail'
-import type { AuditTrailEntry, AuditTrailQueryParams } from '@/services/auditTrail'
+import type { AuditTrailQueryParams } from '@/services/auditTrail'
 import { getEmployeesForService } from '@/services/userApi'
 import { useAuthStore } from '@/composables/user'
 import { ArrowLeft, FileText, Download, RefreshCw, AlertCircle } from 'lucide-vue-next'

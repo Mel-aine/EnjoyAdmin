@@ -158,11 +158,9 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import CreateBlockModal from '@/components/Housekeeping/CreateBlockModal.vue'
 import { KeyRound, FileDown, Edit, Trash2,Play,CheckCircle } from 'lucide-vue-next'
-import { createRoomBlock, getRoomBlocks, deleteBlock, updateRoomBlock } from '@/services/roomBlockApi'
+import { getRoomBlocks, deleteBlock, updateRoomBlock } from '@/services/roomBlockApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification';
-import Modal from '@/components/profile/Modal.vue'
-import Select from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()
 

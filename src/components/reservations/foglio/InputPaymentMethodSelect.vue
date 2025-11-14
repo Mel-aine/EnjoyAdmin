@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '../../../composables/serviceStore'

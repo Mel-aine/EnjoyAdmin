@@ -6,7 +6,6 @@ import {
     getAmenityBookingByReservationIdAndServiceId,
 } from '@/services/api'
 import { useI18n } from 'vue-i18n'
-import router from '@/router'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
 import AmenityProductUpsertModal from '@/components/modal/AmenityProductUpsertModal.vue'
 import AccordionTable from '@/components/tables/booking-tables/AccordionTable.vue'

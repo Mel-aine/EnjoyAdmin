@@ -326,10 +326,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, defineAsyncComponent } from 'vue'
+import { ref, reactive, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import * as channelManagerApi from '@/services/channelManagerApi'
 
 const Modal = defineAsyncComponent(() => import('@/components/profile/Modal.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))

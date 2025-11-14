@@ -9,12 +9,10 @@ import Select from '@/components/forms/FormElements/Select.vue'
 import CustomerSearch from '../customers/CustomerSarch.vue'
 import {
   PencilLine,
-  CircleChevronDown,
   CarFront,
   ClipboardCheck,
   ClipboardList,
 } from 'lucide-vue-next'
-import CustomerCard from '@/components/customers/CustomerCard.vue'
 import { useBooking } from '@/composables/useBooking2'
 import router from '../../router'
 import { useRoute } from 'vue-router'

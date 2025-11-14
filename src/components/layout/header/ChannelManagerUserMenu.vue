@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, PlugInIcon, HomeIcon } from '@/icons'
+import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, HomeIcon } from '@/icons'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { isLoading } from '@/composables/spinner'
@@ -63,7 +63,7 @@ const authStore = useAuthStore()
 
 // Menu tailored for Channel Manager header: link to general configuration
 const menuItems = computed(() => {
-  let menus = [
+  const menus = [
     { href: '/', icon: HomeIcon, text: t('Go to Front') },
     { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
   ]

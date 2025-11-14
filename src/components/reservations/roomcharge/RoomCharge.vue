@@ -226,7 +226,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RefreshCcw, SettingsIcon, ChevronRight } from 'lucide-vue-next'
+import { ChevronRight } from 'lucide-vue-next'
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Column } from '../../../utils/models'
@@ -395,7 +395,7 @@ const getMoreActionOptions = () => {
     // const departureDate = new Date(props.reservation?.departDate || props.reservation?.checkOutDate)
 
     // Check-in: Available for confirmed reservations on or after arrival date
-    if (canCheckIn) {
+    if (canCheckIn.value) {
       groupOptions.push({ label: t('groupCheckIn'), id: 'groupCheckIn' })
     }
 

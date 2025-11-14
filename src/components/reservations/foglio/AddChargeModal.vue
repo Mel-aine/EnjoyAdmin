@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch,nextTick } from 'vue'
+import { reactive, ref, watch,nextTick } from 'vue'
 import RightSideModal from '../../modal/RightSideModal.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'

@@ -49,7 +49,6 @@ import { useSidebar } from '@/composables/useSidebar'
 import HeaderLogo from './header/HeaderLogo.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import ConfigurationUserMenu from './header/ConfigurationUserMenu.vue'
-import { X } from 'lucide-vue-next'
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
 

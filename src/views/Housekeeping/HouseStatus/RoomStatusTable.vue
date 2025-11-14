@@ -402,7 +402,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, toRefs } from 'vue'
 import { Bed as BedIcon } from 'lucide-vue-next'
-import { Accessibility } from 'lucide-vue-next'
 import StatusBadge from './StatusBadge.vue'
 import { PersonStanding } from 'lucide-vue-next'
 import Select from '@/components/forms/FormElements/Select.vue'

@@ -173,7 +173,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { actionsMock } from "@/assets/data/StaffData";
 import {getStocksHistories } from "@/services/api"
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 import { useServiceStore } from '@/composables/serviceStore';

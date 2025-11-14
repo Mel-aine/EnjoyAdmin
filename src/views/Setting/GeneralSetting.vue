@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,computed,defineAsyncComponent,onMounted } from 'vue';
+import { ref,computed,defineAsyncComponent } from 'vue';
 import { useTheme } from '@/components/layout/ThemeProvider.vue'
 import Select from '@/components/forms/FormElements/Select.vue';
 const { toggleTheme }: any = useTheme()
