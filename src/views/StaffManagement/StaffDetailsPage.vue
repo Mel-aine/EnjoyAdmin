@@ -7,13 +7,13 @@
   </div>
 
   <!-- Actual Content -->
-  <div v-else class="min-h-screen   dark:from-gray-900 dark:to-gray-800 p-4 md:p-6">
+  <div v-else class=" dark:from-gray-900 dark:to-gray-800 p-4 md:p-6">
     <div class="max-w-7xl mx-auto" v-if="user && user.id">
       <!-- Header Section -->
       <div class="mb-6 relative">
 
         <div class="relative bg-white dark:bg-gray-800 rounded-2xl  overflow-hidden border border-gray-200 dark:border-gray-700">
-          <div class="h-48 bg-gray-50 relative">
+          <div class="h-40 bg-gray-50 relative">
             <div class="absolute inset-0 bg-black/10"></div>
           </div>
 
@@ -23,7 +23,7 @@
               <div class="flex flex-col md:flex-row md:items-end gap-4">
                 <!-- Avatar & Initials -->
                 <div class="relative">
-                  <div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 p-1 shadow-2xl">
+                  <div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 p-1 shadow-xl">
                     <div class="w-full h-full rounded-2xl bg-white dark:bg-gray-800 flex items-center justify-center">
                       <span class="text-4xl font-bold bg-gradient-to-br capitalize from-blue-600 to-purple-600 bg-clip-text text-transparent">
                         {{ user.firstName?.charAt(0) }}{{ user.lastName?.charAt(0) }}
