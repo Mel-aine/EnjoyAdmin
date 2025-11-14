@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { signOut as signOutService } from '@/services/userApi'
 import { isLoading } from '@/composables/spinner'
-import { useServiceStore } from '@/composables/serviceStore'
 import { checkHotelExists } from '@/services/configrationApi'
 
 const router = createRouter({
@@ -298,42 +297,6 @@ const router = createRouter({
       },
     },
 
-    {
-      path: '/stock/product',
-      name: 'stock product',
-      component: () => import('../views/Reports/Stocks/ProductList.vue'),
-      meta: {
-        title: 'Stock product',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/stock/movements',
-      name: 'stock movement',
-      component: () => import('../views/Reports/Stocks/StockMovement.vue'),
-      meta: {
-        title: 'Stock movement',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/stock/categorie',
-      name: 'stock categorie',
-      component: () => import('../views/Reports/Stocks/StockCategorie.vue'),
-      meta: {
-        title: 'Stock categorie',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/stock/suppliers',
-      name: 'supplier',
-      component: () => import('../views/Reports/Stocks/SupplierList.vue'),
-      meta: {
-        title: 'Supplier',
-        requiresAuth: true,
-      },
-    },
     {
       path: '/user',
       name: 'user',

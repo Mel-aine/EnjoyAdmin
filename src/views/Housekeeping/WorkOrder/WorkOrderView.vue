@@ -130,11 +130,10 @@
 
 <script setup lang="ts">
 import AdminLayout from '@/components/layout/AdminLayout.vue'
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Plus, FileDown, Edit, Trash2, Play, CheckCircle } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, Play, CheckCircle } from 'lucide-vue-next'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import AddWorkOrderModal from '@/components/Housekeeping/AddWorkOrderModal.vue'
@@ -405,7 +404,7 @@ const fetchWorkOrders = async (pageNumber=1) => {
     paginationMeta.value = response.data.data.meta
   } catch (error: any) {
     console.error('Error fetching work orders:', error)
-    toast.error(error.message || t('ErrorFetchingWorkOrders'))
+    toast.error(t('ErrorFetchingWorkOrders'))
     workOrders.value = []
   } finally {
     loading.value = false

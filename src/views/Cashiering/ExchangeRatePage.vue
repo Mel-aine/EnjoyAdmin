@@ -2,9 +2,9 @@
   <ExchangeRateModal :is-open='isOpen' @close="closeModal" />
   <AdminLayout>
     <div class="p-6">
-      <ReusableTable :title="$t('Currency Management')" :columns="columns" :data="currencies"
-        :search-placeholder="$t('Search currencies...')" :empty-title="$t('No currencies found')" :searchable="false"
-        :empty-description="$t('Start by adding your first currency.')" :loading="loading">
+      <ReusableTable :title="$t('Currency Management')" :columns="columns" :data="currencies" :selectable="false" :actions=[]
+        :search-placeholder="$t('Search currencies...')" :empty-state-title="$t('No currencies found')" :searchable="false"
+        :empty-state-message="$t('Start by adding your first currency.')" :loading="loading">
         <template v-slot:header-actions>
           <BasicButton variant="primary" @click="openModal"  :label="$t('Exchange Rate')"
              />
@@ -49,25 +49,6 @@ const columns = computed<Column[]>(() => [
   { key: 'digitsAfterDecimal', label: t('Decimal Places'), type: 'text' },
 ])
 
-// Base currency (typically the hotel's primary currency)
-const baseCurrency = ref('XAF')
-
-
-const showModal = ref(false)
-const isEditing = ref(false)
-
-const formData = ref({
-  id: '',
-  country: '',
-  name: '',
-  sign: '',
-  prefixSuffix: 'prefix',
-  currencyCode: '',
-  digitsAfterDecimal: 2,
-  exchangeRate: 1.0,
-  isDefault: false
-})
-
 
 
 // Fetch currencies from API
@@ -75,7 +56,7 @@ const fetchCurrencies = async () => {
   try {
     loading.value = true
     const response = await getCurrencies()
-    currencies.value = response.data.data || []
+    currencies.value = response?.data?.data?.data || []
     console.log('currecy', response)
   } catch (error) {
     console.error('Error fetching currencies:', error)

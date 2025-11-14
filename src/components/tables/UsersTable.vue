@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import { Building2, Wrench, UserCog, User,CalendarIcon } from 'lucide-vue-next'
-import { ref, watch, computed, defineAsyncComponent, onMounted } from 'vue'
+import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/spinner/Spinner.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
     createUser,
-    getUserAssignmentById,
     deleteUser,
     updateUser,
     getRole,
-    getUserId,
     getDepartment
 } from '@/services/api'
 import { useI18n } from 'vue-i18n'

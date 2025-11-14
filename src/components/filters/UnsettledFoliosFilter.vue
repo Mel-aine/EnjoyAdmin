@@ -14,7 +14,7 @@
       </div>
 
       <!-- Arrival section -->
-      <div vclass="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 md:pl-6 items-end">
+      <div v-if="showDate" vclass="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 md:pl-6 items-end">
         <InputDoubleDatePicker :title="$t('unsettledFolios.filter.arrivalDate')" :id="'arrivalDate'" :forLabel="'arrivalDate'" allow-past-dates
           v-model="filters.date" :placeholder="'01/09/20'" />
 
@@ -47,9 +47,6 @@ import RightSideModal from '@/components/modal/RightSideModal.vue';
 import Input from '@/components/forms/FormElements/Input.vue';
 import Select from '@/components/forms/FormElements/Select.vue';
 import BasicButton from '@/components/buttons/BasicButton.vue';
-import { getTypeProductByServiceId } from '@/services/api';
-import type { RoomTypeData } from '@/types/option';
-import { useServiceStore } from '@/composables/serviceStore';
 import InputDoubleDatePicker from '../forms/FormElements/InputDoubleDatePicker.vue';
 // i18n
 const { t } = useI18n();
@@ -62,6 +59,14 @@ interface FolioFilterItem {
 }
 
 const emits = defineEmits(['filter']);
+
+// Accept external control to show/hide the date section
+defineProps({
+  showDate: {
+    type: Boolean,
+    default: false
+  }
+});
 
 // Filter state
 const filters = ref<FolioFilterItem>({

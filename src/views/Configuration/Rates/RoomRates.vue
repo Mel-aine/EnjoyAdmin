@@ -306,7 +306,6 @@ import CheckboxInput from '@/components/forms/FormElements/InputCheckBox.vue'
 import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 import { getBusinessSources, getRateTypes, getRoomTypes, getSeasons, postRoomRate, updateRoomRateById, deleteRoomRateById, getRoomRates } from '../../../services/configrationApi'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { format } from 'date-fns'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 // Load meal plans
@@ -675,7 +674,6 @@ const loadRoomTypes = async () => {
     }));
   } catch (error) {
     console.error('Error loading room types:', error);
-    toast.error(t('errorLoadingRoomTypes'));
     // Keep mock data as fallback if API fails
   }
 }
@@ -691,7 +689,6 @@ const loadRateTypes = async () => {
     }));
   } catch (error) {
     console.error('Error loading rate types:', error);
-    toast.error(t('errorLoadingRateTypes'));
     // Keep mock data as fallback if API fails
   }
 }
@@ -707,7 +704,6 @@ const loadSeasons = async () => {
     }));
   } catch (error) {
     console.error('Error loading seasons:', error);
-    toast.error(t('errorLoadingSeasons'));
     // Keep mock data as fallback if API fails
   }
 }
@@ -724,7 +720,6 @@ const loadSources = async () => {
     }));
   } catch (error) {
     console.error('Error loading sources:', error);
-    toast.error(t('errorLoadingSources'));
     // Keep mock data as fallback if API fails
   }
 }

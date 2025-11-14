@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
@@ -134,7 +134,7 @@ import {
   deleteMarketCodeById
 } from '@/services/configrationApi'
 // Save icon removed as it's no longer used in the template
-import type { Action, Column } from '../../../utils/models'
+import type { Column } from '../../../utils/models'
 import PlusIcon from '../../../icons/PlusIcon.vue'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import { Edit, Trash2 } from 'lucide-vue-next'

@@ -23,7 +23,7 @@ import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import { ref, computed } from 'vue'
 import { useI18n } from "vue-i18n";
-import { UserIcon, MailIcon, ShieldCheck, Hotel, InfoIcon, CommandIcon } from 'lucide-vue-next';
+import { MailIcon, ShieldCheck, Hotel, InfoIcon, CommandIcon } from 'lucide-vue-next';
 // import GeneralSetting from './GeneralSetting.vue';
 import EmailSetting from './EmailSetting.vue';
 import SecuritySetting from './SecuritySetting.vue';

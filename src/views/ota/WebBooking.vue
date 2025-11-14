@@ -123,7 +123,6 @@ import RatePlanCard from './components/RatePlanCard.vue'
 import BookingSummary from './components/BookingSummary.vue'
 import OtaHeader from './components/OtaHeader.vue'
 import { getAvailability, type RoomAvailability } from '@/views/ota/services/otaApi'
-import { useServiceStore } from '@/composables/serviceStore'
 import { useBookingSummaryStore } from '@/views/ota/composables/bookingSummary'
 import type { Tax } from '@/views/ota/composables/bookingSummary'
 

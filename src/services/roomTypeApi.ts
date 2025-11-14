@@ -27,3 +27,7 @@ const getHeaders = () => {
 export const getRoomTypes = (id:number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL()}`, getHeaders())
 }
+
+export const getRoomTypesIndex = (id:number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/index`, getHeaders())
+}

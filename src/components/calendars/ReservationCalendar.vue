@@ -368,19 +368,17 @@
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, HandIcon, Cigarette, CigaretteOff, CrownIcon, StarIcon, Paintbrush, CigaretteOffIcon, BedSingleIcon, LucideBrush, BrushIcon, Crown, DollarSignIcon, User2, CreditCardIcon, CheckCircleIcon, LinkIcon, WrenchIcon, HeartIcon, SplitIcon, CheckCircle } from 'lucide-vue-next'
+import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, LucideBrush, Crown, DollarSignIcon, User2, CheckCircleIcon, LinkIcon, CheckCircle } from 'lucide-vue-next'
 
 import { watch, onUnmounted } from 'vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
 import AddBookingModal from '../modal/AddBookingModal.vue';
-import AssignRoomReservation from '../reservations/AssignRoomReservation.vue';
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useBookingStore } from '@/composables/booking'
 import { getDailyOccupancyAndReservations } from "@/services/api"
 //import CrownIcon from '@/icons/CrownIcon.vue'
-import AdminLayout from '../layout/AdminLayout.vue'
 import DollarsIcons from '@/icons/BookingStatus/dollarsIcone.vue'
 import CrownIcons from '@/icons/BookingStatus/CrownIcon.vue'
 import UsersIcons from '@/icons/BookingStatus/UserGroupIcon.vue'
@@ -691,7 +689,7 @@ function getRoomRowCellsApi(group: any, room: any) {
     const dStr = date.toISOString().split("T")[0]
 
     // --- Vérifier d'abord les room blocks (priorité plus haute) ---
-    let roomBlock = roomBlocks.find((b: any) => {
+    const roomBlock = roomBlocks.find((b: any) => {
       const startDate = new Date(b.block_from_date)
       const endDate = new Date(b.block_to_date)
       return startDate <= date && endDate >= date

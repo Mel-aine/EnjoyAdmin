@@ -359,7 +359,7 @@ import SectionHeader from '@/components/common/SectionHeader.vue';
 import DetailItem from '@/components/common/DetailItem.vue';
 import {
   User, Mail, Phone, Calendar, Hotel, DollarSign, CreditCard, CheckCircle, XCircle,
-  Clock, Tag, Bed, Users, Download, Edit, Trash2, Key, LogIn, LogOut,
+  Clock, Tag, Bed, Users, Download, Edit, Trash2, LogIn, LogOut,
   MessageSquare, PlusCircle, AlertCircle, RefreshCcw, User2Icon,
   ClockIcon,
   FileSearch,

@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Search as SearchIcon, List as ListIcon, FileText as FileTextIcon } from 'lucide-vue-next'
+import { Search as SearchIcon, FileText as FileTextIcon } from 'lucide-vue-next'
 import RoomStatusTable from './RoomStatusTable.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'

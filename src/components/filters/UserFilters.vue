@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import {
-    Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon, List as ListIcon
+    Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon
 } from 'lucide-vue-next';
 import RightSideModal from '@/components/modal/RightSideModal.vue';
 import Input from '@/components/forms/FormElements/Input.vue';

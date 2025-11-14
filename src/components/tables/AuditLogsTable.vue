@@ -55,7 +55,7 @@
                         getActionBadgeColor(log.action)
                       ]"
                     >
-                      {{  $t(`${log.action}`) }}
+                      {{  $t(`auditActions.${log.action}`) }}
                     </span>
 
                   </div>
@@ -221,7 +221,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed,watch } from 'vue'
+import { ref } from 'vue'
 import {
   CalendarCheck,
   User,
@@ -230,7 +230,6 @@ import {
   CalendarX,
   ShieldOff,
   ShieldCheck,
-  Filter,
   FileSearch,
   Clock,
   Plus,

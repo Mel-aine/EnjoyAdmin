@@ -345,7 +345,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
@@ -358,7 +358,6 @@ import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { useRouter } from 'vue-router'
 import { getEmployeesForService } from '@/services/userApi'
-import { get } from 'lodash'
 import { useI18n } from 'vue-i18n'
 
 interface FilterOptions {

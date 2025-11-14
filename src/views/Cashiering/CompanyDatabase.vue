@@ -77,11 +77,10 @@ import { useToast } from 'vue-toastification'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import CompanyFilter from './CompanyFilter.vue'
-import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
 import type { Action, Column } from '@/utils/models'
 import { Plus, Download, FileText, Eye, Edit, Trash2 } from 'lucide-vue-next'
 import AdminLayout from '../../components/layout/AdminLayout.vue'
-import { getCompanies, getFilteredCompanies, deleteCompany, exportCompanies, auditCompanies, type Company, type CompanyFilter as CompanyFilterType } from '@/services/companyApi'
+import { getCompanies, getFilteredCompanies, deleteCompany, exportCompanies, type Company, type CompanyFilter as CompanyFilterType } from '@/services/companyApi'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 const { t } = useI18n()

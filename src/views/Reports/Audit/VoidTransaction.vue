@@ -100,7 +100,6 @@ import { getEmployeesForService } from '../../../services/userApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { onMounted } from 'vue'
 import { getVoidTransactionReport } from '../../../services/reportsApi'
-import Spinner from '../../../components/spinner/Spinner.vue'
 
 const { t } = useI18n()
 

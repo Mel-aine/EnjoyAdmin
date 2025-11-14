@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import DropdownMenu from "@/components/utilities/DropdownMenu.vue";
   import InputGroup2 from "@/components/forms/FormElements/InputGroup2.vue";
-  import { onBeforeMount, onMounted, ref,defineProps,defineEmits ,computed} from 'vue';
+  import { onBeforeMount, ref,defineProps,defineEmits ,computed} from 'vue';
   import { useI18n } from "vue-i18n";
   import type {Option }from "../utilities/interfaceModel";
   import Pagination from '@/components/utilities/Pagination.vue'
@@ -12,7 +12,7 @@
       type: Array,
     },
     datas: {
-      type: Array<Object>
+      type: Array<object>
     },
     options: {
       type: Array<Option>

@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, onMounted, ref, computed, watch } from 'vue'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
   getGeneralStats,
@@ -68,8 +68,7 @@ import {
   getStayDuration,
   getRecentReservation,
   getDemographic,
-  getReservationType,
-  getCustomerType
+  getReservationType
 } from '@/services/dashboard'
 
 const AdminLayout = defineAsyncComponent(() => import('../components/layout/AdminLayout.vue'))

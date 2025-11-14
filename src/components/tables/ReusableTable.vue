@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-800  border border-gray-200 dark:border-gray-700">
+  <div v-bind="attrs" class="bg-white dark:bg-gray-800  border border-gray-200 dark:border-gray-700">
     <!-- Header -->
     <div v-if="showHeader" class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -218,7 +218,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick, useAttrs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Action, Column } from '../../utils/models'
 import { ChevronDown } from 'lucide-vue-next'
@@ -277,6 +277,9 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { t } = useI18n()
+
+// Bind incoming non-prop attributes (e.g., class, style) to the root element
+const attrs = useAttrs()
 
 const emptyStateTitleText = computed(() => {
   const title = typeof props.emptyStateTitle === 'function' ? props.emptyStateTitle() : props.emptyStateTitle

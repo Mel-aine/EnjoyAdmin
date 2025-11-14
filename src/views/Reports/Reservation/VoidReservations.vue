@@ -192,7 +192,6 @@
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { generateVoidList, type ReportFilters, exportData } from '@/services/reportsApi'

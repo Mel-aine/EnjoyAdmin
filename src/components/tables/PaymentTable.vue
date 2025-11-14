@@ -13,12 +13,9 @@ import { useServiceStore } from '@/composables/serviceStore';
 import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
 import { useToast } from 'vue-toastification'
-import Modal from '@/components/profile/Modal.vue';
-import ButtonComponent from "@/components/buttons/ButtonComponent.vue";
 import { useAuthStore } from '@/composables/user'
 import TableComponent from '@/components/tables/TableComponent.vue';
 import { formatDateT } from '@/components/utilities/UtilitiesFunction'
-import Spinner from '@/components/spinner/Spinner.vue';
 
 const router = useRouter()
 const { t, locale } = useI18n({ useScope: "global" });

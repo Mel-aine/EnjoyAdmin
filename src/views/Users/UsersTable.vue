@@ -228,7 +228,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, defineAsyncComponent, onMounted } from 'vue'
+import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { useToast } from 'vue-toastification'

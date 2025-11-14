@@ -158,11 +158,9 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 import CreateBlockModal from '@/components/Housekeeping/CreateBlockModal.vue'
 import { KeyRound, FileDown, Edit, Trash2,Play,CheckCircle } from 'lucide-vue-next'
-import { createRoomBlock, getRoomBlocks, deleteBlock, updateRoomBlock } from '@/services/roomBlockApi'
+import { getRoomBlocks, deleteBlock, updateRoomBlock } from '@/services/roomBlockApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useToast } from 'vue-toastification';
-import Modal from '@/components/profile/Modal.vue'
-import Select from '@/components/forms/FormElements/Select.vue'
 
 const { t } = useI18n()
 
@@ -586,7 +584,7 @@ const fetchBlocks = async (pageNumber=1) => {
     console.log('Fetched blocks:', blocks.value)
   } catch (error: any) {
     console.error('Error loading blocks:', error)
-    const errorMsg = error.response?.data?.data.message || error.message || t('errorLoadingBlocks')
+    const errorMsg =t('errorLoadingBlocks')
     console.log('errorMsg',errorMsg)
     // toast.error( t('errorLoadingBlocks'))
     blocks.value = []

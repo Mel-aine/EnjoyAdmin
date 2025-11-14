@@ -126,7 +126,6 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import { watch } from 'vue'
 import { CheckCircle, AlertTriangle } from 'lucide-vue-next'
 import Select from '../forms/FormElements/Select.vue'
-import BlackListReason from '@/views/Configuration/Master/BlackListReason.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
   getBlackListReasonsByHotel

@@ -30,10 +30,12 @@
                   </div> -->
                   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- City Ledger Account -->
-                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger" :disabled="isMappingMode" />
+                    <InputSelectCityLeger v-model="formData.cityLedgerAccountId" @select="handChangeCityLedger"
+                      :disabled="isMappingMode || (selectedCompanyId !== null && selectedCompanyId !== undefined)" />
 
                     <!-- Date -->
-                    <InputDatePicker :title="t('Date')" v-model="formData.date" :isRequired="true" :disabled="isMappingMode" />
+                    <InputDatePicker :title="t('Date')" v-model="formData.date" :isRequired="true"
+                      :disabled="isMappingMode" />
 
                     <!-- Payment Type -->
                     <Select :lb="$t('Payment Type')" v-model="formData.paymentType" :options="[
@@ -41,17 +43,20 @@
                     ]" :isRequired="true" :disabled="isMappingMode" />
 
                     <!-- Payment method -->
-                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType" :disabled="isMappingMode" />
+                    <InputPaymentMethodSelect v-model="formData.paymentMethod" :payment-type="formData.paymentType"
+                      :disabled="isMappingMode" />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <!--amount-->
                     <div class="col-span-2">
                       <InputCurrency :lb="$t('Total Amount to Pay')" v-model="formData.amount" placeholder="0.00"
                         step="0.01" :disabled="isMappingMode" />
-                      <small class="text-gray-500 text-xs mt-1">{{ $t('Auto-calculated from assigned amounts') }}</small>
+                      <small class="text-gray-500 text-xs mt-1">{{ $t('Auto-calculated from assigned amounts')
+                        }}</small>
                     </div>
                     <div class="col-span-3">
-                      <Input :lb="$t('comment')" v-model="formData.comment" :disabled="isMappingMode" :placeholder="$t('comment')" />
+                      <Input :lb="$t('comment')" v-model="formData.comment" :disabled="isMappingMode"
+                        :placeholder="$t('comment')" />
                     </div>
                   </div>
                   <!-- Map Payment Section -->
@@ -79,7 +84,7 @@
                     </div> -->
                     <div class="justify-center align-middle pt-6">
                       <BasicButton :label="t('Search')" :icon="SearchCodeIcon" @click="searchTransactions" class="w-80"
-                        :loading="isSearching" :disabled="loading || isSearching|| isSaving"></BasicButton>
+                        :loading="isSearching" :disabled="loading || isSearching || isSaving"></BasicButton>
                     </div>
                   </div>
                 </div>
@@ -101,7 +106,7 @@
                 <!-- Custom cell for Amount column -->
                 <template #cell-amount="{ item }">
                   <span class="text-xs font-medium text-gray-900 dark:text-white">{{ formatCurrency(item.amount)
-                  }}</span>
+                    }}</span>
                 </template>
 
                 <!-- Custom cell for Assigned column -->
@@ -150,7 +155,7 @@ import ReusableTable from '../../components/tables/ReusableTable.vue'
 import Select from '../../components/forms/FormElements/Select.vue'
 import Input from '../../components/forms/FormElements/Input.vue'
 import InputDatePicker from '../../components/forms/FormElements/InputDatePicker.vue'
-import { Save, Search, SearchCodeIcon, SearchIcon, SearchSlash, XIcon } from 'lucide-vue-next'
+import { Save, SearchCodeIcon, XIcon } from 'lucide-vue-next'
 import InputCurrency from '../../components/forms/FormElements/InputCurrency.vue'
 import InputDoubleDatePicker from '../../components/forms/FormElements/InputDoubleDatePicker.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'
@@ -186,7 +191,7 @@ const props = defineProps<{
 
 // Loading state
 const loading = ref(false)
-const isSearching =ref(false)
+const isSearching = ref(false)
 const isSaving = ref(false)
 const emit = defineEmits(['close', 'payment-saved'])
 
@@ -277,7 +282,7 @@ const loadCityLedgerData = async () => {
       console.log('esponse', response)
       cityLedgerData.value = response
       // Transform API data to guest data format
-      guestData.value = response.data.filter((e:any)=>(e.transactionType =='transfer' && e.open >0)).map((transaction: any, index: number) => ({
+      guestData.value = response.data.filter((e: any) => (e.transactionType == 'transfer' && e.open > 0)).map((transaction: any, index: number) => ({
         id: transaction.id,
         date: transaction.date,
         name: transaction.guestName,
@@ -384,7 +389,7 @@ const isItemSelected = (item: any) => {
 
 // Validate assign amount to not exceed open value
 const validateAssignAmount = (item: any) => {
-console.log('item',item)  // Convert to number to handle string inputs
+  console.log('item', item)  // Convert to number to handle string inputs
   const assignValue = parseFloat(item.assign) || 0
   const openValue = parseFloat(item.open) || 0
 
@@ -484,7 +489,7 @@ const savePayment = async () => {
     // If opened in mapping mode, include the payment transaction ID to avoid creating a new one
     if (isMappingMode.value && props.mapPaymentContext?.transactionId) {
       // Backend expects existing payment transaction identifier
-      ;(paymentData as any).transactionId = Number(props.mapPaymentContext?.transactionId)
+      ; (paymentData as any).transactionId = Number(props.mapPaymentContext?.transactionId)
     }
 
     console.log('Saving payment with data:', paymentData)

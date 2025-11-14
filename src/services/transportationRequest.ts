@@ -2,11 +2,10 @@
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
-import type {
 
-  FitlterItem
 
-} from '@/utils/models'
+
+
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}`
 

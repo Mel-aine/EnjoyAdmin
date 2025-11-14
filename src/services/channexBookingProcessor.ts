@@ -88,7 +88,7 @@ export const processBookingRevision = async (revision: ChannexBookingRevision): 
 
   try {
     // Check if guest exists, create if not
-    let guest = await findGuestByEmail(attributes.customer.mail, hotelId)
+    const guest = await findGuestByEmail(attributes.customer.mail, hotelId)
     let guestId: number
 
     if (!guest) {

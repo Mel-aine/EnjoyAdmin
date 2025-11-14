@@ -145,12 +145,12 @@ import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
-import { auth, validateEmail, validatePassword } from '@/services/api'
+import { auth, validateEmail, validatePassword ,stopAuthAutoRefresh,startAuthAutoRefresh} from '@/services/api'
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useI18n } from 'vue-i18n'
 import { useStatusColor } from '@/composables/statusColorStore'
 
-const { locale } = useI18n()
+const { t } = useI18n()
 const isLoading = ref(false);
 const authStore = useAuthStore()
 const serviceStore = useServiceStore()
@@ -174,35 +174,35 @@ const handleSubmit = async () => {
   isLoading.value = true;
   error.value = null;
   try {
+     authStore.logout()
+    stopAuthAutoRefresh()
     await validateEmail(email.value);
-    //await validatePassword(email.value, password.value);
+    await validatePassword(email.value, password.value);
     const res = await auth({
       email: email.value,
       password: password.value,
       keepLoggedIn: keepLoggedIn.value,
     });
-    const { user, user_token } = res.data.data;
-    const token = user_token.token;
-    console.log('login response', res.data.data);
+    console.log('login response', res);
+    const { user, access_token } = res.data.data;
+    const token = access_token.token;
+
 
     // Persist handled by Pinia persistedstate; no manual storage
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
+    startAuthAutoRefresh();
     router.push({ path: '/setup'});
   } catch (err: any) {
-    if (err.response) {
-      error.value = err.response.data?.message || err.response.data?.error || "Une erreur s'est produite côté serveur.";
-      console.error("Erreur de connexion:", error.value);
-    } else if (err.message) {
-      error.value = err.message;
-      console.error("Erreur de connexion (client):", error.value);
+    if (err.response?.status === 401) {
+      error.value = t('incorrectEmailOrPassword');
+    } else if (err.response) {
+      error.value = err.response.data?.message || t('connectionError');
     } else {
-      // Cas totalement inconnu
-      error.value = "Une erreur inconnue s'est produite.";
-      console.error("Erreur inconnue:", err);
+      error.value = t('anErrorOcured');
     }
-    console.error("Erreur handleSubmit:", err);
+    console.error("Erreur de connexion:", err);
   } finally {
     isLoading.value = false;
   }

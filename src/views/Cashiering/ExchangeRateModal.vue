@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import RightSideModal from '../../components/modal/RightSideModal.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'
 import InputCurrency from '../../components/forms/FormElements/InputCurrency.vue'
@@ -204,7 +204,7 @@ const fetchCurrencies = async () => {
     try {
         isLoading.value = true
         const response = await getCurrencies()
-        const currencyData = response.data.data || []
+        const currencyData = response.data.data?.data || []
 
         currencies.value = currencyData.map((currency: any) => ({
             id: currency.id,

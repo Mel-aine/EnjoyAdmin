@@ -198,7 +198,7 @@
 <script setup lang="ts">
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import type { Action, Column } from '../../../utils/models'

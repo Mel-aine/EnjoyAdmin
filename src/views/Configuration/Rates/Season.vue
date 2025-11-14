@@ -194,7 +194,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -202,7 +202,7 @@ import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
-import { Plus, Edit, Trash, Trash2 } from 'lucide-vue-next'
+import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 import { getSeasons, postSeason, updateSeasonById ,deleteSeasonById } from '@/services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'

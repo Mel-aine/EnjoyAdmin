@@ -102,12 +102,11 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onMounted, watch, computed } from 'vue'
+import { defineAsyncComponent, ref, onMounted, computed } from 'vue'
 import {deleteRoles,updateRoles,createRoles,getRoles} from '@/services/userApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import router from '@/router'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import PlusIcon from '../../../icons/PlusIcon.vue'

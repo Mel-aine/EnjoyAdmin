@@ -142,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon } from 'lucide-vue-next'
 import Input from '@/components/forms/FormElements/Input.vue'
 import type { RoomFilterItem } from '@/utils/models'

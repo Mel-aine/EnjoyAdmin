@@ -297,6 +297,12 @@ export function transformOTAPayloadToReservation(
   const totalAmount = otaPayload.totalPrice
   const taxAmount = otaPayload.taxes
   const finalAmount = otaPayload.totalPrice
+  const generateOTACode = (prefix: string = 'BK') => {
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const timestamp = Date.now().toString().slice(-4); // ex: 3842
+    return `${prefix}-${randomPart}-${timestamp}`; // ex: BK-A1B2C3-3842
+  };
+  const otaCode = generateOTACode('BK')
 
   console.log('Rooms Data:', roomsData)
 
@@ -337,6 +343,8 @@ export function transformOTAPayloadToReservation(
     tax_amount: taxAmount,
     final_amount: finalAmount,
     remaining_amount: finalAmount,
+    ota_name : 'Booking.com',
+    ota_reservation_code : otaCode,
 
     // Paiement
     payment_type: 'cash',

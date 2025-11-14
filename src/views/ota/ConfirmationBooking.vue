@@ -224,6 +224,7 @@ interface Reservation {
 const router = useRouter()
 const route = useRoute()
 const bookingStore = useBookingSummaryStore()
+const hotelId = route.query.email as string
 
 // États
 const isLoading = ref(false)
@@ -252,6 +253,7 @@ onMounted(async () => {
   // Récupérer les données depuis les query params
   const reservationId = route.query.reservationId as string
   const email = route.query.email as string
+
 
   if (!reservationId) {
     error.value = 'Missing reservation ID in URL.'
@@ -303,13 +305,14 @@ const printConfirmation = () => {
 }
 
 const goBack = () => {
-  router.push('/ota/web-booking')
+   bookingStore.clearBookingData()
+  router.push({ name: 'WebBooking', params: { id: hotelId } })
 }
 
 const makeAnotherBooking = () => {
   // Nettoyer le store avant de recommencer
   bookingStore.clearBookingData()
-  router.push('/ota/web-booking')
+ router.push({ name: 'WebBooking', params: { id: hotelId } })
 }
 </script>
 <style scoped>

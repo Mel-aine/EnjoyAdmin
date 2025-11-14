@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import {
-  Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon, List as ListIcon
+  Filter as FilterIcon, Search as SearchIcon, XCircle as XCircleIcon
 } from 'lucide-vue-next';
 import Input from '@/components/forms/FormElements/Input.vue';
 import RightSideModal from '@/components/modal/RightSideModal.vue';

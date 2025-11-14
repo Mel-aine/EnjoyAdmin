@@ -169,11 +169,9 @@
 import { ref, reactive, watch, computed, onMounted,nextTick } from 'vue'
 import RightSideModal from '../modal/RightSideModal.vue'
 import BasicButton from '../buttons/BasicButton.vue'
-import InputDatePicker from '../forms/FormElements/InputDatePicker.vue'
 import InputDateTimePicker from '../forms/FormElements/InputDateTimePicker.vue'
 import InputDoubleDatePicker from '../forms/FormElements/InputDoubleDatePicker.vue'
 import Select from '../forms/FormElements/Select.vue'
-import Input from '../forms/FormElements/Input.vue'
 import { useI18n } from 'vue-i18n'
 import { getEmployeesForService } from '@/services/userApi'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -511,11 +509,11 @@ const fetchUsers = async () => {
     const response = await getEmployeesForService(hotelId)
     Users.value = response.data.data.map((user: any) => ({
       value: user.id,
-      label: `${user.firstName} ${user.lastName}`,
+      label: `${user.firstName??''} ${user.lastName??''}`,
     }))
   } catch (error) {
     console.error('Failed to fetch users:', error)
-    toast.error(t('ErrorFetchingUsers'))
+
   }
 }
 
@@ -533,7 +531,7 @@ const fetchRooms = async () => {
     }))
   } catch (error) {
     console.error('Failed to fetch rooms:', error)
-    toast.error(t('ErrorFetchingRooms'))
+
   }finally{
     loading.value=false
   }

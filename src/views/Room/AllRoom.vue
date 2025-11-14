@@ -227,7 +227,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import Modal from '@/components/profile/Modal.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { ref, onMounted, computed, nextTick, watchEffect, watch } from 'vue'
+import { ref, onMounted, computed, nextTick, watch } from 'vue'
 import {
   getOptions,
   getServiceProductWithOptions,
@@ -683,7 +683,7 @@ const handleProductAction = (action: string, room: any) => {
       formData.value.floor = roomToEdit.floor
       formData.value.capacity = roomToEdit.capacity
       formData.value.number = roomToEdit.roomNumber
-      let roomOptions = Array.isArray(roomToEdit.options) ? roomToEdit.options : []
+      const roomOptions = Array.isArray(roomToEdit.options) ? roomToEdit.options : []
 
       const updatedOptions: Record<number, any> = {}
 

@@ -48,7 +48,13 @@ app.use(Toast, options)
 // Sync i18n locale from Pinia language store after Pinia is ready
 const languageStore = useLanguageStore()
 if (languageStore.language) {
-  i18n.global.locale.value = languageStore.language
+  const supportedLocales = ['en', 'fr'] as const
+  type SupportedLocale = (typeof supportedLocales)[number]
+  const storeLocale = languageStore.language as string
+  const resolvedLocale: SupportedLocale = supportedLocales.includes(storeLocale as SupportedLocale)
+    ? (storeLocale as SupportedLocale)
+    : 'en'
+  i18n.global.locale.value = resolvedLocale
 }
 
 

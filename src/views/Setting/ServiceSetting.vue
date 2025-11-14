@@ -204,8 +204,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, reactive, onMounted, computed } from 'vue'
-import { getService, updateService, type Option } from '@/services/api'
+import { defineAsyncComponent, ref, onMounted, computed } from 'vue'
+import { getService, updateService } from '@/services/api'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useToast } from 'vue-toastification'

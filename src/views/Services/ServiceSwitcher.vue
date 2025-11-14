@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed,watch,onMounted } from 'vue'
+import { ref, computed,onMounted } from 'vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { CheckIcon } from 'lucide-vue-next'
 import { ChevronRight } from 'lucide-vue-next'

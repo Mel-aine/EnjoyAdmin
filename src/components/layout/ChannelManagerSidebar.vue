@@ -79,23 +79,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, markRaw } from 'vue'
+import { ref, markRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSidebar } from '@/composables/useSidebar'
 
 // Icons
 import DashboardIcon from '@/icons/DashboardIcon.vue'
 import ConnectionIcon from '@/icons/ConnectionIcon.vue'
-import MappingIcon from '@/icons/MappingIcon.vue'
 import RatesIcon from '@/icons/RatesIcon.vue'
-import SyncIcon from '@/icons/SyncIcon.vue'
-import LogsIcon from '@/icons/LogsIcon.vue'
-import PlusIcon from '@/icons/PlusIcon.vue'
-import RefreshIcon from '@/icons/RefreshIcon.vue'
 import BoxCubeIcon from '@/icons/BoxCubeIcon.vue'
 import GridIcon from '@/icons/GridIcon.vue'
 import CalenderIcon from '@/icons/CalenderIcon.vue'
-import ListIcon from '@/icons/ListIcon.vue'
 
 const route = useRoute()
 const { isExpanded, isMobileOpen } = useSidebar()

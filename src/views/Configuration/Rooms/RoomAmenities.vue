@@ -157,11 +157,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
-import { Plus, Edit, Trash2, X } from 'lucide-vue-next'
+import { Plus, Edit, Trash2 } from 'lucide-vue-next'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import {

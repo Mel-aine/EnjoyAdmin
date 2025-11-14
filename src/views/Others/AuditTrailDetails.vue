@@ -50,7 +50,7 @@
                             <InputDatePicker v-model="filters.endDate" :placeholder="$t('dd/mm/yyyy')" :title="$t('EndDate')" @update:model-value="fetchAuditTrail"></InputDatePicker>
                         </div>
                         <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Action') }}</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{{ $t('Actions') }}</label>
               <SelectComponent
                 v-model="filters.action"
                 :options="actionOptions"
@@ -73,14 +73,14 @@
                 </div>
 
                 <!-- Error Message -->
-                <div v-if="error" class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg dark:bg-red-900/30 dark:border-red-700">
+                <!-- <div v-if="error" class="mx-4 mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-r-lg dark:bg-red-900/30 dark:border-red-700">
                     <div class="flex items-start">
                         <AlertCircle class="h-5 w-5 text-red-500 mt-0.5 dark:text-red-400" />
                         <div class="ml-3">
                             <p class="text-sm text-red-700 dark:text-red-300">{{ error }}</p>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Audit Trail Table -->
                 <div class="mx-4 mt-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">
@@ -99,7 +99,7 @@ import AdminLayout from '@/components/layout/AdminLayout.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import { getAuditTrail, exportAuditTrail } from '@/services/auditTrail'
-import type { AuditTrailEntry, AuditTrailQueryParams } from '@/services/auditTrail'
+import type { AuditTrailQueryParams } from '@/services/auditTrail'
 import { getEmployeesForService } from '@/services/userApi'
 import { useAuthStore } from '@/composables/user'
 import { ArrowLeft, FileText, Download, RefreshCw, AlertCircle } from 'lucide-vue-next'

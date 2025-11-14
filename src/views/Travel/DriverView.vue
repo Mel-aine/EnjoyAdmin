@@ -172,9 +172,8 @@
   import { useToast } from 'vue-toastification'
   import Spinner from '@/components/spinner/Spinner.vue';
   import { useServiceStore } from '@/composables/serviceStore'
-  import { createUser,getUser, deleteUser,updateUser,getRole } from "@/services/api";
+  import { createUser,getUser, deleteUser,updateUser } from "@/services/api";
   import { useI18n } from "vue-i18n";
-  import DropdownMenu from '@/components/common/DropdownMenu.vue'
   import { useAuthStore } from '@/composables/user';
   import type {userDataType} from "@/types/option"
   import TableOne from '@/components/tables/TableOne.vue'

@@ -815,7 +815,7 @@ const translateReportHtml = (html: string): string => {
     }
     
     // Trouver la longueur exacte du texte à remplacer (peut varier selon la casse)
-    let matchLength = finalWorkOrdersByStatus.length
+    const matchLength = finalWorkOrdersByStatus.length
     // Chercher la correspondance exacte dans le texte original
     const originalText = out.substring(index, index + matchLength)
     

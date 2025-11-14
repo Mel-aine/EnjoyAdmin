@@ -64,7 +64,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import ReusableTable from '@/components/tables/ReusableTable.vue';
 import { CalendarX } from 'lucide-vue-next';
-import { Eye, CircleCheck , Trash2 ,LogOut} from 'lucide-vue-next'
+import { Eye } from 'lucide-vue-next'
 
 const { t } = useI18n();
 const router = useRouter();

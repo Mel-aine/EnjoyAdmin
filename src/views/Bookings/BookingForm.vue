@@ -1052,10 +1052,8 @@ import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { useI18n } from 'vue-i18n'
 import Select from '@/components/forms/FormElements/Select.vue'
-import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
 import {
   PencilLine,
-  CircleChevronDown,
   CarFront,
   ClipboardCheck,
   ClipboardList,

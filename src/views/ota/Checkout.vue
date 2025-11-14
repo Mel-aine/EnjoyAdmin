@@ -353,7 +353,6 @@ import { useRouter,useRoute } from 'vue-router'
 import OtaHeader from './components/OtaHeader.vue'
 import { useBookingSummaryStore } from '@/views/ota/composables/bookingSummary'
 import { createOTAReservation } from '@/views/ota/services/otaApi'
-import { useServiceStore } from '@/composables/serviceStore'
 import BookingReviewModal from '@/views/ota/components/ReviewBooking.vue'
 import { calculateCartTaxes, formatTaxLabel } from '@/views/ota/utils/taxCalculation'
 
@@ -547,6 +546,7 @@ async function bookNow() {
         query: {
           reservationId: response.reservationId,
           email: guest.value.email,
+          hotelId:hotelId.value
         },
       })
     } else {

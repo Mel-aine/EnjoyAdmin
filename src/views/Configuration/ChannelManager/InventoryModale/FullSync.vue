@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import { fullSync } from '@/services/channelManagerApi';

@@ -251,7 +251,7 @@
 
 <script setup lang="ts">
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()

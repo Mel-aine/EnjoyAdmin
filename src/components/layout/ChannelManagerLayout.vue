@@ -34,7 +34,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
-import ChannelManagerSidebar from './ChannelManagerSidebar.vue'
 import Backdrop from './Backdrop.vue'
 import ChannelManagerHeader from './ChannelManagerHeader.vue'
 import AppFooter from './AppFooter.vue'

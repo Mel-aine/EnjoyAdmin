@@ -312,7 +312,7 @@
   "DueOut": "Départ prévu",
   "Departed": "Parti",
   "Void": "Annulé",
-  "NoShow": "Non présenté",
+  "NoShow": "No Show",
   "InHouse": "Présent",
   "Cancel": "Annuler",
   "Remark": "Remarque",
@@ -5895,7 +5895,10 @@
       "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce frais supplémentaire ?",
       "delete_confirmation_message": "Êtes-vous sûr de vouloir supprimer ce frais supplémentaire ? Cette action est irréversible.",
       "fetch_error": "Échec du chargement des frais supplémentaires",
-      "confirm_delete_title": "Confirmer la suppression"
+      "confirm_delete_title": "Confirmer la suppression",
+      "delete_success": "Frais supplémentaire supprimé avec succès",
+      "delete_error": "Erreur lors de la suppression du frais supplémentaire"
+
     },
     "identity_type": {
       "title": "Type d'Identité",
@@ -6702,6 +6705,7 @@
     "export_success": "Les données de la société ont été exportées avec succès.",
     "export_error": "Une erreur est survenue lors de l'export des données de la société. Veuillez réessayer.",
     "noCompaniesMessage": "Aucune entreprise ne correspond à vos filtres actuels",
+    "empty_title" :"Aucune Entreprise trouvée",
     "columns": {
       "name": "Nom",
       "contactPerson": "Personne de contact",
@@ -7077,7 +7081,27 @@
     "AMEND_STAY": "Modifier le séjour",
     "ROOM_UNASSIGNED": "Chambre désaffectée",
     "ASSIGNED": "Affecté",
-    "ROOM_MOVE": "Déplacement de chambre"
+    "ROOM_MOVE": "Déplacement de chambre",
+    "GUEST_RESERVATION_VOIDED": "Réservation annulée",
+    "VOID_RESERVATION": "Réservation annulée",
+    "CREATE_FOLIO": "Folio créé",
+    "ERROR": "Erreur",
+    "CREATED": "Créé",
+    "UPDATED": "Mis à jour",
+    "DELETED": "Supprimé",
+    "FOLIO_ADJUSTMENT_ADDED": "Ajustement du folio ajouté",
+    "mark_no_show": "No-show",
+    "ROOM_CHARGE_ADDED": "Frais de chambre ajoutés",
+    "UNDO_CHECK_OUT": "Annuler le check-out",
+    "UNDO_CHECK_IN": "Annuler le check-in",
+    "MARK_NO_SHOW": "No-show",
+    "CHANNEX_ACKNOWLEDGE_SENT": "Accusé envoyé à Channex",
+    "ROOM_CHARGE_UPDATE": "Mise à jour des frais de chambre",
+    "FOLIO_ADJUSTMENT_UPDATED": "Ajustement du folio mis à jour",
+    "TRANSACTION_UPDATED": "Transaction mise à jour"
+
+
+
   },
   "auditDescriptions": {
     "create": "Profil créé",
@@ -8301,5 +8325,66 @@
   "format" : "Formats: JPG, PNG, WEBP",
   "maxAuthorized" : "Maximum 2 images autorisées",
   "pleaseValidation" : "Veuillez sélectionner un fichier image",
-  "sizeImage" : "La taille de l'image est trop grande (max 5MB)"
+  "sizeImage" : "La taille de l'image est trop grande (max 5MB)",
+  "Enter name": "Entrer le nom",
+  "Res No": "N° de réservation",
+  "Selected Period": "Période sélectionnée",
+  "Select Rate Type": "Sélectionner le type de tarif",
+  "Stay Date": "Date de séjour",
+  "Show Bookings": "Afficher les réservations",
+  "Web": "Web",
+  "Channel": "Canal",
+  "PMS": "PMS",
+  "Manage Columns": "Gérer les colonnes",
+  "Select Columns": "Sélectionner les colonnes",
+  "Reservations": "Réservations",
+  "Arrival": "Arrivée",
+  "Departure": "Départ",
+  "Cancelled": "Annulée",
+  "Pax": "Personnes",
+  "ADR": "Tarif moyen (ADR)",
+  "Source": "Source",
+  "Total Tax": "Total des taxes",
+  "Total Charges": "Total des frais",
+  "No Of Nights": "Nombre de nuits",
+  "Travel Agent": "Agence de voyage",
+  "Folio No": "N° de folio",
+  "Zip Code": "Code postal",
+  "Mobile No": "N° de mobile",
+  "Due Amt.": "Montant dû",
+  "Voucher": "Bon / Voucher",
+  "Booking Time": "Heure de réservation",
+  "Commission": "Commission",
+  "Columns": "Colonnes",
+  "Reservation ID is required": "L'identifiant de réservation est requis.",
+  "Reservation rooms are required": "Les chambres de la réservation sont requises.",
+  "Reservation not found": "Réservation introuvable.",
+  "Reservation is already checked out": "La réservation est déjà clôturée.",
+  "Reservation must be checked in before check out": "La réservation doit être check-in avant le check-out.",
+  "Cannot check out with outstanding balance": "Impossible de faire le check-out avec un solde impayé.",
+  "Some rooms cannot be checked out": "Certaines chambres ne peuvent pas être check-out.",
+  "An error occurred during check-out": "Une erreur est survenue pendant le check-out.",
+  "incorrectEmailOrPassword" : "Email ou Mot de passe incorrect",
+  "anErrorOcured" : "Une erreur s'est produite",
+  "connectionError" : "Erreur lors de la connexion",
+  "Create new guest information": "Créer de nouvelles informations sur l’invité",
+  "Guest information and details": "Informations et détails de l’invité",
+  "page": "Page",
+  "Suspended": "Suspendu",
+  "actif": "Actif",
+  "inactif": "Inactif",
+  "en attente": "En attente",
+  "suspendu" : "Suspended",
+  "Confirm Action": "Confirmer l'action",
+  "Are you sure?": "Êtes-vous sûr ?",
+  "Block": "Bloquer",
+  "clean": "Nettoyer",
+  "Unconfirmed Booking Inquiry": "Demande de réservation non confirmée",
+  "FailedToLoadAuditTrail": "Échec du chargement de l’audit"
+
+
+
+
+
+
 }
