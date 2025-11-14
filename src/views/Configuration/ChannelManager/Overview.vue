@@ -1,13 +1,6 @@
 <template>
   <ChannelManagerLayout>
     <div class="h-screen">
-    <div class="">
-      <div class="flex justify-end" v-if="!currentService.channexPropertyId">
-        <BasicButton
-          :label="isLoading ? t('configuration.channelManager.common.migrating') : t('configuration.channelManager.migrateHotelData')"
-          :loading="isLoading" variant="secondary" @click="handleMigrate" />
-      </div>
-    </div>
     <!-- Filters and Column Manager -->
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mb-3 p-3">
       <div class=" gap-4">
@@ -140,7 +133,7 @@
           </div>
         </template>
         <template #column-source="{ item }">
-          <img v-if="getOtaIcon(item)" :src="getOtaIcon(item)" alt="OTA" class="w-8 h-8" />
+          <img v-if="getOtaIcon(item)" :src="getOtaIcon(item)??''" alt="OTA" class="w-8 h-8" />
           <Building2Icon v-else class="w-8 h-8 text-primary" />
         </template>
 
@@ -249,7 +242,6 @@ const applyFilter = async (filterItem: any) => {
     }
   } catch (error) {
     console.error('Error filtering reservations:', error)
-    toast.error(t('Error loading reservations'))
   } finally {
     loading.value = false
   }
