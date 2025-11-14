@@ -52,6 +52,15 @@
 
       <!-- Right: theme toggle + notification + user menu -->
       <div class="flex items-center gap-2 px-5 py-4 lg:px-0">
+        <!-- Migration Button (moved from Overview) -->
+        <div v-if="!currentService.channexPropertyId" class="flex">
+          <BasicButton
+            :label="isLoading ? t('configuration.channelManager.common.migrating') : t('configuration.channelManager.migrateHotelData')"
+            :loading="isLoading"
+            variant="secondary"
+            @click="handleMigrate"
+          />
+        </div>
         <button
           class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
           @click="toggleTheme"
@@ -83,9 +92,33 @@ import BoxCubeIcon from '@/icons/BoxCubeIcon.vue'
 import GridIcon from '@/icons/GridIcon.vue'
 import CalenderIcon from '@/icons/CalenderIcon.vue'
 import { Sun, Moon } from 'lucide-vue-next'
+import BasicButton from '@/components/buttons/BasicButton.vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
+import { migrateCompleteHotel } from '@/services/channelManagerApi'
+import { useServiceStore } from '@/composables/serviceStore'
 
 const route = useRoute()
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
+const { t } = useI18n({ useScope: 'global' })
+const toast = useToast()
+const isLoading = ref(false)
+const currentService = useServiceStore().getCurrentService
+
+const handleMigrate = async () => {
+  try {
+    isLoading.value = true
+    const res = await migrateCompleteHotel()
+    const message = res?.data?.message || t('configuration.channelManager.common.success')
+    toast.success(message)
+  } catch (error: any) {
+    const message = error?.response?.data?.message || t('configuration.channelManager.migrationError')
+    toast.error(message)
+    console.error('migrateCompleteHotel error:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const handleToggle = () => {
   if (window.innerWidth >= 1024) {

@@ -1,12 +1,6 @@
 <template>
   <ChannelManagerLayout>
-    <div class="h-full">
-      <div class="flex justify-end" v-if="!currentService.channexPropertyId">
-        <BasicButton
-          :label="isLoading ? t('configuration.channelManager.common.migrating') : t('configuration.channelManager.migrateHotelData')"
-          :loading="isLoading" variant="secondary" @click="handleMigrate" />
-      </div>
-    </div>
+    <div class="h-full"></div>
     <!-- Filters and Column Manager -->
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mb-3 p-3">
       <div class=" gap-4">
@@ -149,8 +143,7 @@ import { useI18n } from 'vue-i18n'
 import ChannelManagerLayout from '../../../components/layout/ChannelManagerLayout.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import { Building2Icon } from 'lucide-vue-next'
-import { useToast } from 'vue-toastification'
-import { migrateCompleteHotel, getBookings } from '@/services/channelManagerApi'
+import { getBookings } from '@/services/channelManagerApi'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { filterReservation } from '../../../services/hotelApi'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
@@ -173,24 +166,8 @@ const paginatedReservations = computed(() => {
 const currentPage = ref(1)
 const pageSize = ref(20)
 const { t, locale } = useI18n({ useScope: 'global' })
-const toast = useToast()
-const isLoading = ref(false);
 const loading = ref(false);
-const currentService = useServiceStore().getCurrentService;
-const handleMigrate = async () => {
-  try {
-    isLoading.value = true
-    const res = await migrateCompleteHotel()
-    const message = res?.data?.message || t('configuration.channelManager.common.success')
-    toast.success(message)
-  } catch (error: any) {
-    const message = error?.response?.data?.message || t('configuration.channelManager.migrationError')
-    toast.error(message)
-    console.error('migrateCompleteHotel error:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
+ 
 const serviceStore = useServiceStore()
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
