@@ -300,6 +300,15 @@ export interface FitlterItem {
   checkOutDate: string
   roleId?: string
   department?: string
+  source?:any
+  rateType?: string
+  dateType?: string
+  dateStart?: string
+  dateEnd?: string
+  stayCheckInDate?: string
+  stayCheckOutDate?: string
+  reservationType?:string
+  showBookings?:string
 }
 export interface TaskFitlterItem {
   userId: string

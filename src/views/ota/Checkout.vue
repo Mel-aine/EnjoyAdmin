@@ -349,7 +349,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter,useRoute } from 'vue-router'
 import OtaHeader from './components/OtaHeader.vue'
 import { useBookingSummaryStore } from '@/views/ota/composables/bookingSummary'
 import { createOTAReservation } from '@/views/ota/services/otaApi'
@@ -359,8 +359,9 @@ import { calculateCartTaxes, formatTaxLabel } from '@/views/ota/utils/taxCalcula
 
 const router = useRouter()
 const bookingStore = useBookingSummaryStore()
-const serviceStore = useServiceStore()
 
+const route = useRoute()
+const hotelId:any = computed(()=>route.query.hotelId)
 const bookingData = computed(() => bookingStore.getBookingData())
 const showReviewModal = ref(false)
 
@@ -368,7 +369,8 @@ const showReviewModal = ref(false)
 onMounted(() => {
   if (!bookingData.value || !bookingData.value.items || bookingData.value.items.length === 0) {
     alert('No booking data found. Redirecting to booking page.')
-    router.push('/ota/web-booking')
+
+     router.push({ name: 'WebBooking', params: { id: hotelId.value} })
   }
 })
 
@@ -535,7 +537,7 @@ async function bookNow() {
 
     const response = await createOTAReservation(
       bookingPayload,
-      serviceStore.serviceId || parseInt(bookingPayload.hotelId),
+      hotelId.value
     )
 
     if (response.success) {
@@ -545,6 +547,7 @@ async function bookNow() {
         query: {
           reservationId: response.reservationId,
           email: guest.value.email,
+          hotelId:hotelId.value
         },
       })
     } else {
@@ -564,7 +567,7 @@ function reviewBooking() {
 
 const editBooking = () => {
   showReviewModal.value = false
-  router.push('/ota/web-booking')
+  router.push({ name: 'WebBooking', params: { id: hotelId.value} })
 }
 </script>
 

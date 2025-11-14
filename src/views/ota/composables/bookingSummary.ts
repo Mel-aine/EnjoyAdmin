@@ -29,8 +29,8 @@ export interface BookingData {
   phoneNumber?: string
   arrivalDate: string
   departureDate: string
-  adults: string
-  children: string
+  adults: number
+  children: number
   nights: string
   items: BookingItem[]
   totalPrice?: number

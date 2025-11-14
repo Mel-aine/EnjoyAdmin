@@ -10,11 +10,11 @@
           </div>
         </div>
         <nav class="flex items-center gap-2">
-          <button :class="navClass('/ota/web-booking')" @click="goHome">
+          <button :class="navClass('WebBooking')" @click="goHome">
             <HomeIcon class="w-4 h-4" />
             <span class="text-sm">Home</span>
           </button>
-          <button :class="navClass('/ota/hotel-info')" @click="goHotelInfo">
+          <button :class="navClass('OtaHotelInfo')" @click="goHotelInfo">
             <InfoIcon class="w-4 h-4" />
             <span class="text-sm">Hotel Info</span>
           </button>
@@ -33,19 +33,19 @@
               </div>
             </div>
           </div>
-          <button :class="navClass('/ota/contact-us')" @click="goContactUs">
+          <button :class="navClass('OtaContactUs')" @click="goContactUs">
             <MailIcon class="w-4 h-4" />
             <span class="text-sm">Contact Us</span>
           </button>
-          <button :class="navClass('/ota/map')" @click="goMap">
+          <button :class="navClass('OtaMap')" @click="goMap">
             <MappingIcon class="w-4 h-4" />
             <span class="text-sm">Map</span>
           </button>
-          <button :class="navClass('/ota/reviews')" @click="goReviews">
+          <button :class="navClass('OtaReviews')" @click="goReviews">
             <Message2Line class="w-4 h-4" />
             <span class="text-sm">Reviews</span>
           </button>
-          <button :class="navClass('/ota/cancel-booking')" @click="goCancelBooking">
+          <button :class="navClass('OtaCancelBooking')" @click="goCancelBooking">
             <CheckIcon class="w-4 h-4" />
             <span class="text-sm">Cancel Bookings</span>
           </button>
@@ -76,35 +76,34 @@ import Message2Line from '@/icons/Message2Line.vue'
 import CheckIcon from '@/icons/CheckIcon.vue'
 import StaredIcon from '@/icons/StaredIcon.vue'
 import { getHotelInfo } from '@/views/ota/services/otaApi'
-import { useServiceStore } from '@/composables/serviceStore'
 
-const props = defineProps<{  currency?: string }>()
+
+const props = defineProps<{  currency?: string , brand?: any}>()
 const emit = defineEmits<{ (e: 'currency-change', value: string): void }>()
 
 // const brand = props.brand ?? 'TAMI SARL (SUITA HOTEL)'
 const currency = ref(props.currency ?? 'XAF')
 const currencies = ['XAF', 'USD', 'EUR']
-const serviceStore = useServiceStore()
 const hotelData = ref<any>(null)
 const loading = ref<boolean>(true)
 
 const loginOpen = ref(false)
 const currencyOpen = ref(false)
 const login = ref({ username: '', password: '' })
-const brand = computed(() => hotelData.value?.name || '')
+
 
 const router = useRouter()
 const route = useRoute()
+const currentHotelId = computed(() => route.params.id)
 
-function navClass(path: string) {
+const brand = computed(() => props.brand)
+function navClass(routeName: string) {
   const base = 'h-12 px-3 flex items-center gap-1 rounded-md transition-colors'
-  const active = route.path === path ? 'bg-blue-700' : 'hover:bg-blue-700'
+  const active = route.name === routeName ? 'bg-blue-700' : 'hover:bg-blue-700'
   return `${base} ${active}`
 }
 
-function goHome() {
-  router.push('/ota/web-booking')
-}
+
 function toggleLogin() {
   loginOpen.value = !loginOpen.value
   currencyOpen.value = false
@@ -121,40 +120,75 @@ function setCurrency(c: string) {
   currencyOpen.value = false
   emit('currency-change', c)
 }
-function goHotelInfo() {
-  router.push('/ota/hotel-info')
-}
-function goContactUs() {
-  router.push('/ota/contact-us')
-}
-function goMap() {
-  router.push('/ota/map')
-}
-function goReviews() {
-  router.push('/ota/reviews')
-}
-function goCancelBooking() {
-  router.push('/ota/cancel-booking')
-}
 
-const fetchHotelInfo = async () => {
-  try {
-    loading.value = true
-    const hotelId = serviceStore.serviceId
-    const response = await getHotelInfo(hotelId!)
-    hotelData.value = response.data.data
-    console.log('Fetched hotel info:', hotelData.value)
 
-  } catch (error) {
-    console.error('Error fetching hotel info:', error)
-  } finally {
-    loading.value = false
+function goHome() {
+  const hotelId:any = currentHotelId.value || route.query.hotelId
+  if (hotelId) {
+    router.push({ name: 'WebBooking', params: { id: hotelId } })
   }
 }
 
-onMounted(() => {
-  fetchHotelInfo()
-})
+
+
+function goHotelInfo() {
+  const hotelId = currentHotelId.value || route.query.hotelId
+  router.push({
+    name: 'OtaHotelInfo',
+    query: { hotelId }
+  })
+}
+
+function goContactUs() {
+  const hotelId = currentHotelId.value || route.query.hotelId
+  router.push({
+    name: 'OtaContactUs',
+    query: { hotelId }
+  })
+}
+
+function goMap() {
+  const hotelId = currentHotelId.value || route.query.hotelId
+  router.push({
+    name: 'OtaMap',
+    query: { hotelId }
+  })
+}
+
+function goReviews() {
+  const hotelId = currentHotelId.value || route.query.hotelId
+  router.push({
+    name: 'OtaReviews',
+    query: { hotelId }
+  })
+}
+
+function goCancelBooking() {
+  const hotelId = currentHotelId.value || route.query.hotelId
+  router.push({
+    name: 'OtaCancelBooking',
+    query: { hotelId }
+  })
+}
+
+// const fetchHotelInfo = async () => {
+//   try {
+//     loading.value = true
+//     const hotelId:any = route.params.id
+//     const response = await getHotelInfo(hotelId)
+//     hotelData.value = response.data.data
+//     console.log('Fetched hotel info:', hotelData.value)
+
+//   } catch (error) {
+//     console.error('Error fetching hotel info:', error)
+//   } finally {
+//     loading.value = false
+//   }
+// }
+
+// onMounted(() => {
+//   fetchHotelInfo()
+// })
 </script>
 
 <style scoped>

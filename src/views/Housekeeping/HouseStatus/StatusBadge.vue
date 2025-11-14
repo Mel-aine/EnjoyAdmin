@@ -37,7 +37,7 @@
 
       <button
         @click="openRemarkModal"
-        class="absolute -top-1 -right-1 p-1 bg-white rounded-full shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 z-9"
+        class="absolute -top-1 -right-1 p-1 bg-white rounded-full shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 z-7"
         title="Ajouter une remarque"
       >
         <MessageSquareMore :size="10" class="text-gray-600 hover:text-blue-600" />

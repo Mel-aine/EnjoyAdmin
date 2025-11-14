@@ -1,7 +1,7 @@
 
 <template>
   <FullScreenLayout>
-    <OtaHeader  :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader  :currency="selectedCurrency" :brand="brand" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6">
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div class="flex flex-wrap gap-3 items-end">
@@ -78,6 +78,7 @@
                 :nights="nights"
                 :currency="selectedCurrency"
                 :selected-count="roomCounts[`${room.name}-${plan.name}`] || 0"
+                :hotel-id="hotelId"
                 @add="handleAddRoom"
                 @remove="handleRemoveRoom"
                 @update="handleUpdate"
@@ -115,7 +116,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRouter,useRoute } from 'vue-router'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import RatePlanCard from './components/RatePlanCard.vue'
@@ -130,11 +131,11 @@ import type { Tax } from '@/views/ota/composables/bookingSummary'
 const hotelTaxes = ref<Tax[]>([])
 
 const router = useRouter()
+const route  = useRoute()
 const { t } = useI18n()
 
 // Configuration
-const serviceStore = useServiceStore()
-const hotelId = serviceStore.serviceId
+const hotelId:any = route.params.id
 const selectedCurrency = ref<string>('XAF')
 
 // État
@@ -166,7 +167,7 @@ const filteredRooms = computed(() => {
     name: room.name,
     shortCode: room.shortCode,
     description: room.description || t(`room.${room.shortCode}.description`, ''),
-    images: room.images || [],
+    images: room.rooms?.flatMap(r => r.images || []) || [],
     roomsLeft: room.roomsLeft,
     rooms: room.rooms,
     capacity: {
@@ -221,7 +222,7 @@ async function searchRooms() {
     hotelMeta.value = response.meta
     availabilityData.value = response.data || []
 
-    console.log('Rooms loaded:', brand.value)
+    console.log('Rooms loaded:', response)
   } catch (error) {
     console.error('Error fetching availability:', error)
     errorMessage.value =
@@ -367,8 +368,8 @@ function bookFromSummary() {
     taxes: hotelTaxes.value || [],
     arrivalDate: arrivalDate.value,
     departureDate: departureDate.value,
-    adults: String(adults.value),
-    children: String(children.value),
+    adults: adults.value,
+    children: children.value,
     nights: String(nights.value),
     items,
     totalPrice,
@@ -377,7 +378,7 @@ function bookFromSummary() {
   })
 
   // Naviguer vers le checkout
-  router.push({ path: '/ota/checkout' })
+  router.push({ name: 'OtaCheckout' , query : { hotelId} })
 }
 
 function handleUpdate(payload: any) {

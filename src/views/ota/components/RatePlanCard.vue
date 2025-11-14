@@ -2,7 +2,40 @@
   <div class="rounded-lg border bg-white p-3 shadow-sm hover:shadow-md transition">
     <!-- Top content -->
     <div class="grid grid-cols-[160px_1fr_auto] gap-4 items-start">
-      <img :src="imageUrl" alt="Room" class="w-40 h-28 object-cover rounded-md border" />
+      <!-- <img :src="roomImage" alt="Room" class="w-40 h-28 object-cover rounded-md border" /> -->
+       <div class="relative w-40 h-28">
+          <img
+            :src="currentImage"
+            alt="Room"
+            class="w-full h-full object-cover rounded-md border"
+          />
+
+          <!-- Navigation-->
+          <div v-if="allImages.length > 1" class="absolute inset-0 flex items-center justify-between px-1">
+            <button
+              @click.stop="previousImage"
+              class="bg-black/50 hover:bg-black/70 text-white rounded-full w-6 h-6 flex items-center justify-center"
+            >
+              ‹
+            </button>
+            <button
+              @click.stop="nextImage"
+              class="bg-black/50 hover:bg-black/70 text-white rounded-full w-6 h-6 flex items-center justify-center"
+            >
+              ›
+            </button>
+          </div>
+
+          <!-- Indicateurs de pagination -->
+          <div v-if="allImages.length > 1" class="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+            <div
+              v-for="(_, idx) in allImages"
+              :key="idx"
+              class="w-1.5 h-1.5 rounded-full transition-all"
+              :class="idx === currentImageIndex ? 'bg-white w-3' : 'bg-white/50'"
+            />
+          </div>
+        </div>
       <div>
         <div class="flex items-center gap-2">
           <div class="font-medium text-sm">{{ plan.name }}</div>
@@ -46,7 +79,7 @@
     <!-- Toolbar: info, enquire, quantity -->
     <div class="mt-3 flex items-center justify-between">
       <div class="flex items-center gap-3 text-sm">
-        <button type="button" class="text-blue-700 hover:underline" @click="showInfo = true">
+        <button type="button" class="text-blue-700 hover:underline" @click="openModal">
           Room Info
         </button>
         <button type="button" class="text-blue-700 hover:underline" @click="enquireLocal">
@@ -110,40 +143,99 @@
     </div>
 
     <!-- Room Info Modal -->
-    <div v-if="showInfo" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
-        <div class="p-4 border-b flex items-center justify-between">
+     <div v-if="showInfo" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="p-4 border-b flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
             <div class="text-sm font-semibold">{{ room.name }}</div>
             <div class="text-xs text-gray-600">{{ plan.name }}</div>
           </div>
           <button class="text-gray-600 hover:text-black" @click="showInfo = false">✕</button>
         </div>
-        <div class="p-4 space-y-3 text-sm text-gray-700">
-          <div class="font-medium">Capacity</div>
-          <div class="flex items-center gap-3">
-            <span class="flex items-center gap-1"
-              ><Adult class="inline w-4 h-4" /> {{ capacityAdults }} Adults</span
-            >
-            <span class="flex items-center gap-1"
-              ><Child class="inline w-4 h-4" /> {{ capacityChildren }} Children</span
-            >
+
+        <div class="p-4 space-y-4">
+          <!-- Gallery Section -->
+          <div v-if="allImages.length" class="space-y-3">
+
+
+            <!-- Main Image -->
+            <div class="relative w-full h-64 rounded-lg overflow-hidden">
+              <img
+                :src="allImages[modalImageIndex]"
+                alt="Room"
+                class="w-full h-full object-cover"
+              />
+
+              <!-- Navigation Arrows (if more than 1 image) -->
+              <div v-if="allImages.length > 1" class="absolute inset-0 flex items-center justify-between px-3">
+                <button
+                  @click="modalImageIndex = (modalImageIndex - 1 + allImages.length) % allImages.length"
+                  class="bg-black/60 hover:bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center transition"
+                >
+                  ‹
+                </button>
+                <button
+                  @click="modalImageIndex = (modalImageIndex + 1) % allImages.length"
+                  class="bg-black/60 hover:bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center transition"
+                >
+                  ›
+                </button>
+              </div>
+
+              <!-- Image Counter -->
+              <div class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                {{ modalImageIndex + 1 }} / {{ allImages.length }}
+              </div>
+            </div>
+
+            <!-- Thumbnail Gallery (if more than 1 image) -->
+            <div v-if="allImages.length > 1" class="grid grid-cols-5 gap-2">
+              <button
+                v-for="(img, idx) in allImages"
+                :key="idx"
+                @click="modalImageIndex = idx"
+                class="relative h-16 rounded overflow-hidden border-2 transition"
+                :class="idx === modalImageIndex ? 'border-blue-500' : 'border-gray-200 hover:border-gray-400'"
+              >
+                <img :src="img" alt="Thumbnail" class="w-full h-full object-cover" />
+              </button>
+            </div>
           </div>
+
+          <!-- Capacity Section -->
+          <div>
+            <div class="font-medium text-sm">Capacity</div>
+            <div class="flex items-center gap-3 mt-2">
+              <span class="flex items-center gap-1">
+                <Adult class="inline w-4 h-4" /> {{ capacityAdults }} Adults
+              </span>
+              <span class="flex items-center gap-1">
+                <Child class="inline w-4 h-4" /> {{ capacityChildren }} Children
+              </span>
+            </div>
+          </div>
+
+          <!-- Features Section -->
           <div v-if="featuresList.length">
-            <div class="font-medium mt-2">Features</div>
-            <ul class="list-disc pl-5 space-y-1">
+            <div class="font-medium text-sm">Features</div>
+            <ul class="list-disc pl-5 space-y-1 mt-2 text-sm text-gray-700">
               <li v-for="(f, idx) in featuresList" :key="idx">{{ f }}</li>
             </ul>
           </div>
+
+          <!-- Policies Section -->
           <div v-if="policiesList.length">
-            <div class="font-medium mt-2">Policies</div>
-            <ul class="list-disc pl-5 space-y-1">
+            <div class="font-medium text-sm">Policies</div>
+            <ul class="list-disc pl-5 space-y-1 mt-2 text-sm text-gray-700">
               <li v-for="(p, idx) in policiesList" :key="idx">{{ p }}</li>
             </ul>
           </div>
         </div>
-        <div class="p-4 border-t flex items-center justify-end gap-2">
-          <button class="border rounded px-3 py-1 text-sm" @click="showInfo = false">Close</button>
+
+        <div class="p-4 border-t flex items-center justify-end gap-2 sticky bottom-0 bg-white">
+          <button class="border rounded px-4 py-2 text-sm hover:bg-gray-50" @click="showInfo = false">
+            Close
+          </button>
         </div>
       </div>
     </div>
@@ -152,7 +244,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter,useRoute } from 'vue-router'
 import Adult from '@/icons/Adult.vue'
 import Child from '@/icons/Child.vue'
 
@@ -171,12 +263,14 @@ interface RoomInfo {
   name: string
   roomsLeft: number
   capacity?: { adults: number; children: number }
+  images?: string[]
+  rooms?: Array<{ images?: string[] }>
 }
 
 
 
 
-const props = defineProps<{ room: RoomInfo; plan: RatePlan; nights: number; currency?: string,selectedCount?: number  }>()
+const props = defineProps<{ room: RoomInfo; plan: RatePlan; nights: number; currency?: string,selectedCount?: number ,hotelId?:any }>()
 
 const emit = defineEmits<{
   (e: 'add', payload: { room: RoomInfo; plan: RatePlan; adults: number; children: number }): void
@@ -185,7 +279,7 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
-
+const route = useRoute()
 const capacityAdults = computed(() => props.room?.capacity?.adults ?? 2)
 const capacityChildren = computed(() => props.room?.capacity?.children ?? 0)
 
@@ -193,12 +287,19 @@ const capacityChildren = computed(() => props.room?.capacity?.children ?? 0)
 const qtyAdults = ref(capacityAdults.value)
 const qtyChildren = ref(0)
 const compare = ref(false)
+const currentImageIndex = ref(0)
 const selectedCount = computed({
   get: () => props.selectedCount || 0,
   set: () => {}
 })
 
 const showInfo = ref(false)
+const modalImageIndex = ref(0)
+
+function openModal() {
+  modalImageIndex.value = 0 // Réinitialiser à la première image
+  showInfo.value = true
+}
 
 // Mettre à jour qtyAdults si la capacité change
 watch(capacityAdults, (newVal) => {
@@ -240,9 +341,7 @@ const policiesList = computed(() =>
       : [],
 )
 
-const imageUrl = computed(
-  () => 'https://images.unsplash.com/photo-1560067174-8947b9bf0f59?auto=format&fit=crop&w=640&q=60',
-)
+
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', {
@@ -268,11 +367,69 @@ function decrement() {
   emit('remove', { room: props.room, plan: props.plan })
 }
 
+// const roomImage = computed(() => {
+
+//   if (props.room.images && props.room.images.length > 0) {
+//     return props.room.images[0]
+//   }
+
+//   // Sinon, chercher dans les rooms disponibles
+//   if (props.room.rooms && props.room.rooms.length > 0) {
+//     for (const r of props.room.rooms) {
+//       if (r.images && r.images.length > 0) {
+//         return r.images[0]
+//       }
+//     }
+//   }
+
+//   return 'https://via.placeholder.com/160x112?text=No+Image'
+// })
 
 
+const allImages = computed(() => {
+  const images: string[] = []
+
+  // Images directes du room
+  if (props.room.images && props.room.images.length > 0) {
+    images.push(...props.room.images)
+  }
+
+  // Images des rooms individuels
+  if (props.room.rooms && props.room.rooms.length > 0) {
+    props.room.rooms.forEach(r => {
+      if (r.images && r.images.length > 0) {
+        images.push(...r.images)
+      }
+    })
+  }
+
+  //  si vraiment aucune image
+  if (images.length === 0) {
+    return ['https://via.placeholder.com/160x112?text=No+Image']
+  }
+
+  // cas de doublon
+  return [...new Set(images)]
+})
+
+const currentImage = computed(() => allImages.value[currentImageIndex.value])
+
+function nextImage() {
+  currentImageIndex.value = (currentImageIndex.value + 1) % allImages.value.length
+}
+
+function previousImage() {
+  currentImageIndex.value = currentImageIndex.value === 0
+    ? allImages.value.length - 1
+    : currentImageIndex.value - 1
+}
 
 function enquireLocal() {
-  router.push('/ota/contact-us')
+  const hotelId = props.hotelId
+  router.push({
+    name: 'OtaContactUs',
+    query: { hotelId }
+  })
 }
 </script>
 

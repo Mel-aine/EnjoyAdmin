@@ -1112,6 +1112,9 @@ export function useBooking() {
         business_source: reservation.value.businessSource,
         customType: reservation.value.customType,
         payment_type: billing.value.paymentType,
+        means_of_transport: reservation.value.meansOfTransport,
+        going_to: reservation.value.goingTo,
+        arriving_to: reservation.value.arrivingTo,
 
         // Hold-specific fields (only included if isHold is true)
         ...(reservation.value.isHold && {

@@ -2078,3 +2078,9 @@ export const getFrontofficeBookingDataId = (
     }
   )
 }
+
+export const checkHotelExists = (hotelId: any): Promise<AxiosResponse<any>> => {
+  return axios.get(`${URL}/hotels/${hotelId}/check`, {
+    withCredentials: true,
+  })
+}

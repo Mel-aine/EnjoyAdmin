@@ -70,7 +70,7 @@
                 </svg>
                 Stay Details
               </h3>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-3 gap-2">
                 <div class="bg-slate-50 rounded p-2 flex justify-between items-center">
                   <div class="text-xs text-slate-500 uppercase">Check-In</div>
                   <div class="font-medium text-slate-900">{{ formatDate(bookingData?.arrivalDate) }}</div>
@@ -83,12 +83,12 @@
                   <div class="text-xs text-slate-500 uppercase mb-0.5">Nights</div>
                   <div class="font-medium text-slate-900">{{ nights }}</div>
                 </div>
-                <div class="bg-slate-50 rounded p-2 flex justify-between items-center">
+                <!-- <div class="bg-slate-50 rounded p-2 flex justify-between items-center">
                   <div class="text-xs text-slate-500 uppercase mb-0.5">Guests</div>
                   <div class="font-medium text-slate-900">
                     {{ bookingData?.adults || 0 }}A, {{ bookingData?.children || 0 }}C
                   </div>
-                </div>
+                </div> -->
               </div>
             </section>
 

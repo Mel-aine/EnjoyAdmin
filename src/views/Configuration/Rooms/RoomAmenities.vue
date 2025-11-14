@@ -347,12 +347,10 @@ const saveAmenity = async () => {
       }
       amenities.value.push(newAmenity)
     } else {
-      // Update existing amenity
-      const index = amenities.value.findIndex((amenity) => amenity.id === editingAmenity.value.id)
-      if (index !== -1) {
+
         const amenity = {
-          name: formData.value.name,
-          type: formData.value.type,
+          amenityName: formData.value.name,
+          amenityType: formData.value.type,
           sortKey: formData.value.sortKey,
           status: formData.value.status,
         }
@@ -366,7 +364,7 @@ const saveAmenity = async () => {
           toast.error(t('somethingWentWrong'))
         }
       }
-    }
+
 
   } catch (error) {
     console.error('Error saving amenity:', error)

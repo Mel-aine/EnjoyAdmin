@@ -1,7 +1,7 @@
 
 <template>
   <FullScreenLayout>
-    <OtaHeader :currency="selectedCurrency" @currency-change="setCurrency" />
+    <OtaHeader :currency="selectedCurrency" :brand="brand" @currency-change="setCurrency" />
     <div class="max-w-6xl mx-auto px-4 pt-14 py-6">
       <div class="bg-white rounded-xl shadow-sm border p-5 mb-6">
         <h1 class="text-2xl font-semibold">Location</h1>
@@ -97,11 +97,13 @@ import { ref, computed, onMounted } from 'vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import OtaHeader from './components/OtaHeader.vue'
 import { getHotelInfo } from '@/views/ota/services/otaApi'
-import { useServiceStore } from '@/composables/serviceStore'
+import { useRoute } from 'vue-router'
 
-const serviceStore = useServiceStore()
+
 const hotelData = ref<any>(null)
 const loading = ref<boolean>(true)
+const route = useRoute()
+const hotelId:any = computed(()=> route.query.hotelId as string)
 
 // Computed properties
 const brand = computed(() => hotelData.value?.name || '')
@@ -162,8 +164,7 @@ function setCurrency(c: string) {
 const fetchHotelInfo = async () => {
   try {
     loading.value = true
-    const hotelId = serviceStore.serviceId
-    const response = await getHotelInfo(hotelId!)
+    const response = await getHotelInfo(hotelId.value)
     hotelData.value = response.data.data
 
     // Update currency from API if available
