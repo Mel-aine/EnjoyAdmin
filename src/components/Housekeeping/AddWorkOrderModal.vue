@@ -511,7 +511,7 @@ const fetchUsers = async () => {
     const response = await getEmployeesForService(hotelId)
     Users.value = response.data.data.map((user: any) => ({
       value: user.id,
-      label: `${user.firstName} ${user.lastName}`,
+      label: `${user.firstName??''} ${user.lastName??''}`,
     }))
   } catch (error) {
     console.error('Failed to fetch users:', error)

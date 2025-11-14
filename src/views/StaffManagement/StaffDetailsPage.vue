@@ -7,10 +7,6 @@
     <!-- Actual Content -->
     <div v-else>
         <div class="p-6" v-if="user && user.id">
-            <ModalConfirmation v-if="showTerminationModal" @close="showTerminationModal = false"
-                @confirm="handleConfirmTermination" :isLoading="isTerminating" :action="'DANGER'"
-                :title="$t('contract.break')"
-                :message="$t('contract.break_confirmation') + ' ' + user.firstName + user.firstName + ' ' + ' ?'" />
             <div
                 class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
                 <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
@@ -166,7 +162,6 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, computed, ref, onMounted, watch } from 'vue'
-import { createContract, terminateContract, updateContract, getPayrollsByContractId, createPayroll } from '@/services/api'
 import { getEmployeesDetails } from '@/services/userApi'
 import { useI18n } from 'vue-i18n'
 import router from '@/router'
@@ -377,63 +372,9 @@ const openAddPayrollModal = () => {
     isAddPayrollModalOpen.value = true;
 };
 
-const closeAddPayrollModal = () => {
-    isAddPayrollModalOpen.value = false;
-};
-
-const handleCreatePayroll = async () => {
-    if (!user.value.recentContract?.contractId) {
-        toast.error("No active contract found for this employee.");
-        return;
-    }
-
-    isLoading.value = true;
-
-    try {
-
-        const payload: IPayroll = {
-            contract_id: user.value.recentContract.contractId,
-            month_year: payrollForm.value.monthYear,
-            gross_salary: payrollForm.value.grossSalary,
-            normal_hours: payrollForm.value.normalHours,
-            overtime_hours: payrollForm.value.overtimeHours,
-            overtime_pay: payrollForm.value.overtimePay,
-            bonuses: payrollForm.value.bonuses,
-            allowances: payrollForm.value.allowances,
-            cnps_contributions: payrollForm.value.cnpsContributions,
-            withheld_taxes: payrollForm.value.withheldTaxes,
-            net_salary: payrollForm.value.netSalary,
-            rib_employe: payrollForm.value.ribEmploye,
-            payslip_file_path: payrollForm.value.payslipFilePath,
-        };
-
-        console.log('--> payload', payload);
-        await createPayroll(payload);
-        toast.success(t('payroll.creation_success'));
-        closeAddPayrollModal();
-        await fetchPayrolls(String(user.value.recentContract.contractId));
-    } catch (error) {
-        console.error("Failed to create payroll:", error);
-        toast.error(t('payroll.creation_error'));
-    } finally {
-        isLoading.value = false;
-    }
-};
 
 
-const fetchPayrolls = async (contractId: string) => {
-    payrollLoading.value = true;
-    try {
-        const response = await getPayrollsByContractId(contractId);
-        console.log('-->response.data', response.data);
-        payrollsData.value = response.data;
-    } catch (error) {
-        console.error("Failed to fetch payrolls:", error);
-        toast.error(t('payroll.fetch_error'));
-    } finally {
-        payrollLoading.value = false;
-    }
-}
+
 
 const downloadPayslip = (payroll: IPayroll) => {
     if (payroll.payslip_file_path) {
@@ -490,28 +431,9 @@ const getUserLocal = async () => {
             status: response.data.recentContract.status,
             contract_id: response.data.recentContract.contractId,
         }
-        await fetchPayrolls(String(response.data.recentContract.contractId));
     }
 
     isLoading.value = false;
-}
-
-const handleConfirmTermination = async () => {
-    try {
-        if (contractInfo.value.contract_id) {
-            isLoading.value = true;
-            const result = await terminateContract(contractInfo.value.contract_id)
-            refresh()
-            showTerminationModal.value = false;
-            toast.info(t('contract.terminateSuccessfullyMessage'));
-        }
-
-    } catch (error) {
-        console.log('StaffDetail.handleAssignContract.error', error);
-        toast.error(t('contract.terminateFailedessage'))
-    } finally {
-        isLoading.value = false;
-    }
 }
 
 

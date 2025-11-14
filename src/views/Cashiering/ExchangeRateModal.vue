@@ -204,7 +204,7 @@ const fetchCurrencies = async () => {
     try {
         isLoading.value = true
         const response = await getCurrencies()
-        const currencyData = response.data.data || []
+        const currencyData = response.data.data?.data || []
 
         currencies.value = currencyData.map((currency: any) => ({
             id: currency.id,
