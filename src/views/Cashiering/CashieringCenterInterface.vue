@@ -110,7 +110,7 @@
 
     <template v-if="newPaymentVisible">
       <NewPaymentCityLedger v-if="newPaymentVisible"
-        :selectedCompanyId="selectedCityLedgerId || props.selectedCompanyId || null" :dateRange="dateRange"
+        :selectedCompanyId="selectedCityLedgerId || selectedCompanyId" :dateRange="dateRange"
         :activeTab="activeTab" :mappingMode="!!mapPaymentContext" :mapPaymentContext="mapPaymentContext"
         @close="onModalClosed" @payment-saved="onPaymentSaved" />
     </template>

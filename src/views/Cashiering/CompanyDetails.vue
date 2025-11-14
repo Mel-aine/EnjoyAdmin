@@ -347,8 +347,10 @@ const refreshCompanyDetailsNoSkeleton = async () => {
         </div>
       </div>
 
-      <CashieringCenterInterface v-if="company" :selectedCompanyId="company?.id" :isCashering="false"
+     <template v-if="company">
+       <CashieringCenterInterface v-if="company" :selected-company-id="company?.id" :isCashering="false"
         @refreshed="refreshCompanyDetailsNoSkeleton" />
+     </template>
     </div>
   </AdminLayout>
 </template>
