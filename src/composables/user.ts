@@ -39,6 +39,11 @@ export const useAuthStore = defineStore('auth', {
       this.user = null;
       this.roleId = null;
       this.UserId = null;
+      this.token = null
+      this.refreshToken = null
+      this.tokenData = null
+      this.refreshTokenData = null
+      this.reauthRequired = false
     },
 
     forceLogout() {

@@ -1,583 +1,137 @@
 <template>
-    <!-- Skeleton Loading State -->
-    <div v-if="isLoading" class="animate-pulse p-6 space-y-6">
-        <EStaffDetailsSkeleton />
+  <!-- Skeleton Loading State -->
+  <div v-if="isLoading" class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6">
+    <div class="max-w-7xl mx-auto">
+      <EStaffDetailsSkeleton />
     </div>
+  </div>
 
-    <!-- Actual Content -->
-    <div v-else>
-        <div class="p-6" v-if="user && user.id">
-            <ModalConfirmation v-if="showTerminationModal" @close="showTerminationModal = false"
-                @confirm="handleConfirmTermination" :isLoading="isTerminating" :action="'DANGER'"
-                :title="$t('contract.break')"
-                :message="$t('contract.break_confirmation') + ' ' + user.firstName + user.firstName + ' ' + ' ?'" />
-            <div
-                class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-                <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
-                    {{ $t('userProfile') }}
-                </h3>
-                <profile-card :full-name="fullName" :email="email">
-                    <template v-slot:Setting>
-                        <div class="flex items-center gap-2">
-                            <span>{{ $t('status') }}: <span
-                                    :class="`${getStatusColor(user.status)} px-1 rounded-2xl text-sm py-1`">{{
-                                        t(user.status ?? '') }}</span></span>
-                            <span>{{ $t('roles') }}: <span
-                                    :class="`${getRoleBadge(user.role).bg} ${getRoleBadge(user.role).text} px-1 text-sm rounded-2xl py-1`">{{
-                                        (user.role) }}</span></span>
-                            <span>{{ $t('department') }}: <span
-                                    :class="`${getRoleBadge(user.department?.name ?? '').bg} ${getRoleBadge(user.department?.name ?? '').text} px-1 text-sm rounded-2xl py-1`">{{
-                                        (user.department?.name ?? '') }}</span></span>
+  <!-- Actual Content -->
+  <div v-else class="min-h-screen  dark:from-gray-900 dark:to-gray-800 p-4 md:p-6">
+    <div class="max-w-7xl mx-auto" v-if="user && user.id">
+      <!-- Header Section -->
+      <div class="mb-6 relative">
 
-                        </div>
+        <div class="relative bg-white dark:bg-gray-800 rounded-2xl  overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div class="h-48  relative">
+            <div class="absolute inset-0 bg-black/10"></div>
+          </div>
 
-                    </template>
-                </profile-card>
-
-                <div class="border-b border-gray-200">
-                    <nav class="flex space-x-8 px-6">
-                        <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
-                            'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
-                            activeTab === tab.id
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        ]">
-                            <div class="flex items-center space-x-2">
-                                <component :is="tab.icon" class="w-5 h-5" />
-                                <span>{{ tab.label }}</span>
-                            </div>
-                        </button>
-                    </nav>
+          <!-- Profile Info -->
+          <div class="relative px-6 pb-6">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between -mt-16">
+              <div class="flex flex-col md:flex-row md:items-end gap-4">
+                <!-- Avatar & Initials -->
+                <div class="relative">
+                  <div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 p-1 shadow-2xl">
+                    <div class="w-full h-full rounded-2xl bg-white dark:bg-gray-800 flex items-center justify-center">
+                      <span class="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        {{ user.firstName?.charAt(0) }}{{ user.lastName?.charAt(0) }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full border-4 border-white dark:border-gray-800 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
                 </div>
-                <!-- Content -->
-                <div class="p-6">
-                    <!-- Details Tab -->
-                    <div v-if="activeTab === 'details'" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6">
-                        <!-- Informations de base -->
-                        <personal-info-card :user="user" @update-profile="editUser" />
 
-                        <!-- contact info -->
-                        <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
-                            <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                                <div>
-                                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-                                        {{ $t('customerDetails.contactInfo.title') }}
-                                    </h4>
-
-                                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-20">
-                                        <div>
-                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                                                {{
-                                                    $t('customerDetails.contactInfo.email') }}</p>
-                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
-                                                user.email
-                                                }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                                                {{
-                                                    $t('personalEmail') }}</p>
-                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
-                                                user.personalEmail
-                                                }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                                                {{
-                                                    $t('customerDetails.contactInfo.phone') }}</p>
-                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
-                                                user.
-                                                    phoneNumber
-                                            }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                                                {{
-                                                    $t('emergencyPhone') }}</p>
-                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
-                                                user.
-                                                    emergencyPhone
-                                            }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                                                {{
-                                                    $t('customerDetails.contactInfo.address') }}</p>
-                                            <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{
-                                                user.address ?? 'N/A'
-                                                }}
-                                            </p>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- History Tab -->
-                    <div v-if="activeTab === 'history'">
-                        <template v-if="user.
-                            activityLogs && user.activityLogs.length > 0">
-                            <AuditLogsTable :expanded-changes="[]" :logs="user.activityLogs" :entity-ids="[parseInt(`${user_id}`)]" />
-                        </template>
-                        <template v-else>
-                            <div class="flex flex-col items-center justify-center text-gray-500 py-10">
-                                <FileSearch class="w-12 h-12 mb-3 text-gray-400" />
-                                <p class="text-sm">{{ $t('no_recente_activity') }}</p>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Calendar Tab -->
-                    <div v-if="activeTab === 'calendar'" class="bg-white rounded-xl border border-gray-200">
-
-                    </div>
-
-                    <!-- Payroll Tab -->
-                    <div v-if="activeTab === 'payroll'">
-                        <TableComponent :items="payrollTitles" :datas="payrollsForTable" :loading="payrollLoading"
-                            :title="$t('payrolls')" :pagination="true" @downloadPayslip="downloadPayslip"
-                            :showButtonAllElement="true">
-                            <template v-slot:headerActions>
-                                <div class="flex justify-end  gap-2">
-
-                                    <button @click="openAddPayrollModal"
-                                        class="bg-orange-500 text-white px-4 py-2 rounded-lg shadow hover:bg-orange-700 transition flex items-center">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                                        </svg>
-                                        {{ $t('add') }}
-                                    </button>
-                                </div>
-
-                            </template>
-                        </TableComponent>
-                    </div>
+                <!-- Name & Role -->
+                <div class="mb-4 md:mb-0">
+                  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {{ user.firstName }} {{ user.lastName }}
+                  </h1>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                      {{ user.role.roleName }}
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                      {{ user.department?.name || 'N/A' }}
+                    </span>
+                    <span :class="[
+                      'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium',
+                      user.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                    ]">
+                      {{ t(user.status ?? '') }}
+                    </span>
+                  </div>
                 </div>
-                <!-- <address-card /> -->
-                <OverLoading v-if="isLoading" />
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-2 mt-4 md:mt-0">
+                <button @click="editUser" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl hover:shadow-xl transform hover:-translate-y-0.5">
+                  {{ $t('edit') }}
+                </button>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
+      </div>
 
+      <!-- Tabs Navigation -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mb-6 rounded-2xl">
+        <nav class="flex overflow-x-auto">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            :class="[
+              'flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap transition-all duration-200 border-b-2',
+              activeTab === tab.id
+                ? 'border-blue-600 text-blue-600 '
+                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50'
+            ]"
+          >
+            <component :is="tab.icon" class="w-5 h-5" />
+            <span>{{ tab.label }}</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content (exemple : Details) -->
+      <div class="space-y-6">
+        <div v-if="activeTab === 'details'">
+          <personal-info-card :user="user" @update-profile="editUser" />
+        </div>
+      </div>
+
+      <OverLoading v-if="isLoading" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, computed, ref, onMounted, watch } from 'vue'
-import { createContract, terminateContract, updateContract, getPayrollsByContractId, createPayroll } from '@/services/api'
-import { getEmployeesDetails } from '@/services/userApi'
+import { defineAsyncComponent, ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import router from '@/router'
-import InfoIcon from '@/icons/InfoIcon.vue'
-import { ClockIcon, FileSearch } from 'lucide-vue-next'
-import type { IContract, IContractFormData, IPayroll, IPayrollFormData, ICreatePayroll } from '@/types/type'
-import { useToast } from 'vue-toastification';
-import OverLoading from '@/components/spinner/OverLoading.vue'
-import ModalConfirmation from '@/components/modal/ModalConfirmation.vue'
-import { uploadToCloudinary } from '@/utils'
-import TableComponent from '@/components/tables/TableComponent.vue'
 import EStaffDetailsSkeleton from '../../components/skeletons/EStaffDetailsSkeleton.vue'
-import AuditLogsTable from '../../components/tables/AuditLogsTable.vue'
-const ProfileCard = defineAsyncComponent(() => import('../../components/profile/ProfileCard.vue'))
+import OverLoading from '@/components/spinner/OverLoading.vue'
+
 const PersonalInfoCard = defineAsyncComponent(() => import('../../components/profile/PersonalInfoCard.vue'))
+const InfoIcon = defineAsyncComponent(() => import('@/icons/InfoIcon.vue'))
 
-const props = defineProps({
-    userId: {
-        type: Number,
-    }
-})
-const user_id = computed(() => (props.userId || router.currentRoute.value.params.id as string));
-const tabs = computed(() => [
-    { id: 'details', label: t('tab.details'), icon: InfoIcon },
-    { id: 'history', label: t('auditTrail'), icon: ClockIcon },
-])
-const activeTab = ref<string>('details')
-const modalOpen = ref(false);
-const selectedUser = ref<any>(null)
-const payrollsData = ref<IPayroll[]>([])
-const payrollLoading = ref(false)
-const contractFormAction = ref<"CREATE" | "UPDATE">("CREATE");
-const isAddPayrollModalOpen = ref(false);
-const isCreatingPayroll = ref(false);
-const contractInfo = ref<IContract>({
-    base_salary: 0,
-    contract_end_date: "",
-    is_cdi: false,
-    contract_file_path: "",
-    employee_id: 0,
-    contract_start_date: "",
-    probation_end_date: "",
-    probation_start_date: "",
-    special_conditions: "",
-    status: 'Active',
+// Props
+const props = defineProps<{ user: any ,isLoading?: boolean }>()
 
+// Ref local synchronisée avec la prop
+const user = ref(props.user)
+watch(() => props.user, (newUser) => {
+  user.value = newUser
 })
 
-const payrollForm = ref<IPayrollFormData>({
-    payrollId: 0,
-    payrollId_error: '',
-
-    contractId: 0,
-    contractId_error: '',
-
-    monthYear: new Date().toISOString().split('T')[0],
-    monthYear_error: '',
-
-    grossSalary: contractInfo.value.base_salary,
-    grossSalary_error: '',
-
-    normalHours: 0,
-    normalHours_error: '',
-
-    overtimeHours: 0,
-    overtimeHours_error: '',
-
-    overtimePay: 0,
-    overtimePay_error: '',
-
-    bonuses: 0,
-    bonuses_error: '',
-
-    allowances: 0,
-    allowances_error: '',
-
-    cnpsContributions: 0,
-    cnpsContributions_error: '',
-
-    withheldTaxes: 0,
-    withheldTaxes_error: '',
-
-    netSalary: 0,
-    netSalary_error: '',
-
-    ribEmploye: '',
-    ribEmploye_error: '',
-
-    payslipFilePath: '',
-
-    status: 'Pending',
-    status_error: '',
-})
-
-watch(
-    () => [
-        payrollForm.value.grossSalary,
-        payrollForm.value.overtimePay,
-        payrollForm.value.bonuses,
-        payrollForm.value.allowances,
-        payrollForm.value.cnpsContributions,
-        payrollForm.value.withheldTaxes,
-    ],
-    () => {
-        const parse = (val: string | number) => Number(val) || 0
-
-        const gross = parse(payrollForm.value.grossSalary)
-        const overtime = parse(payrollForm.value.overtimePay)
-        const bonuses = parse(payrollForm.value.bonuses)
-        const allowances = parse(payrollForm.value.allowances)
-        const cnps = parse(payrollForm.value.cnpsContributions)
-        const taxes = parse(payrollForm.value.withheldTaxes)
-
-        const net = gross + overtime + bonuses + allowances - cnps - taxes
-
-        payrollForm.value.netSalary = Number(net.toFixed(2))
-    },
-    { immediate: true }
-)
-
-const payrollsForTable = computed(() => {
-    return payrollsData.value.map((p: IPayroll) => ({
-        ...p,
-        statusColor: getPayrollStatusColor(p.status!)
-    }));
-});
-
-const isCreateContractModalOpen = ref(false);
-const isTerminating = ref(false);
-
+// Tabs
 const { t } = useI18n()
-const user = ref<any>({})
-const contractInfoFormData = ref<IContractFormData>({
-    base_salary: 0,
-    contract_end_date: "",
-    is_cdi: false,
-    contract_file_path: null,
-    contract_start_date: "",
-    probation_end_date: "",
-    probation_start_date: "",
-    special_conditions: "",
-    status: 'Active',
+const tabs = computed(() => [
+  { id: 'details', label: t('tab.details'), icon: InfoIcon },
+  { id: 'history', label: t('auditTrail'), icon: InfoIcon }, // Remplacer par ClockIcon si nécessaire
+])
 
-})
-
-const showTerminationModal = ref(false);
-const editUser = () => {
-    selectedUser.value = user.value
-    modalOpen.value = true
-}
-const toast = useToast()
+const activeTab = ref('details')
 const isLoading = ref(false)
-const closeModal = () => {
-    modalOpen.value = false
+
+// Fonctions placeholder
+const editUser = () => {
+  console.log('Edit user clicked')
 }
-const fullName = computed(() =>
-    `${user.value?.firstName ?? ''} ${user.value?.lastName ?? ''}`.trim()
-)
-const email = computed(() => user.value.email ?? '')
-
-const openAddPayrollModal = () => {
-    payrollForm.value = {
-        payrollId: 0,
-        payrollId_error: '',
-
-        contractId: 0,
-        contractId_error: '',
-
-        monthYear: new Date().toISOString().split('T')[0],
-        monthYear_error: '',
-
-        grossSalary: contractInfo.value.base_salary,
-        grossSalary_error: '',
-
-        normalHours: 0,
-        normalHours_error: '',
-
-        overtimeHours: 0,
-        overtimeHours_error: '',
-
-        overtimePay: 0,
-        overtimePay_error: '',
-
-        bonuses: 0,
-        bonuses_error: '',
-
-        allowances: 0,
-        allowances_error: '',
-
-        cnpsContributions: 0,
-        cnpsContributions_error: '',
-
-        withheldTaxes: 0,
-        withheldTaxes_error: '',
-
-        netSalary: 0,
-        netSalary_error: '',
-
-        ribEmploye: '',
-        ribEmploye_error: '',
-
-        payslipFilePath: '',
-        payslipFilePath_error: '',
-
-        status: 'Pending',
-        status_error: '',
-    };
-    isAddPayrollModalOpen.value = true;
-};
-
-const closeAddPayrollModal = () => {
-    isAddPayrollModalOpen.value = false;
-};
-
-const handleCreatePayroll = async () => {
-    if (!user.value.recentContract?.contractId) {
-        toast.error("No active contract found for this employee.");
-        return;
-    }
-
-    isLoading.value = true;
-
-    try {
-
-        const payload: IPayroll = {
-            contract_id: user.value.recentContract.contractId,
-            month_year: payrollForm.value.monthYear,
-            gross_salary: payrollForm.value.grossSalary,
-            normal_hours: payrollForm.value.normalHours,
-            overtime_hours: payrollForm.value.overtimeHours,
-            overtime_pay: payrollForm.value.overtimePay,
-            bonuses: payrollForm.value.bonuses,
-            allowances: payrollForm.value.allowances,
-            cnps_contributions: payrollForm.value.cnpsContributions,
-            withheld_taxes: payrollForm.value.withheldTaxes,
-            net_salary: payrollForm.value.netSalary,
-            rib_employe: payrollForm.value.ribEmploye,
-            payslip_file_path: payrollForm.value.payslipFilePath,
-        };
-
-        console.log('--> payload', payload);
-        await createPayroll(payload);
-        toast.success(t('payroll.creation_success'));
-        closeAddPayrollModal();
-        await fetchPayrolls(String(user.value.recentContract.contractId));
-    } catch (error) {
-        console.error("Failed to create payroll:", error);
-        toast.error(t('payroll.creation_error'));
-    } finally {
-        isLoading.value = false;
-    }
-};
-
-
-const fetchPayrolls = async (contractId: string) => {
-    payrollLoading.value = true;
-    try {
-        const response = await getPayrollsByContractId(contractId);
-        console.log('-->response.data', response.data);
-        payrollsData.value = response.data;
-    } catch (error) {
-        console.error("Failed to fetch payrolls:", error);
-        toast.error(t('payroll.fetch_error'));
-    } finally {
-        payrollLoading.value = false;
-    }
-}
-
-const downloadPayslip = (payroll: IPayroll) => {
-    if (payroll.payslip_file_path) {
-        window.open(payroll.payslip_file_path, '_blank');
-    } else {
-        toast.error(t('payslip_not_available'));
-    }
-}
-
-const payrollTitles = computed(() => [
-    { name: 'monthYear', label: t('monthYear'), type: 'text', sortable: true },
-    { name: 'grossSalary', label: t('grossSalary'), type: 'currency', sortable: true },
-    { name: 'overtimeHours', label: t('overtimeHours'), type: 'number' },
-    { name: 'bonuses', label: t('bonuses'), type: 'currency' },
-    { name: 'cnpsContributions', label: t('cnpsContributions'), type: 'currency' },
-    { name: 'netSalary', label: t('netSalary'), type: 'currency', sortable: true },
-    {
-        name: 'actions',
-        label: t('actions'),
-        type: 'action',
-        actions: [
-            {
-                name: 'Download Payslip',
-                event: 'downloadPayslip',
-                icone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download-icon lucide-download">
-        <path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <path d="m7 10 5 5 5-5"/></svg>`,
-            },
-        ],
-    },
-]);
-
-
-const getUserLocal = async () => {
-    isLoading.value = true
-    const response = await getEmployeesDetails(parseInt(`${user_id.value}`));
-    console.log('-->response', response);
-    user.value = response.data;
-    if (response.data.recentContract) {
-        console.log('-->response.data.recentContract', response.data.recentContract);
-        payrollForm.value.netSalary = response.data.recentContract.baseSalary;
-        contractInfo.value = {
-            base_salary: response.data.recentContract.baseSalary,
-            contract_end_date: response.data.recentContract.contractEndDate,
-            is_cdi: response.data.recentContract.isCdi,
-            contract_file_path: response.data.recentContract.contractFilePath,
-            employee_id: response.data.recentContract.employeeId,
-            contract_start_date: response.data.recentContract.contractStartDate,
-            probation_end_date: response.data.recentContract.probationEndDate,
-            probation_start_date: response.data.recentContract.probationStartDate,
-            special_conditions: response.data.recentContract.specialConditions,
-            status: response.data.recentContract.status,
-            contract_id: response.data.recentContract.contractId,
-        }
-        await fetchPayrolls(String(response.data.recentContract.contractId));
-    }
-
-    isLoading.value = false;
-}
-
-const handleConfirmTermination = async () => {
-    try {
-        if (contractInfo.value.contract_id) {
-            isLoading.value = true;
-            const result = await terminateContract(contractInfo.value.contract_id)
-            refresh()
-            showTerminationModal.value = false;
-            toast.info(t('contract.terminateSuccessfullyMessage'));
-        }
-
-    } catch (error) {
-        console.log('StaffDetail.handleAssignContract.error', error);
-        toast.error(t('contract.terminateFailedessage'))
-    } finally {
-        isLoading.value = false;
-    }
-}
-
-
-// On mount: fetch and update store + profile
-onMounted(async () => {
-    getUserLocal()
-})
-
-const refresh = () => {
-    modalOpen.value = false;
-    getUserLocal();
-}
-
-const getRoleBadge = (roleName: string) => {
-    const roleMap: Record<string, { bg: string; text: string; label: string }> = {
-        admin: {
-            label: 'Administrator',
-            bg: 'bg-red-100',
-            text: 'text-red-800',
-        },
-        editor: {
-            label: 'Editor',
-            bg: 'bg-blue-100',
-            text: 'text-blue-800',
-        },
-        viewer: {
-            label: 'Viewer',
-            bg: 'bg-green-100',
-            text: 'text-green-800',
-        },
-        unknown: {
-            label: 'Unknown',
-            bg: 'bg-gray-100',
-            text: 'text-gray-800',
-        },
-    }
-
-    return (
-        roleMap[roleName] || {
-            label: roleName,
-            bg: 'bg-purple-100',
-            text: 'text-purple-800',
-        }
-    )
-}
-const getStatusColor = (_status: string) => {
-    const status = _status.toLocaleLowerCase();
-    switch (status) {
-        case 'active':
-            return 'bg-green-100 text-green-700'
-        default:
-            return 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-500'
-    }
-}
-
-const getPayrollStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-        case 'paid':
-            return { label: t('paid'), bg: 'bg-green-100', text: 'text-green-700' };
-        case 'pending':
-            return { label: t('pending'), bg: 'bg-yellow-100', text: 'text-yellow-700' };
-        case 'failed':
-            return { label: t('failed'), bg: 'bg-red-100', text: 'text-red-700' };
-        default:
-            return { label: t(status || 'unknown'), bg: 'bg-gray-100', text: 'text-gray-700' };
-    }
-}
-
 </script>

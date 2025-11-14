@@ -5895,7 +5895,10 @@
       "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce frais supplémentaire ?",
       "delete_confirmation_message": "Êtes-vous sûr de vouloir supprimer ce frais supplémentaire ? Cette action est irréversible.",
       "fetch_error": "Échec du chargement des frais supplémentaires",
-      "confirm_delete_title": "Confirmer la suppression"
+      "confirm_delete_title": "Confirmer la suppression",
+      "delete_success": "Frais supplémentaire supprimé avec succès",
+      "delete_error": "Erreur lors de la suppression du frais supplémentaire"
+
     },
     "identity_type": {
       "title": "Type d'Identité",
@@ -8331,6 +8334,20 @@
   "Voucher": "Bon / Voucher",
   "Booking Time": "Heure de réservation",
   "Commission": "Commission",
-  "Columns": "Colonnes"
+  "Columns": "Colonnes",
+  "Reservation ID is required": "L'identifiant de réservation est requis.",
+  "Reservation rooms are required": "Les chambres de la réservation sont requises.",
+  "Reservation not found": "Réservation introuvable.",
+  "Reservation is already checked out": "La réservation est déjà clôturée.",
+  "Reservation must be checked in before check out": "La réservation doit être check-in avant le check-out.",
+  "Cannot check out with outstanding balance": "Impossible de faire le check-out avec un solde impayé.",
+  "Some rooms cannot be checked out": "Certaines chambres ne peuvent pas être check-out.",
+  "An error occurred during check-out": "Une erreur est survenue pendant le check-out.",
+  "incorrectEmailOrPassword" : "Email ou Mot de passe incorrect",
+  "anErrorOcured" : "Une erreur s'est produite",
+  "connectionError" : "Erreur lors de la connexion",
+  "Create new guest information": "Créer de nouvelles informations sur l’invité",
+  "Guest information and details": "Informations et détails de l’invité"
+
 
 }

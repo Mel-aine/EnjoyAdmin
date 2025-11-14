@@ -127,10 +127,28 @@ export function useReservation() {
       }
 
       return response
-    } catch (error) {
+    } catch (error: any) {
       console.error('Check-out error:', error)
-      // toast.error(t('toast.checkOutError') || 'Failed to complete check-out. Please try again.')
-      throw error
+
+      // Récupérer message backend
+      const backendMessage =
+        error?.message ||
+        error?.errors?.[0] ||
+        'toast.checkOutError'
+
+      // Tentative de traduction
+      const translationKey = `${backendMessage}`
+      const translated = t(translationKey)
+
+      // Si une traduction existe → utiliser la traduction
+      if (translated !== translationKey) {
+        toast.error(translated)
+      } else {
+        // Sinon → message brut ou fallback
+        toast.error(backendMessage)
+      }
+
+    // throw error
     } finally {
       isCheckingOut.value = false
     }
@@ -155,7 +173,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Add payment error:', error)
       toast.error(t('toast.addPaymentError') || t('Failed to add payment. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isAddingPayment.value = false
     }
@@ -180,7 +198,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Amend stay error:', error)
       toast.error(t('toast.amendStayError') || t('Failed to amend stay. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isAmendingStay.value = false
     }
@@ -226,7 +244,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Room move error:', error)
       toast.error(t('toast.roomMoveError') || t('Failed to move room. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isMovingRoom.value = false
     }
@@ -251,7 +269,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Room exchange error:', error)
       toast.error(t('toast.exchangeRoomError') || t('Failed to exchange room. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isExchangingRoom.value = false
     }
@@ -276,7 +294,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Stop room move error:', error)
       toast.error(t('toast.stopRoomMoveError') || t('Failed to stop room move. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isStoppingRoomMove.value = false
     }
@@ -301,7 +319,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Update inclusion list error:', error)
       toast.error(t('toast.inclusionListError') || t('Failed to update inclusion list. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isUpdatingInclusionList.value = false
     }
@@ -326,7 +344,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Cancel reservation error:', error)
       toast.error(t('toast.cancelReservationError') || t('Failed to cancel reservation. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isCancellingReservation.value = false
     }
@@ -351,7 +369,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Mark no show error:', error)
       toast.error(t('toast.noShowError') || t('Failed to mark reservation as no show. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isMarkingNoShow.value = false
     }
@@ -376,7 +394,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Void reservation error:', error)
       toast.error(t('toast.voidReservationError') || t('Failed to void reservation. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isVoidingReservation.value = false
     }
@@ -400,7 +418,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Avhe error:', error)
       toast.error(t('toast.avheError') || t('Failed to unassign room. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isAvhe.value = false
     }
@@ -425,7 +443,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Undo check-in error:', error)
       toast.error(t('toast.undoCheckInError') || t('Failed to undo check-in. Please try again.'))
-      throw error
+      // throw error
     } finally {
       isUndoingCheckIn.value = false
     }
@@ -446,7 +464,7 @@ export function useReservation() {
     } catch (error) {
       console.error('Undo check-out error:', error)
       toast.error(t('toast.undoCheckOutError'))
-      throw error
+      // throw error
     } finally {
       isUndoingCheckOut.value = false
     }

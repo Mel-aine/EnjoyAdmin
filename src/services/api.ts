@@ -161,22 +161,23 @@ axios.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
+    const authStore = useAuthStore()
 
-    // Si erreur 401 et pas déjà tenté de refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    //  Ne tenter le refresh que si l'utilisateur est connecté
+    const isAuthenticated = authStore.token && authStore.token !== 'null'
+
+    if (error.response?.status === 401 && !originalRequest._retry && isAuthenticated) {
       originalRequest._retry = true
 
       try {
         console.log('🔄 Erreur 401 détectée, tentative de refresh')
         await performTokenRefresh()
 
-        // Réessayer la requête originale avec le nouveau token
-        originalRequest.headers.Authorization = `Bearer ${useAuthStore().token}`
+        originalRequest.headers.Authorization = `Bearer ${authStore.token}`
         return axios(originalRequest)
       } catch (refreshError) {
         console.error('❌ Impossible de rafraîchir le token')
-        // Si le refresh échoue, rediriger vers login
-        useAuthStore().setReauthRequired(true)
+        authStore.setReauthRequired(true)
         return Promise.reject(refreshError)
       }
     }
@@ -618,6 +619,8 @@ export function initSpace(credentials: { userId: number }) {
 export function logout() {
   // Stop auto refresh when logging out
   stopAuthAutoRefresh()
+  const authStore = useAuthStore()
+  authStore.logout()
   return axios.post(
     `${API_URL}/authLogout`,
     {},
@@ -626,6 +629,7 @@ export function logout() {
     },
   )
 }
+
 
 export function validateEmail(email: string) {
   return axios.post(`${API_URL}/validateEmail`, { email })
