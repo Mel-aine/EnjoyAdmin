@@ -8381,6 +8381,7 @@
   "clean": "Nettoyer",
   "Unconfirmed Booking Inquiry": "Demande de réservation non confirmée",
   "FailedToLoadAuditTrail": "Échec du chargement de l’audit",
+  "fieldRequired" : "Ce champs est obligatoire",
   "supportTicket": {
     "title": "Signaler un bug",
     "fields": {

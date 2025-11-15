@@ -101,6 +101,12 @@ const emit = defineEmits(['click'])
     border: 1px solid #007bff;
 }
 
+.btn-primary-bouton {
+    background-color: #007bff;
+    color: #ffffff;
+    border: 1px solid #007bff;
+}
+
 .btn-outline-secondary {
     background-color: transparent;
     color: #6c757d;
@@ -174,6 +180,10 @@ const emit = defineEmits(['click'])
     border-color: #4b5563 !important; /* border-gray-600 */
 }
 .dark .btn-outline-primary {
+    color: #93c5fd;
+    border-color: #93c5fd;
+}
+.dark .btn-primary-bouton {
     color: #93c5fd;
     border-color: #93c5fd;
 }
