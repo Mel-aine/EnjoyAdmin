@@ -119,7 +119,7 @@
     <!-- Full Sync -->
     <template v-if="showFullSyncModal">
       <FullSyncModal  :is-open="showFullSyncModal" :roomTypes="roomTypes" :rateTypes="rateTypes"
-        @close="showFullSyncModal = false" @save="handleFullSyncSave"
+        @close="showFullSyncModal = false" @save="handleFullSyncSave"  @refresh="calendarRef?.fetchRestrictions && calendarRef.fetchRestrictions()" 
         :propertyId="currentService.channexPropertyId" />
     </template>
 
@@ -244,7 +244,7 @@ const fetchData = async () => {
         transformedRoomTypes.push({
           id: roomType.id,
           name: roomType.title,
-          occupancy: roomType.default_occupancy || roomType.occ_adults,
+          occupancy: roomType.occupancy,
           count_of_rooms: roomType.count_of_rooms,
           ratePlans: item.ratePlans
         })
