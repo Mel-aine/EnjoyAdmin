@@ -165,6 +165,10 @@
                     <div class="flex items-center space-x-2 relative">
                       <div v-if="row.label === 'RATE'" class="relative group">
                         <UserRound class="w-4 h-4 inline-flex cursor-pointer text-gray-600 dark:text-gray-300" />
+                        <div>
+                          {{ row.occupancy }}
+                        </div>
+
                         <!-- Tooltip Occupancy -->
                         <div
                           class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-max max-w-xs px-2 py-1 text-xs text-white bg-gray-700 dark:bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
@@ -324,7 +328,7 @@ const resetSelection = () => {
 const selectedRestrictions = ref<string[]>(['Rate And Availability'])
 // Props
 interface Props {
-  roomTypes?: Array<{ id: string; name: string; filteredRates?: [] }>;
+  roomTypes?: Array<{ id: string; name: string; filteredRates?: [], occupancy?: number }>;
   rateTypes?: Array<{ id: string; name: string; roomId?: string }>;
 }
 
@@ -389,6 +393,7 @@ const transformApiDataToRoomRows = (apiData: any): RoomRow[] => {
       values: availabilityValues,
       roomTypeId: roomType.id,
       roomTypeName: roomType.name,
+      occupancy: roomType.occupancy,
     })
   })
 
