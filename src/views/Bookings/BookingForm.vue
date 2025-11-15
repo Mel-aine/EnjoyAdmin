@@ -23,7 +23,7 @@
         <div class="p-5">
           <form class="grid grid-cols-1 xl:grid-cols-1 gap-6 p-6">
             <!-- Left Side: Reservation Form -->
-            <div class="space-y-6" :class="{ 'pointer-events-none opacity-60': isCheckedIn }" >
+            <div class="space-y-6" :class="{ 'pointer-events-none opacity-60': confirmReservation }" >
               <div class="flex md:flex-nowrap flex-wrap items-start gap-4">
                 <!-- Check-In + Nights + Check-Out  -->
                 <div class="flex flex-col flex-1">
@@ -607,7 +607,7 @@
             class="flex flex-col sm:flex-row justify-end items-center border-t border-gray-300 px-6 py-4 gap-4"
           >
             <BasicButton
-              v-if="!showCheckinButton && !pendingReservation && !isCheckedIn"
+              v-if="!showCheckinButton && !pendingReservation && !isCheckedIn && !confirmReservation"
               type="button"
               @click="goBack"
               :disabled="isLoading"
@@ -616,17 +616,17 @@
             </BasicButton>
 
              <BasicButton
-                v-if="isCheckedIn"
+                v-if="confirmReservation"
                 type="button"
                 @click="handleNewBooking"
                 :disabled="isLoading"
                 :label="$t('NewBooking')"
-                variant="link"
+                variant="primary-bouton"
               >
               </BasicButton>
 
               <BasicButton
-                v-if="isCheckedIn"
+                v-if="confirmReservation"
                 type="button"
                 @click="handleViewDetails"
                 :disabled="isLoading"
@@ -1313,10 +1313,10 @@ const handleCheckIn = async () => {
         handleCheckInComplete()
         // clearBooking()
 
-        // await router.push({
-        //   name: 'ReservationDetails',
-        //   params: { id: reservationId.value },
-        // })
+        await router.push({
+          name: 'ReservationDetails',
+          params: { id: reservationId.value },
+        })
       }
     }
   } catch (error) {
@@ -1350,10 +1350,10 @@ const handleConfirmReservation = async () => {
 
       toast.success(t('bookings.success.reservationConfirmed'))
 
-      await router.push({
-        name: 'ReservationDetails',
-        params: { id: reservationId.value },
-      })
+      // await router.push({
+      //   name: 'ReservationDetails',
+      //   params: { id: reservationId.value },
+      // })
     }
   } catch (error: any) {
     console.error('Error confirming reservation:', error)

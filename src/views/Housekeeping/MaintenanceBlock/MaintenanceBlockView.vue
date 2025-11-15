@@ -327,16 +327,19 @@ const actions = computed(() => [
     action: 'edit',
     icon: Edit,
     variant: 'primary',
+    condition: (item: any) => item.status !== 'completed',
     handler: (item: MaintenanceBlock) => editBlock(item)
   },
    {
     label: t('Mark as In Progress'),
     icon: Play,
+    condition: (item: any) => item.status !== 'completed',
     handler: (item: any) => handleStatusUpdate(item, 'inProgress')
   },
   {
     label: t('Mark as Completed'),
     icon: CheckCircle,
+   condition: (item: any) => item.status !== 'completed',
     handler: (item: any) => handleStatusUpdate(item, 'completed')
   },
   {
@@ -344,6 +347,7 @@ const actions = computed(() => [
     action: 'delete',
     icon: Trash2,
     variant: 'danger',
+    condition: (item: any) => item.status !== 'completed',
     handler: (item: MaintenanceBlock) => deleteBlockAction(item)
   }
 ])
