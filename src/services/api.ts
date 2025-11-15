@@ -610,6 +610,19 @@ export const createPayment = (paymentData: any): Promise<AxiosResponse<any>> => 
   return axios.post(`${API_URL}/paymentConfirm`, paymentData, getHeaders())
 }
 
+// Support: créer un ticket de bug avec contexte et pièce jointe optionnelle
+export const createSupportTicket = (
+  payload: any,
+  attachment?: File,
+): Promise<AxiosResponse<any>> => {
+  const form = new FormData()
+  form.append('payload', JSON.stringify(payload))
+  if (attachment) {
+    form.append('attachment', attachment)
+  }
+  return axios.post(`${API_URL}/support/tickets`, payload, getHeaders())
+}
+
 // services/authService.ts
 
 export function initSpace(credentials: { userId: number }) {

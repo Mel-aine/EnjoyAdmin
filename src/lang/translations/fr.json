@@ -8380,7 +8380,71 @@
   "Block": "Bloquer",
   "clean": "Nettoyer",
   "Unconfirmed Booking Inquiry": "Demande de réservation non confirmée",
-  "FailedToLoadAuditTrail": "Échec du chargement de l’audit"
+  "FailedToLoadAuditTrail": "Échec du chargement de l’audit",
+  "supportTicket": {
+    "title": "Signaler un bug",
+    "fields": {
+      "title": "Titre",
+      "category": "Catégorie",
+      "module": "Module concerné",
+      "impact": "Impact estimé",
+      "severity": "Gravité du problème",
+      "descriptionFull": "Description complète",
+      "steps": "Étapes de reproduction",
+      "expected": "Résultat attendu",
+      "actual": "Résultat obtenu",
+      "entityId": "ID Réservation / Folio",
+      "callbackPhone": "Numéro de rappel rapide",
+      "attachment": "Pièce jointe (capture d’écran)"
+    },
+    "placeholders": {
+      "title": "Ex: Impossible de faire le Check-in",
+      "descriptionFull": "Décrivez ce que vous faisiez et ce qui s'est passé",
+      "steps": "1. Aller sur le folio 1234\n2. Cliquer sur 'Modifier les charges'\n3. Supprimer la taxe de séjour",
+      "expected": "Ex: La taxe est retirée",
+      "actual": "Ex: Erreur 404, la taxe reste",
+      "entityId": "Ex: R12345",
+      "callbackPhone": "Ex: +33 6 12 34 56 78"
+    },
+    "options": {
+      "category": {
+        "bug": "Bug",
+        "suggestion": "Suggestion",
+        "question": "Question"
+      },
+      "impact": {
+        "tous": "Tous les clients/processus",
+        "plusieurs": "Plusieurs clients/processus",
+        "un": "Un seul client/processus",
+        "rapport": "Un rapport ou tâche spécifique"
+      },
+      "severity": {
+        "blocking": "Bloquant",
+        "major": "Majeur",
+        "minor": "Mineur"
+      },
+      "module": {
+        "reservations": "Réservations",
+        "checkin": "Check-in/out",
+        "billing": "Facturation",
+        "housekeeping": "Housekeeping",
+        "bookingEngine": "Moteur de réservation",
+        "reports": "Rapports",
+        "other": "Autre"
+      }
+    },
+    "buttons": {
+      "submit": "Soumettre",
+      "submitting": "Envoi…",
+      "close": "Fermer"
+    },
+    "errors": {
+      "required": "Requis",
+      "requiredFields": "Veuillez renseigner les champs requis (titre, description, étapes, attendu, obtenu).",
+      "submitSuccess": "Votre ticket a été envoyé avec succès.",
+      "submitFail": "Échec de l’envoi. Réessayez ou contactez le support."
+    }
+  }
 
 
 

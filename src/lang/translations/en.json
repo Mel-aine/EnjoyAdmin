@@ -8208,4 +8208,69 @@
   "clean" :"Clean",
   "Unconfirmed Booking Inquiry" : "Unconfirmed Booking Inquiry",
   "FailedToLoadAuditTrail" : "Failed to load Audit Trail"
+  ,
+  "supportTicket": {
+    "title": "Report a bug",
+    "fields": {
+      "title": "Title",
+      "category": "Category",
+      "module": "Affected module",
+      "impact": "Estimated impact",
+      "severity": "Problem severity",
+      "descriptionFull": "Full description",
+      "steps": "Reproduction steps",
+      "expected": "Expected result",
+      "actual": "Actual result",
+      "entityId": "Reservation / Folio ID",
+      "callbackPhone": "Quick callback number",
+      "attachment": "Attachment (screenshot)"
+    },
+    "placeholders": {
+      "title": "e.g., Unable to check in",
+      "descriptionFull": "Describe what you were doing and what happened",
+      "steps": "1. Go to folio 1234\n2. Click 'Edit charges'\n3. Remove city tax",
+      "expected": "e.g., Tax removed",
+      "actual": "e.g., Error 404, tax remains",
+      "entityId": "e.g., R12345",
+      "callbackPhone": "e.g., +33 6 12 34 56 78"
+    },
+    "options": {
+      "category": {
+        "bug": "Bug",
+        "suggestion": "Suggestion",
+        "question": "Question"
+      },
+      "impact": {
+        "tous": "All customers/processes",
+        "plusieurs": "Multiple customers/processes",
+        "un": "Single customer/process",
+        "rapport": "Specific report or task"
+      },
+      "severity": {
+        "blocking": "Blocking",
+        "major": "Major",
+        "minor": "Minor"
+      },
+      "module": {
+        "reservations": "Reservations",
+        "checkin": "Check-in/out",
+        "billing": "Billing",
+        "housekeeping": "Housekeeping",
+        "bookingEngine": "Booking Engine",
+        "reports": "Reports",
+        "other": "Other"
+      }
+    },
+    "buttons": {
+      "submit": "Submit",
+      "submitting": "Sending…",
+      "close": "Close"
+    },
+    "errors": {
+      "required": "Required",
+      "requiredFields": "Please fill required fields (title, description, steps, expected, actual).",
+      "submitSuccess": "Your ticket was sent successfully.",
+      "submitFail": "Failed to send. Try again or contact support."
+    }
+  }
 }

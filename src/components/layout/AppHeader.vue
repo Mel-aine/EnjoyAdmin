@@ -104,6 +104,16 @@
           </button>
 
           <NotificationMenu />
+          <!-- Bouton Aide / Support -->
+          <button
+            class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
+            @click="openSupportModal">
+            <HelpCircle class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
+            <span
+              class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+              {{ $t('Support') }}
+            </span>
+          </button>
         </div>
         <UserMenu />
       </div>
@@ -128,6 +138,9 @@
       @close="isReservationModalOpen = false"
     />
   </template>
+  <template v-if="showSupportModal">
+    <SupportTicketModal v-if="showSupportModal" @close="showSupportModal = false" />
+  </template>
   
 </template>
 
@@ -138,11 +151,12 @@ import SearchBar from './header/SearchBar.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
 import AppSidebar from './AppSidebar.vue'
-import { Calendar, PlusCircle, List, Sun, Moon } from 'lucide-vue-next'
+import { Calendar, PlusCircle, List, Sun, Moon, HelpCircle } from 'lucide-vue-next'
 import router from '@/router'
 import { useAuthStore } from '../../composables/user'
 import BookingFormQuick from '../reservations/BookingFormQuick.vue'
 import GuestRegistrationModal from '../modal/GuestRegistrationModal.vue'
+import SupportTicketModal from '../modal/SupportTicketModal.vue'
 import AddBookinIcon from '../../icons/AddBookinIcon.vue'
 import { useTheme } from '@/composables/theme'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
@@ -152,6 +166,7 @@ const authStore = useAuthStore();
 
 const showModalAddingModal = ref(false);
 const showGuestRegistration = ref(false);
+const showSupportModal = ref(false);
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
 
 const handleToggle = () => {
@@ -181,6 +196,9 @@ const gotoAddReservation = () => {
 }
 const openGuestRegistration = () => {
   showGuestRegistration.value = true;
+}
+const openSupportModal = () => {
+  showSupportModal.value = true
 }
 // Reservation modal state and handler
 const isReservationModalOpen = ref(false)
