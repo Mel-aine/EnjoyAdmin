@@ -1,6 +1,7 @@
 <template>
   <ChannelManagerLayout>
-    <div class="h-screen">
+    <FullScreenLayout>
+
     <!-- Filters and Column Manager -->
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mb-3 p-3">
       <div class=" gap-4">
@@ -82,7 +83,7 @@
 
     </div>
 
-    <div>
+    <div class="">
       <ReusableTable :showHeader="true" :columns="tableColumns" :data="paginatedReservations" :searchable="false"
         :empty-state-title="$t('No reservations')" :loading="loading"
         :empty-state-message="$t('Get started by creating a new reservation.')" :title="$t('Reservations')">
@@ -140,7 +141,8 @@
 
       </ReusableTable>
     </div>
-    </div>
+
+    </FullScreenLayout>
   </ChannelManagerLayout>
 </template>
 
@@ -164,6 +166,7 @@ import MultipleSelect from '@/components/forms/FormElements/MultipleSelect.vue'
 import { getFrontofficeBookingDataId } from '@/services/configrationApi'
 import getOtaIconSrc from '@/utils/otaIcons'
 import ReservationStatus from '@/components/common/ReservationStatus.vue'
+import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 const allReservation = ref([])
 const paginatedReservations = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
@@ -174,7 +177,7 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 const { t, locale } = useI18n({ useScope: 'global' })
 const loading = ref(false);
- 
+
 const serviceStore = useServiceStore()
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
