@@ -8207,5 +8207,6 @@
   "Block" : "Block",
   "clean" :"Clean",
   "Unconfirmed Booking Inquiry" : "Unconfirmed Booking Inquiry",
-  "FailedToLoadAuditTrail" : "Failed to load Audit Trail"
+  "FailedToLoadAuditTrail" : "Failed to load Audit Trail",
+  "fieldRequired" : "This Field is required"
 }

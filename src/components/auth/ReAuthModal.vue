@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref ,watch} from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import PopupModal from '@/components/modal/PopupModal.vue'
 import Spinner from '@/components/spinner/Spinner.vue'
-import { auth,startAuthAutoRefresh  } from '@/services/api'
+import { auth, startAuthAutoRefresh } from '@/services/api'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 
@@ -20,10 +20,6 @@ const error = ref<string | null>(null)
 
 const authStore = useAuthStore()
 const serviceStore = useServiceStore()
-
-
-
-
 
 // Réinitialiser le formulaire quand la modale s'ouvre
 watch(() => props.isOpen, (isOpen) => {
@@ -59,7 +55,6 @@ const handleReAuth = async () => {
   error.value = null
 
   try {
-    console.log('🔐 Tentative de réauthentification...')
     const res = await auth({
       email: authStore.user.email,
       password: password.value,
@@ -68,7 +63,10 @@ const handleReAuth = async () => {
 
     const data = res?.data?.data ?? res?.data
     const user = data?.user ?? authStore.user
-    const userToken = data?.user_token?.token ?? data?.token
+
+    const userToken = data?.access_token?.token ??
+                      data?.user_token?.token ??
+                      data?.token
 
     if (!userToken) {
       throw new Error(t('reauth.error.generic'))
@@ -87,20 +85,26 @@ const handleReAuth = async () => {
     authStore.setRoleId(user.roleId)
     authStore.setUserId(user.id)
 
-    // IMPORTANT: Réinitialiser le flag reauthRequired
     authStore.setReauthRequired(false)
 
     // Redémarrer le refresh automatique
     startAuthAutoRefresh()
-
-    console.log('✅ Réauthentification réussie')
     toast.success(t('reauth.success'))
+
+    // Fermer la modale
     emits('success')
+
   } catch (e: any) {
     console.error('❌ Erreur réauthentification:', e)
-    const msg = e?.response?.data?.message || e?.message || t('reauth.error.generic')
+    authStore.setReauthRequired(true)
+
+    // Extraire le message d'erreur
+    const msg =  t('reauth.error.generic') || e?.response?.data?.message || e?.message
+
+    // Afficher l'erreur
     error.value = msg
     toast.error(msg)
+
   } finally {
     isLoading.value = false
   }
@@ -116,16 +120,21 @@ const handleReAuth = async () => {
   >
     <template #footer>
       <div class="w-full px-6 pb-4">
+        <!-- ✅ Message d'erreur visible -->
         <div class="mb-3" v-if="error">
-          <p class="text-red-600 text-sm">{{ error }}</p>
+          <p class="text-red-600 text-sm font-medium">{{ error }}</p>
         </div>
+
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('Password') }}</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {{ t('Password') }}
+          </label>
           <div class="relative">
             <input
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
               autocomplete="current-password"
+              @keyup.enter="handleReAuth"
               class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
               :placeholder="t('Enteryourpassword')"
             />
@@ -168,9 +177,20 @@ const handleReAuth = async () => {
             </span>
           </div>
         </div>
+
         <div class="flex justify-end gap-3">
-          <button @click="close" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 dark:text-white dark:hover:text-black ">{{ t('cancel') }}</button>
-          <button @click="handleReAuth" :disabled="!password || isLoading" class="relative flex items-center justify-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50">
+          <button
+            @click="close"
+            :disabled="authStore.reauthRequired"
+            class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 dark:text-white dark:hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ t('cancel') }}
+          </button>
+          <button
+            @click="handleReAuth"
+            :disabled="!password || isLoading"
+            class="relative flex items-center justify-center rounded-lg bg-purple-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <span v-if="!isLoading">{{ t('reauth.reauthenticate') }}</span>
             <span v-else class="flex items-center gap-2">
               <Spinner class="w-4 h-4" />
