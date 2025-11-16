@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
-import axios from 'axios'
+const axios = apiClient
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`
 
@@ -994,33 +994,8 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
           throw new Error('Le serveur a renvoyé une réponse inattendue');
         }
       }
-      console.log('✅ Export Word du rapport d\'état des chambres réussi', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ Erreur lors de l\'export Word du rapport d\'état des chambres:', error);
-      
-      // Gestion des erreurs Axios
-      if (axios.isAxiosError(error)) {
-        // Erreur 404
-        if (error.response?.status === 404) {
-          throw new Error('Le rapport demandé n\'a pas été trouvé');
-        }
-        
-        // Extraction du message d'erreur de la réponse
-        if (error.response?.data) {
-          try {
-            const errorData = typeof error.response.data === 'string' 
-              ? JSON.parse(error.response.data) 
-              : error.response.data;
-            
-            throw new Error(errorData.message || 'Échec de l\'export du rapport');
-          } catch {
-            throw new Error('Échec de l\'export du rapport');
-          }
-        }
-        
-        throw new Error(error.message || 'Échec de l\'export du rapport');
-      }
       
       // Propagation des erreurs existantes
       if (error instanceof Error) {

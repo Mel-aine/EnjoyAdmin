@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from 'axios'
+import apiClient from './apiClient'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
+const axios = apiClient
 
 // Occupancy Reports API interfaces
 export interface MonthlyOccupancyParams {

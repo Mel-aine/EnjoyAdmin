@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from 'axios'
+import apiClient from './apiClient'
+const axios = apiClient
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
 import type {
@@ -29,35 +30,35 @@ const API_URL = () => {
  * @param params Optional query params (e.g., page, limit, search)
  */
 export const getIpConfigurations = (params: any = {}): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/ip_configurations`, { ...getHeaders(), params })
+  return apiClient.get(`${API_URL()}/ip_configurations`, { ...getHeaders(), params })
 }
 
 /**
  * Create a new IP configuration
  */
 export const postIpConfiguration = (data: any): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL()}/ip_configurations`, data, getHeaders())
+  return apiClient.post(`${API_URL()}/ip_configurations`, data, getHeaders())
 }
 
 /**
  * Get IP configuration by ID
  */
 export const getIpConfigurationById = (id: number | string): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/ip_configurations/${id}`, getHeaders())
+  return apiClient.get(`${API_URL()}/ip_configurations/${id}`, getHeaders())
 }
 
 /**
  * Update IP configuration by ID
  */
 export const updateIpConfigurationById = (id: number | string, data: any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL()}/ip_configurations/${id}`, data, getHeaders())
+  return apiClient.put(`${API_URL()}/ip_configurations/${id}`, data, getHeaders())
 }
 
 /**
  * Delete IP configuration by ID
  */
 export const deleteIpConfigurationById = (id: number | string): Promise<AxiosResponse<any>> => {
-  return axios.delete(`${API_URL()}/ip_configurations/${id}`, getHeaders())
+  return apiClient.delete(`${API_URL()}/ip_configurations/${id}`, getHeaders())
 }
 
 ////// this is the Housekeepers sections

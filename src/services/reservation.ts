@@ -1,5 +1,4 @@
 import type { AxiosResponse } from 'axios'
-import axios from 'axios'
 import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
@@ -413,7 +412,7 @@ export const printGuestReservationCard = async (data: {
   try {
     const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
 
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/reservation/print-guest-card`, data, headersWithBlob)
+    const response: AxiosResponse = await apiClient.post(`/reservation/print-guest-card`, data, headersWithBlob)
     return response.data
   } catch (error) {
     console.error('Error printing confirmBooking:', error)

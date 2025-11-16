@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '../composables/serviceStore'
-import axios from 'axios'
+import axios from './apiClient'
 const API_URL = () => {
   const hotelId = useServiceStore().serviceId
   return `${import.meta.env.VITE_API_URL as string}/configuration/hotels/${hotelId}/company_accounts`

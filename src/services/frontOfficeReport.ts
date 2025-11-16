@@ -7,7 +7,7 @@
  * @version 2.0.0
  */
 
-import axios, { AxiosError } from 'axios'
+import apiClient from './apiClient'
 import { useAuthStore } from '@/composables/user'
 
 export interface RoomAvailabilityParams {
@@ -58,16 +58,7 @@ const getHeaders = () => {
 }
 
 class RoomAvailabilityReportsService {
-  private readonly baseUrl = `${import.meta.env.VITE_API_URL}/reports/front-office`
-
-  private get axiosInstance() {
-    return axios.create({
-      baseURL: this.baseUrl,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-  }
+  private readonly basePath = `/reports/front-office`
 
   /**
    * Génère les données du rapport de disponibilité
@@ -76,8 +67,8 @@ class RoomAvailabilityReportsService {
     try {
       this.validateParams(params)
 
-      const { data } = await this.axiosInstance.post<RoomAvailabilityResponse>(
-        '/room-availability',
+      const { data } = await apiClient.post<RoomAvailabilityResponse>(
+        `${this.basePath}/room-availability`,
         this.cleanParams(params),
         getHeaders()
 
@@ -100,8 +91,8 @@ class RoomAvailabilityReportsService {
     try {
       this.validateParams(params)
 
-      const { data } = await this.axiosInstance.post<ArrayBuffer>(
-        '/room-availability-pdf',
+      const { data } = await apiClient.post<ArrayBuffer>(
+        `${this.basePath}/room-availability-pdf`,
         this.cleanParams(params),
         { ...getHeaders(), responseType: 'arraybuffer' }
       )
@@ -140,10 +131,10 @@ class RoomAvailabilityReportsService {
    */
   async export(params: RoomAvailabilityParams, format: 'pdf' | 'excel' | 'csv'): Promise<Blob> {
     try {
-      const { data } = await this.axiosInstance.post<ArrayBuffer>(
-        '/room-availability-export',
+      const { data } = await apiClient.post<ArrayBuffer>(
+        `${this.basePath}/room-availability-export`,
         { ...this.cleanParams(params), format },
-        { responseType: 'arraybuffer' }
+        { ...getHeaders(), responseType: 'arraybuffer' }
       )
 
       return new Blob([data], { type: this.getMimeType(format) })
@@ -157,8 +148,9 @@ class RoomAvailabilityReportsService {
    */
   async getRoomTypes(hotelId: number): Promise<Array<{ value: string; label: string }>> {
     try {
-      const { data } = await this.axiosInstance.get<{ roomTypes: Array<{ value: string; label: string }> }>(
-        `/room-types?hotelId=${hotelId}`
+      const { data } = await apiClient.get<{ roomTypes: Array<{ value: string; label: string }> }>(
+        `${this.basePath}/room-types`,
+        { params: { hotelId }, ...getHeaders() }
       )
       return data.roomTypes || this.getDefaultRoomTypes()
     } catch (error) {
@@ -172,8 +164,9 @@ class RoomAvailabilityReportsService {
    */
   async getFloors(hotelId: number): Promise<Array<{ value: string; label: string }>> {
     try {
-      const { data } = await this.axiosInstance.get<{ floors: Array<{ value: string; label: string }> }>(
-        `/floors?hotelId=${hotelId}`
+      const { data } = await apiClient.get<{ floors: Array<{ value: string; label: string }> }>(
+        `${this.basePath}/floors`,
+        { params: { hotelId }, ...getHeaders() }
       )
       return data.floors || this.getDefaultFloors()
     } catch (error) {
@@ -268,13 +261,10 @@ class RoomAvailabilityReportsService {
   }
 
   private handleAxiosError(error: unknown, defaultMessage: string): never {
-    if (axios.isAxiosError(error)) {
-      const err = error as AxiosError<{ message?: string }>
-      const msg = err.response?.data?.message || err.message || defaultMessage
-      console.error(defaultMessage, err)
-      throw new Error(msg)
-    }
-    throw new Error(defaultMessage)
+    const err = error as any
+    const msg = err?.response?.data?.message || err?.message || defaultMessage
+    console.error(defaultMessage, err)
+    throw new Error(msg)
   }
 }
 
