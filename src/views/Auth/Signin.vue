@@ -16,7 +16,36 @@
               </div>
               <div>
 
-                <form @submit.prevent="handleSubmit">
+                <template v-if="accountPickerMode && !selectedAccount">
+                  <div class="space-y-4">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('selectAccountToContinue') }}</p>
+                    <div class="grid grid-cols-1 gap-3">
+                      <button
+                        v-for="acc in rememberedAccounts"
+                        :key="acc.id ?? acc.email"
+                        type="button"
+                        @click="selectAccount(acc)"
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5"
+                      >
+                        <div class="h-9 w-9 rounded-full bg-purple-500 text-white flex items-center justify-center uppercase">
+                          {{ (acc.name || acc.email).slice(0,1) }}
+                        </div>
+                        <div class="text-left">
+                          <div class="text-sm font-medium text-gray-800 dark:text-white/90">{{ acc.name || acc.email }}</div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400">{{ acc.email }}</div>
+                        </div>
+                      </button>
+                    </div>
+                    <div class="pt-1">
+                      <button type="button" @click="useAnotherAccount"
+                        class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">
+                        {{ $t('useAnotherAccount') }}
+                      </button>
+                    </div>
+                  </div>
+                </template>
+
+                <form v-else @submit.prevent="handleSubmit">
 
                   <div class="space-y-3">
                     <p v-if="error"
@@ -30,7 +59,7 @@
                     </p>
 
                     <!-- Email -->
-                    <div>
+                    <div v-if="!selectedAccount">
                       <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                         {{ $t('Email') }}<span class="text-error-500">*</span>
                       </label>
@@ -38,6 +67,15 @@
                         placeholder="info@gmail.com"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         required />
+                    </div>
+                    <div v-else class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5">
+                      <div class="h-8 w-8 rounded-full bg-purple-500 text-white flex items-center justify-center uppercase">
+                        {{ (selectedAccount.name || selectedAccount.email).slice(0,1) }}
+                      </div>
+                      <div class="text-left">
+                        <div class="text-sm font-medium text-gray-800 dark:text-white/90">{{ selectedAccount.name || selectedAccount.email }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ selectedAccount.email }}</div>
+                      </div>
                     </div>
                     <!-- Password -->
                     <div>
@@ -140,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -162,12 +200,86 @@ const password = ref('')
 const showPassword = ref(false)
 const keepLoggedIn = ref(false)
 const error = ref<string | null>(null);
+type RememberedAccount = { id?: number | string; name?: string; email: string }
+const rememberedAccounts = ref<RememberedAccount[]>([])
+const accountPickerMode = ref(false)
+const selectedAccount = ref<RememberedAccount | null>(null)
+
+// Cookie helpers
+function setCookie(
+  name: string,
+  value: string,
+  options?: { days?: number; secure?: boolean; sameSite?: 'Lax' | 'Strict' | 'None'; path?: string }
+) {
+  let expires = ''
+  if (options?.days) {
+    const d = new Date()
+    d.setTime(d.getTime() + options.days * 24 * 60 * 60 * 1000)
+    expires = '; expires=' + d.toUTCString()
+  }
+  const path = '; path=' + (options?.path ?? '/')
+  const sameSite = options?.sameSite ? '; samesite=' + options.sameSite : ''
+  const secure = options?.secure ? '; secure' : ''
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}${expires}${path}${sameSite}${secure}`
+}
+
+function getCookie(name: string): string | null {
+  const nameEQ = encodeURIComponent(name) + '='
+  const parts = document.cookie.split(';')
+  for (let c of parts) {
+    c = c.trim()
+    if (c.startsWith(nameEQ)) {
+      return decodeURIComponent(c.substring(nameEQ.length))
+    }
+  }
+  return null
+}
+
+function deleteCookie(name: string, path: string = '/') {
+  document.cookie = `${encodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}`
+}
 
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 
+onMounted(() => {
+  try {
+    // Prefer cookie; migrate from localStorage if present
+    let raw = getCookie('rememberedAccounts')
+    const ls = localStorage.getItem('rememberedAccounts')
+    if (!raw && ls) {
+      setCookie('rememberedAccounts', ls, {
+        days: 30,
+        secure: location.protocol === 'https:',
+        sameSite: 'Lax',
+        path: '/',
+      })
+      // Cleanup localStorage after migration
+      localStorage.removeItem('rememberedAccounts')
+      raw = ls
+    }
+    const list = raw ? (JSON.parse(raw) as RememberedAccount[]) : []
+    rememberedAccounts.value = Array.isArray(list) ? list : []
+    if (rememberedAccounts.value.length > 0 && !authStore.isAuthenticated) {
+      accountPickerMode.value = true
+    }
+  } catch (e) {
+    rememberedAccounts.value = []
+  }
+})
+
+const selectAccount = (acc: RememberedAccount) => {
+  selectedAccount.value = acc
+  email.value = acc.email
+}
+
+const useAnotherAccount = () => {
+  selectedAccount.value = null
+  accountPickerMode.value = false
+  email.value = ''
+}
 
 
 const handleSubmit = async () => {
@@ -192,6 +304,21 @@ const handleSubmit = async () => {
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
+    if (keepLoggedIn.value) {
+      const entry: RememberedAccount = {
+        id: user.id,
+        name: user.name || user.fullName || user.username || user.email,
+        email: user.email || email.value,
+      }
+      const existing = rememberedAccounts.value.filter(a => a.email !== entry.email)
+      rememberedAccounts.value = [entry, ...existing].slice(0, 5)
+      setCookie('rememberedAccounts', JSON.stringify(rememberedAccounts.value), {
+        days: 30,
+        secure: location.protocol === 'https:',
+        sameSite: 'Lax',
+        path: '/',
+      })
+    }
     router.push({ path: '/setup'});
   } catch (err: any) {
     if (err.response?.status === 401) {

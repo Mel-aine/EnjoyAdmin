@@ -160,6 +160,8 @@
     }
   },
   "Keepmeloggedin": "Keep me logged in",
+  "selectAccountToContinue": "Select an account to continue",
+  "useAnotherAccount": "Use another account",
   "Forgotpassword": "Forgot password",
   "Donthaveanaccount": "Don't have an account",
   "SignUp": "Sign Up",

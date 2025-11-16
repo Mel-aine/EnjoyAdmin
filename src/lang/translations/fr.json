@@ -148,6 +148,8 @@
   "Password": "Mot de passe",
   "Enteryourpassword": "Entrez votre mot de passe",
   "Keepmeloggedin": "Rester connecté",
+  "selectAccountToContinue": "Sélectionnez un compte pour continuer",
+  "useAnotherAccount": "Utiliser un autre compte",
   "Forgotpassword": "Mot de passe oublié",
   "Donthaveanaccount": "Vous n'avez pas de compte",
   "SignUp": "S'inscrire",
