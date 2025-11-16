@@ -11,6 +11,15 @@ const router = createRouter({
   },
   routes: [
     {
+      path: '/configuration/security/ip-configuration',
+      name: 'IpConfiguration',
+      component: () => import('../views/Configuration/security/IpConfiguration.vue'),
+      meta: {
+        title: 'IP Configuration',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/setup',
       name: 'SetupSpace',
       component: () => import('../views/Pages/SetupSpace.vue'),

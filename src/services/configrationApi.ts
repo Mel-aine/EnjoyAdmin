@@ -23,6 +23,43 @@ const API_URL = () => {
   return `${URL}/configuration/hotels/${hotelId}`
 }
 
+////// Security - IP Configurations
+/**
+ * Get all IP configurations
+ * @param params Optional query params (e.g., page, limit, search)
+ */
+export const getIpConfigurations = (params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/ip_configurations`, { ...getHeaders(), params })
+}
+
+/**
+ * Create a new IP configuration
+ */
+export const postIpConfiguration = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL()}/ip_configurations`, data, getHeaders())
+}
+
+/**
+ * Get IP configuration by ID
+ */
+export const getIpConfigurationById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/ip_configurations/${id}`, getHeaders())
+}
+
+/**
+ * Update IP configuration by ID
+ */
+export const updateIpConfigurationById = (id: number | string, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL()}/ip_configurations/${id}`, data, getHeaders())
+}
+
+/**
+ * Delete IP configuration by ID
+ */
+export const deleteIpConfigurationById = (id: number | string): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL()}/ip_configurations/${id}`, getHeaders())
+}
+
 ////// this is the Housekeepers sections
 /**
  * Get all housekeepers (supports query params like hotel_id, search)
