@@ -4,7 +4,7 @@
     <div class="flex flex-col items-center justify-between grow lg:flex-row dark:bg-gray-800 lg:px-8">
       <div
         class="flex items-center  justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
-        <button @click="handleToggle"
+        <button v-if="showButton" @click="handleToggle"
           class="flex items-center justify-center w-10 h-10 text-gray-600 border-gray-200 rounded-xl z-99999 dark:border-gray-700 dark:text-gray-300 lg:h-9 lg:w-9 lg:border transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:border-blue-200 dark:hover:from-gray-700 dark:hover:to-gray-600 hover:shadow-md hover:scale-105"
           :class="[
             isMobileOpen
@@ -141,7 +141,7 @@
   <template v-if="showSupportModal">
     <SupportTicketModal v-if="showSupportModal" @close="showSupportModal = false" />
   </template>
-  
+
 </template>
 
 <script setup lang="ts">
@@ -222,9 +222,11 @@ const canviewStayView = computed(() => {
 const { isDarkMode, toggleTheme } = useTheme()
 interface HeaderProps {
   showSidebar?: boolean
+  showButton?:boolean
 }
 
 const props = withDefaults(defineProps<HeaderProps>(), {
   showSidebar: true,
+  showButton:true
 })
 </script>

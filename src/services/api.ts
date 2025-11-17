@@ -42,7 +42,7 @@ const getRefreshHeaders = () => {
 }
 const getRefreshRequestOptions = () => {
   return {
-    withCredentials: true, // important: envoie le cookie httpOnly refresh_token défini par le backend
+    withCredentials: true,
   }
 }
 // --- Types ---

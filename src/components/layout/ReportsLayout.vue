@@ -2,10 +2,10 @@
   <div class="min-h-full bg-gray-50 dark:bg-gray-900 xl:flex">
     <!-- Reports Sidebar -->
     <ReportsSidebar />
-    
+
     <!-- Backdrop for mobile -->
     <Backdrop />
-    
+
     <!-- Main content area -->
     <div :class="[
       ' flex-1 transition-all duration-300 ease-in-out flex flex-col min-h-full',
@@ -15,13 +15,13 @@
       },
     ]">
       <!-- Header -->
-      <AppHeader :show-sidebar="false" />
-      
+      <AppHeader :show-sidebar="false" :show-button="false" />
+
       <!-- Page content -->
         <div class="p-6 h-full">
           <slot />
         </div>
-      
+
       <!-- Footer -->
       <AppFooter class="mt-auto" />
     </div>
