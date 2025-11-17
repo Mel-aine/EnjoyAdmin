@@ -281,7 +281,7 @@ const saveBedType = async () => {
           loadData(1);
 
         } else {
-          toast.error(t('somethingWentWrong'))
+          toast.error(t('toast.Error'))
           console.error('Error updating bed type:', resp);
           return;
         }
@@ -301,7 +301,7 @@ const saveBedType = async () => {
         loadData(1);
 
       } else {
-        toast.error(t('somethingWentWrong'))
+        toast.error(t('toast.error'))
         console.error('Error adding bed type:', resp);
         return;
       }

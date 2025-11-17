@@ -675,122 +675,8 @@
       </div>
     </div>
 
-    <!-- Status Change Modal -->
-    <StatusChangeModal
-      v-if="showStatusModal"
-      :room="selectedRoom"
-      :currentStatus="selectedRoom?.status"
-      @updateStatus="confirmStatusChange"
-      @close="showStatusModal = false"
-    />
-    <!-- Modal de maintenance -->
-    <div
-      v-if="showMaintenanceModal"
-      class="fixed inset-0 bg-opacity-50 overflow-y-auto h-full w-full bg-black/25 bg-opacity-50 flex items-center justify-center modal z-99999"
-    >
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-semibold mb-4 dark:text-gray-100">{{ $t('maintenanceSetup') }}</h3>
-        <div class="space-y-4">
-          <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              {{ $t('reason') }} <span class="text-red-500">*</span>
-            </label>
-            <select
-              v-model="maintenanceForm.reason"
-              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-              required
-            >
-              <option value="">{{ $t('selectReason') }}</option>
-              <option value="plumbing">{{ $t('reasons.plumbing') }}</option>
-              <option value="electrical">{{ $t('reasons.electrical') }}</option>
-              <option value="deepCleaning">{{ $t('reasons.deepCleaning') }}</option>
-              <option value="renovation">{{ $t('reasons.renovation') }}</option>
-              <option value="other">{{ $t('reasons.other') }}</option>
-            </select>
-          </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                {{ $t('startDate') }}
-              </label>
-              <input
-                v-model="maintenanceForm.startDate"
-                type="date"
-                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-              />
-            </div>
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                {{ $t('endDate') }}
-              </label>
-              <input
-                v-model="maintenanceForm.endDate"
-                type="date"
-                :min="maintenanceForm.startDate"
-                class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-              />
-            </div>
-            <p class="text-red-500 text-sm font-normal whitespace-nowrap">{{ error }}</p>
-          </div>
 
-          <div>
-            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              {{ $t('notes') }}
-            </label>
-            <textarea
-              v-model="maintenanceForm.notes"
-              class="p-2 dark:bg-dark-900 min-h-[88px] w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-              rows="3"
-              :placeholder="$t('additionalNotes')"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="flex gap-2 mt-6">
-          <button
-            @click="showMaintenanceModal = false"
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            {{ $t('Cancel') }}
-          </button>
-          <button
-            @click="confirmMaintenance"
-            class="flex-1 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="!maintenanceForm.reason.trim()"
-          >
-            <span v-if="!isLoading">{{ $t('confirm') }}</span>
-            <span v-else class="flex items-center gap-2">
-              <Spinner class="w-4 h-4" />
-              {{ $t('Processing') }}...
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <PopupModal
-      v-if="showMessage"
-      :title="$t('warning')"
-      :message="popupMessage"
-      :isOpen="showMessage"
-      @close="closeModal"
-    >
-      <template #footer>
-        <button
-          class="text-sm bg-gray-300 px-3 py-2 rounded-md font-normal mr-2"
-          @click="closeModal"
-        >
-          {{ $t('no') }}
-        </button>
-        <button
-          class="text-sm bg-brand-300 px-3 py-2 rounded-md font-normal"
-          @click="confirmForceChange"
-        >
-          {{ $t('yes') }}
-        </button>
-      </template>
-    </PopupModal>
   </AdminLayout>
 </template>
 
@@ -798,14 +684,12 @@
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import RoomCard from './RoomCard.vue'
-import StatusChangeModal from './StatusChangeModal.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getRoomsWithDetails,updateRoomStatus } from '@/services/configrationApi'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { useI18n } from 'vue-i18n'
 import Spinner from '@/components/spinner/Spinner.vue'
-import PopupModal from '@/components/modal/PopupModal.vue'
 import { useToast } from 'vue-toastification'
 import router from '@/router'
 

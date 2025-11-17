@@ -211,7 +211,7 @@
   <!-- Modals -->
   <ModalDelete v-if="modalShow" @close="modalShow = false" @delete="confirmDelete" :isLoading="loadingDelete" />
 
-  <AddBookingModal v-if="showBookingModal" @close="showBookingModal = false" @refresh="refresh" />
+  <!-- <AddBookingModal v-if="showBookingModal" @close="showBookingModal = false" @refresh="refresh" /> -->
 
   <!-- Cancel Reservation Modal -->
   <template v-if="showCancelModal && selectedReservation">
@@ -296,7 +296,7 @@ import BookingFilter from '@/views/Bookings/BookingFilter.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import type { FitlterItem } from '@/utils/models'
 import BasicButton from '../buttons/BasicButton.vue'
-import AddBookingModal from '../modal/AddBookingModal.vue'
+// import AddBookingModal from '../modal/AddBookingModal.vue'
 import { filterReservation } from '../../services/hotelApi'
 import { getReservationById } from '@/services/reservation';
 import ReservationCardItem from '../reservations/ReservationCardItem.vue'

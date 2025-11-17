@@ -343,7 +343,7 @@ const saveAmenity = async () => {
         toast.success(t('amenityAddedSuccess'))
         loadData(1)
       } else {
-        toast.error(t('somethingWentWrong'))
+        toast.error(t('toast.error'))
       }
       amenities.value.push(newAmenity)
     } else {
@@ -361,7 +361,7 @@ const saveAmenity = async () => {
           loadData(1)
           toast.success(t('amenityUpdatedSuccess'))
         } else {
-          toast.error(t('somethingWentWrong'))
+          toast.error(t('toast.Error'))
         }
       }
 

@@ -347,7 +347,6 @@
     </div>
     <!--tooltip-->
 
-    <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" @refresh="refresh" />
     <template v-if="modalReservation && showDetail">
       <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
         :reservation-data="modalReservation" @close="closeReservationModal" @save="handleReservationSave" />
@@ -372,7 +371,6 @@ import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, Cigaret
 
 import { watch, onUnmounted } from 'vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
-import AddBookingModal from '../modal/AddBookingModal.vue';
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'

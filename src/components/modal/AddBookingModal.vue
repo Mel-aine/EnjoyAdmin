@@ -184,7 +184,7 @@ import DefaultCard from '@/components/common/DefaultCard.vue'
 import { formatCurrency } from '@/components/utilities/UtilitiesFunction'
 import CalendarIcon from '@/icons/CalendarIcon.vue'
 import OutputFieldCurrency from '@/components/forms/FormElements/outputFieldCurrency.vue'
-import { useBooking } from '@/composables/useBooking'
+import { useBooking } from '@/composables/useBooking2'
 import PaymentModal from '@/views/Bookings/PaymentModal.vue'
 
 const emit = defineEmits(['refresh','close'])
