@@ -208,6 +208,13 @@ const getTokenExpiryTime = (tokenData: any): number | null => {
     if (!expiresAt) return null
 
     const expiryDate = new Date(expiresAt)
+
+    // ✅ AJOUTEZ CES LOGS
+    console.log('🕐 Heure actuelle (locale):', new Date().toLocaleString('fr-FR'))
+    console.log('🕐 Token expire à (UTC):', expiresAt)
+    console.log('🕐 Token expire à (locale):', expiryDate.toLocaleString('fr-FR'))
+    console.log('⏱️ Temps restant:', Math.floor((expiryDate.getTime() - Date.now()) / 60000), 'minutes')
+
     return expiryDate.getTime()
   } catch {
     return null
@@ -309,6 +316,7 @@ export function auth(credentials: { email: string; password: string; keepLoggedI
     if (token && tokenData) {
       authStore.updateToken(token, tokenData)
       console.log('✅ Token stocké (expire dans 15 minutes)')
+      console.log('📅 Token expire à:', tokenData.expiresAt)
     }
 
     // Stocker le refresh token avec ses métadonnées

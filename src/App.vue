@@ -9,7 +9,7 @@
         @success="handleSuccess"
       />
     </SidebarProvider>
-    <OverLoading v-if="isLoading" /> 
+    <OverLoading v-if="isLoading" />
   </ThemeProvider>
 </template>
 <script setup lang="ts">
@@ -35,7 +35,7 @@ if (useLanguage.language) {
 
 
 const TOKEN_DURATION_MS = 15 * 60 * 1000  // 15 minutes (doit correspondre au backend)
-const IDLE_TIMEOUT_MS = TOKEN_DURATION_MS - (2 * 60 * 1000)  // 13 minutes (15min - 2min de marge)
+const IDLE_TIMEOUT_MS = 20 * 60 * 1000
 
 console.log(`⚙️ Configuration : Token 15min, Inactivité max ${IDLE_TIMEOUT_MS / 60000}min`)
 
