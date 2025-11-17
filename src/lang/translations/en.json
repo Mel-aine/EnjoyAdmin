@@ -8306,5 +8306,6 @@
       "submitSuccess": "Your ticket was sent successfully.",
       "submitFail": "Failed to send. Try again or contact support."
     }
-  }
+  },
+  "viewDetails": "View Details"
 }

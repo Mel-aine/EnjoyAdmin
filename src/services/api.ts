@@ -608,3 +608,7 @@ export const getReservationInvoice = (
 export const createPayment = (paymentData: any): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/paymentConfirm`, paymentData, getHeaders())
 }
+//confirm Payment
+export const confirmPayment = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/payment/${id}/confirm`, Payload, getHeaders())
+}

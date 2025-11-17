@@ -8478,7 +8478,8 @@
       "submitSuccess": "Votre ticket a été envoyé avec succès.",
       "submitFail": "Échec de l’envoi. Réessayez ou contactez le support."
     }
-  }
+  },
+  "viewDetails": "Voir les détails"
 
 
 
