@@ -32,6 +32,16 @@
               <InputDoubleDatePicker class="flex-1" :modelValue="dateRanges"
                 @update:modelValue="updateDateRange" :allowPastDates="false" :is-required="true" />
             </div>
+            <div class="grid grid-cols-[180px_1fr] items-center gap-3">
+              <label class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $t('SyncDays') }}:</label>
+              <div class="flex items-center gap-3">
+                <input type="number" v-model.number="daysCount" min="1" max="500" @input="onDaysInput"
+                  class="w-32 h-10 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 pl-3 focus:border-purple-300 dark:focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/10" />
+                <span class="text-xs" :class="isDaysValid ? 'text-gray-500 dark:text-gray-400' : 'text-red-600 dark:text-red-400'">
+                  {{ isDaysValid ? $t('MaxDaysHelper') : $t('MaxDaysExceeded') }}
+                </span>
+              </div>
+            </div>
         </div>
 
 
@@ -77,7 +87,7 @@
 
       <!-- Footer -->
       <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-        <button @click="handleSave" :disabled="isSaving"
+        <button @click="handleSave" :disabled="isSaving || !isDaysValid"
           class="w-full h-12 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
           <span v-if="!isSaving">{{ $t('sync') }}</span>
           <span v-else class="flex items-center gap-2">
@@ -147,13 +157,61 @@ const dateRanges = ref<DateRange>({
   start: getTodayDate(),
   end: getTodayDate(),
 })
+const daysCount = ref<number>(1)
+const isDaysValid = computed(() => Number.isFinite(daysCount.value) && daysCount.value >= 1 && daysCount.value <= 500)
+const updatingVia = ref<'dates' | 'days' | null>(null)
 
+const parseDate = (str: string) => {
+  if (!str) return null
+  const [y, m, d] = str.split('-').map(Number)
+  return new Date(y, (m || 1) - 1, d || 1)
+}
+
+const formatDate = (date: Date) => {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+const diffDaysInclusive = (startStr: string, endStr: string) => {
+  const s = parseDate(startStr)
+  const e = parseDate(endStr)
+  if (!s || !e) return 0
+  const msPerDay = 24 * 60 * 60 * 1000
+  const startMid = new Date(s.getFullYear(), s.getMonth(), s.getDate()).getTime()
+  const endMid = new Date(e.getFullYear(), e.getMonth(), e.getDate()).getTime()
+  const diff = Math.floor((endMid - startMid) / msPerDay) + 1
+  return Math.max(diff, 1)
+}
+
+const addDays = (startStr: string, days: number) => {
+  const s = parseDate(startStr)
+  if (!s) return startStr
+  const d = new Date(s)
+  d.setDate(d.getDate() + Math.max(days - 1, 0))
+  return formatDate(d)
+}
 
 const updateDateRange = ( newRange: { start: string | null; end: string | null }) => {
-    dateRanges.value.start = newRange.start || '';
-    dateRanges.value.end = newRange.end || '';
-  
+    updatingVia.value = 'dates'
+    dateRanges.value.start = newRange.start || ''
+    dateRanges.value.end = newRange.end || ''
+    const computedDays = diffDaysInclusive(dateRanges.value.start, dateRanges.value.end)
+    daysCount.value = computedDays
+    updatingVia.value = null
 };
+
+const onDaysInput = () => {
+  if (updatingVia.value === 'dates') return
+  updatingVia.value = 'days'
+  if (!Number.isFinite(daysCount.value) || daysCount.value < 1) daysCount.value = 1
+  if (daysCount.value > 500) daysCount.value = 500
+  if (dateRanges.value.start) {
+    dateRanges.value.end = addDays(dateRanges.value.start, daysCount.value)
+  }
+  updatingVia.value = null
+}
 const searchQuery = ref('');
 const selectAll = ref(false);
 const selectedRooms = ref<Record<string, boolean>>({});
@@ -238,6 +296,10 @@ const handleRateChange = (roomId: string) => {
 
 
 const handleSave = async () => {
+  if (!isDaysValid.value) {
+    toast.error(t('MaxDaysExceeded'))
+    return
+  }
 
   const data = {
     dateRanges: {

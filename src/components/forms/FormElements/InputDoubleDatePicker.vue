@@ -168,17 +168,20 @@ const formatDateToString = (date: Date): string => {
 }
 
 watch(
-  () => props.modelValue,
-  async (newVal, oldVal) => {
-    if (newVal?.start === oldVal?.start && newVal?.end === oldVal?.end) {
+  () => [props.modelValue?.start ?? null, props.modelValue?.end ?? null] as [string | null, string | null],
+  async (newVals, oldVals) => {
+    const [startStr, endStr] = Array.isArray(newVals) ? newVals : [null, null]
+    const [prevStartStr, prevEndStr] = Array.isArray(oldVals) ? oldVals : [null, null]
+
+    if (startStr === prevStartStr && endStr === prevEndStr) {
       return
     }
 
     isUpdatingFromParent.value = true
 
     try {
-      const startDate = parseDateFromString(newVal?.start || null)
-      const endDate = parseDateFromString(newVal?.end || null)
+      const startDate = parseDateFromString(startStr)
+      const endDate = parseDateFromString(endStr)
 
       const newDates: Date[] = []
       if (startDate) newDates.push(startDate)
@@ -194,7 +197,7 @@ watch(
     await nextTick()
     isUpdatingFromParent.value = false
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 )
 
 watch(
