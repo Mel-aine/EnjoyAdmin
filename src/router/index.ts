@@ -156,17 +156,6 @@ const router = createRouter({
         requiresAuth: false,
       },
     },
-
-    {
-      path: '/booking_detail/:id',
-      name: 'BookingDetails',
-      component: () => import('../views/Bookings/BookingDetails.vue'),
-      props: true,
-      meta: {
-        title: 'Booking Details',
-        requiresAuth: true,
-      },
-    },
     {
       path: '/customer_detail/:id',
       name: 'CustomerDetails',

@@ -24,6 +24,12 @@ import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import { useAuthStore } from '@/composables/user'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import { isLoading } from '@/composables/spinner'
+import {
+  startAuthAutoRefresh,
+  stopAuthAutoRefresh,
+  performTokenRefresh,
+  getTokenExpiryTime
+} from '@/services/api'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
 if (useLanguage.language) {
@@ -98,27 +104,70 @@ const resetOnActivity = () => {
 
 const addActivityListeners = () => {
   activityEvents.forEach((evt) => window.addEventListener(evt, resetOnActivity, { passive: true }))
-  console.log('👂 Écouteurs d\'activité ajoutés')
+  console.log(' Écouteurs d\'activité ajoutés')
 }
 
 const removeActivityListeners = () => {
   activityEvents.forEach((evt) => window.removeEventListener(evt, resetOnActivity))
-  console.log('🔇 Écouteurs d\'activité retirés')
+  console.log(' Écouteurs d\'activité retirés')
 }
 
+const refreshOnPageLoad = async () => {
+  console.log(' Vérification du token au chargement de la page...')
 
-onMounted(() => {
-  // console.log('🚀 App monté, état auth:', {
-  //   isAuth: authStore.isFullyAuthenticated,
-  //   reauthRequired: authStore.reauthRequired,
-  //   isLoginRoute: isLoginRoute.value
-  // })
+  const tokenExpiry = getTokenExpiryTime(authStore.tokenData)
 
-  if (authStore.isFullyAuthenticated) {
+  if (!tokenExpiry) {
+    console.warn('⚠️ Impossible de déterminer l\'expiration du token')
+    return
+  }
+
+  const now = Date.now()
+  const timeUntilExpiry = tokenExpiry - now
+  const minutesLeft = Math.floor(timeUntilExpiry / 60000)
+
+  console.log(`Token expire dans ${minutesLeft} minutes`)
+
+  // Si le token expire dans moins de 5 minutes OU est déjà expiré
+  if (timeUntilExpiry < 5 * 60 * 1000) {
+    console.log('Token proche de l\'expiration, refresh automatique...')
+
+    try {
+      await performTokenRefresh()
+      console.log(' Token rafraîchi avec succès au chargement')
+
+      // Démarrer le refresh automatique après succès
+      startAuthAutoRefresh()
+    } catch (error: any) {
+      console.error('❌ Échec du refresh au chargement:', error?.message)
+
+      // Si le refresh échoue, ouvrir la modale sauf si on est sur la page de login
+      if (!isLoginRoute.value) {
+        console.warn(' Ouverture de la modale de réauth')
+        authStore.setReauthRequired(true)
+        isReAuthOpen.value = true
+      }
+      return
+    }
+  } else {
+    console.log('Token encore valide, pas de refresh nécessaire')
+    // Démarrer le refresh automatique normalement
+    startAuthAutoRefresh()
+  }
+}
+
+// onMounted avec le nouveau système
+onMounted(async () => {
+
+  if (authStore.isFullyAuthenticated && !isLoginRoute.value) {
+    // Tenter le refresh au chargement
+    await refreshOnPageLoad()
+
+    // Ajouter les écouteurs d'activité
     addActivityListeners()
 
     // Si réauth était requis avant le refresh de la page
-    if (authStore.reauthRequired && !isLoginRoute.value) {
+    if (authStore.reauthRequired) {
       console.log('🔐 Réauth requis au montage, ouverture de la modale')
       isReAuthOpen.value = true
     } else {
@@ -127,10 +176,12 @@ onMounted(() => {
   }
 })
 
+
 onBeforeUnmount(() => {
   console.log('👋 App unmounting, nettoyage')
   removeActivityListeners()
   clearIdleTimer()
+  stopAuthAutoRefresh()
 })
 // Surveiller les changements de route
 watch(() => [route.name, route.path], () => {
@@ -148,7 +199,7 @@ watch(() => authStore.reauthRequired, (required) => {
   if (required && authStore.isFullyAuthenticated && !isLoginRoute.value) {
     console.log('🔐 Ouverture de la modale de réauthentification')
     isReAuthOpen.value = true
-    clearIdleTimer() // Arrêter le timer pendant la modale
+    clearIdleTimer()
   } else if (!required) {
     isReAuthOpen.value = false
   }
@@ -166,10 +217,12 @@ watch(
         isReAuthOpen.value = true
       } else {
         startIdleTimer()
+        startAuthAutoRefresh()
       }
     } else {
       removeActivityListeners()
       clearIdleTimer()
+      stopAuthAutoRefresh()
       isReAuthOpen.value = false
       authStore.setReauthRequired(false)
     }
@@ -193,6 +246,7 @@ const handleSuccess = () => {
   authStore.setReauthRequired(false)
   isReAuthOpen.value = false
   startIdleTimer()
+  startAuthAutoRefresh()
 }
 
 
