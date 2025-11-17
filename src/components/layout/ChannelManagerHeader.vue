@@ -132,7 +132,7 @@ const handleToggle = () => {
 const menuItems = ref([
   {
     path: '/configuration/channel-manager',
-    title: 'configuration.channelManager.overview',
+    title: 'configuration.channelManager.booking',
     icon: markRaw(DashboardIcon)
   },
   {
@@ -140,11 +140,11 @@ const menuItems = ref([
     title: 'configuration.channelManager.inventory',
     icon: markRaw(BoxCubeIcon)
   },
-  {
+ /* {
     path: '/configuration/channel-manager/channels-booking',
     title: 'configuration.channelManager.booking',
     icon: markRaw(CalenderIcon)
-  },
+  },*/
   {
     path: '/configuration/channel-manager/rooms-rates',
     title: 'configuration.channelManager.roomsRates',

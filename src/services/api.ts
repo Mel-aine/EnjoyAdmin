@@ -438,6 +438,11 @@ export function validatePassword(email: string, password: string) {
   return axios.post(`${API_URL}/validatePassword`, { email, password })
 }
 
+// Request a password reset link via email
+export function requestPasswordReset(payload: { email: string; hotelId: number | string }) {
+  return axios.post(`${API_URL}/auth/forgot-password`, payload)
+}
+
 
 // --- Services API put --- //
 
