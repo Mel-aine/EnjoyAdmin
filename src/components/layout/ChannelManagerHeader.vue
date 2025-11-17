@@ -71,11 +71,25 @@
             {{ isDarkMode ? $t('clearTheme') : $t('darkMode') }}
           </span>
         </button>
+        <!-- Support button -->
+        <button
+          class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
+          @click="openSupportModal"
+          aria-label="Open support modal">
+          <HelpCircle class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
+          <span
+            class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+            {{ $t('Support') }}
+          </span>
+        </button>
         <NotificationMenu />
         <ChannelManagerUserMenu />
       </div>
     </div>
   </header>
+  <template v-if="showSupportModal">
+    <SupportTicketModal v-if="showSupportModal" @close="showSupportModal = false" />
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -97,6 +111,8 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { migrateCompleteHotel } from '@/services/channelManagerApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import SupportTicketModal from '../modal/SupportTicketModal.vue'
+import { HelpCircle } from 'lucide-vue-next'
 
 const route = useRoute()
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
@@ -167,6 +183,11 @@ const isActive = (path: string): boolean => {
 }
 
 const { isDarkMode, toggleTheme } = useTheme()
+
+const showSupportModal = ref(false)
+const openSupportModal = () => {
+  showSupportModal.value = true
+}
 </script>
 
 <style scoped>
