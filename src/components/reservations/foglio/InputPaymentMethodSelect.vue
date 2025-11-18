@@ -27,10 +27,9 @@
         role="listbox" :aria-expanded="showDropdown" aria-hidden="false">
         <li v-if="isLoading" class="px-5 py-2 text-sm text-gray-500 dark:text-gray-400">
           {{ $t('Loading payment methods...') }}
-          {{ $t('Loading payment methods...') }}
         </li>
         <li v-else v-for="(paymentMethod, index) in filteredPaymentMethods" :key="paymentMethod.id"
-          @click="selectPaymentMethod(paymentMethod)"
+           @click.stop="selectPaymentMethod(paymentMethod, $event)"
           class="px-5 py-2 cursor-pointer hover:bg-brand-100 dark:hover:bg-gray-700 transition-colors duration-150"
           :class="{
             'bg-blue-50 dark:bg-blue-900': index === selectedIndex,
@@ -211,8 +210,12 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
-const selectPaymentMethod = (paymentMethod: PaymentMethod) => {
+const selectPaymentMethod = (paymentMethod: PaymentMethod, event?: Event) => {
   if (props.disabled) return
+   if (event) {
+    event.stopPropagation()
+    event.preventDefault()
+  }
   emit('update:modelValue', paymentMethod.id) // Emit only the ID
   emit('select', paymentMethod) // Emit the selected method object
   emit('change', paymentMethod.id) // Emit the method ID on change

@@ -146,7 +146,6 @@
           variant="primary"
           @click="performCheckOut"
           :label="formData.checkOutType === 'group' ? $t('GroupCheck-out') : $t('Check-out')"
-          :loading="isLoading"
           :disabled="isLoading || !canCheckOut"
         />
       </div>

@@ -103,7 +103,7 @@
                         </table>
                     </div>
 
-                    <button @click="saveAmenities" :disabled="selectedAmenities.length === 0"
+                    <button :disabled="selectedAmenities.length === 0"
                         class="mt-4 w-full bg-primary text-white py-2 rounded-md hover:bg-green-600 transition-colors duration-200 disabled:opacity-50 flex items-center justify-center">
                         <Spinner v-if="isLoading" class="mr-2" />
                         <span v-else class="flex items-center">
@@ -155,7 +155,6 @@
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n'
 import InputCurrency from '../forms/FormElements/InputCurrency.vue';
-import { updateService } from '@/services/api';
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
 import { onMounted } from 'vue';
@@ -265,27 +264,27 @@ const removeSelectedAmenity = (amenityId:string|number ) => {
     selectedAmenities.value = selectedAmenities.value.filter((item:any) => item.id !== amenityId);
 };
 
-const saveAmenities = async () => {
-    savedHotelAmenities.value = JSON.parse(JSON.stringify(selectedAmenities.value));
-    isLoading.value = true
-    try {
-        const serviceId = serviceStore.serviceId
+// const saveAmenities = async () => {
+//     savedHotelAmenities.value = JSON.parse(JSON.stringify(selectedAmenities.value));
+//     isLoading.value = true
+//     try {
+//         const serviceId = serviceStore.serviceId
 
-        const payload = {
-            facilities: JSON.stringify(selectedAmenities.value),
-        }
-        console.log('payloadServiceupdate', payload)
+//         const payload = {
+//             facilities: JSON.stringify(selectedAmenities.value),
+//         }
+//         console.log('payloadServiceupdate', payload)
 
-        await updateService(serviceId, payload)
+//         await updateService(serviceId, payload)
 
-        toast.success(t('toast.SucessUpdate'))
-    } catch (error) {
-        console.error('Erreur lors de la mise à jour des paramètres :', error)
-        toast.error(t('toast.updateError'))
-    } finally {
-        isLoading.value = false
-    }
-};
+//         toast.success(t('toast.SucessUpdate'))
+//     } catch (error) {
+//         console.error('Erreur lors de la mise à jour des paramètres :', error)
+//         toast.error(t('toast.updateError'))
+//     } finally {
+//         isLoading.value = false
+//     }
+// };
 
 const formatPrice = (price:number) => {
     return new Intl.NumberFormat('en-CM', {

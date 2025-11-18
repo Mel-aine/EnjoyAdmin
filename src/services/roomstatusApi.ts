@@ -1,8 +1,9 @@
 // services/roomstatusAPI.ts
-import axios from 'axios';
+import apiClient from './apiClient';
 import { useAuthStore } from '@/composables/user'
 import type { AxiosResponse } from 'axios'
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`;
+const axios = apiClient;
 
 const getHeaders  = () => {
   const authStore = useAuthStore()
@@ -137,33 +138,25 @@ export const fetchRoomStatusReport = async (
   } catch (error) {
     console.error('❌ Erreur lors de la récupération du rapport d\'état des chambres:', error);
 
-    // Gestion des erreurs Axios
-    if (axios.isAxiosError(error)) {
-      // Erreur 404
-      if (error.response?.status === 404) {
+    // Gestion des erreurs HTTP
+    const resp = (error as any)?.response;
+    if (resp) {
+      if (resp.status === 404) {
         throw new Error('Le rapport demandé n\'a pas été trouvé');
       }
-
-      // Erreur 400 (Bad Request)
-      if (error.response?.status === 400) {
-        const errorData = error.response.data;
-        throw new Error(errorData.message || 'Paramètres de requête invalides');
+      if (resp.status === 400) {
+        const errorData = resp.data;
+        throw new Error(errorData?.message || 'Paramètres de requête invalides');
       }
-
-      // Extraction du message d'erreur de la réponse
-      if (error.response?.data) {
+      if (resp.data) {
         try {
-          const errorData = typeof error.response.data === 'string'
-            ? JSON.parse(error.response.data)
-            : error.response.data;
-
-          throw new Error(errorData.message || errorData.error || 'Échec de la récupération du rapport');
+          const errorData = typeof resp.data === 'string' ? JSON.parse(resp.data) : resp.data;
+          throw new Error(errorData?.message || errorData?.error || 'Échec de la récupération du rapport');
         } catch {
           throw new Error('Échec de la récupération du rapport');
         }
       }
-
-      throw new Error(error.message || 'Échec de la récupération du rapport');
+      throw new Error((error as any)?.message || 'Échec de la récupération du rapport');
     }
 
     // Propagation des erreurs existantes

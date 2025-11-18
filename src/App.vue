@@ -9,7 +9,7 @@
         @success="handleSuccess"
       />
     </SidebarProvider>
-    <OverLoading v-if="isLoading" /> 
+    <OverLoading v-if="isLoading" />
   </ThemeProvider>
 </template>
 <script setup lang="ts">
@@ -24,6 +24,7 @@ import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import { useAuthStore } from '@/composables/user'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import { isLoading } from '@/composables/spinner'
+import {stopAuthAutoRefresh,startAuthAutoRefresh}  from '@/services/api'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
 if (useLanguage.language) {
@@ -34,10 +35,8 @@ if (useLanguage.language) {
 
 
 
-const TOKEN_DURATION_MS = 15 * 60 * 1000  // 15 minutes (doit correspondre au backend)
-const IDLE_TIMEOUT_MS = TOKEN_DURATION_MS - (2 * 60 * 1000)  // 13 minutes (15min - 2min de marge)
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000
 
-console.log(`⚙️ Configuration : Token 15min, Inactivité max ${IDLE_TIMEOUT_MS / 60000}min`)
 
 const isReAuthOpen = ref(false)
 let idleTimer: number | null = null
@@ -63,7 +62,6 @@ const startIdleTimer = () => {
 
   idleTimer = window.setTimeout(() => {
     if (authStore.isFullyAuthenticated && !isLoginRoute.value && !isReAuthOpen.value) {
-      console.log('⏰ Timeout d\'inactivité atteint → Demande de réauthentification')
       authStore.setReauthRequired(true)
     }
   }, IDLE_TIMEOUT_MS)
@@ -79,13 +77,12 @@ const clearIdleTimer = () => {
 
 const activityEvents = ['mousemove', 'mousedown', 'click', 'scroll', 'keydown', 'touchstart', 'wheel']
 let activityDebounceTimer: number | null = null
-const ACTIVITY_DEBOUNCE_MS = 1000 // Ne redémarrer le timer qu'une fois par seconde
+const ACTIVITY_DEBOUNCE_MS = 1000
 
 const resetOnActivity = () => {
   // Ne pas réinitialiser si la modale est ouverte ou si réauth est requis
   if (isReAuthOpen.value || authStore.reauthRequired) return
 
-  // Debounce : éviter de redémarrer le timer à chaque mouvement
   if (activityDebounceTimer) {
     clearTimeout(activityDebounceTimer)
   }
@@ -98,28 +95,20 @@ const resetOnActivity = () => {
 
 const addActivityListeners = () => {
   activityEvents.forEach((evt) => window.addEventListener(evt, resetOnActivity, { passive: true }))
-  console.log('👂 Écouteurs d\'activité ajoutés')
 }
 
 const removeActivityListeners = () => {
   activityEvents.forEach((evt) => window.removeEventListener(evt, resetOnActivity))
-  console.log('🔇 Écouteurs d\'activité retirés')
 }
 
 
 onMounted(() => {
-  // console.log('🚀 App monté, état auth:', {
-  //   isAuth: authStore.isFullyAuthenticated,
-  //   reauthRequired: authStore.reauthRequired,
-  //   isLoginRoute: isLoginRoute.value
-  // })
 
   if (authStore.isFullyAuthenticated) {
     addActivityListeners()
 
     // Si réauth était requis avant le refresh de la page
     if (authStore.reauthRequired && !isLoginRoute.value) {
-      console.log('🔐 Réauth requis au montage, ouverture de la modale')
       isReAuthOpen.value = true
     } else {
       startIdleTimer()
@@ -128,40 +117,21 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  console.log('👋 App unmounting, nettoyage')
   removeActivityListeners()
   clearIdleTimer()
 })
-// Surveiller les changements de route
-watch(() => [route.name, route.path], () => {
-  if (isLoginRoute.value && isReAuthOpen.value) {
-    console.log('🚪 Page de login détectée, fermeture de la modale')
-    isReAuthOpen.value = false
-    authStore.setReauthRequired(false)
-  }
-})
 
-// Surveiller le flag reauthRequired
-watch(() => authStore.reauthRequired, (required) => {
-  console.log('🔔 reauthRequired changé:', required)
 
-  if (required && authStore.isFullyAuthenticated && !isLoginRoute.value) {
-    console.log('🔐 Ouverture de la modale de réauthentification')
-    isReAuthOpen.value = true
-    clearIdleTimer() // Arrêter le timer pendant la modale
-  } else if (!required) {
-    isReAuthOpen.value = false
-  }
-})
-
-// Surveiller l'état d'authentification
+// Dans le watch de isFullyAuthenticated
 watch(
   () => authStore.isFullyAuthenticated,
   (isAuth) => {
-    console.log('👤 isFullyAuthenticated changé:', isAuth)
-
     if (isAuth) {
       addActivityListeners()
+
+      // Démarrer le refresh automatique
+      startAuthAutoRefresh()
+
       if (authStore.reauthRequired && !isLoginRoute.value) {
         isReAuthOpen.value = true
       } else {
@@ -170,16 +140,37 @@ watch(
     } else {
       removeActivityListeners()
       clearIdleTimer()
+      stopAuthAutoRefresh()
       isReAuthOpen.value = false
       authStore.setReauthRequired(false)
     }
-  }
+  },
+  { immediate: true }
 )
+
+// Surveiller reauthRequired avec plus de détails
+watch(() => authStore.reauthRequired, (required) => {
+
+  if (required && authStore.isFullyAuthenticated && !isLoginRoute.value) {
+    isReAuthOpen.value = true
+    clearIdleTimer()
+    stopAuthAutoRefresh()
+  } else if (!required) {
+    isReAuthOpen.value = false
+  }
+})
+// Surveiller les changements de route
+watch(() => [route.name, route.path], () => {
+  if (isLoginRoute.value && isReAuthOpen.value) {
+    isReAuthOpen.value = false
+    authStore.setReauthRequired(false)
+  }
+})
+
 
 const handleClose = () => {
   // Ne pas fermer la modale si réauth est toujours requis
   if (authStore.reauthRequired) {
-    console.log('⚠️ Fermeture refusée, réauth toujours requis')
     return
   }
 
@@ -189,7 +180,6 @@ const handleClose = () => {
 }
 
 const handleSuccess = () => {
-  console.log('✅ Réauth réussie, redémarrage du timer')
   authStore.setReauthRequired(false)
   isReAuthOpen.value = false
   startIdleTimer()

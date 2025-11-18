@@ -48,11 +48,9 @@ const initializeSpace = async () => {
     serviceStore.setBusinessSources(res.data.data.businessSources)
     serviceStore.setReservationType(res.data.data.reservationTypes)
     statusColor.setStatusColors(res.data.data.userServices[0]?.statusColors || []);
-    console.log("res.data.data", res.data.data.userServices[0]?.statusColors);
     if (user.permisReports) {
       try {
         const reportsPermissions = JSON.parse(user.permisReports);
-        console.log('Permissions de rapports:', reportsPermissions);
 
         authStore.setReportsPermissions(reportsPermissions);
 
@@ -67,7 +65,6 @@ const initializeSpace = async () => {
     }
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
-    console.log("res.data.data", res.data.data);
 
     if (user) {
       if (user.language) {

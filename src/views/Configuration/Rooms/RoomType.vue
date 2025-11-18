@@ -362,7 +362,7 @@ const saveRoomType = async () => {
         loadData(1);
 
       } else {
-        toast.error(t('somethingWentWrong'))
+        toast.error(t('toast.roomtypeerror'))
         console.error('Error adding room type:', resp);
         return;
       }
@@ -389,7 +389,7 @@ const saveRoomType = async () => {
           loadData(1);
 
         } else {
-          toast.error(t('somethingWentWrong'))
+          toast.error(t('toast.Error'))
           console.error('Error updating room type:', resp);
           return;
         }
@@ -398,7 +398,7 @@ const saveRoomType = async () => {
     closeModal()
   } catch (error) {
     console.error('Error saving room type:', error)
-    toast.error(t('somethingWentWrong'))
+    toast.error(t('toast.roomtypeerror'))
   } finally {
     isLoading.value = false
   }

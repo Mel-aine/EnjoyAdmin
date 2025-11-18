@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from 'axios'
+import apiClient from './apiClient'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
 
@@ -22,7 +22,7 @@ const getAuthHeaders = () => {
  */
 export const createRoomBlock = (data: any): Promise<AxiosResponse<any>> => {
   console.log('Creating room block with data:', data)
-  return axios.post(API_URL, data, getAuthHeaders())
+  return apiClient.post(API_URL, data, getAuthHeaders())
 }
 
 /**
@@ -30,7 +30,7 @@ export const createRoomBlock = (data: any): Promise<AxiosResponse<any>> => {
  */
 export const getRoomBlocks = (hotelId: any,params:any={}): Promise<AxiosResponse<any>> => {
   console.log('Fetching room blocks for hotel ID:', hotelId)
-  return axios.get(`${API_URL}/${hotelId}`, {...getAuthHeaders(),params})
+  return apiClient.get(`${API_URL}/${hotelId}`, {...getAuthHeaders(),params})
 }
 
 /**
@@ -38,7 +38,7 @@ export const getRoomBlocks = (hotelId: any,params:any={}): Promise<AxiosResponse
  */
 export const updateRoomBlock = (blockId: string, data: any): Promise<AxiosResponse<any>> => {
   console.log('Updating room block:', blockId, 'with data:', data)
-  return axios.put(`${API_URL}/${blockId}`, data, getAuthHeaders())
+  return apiClient.put(`${API_URL}/${blockId}`, data, getAuthHeaders())
 }
 
 /**
@@ -46,7 +46,7 @@ export const updateRoomBlock = (blockId: string, data: any): Promise<AxiosRespon
  */
 export const deleteBlock = (blockId: string): Promise<AxiosResponse<any>> => {
   console.log('Deleting room block:', blockId)
-  return axios.delete(`${API_URL}/${blockId}`, getAuthHeaders())
+  return apiClient.delete(`${API_URL}/${blockId}`, getAuthHeaders())
 }
 
 /**
@@ -54,7 +54,7 @@ export const deleteBlock = (blockId: string): Promise<AxiosResponse<any>> => {
  */
 export const getRoomBlockById = (blockId: string): Promise<AxiosResponse<any>> => {
   console.log('Fetching room block by ID:', blockId)
-  return axios.get(`${API_URL}/single/${blockId}`, getAuthHeaders())
+  return apiClient.get(`${API_URL}/single/${blockId}`, getAuthHeaders())
 }
 
 /**
@@ -79,7 +79,7 @@ export const getRoomBlocksWithFilters = (
   const url = `${API_URL}/${hotelId}${params.toString() ? `?${params.toString()}` : ''}`
   console.log('Fetching room blocks with filters:', url)
 
-  return axios.get(url, getAuthHeaders())
+  return apiClient.get(url, getAuthHeaders())
 }
 
 /**
@@ -87,7 +87,7 @@ export const getRoomBlocksWithFilters = (
  */
 export const bulkDeleteBlocks = (blockIds: string[]): Promise<AxiosResponse<any>> => {
   console.log('Bulk deleting room blocks:', blockIds)
-  return axios.delete(`${API_URL}/bulk`, {
+  return apiClient.delete(`${API_URL}/bulk`, {
     ...getAuthHeaders(),
     data: { blockIds }
   })

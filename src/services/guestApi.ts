@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from 'axios'
+import apiClient from './apiClient'
 import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
+const axios = apiClient
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/guests`
 const API_URL1 = `${import.meta.env.VITE_API_URL as string}`

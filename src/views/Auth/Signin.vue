@@ -8,15 +8,44 @@
             <div>
               <div class="mb-2 sm:mb-6">
                 <h1 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                  <strong>{{ $t('SignIn') }}</strong>
+                  <strong>{{ resetMode ? $t('resetPasswordTitle') : $t('SignIn') }}</strong>
                 </h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ $t('Enteryouremail') }}
+                  {{ resetMode ? $t('Enteryourresetinfo') : $t('Enteryouremail') }}
                 </p>
               </div>
               <div>
 
-                <form @submit.prevent="handleSubmit">
+                <template v-if="accountPickerMode && !selectedAccount">
+                  <div class="space-y-4">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ $t('selectAccountToContinue') }}</p>
+                    <div class="grid grid-cols-1 gap-3">
+                      <button
+                        v-for="acc in rememberedAccounts"
+                        :key="acc.id ?? acc.email"
+                        type="button"
+                        @click="selectAccount(acc)"
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5"
+                      >
+                        <div class="h-9 w-9 rounded-full bg-purple-500 text-white flex items-center justify-center uppercase">
+                          {{ (acc.name || acc.email).slice(0,1) }}
+                        </div>
+                        <div class="text-left">
+                          <div class="text-sm font-medium text-gray-800 dark:text-white/90">{{ acc.name || acc.email }}</div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400">{{ acc.email }}</div>
+                        </div>
+                      </button>
+                    </div>
+                    <div class="pt-1">
+                      <button type="button" @click="useAnotherAccount"
+                        class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">
+                        {{ $t('useAnotherAccount') }}
+                      </button>
+                    </div>
+                  </div>
+                </template>
+
+                <form v-else-if="!resetMode" @submit.prevent="handleSubmit">
 
                   <div class="space-y-3">
                     <p v-if="error"
@@ -30,7 +59,7 @@
                     </p>
 
                     <!-- Email -->
-                    <div>
+                    <div v-if="!selectedAccount">
                       <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                         {{ $t('Email') }}<span class="text-error-500">*</span>
                       </label>
@@ -38,6 +67,15 @@
                         placeholder="info@gmail.com"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         required />
+                    </div>
+                    <div v-else class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5">
+                      <div class="h-8 w-8 rounded-full bg-purple-500 text-white flex items-center justify-center uppercase">
+                        {{ (selectedAccount.name || selectedAccount.email).slice(0,1) }}
+                      </div>
+                      <div class="text-left">
+                        <div class="text-sm font-medium text-gray-800 dark:text-white/90">{{ selectedAccount.name || selectedAccount.email }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ selectedAccount.email }}</div>
+                      </div>
                     </div>
                     <!-- Password -->
                     <div>
@@ -86,12 +124,14 @@
                               </span>
                             </div>
                           </div>
-                          {{ $t('Keepmeloggedin') }}
+                      {{ $t('Keepmeloggedin') }}
                         </label>
                       </div>
-                      <router-link to="/reset-password"
-                        class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">{{ $t('Forgotpassword')
-                        }}?</router-link>
+
+                      <button type="button" @click="toggleResetMode"
+                        class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 ml-3">
+                        {{ t('resetPasswordTitle') }}
+                      </button>
                     </div>
                     <!-- Button -->
                     <div>
@@ -107,6 +147,53 @@
                     </div>
                   </div>
                 </form>
+                <!-- Reset Password Panel -->
+                <div v-if="resetMode" class="mt-4 space-y-3 border-t pt-4">
+                  <div class="flex items-center gap-2 text-sm font-semibold">
+                    <button type="button" @click="toggleResetMode" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/10">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-gray-600 dark:text-gray-300">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <span>{{ t('resetPasswordTitle') }}</span>
+                  </div>
+                  <div class="grid grid-cols-1 gap-3">
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ t('resetUsernameOrEmail') }}</label>
+                      <input v-model="resetUsername" type="text" placeholder="user@example.com"
+                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                    </div>
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ t('resetHotelId') }}</label>
+                      <input v-model="resetHotelId" type="text" placeholder="123"
+                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <button type="button" @click="verifyReset" :disabled="isVerifyingReset"
+                        class="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50">
+                        <span v-if="!isVerifyingReset">{{ t('verify') }}</span>
+                        <span v-else class="flex items-center gap-2"><Spinner class="w-4 h-4" />{{ t('verifying') }}...</span>
+                      </button>
+                        <button v-if="resetSent" type="button" @click="backToLogin"
+                          class="px-4 py-2 text-sm text-white bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors">
+                          {{ t('backToLogin') }}
+                        </button>
+                    </div>
+                    <p v-if="resetVerifyError" class="text-xs text-red-600">{{ resetVerifyError }}</p>
+                    <p v-if="resetSendError" class="text-xs text-red-600">{{ resetSendError }}</p>
+                    <div v-if="resetSent" class="p-3 rounded-lg bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-800">
+                      <p class="text-xs text-green-700 dark:text-green-300 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{{ t('checkEmailForReset') }}</span>
+                      </p>
+                      <p class="text-xs text-green-600 dark:text-green-400 mt-1">
+                        {{ t('checkEmailInstructions') }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 <div>
                   <!--  <p
                     class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start"
@@ -140,12 +227,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
-import { auth, validateEmail, validatePassword ,stopAuthAutoRefresh,startAuthAutoRefresh} from '@/services/api'
+import { auth, validateEmail, validatePassword ,stopAuthAutoRefresh,startAuthAutoRefresh, requestPasswordReset} from '@/services/api'
+import { checkHotelExists } from '@/services/configrationApi'
 import Spinner from '@/components/spinner/Spinner.vue';
 import { useI18n } from 'vue-i18n'
 import { useStatusColor } from '@/composables/statusColorStore'
@@ -162,51 +250,260 @@ const password = ref('')
 const showPassword = ref(false)
 const keepLoggedIn = ref(false)
 const error = ref<string | null>(null);
+type RememberedAccount = { id?: number | string; name?: string; email: string }
+const rememberedAccounts = ref<RememberedAccount[]>([])
+const accountPickerMode = ref(false)
+const selectedAccount = ref<RememberedAccount | null>(null)
+// Reset password state
+const resetMode = ref(false)
+const resetUsername = ref('')
+const resetHotelId = ref('')
+const resetVerifyError = ref<string | null>(null)
+const resetSendError = ref<string | null>(null)
+const isVerifyingReset = ref(false)
+const isSendingReset = ref(false)
+const resetVerified = ref(false)
+const resetSent = ref(false)
+
+// Cookie helpers
+function setCookie(
+  name: string,
+  value: string,
+  options?: { days?: number; secure?: boolean; sameSite?: 'Lax' | 'Strict' | 'None'; path?: string }
+) {
+  let expires = ''
+  if (options?.days) {
+    const d = new Date()
+    d.setTime(d.getTime() + options.days * 24 * 60 * 60 * 1000)
+    expires = '; expires=' + d.toUTCString()
+  }
+  const path = '; path=' + (options?.path ?? '/')
+  const sameSite = options?.sameSite ? '; samesite=' + options.sameSite : ''
+  const secure = options?.secure ? '; secure' : ''
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}${expires}${path}${sameSite}${secure}`
+}
+
+function getCookie(name: string): string | null {
+  const nameEQ = encodeURIComponent(name) + '='
+  const parts = document.cookie.split(';')
+  for (let c of parts) {
+    c = c.trim()
+    if (c.startsWith(nameEQ)) {
+      return decodeURIComponent(c.substring(nameEQ.length))
+    }
+  }
+  return null
+}
+
+function deleteCookie(name: string, path: string = '/') {
+  document.cookie = `${encodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}`
+}
 
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 
+onMounted(() => {
+  try {
+    // Prefer cookie; migrate from localStorage if present
+    let raw = getCookie('rememberedAccounts')
+    const ls = localStorage.getItem('rememberedAccounts')
+    if (!raw && ls) {
+      setCookie('rememberedAccounts', ls, {
+        days: 30,
+        secure: location.protocol === 'https:',
+        sameSite: 'Lax',
+        path: '/',
+      })
+      // Cleanup localStorage after migration
+      localStorage.removeItem('rememberedAccounts')
+      raw = ls
+    }
+    const list = raw ? (JSON.parse(raw) as RememberedAccount[]) : []
+    rememberedAccounts.value = Array.isArray(list) ? list : []
+    if (rememberedAccounts.value.length > 0 && !authStore.isAuthenticated) {
+      accountPickerMode.value = true
+    }
+  } catch (e) {
+    rememberedAccounts.value = []
+  }
+})
+
+const selectAccount = (acc: RememberedAccount) => {
+  selectedAccount.value = acc
+  email.value = acc.email
+}
+
+const useAnotherAccount = () => {
+  selectedAccount.value = null
+  accountPickerMode.value = false
+  email.value = ''
+}
+
+const verifyReset = async () => {
+  resetVerifyError.value = null
+  resetSendError.value = null
+  resetVerified.value = false
+  resetSent.value = false
+  isVerifyingReset.value = true
+  try {
+    if (!resetUsername.value || !resetHotelId.value) {
+      resetVerifyError.value = t('enterUserAndHotel')
+      return
+    }
+    const hotelResp = await checkHotelExists(Number(resetHotelId.value))
+    const exists = hotelResp?.data?.exists ?? true
+    if (!exists) {
+      resetVerifyError.value = t('hotelNotFoundOrInactive')
+      return
+    }
+    await validateEmail(resetUsername.value)
+    resetVerified.value = true
+    // Automatically send reset link after successful verification
+    await sendResetLink()
+  } catch (e: any) {
+    if (e?.response?.status === 404) {
+      resetVerifyError.value = t('userNotFound')
+    } else {
+      resetVerifyError.value = e?.response?.data?.message || t('verificationFailed')
+    }
+  } finally {
+    isVerifyingReset.value = false
+  }
+}
+
+const sendResetLink = async () => {
+  resetSendError.value = null
+  resetSent.value = false
+  isSendingReset.value = true
+  try {
+    await requestPasswordReset({ email: resetUsername.value, hotelId: resetHotelId.value })
+    resetSent.value = true
+  } catch (e: any) {
+    resetSendError.value = e?.response?.data?.message || t('unableToSendResetLink')
+  } finally {
+    isSendingReset.value = false
+  }
+}
+
+const toggleResetMode = () => {
+  resetMode.value = !resetMode.value
+  if (!resetMode.value) {
+    resetUsername.value = ''
+    resetHotelId.value = ''
+    resetVerifyError.value = null
+    resetSendError.value = null
+    isVerifyingReset.value = false
+    isSendingReset.value = false
+    resetVerified.value = false
+    resetSent.value = false
+  }
+}
+const loginAttempts = ref(0)
+const MAX_LOGIN_ATTEMPTS = 3
 
 
 const handleSubmit = async () => {
-  isLoading.value = true;
   error.value = null;
+  loginAttempts.value++;
+
+  if (!email.value.trim() || !password.value.trim()) {
+    error.value = t('emailAndPasswordRequired');
+    return;
+  }
+
+  isLoading.value = true;
+
   try {
-     authStore.logout()
-    stopAuthAutoRefresh()
-    await validateEmail(email.value);
-    await validatePassword(email.value, password.value);
+
     const res = await auth({
-      email: email.value,
+      email: email.value.trim().toLowerCase(),
       password: password.value,
       keepLoggedIn: keepLoggedIn.value,
     });
-    console.log('login response', res);
+
     const { user, access_token } = res.data.data;
     const token = access_token.token;
 
-
-    // Persist handled by Pinia persistedstate; no manual storage
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
-    router.push({ path: '/setup'});
-  } catch (err: any) {
-    if (err.response?.status === 401) {
-      error.value = t('incorrectEmailOrPassword');
-    } else if (err.response) {
-      error.value = err.response.data?.message || t('connectionError');
-    } else {
-      error.value = t('anErrorOcured');
+
+    if (keepLoggedIn.value) {
+      const entry: RememberedAccount = {
+        id: user.id,
+        name: user.name || user.fullName || user.username || user.email,
+        email: user.email || email.value,
+      }
+      const existing = rememberedAccounts.value.filter(a => a.email !== entry.email)
+      rememberedAccounts.value = [entry, ...existing].slice(0, 5)
+      setCookie('rememberedAccounts', JSON.stringify(rememberedAccounts.value), {
+        days: 30,
+        secure: location.protocol === 'https:',
+        sameSite: 'Lax',
+        path: '/',
+      })
     }
-    console.error("Erreur de connexion:", err);
+
+    loginAttempts.value = 0;
+    router.push({ path: '/setup' });
+
+  } catch (err: any) {
+
+    //Gestion du 503 (Service Unavailable)
+    if (err.response?.status === 503) {
+      error.value = t('serviceUnavailable');
+
+      // Réessai automatique pour les erreurs de service
+      if (loginAttempts.value < MAX_LOGIN_ATTEMPTS) {
+        setTimeout(() => {
+          handleSubmit();
+        }, 2000);
+        return;
+      }
+    }
+    else if (err.response?.status === 400 && err.response.data?.message === 'Login failed') {
+      error.value = t('loginFailedGeneric');
+    } else if (err.response?.status === 401) {
+      error.value = t('incorrectEmailOrPassword');
+    } else if (err.response?.status === 400) {
+      error.value = err.response.data?.message || t('invalidRequestData');
+    } else if (err.response?.status === 422) {
+      error.value = t('validationError');
+    } else if (err.response) {
+      error.value = t('serverError');
+    } else if (err.request) {
+      error.value = t('networkError');
+    } else {
+      error.value = t('unexpectedError');
+    }
+
   } finally {
     isLoading.value = false;
   }
 };
 
+const backToLogin = () => {
 
+
+  // Réinitialiser tous les états du reset password
+  resetMode.value = false
+  resetUsername.value = ''
+  resetHotelId.value = ''
+  resetVerifyError.value = null
+  resetSendError.value = null
+  resetSendError.value = null
+  isVerifyingReset.value = false
+  isSendingReset.value = false
+  resetVerified.value = false
+  resetSent.value = false
+
+  // Réinitialiser aussi les champs de login
+  email.value = ''
+  password.value = ''
+  error.value = null
+
+}
 
 </script>

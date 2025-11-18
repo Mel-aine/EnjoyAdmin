@@ -11,6 +11,15 @@ const router = createRouter({
   },
   routes: [
     {
+      path: '/configuration/security/ip-configuration',
+      name: 'IpConfiguration',
+      component: () => import('../views/Configuration/security/IpConfiguration.vue'),
+      meta: {
+        title: 'IP Configuration',
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/setup',
       name: 'SetupSpace',
       component: () => import('../views/Pages/SetupSpace.vue'),
@@ -52,30 +61,6 @@ const router = createRouter({
         requiresAuth: false,
       },
     },
-
-    {
-      path: '/welcome',
-      name: 'welcome',
-      component: () => import('../views/Pages/Welcome.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/all_booking',
-      name: 'All Booking',
-      component: () => import('../views/Bookings/AllBooking.vue'),
-      meta: {
-        title: 'All Booking',
-      },
-    },
-    {
-      path: '/add_booking',
-      name: 'Add Booking',
-      component: () => import('../views/Bookings/AddBooking.vue'),
-      meta: {
-        title: 'Add Booking',
-        requiresAuth: true,
-      },
-    },
     {
       path: '/new_booking',
       name: 'New Booking',
@@ -85,15 +70,6 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    // {
-    //   path: '/ota/booking/:id',
-    //   name: 'WebBooking',
-    //   component: () => import('../views/ota/WebBooking.vue'),
-    //   meta: {
-    //     title: 'Web Booking',
-    //     requiresAuth: false,
-    //   },
-    // },
    {
       path: '/ota/booking/:id(\\d+)',
       name: 'WebBooking',
@@ -181,37 +157,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/addbooking/:id',
-      name: 'AddBooking',
-      component: () => import('../views/Bookings/AddBooking.vue'),
-      meta: {
-        title: 'Edit Booking',
-        requiresAuth: true,
-      },
-
-    },
-
-    {
-      path: '/add_booking/:id',
-      name: 'EditBooking',
-      component: () => import('../views/Bookings/AddBooking.vue'),
-      props: true,
-      meta: {
-        title: 'Edit Booking',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/booking_detail/:id',
-      name: 'BookingDetails',
-      component: () => import('../views/Bookings/BookingDetails.vue'),
-      props: true,
-      meta: {
-        title: 'Booking Details',
-        requiresAuth: true,
-      },
-    },
-    {
       path: '/customer_detail/:id',
       name: 'CustomerDetails',
       component: () => import('../views/Customers/CustomerDetails.vue'),
@@ -228,26 +173,6 @@ const router = createRouter({
       props: true,
       meta: {
         title: 'Customers Details',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/room_detail/:id',
-      name: 'RoomDetailsModal',
-      component: () => import('../views/Room/RoomDetailsModal.vue'),
-      props: true,
-      meta: {
-        title: 'Room Details',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/refunds',
-      name: 'refunds',
-      component: () => import('../views/Bookings/RefundsList.vue'),
-      props: true,
-      meta: {
-        title: 'Refund',
         requiresAuth: true,
       },
     },
@@ -269,24 +194,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/all_room',
-      name: 'All Room',
-      component: () => import('../views/Room/AllRoom.vue'),
-      meta: {
-        title: 'All Room',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/room_type',
-      name: 'Room Type',
-      component: () => import('../views/Room/RoomTypes.vue'),
-      meta: {
-        title: 'Room Type',
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/room_view',
       name: 'Room view',
@@ -297,24 +205,7 @@ const router = createRouter({
       },
     },
 
-    {
-      path: '/user',
-      name: 'user',
-      component: () => import('../views/Users/UsersTable.vue'),
-      meta: {
-        title: 'User',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/expense',
-      name: 'expense',
-      component: () => import('../views/Reports/ExpensesTable.vue'),
-      meta: {
-        title: 'Expense',
-        requiresAuth: true,
-      },
-    },
+
     // Reports Routes
     {
       path: '/reports',
@@ -1422,42 +1313,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    {
-      path: '/departments/:id',
-      name: 'departmentDetails',
-      component: () => import('../views/departments/DepartmentDetails.vue'),
-      meta: {
-        title: 'Department Details',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/allInvoice',
-      name: 'allInvoice',
-      component: () => import('../views/Payment/InvoiceList.vue'),
-      meta: {
-        title: 'All Invoice',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/invoice',
-      name: 'invoice',
-      component: () => import('../views/Payment/InvoiceDetail.vue'),
-      meta: {
-        title: 'Invoice',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/booking/:id/invoice',
-      name: 'BookingInvoice',
-      component: () => import('../components/invoice/HotelInvoice.vue'),
-      meta: {
-        title: 'Booking Invoice',
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/booking/bookinginvoice',
       name: 'BookingInvoices',
@@ -1477,40 +1333,11 @@ const router = createRouter({
       },
     },
     {
-      path: '/invoice/:id',
-      name: 'ViewInvoice',
-      component: () => import('../views/Payment/InvoiceDetail.vue'),
-      meta: {
-        title: 'View Invoice',
-        requiresAuth: true,
-      },
-      props: true,
-    },
-    {
       path: '/customers',
       name: 'Customers',
       component: () => import('../views/Customers/CustomersTable.vue'),
       meta: {
         title: 'Customers',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/setting',
-      name: 'Setting',
-      component: () => import('../views/Setting/Setting.vue'),
-      meta: {
-        title: 'Setting',
-        requiresAuth: true,
-      },
-    },
-
-    {
-      path: '/service',
-      name: 'Service',
-      component: () => import('../views/Services/ServiceView.vue'),
-      meta: {
-        title: 'Service',
         requiresAuth: true,
       },
     },
@@ -1544,16 +1371,8 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+
     {
-      path: '/form-elements',
-      name: 'Form Elements',
-      component: () => import('../views/Forms/FormElements.vue'),
-      meta: {
-        title: 'Form Elements',
-        requiresAuth: true,
-      },
-    },
-        {
       path: '/profile',
       name: 'Profile',
       component: () => import('../views/Others/UserProfile.vue'),
@@ -1600,15 +1419,7 @@ const router = createRouter({
       },
     },
 
-    {
-      path: '/amenities',
-      name: 'amenities',
-      component: () => import('../views/Setting/AmenitiesPay.vue'),
-      meta: {
-        title: 'Amenities',
-        requiresAuth: true,
-      },
-    },
+
     {
       path: '/amenities/:id/view',
       name: 'amenitiesView',
@@ -1628,55 +1439,6 @@ const router = createRouter({
       },
     },
 
-
-    /// Staff Management
-
-    {
-      path: '/staff_management/dashboard',
-      name: 'Dashboard Overview',
-      component: () => import('../views/StaffManagement/EStaffDashboardView.vue'),
-      meta: {
-        title: 'Dashboard Overview',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/staff_management/task_management',
-      name: 'Task Management',
-      component: () => import('../views/StaffManagement/EStaffTaskManager.vue'),
-      meta: {
-        title: 'Task Management',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/staff_management/staff_schedule',
-      name: 'Staff Schedule',
-      component: () => import('../views/StaffManagement/EStaffScheduleView.vue'),
-      meta: {
-        title: 'Staff Schedule',
-        requiresAuth: true,
-      },
-    },
-
-    {
-      path: '/staff_management/action_history',
-      name: 'Action History',
-      component: () => import('../views/StaffManagement/EStaffActionHistory.vue'),
-      meta: {
-        title: 'Action History',
-        requiresAuth: true,
-      },
-    },
-    {
-      path: '/users/:id/view',
-      name: 'usersDetails',
-      component: () => import('../views/StaffManagement/EStaffDetails.vue'),
-      meta: {
-        title: 'Users Details',
-        requiresAuth: true,
-      },
-    },
 
     {
       path: '/custom-guest-table',

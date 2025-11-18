@@ -248,6 +248,7 @@ const handleSubmit = async () => {
 
   try {
     isSubmitting.value = true
+     console.log('📤 Sending ticket with attachment:', attachment.value?.name)
     await createSupportTicket(payload, attachment.value || undefined)
     submitMessage.value = t('supportTicket.errors.submitSuccess')
     submitError.value = false
@@ -258,6 +259,7 @@ const handleSubmit = async () => {
       steps.value = ''
       expected.value = ''
       actual.value = ''
+       descriptionFull.value = ''
       attachment.value = null
       // close modal
       // petite temporisation pour laisser afficher le succès

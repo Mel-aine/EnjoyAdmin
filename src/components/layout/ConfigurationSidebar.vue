@@ -210,6 +210,41 @@
         </div>
       </div>
 
+      <!-- Security Section -->
+      <div class="space-y-1">
+        <button 
+          @click="toggleSection('security')" 
+          :class="[
+            'w-full flex items-center justify-between p-2 text-left rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
+            sidebarStore.isExpanded ? 'px-3' : 'px-2 justify-center'
+          ]"
+        >
+          <div class="flex items-center space-x-3">
+            <Shield class="w-5 h-5 text-gray-600 dark:text-gray-100" />
+            <span v-if="sidebarStore.isExpanded" class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $t('Security') }}</span>
+          </div>
+          <ChevronDown 
+            v-if="sidebarStore.isExpanded" 
+            :class="[
+              'w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform',
+              expandedSections.security ? 'rotate-180' : ''
+            ]" 
+          />
+        </button>
+
+        <div v-if="expandedSections.security && sidebarStore.isExpanded" class="ml-6 space-y-1">
+          <router-link 
+            v-for="item in filteredSecurityItems" 
+            :key="item.path" 
+            :to="item.path"
+            class="block px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+            active-class="text-gray-900 bg-gray-200 font-medium dark:text-gray-100 dark:bg-gray-700"
+          >
+            {{ $t(item.label) }}
+          </router-link>
+        </div>
+      </div>
+
       <!-- Staff Section -->
       <div class="space-y-1">
         <button 
@@ -264,6 +299,7 @@ import {
   Cog,
   ChevronDown,
   UserCircle,
+  Shield,
 } from 'lucide-vue-next'
 
 // Types
@@ -272,7 +308,7 @@ interface MenuItem {
   label: string
 }
 
-type SectionKey = 'rooms' | 'rates' | 'housekeeping' | 'master' | 'settings' | 'staff'
+type SectionKey = 'rooms' | 'rates' | 'housekeeping' | 'master' | 'settings' | 'security' | 'staff'
 
 interface ExpandedSections {
   rooms: boolean
@@ -280,6 +316,7 @@ interface ExpandedSections {
   housekeeping: boolean
   master: boolean
   settings: boolean
+  security: boolean
   staff: boolean
 }
 
@@ -295,6 +332,7 @@ const expandedSections = ref<ExpandedSections>({
   housekeeping: true,
   master: true,
   settings: true,
+  security: true,
   staff: true
 })
 
@@ -423,6 +461,10 @@ const settingsItems: MenuItem[] = [
   { path: '/configuration/settings/tac-configuration', label: 'Tax/Account Configuration' }
 ]
 
+const securityItems: MenuItem[] = [
+  { path: '/configuration/security/ip-configuration', label: 'IP Configuration' }
+]
+
 const staffItems: MenuItem[] = [
   { path: '/configuration/staff/department', label: 'Department' },
   { path: '/configuration/staff/staff_management', label: 'Staff Management' },
@@ -470,6 +512,15 @@ const filteredSettingsItems = computed<MenuItem[]>(() => {
   if (!searchQuery.value) return settingsItems
   const query = searchQuery.value.toLowerCase()
   return settingsItems.filter(item => {
+    const translatedLabel = t(item.label).toLowerCase()
+    return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
+  })
+})
+
+const filteredSecurityItems = computed<MenuItem[]>(() => {
+  if (!searchQuery.value) return securityItems
+  const query = searchQuery.value.toLowerCase()
+  return securityItems.filter(item => {
     const translatedLabel = t(item.label).toLowerCase()
     return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
   })

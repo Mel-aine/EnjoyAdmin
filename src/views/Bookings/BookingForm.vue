@@ -630,7 +630,7 @@
                 type="button"
                 @click="handleViewDetails"
                 :disabled="isLoading"
-                :label="$t('tables.viewDetails')"
+                :label="$t('viewDetails')"
               >
               </BasicButton>
 

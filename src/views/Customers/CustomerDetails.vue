@@ -190,7 +190,7 @@
                 />
                 <DetailRow
                   :label="$t('customerDetails.basicInfo.nationality')"
-                  :value="$t(`countries_lists.${customer.country.toLowerCase()}`) || 'N/A'"
+                  :value="$t(`countries_lists.${customer.country?.toLowerCase()}`) || 'N/A'"
                   type="badge"
                 />
                 <DetailRow

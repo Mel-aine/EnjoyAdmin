@@ -96,7 +96,6 @@ import flatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
 import CalendarIcon from '@/icons/CalendarIcon.vue';
 import type { FitlterItem } from '@/utils/models';
-import { getTypeProductByServiceId } from '@/services/api';
 import type { RoomTypeData } from '@/types/option';
 import { useServiceStore } from '@/composables/serviceStore';
 
@@ -143,26 +142,9 @@ const clearFilters = () => {
     filters.value.checkOutDate = '';
     applyFilters(); // Re-apply filters to show all
 };
-const fetchRoomType = async () => {
-    try {
-        const serviceId = serviceStore.serviceId
-        const response = await getTypeProductByServiceId(serviceId)
-
-        activeRoomTypes.value = response.data
-            .filter((type: RoomTypeData) => type.status === 'active')
-            .map((item: RoomTypeData) => ({
-                ...item,
-                value: item.id,
-                label: item.roomTypeName,
-            }))
-    } catch (error) {
-        console.error('Erreur lors de la récupération des roomtypes:', error)
-    }
-}
 
 // Initial filter application on component mount
 onMounted(() => {
-    fetchRoomType();
     applyFilters();
 });
 </script>

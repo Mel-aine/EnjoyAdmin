@@ -347,7 +347,6 @@
     </div>
     <!--tooltip-->
 
-    <AddBookingModal v-if="showModalAddingModal" @close="showModalAddingModal = false" @refresh="refresh" />
     <template v-if="modalReservation && showDetail">
       <ReservationRigthModal :is-open="showDetail" :title="$t('reservationDetails')"
         :reservation-data="modalReservation" @close="closeReservationModal" @save="handleReservationSave" />
@@ -372,7 +371,6 @@ import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, Cigaret
 
 import { watch, onUnmounted } from 'vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
-import AddBookingModal from '../modal/AddBookingModal.vue';
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -668,7 +666,6 @@ function getRoomRowCellsApi(group: any, room: any) {
   let i = 0
 
   // --- Récupération des réservations ---
-  console.log("group", group)
   const allReservations = group.reservations || []
   const reservations = allReservations.filter((r: any) => {
     return (
@@ -679,7 +676,6 @@ function getRoomRowCellsApi(group: any, room: any) {
   })
 
   // --- Récupération des room blocks ---
-  console.log("apiRoomBlocks", apiRoomBlocks.value)
   const roomBlocks = apiRoomBlocks.value.filter(
     (b: any) => b.room && b.room.room_number === room.room_number
   )
@@ -728,7 +724,6 @@ function getRoomRowCellsApi(group: any, room: any) {
     }
 
     if (reservation) {
-      console.log('Reservation cell:', reservation)
       // const start = new Date(reservation.check_in_date)
       const end = new Date(reservation.check_out_date)
       const lastVisible = visibleDates.value[visibleDates.value.length - 1]
