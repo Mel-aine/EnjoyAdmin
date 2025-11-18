@@ -358,18 +358,40 @@ export const refreshToken = async (): Promise<AxiosResponse<any>> => {
 export function initSpace(credentials: { userId: number }) {
   return axios.post(`${API_URL}/initSpace`, credentials, getHeaders())
 }
+
 export function logout() {
-  // Stop auto refresh when logging out
-  stopAuthAutoRefresh()
   const authStore = useAuthStore()
-  authStore.logout()
+  const currentToken = authStore.token
+
+
+  // Arrêter le refresh automatique IMMÉDIATEMENT
+  stopAuthAutoRefresh()
+
+  // Si pas de token, déconnexion locale uniquement
+  if (!currentToken) {
+    console.log('🔐 Aucun token - déconnexion locale')
+    authStore.logout()
+    return Promise.resolve({ data: { message: 'Local logout only' } })
+  }
+
   return axios.post(
     `${API_URL}/authLogout`,
     {},
     {
-      ...getHeaders(),
+      headers: {
+        Authorization: `Bearer ${currentToken}`,
+      },
+      withCredentials: true,
     },
-  )
+  ).then(response => {
+    return response
+  }).catch(error => {
+    console.warn('⚠️ Logout API échoué (continuer avec déconnexion locale):', error.message)
+    throw error // Relancer l'erreur pour la gestion dans userApi
+  }).finally(() => {
+    // TOUJOURS vider le store
+    authStore.logout()
+  })
 }
 
 export function validateEmail(email: string) {

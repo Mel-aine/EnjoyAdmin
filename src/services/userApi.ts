@@ -128,7 +128,7 @@ export const signOut = async (): Promise<void> => {
     try {
       await logout();
     } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
+      console.warn('⚠️ Logout API a échoué, mais déconnexion locale effectuée');
     }
 
     const authStore = useAuthStore();
@@ -138,6 +138,7 @@ export const signOut = async (): Promise<void> => {
     const bookingStore = useBookingStore();
     const currencyStore = useCurrencyStore();
 
+
     authStore.forceLogout();
     authStore.clearPermissionsReports();
     serviceStore.clearServiceId();
@@ -146,14 +147,17 @@ export const signOut = async (): Promise<void> => {
     serviceStore.clearPermissions();
     serviceStore.clearUserService();
     statusColor.clearStatusColors();
-    // Reset other persisted stores
+
     languageStore.$reset();
     bookingStore.$reset();
     currencyStore.$reset();
 
+
     await router.push('/');
   } catch (error) {
-    console.error('Erreur lors du logout:', error);
+    console.error('💥 Erreur critique lors du logout:', error);
+    // Rediriger quand même vers login
+    await router.push('/');
   }
 }
 

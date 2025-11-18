@@ -66,17 +66,14 @@ export const useServiceStore = defineStore('service', {
     },
 
     setPermissions(permissionBlocks: any[]) {
-      console.log('Permission blocks reçus:', permissionBlocks)
+
 
       const allPermissions = permissionBlocks.flatMap((p) => {
-        console.log('Bloc de permission:', p)
-        console.log('Permissions dans le bloc:', p.permissions)
         return p.permissions ?? []
       })
 
-      console.log('Permissions aplaties:', allPermissions)
       this.permissions = allPermissions
-      console.log('Permissions dans le store:', this.permissions)
+
     },
 
     /**

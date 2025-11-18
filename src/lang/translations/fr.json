@@ -8505,7 +8505,8 @@
   "validationError": "Erreur de validation des données.",
   "serverError": "Erreur du serveur. Veuillez réessayer.",
   "networkError": "Erreur réseau. Vérifiez votre connexion.",
-  "unexpectedError": "Erreur inattendue. Veuillez réessayer."
+  "unexpectedError": "Erreur inattendue. Veuillez réessayer.",
+  "checkEmailInstructions": "Vérifiez votre boîte de réception et suivez les instructions pour réinitialiser votre mot de passe."
 
 
 

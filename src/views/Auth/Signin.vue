@@ -174,12 +174,24 @@
                         <span v-if="!isVerifyingReset">{{ t('verify') }}</span>
                         <span v-else class="flex items-center gap-2"><Spinner class="w-4 h-4" />{{ t('verifying') }}...</span>
                       </button>
+                        <button v-if="resetSent" type="button" @click="backToLogin"
+                          class="px-4 py-2 text-sm text-white bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors">
+                          {{ t('backToLogin') }}
+                        </button>
                     </div>
                     <p v-if="resetVerifyError" class="text-xs text-red-600">{{ resetVerifyError }}</p>
                     <p v-if="resetSendError" class="text-xs text-red-600">{{ resetSendError }}</p>
-                    <p v-if="resetSent" class="text-xs text-green-600">
-                      {{ t('checkEmailForReset') }}
-                    </p>
+                    <div v-if="resetSent" class="p-3 rounded-lg bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-800">
+                      <p class="text-xs text-green-700 dark:text-green-300 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{{ t('checkEmailForReset') }}</span>
+                      </p>
+                      <p class="text-xs text-green-600 dark:text-green-400 mt-1">
+                        {{ t('checkEmailInstructions') }}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -471,5 +483,27 @@ const handleSubmit = async () => {
     isLoading.value = false;
   }
 };
+
+const backToLogin = () => {
+
+
+  // Réinitialiser tous les états du reset password
+  resetMode.value = false
+  resetUsername.value = ''
+  resetHotelId.value = ''
+  resetVerifyError.value = null
+  resetSendError.value = null
+  resetSendError.value = null
+  isVerifyingReset.value = false
+  isSendingReset.value = false
+  resetVerified.value = false
+  resetSent.value = false
+
+  // Réinitialiser aussi les champs de login
+  email.value = ''
+  password.value = ''
+  error.value = null
+
+}
 
 </script>
