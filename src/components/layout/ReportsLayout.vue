@@ -4,18 +4,17 @@
     <ReportsSidebar />
 
     <!-- Backdrop for mobile -->
-    <Backdrop />
+    <!-- <Backdrop /> -->
 
     <!-- Main content area -->
     <div :class="[
       ' flex-1 transition-all duration-300 ease-in-out flex flex-col min-h-full',
       {
-        'lg:ml-[290px]': isExpanded || isHovered,
-        'lg:ml-[90px]': !isExpanded && !isHovered,
+        'lg:ml-[290px]': true
       },
     ]">
       <!-- Header -->
-      <AppHeader :show-sidebar="false" :show-button="false" />
+      <AppHeader :show-sidebar="false"/>
 
       <!-- Page content -->
         <div class="p-6 h-full">
@@ -38,4 +37,5 @@ import AppFooter from './AppFooter.vue'
 
 const { isExpanded } = useSidebar()
 const isHovered = ref(false)
+
 </script>

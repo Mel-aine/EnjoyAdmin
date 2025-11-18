@@ -8325,5 +8325,13 @@
       "submitFail": "Failed to send. Try again or contact support."
     }
   },
-  "viewDetails": "View Details"
+  "viewDetails": "View Details",
+   "serviceUnavailable": "Service temporarily unavailable. Please try again.",
+  "loginFailedGeneric": "Login failed. Please try again.",
+  "emailAndPasswordRequired": "Email and password are required.",
+  "invalidRequestData": "Invalid login data.",
+  "validationError": "Data validation error.",
+  "serverError": "Server error. Please try again.",
+  "networkError": "Network error. Please check your connection.",
+  "unexpectedError": "Unexpected error. Please try again."
 }

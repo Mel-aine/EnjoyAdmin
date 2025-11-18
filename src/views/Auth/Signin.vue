@@ -127,7 +127,7 @@
                       {{ $t('Keepmeloggedin') }}
                         </label>
                       </div>
-                      
+
                       <button type="button" @click="toggleResetMode"
                         class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 ml-3">
                         {{ t('resetPasswordTitle') }}
@@ -388,30 +388,36 @@ const toggleResetMode = () => {
     resetSent.value = false
   }
 }
+const loginAttempts = ref(0)
+const MAX_LOGIN_ATTEMPTS = 3
 
 
 const handleSubmit = async () => {
-  isLoading.value = true;
   error.value = null;
+  loginAttempts.value++;
+
+  if (!email.value.trim() || !password.value.trim()) {
+    error.value = t('emailAndPasswordRequired');
+    return;
+  }
+
+  isLoading.value = true;
+
   try {
-     authStore.logout()
-    stopAuthAutoRefresh()
-    await validateEmail(email.value);
-    await validatePassword(email.value, password.value);
+
     const res = await auth({
-      email: email.value,
+      email: email.value.trim().toLowerCase(),
       password: password.value,
       keepLoggedIn: keepLoggedIn.value,
     });
-    console.log('login response', res);
+
     const { user, access_token } = res.data.data;
     const token = access_token.token;
 
-
-    // Persist handled by Pinia persistedstate; no manual storage
     authStore.login(user, token);
     authStore.setRoleId(user.roleId);
     authStore.setUserId(user.id);
+
     if (keepLoggedIn.value) {
       const entry: RememberedAccount = {
         id: user.id,
@@ -427,21 +433,43 @@ const handleSubmit = async () => {
         path: '/',
       })
     }
-    router.push({ path: '/setup'});
+
+    loginAttempts.value = 0;
+    router.push({ path: '/setup' });
+
   } catch (err: any) {
-    if (err.response?.status === 401) {
-      error.value = t('incorrectEmailOrPassword');
-    } else if (err.response) {
-      error.value = err.response.data?.message || t('connectionError');
-    } else {
-      error.value = t('anErrorOcured');
+
+    //Gestion du 503 (Service Unavailable)
+    if (err.response?.status === 503) {
+      error.value = t('serviceUnavailable');
+
+      // Réessai automatique pour les erreurs de service
+      if (loginAttempts.value < MAX_LOGIN_ATTEMPTS) {
+        setTimeout(() => {
+          handleSubmit();
+        }, 2000);
+        return;
+      }
     }
-    console.error("Erreur de connexion:", err);
+    else if (err.response?.status === 400 && err.response.data?.message === 'Login failed') {
+      error.value = t('loginFailedGeneric');
+    } else if (err.response?.status === 401) {
+      error.value = t('incorrectEmailOrPassword');
+    } else if (err.response?.status === 400) {
+      error.value = err.response.data?.message || t('invalidRequestData');
+    } else if (err.response?.status === 422) {
+      error.value = t('validationError');
+    } else if (err.response) {
+      error.value = t('serverError');
+    } else if (err.request) {
+      error.value = t('networkError');
+    } else {
+      error.value = t('unexpectedError');
+    }
+
   } finally {
     isLoading.value = false;
   }
 };
-
-
 
 </script>

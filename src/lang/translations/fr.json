@@ -8497,7 +8497,15 @@
       "submitFail": "Échec de l’envoi. Réessayez ou contactez le support."
     }
   },
-  "viewDetails": "Voir les détails"
+  "viewDetails": "Voir les détails",
+   "serviceUnavailable": "Service temporairement indisponible. Veuillez réessayer.",
+  "loginFailedGeneric": "Échec de la connexion. Veuillez réessayer.",
+  "emailAndPasswordRequired": "L'email et le mot de passe sont requis.",
+  "invalidRequestData": "Données de connexion invalides.",
+  "validationError": "Erreur de validation des données.",
+  "serverError": "Erreur du serveur. Veuillez réessayer.",
+  "networkError": "Erreur réseau. Vérifiez votre connexion.",
+  "unexpectedError": "Erreur inattendue. Veuillez réessayer."
 
 
 

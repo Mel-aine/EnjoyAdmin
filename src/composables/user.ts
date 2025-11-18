@@ -47,7 +47,6 @@ export const useAuthStore = defineStore('auth', {
     },
 
     forceLogout() {
-      console.log('Force logout - avant:', this.$state);
 
       this.$reset();
       this.token = null;
@@ -57,7 +56,6 @@ export const useAuthStore = defineStore('auth', {
       this.UserId = null;
       this.reauthRequired = false;
 
-      console.log('Force logout - après:', this.$state);
     },
 
     setRoleId(roleId: number) {
@@ -67,7 +65,6 @@ export const useAuthStore = defineStore('auth', {
       this.UserId = UserId;
     },
     setReportsPermissions(permissions:any){
-      console.log("permissions",permissions)
        this.reportsPermissions = permissions;
     },
      updateToken(token: string, tokenData: any) {

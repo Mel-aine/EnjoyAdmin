@@ -315,9 +315,10 @@ import { useSidebar } from '@/composables/useSidebar'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
 
 const route = useRoute()
-const { isExpanded, isMobileOpen } = useSidebar()
+const { isExpanded } = useSidebar()
 const authStore = useAuthStore()
 const isHovered = ref(false)
+const isMobileOpen = ref(true)
 const searchQuery = ref('')
 
 const openSections = ref<any>({
@@ -515,13 +516,10 @@ const filteredFrontOfficeReports = computed(() => {
 })
 
 const filteredBackOfficeReports = computed(() => {
-  console.log('=== DÉBUT FILTRAGE RAPPORTS BACK OFFICE ===');
-  console.log('Tous les rapports Back Office:', backOfficeReports.value);
-  console.log('Utilisateur actuel:', authStore.user);
 
   // Afficher les permissions brutes et parsées
   const rawPermissions = authStore.user?.permisReports;
-  console.log('Permissions brutes (permisReports):', rawPermissions);
+
 
   try {
     const parsedPermissions = rawPermissions ? JSON.parse(rawPermissions) : [];
