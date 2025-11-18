@@ -36,11 +36,25 @@
         class="items-center justify-between w-full gap-4 px-5 py-4 bg-gradient-to-r from-white/80 via-gray-50/80 to-white/80 backdrop-blur-sm shadow-xl border-t border-gray-100 dark:border-gray-700 dark:from-gray-800/80 dark:via-gray-700/80 dark:to-gray-800/80 lg:flex lg:justify-end lg:px-0 lg:shadow-none lg:bg-transparent lg:border-t-0 lg:backdrop-blur-none">
         <div class="flex items-center gap-1 sm:gap-2">
           <NotificationMenu />
+          <!-- Support button -->
+          <button
+            class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
+            @click="openSupportModal"
+            aria-label="Open support modal">
+            <HelpCircle class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
+            <span
+              class="absolute top-full mt-2 hidden group-hover:block text-xs bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+              {{ $t('Support') }}
+            </span>
+          </button>
         </div>
         <ConfigurationUserMenu />
       </div>
     </div>
   </header>
+  <template v-if="showSupportModal">
+    <SupportTicketModal v-if="showSupportModal" @close="showSupportModal = false" />
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -49,6 +63,8 @@ import { useSidebar } from '@/composables/useSidebar'
 import HeaderLogo from './header/HeaderLogo.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import ConfigurationUserMenu from './header/ConfigurationUserMenu.vue'
+import SupportTicketModal from '../modal/SupportTicketModal.vue'
+import { HelpCircle } from 'lucide-vue-next'
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
 
@@ -64,5 +80,10 @@ const isApplicationMenuOpen = ref(false)
 
 const toggleApplicationMenu = () => {
   isApplicationMenuOpen.value = !isApplicationMenuOpen.value
+}
+
+const showSupportModal = ref(false)
+const openSupportModal = () => {
+  showSupportModal.value = true
 }
 </script>
