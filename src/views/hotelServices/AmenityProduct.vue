@@ -7,10 +7,10 @@ import {
     getAmenitiesProductByServiceId,
 } from '@/services/api'
 import { useI18n } from 'vue-i18n'
-import TableComponent from '@/components/tables/TableComponent.vue'
 import router from '@/router'
 import ModalDelete from '@/components/modal/ModalDelete.vue'
 import AmenityProductUpsertModal from '@/components/modal/AmenityProductUpsertModal.vue'
+// import ReusableTable from '@/components/tables/ReusableTable.vue'
 const loadingDelete = ref(false)
 const loading = ref(false)
 const serviceStore = useServiceStore()
@@ -47,81 +47,50 @@ const fetchAmenities = async () => {
 onMounted(async () => {
     fetchAmenities()
 })
-const titles = computed(() => [
+const titles = ref([
     {
-        name: 'id',
+        key: 'id',
         label: t('ID'),
         type: 'text',
-        filterable: false,
+
     },
     {
-        name: 'name',
+        key: 'name',
         label: t('Name'),
         type: 'text',
-        filterable: true,
+
     },
     {
-        name: 'status',
+        key: 'status',
         label: t('status'),
         type: 'text',
-        filterable: true,
+
     },
     {
-        name: 'price',
+        key: 'price',
         label: t('price'),
         type: 'currency',
-        filterable: true,
+
     },
     {
-        name: 'pricingModel',
+        key: 'pricingModel',
         label: t('pricing_model'),
         type: 'text',
-        filterable: true,
-        isTranslatable: true,
+
     },
     {
-        name: 'timeUnit',
+        key: 'timeUnit',
         label: t('time_unit'),
         type: 'text',
-        filterable: true,
-        isTranslatable: true,
+
     },
 
     {
-        name: 'createdAt',
+        key: 'createdAt',
         label: t('createdAt'),
         type: 'date',
-        filterable: false,
-    },
 
-    {
-        name: 'actions',
-        label: t('Actions'),
-        type: 'action',
-        actions: [
-            {
-                name: 'View',
-                event: 'view',
-                icone: ` <svg class="h-6 w-6 text-primary"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="2" />  <path d="M2 12l1.5 2a11 11 0 0 0 17 0l1.5 -2" />  <path d="M2 12l1.5 -2a11 11 0 0 1 17 0l1.5 2" /></svg>`,
-            },
-            {
-                name: 'Edit',
-                event: 'edit',
-                icone: ` <svg class="h-6 w-6 text-blue-500" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z"/>
-          <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-        </svg>`,
-            },
-            {
-                name: 'Delete',
-                event: 'delete',
-                icone: `<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>`,
-            },
-        ],
-    },
+    }
 ])
 
 
@@ -185,23 +154,15 @@ const OpenModal = () => {
     <div class="space-y-6 mt-5 mb-5">
 
         <div class="space-y-4">
-            <TableComponent :items="titles" :datas="usersWithRoleLabels" :filterable="true" :pagination="true"
-                :loading="loading" :showHeader="true" :searchable="false" :title="$t('amenityProduct.products')"
-                :pageSize="15" :showButtonAllElement="true" @edit="onEditAmenityProduct"
-                @delete="onDeleteAmenityProduct" @view="onView" class="modern-table">
+            <!-- <ReusableTable :title="t('roomTypeList')" :columns="titles" :data="usersWithRoleLabels"
+              :search-placeholder="t('searchRoomTypes')"
+              :loading="loading">
+              <template #header-actions>
+                <BasicButton :label="t('amenityProduct.addProduct')" >
+                </BasicButton>
 
-                <template v-slot:headerActions>
-                    <!-- Add AmenityProduct Button -->
-                    <button @click="OpenModal"
-                        class="flex items-center bg-purple-500 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-700 transition">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                        {{ t('amenityProduct.addProduct') }}
-                    </button>
-                </template>
-            </TableComponent>
+              </template>
+            </ReusableTable> -->
         </div>
         <template v-if="modalOpen && hotelServiceId">
             <AmenityProductUpsertModal @close="closeModal()" @refresh="refresh()" :modal-open="modalOpen"

@@ -1333,16 +1333,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/invoice/:id',
-      name: 'ViewInvoice',
-      component: () => import('../views/Payment/InvoiceDetail.vue'),
-      meta: {
-        title: 'View Invoice',
-        requiresAuth: true,
-      },
-      props: true,
-    },
-    {
       path: '/customers',
       name: 'Customers',
       component: () => import('../views/Customers/CustomersTable.vue'),
