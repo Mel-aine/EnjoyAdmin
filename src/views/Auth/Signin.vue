@@ -58,7 +58,7 @@
                       <span>{{ error }}</span>
                     </p>
 
-                    <!-- Email -->
+
                     <div v-if="!selectedAccount">
                       <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                         {{ $t('Email') }}<span class="text-error-500">*</span>
@@ -77,7 +77,7 @@
                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ selectedAccount.email }}</div>
                       </div>
                     </div>
-                    <!-- Password -->
+
                     <div>
                       <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                         {{ $t('Password') }}<span class="text-error-500">*</span>
@@ -104,7 +104,7 @@
                         </span>
                       </div>
                     </div>
-                    <!-- Checkbox -->
+
                     <div class="flex items-center justify-between">
                       <div>
                         <label for="keepLoggedIn"
@@ -133,7 +133,7 @@
                         {{ t('resetPasswordTitle') }}
                       </button>
                     </div>
-                    <!-- Button -->
+
                     <div>
                       <button type="submit"
                         class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-purple-500 shadow-theme-xs hover:bg-purple-600">
@@ -147,7 +147,7 @@
                     </div>
                   </div>
                 </form>
-                <!-- Reset Password Panel -->
+
                 <div v-if="resetMode" class="mt-4 space-y-3 border-t pt-4">
                   <div class="flex items-center gap-2 text-sm font-semibold">
                     <button type="button" @click="toggleResetMode" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/10">
@@ -195,39 +195,104 @@
                   </div>
                 </div>
                 <div>
-                  <!--  <p
-                    class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start"
-                  >
-                    {{$t('Donthaveanaccount')}}?
-                    <router-link
-                      to="/signup"
-                      class="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                      >{{ $t('SignUp') }}</router-link
-                    >
-                  </p>-->
-                  <!-- <div class="mt-3 flex md:justify-end justify-center">
-          <ButtonLanguage></ButtonLanguage>
-          </div> -->
 
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="relative items-center hidden w-full h-full lg:w-1/2 bg-purple-900 dark:bg-white/5 lg:grid">
+        <!-- <div class="relative items-center hidden w-full h-full lg:w-1/2 bg-purple-900 dark:bg-white/5 lg:grid">
           <div class="flex items-center justify-center z-50 shadow-xl h-full">
             <common-grid-shape />
 
-            <img src="@/assets/images/header/Tablet login-amico.svg" alt="Background"
-              class="w-full h-full object-cover rounded-lg" />
+          </div>
+        </div> -->
+         <div class="relative items-center hidden w-full h-full lg:w-1/2 bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 lg:flex overflow-hidden">
+
+        <div class="absolute inset-0 opacity-10">
+          <div class="absolute top-0 left-0 w-96 h-96 bg-purple-400 rounded-full blur-3xl"></div>
+          <div class="absolute bottom-0 right-0 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
+        </div>
+
+        <!-- Content container -->
+        <div class="relative z-10 flex flex-col items-center justify-center w-full h-full px-12 py-16">
+
+          <!-- Main message with animation -->
+        <div class="mb-16 w-full">
+            <div class="relative h-32 flex items-center justify-center w-full">
+              <h2
+                v-for="(message, index) in messages"
+                :key="index"
+                :class="[
+                  'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-3xl font-bold text-white transition-all duration-1000 text-center px-6',
+                  index === currentMessageIndex
+                    ? 'opacity-100'
+                    : 'opacity-0'
+                ]"
+              >
+                {{ message }}
+              </h2>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 mt-2">
+              <div
+                v-for="(_, index) in messages"
+                :key="index"
+                :class="[
+                  'h-1.5 rounded-full transition-all duration-500',
+                  index === currentMessageIndex
+                    ? 'w-8 bg-white'
+                    : 'w-1.5 bg-white/40'
+                ]"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Partners section -->
+          <div class="w-full max-w-2xl">
+
+            <!-- Partners grid -->
+            <div class="grid grid-cols-3 gap-6 mb-8">
+              <div
+                v-for="(partner, index) in partners.slice(0, 6)"
+                :key="partner.name"
+                class="group relative flex items-center justify-center p-6 bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-xl border border-white/20 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-2xl fade-in-up"
+                :style="{ animationDelay: `${index * 100}ms` }"
+              >
+                <img
+                  :src="partner.logo"
+                  :alt="partner.name"
+                  class="w-full h-8 object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                />
+              </div>
+            </div>
+
+            <!-- Additional partner -->
+            <div class="flex items-center justify-center p-4 bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-xl border border-white/20 dark:border-white/10">
+              <img
+                :src="partners[6].logo"
+                :alt="partners[6].name"
+                class="h-8 object-contain opacity-90"
+              />
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 mt-12">
+              <div class="text-center p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                <div class="text-2xl font-bold text-white mb-1">24/7</div>
+                <div class="text-xs text-purple-200 dark:text-gray-400">Support</div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+
       </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted ,onUnmounted} from 'vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -506,4 +571,78 @@ const backToLogin = () => {
 
 }
 
+
+
+const currentMessageIndex = ref(0)
+
+const messages = [
+  "Maximisez vos revenus : Connectez-vous instantanément à plus de 100 000 agences et professionnels du voyage.",
+  "Zéro surréservation : Synchronisation en temps réel sur toutes les plateformes (OTAs) via notre Channel Manager.",
+  "Concentrez-vous sur vos clients : Automatisez toute la gestion hôtelière avec notre puissant PMS.",
+  "Dites Adieu à l'erreur manuelle : Tarifs et disponibilités mis à jour en un seul clic, partout."
+]
+
+
+
+
+
+
+const partners = [
+  {
+    name: "Booking.com",
+    logo: "https://logos-world.net/wp-content/uploads/2021/08/Booking-Logo.png"
+  },
+  {
+    name: "Expedia",
+    logo: "https://logos-world.net/wp-content/uploads/2020/11/Expedia-Logo.png"
+  },
+  {
+    name: "Airbnb",
+    logo: "https://logos-world.net/wp-content/uploads/2020/10/Airbnb-Logo.png"
+  },
+  {
+    name: "Agoda",
+    logo: "https://cdn.worldvectorlogo.com/logos/agoda-1.svg"
+  },
+  {
+    name: "Hotels.com",
+    logo: "https://logos-world.net/wp-content/uploads/2021/02/Hotels-com-Logo.png"
+  },
+  {
+    name: "Trivago",
+    logo: "https://logos-world.net/wp-content/uploads/2022/04/Trivago-Logo.png"
+  }
+]
+
+let intervalId: number | null = null
+
+onMounted(() => {
+  intervalId = window.setInterval(() => {
+    currentMessageIndex.value = (currentMessageIndex.value + 1) % messages.length
+  }, 10000)
+})
+
+onUnmounted(() => {
+  if (intervalId !== null) {
+    clearInterval(intervalId)
+  }
+})
 </script>
+
+<style scoped>
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
