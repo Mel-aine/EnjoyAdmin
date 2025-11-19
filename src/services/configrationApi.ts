@@ -1573,7 +1573,7 @@ export const emailAccountsApi = {
         throw new Error('Valid hotel ID is required')
       }
 
-      const response = await axios.get(`${API_URL()}/email-accounts/active/${hotelId}`, getHeaders())
+      const response = await axios.get(`${API_URL()}/email-accounts`, getHeaders())
       return response.data
     } catch (error) {
       console.error('Error fetching active email accounts:', error)
@@ -1658,6 +1658,26 @@ export const emailAccountsApi = {
       return response.data
     } catch (error) {
       console.error('Error toggling email account status:', error)
+      throw error
+    }
+  }
+
+  ,
+  // Check verification status for a given email (POST /email-accounts/validate)
+  async validateEmailAccount(email: string) {
+    try {
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new Error('Valid email is required')
+      }
+
+      const response = await axios.post(
+        `${API_URL()}/email-accounts/validate`,
+        { email },
+        getHeaders()
+      )
+      return response.data
+    } catch (error) {
+      console.error('Error validating email account:', error)
       throw error
     }
   }
