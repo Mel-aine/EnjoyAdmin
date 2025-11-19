@@ -14,8 +14,8 @@
         @action="onAction"
       >
         <template #header-actions>
-          <BasicButton 
-            variant="primary" 
+          <BasicButton
+            variant="primary"
             :icon="PlusIcon"
             :label="$t('configuration.template.add_template')"
             @click="openAddModal"
@@ -23,12 +23,27 @@
         </template>
 
         <template #column-status="{ item }">
-          <span 
+          <span
             :class="item.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'"
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
           >
             {{ item.status }}
           </span>
+        </template>
+
+         <template #column-createdBy="{ item }">
+          <div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.creator?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+          </div>
+        </template>
+
+        <!-- Custom column for modified info -->
+        <template #column-modifiedBy="{ item }">
+          <div>
+            <div class="text-sm text-gray-900 dark:text-white">{{ item.modifier?.fullName }}</div>
+            <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+          </div>
         </template>
       </ReusableTable>
       <!-- Add/Edit Modal (Right Drawer) -->
@@ -40,22 +55,22 @@
       >
         <form @submit.prevent="saveTemplate" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 ">
-            <Input 
+            <Input
               :lb="$t('configuration.template.fields.template_name')"
               :inputType="'text'"
               :isRequired="true"
               v-model="formData.name"
               :placeholder="$t('configuration.template.fields.template_name_placeholder')"
             />
-            
-            <Select 
+
+            <Select
               :lb="$t('configuration.template.fields.template_category')"
               :isRequired="true"
               v-model="formData.category"
               :options="categoryOptions"
               :defaultValue="$t('configuration.template.fields.select_category')"
             />
-               <Select 
+               <Select
               :lb="$t('configuration.template.fields.email_account')"
               :isRequired="true"
               v-model="formData.emailAccount"
@@ -63,11 +78,11 @@
               :defaultValue="$t('configuration.template.fields.select_email_account')"
             />
           </div>
-          
-          
-          
+
+
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-         
+
           </div>
 
           <!-- CC/BCC selection -->
@@ -76,7 +91,7 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CC</label>
               <div class="border rounded p-2 max-h-36 overflow-auto space-y-1">
                 <label v-for="acc in emailAccounts" :key="acc.id" class="flex items-center gap-2 text-sm">
-                  <input type="checkbox" :value="acc.id" v-model="formData.cc" />
+                  <input type="checkbox" :value="acc.emailAddress" v-model="formData.cc" />
                    <span class="text-gray-500">{{ acc.emailAddress }}</span>
                 </label>
               </div>
@@ -85,21 +100,21 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">BCC</label>
               <div class="border rounded p-2 max-h-36 overflow-auto space-y-1">
                 <label v-for="acc in emailAccounts" :key="'bcc-' + acc.id" class="flex items-center gap-2 text-sm">
-                  <input type="checkbox" :value="acc.id" v-model="formData.bcc" />
+                  <input type="checkbox" :value="acc.emailAddress" v-model="formData.bcc" />
                  <span class="text-gray-500">{{ acc.emailAddress }}</span>
                 </label>
               </div>
             </div>
           </div>
-          
-          <Input 
+
+          <Input
             :lb="$t('configuration.template.fields.subject')"
             :inputType="'text'"
             :isRequired="true"
             v-model="formData.subject"
             :placeholder="$t('configuration.template.fields.subject_placeholder')"
           />
-          
+
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ $t('configuration.template.fields.message_body') }} <span class="text-red-500">*</span>
@@ -108,7 +123,7 @@
             <div class="flex flex-wrap items-center gap-2 mb-2">
               <span class="text-xs text-gray-600 dark:text-gray-300 mr-2">{{ $t('configuration.template.fields.insert_field') }}</span>
               <div class="w-40">
-                <Select 
+                <Select
                   :lb="'Group'"
                   v-model="selectedTokenGroup"
                   :options="tokenGroupOptions"
@@ -116,7 +131,7 @@
                 />
               </div>
               <div class="w-48">
-                <Select 
+                <Select
                   :lb="'Token'"
                   v-model="selectedToken"
                   :options="tokenOptions"
@@ -127,12 +142,12 @@
                 {{ $t('configuration.template.actions.add_token') }}
               </button>
             </div>
-            <RichTextEditor 
+            <RichTextEditor
               v-model="formData.messageBody"
               :placeholder="$t('configuration.template.fields.message_body_placeholder')"
             />
           </div>
-          
+
           <div class="flex justify-end space-x-3 pt-4">
             <BasicButton
               type="button"
@@ -170,6 +185,8 @@ import { getTemplateCategories, emailAccountsApi, emailTemplatesApi } from '@/se
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { useI18n } from 'vue-i18n'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import { Edit, Edit2, Trash2 } from 'lucide-vue-next'
 
 // Reactive data
 const showModal = ref(false)
@@ -288,20 +305,24 @@ const columns: Column[] = [
   { key: 'name', label: t('configuration.template.columns.template_name'), type: 'text' },
   { key: 'templateCategory.category', label: t('configuration.template.columns.category'), type: 'text' },
   { key: 'subject', label: t('configuration.template.columns.subject'), type: 'text' },
-  { key: 'createdBy', label: t('configuration.template.columns.created_by'), type: 'text' },
-  { key: 'status', label: t('configuration.template.columns.status'), type: 'custom' }
+  { key: 'createdBy', label: t('configuration.template.columns.created_by'), type: 'custom' },
+  { key: 'modifiedBy', label: t('configuration.template.columns.modified_by'), type: 'custom' },
+
+  // { key: 'status', label: t('configuration.template.columns.status'), type: 'custom' }
 ]
 
 const actions:Action[] = [
   {
     label: t('edit'),
     handler: (item: any) => editTemplate(item),
-    variant: 'primary'
+    variant: 'primary',
+    icon:Edit
   },
   {
     label: t('delete'),
     handler: (item: any) => deleteTemplate(item.id),
     variant: 'danger',
+    icon:Trash2,
     condition: (item: any) => item?.isDeleted === true
   },
 ]
@@ -349,18 +370,19 @@ const closeModal = () => {
 const saveTemplate = async () => {
   try {
     saving.value = true
-    
-    const templateData = {
+
+    const templateData:any = {
       hotelId: useServiceStore().serviceId!,
       name: formData.name,
-      category: formData.category,
+      templateCategoryId: formData.category,
       subject: formData.subject,
       messageBody: formData.messageBody,
-      emailAccount: formData.emailAccount,
+      emailAccountId: formData.emailAccount,
       cc: formData.cc,
       bcc: formData.bcc,
       isActive: true
     }
+    console.log('templateData',templateData)
 
     if (isEditing.value && editingId.value) {
       // Update existing template
@@ -371,10 +393,10 @@ const saveTemplate = async () => {
       await emailTemplatesApi.createEmailTemplate(templateData)
       toast.success(t('configuration.template.create_success'))
     }
-    
+     closeModal()
     // Refresh the templates list
     await fetchEmailTemplates()
-    closeModal()
+
   } catch (error) {
     console.error('Error saving template:', error)
     toast.error(t('configuration.template.save_error'))

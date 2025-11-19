@@ -1705,12 +1705,12 @@ export const emailTemplatesApi = {
   async createEmailTemplate(data: {
     hotelId: number
     name: string
-    category: string
+    templateCategoryId: string
     subject: string
     messageBody: string
     autoSend?: string
     attachment?: string
-    emailAccount?: string
+    emailAccountId?: number
     cc?: string[]
     bcc?: string[]
     scheduleDate?: string
@@ -1724,7 +1724,7 @@ export const emailTemplatesApi = {
       if (!data.name || data.name.trim().length === 0 || data.name.length > 255) {
         throw new Error('Template name is required and must be between 1-255 characters')
       }
-      if (!data.category || data.category.trim().length === 0) {
+      if (!data.templateCategoryId || data.templateCategoryId.length === 0) {
         throw new Error('Category is required')
       }
       if (!data.subject || data.subject.trim().length === 0 || data.subject.length > 500) {
@@ -1733,8 +1733,12 @@ export const emailTemplatesApi = {
       if (!data.messageBody || data.messageBody.trim().length === 0) {
         throw new Error('Message body is required')
       }
-
-      const response = await axios.post(`${API_URL()}/email-templates`, data, getHeaders())
+      const payload = {
+      ...data,
+      cc: Array.isArray(data.cc) ? data.cc : [],
+      bcc: Array.isArray(data.bcc) ? data.bcc : []
+    }
+      const response = await axios.post(`${API_URL()}/email-templates`, payload, getHeaders())
       return response.data
     } catch (error) {
       console.error('Error creating email template:', error)
