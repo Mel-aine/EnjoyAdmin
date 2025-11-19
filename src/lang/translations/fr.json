@@ -8652,7 +8652,25 @@
   "serverError": "Erreur du serveur. Veuillez réessayer.",
   "networkError": "Erreur réseau. Vérifiez votre connexion.",
   "unexpectedError": "Erreur inattendue. Veuillez réessayer.",
-  "checkEmailInstructions": "Vérifiez votre boîte de réception et suivez les instructions pour réinitialiser votre mot de passe."
+  "checkEmailInstructions": "Vérifiez votre boîte de réception et suivez les instructions pour réinitialiser votre mot de passe.",
+  "messag": {
+    "maximizeRevenue": {
+      "title": "Maximisez Vos Revenus",
+      "text": "Connectez-vous instantanément à plus de 10 agences et professionnels du voyage."
+    },
+    "noOverbooking": {
+      "title": "Zéro Surréservation",
+      "text": "Synchronisation en temps réel sur toutes les plateformes (OTAs) via notre Channel Manager."
+    },
+    "automatedManagement": {
+      "title": "Gestion Automatisée",
+      "text": "Concentrez-vous sur vos clients : Automatisez toute la gestion hôtelière avec notre puissant PMS."
+    },
+    "goodbyeManualError": {
+      "title": "Adieu L'Erreur Manuelle",
+      "text": "Tarifs et disponibilités mis à jour en un seul clic, partout, tout le temps."
+    }
+  }
 
 
 
