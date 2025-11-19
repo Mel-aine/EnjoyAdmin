@@ -449,7 +449,7 @@ const masterItems: MenuItem[] = [
 ]
 
 const settingsItems: MenuItem[] = [
-//  { path: '/configuration/settings/email-accounts', label: 'Email Accounts' },
+  { path: '/configuration/settings/email-accounts', label: 'Email Accounts' },
   { path: '/configuration/settings/hotel-information', label: 'Hotel Information' },
   { path: '/configuration/settings/formula', label: 'Formula' },
   { path: '/configuration/settings/notices', label: 'Notices' },

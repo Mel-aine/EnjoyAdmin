@@ -3,7 +3,7 @@
     <div class="p-6">
       <!-- Table -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <ReusableTable :columns="columns" :data="emailAccounts" :actions="actions" :loading="isLoadingAccounts"
+        <ReusableTable :columns="columns" :data="emailAccounts" :getActions="getActions" :loading="isLoadingAccounts"
           searchPlaceholder="Search email accounts...">
           <template #header-actions>
             <BasicButton variant="primary" :icon="Plus" label="Add Email" @click="openAddModal" />
@@ -19,6 +19,33 @@
             ]">
               {{ item.isActive ? 'Active' : 'Inactive' }}
             </span>
+          </template>
+          <!-- Email Verified column -->
+          <template #column-isVerified="{ item }">
+            <span :class="[
+              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+              item.isVerified === true
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+
+            ]">
+              {{ item.isVerified === true ? 'Verified' : 'Pending' }}
+            </span>
+          </template>
+          <!-- Custom column for created info -->
+          <template #column-createdInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.createdByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.createdAt) }}</div>
+            </div>
+          </template>
+
+          <!-- Custom column for modified info -->
+          <template #column-modifiedInfo="{ item }">
+            <div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ item.lastModifiedByUser?.fullName }}</div>
+              <div class="text-xs text-gray-400 dark:text-gray-400">{{ formatDateT(item.updatedAt) }}</div>
+            </div>
           </template>
         </ReusableTable>
       </div>
@@ -50,44 +77,58 @@
               <Input v-model="formData.displayName" placeholder="Name to display when email is sent" required />
             </div>
 
-            <!-- Signature -->
+
+
+            <!-- Signature (Rich Text) -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Signature
               </label>
-              <textarea v-model="formData.signature"
-                placeholder="Create and edit signatures for outgoing messages, replies and forwards"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-dark-800 dark:text-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-purple-500-500 focus:border-purple-500"
-                rows="4"></textarea>
+              <RichTextEditor v-model="formData.signature"
+                placeholder="Create and edit signatures for outgoing messages, replies and forwards" />
             </div>
 
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel"
-                :disabled="isLoading" />
+              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" :disabled="isLoading" />
               <BasicButton type="submit" variant="primary"
-                :label="isEditing ? 'Update Email Account' : 'Add Email Account'"
-                :loading="isLoading" />
+                :label="isEditing ? 'Update Email Account' : 'Add Email Account'" :loading="isLoading" />
             </div>
           </form>
         </div>
       </div>
     </div>
   </ConfigurationLayout>
+  <!-- Delete Confirmation Modal -->
+  <ConfirmationModal
+    v-model:show="showDeleteModal"
+    title="Delete Email Account"
+    message="Are you sure you want to delete this email account? This action cannot be undone."
+    confirm-text="Delete"
+    cancel-text="Cancel"
+    variant="danger"
+    :loading="isDeleting"
+    @confirm="executeDeleteEmailAccount"
+    @cancel="showDeleteModal = false"
+  />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import ReusableTable from '../../../components/tables/ReusableTable.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Loader2 } from 'lucide-vue-next'
 import { emailAccountsApi } from '../../../services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '../../../composables/serviceStore'
 import InputEmail from '../../../components/forms/FormElements/InputEmail.vue'
+import RichTextEditor from '../../../components/forms/FormElements/RichTextEditor.vue'
+import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import type { Column } from '../../../utils/models'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -98,14 +139,21 @@ const isEditing = ref(false)
 const editingId = ref(null)
 const isLoading = ref(false)
 const isLoadingAccounts = ref(false)
+// Per-row loading maps
+const verifyingMap = ref<Record<number, boolean>>({})
+const togglingMap = ref<Record<number, boolean>>({})
+// Delete confirmation state
+const showDeleteModal = ref(false)
+const isDeleting = ref(false)
+const deleteTargetId = ref<number | null>(null)
 
 // Hotels data
 const hotels = ref([])
-const selectedHotelId = ref(null)
+const selectedHotelId = ref(0)
 
 // Form data
 const formData = ref({
-  hotelId: null,
+  hotelId: 0,
   title: '',
   emailAddress: '',
   displayName: '',
@@ -114,7 +162,7 @@ const formData = ref({
 })
 
 // Email accounts data
-const emailAccounts = ref([])
+const emailAccounts = ref<any[]>([])
 const pagination = ref({
   page: 1,
   limit: 10,
@@ -122,39 +170,58 @@ const pagination = ref({
 })
 
 // Table configuration
-const columns = [
+const columns:  Column[] = [
   { key: 'title', label: 'Title', type: 'text' },
   { key: 'emailAddress', label: 'Email Address', type: 'text' },
   { key: 'displayName', label: 'Display Name', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'isActive', label: 'Status', type: 'custom' }
+  { key: 'isActive', label: 'Active', type: 'custom' },
+  { key: 'isVerified', label: 'Email Verified', type: 'custom' },
+  { key: 'createdInfo', label: 'Created By', type: 'custom' },
+  { key: 'modifiedInfo', label: 'Modified By', type: 'custom' },
 ]
 
-const actions = [
-  {
-    label: 'Edit',
-    handler: (item) => editEmailAccount(item),
-    variant: 'primary'
-  },
-  {
-    label: 'Toggle Status',
-    handler: (item) => toggleAccountStatus(item),
-    variant: 'secondary'
-  },
-  {
-    label: 'Delete',
-    handler: (item) => deleteEmailAccount(item.id),
-    variant: 'danger'
+const getActions = (item:any) => {
+  const isVerifying = !!verifyingMap.value[item.id]
+  const isToggling = !!togglingMap.value[item.id]
+  const needsVerification = item?.isVerified !== true
+
+  const actions:any[] = [
+    {
+      label: 'Edit',
+      handler: (row:any) => editEmailAccount(row),
+      variant: 'primary',
+    },
+    {
+      label: isToggling ? 'Toggling…' : (item.isActive ? 'Toggle Inactive' : 'Toggle Active'),
+      icon: isToggling ? Loader2 : undefined,
+      handler: (row:any) => {
+        if (togglingMap.value[row.id]) return
+        toggleAccountStatus(row)
+      },
+      variant: 'secondary'
+    },
+    {
+      label: 'Delete',
+      handler: (row:any) => confirmDeleteEmailAccount(row),
+      variant: 'danger'
+    }
+  ]
+
+  if (needsVerification) {
+    actions.splice(1, 0, {
+      label: isVerifying ? 'Checking…' : 'Check Verification Status',
+      icon: isVerifying ? Loader2 : undefined,
+      handler: (row:any) => {
+        if (verifyingMap.value[row.id]) return
+        checkVerificationStatus(row)
+      },
+      variant: 'secondary'
+    })
   }
-]
 
-// Computed properties
-const hotelOptions = computed(() => {
-  return hotels.value.map(hotel => ({
-    value: hotel.id,
-    label: hotel.name
-  }))
-})
+  return actions
+}
+
 
 
 
@@ -162,10 +229,13 @@ const loadEmailAccounts = async () => {
   isLoadingAccounts.value = true
   try {
 
-    const response = await emailAccountsApi.getActiveEmailAccounts(selectedHotelId.value);
+    const response = await emailAccountsApi.getActiveEmailAccounts(selectedHotelId.value!);
     console.log('response', response)
-    emailAccounts.value = response.data || []
-    pagination.value.total = response.total || 0
+    emailAccounts.value = (response.data.data || []).map((item:any) => ({
+      ...item,
+      isVerified: item.status === 'verify',
+    }))
+    pagination.value.total = response.data?.meta?.total || 0
 
   } catch (error) {
     console.error('Error loading email accounts:', error)
@@ -179,7 +249,7 @@ const openAddModal = () => {
   isEditing.value = false
   editingId.value = null
   formData.value = {
-    hotelId: selectedHotelId.value || (hotels.value.length > 0 ? hotels.value[0].id : null),
+    hotelId: selectedHotelId.value!,
     title: '',
     emailAddress: '',
     displayName: '',
@@ -189,7 +259,7 @@ const openAddModal = () => {
   showModal.value = true
 }
 
-const editEmailAccount = (item) => {
+const editEmailAccount = (item:any) => {
   isEditing.value = true
   editingId.value = item.id
   formData.value = {
@@ -226,13 +296,22 @@ const saveEmailAccount = async () => {
 
   isLoading.value = true
   try {
+    const payload = {
+      hotelId: formData.value.hotelId,
+      title: formData.value.title,
+      emailAddress: formData.value.emailAddress,
+      displayName: formData.value.displayName,
+      signature: formData.value.signature,
+      isActive: formData.value.isActive
+    }
+
     if (isEditing.value) {
-      // Update existing email account
-      await emailAccountsApi.updateEmailAccount(editingId.value, formData.value)
+      // Update existing email account (exclude statusText from API payload)
+      await emailAccountsApi.updateEmailAccount(editingId.value!, payload)
       toast.success(t('emailAccountUpdatedSuccessfully'))
     } else {
-      // Create new email account
-      await emailAccountsApi.createEmailAccount(formData.value)
+      // Create new email account (exclude statusText from API payload)
+      await emailAccountsApi.createEmailAccount(payload)
       toast.success(t('emailAccountCreatedSuccessfully'))
     }
 
@@ -246,27 +325,64 @@ const saveEmailAccount = async () => {
   }
 }
 
-const toggleAccountStatus = async (item) => {
+const toggleAccountStatus = async (item:any) => {
   try {
+    togglingMap.value[item.id] = true
     await emailAccountsApi.toggleActiveStatus(item.id, { isActive: !item.isActive })
     toast.success(t('accountStatusUpdated'))
     await loadEmailAccounts()
   } catch (error) {
     console.error('Error toggling account status:', error)
     toast.error(t('errorUpdatingAccountStatus'))
+  } finally {
+    togglingMap.value[item.id] = false
   }
 }
 
-const deleteEmailAccount = async (id) => {
-  if (confirm(t('confirmDeleteEmailAccount'))) {
-    try {
-      await emailAccountsApi.deleteEmailAccount(id)
-      toast.success(t('emailAccountDeletedSuccessfully'))
-      await loadEmailAccounts()
-    } catch (error) {
-      console.error('Error deleting email account:', error)
-      toast.error(t('errorDeletingEmailAccount'))
+const checkVerificationStatus = async (item: any) => {
+  try {
+    verifyingMap.value[item.id] = true
+    // Call backend route /email-accounts/validate passing the email in the body
+    const response = await emailAccountsApi.validateEmailAccount(item.emailAddress)
+
+    // Attempt to read verification flags from various possible shapes
+    const data:any = response?.data ?? response
+    const isVerified =  data.status === 'verify'
+
+    // Update the local row and notify
+    const idx = emailAccounts.value.findIndex((acc:any) => acc.id === item.id)
+    if (idx !== -1) {
+      emailAccounts.value[idx].isVerified = !!isVerified
     }
+
+    toast.success(isVerified ? 'Email is verified' : 'Email is not verified')
+  } catch (error) {
+    console.error('Error validating email account:', error)
+    toast.error('Failed to check verification status')
+  } finally {
+    verifyingMap.value[item.id] = false
+  }
+}
+
+const confirmDeleteEmailAccount = (item:any) => {
+  deleteTargetId.value = item.id
+  showDeleteModal.value = true
+}
+
+const executeDeleteEmailAccount = async () => {
+  if (!deleteTargetId.value) return
+  isDeleting.value = true
+  try {
+    await emailAccountsApi.deleteEmailAccount(deleteTargetId.value)
+    toast.success(t('emailAccountDeletedSuccessfully'))
+    showDeleteModal.value = false
+    deleteTargetId.value = null
+    await loadEmailAccounts()
+  } catch (error) {
+    console.error('Error deleting email account:', error)
+    toast.error(t('errorDeletingEmailAccount'))
+  } finally {
+    isDeleting.value = false
   }
 }
 
@@ -275,7 +391,7 @@ const closeModal = () => {
   isEditing.value = false
   editingId.value = null
   formData.value = {
-    hotelId: null,
+    hotelId: 0,
     title: '',
     emailAddress: '',
     displayName: '',
@@ -284,13 +400,12 @@ const closeModal = () => {
   }
 }
 
-const onHotelChange = () => {
-  loadEmailAccounts()
-}
 
 // Lifecycle
 onMounted(async () => {
-  selectedHotelId.value = useServiceStore().serviceId
+  selectedHotelId.value = useServiceStore().serviceId!
   await loadEmailAccounts()
 })
+
+// no helpers needed after removing Email Status column
 </script>
