@@ -12,6 +12,8 @@
         :empty-state-title="$t('configuration.template.empty_state_title')"
         :empty-state-message="$t('configuration.template.empty_state_message')"
         @action="onAction"
+        :meta="paginationMeta"
+        @page-change="handlePageChange"
       >
         <template #header-actions>
           <BasicButton
@@ -166,6 +168,19 @@
         </form>
       </SidePanelModal>
     </div>
+
+     <ConfirmationModal
+      v-model:show="showConfirmModal"
+      :is-open="showConfirmModal"
+      :loading="isDeletingLoading"
+      :title="t('confirmDelete')"
+      :message="t('configuration.template.delete_confirm')"
+      action="DANGER"
+      :confirm-text="$t('Confirm')"
+      :cancel-text="$t('Cancel')"
+      @close="showConfirmModal=false;deleteItem=null"
+      @confirm="confirmDelete"
+    />
   </ConfigurationLayout>
 </template>
 
@@ -187,11 +202,17 @@ import { useServiceStore } from '../../../composables/serviceStore'
 import { useI18n } from 'vue-i18n'
 import { formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import { Edit, Edit2, Trash2 } from 'lucide-vue-next'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
 
 // Reactive data
 const showModal = ref(false)
+const showConfirmModal = ref(false)
+const isDeletingLoading = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
+const deleteItem = ref<any>(null)
+const paginationMeta = ref<any>(null)
+const currentPage = ref(1)
 const loading = ref(false)
 const saving = ref(false)
 const toast = useToast()
@@ -211,15 +232,23 @@ const formData = reactive({
 const templates = ref([])
 
 // Fetch email templates
-const fetchEmailTemplates = async () => {
+const fetchEmailTemplates = async (page = 1) => {
   try {
     loading.value = true
-    const response = await emailTemplatesApi.getEmailTemplates({hotelId:useServiceStore().serviceId!})
+    const params = {
+      hotelId :  useServiceStore().serviceId,
+      page: page,
+      limit: 10,
+      includeDeleted: false
+    }
+    const response = await emailTemplatesApi.getEmailTemplates(params)
     console.log('response',response)
     templates.value = response.data || []
+    paginationMeta.value = response.meta || []
+    currentPage.value = page
   } catch (error) {
     console.error('Error fetching email templates:', error)
-    toast.error('Failed to load email templates')
+    toast.error(t('Failed to load email templates'))
   } finally {
     loading.value = false
   }
@@ -243,7 +272,6 @@ const fetchTemplateCategories = async () => {
     }))
   } catch (error) {
     console.error('Error fetching template categories:', error)
-    toast.error('Failed to load template categories')
   }
 }
 
@@ -260,7 +288,6 @@ const fetchEmailAccounts = async () => {
     }))
   } catch (error) {
     console.error('Error fetching email accounts:', error)
-    toast.error('Failed to load email accounts')
   }
 }
 
@@ -297,7 +324,7 @@ const insertToken = () => {
 onMounted(() => {
   fetchTemplateCategories()
   fetchEmailAccounts()
-  fetchEmailTemplates()
+  fetchEmailTemplates(1)
 })
 
 // Table configuration
@@ -320,16 +347,17 @@ const actions:Action[] = [
   },
   {
     label: t('delete'),
-    handler: (item: any) => deleteTemplate(item.id),
+    handler: (item: any) => deleteTemplate(item),
     variant: 'danger',
     icon:Trash2,
-    condition: (item: any) => item?.isDeleted === true
+    condition: (item: any) => item?.isDeleted !== true
   },
 ]
 
 // Functions
 const openAddModal = () => {
   isEditing.value = false
+  showModal.value = true
   editingId.value = null
   formData.name = ''
   formData.category = ''
@@ -338,7 +366,7 @@ const openAddModal = () => {
   formData.messageBody = ''
   formData.cc = []
   formData.bcc = []
-  showModal.value = true
+
 }
 
 const editTemplate = (template: any) => {
@@ -346,7 +374,7 @@ const editTemplate = (template: any) => {
   editingId.value = template.id
   formData.name = template.name
   formData.category = template.templateCategoryId
-  formData.emailAccount = template.emailAccount
+  formData.emailAccount = template.emailAccountId
   formData.subject = template.subject
   formData.messageBody = template.messageBody || ''
   formData.cc = template.cc || []
@@ -395,7 +423,7 @@ const saveTemplate = async () => {
     }
      closeModal()
     // Refresh the templates list
-    await fetchEmailTemplates()
+    await fetchEmailTemplates(currentPage.value)
 
   } catch (error) {
     console.error('Error saving template:', error)
@@ -405,21 +433,34 @@ const saveTemplate = async () => {
   }
 }
 
-const deleteTemplate = async (id: number) => {
-  if (confirm(t('configuration.template.delete_confirm'))) {
+const deleteTemplate =  (item:any) => {
+deleteItem.value = item
+showConfirmModal.value = true
+}
+const confirmDelete = async()=> {
+
     try {
-      await emailTemplatesApi.deleteEmailTemplate(id)
+      isDeletingLoading.value = true
+      await emailTemplatesApi.deleteEmailTemplate(deleteItem.value.id)
+      deleteItem.value = null
+      showConfirmModal.value = false
       toast.success(t('configuration.template.delete_success'))
       // Refresh the templates list
-      await fetchEmailTemplates()
+      await fetchEmailTemplates(currentPage.value)
     } catch (error) {
       console.error('Error deleting template:', error)
       toast.error(t('configuration.template.delete_error'))
+    }finally{
+      isDeletingLoading.value = false
     }
-  }
+
 }
 
 const onAction = (action: string, item: any) => {
   console.log('Action:', action, 'Item:', item)
+}
+
+const handlePageChange = (pageNumber:number) =>{
+  fetchEmailTemplates(pageNumber)
 }
 </script>

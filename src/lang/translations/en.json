@@ -5201,7 +5201,8 @@
         "subject": "Subject",
         "auto_send": "Auto Send",
         "created_by": "Created By",
-        "status": "Status"
+        "status": "Status",
+        "modified_by" : "Modified By"
       },
       "fields": {
         "template_name": "Template Name",
@@ -8498,5 +8499,8 @@
       "title": "Goodbye Manual Error",
       "text": "Rates and availability updated in one click, everywhere, all the time."
     }
-  }
+  },
+  "Failed to load email templates" : "Failed to load email templates",
+  "Email Addres" : "Email Addres",
+  "Email Accounts" : "Email Accounts"
 }

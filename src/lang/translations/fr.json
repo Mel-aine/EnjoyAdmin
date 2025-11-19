@@ -5198,7 +5198,8 @@
         "subject": "Objet",
         "auto_send": "Envoi automatique",
         "created_by": "Créé par",
-        "status": "Statut"
+        "status": "Statut",
+        "modified_by" : "Modifiée Par"
       },
       "fields": {
         "template_name": "Nom du modèle",
@@ -8670,7 +8671,10 @@
       "title": "Adieu L'Erreur Manuelle",
       "text": "Tarifs et disponibilités mis à jour en un seul clic, partout, tout le temps."
     }
-  }
+  },
+  "Failed to load email templates" : "Échec du chargement des Modèles d'Email",
+  "Email Addres" : "Adresse E-mail",
+  "Email Accounts" : "Comptes de Messagerie"
 
 
 
