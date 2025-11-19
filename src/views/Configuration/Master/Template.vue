@@ -124,20 +124,20 @@
             <!-- Token insert helpers -->
             <div class="flex flex-wrap items-center gap-2 mb-2">
               <span class="text-xs text-gray-600 dark:text-gray-300 mr-2">{{ $t('configuration.template.fields.insert_field') }}</span>
-              <div class="w-40">
+              <div class="w-45">
                 <Select
-                  :lb="'Group'"
+                  :lb="t('Group')"
                   v-model="selectedTokenGroup"
                   :options="tokenGroupOptions"
-                  :defaultValue="'Select group'"
+                  :defaultValue="t('Select group')"
                 />
               </div>
               <div class="w-48">
                 <Select
-                  :lb="'Token'"
+                  :lb="t('Token')"
                   v-model="selectedToken"
                   :options="tokenOptions"
-                  :defaultValue="'Select token'"
+                  :defaultValue="t('Select token')"
                 />
               </div>
               <button type="button" class="px-2 py-1 text-xs border rounded hover:bg-gray-50 dark:hover:bg-white/10" @click="insertToken">
@@ -306,9 +306,9 @@ const tokenSets: Record<'hotel'|'guest'|'general', string[]> = {
 }
 
 const tokenGroupOptions = computed(() => ([
-  { label: 'Hotel', value: 'hotel' },
-  { label: 'Guest', value: 'guest' },
-  { label: 'General', value: 'general' },
+  { label: t('Hotel'), value: 'hotel' },
+  { label: t('Guest'), value: 'guest' },
+  { label: t('General'), value: 'general' },
 ]))
 
 const availableTokens = computed(() => tokenSets[selectedTokenGroup.value as keyof typeof tokenSets] || [])

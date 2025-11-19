@@ -8502,5 +8502,8 @@
   },
   "Failed to load email templates" : "Failed to load email templates",
   "Email Addres" : "Email Addres",
-  "Email Accounts" : "Email Accounts"
+  "Email Accounts" : "Email Accounts",
+  "Select group" : "Select group",
+  "Token" : "Token",
+  "Select token" : "Select token"
 }
