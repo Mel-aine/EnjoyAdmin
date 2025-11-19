@@ -31,13 +31,12 @@
           </span>
         </template>
       </ReusableTable>
-      <!-- Add/Edit Modal (Right Side) -->
-      <RightSideModal
-        :is-open="showModal"
+      <!-- Add/Edit Modal (Right Drawer) -->
+      <SidePanelModal
+        :isOpen="showModal"
         :title="isEditing ? $t('configuration.template.edit_template') : $t('configuration.template.add_new_template')"
         @close="closeModal"
-        :width="600"
-        :class="'w-max-3xl'"
+        :maxWidthClass="'sm:max-w-4xl'"
       >
         <form @submit.prevent="saveTemplate" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 ">
@@ -78,7 +77,7 @@
               <div class="border rounded p-2 max-h-36 overflow-auto space-y-1">
                 <label v-for="acc in emailAccounts" :key="acc.id" class="flex items-center gap-2 text-sm">
                   <input type="checkbox" :value="acc.id" v-model="formData.cc" />
-                  <span>{{ acc.displayName }} <span class="text-gray-500">({{ acc.emailAddress }})</span></span>
+                   <span class="text-gray-500">{{ acc.emailAddress }}</span>
                 </label>
               </div>
             </div>
@@ -108,14 +107,22 @@
             <!-- Token insert helpers -->
             <div class="flex flex-wrap items-center gap-2 mb-2">
               <span class="text-xs text-gray-600 dark:text-gray-300 mr-2">{{ $t('configuration.template.fields.insert_field') }}</span>
-              <select v-model="selectedTokenGroup" class="px-2 py-1 text-xs border rounded">
-                <option value="hotel">{{ $t('configuration.template.token_groups.hotel') }}</option>
-                <option value="guest">{{ $t('configuration.template.token_groups.guest') }}</option>
-                <option value="general">{{ $t('configuration.template.token_groups.general') }}</option>
-              </select>
-              <select v-model="selectedToken" class="px-2 py-1 text-xs border rounded">
-                <option v-for="t in availableTokens" :key="t" :value="t">{{ t }}</option>
-              </select>
+              <div class="w-40">
+                <Select 
+                  :lb="'Group'"
+                  v-model="selectedTokenGroup"
+                  :options="tokenGroupOptions"
+                  :defaultValue="'Select group'"
+                />
+              </div>
+              <div class="w-48">
+                <Select 
+                  :lb="'Token'"
+                  v-model="selectedToken"
+                  :options="tokenOptions"
+                  :defaultValue="'Select token'"
+                />
+              </div>
               <button type="button" class="px-2 py-1 text-xs border rounded hover:bg-gray-50 dark:hover:bg-white/10" @click="insertToken">
                 {{ $t('configuration.template.actions.add_token') }}
               </button>
@@ -142,7 +149,7 @@
             />
           </div>
         </form>
-      </RightSideModal>
+      </SidePanelModal>
     </div>
   </ConfigurationLayout>
 </template>
@@ -155,7 +162,7 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import RichTextEditor from '@/components/forms/FormElements/RichTextEditor.vue'
-import RightSideModal from '@/components/modal/RightSideModal.vue'
+import SidePanelModal from '@/components/modal/SidePanelModal.vue'
 import type { Action, Column } from '../../../utils/models'
 import PlusIcon from '../../../icons/Plus.vue'
 // Icons
@@ -191,6 +198,7 @@ const fetchEmailTemplates = async () => {
   try {
     loading.value = true
     const response = await emailTemplatesApi.getEmailTemplates({hotelId:useServiceStore().serviceId!})
+    console.log('response',response)
     templates.value = response.data || []
   } catch (error) {
     console.error('Error fetching email templates:', error)
@@ -204,7 +212,7 @@ const fetchEmailTemplates = async () => {
 const categoryOptions = ref<Array<{ label: string; value: string }>>([])
 const emailAccountOptions = ref<Array<{ label: string; value: string }>>([])
 const emailAccounts = ref<any[]>([])
-const selectedTokenGroup = ref<'hotel' | 'guest' | 'general'>('hotel')
+const selectedTokenGroup = ref<'hotel' | 'guest' | 'general' | 'company' | ''>('')
 const selectedToken = ref('')
 
 // Fetch template categories
@@ -214,7 +222,7 @@ const fetchTemplateCategories = async () => {
     const categories = response.data.data.data || []
     categoryOptions.value = categories.map((category: any) => ({
       label: category.category,
-      value: category.category
+      value: category.id
     }))
   } catch (error) {
     console.error('Error fetching template categories:', error)
@@ -226,6 +234,7 @@ const fetchTemplateCategories = async () => {
 const fetchEmailAccounts = async () => {
   try {
     const response = await emailAccountsApi.getActiveEmailAccounts(useServiceStore().serviceId!)
+    console.log('response',response)
     const accounts = response.data?.data || []
     emailAccounts.value = accounts
     emailAccountOptions.value = accounts.map((account: any) => ({
@@ -249,10 +258,17 @@ const tokenSets: Record<'hotel'|'guest'|'general', string[]> = {
   ],
   general: [
     '{today}', '{reservationnumber}', '{amount}', '{currency}', '{companyname}'
-  ]
+  ],
 }
 
-const availableTokens = computed(() => tokenSets[selectedTokenGroup.value])
+const tokenGroupOptions = computed(() => ([
+  { label: 'Hotel', value: 'hotel' },
+  { label: 'Guest', value: 'guest' },
+  { label: 'General', value: 'general' },
+]))
+
+const availableTokens = computed(() => tokenSets[selectedTokenGroup.value as keyof typeof tokenSets] || [])
+const tokenOptions = computed(() => availableTokens.value.map(t => ({ label: t, value: t })))
 
 const insertToken = () => {
   const token = selectedToken.value || availableTokens.value[0]
@@ -270,7 +286,7 @@ onMounted(() => {
 // Table configuration
 const columns: Column[] = [
   { key: 'name', label: t('configuration.template.columns.template_name'), type: 'text' },
-  { key: 'category', label: t('configuration.template.columns.category'), type: 'text' },
+  { key: 'templateCategory.category', label: t('configuration.template.columns.category'), type: 'text' },
   { key: 'subject', label: t('configuration.template.columns.subject'), type: 'text' },
   { key: 'createdBy', label: t('configuration.template.columns.created_by'), type: 'text' },
   { key: 'status', label: t('configuration.template.columns.status'), type: 'custom' }
@@ -285,7 +301,8 @@ const actions:Action[] = [
   {
     label: t('delete'),
     handler: (item: any) => deleteTemplate(item.id),
-    variant: 'danger'
+    variant: 'danger',
+    condition: (item: any) => item?.isDeleted === true
   },
 ]
 
@@ -307,7 +324,7 @@ const editTemplate = (template: any) => {
   isEditing.value = true
   editingId.value = template.id
   formData.name = template.name
-  formData.category = template.category
+  formData.category = template.templateCategoryId
   formData.emailAccount = template.emailAccount
   formData.subject = template.subject
   formData.messageBody = template.messageBody || ''
