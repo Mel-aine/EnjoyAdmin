@@ -437,7 +437,7 @@ const masterItems: MenuItem[] = [
   { path: '/configuration/master/transportation-mode', label: 'Transportation Mode' },
   { path: '/configuration/master/payouts', label: 'Payouts' },
   { path: '/configuration/master/template-category', label: 'Template Category' },
-//  { path: '/configuration/master/template', label: 'Template' },
+  { path: '/configuration/master/template', label: 'Template' },
   { path: '/configuration/master/black-list-reason', label: 'Black List Reason' },
   { path: '/configuration/master/market-code', label: 'Market Code' },
   { path: '/configuration/master/reservation-type', label: 'Reservation Type' },

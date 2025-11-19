@@ -1711,6 +1711,8 @@ export const emailTemplatesApi = {
     autoSend?: string
     attachment?: string
     emailAccount?: string
+    cc?: string[]
+    bcc?: string[]
     scheduleDate?: string
     isActive?: boolean
   }) {
@@ -1798,6 +1800,8 @@ export const emailTemplatesApi = {
     autoSend?: string
     attachment?: string
     emailAccount?: string
+    cc?: string[]
+    bcc?: string[]
     scheduleDate?: string
     isActive?: boolean
   }) {

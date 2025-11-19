@@ -2,22 +2,22 @@
   <ConfigurationLayout>
     <div class="p-6">
       <ReusableTable
-        title="Email Template Management"
+        :title="$t('configuration.template.title')"
         :columns="columns"
         :data="templates"
         :actions="actions"
-        search-placeholder="Search templates..."
+        :search-placeholder="$t('configuration.template.search_placeholder')"
         :loading="loading"
         :selectable="false"
-        empty-state-title="No templates found"
-        empty-state-message="Get started by adding a new email template."
+        :empty-state-title="$t('configuration.template.empty_state_title')"
+        :empty-state-message="$t('configuration.template.empty_state_message')"
         @action="onAction"
       >
         <template #header-actions>
           <BasicButton 
             variant="primary" 
             :icon="PlusIcon"
-            :label="$t('Add Template')"
+            :label="$t('configuration.template.add_template')"
             @click="openAddModal"
           />
         </template>
@@ -31,121 +31,138 @@
           </span>
         </template>
       </ReusableTable>
-
-      <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ isEditing ? 'Edit Template' : 'Add New Template' }}
-          </h3>
-          
-          <form @submit.prevent="saveTemplate" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input 
-                :lb="'Template Name'"
-                :inputType="'text'"
-                :isRequired="true"
-                v-model="formData.name"
-                :placeholder="'Enter template name'"
-              />
-              
-              <Select 
-                :lb="'Template Category'"
-                :isRequired="true"
-                v-model="formData.category"
-                :options="categoryOptions"
-                :defaultValue="'Select category'"
-              />
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Select 
-                :lb="'Auto Send'"
-                v-model="formData.autoSend"
-                :options="autoSendOptions"
-                :defaultValue="'Select auto send action'"
-              />
-              
-              <Select 
-                :lb="'Attachment'"
-                v-model="formData.attachment"
-                :options="attachmentOptions"
-                :defaultValue="'Select attachment'"
-              />
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Select 
-                :lb="'Email Account'"
-                :isRequired="true"
-                v-model="formData.emailAccount"
-                :options="emailAccountOptions"
-                :defaultValue="'Select email account'"
-              />
-              
-              <Input 
-                :lb="'Schedule Date'"
-                :inputType="'date'"
-                v-model="formData.scheduleDate"
-              />
-            </div>
-            
+      <!-- Add/Edit Modal (Right Side) -->
+      <RightSideModal
+        :is-open="showModal"
+        :title="isEditing ? $t('configuration.template.edit_template') : $t('configuration.template.add_new_template')"
+        @close="closeModal"
+        :width="600"
+        :class="'w-max-3xl'"
+      >
+        <form @submit.prevent="saveTemplate" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 ">
             <Input 
-              :lb="'Subject'"
+              :lb="$t('configuration.template.fields.template_name')"
               :inputType="'text'"
               :isRequired="true"
-              v-model="formData.subject"
-              :placeholder="'Enter email subject'"
+              v-model="formData.name"
+              :placeholder="$t('configuration.template.fields.template_name_placeholder')"
             />
             
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Message Body <span class="text-red-500">*</span>
-              </label>
-              <textarea 
-                v-model="formData.messageBody"
-                rows="6"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                placeholder="Enter the email template message body..."
-                required
-              ></textarea>
+            <Select 
+              :lb="$t('configuration.template.fields.template_category')"
+              :isRequired="true"
+              v-model="formData.category"
+              :options="categoryOptions"
+              :defaultValue="$t('configuration.template.fields.select_category')"
+            />
+               <Select 
+              :lb="$t('configuration.template.fields.email_account')"
+              :isRequired="true"
+              v-model="formData.emailAccount"
+              :options="emailAccountOptions"
+              :defaultValue="$t('configuration.template.fields.select_email_account')"
+            />
+          </div>
+          
+          
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         
+          </div>
+
+          <!-- CC/BCC selection -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CC</label>
+              <div class="border rounded p-2 max-h-36 overflow-auto space-y-1">
+                <label v-for="acc in emailAccounts" :key="acc.id" class="flex items-center gap-2 text-sm">
+                  <input type="checkbox" :value="acc.id" v-model="formData.cc" />
+                  <span>{{ acc.displayName }} <span class="text-gray-500">({{ acc.emailAddress }})</span></span>
+                </label>
+              </div>
             </div>
-            
-            <div class="flex justify-end space-x-3 pt-4">
-              <BasicButton
-                type="button"
-                variant="outline"
-                @click="closeModal"
-                :label="$t('cancel')"
-                :disabled="saving"
-              />
-              <BasicButton
-                type="submit"
-                variant="primary"
-                :label="isEditing ? $t('configuration.template.update') : $t('Add Template')"
-                :loading="saving"
-              />
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">BCC</label>
+              <div class="border rounded p-2 max-h-36 overflow-auto space-y-1">
+                <label v-for="acc in emailAccounts" :key="'bcc-' + acc.id" class="flex items-center gap-2 text-sm">
+                  <input type="checkbox" :value="acc.id" v-model="formData.bcc" />
+                 <span class="text-gray-500">{{ acc.emailAddress }}</span>
+                </label>
+              </div>
             </div>
-          </form>
-        </div>
-      </div>
+          </div>
+          
+          <Input 
+            :lb="$t('configuration.template.fields.subject')"
+            :inputType="'text'"
+            :isRequired="true"
+            v-model="formData.subject"
+            :placeholder="$t('configuration.template.fields.subject_placeholder')"
+          />
+          
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ $t('configuration.template.fields.message_body') }} <span class="text-red-500">*</span>
+            </label>
+            <!-- Token insert helpers -->
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="text-xs text-gray-600 dark:text-gray-300 mr-2">{{ $t('configuration.template.fields.insert_field') }}</span>
+              <select v-model="selectedTokenGroup" class="px-2 py-1 text-xs border rounded">
+                <option value="hotel">{{ $t('configuration.template.token_groups.hotel') }}</option>
+                <option value="guest">{{ $t('configuration.template.token_groups.guest') }}</option>
+                <option value="general">{{ $t('configuration.template.token_groups.general') }}</option>
+              </select>
+              <select v-model="selectedToken" class="px-2 py-1 text-xs border rounded">
+                <option v-for="t in availableTokens" :key="t" :value="t">{{ t }}</option>
+              </select>
+              <button type="button" class="px-2 py-1 text-xs border rounded hover:bg-gray-50 dark:hover:bg-white/10" @click="insertToken">
+                {{ $t('configuration.template.actions.add_token') }}
+              </button>
+            </div>
+            <RichTextEditor 
+              v-model="formData.messageBody"
+              :placeholder="$t('configuration.template.fields.message_body_placeholder')"
+            />
+          </div>
+          
+          <div class="flex justify-end space-x-3 pt-4">
+            <BasicButton
+              type="button"
+              variant="outline"
+              @click="closeModal"
+              :label="$t('cancel')"
+              :disabled="saving"
+            />
+            <BasicButton
+              type="submit"
+              variant="primary"
+              :label="isEditing ? $t('configuration.template.update_template') : $t('configuration.template.add_template')"
+              :loading="saving"
+            />
+          </div>
+        </form>
+      </RightSideModal>
     </div>
   </ConfigurationLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
+import RichTextEditor from '@/components/forms/FormElements/RichTextEditor.vue'
+import RightSideModal from '@/components/modal/RightSideModal.vue'
 import type { Action, Column } from '../../../utils/models'
 import PlusIcon from '../../../icons/Plus.vue'
 // Icons
 import { getTemplateCategories, emailAccountsApi, emailTemplatesApi } from '@/services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
+import { useI18n } from 'vue-i18n'
 
 // Reactive data
 const showModal = ref(false)
@@ -154,16 +171,16 @@ const editingId = ref<number | null>(null)
 const loading = ref(false)
 const saving = ref(false)
 const toast = useToast()
+const { t } = useI18n()
 
 const formData = reactive({
   name: '',
   category: '',
-  autoSend: '',
-  attachment: '',
   emailAccount: '',
-  scheduleDate: '',
   subject: '',
-  messageBody: ''
+  messageBody: '',
+  cc: [] as string[],
+  bcc: [] as string[]
 })
 
 // Templates data
@@ -186,6 +203,9 @@ const fetchEmailTemplates = async () => {
 // Dynamic Options
 const categoryOptions = ref<Array<{ label: string; value: string }>>([])
 const emailAccountOptions = ref<Array<{ label: string; value: string }>>([])
+const emailAccounts = ref<any[]>([])
+const selectedTokenGroup = ref<'hotel' | 'guest' | 'general'>('hotel')
+const selectedToken = ref('')
 
 // Fetch template categories
 const fetchTemplateCategories = async () => {
@@ -206,8 +226,8 @@ const fetchTemplateCategories = async () => {
 const fetchEmailAccounts = async () => {
   try {
     const response = await emailAccountsApi.getActiveEmailAccounts(useServiceStore().serviceId!)
-    const accounts = response.data || []
-    console.log(accounts)
+    const accounts = response.data?.data || []
+    emailAccounts.value = accounts
     emailAccountOptions.value = accounts.map((account: any) => ({
       label: account.displayName,
       value: account.id
@@ -218,24 +238,27 @@ const fetchEmailAccounts = async () => {
   }
 }
 
-const autoSendOptions = [
-  { label: 'Manual', value: 'Manual' },
-  { label: 'Check-in', value: 'Check-in' },
-  { label: 'Check-out', value: 'Check-out' },
-  { label: 'Reservation Created', value: 'Reservation Created' },
-  { label: 'Reservation Modified', value: 'Reservation Modified' },
-  { label: 'Reservation Cancelled', value: 'Reservation Cancelled' },
-  { label: 'Invoice Generated', value: 'Invoice Generated' },
-  { label: 'Payment Received', value: 'Payment Received' }
-]
+// Token sets for insertion
+const tokenSets: Record<'hotel'|'guest'|'general', string[]> = {
+  hotel: [
+    '{hotelname}', '{hoteladdress1}', '{hoteladdress2}', '{hotelcity}', '{postalcode}',
+    '{hotelstate}', '{hotelcountry}', '{owneremail}', '{hotelphone}'
+  ],
+  guest: [
+    '{guestname}', '{guestemail}', '{guestphone}', '{arrivaldate}', '{departuredate}', '{room}', '{rateplan}'
+  ],
+  general: [
+    '{today}', '{reservationnumber}', '{amount}', '{currency}', '{companyname}'
+  ]
+}
 
-const attachmentOptions = [
-  { label: 'None', value: 'None' },
-  { label: 'Reservation Voucher', value: 'Reservation Voucher' },
-  { label: 'Cancellation Voucher', value: 'Cancellation Voucher' },
-  { label: 'Invoice', value: 'Invoice' },
-  { label: 'Report', value: 'Report' }
-]
+const availableTokens = computed(() => tokenSets[selectedTokenGroup.value])
+
+const insertToken = () => {
+  const token = selectedToken.value || availableTokens.value[0]
+  if (!token) return
+  formData.messageBody = (formData.messageBody || '') + ` ${token} `
+}
 
 // Load data on component mount
 onMounted(() => {
@@ -246,25 +269,24 @@ onMounted(() => {
 
 // Table configuration
 const columns: Column[] = [
-  { key: 'name', label: 'Template Name', type: 'text' },
-  { key: 'category', label: 'Category', type: 'text' },
-  { key: 'subject', label: 'Subject', type: 'text' },
-  { key: 'autoSend', label: 'Auto Send', type: 'text' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'status', label: 'Status', type: 'custom' }
+  { key: 'name', label: t('configuration.template.columns.template_name'), type: 'text' },
+  { key: 'category', label: t('configuration.template.columns.category'), type: 'text' },
+  { key: 'subject', label: t('configuration.template.columns.subject'), type: 'text' },
+  { key: 'createdBy', label: t('configuration.template.columns.created_by'), type: 'text' },
+  { key: 'status', label: t('configuration.template.columns.status'), type: 'custom' }
 ]
 
 const actions:Action[] = [
   {
-    label: 'Edit',
+    label: t('edit'),
     handler: (item: any) => editTemplate(item),
     variant: 'primary'
   },
   {
-    label: 'Delete',
+    label: t('delete'),
     handler: (item: any) => deleteTemplate(item.id),
     variant: 'danger'
-  }
+  },
 ]
 
 // Functions
@@ -273,12 +295,11 @@ const openAddModal = () => {
   editingId.value = null
   formData.name = ''
   formData.category = ''
-  formData.autoSend = ''
-  formData.attachment = ''
   formData.emailAccount = ''
-  formData.scheduleDate = ''
   formData.subject = ''
   formData.messageBody = ''
+  formData.cc = []
+  formData.bcc = []
   showModal.value = true
 }
 
@@ -287,12 +308,11 @@ const editTemplate = (template: any) => {
   editingId.value = template.id
   formData.name = template.name
   formData.category = template.category
-  formData.autoSend = template.autoSend
-  formData.attachment = template.attachment
   formData.emailAccount = template.emailAccount
-  formData.scheduleDate = template.scheduleDate || ''
   formData.subject = template.subject
   formData.messageBody = template.messageBody || ''
+  formData.cc = template.cc || []
+  formData.bcc = template.bcc || []
   showModal.value = true
 }
 
@@ -302,12 +322,11 @@ const closeModal = () => {
   editingId.value = null
   formData.name = ''
   formData.category = ''
-  formData.autoSend = ''
-  formData.attachment = ''
   formData.emailAccount = ''
-  formData.scheduleDate = ''
   formData.subject = ''
   formData.messageBody = ''
+  formData.cc = []
+  formData.bcc = []
 }
 
 const saveTemplate = async () => {
@@ -320,21 +339,20 @@ const saveTemplate = async () => {
       category: formData.category,
       subject: formData.subject,
       messageBody: formData.messageBody,
-      autoSend: formData.autoSend,
-      attachment: formData.attachment,
       emailAccount: formData.emailAccount,
-      scheduleDate: formData.scheduleDate,
+      cc: formData.cc,
+      bcc: formData.bcc,
       isActive: true
     }
 
     if (isEditing.value && editingId.value) {
       // Update existing template
       await emailTemplatesApi.updateEmailTemplate(editingId.value, templateData)
-      toast.success('Template updated successfully')
+      toast.success(t('configuration.template.update_success'))
     } else {
       // Create new template
       await emailTemplatesApi.createEmailTemplate(templateData)
-      toast.success('Template created successfully')
+      toast.success(t('configuration.template.create_success'))
     }
     
     // Refresh the templates list
@@ -342,22 +360,22 @@ const saveTemplate = async () => {
     closeModal()
   } catch (error) {
     console.error('Error saving template:', error)
-    toast.error('Failed to save template')
+    toast.error(t('configuration.template.save_error'))
   } finally {
     saving.value = false
   }
 }
 
 const deleteTemplate = async (id: number) => {
-  if (confirm('Are you sure you want to delete this template?')) {
+  if (confirm(t('configuration.template.delete_confirm'))) {
     try {
       await emailTemplatesApi.deleteEmailTemplate(id)
-      toast.success('Template deleted successfully')
+      toast.success(t('configuration.template.delete_success'))
       // Refresh the templates list
       await fetchEmailTemplates()
     } catch (error) {
       console.error('Error deleting template:', error)
-      toast.error('Failed to delete template')
+      toast.error(t('configuration.template.delete_error'))
     }
   }
 }

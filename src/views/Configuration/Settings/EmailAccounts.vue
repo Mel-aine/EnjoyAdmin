@@ -4,9 +4,9 @@
       <!-- Table -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <ReusableTable :columns="columns" :data="emailAccounts" :getActions="getActions" :loading="isLoadingAccounts"
-          searchPlaceholder="Search email accounts...">
+          :searchPlaceholder="t('emailAccounts.searchPlaceholder')">
           <template #header-actions>
-            <BasicButton variant="primary" :icon="Plus" label="Add Email" @click="openAddModal" />
+            <BasicButton variant="primary" :icon="Plus" :label="t('emailAccounts.addEmailAccount')" @click="openAddModal" />
           </template>
 
           <!-- Custom status column template -->
@@ -17,7 +17,7 @@
                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
                 : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
             ]">
-              {{ item.isActive ? 'Active' : 'Inactive' }}
+              {{ item.isActive ? t('Active') : t('Inactive') }}
             </span>
           </template>
           <!-- Email Verified column -->
@@ -29,7 +29,7 @@
                 : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
 
             ]">
-              {{ item.isVerified === true ? 'Verified' : 'Pending' }}
+              {{ item.isVerified === true ? t('Verified') : t('Pending') }}
             </span>
           </template>
           <!-- Custom column for created info -->
@@ -54,27 +54,27 @@
       <div v-if="showModal" class="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            {{ isEditing ? 'Edit Email Account' : 'Add Email Account' }}
+            {{ isEditing ? t('emailAccounts.editEmailAccount') : t('emailAccounts.addEmailAccount') }}
           </h3>
 
           <form @submit.prevent="saveEmailAccount">
             <!-- Title -->
             <div class="mb-4">
               <Input :lb="$t('Title')" :isRequired="true" v-model="formData.title"
-                placeholder="Enter the title for this email account" />
+                :placeholder="t('emailAccounts.titlePlaceholder')" />
             </div>
             <!-- Email Address -->
             <div class="mb-4">
               <InputEmail :title="$t('Email Address')" :isRequired="true" v-model="formData.emailAddress" type="email"
-                placeholder="Enter the email address" required />
+                :placeholder="t('emailAccounts.emailPlaceholder')" required />
             </div>
 
             <!-- Display Name -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Display Name *
+                {{ t('emailAccounts.displayNameLabel') }} *
               </label>
-              <Input v-model="formData.displayName" placeholder="Name to display when email is sent" required />
+              <Input v-model="formData.displayName" :placeholder="t('emailAccounts.displayNamePlaceholder')" required />
             </div>
 
 
@@ -82,17 +82,17 @@
             <!-- Signature (Rich Text) -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Signature
+                {{ t('emailAccounts.signatureLabel') }}
               </label>
               <RichTextEditor v-model="formData.signature"
-                placeholder="Create and edit signatures for outgoing messages, replies and forwards" />
+                :placeholder="t('emailAccounts.signaturePlaceholder')" />
             </div>
 
 
             <div class="flex justify-end space-x-3 mt-6">
-              <BasicButton type="button" variant="outline" @click="closeModal" label="Cancel" :disabled="isLoading" />
+              <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('Cancel')" :disabled="isLoading" />
               <BasicButton type="submit" variant="primary"
-                :label="isEditing ? 'Update Email Account' : 'Add Email Account'" :loading="isLoading" />
+                :label="isEditing ? t('emailAccounts.updateEmailAccount') : t('emailAccounts.addEmailAccount')" :loading="isLoading" />
             </div>
           </form>
         </div>
@@ -102,10 +102,10 @@
   <!-- Delete Confirmation Modal -->
   <ConfirmationModal
     v-model:show="showDeleteModal"
-    title="Delete Email Account"
-    message="Are you sure you want to delete this email account? This action cannot be undone."
-    confirm-text="Delete"
-    cancel-text="Cancel"
+    :title="t('emailAccounts.deleteTitle')"
+    :message="t('emailAccounts.deleteMessage')"
+    :confirm-text="t('Delete')"
+    :cancel-text="t('Cancel')"
     variant="danger"
     :loading="isDeleting"
     @confirm="executeDeleteEmailAccount"
@@ -171,13 +171,13 @@ const pagination = ref({
 
 // Table configuration
 const columns:  Column[] = [
-  { key: 'title', label: 'Title', type: 'text' },
-  { key: 'emailAddress', label: 'Email Address', type: 'text' },
-  { key: 'displayName', label: 'Display Name', type: 'text' },
-  { key: 'isActive', label: 'Active', type: 'custom' },
-  { key: 'isVerified', label: 'Email Verified', type: 'custom' },
-  { key: 'createdInfo', label: 'Created By', type: 'custom' },
-  { key: 'modifiedInfo', label: 'Modified By', type: 'custom' },
+  { key: 'title', label: t('Title'), type: 'text' },
+  { key: 'emailAddress', label: t('Email Address'), type: 'text' },
+  { key: 'displayName', label: t('emailAccounts.displayNameLabel'), type: 'text' },
+  { key: 'isActive', label: t('Active'), type: 'custom' },
+  { key: 'isVerified', label: t('emailAccounts.emailVerified'), type: 'custom' },
+  { key: 'createdInfo', label: t('Created By'), type: 'custom' },
+  { key: 'modifiedInfo', label: t('Modified By'), type: 'custom' },
 ]
 
 const getActions = (item:any) => {
@@ -187,12 +187,12 @@ const getActions = (item:any) => {
 
   const actions:any[] = [
     {
-      label: 'Edit',
+      label: t('Edit'),
       handler: (row:any) => editEmailAccount(row),
       variant: 'primary',
     },
     {
-      label: isToggling ? 'Toggling…' : (item.isActive ? 'Toggle Inactive' : 'Toggle Active'),
+      label: isToggling ? t('emailAccounts.toggling') : (item.isActive ? t('emailAccounts.toggleInactive') : t('emailAccounts.toggleActive')),
       icon: isToggling ? Loader2 : undefined,
       handler: (row:any) => {
         if (togglingMap.value[row.id]) return
@@ -201,7 +201,7 @@ const getActions = (item:any) => {
       variant: 'secondary'
     },
     {
-      label: 'Delete',
+      label: t('Delete'),
       handler: (row:any) => confirmDeleteEmailAccount(row),
       variant: 'danger'
     }
@@ -209,7 +209,7 @@ const getActions = (item:any) => {
 
   if (needsVerification) {
     actions.splice(1, 0, {
-      label: isVerifying ? 'Checking…' : 'Check Verification Status',
+      label: isVerifying ? t('emailAccounts.checking') : t('emailAccounts.checkVerificationStatus'),
       icon: isVerifying ? Loader2 : undefined,
       handler: (row:any) => {
         if (verifyingMap.value[row.id]) return
@@ -355,10 +355,10 @@ const checkVerificationStatus = async (item: any) => {
       emailAccounts.value[idx].isVerified = !!isVerified
     }
 
-    toast.success(isVerified ? 'Email is verified' : 'Email is not verified')
+    toast.success(isVerified ? t('emailAccounts.emailIsVerified') : t('emailAccounts.emailIsNotVerified'))
   } catch (error) {
     console.error('Error validating email account:', error)
-    toast.error('Failed to check verification status')
+    toast.error(t('emailAccounts.failedToCheckVerificationStatus'))
   } finally {
     verifyingMap.value[item.id] = false
   }
