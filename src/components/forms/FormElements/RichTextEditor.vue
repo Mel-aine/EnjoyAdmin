@@ -120,7 +120,7 @@ onMounted(() => {
     editorRef.value.innerHTML = props.modelValue || ''
   }
   try {
-    document.execCommand('styleWithCSS', false, true)
+    document.execCommand('styleWithCSS', false, 'true')
   } catch (e) {
     // no-op: some browsers may not support this
   }
