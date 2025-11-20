@@ -1,6 +1,6 @@
 <template>
   <SpeedInsights />
-  <ThemeProvider>
+  <ThemeProvider> 
     <SidebarProvider>
       <RouterView /> 
       <ReAuthModal
@@ -8,7 +8,7 @@
         @close="handleClose"
         @success="handleSuccess"
       />
-    </SidebarProvider>
+    </SidebarProvider> 
     <OverLoading v-if="isLoading" />
   </ThemeProvider>
 </template> 
