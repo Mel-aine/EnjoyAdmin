@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, getCurrentInstance } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 
 interface DropdownOption {
@@ -67,15 +67,23 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const isOpen = ref(false)
+// Unique instance identifier to coordinate open state across page
+const instanceId = (getCurrentInstance()?.uid?.toString?.() || Math.random().toString(36).slice(2))
 
 const onHoverOpen = () => {
   if (props.openOnHover) {
     isOpen.value = true
+    // Notify other dropdowns to close
+    window.dispatchEvent(new CustomEvent('button-dropdown-open', { detail: { id: instanceId } }))
   }
 }
 
 const toggleDropdown = () => {
+  const willOpen = !isOpen.value
   isOpen.value = !isOpen.value
+  if (willOpen && isOpen.value) {
+    window.dispatchEvent(new CustomEvent('button-dropdown-open', { detail: { id: instanceId } }))
+  }
 }
 
 const handleButtonClick = () => {
@@ -101,11 +109,27 @@ const handleClickOutside = (event: Event) => {
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+  // Use capture phase so clicks inside modal with @click.stop still trigger this
+  document.addEventListener('click', handleClickOutside, true)
+  // Close when another dropdown opens
+  const handleGlobalOpen = (e: Event) => {
+    const anyEvent = e as CustomEvent
+    const id = (anyEvent.detail && (anyEvent.detail as any).id) as string | undefined
+    if (id && id !== instanceId) {
+      isOpen.value = false
+    }
+  }
+  // Store reference to remove later
+  ;(window as any).__btnDropdownHandler__ = handleGlobalOpen
+  window.addEventListener('button-dropdown-open', handleGlobalOpen as EventListener)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('click', handleClickOutside, true)
+  const handler = (window as any).__btnDropdownHandler__
+  if (handler) {
+    window.removeEventListener('button-dropdown-open', handler as EventListener)
+  }
 })
 </script>
 
