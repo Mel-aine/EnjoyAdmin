@@ -761,27 +761,27 @@ const messages = [
 const partners = [
   {
     name: 'Booking.com',
-    logo: '/public/images/ota/Booking.com_Logo.svg',
+    logo: '/images/ota/Booking.com_Logo.svg',
   },
   {
     name: 'Expedia',
-    logo: '/public/images/ota/expedia.svg',
+    logo: '/images/ota/expedia.svg',
   },
   {
     name: 'Airbnb',
-    logo: '/public/images/ota/Airbnb_Logo_Bélo.svg',
+    logo: '/images/ota/Airbnb_Logo_Bélo.svg',
   },
   {
     name: 'Agoda',
-    logo: '/public/images/ota/agoda.svg',
+    logo: '/images/ota/agoda.svg',
   },
   {
     name: 'Hotels.com',
-    logo: '/public/images/ota/hotels.svg',
+    logo: '/images/ota/hotels.svg',
   },
   {
     name: 'Trivago',
-    logo: '/public/images/ota/trivago-logo-svg-vector.svg',
+    logo: '/images/ota/trivago-logo-svg-vector.svg',
   },
 ]
 
