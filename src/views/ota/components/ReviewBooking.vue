@@ -93,7 +93,7 @@
             </section>
 
             <!-- Guest Info -->
-            <section class="bg-white rounded-lg p-3 border border-slate-200">
+            <section v-if="guest>0" class="bg-white rounded-lg p-3 border border-slate-200">
               <h3 class="text-base font-semibold text-slate-800 mb-2 flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -101,7 +101,7 @@
                 </svg>
                 Guest Information
               </h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
                   <div class="text-slate-500 text-xs mb-0.5">Name</div>
                   <div class="font-medium text-slate-900">
@@ -116,10 +116,7 @@
                   <div class="text-slate-500 text-xs mb-0.5">Mobile</div>
                   <div class="font-medium text-slate-900">{{ guest.mobile }}</div>
                 </div>
-                <div>
-                  <div class="text-slate-500 text-xs mb-0.5">Country</div>
-                  <div class="font-medium text-slate-900">{{ guest.country }}</div>
-                </div>
+
               </div>
             </section>
 

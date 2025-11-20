@@ -8673,7 +8673,7 @@
     }
   },
   "Failed to load email templates" : "Échec du chargement des Modèles d'Email",
-  "Email Addres" : "Adresse E-mail",
+  "Email Address" : "Adresse E-mail",
   "Email Accounts" : "Comptes de Messagerie",
   "Select group" : "Sélectionnez un groupe",
   "Token" : "Jeton",

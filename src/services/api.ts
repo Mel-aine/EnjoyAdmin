@@ -18,9 +18,10 @@ import type { IPayroll } from '@/types/type'
 const API_URL = import.meta.env.VITE_API_URL as string
 
 // --- Token Refresh  ---
-let refreshIntervalId: number | null = null
+let refreshTimeoutId: number | null = null
 const REFRESH_ADVANCE_MS = 2 * 60 * 1000 // Refresh 2 minutes avant expiration
-const CHECK_INTERVAL_MS = 2 * 60 * 1000
+
+let isRefreshing = false
 
 const getHeaders = () => {
   const authStore = useAuthStore()
@@ -41,7 +42,11 @@ const getRefreshHeaders = () => {
   }
 }
 const getRefreshRequestOptions = () => {
+  const authStore = useAuthStore()
   return {
+    headers: {
+      Authorization: `Bearer ${authStore.refreshToken}`,
+    },
     withCredentials: true,
   }
 }
@@ -148,70 +153,8 @@ export const createSupportTicket = (
 
 // services/authService.ts
 
-let isRefreshing = false
 
-// Arrêter le refresh automatique
-export const stopAuthAutoRefresh = () => {
-  if (refreshIntervalId) {
-    clearInterval(refreshIntervalId)
-    refreshIntervalId = null
-  }
-}
-
-// Fonction centralisée pour rafraîchir le token
-const performTokenRefresh = async (): Promise<boolean> => {
-  if (isRefreshing) {
-    console.log('🔄 Refresh déjà en cours...')
-    return false
-  }
-
-  isRefreshing = true
-  const authStore = useAuthStore()
-
-  try {
-    const resp = await axios.post(`${API_URL}/refresh-token`, {}, getRefreshRequestOptions())
-
-    const newToken = resp.data?.data?.access_token?.token || resp.data?.data?.access_token
-    const newTokenData = resp.data?.data?.access_token
-
-    if (newToken) {
-      authStore.updateToken(newToken, newTokenData)
-       authStore.setReauthRequired(false)
-    } else {
-      console.warn('⚠️ Pas de nouveau token dans la réponse')
-    }
-
-    // Mettre à jour le refresh token si présent
-    const newRefresh = resp.data?.data?.refresh_token?.token || resp.data?.data?.refresh_token
-    const newRefreshData = resp.data?.data?.refresh_token
-
-    if (newRefresh) {
-      authStore.updateRefreshToken(newRefresh, newRefreshData)
-    }
-
-    authStore.setReauthRequired(false)
-    return true
-
-  } catch (err: any) {
-    console.error('❌ Erreur lors du refresh automatique:', {
-      status: err?.response?.status,
-      message: err?.message,
-      data: err?.response?.data
-    })
-
-    // Si erreur d'authentification, demander réauthentification
-    if (err?.response?.status === 401 || err?.response?.status === 403) {
-      console.warn('🔒 Réauthentification requise - arrêt du refresh automatique')
-      authStore.setReauthRequired(true)
-      stopAuthAutoRefresh()
-    }
-    return false
-  } finally {
-    isRefreshing = false
-  }
-}
-
-// // Fonction pour calculer le temps avant expiration
+// --- Fonctions utilitaires ---
 const getTokenExpiryTime = (tokenData: any): number | null => {
   try {
     const expiresAt = tokenData?.expiresAt
@@ -224,54 +167,160 @@ const getTokenExpiryTime = (tokenData: any): number | null => {
   }
 }
 
-
-
-
-
-// Fonction pour vérifier si le token va expirer bientôt
-const shouldRefreshToken = (expiryTime: number | null): boolean => {
-  if (!expiryTime) {
-    return true
-  }
+const calculateTimeUntilRefresh = (expiryTime: number | null): number | null => {
+  if (!expiryTime) return null
 
   const now = Date.now()
   const timeUntilExpiry = expiryTime - now
+  const timeUntilRefresh = timeUntilExpiry - REFRESH_ADVANCE_MS
 
-  // Rafraîchir 2 minutes avant expiration
-  const shouldRefresh = timeUntilExpiry < REFRESH_ADVANCE_MS
-
-  return shouldRefresh
+  return timeUntilRefresh > 0 ? timeUntilRefresh : 0
 }
 
-// Démarrer le refresh automatique
-export const startAuthAutoRefresh = () => {
+// --- Gestion du refresh ---
+export const stopAuthAutoRefresh = () => {
+  if (refreshTimeoutId) {
+    clearTimeout(refreshTimeoutId)
+    refreshTimeoutId = null
+  }
+}
+
+// NOUVELLE : Fonction pour vérifier si le refresh token est encore valide
+const isRefreshTokenValid = (): boolean => {
+  const authStore = useAuthStore()
+
+  if (!authStore.refreshToken || authStore.refreshToken === 'null') {
+    return false
+  }
+
+  // Vérifier la date d'expiration du refresh token si disponible
+  const refreshExpiry = getTokenExpiryTime(authStore.refreshTokenData)
+  if (refreshExpiry && refreshExpiry < Date.now()) {
+    console.warn('🔒 Refresh token expiré')
+    return false
+  }
+
+  return true
+}
+
+const performTokenRefresh = async (): Promise<boolean> => {
+  if (isRefreshing) {
+    return false
+  }
+
+  // VÉRIFICATION CRITIQUE : S'assurer que le refresh token est valide
+  if (!isRefreshTokenValid()) {
+    console.error('❌ Refresh token invalide ou expiré - réauthentification requise')
+    const authStore = useAuthStore()
+    authStore.setReauthRequired(true)
+    stopAuthAutoRefresh()
+    return false
+  }
+
+  isRefreshing = true
+  const authStore = useAuthStore()
+
+  try {
+
+    const payload = {
+      refresh_token: authStore.refreshToken
+    }
+
+    const resp = await axios.post(`${API_URL}/refresh-token`, payload, getRefreshRequestOptions())
+
+    const newToken = resp.data?.data?.access_token?.token || resp.data?.data?.access_token
+    const newTokenData = resp.data?.data?.access_token
+
+    if (newToken) {
+      authStore.updateToken(newToken, newTokenData)
+      authStore.setReauthRequired(false)
+
+      scheduleNextRefresh() // Replanifier le prochain refresh
+    } else {
+      console.warn('⚠️ Pas de nouveau token dans la réponse')
+      return false
+    }
+
+    // Mettre à jour le refresh token si présent
+    const newRefresh = resp.data?.data?.refresh_token?.token || resp.data?.data?.refresh_token
+    const newRefreshData = resp.data?.data?.refresh_token
+
+    if (newRefresh) {
+      authStore.updateRefreshToken(newRefresh, newRefreshData)
+    }
+
+    return true
+
+  } catch (err: any) {
+    console.error('❌ Erreur lors du refresh automatique:', {
+      status: err?.response?.status,
+      message: err?.message,
+      data: err?.response?.data
+    })
+
+    // Gestion spécifique des erreurs
+    if (err?.response?.status === 401 || err?.response?.status === 403) {
+      console.warn('🔒 Refresh token rejeté - réauthentification requise')
+      authStore.setReauthRequired(true)
+      stopAuthAutoRefresh()
+
+      // NOUVEAU : Nettoyer les tokens invalides
+      authStore.updateToken('', null)
+      authStore.updateRefreshToken('', null)
+    }
+    return false
+  } finally {
+    isRefreshing = false
+  }
+}
+
+const scheduleNextRefresh = () => {
   stopAuthAutoRefresh()
 
-  refreshIntervalId = setInterval(async () => {
-    // Ne pas refresh si déjà en cours ou si réauth requise
-    if (isRefreshing || useAuthStore().reauthRequired) {
-      return
-    }
+  const authStore = useAuthStore()
 
-    const authStore = useAuthStore()
+  // Vérifications de sécurité
+  if (!authStore.isFullyAuthenticated || authStore.reauthRequired) {
+    console.log('⏹️ Refresh automatique arrêté: utilisateur non authentifié')
+    return
+  }
 
-    // Vérifier si l'utilisateur est connecté
-    if (!authStore.isFullyAuthenticated) {
-      stopAuthAutoRefresh()
-      return
-    }
+  if (!isRefreshTokenValid()) {
+    console.warn('⏹️ Refresh automatique arrêté: refresh token invalide')
+    authStore.setReauthRequired(true)
+    return
+  }
 
-    const tokenExpiry = getTokenExpiryTime(authStore.tokenData)
+  const tokenExpiry = getTokenExpiryTime(authStore.tokenData)
+  const timeUntilRefresh = calculateTimeUntilRefresh(tokenExpiry)
 
-    if (shouldRefreshToken(tokenExpiry)) {
-      await performTokenRefresh()
-    }
+  if (timeUntilRefresh === null) {
+    console.warn('⏰ Impossible de déterminer le prochain refresh')
+    // Fallback: refresh dans 15 minutes
+    refreshTimeoutId = setTimeout(() => {
+      performTokenRefresh()
+    }, 15 * 60 * 1000) as unknown as number
+    return
+  }
 
-  }, CHECK_INTERVAL_MS) as unknown as number
+
+  if (timeUntilRefresh <= 0) {
+    // Refresh immédiat si dans la fenêtre critique
+    performTokenRefresh()
+  } else {
+    // Planifier le refresh au bon moment
+    refreshTimeoutId = setTimeout(() => {
+      performTokenRefresh()
+    }, timeUntilRefresh) as unknown as number
+  }
 }
 
+export const startAuthAutoRefresh = () => {
+  stopAuthAutoRefresh()
+  scheduleNextRefresh()
+}
 
-// Intercepteur pour rafraîchir automatiquement sur 401
+// --- Intercepteur axios amélioré ---
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -283,19 +332,46 @@ axios.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && isAuthenticated) {
       originalRequest._retry = true
 
+      // Si un refresh est déjà en cours, attendre qu'il se termine
+      if (isRefreshing) {
+        try {
+          // Attendre maximum 5 secondes
+          await new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+              if (!isRefreshing) {
+                clearInterval(checkInterval)
+                resolve(true)
+              }
+            }, 100)
+
+            setTimeout(() => {
+              clearInterval(checkInterval)
+              resolve(false)
+            }, 5000)
+          })
+        } catch (waitError) {
+          console.log('⏰ Timeout en attendant le refresh')
+        }
+
+        // Réessayer avec le potentiellement nouveau token
+        originalRequest.headers.Authorization = `Bearer ${authStore.token}`
+        return axios(originalRequest)
+      }
+
       try {
         const refreshSuccess = await performTokenRefresh()
 
         if (refreshSuccess) {
-          // Rejouer la requête originale avec le nouveau token
           originalRequest.headers.Authorization = `Bearer ${authStore.token}`
           return axios(originalRequest)
         } else {
           authStore.setReauthRequired(true)
+          return Promise.reject(error)
         }
       } catch (refreshError) {
         console.error('❌ Échec du refresh dans l\'intercepteur')
         authStore.setReauthRequired(true)
+        return Promise.reject(error)
       }
     }
 
@@ -303,33 +379,34 @@ axios.interceptors.response.use(
   }
 )
 
-// Fonction de login mise à jour
+// --- Dans votre fonction auth ---
 export function auth(credentials: { email: string; password: string; keepLoggedIn?: boolean }) {
   return axios
     .post(`${API_URL}/authLogin`, credentials, { withCredentials: true })
     .then((resp) => {
       const authStore = useAuthStore()
 
-      // Stocker le token avec ses métadonnées
       const token = resp.data.data?.access_token?.token
       const tokenData = resp.data.data?.access_token
       if (token && tokenData) {
         authStore.updateToken(token, tokenData)
       }
 
-      // Stocker le refresh token avec ses métadonnées
       const refresh = resp.data?.data?.refresh_token?.token
       const refreshData = resp.data?.data?.refresh_token
       if (refresh && refreshData) {
         authStore.updateRefreshToken(refresh, refreshData)
       }
 
-      // Démarrer le refresh automatique
-      startAuthAutoRefresh()
+      // Démarrer le refresh automatique SEULEMENT si on a un refresh token valide
+      if (refresh && refreshData) {
+        startAuthAutoRefresh()
+      }
 
       return resp
     })
 }
+
 
 export const refreshToken = async (): Promise<AxiosResponse<any>> => {
   const authStore = useAuthStore()
@@ -644,3 +721,5 @@ export const createPayment = (paymentData: any): Promise<AxiosResponse<any>> => 
 export const confirmPayment = (id: number | null, Payload: any): Promise<AxiosResponse<any>> => {
   return axios.put(`${API_URL}/payment/${id}/confirm`, Payload, getHeaders())
 }
+
+

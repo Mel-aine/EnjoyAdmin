@@ -174,6 +174,8 @@ const filteredRooms = computed(() => {
       max: room.capacity?.max ?? 0,
       adults: room.capacity?.adults ?? 1,
       children: room.capacity?.children ?? 0,
+      baseAdult: room.capacity?.baseAdult ?? 0,
+      baseChild: room.capacity?.baseChild ?? 0,
     },
     amenities: room.amenities,
     ratePlans: room.ratePlans.map((plan) => ({
@@ -250,17 +252,24 @@ const summaryItems = ref<
   }>
 >([])
 
+
 function handleAddRoom(payload: any) {
-  const { room, plan, adults: a = 1, children: c = 0 } = payload || {}
+  const { room, plan, occupants } = payload || {}
   const keyRoom = room?.name ?? 'Room'
   const keyPlan = plan?.name ?? 'Plan'
   const idx = summaryItems.value.findIndex(
     (it) => it.roomName === keyRoom && it.planName === keyPlan,
   )
 
+  // Calculer le total des occupants
+  const totalAdults = occupants ? occupants.reduce((sum: number, occupant: any) => sum + (occupant.adults || 0), 0) : 1
+  const totalChildren = occupants ? occupants.reduce((sum: number, occupant: any) => sum + (occupant.children || 0), 0) : 0
+
   if (idx !== -1) {
     const cap = room?.roomsLeft ?? Infinity
     summaryItems.value[idx].qty = Math.min((summaryItems.value[idx].qty || 0) + 1, cap)
+    summaryItems.value[idx].adults = totalAdults
+    summaryItems.value[idx].children = totalChildren
   } else {
     summaryItems.value.push({
       roomId: room?.id,
@@ -268,12 +277,13 @@ function handleAddRoom(payload: any) {
       planId: plan?.id,
       planName: keyPlan,
       planPrice: plan?.price ?? 0,
-      adults: a,
-      children: c,
+      adults: totalAdults,
+      children: totalChildren,
       qty: 1,
     })
   }
 }
+
 
 function handleRemoveRoom(payload: any) {
   const { room, plan } = payload || {}
@@ -288,14 +298,10 @@ function handleRemoveRoom(payload: any) {
     if (next <= 0) summaryItems.value.splice(idx, 1)
     else summaryItems.value[idx].qty = next
   }
+
 }
 
-// function removeSummaryItem(index: number) {
-//   if (index >= 0 && index < summaryItems.value.length) {
-//     summaryItems.value.splice(index, 1)
-//   }
 
-// }
 //  removeSummaryItem
 function removeSummaryItem(index: number) {
   if (index >= 0 && index < summaryItems.value.length) {
@@ -320,7 +326,6 @@ const roomCounts = computed(() => {
   return counts
 })
 
-
 function bookFromSummary() {
   if (!summaryItems.value.length) {
     alert('Veuillez sélectionner au moins une chambre')
@@ -329,32 +334,145 @@ function bookFromSummary() {
 
   const bookingStore = useBookingSummaryStore()
 
-  const items = summaryItems.value.map((item) => {
+  // Décomposer chaque item en chambres individuelles avec leurs occupants
+  const decomposedItems = summaryItems.value.flatMap((item) => {
     const room = filteredRooms.value.find(r => r.name === item.roomName)
     const plan = room?.ratePlans.find(p => p.name === item.planName)
+
+    // Récupérer les taux extras
+    const extraAdultRate = plan?.breakdown?.extraAdultRate || "0.00"
+    const extraChildRate = plan?.breakdown?.extraChildRate || "0.00"
+
+    // Récupérer la capacité de base depuis le roomType
+    const baseAdult = room?.capacity?.baseAdult || 1
+    const baseChild = room?.capacity?.baseChild || 0
+
     const taxIncluded = plan?.features?.some(
       feature => feature.toLowerCase().includes('tax included')
     ) || false
 
+    // Pour chaque chambre de cet item, créer un item individuel
+    return Array.from({ length: item.qty }, (_, index) => {
+      // Répartition des adultes
+      const adultsPerRoom = Math.floor(item.adults / item.qty)
+      const extraAdults = item.adults % item.qty
+      const adults = adultsPerRoom + (index < extraAdults ? 1 : 0)
+
+      // Répartition des enfants
+      const childrenPerRoom = Math.floor(item.children / item.qty)
+      const extraChildren = item.children % item.qty
+      const children = childrenPerRoom + (index < extraChildren ? 1 : 0)
+
+      // Calcul du nombre d'extra adultes et enfants
+      const extraAdultsCount = Math.max(0, adults - baseAdult)
+      const extraChildrenCount = Math.max(0, children - baseChild)
+
+      // Calcul du coût des extras
+      const extraAdultCost = extraAdultsCount * parseFloat(extraAdultRate)
+      const extraChildCost = extraChildrenCount * parseFloat(extraChildRate)
+      const totalExtrasCost = extraAdultCost + extraChildCost
+
+      // Prix avant taxes
+      const subtotal = item.planPrice + totalExtrasCost
+
+      return {
+        roomId: item.roomId,
+        roomName: item.roomName,
+        rateTypeId: item.planId,
+        planName: item.planName,
+        planPrice: item.planPrice,
+        extraAdultRate: extraAdultRate,
+        extraChildRate: extraChildRate,
+        extraAdultsCount: extraAdultsCount,
+        extraChildrenCount: extraChildrenCount,
+        extraAdultCost: extraAdultCost,
+        extraChildCost: extraChildCost,
+        totalExtrasCost: totalExtrasCost,
+        baseAdult: baseAdult,
+        baseChild: baseChild,
+        quantity: 1,
+        adults: adults,
+        children: children,
+        taxIncluded: taxIncluded,
+        roomNumber: index + 1,
+        subtotal: subtotal, // Prix avant taxes
+        totalPrice: subtotal // Sera mis à jour avec les taxes
+      }
+    })
+  })
+
+  const allTaxIncluded = decomposedItems.every(item => item.taxIncluded === true)
+
+
+  // Fonction pour calculer les taxes pour un montant donné
+  const calculateTaxes = (amount:any) => {
+    let totalTaxAmount = 0
+    const taxDetails:any[] = []
+
+    hotelTaxes.value.forEach(tax => {
+      let taxAmount = 0
+
+      if (tax.type === 'flat_percentage' && tax.percent) {
+        // Taxe en pourcentage
+        taxAmount = amount * (parseFloat(tax.percent) / 100)
+      } else if (tax.type === 'flat_amount' && tax.rate) {
+        // Taxe fixe
+        taxAmount = parseFloat(tax.rate)
+      }
+
+      if (taxAmount > 0) {
+        totalTaxAmount += taxAmount
+        taxDetails.push({
+          id: tax.id,
+          name: tax.name,
+          rate: tax.rate,
+          percent: tax.percent,
+          type: tax.type,
+          amount: taxAmount
+        })
+      }
+    })
+
     return {
-      roomId: item.roomId,
-      roomName: item.roomName,
-      rateTypeId: item.planId,
-      planName: item.planName,
-      planPrice: item.planPrice,
-      quantity: item.qty,
-      adults: item.adults,
-      children: item.children,
-      taxIncluded: taxIncluded,
+      totalTaxAmount,
+      taxDetails
+    }
+  }
+
+  // Appliquer les taxes à chaque chambre si non incluses
+  let totalTaxAmount = 0
+  const itemsWithTaxes = decomposedItems.map(item => {
+    if (item.taxIncluded) {
+      // Taxes déjà incluses dans le prix
+      return {
+        ...item,
+        taxesAmount: 0,
+        taxDetails: [],
+        totalPrice: item.subtotal
+      }
+    } else {
+      // Calculer les taxes
+      const { totalTaxAmount: roomTaxAmount, taxDetails } = calculateTaxes(item.subtotal)
+      totalTaxAmount += roomTaxAmount
+
+      return {
+        ...item,
+        taxesAmount: roomTaxAmount,
+        taxDetails: taxDetails,
+        totalPrice: item.subtotal + roomTaxAmount
+      }
     }
   })
 
-  const allTaxIncluded = items.every(item => item.taxIncluded === true)
-
-  // Calculer le prix total
-  const totalPrice = summaryItems.value.reduce((sum, item) => {
-    return sum + (item.planPrice * item.qty)
-  }, 0)
+  // Calculer les totaux globaux
+  const totalAdults = itemsWithTaxes.reduce((sum, item) => sum + item.adults, 0)
+  const totalChildren = itemsWithTaxes.reduce((sum, item) => sum + item.children, 0)
+  const totalBasePrice = itemsWithTaxes.reduce((sum, item) => sum + item.planPrice, 0)
+  const totalExtraAdultCost = itemsWithTaxes.reduce((sum, item) => sum + item.extraAdultCost, 0)
+  const totalExtraChildCost = itemsWithTaxes.reduce((sum, item) => sum + item.extraChildCost, 0)
+  const totalExtrasCost = itemsWithTaxes.reduce((sum, item) => sum + item.totalExtrasCost, 0)
+  const totalSubtotal = itemsWithTaxes.reduce((sum, item) => sum + item.subtotal, 0)
+  const grandTotal = itemsWithTaxes.reduce((sum, item) => sum + item.totalPrice, 0)
 
   bookingStore.setBookingData({
     hotelId: String(hotelId),
@@ -364,24 +482,32 @@ function bookFromSummary() {
     phoneNumber: hotelMeta.value?.phoneNumber || '',
     cancellationPolicy: hotelMeta.value?.cancellation || '',
     policies: hotelMeta.value?.policies || '',
-    taxes: hotelTaxes.value || [],
+    taxes: hotelTaxes.value,
     arrivalDate: arrivalDate.value,
     departureDate: departureDate.value,
-    adults: adults.value,
-    children: children.value,
+    adults: totalAdults,
+    children: totalChildren,
     nights: String(nights.value),
-    items,
-    totalPrice,
+    items: itemsWithTaxes,
+    totalPrice: grandTotal,
+    totalBasePrice: totalBasePrice,
+    totalExtraAdultCost: totalExtraAdultCost,
+    totalExtraChildCost: totalExtraChildCost,
+    totalExtrasCost: totalExtrasCost,
+    totalSubtotal: totalSubtotal,
+    totalTaxAmount: totalTaxAmount,
     currency: selectedCurrency.value,
     taxIncluded: allTaxIncluded,
   })
 
   // Naviguer vers le checkout
-  router.push({ name: 'OtaCheckout' , query : { hotelId} })
+  router.push({ name: 'OtaCheckout', query: { hotelId } })
 }
 
+
+
 function handleUpdate(payload: any) {
-  const { room, plan, adults: a, children: c } = payload || {}
+  const { room, plan, occupants } = payload || {}
   const keyRoom = room?.name ?? 'Room'
   const keyPlan = plan?.name ?? 'Plan'
 
@@ -389,14 +515,19 @@ function handleUpdate(payload: any) {
     item => item.roomName === keyRoom && item.planName === keyPlan
   )
 
-  if (itemIndex !== -1) {
-    summaryItems.value[itemIndex].adults = a
-    summaryItems.value[itemIndex].children = c
+  if (itemIndex !== -1 && occupants && occupants.length > 0) {
+    // Calculer le total des adults/children pour cette chambre
+    const totalAdults = occupants.reduce((sum: number, occupant: any) => sum + (occupant.adults || 0), 0)
+    const totalChildren = occupants.reduce((sum: number, occupant: any) => sum + (occupant.children || 0), 0)
+
+    summaryItems.value[itemIndex].adults = totalAdults
+    summaryItems.value[itemIndex].children = totalChildren
   }
 }
 
 onMounted(() => {
   searchRooms()
+
 })
 </script>
 

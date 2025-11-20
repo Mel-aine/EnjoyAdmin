@@ -19,6 +19,8 @@ export interface BookingItem {
   adults: number
   children: number
   taxIncluded?: boolean
+  subtotal?:any
+  totalExtrasCost?:any
 }
 
 export interface BookingData {
@@ -39,6 +41,13 @@ export interface BookingData {
   taxIncluded?: boolean
   policies?: string
   cancellationPolicy?: string
+  totalBasePrice?:any
+  totalExtraAdultCost?:any
+  totalExtraChildCost?:any
+  totalExtrasCost?:any
+  totalSubtotal?:any
+  totalTaxAmount?:any
+
 }
 
 const bookingData = ref<BookingData | null>(null)

@@ -33,6 +33,8 @@ export interface RoomAvailability {
     max?: number
     children?: number
     adults?: number
+    baseAdult?:number
+    baseChild?:number
   }
   amenities?: any[]
   ratePlans: Array<{
@@ -155,6 +157,9 @@ export interface OTABookingPayload {
   arrivalDate: string
   departureDate: string
   nights: number
+  email?: string
+  mobile?: string
+
   guest: {
     title: string
     firstName: string
@@ -163,6 +168,15 @@ export interface OTABookingPayload {
     country: string
     email: string
   }
+  roomGuests:Array<{
+     title: string
+    firstName: string
+    lastName: string
+    mobile: string
+    specialRequests: string
+    email: string
+
+  }>
   items: Array<{
     roomId: number
     roomName: string
@@ -304,16 +318,40 @@ export function transformOTAPayloadToReservation(
   };
   const otaCode = generateOTACode('BK')
 
+    const guestsData = otaPayload.roomGuests?.map((guest, index) => ({
+    first_name: guest.firstName,
+    last_name: guest.lastName,
+    email: guest.email || otaPayload.guest?.email || otaPayload.email,
+    phone_primary: guest.mobile || otaPayload.guest?.mobile || otaPayload.mobile,
+    title: guest.title,
+    special_requests: guest.specialRequests || '',
+    is_primary: index === 0,
+    guest_type: 'adult'
+  })) || []
+
+    if (guestsData.length === 0) {
+    guestsData.push({
+      first_name: otaPayload.guest?.firstName || '',
+      last_name: otaPayload.guest?.lastName || '',
+      email: otaPayload.guest?.email || otaPayload.email,
+      phone_primary: otaPayload.guest?.mobile || otaPayload.mobile,
+      title: otaPayload.guest?.title || 'Mr',
+      special_requests: '',
+      is_primary: true,
+      guest_type: 'adult'
+    })
+  }
+
   console.log('Rooms Data:', roomsData)
 
   return {
     hotel_id: serviceId,
-    first_name: otaPayload.guest.firstName,
-    last_name: otaPayload.guest.lastName,
-    email: otaPayload.guest.email,
-    phone_primary: otaPayload.guest.mobile,
-    title: otaPayload.guest.title,
-    country: otaPayload.guest.country,
+     first_name: guestsData[0]?.first_name,
+    last_name: guestsData[0]?.last_name,
+    email: guestsData[0]?.email,
+    phone_primary: guestsData[0]?.phone_primary,
+    title: guestsData[0]?.title,
+    guests: guestsData,
 
     company_name: '',
     group_name: '',
