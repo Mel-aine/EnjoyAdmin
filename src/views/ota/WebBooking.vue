@@ -334,145 +334,111 @@ function bookFromSummary() {
 
   const bookingStore = useBookingSummaryStore()
 
-  // Décomposer chaque item en chambres individuelles avec leurs occupants
+  const totalPercentageRate = hotelTaxes.value
+    .filter(t => t.type === 'flat_percentage')
+    .reduce((sum, t) => sum + parseFloat(t.percent || '0') / 100, 0)
+
+  const flatTaxPerRoomPerNight = hotelTaxes.value
+    .filter(t => t.type === 'flat_amount')
+    .reduce((sum, t) => sum + parseFloat(t.rate || '0'), 0)
+
   const decomposedItems = summaryItems.value.flatMap((item) => {
     const room = filteredRooms.value.find(r => r.name === item.roomName)
     const plan = room?.ratePlans.find(p => p.name === item.planName)
 
-    // Récupérer les taux extras
     const extraAdultRate = plan?.breakdown?.extraAdultRate || "0.00"
     const extraChildRate = plan?.breakdown?.extraChildRate || "0.00"
-
-    // Récupérer la capacité de base depuis le roomType
     const baseAdult = room?.capacity?.baseAdult || 1
     const baseChild = room?.capacity?.baseChild || 0
 
-    const taxIncluded = plan?.features?.some(
-      feature => feature.toLowerCase().includes('tax included')
-    ) || false
-
-    // Pour chaque chambre de cet item, créer un item individuel
     return Array.from({ length: item.qty }, (_, index) => {
-      // Répartition des adultes
+
       const adultsPerRoom = Math.floor(item.adults / item.qty)
-      const extraAdults = item.adults % item.qty
-      const adults = adultsPerRoom + (index < extraAdults ? 1 : 0)
+      const extraAdultsRemainder = item.adults % item.qty
+      const adults = adultsPerRoom + (index < extraAdultsRemainder ? 1 : 0)
 
-      // Répartition des enfants
       const childrenPerRoom = Math.floor(item.children / item.qty)
-      const extraChildren = item.children % item.qty
-      const children = childrenPerRoom + (index < extraChildren ? 1 : 0)
+      const extraChildrenRemainder = item.children % item.qty
+      const children = childrenPerRoom + (index < extraChildrenRemainder ? 1 : 0)
 
-      // Calcul du nombre d'extra adultes et enfants
       const extraAdultsCount = Math.max(0, adults - baseAdult)
       const extraChildrenCount = Math.max(0, children - baseChild)
-
-      // Calcul du coût des extras
       const extraAdultCost = extraAdultsCount * parseFloat(extraAdultRate)
       const extraChildCost = extraChildrenCount * parseFloat(extraChildRate)
       const totalExtrasCost = extraAdultCost + extraChildCost
 
-      // Prix avant taxes
-      const subtotal = item.planPrice + totalExtrasCost
+
+
+      const planPriceTTC = item.planPrice
+
+      const baseAmountSubjectToVAT = planPriceTTC - flatTaxPerRoomPerNight
+
+      const planPriceHT = totalPercentageRate > 0
+        ? baseAmountSubjectToVAT / (1 + totalPercentageRate)
+        : baseAmountSubjectToVAT
+      const extractedRoomTax = baseAmountSubjectToVAT - planPriceHT
+      const extrasTaxAmount = totalExtrasCost * totalPercentageRate
+
+      // Subtotal HT
+      const subtotalHT = planPriceHT + totalExtrasCost
 
       return {
         roomId: item.roomId,
         roomName: item.roomName,
         rateTypeId: item.planId,
         planName: item.planName,
-        planPrice: item.planPrice,
-        extraAdultRate: extraAdultRate,
-        extraChildRate: extraChildRate,
-        extraAdultsCount: extraAdultsCount,
-        extraChildrenCount: extraChildrenCount,
-        extraAdultCost: extraAdultCost,
-        extraChildCost: extraChildCost,
-        totalExtrasCost: totalExtrasCost,
-        baseAdult: baseAdult,
-        baseChild: baseChild,
+        planPriceTTC: planPriceTTC,
+        planPriceHT: Math.round(planPriceHT),
+        extraAdultRate,
+        extraChildRate,
+        extraAdultsCount,
+        extraChildrenCount,
+        extraAdultCost,
+        extraChildCost,
+        totalExtrasCost,
+        baseAdult,
+        baseChild,
         quantity: 1,
-        adults: adults,
-        children: children,
-        taxIncluded: taxIncluded,
+        adults,
+        children,
+        taxIncluded: true,
         roomNumber: index + 1,
-        subtotal: subtotal, // Prix avant taxes
-        totalPrice: subtotal // Sera mis à jour avec les taxes
+        subtotalHT: Math.round(subtotalHT),
+        extractedRoomTax: Math.round(extractedRoomTax),
+        extrasTaxAmount: Math.round(extrasTaxAmount),
+        flatTaxPerNight: flatTaxPerRoomPerNight,
+        subtotal: planPriceTTC + totalExtrasCost,
+        totalPrice: planPriceTTC + totalExtrasCost
       }
     })
   })
 
-  const allTaxIncluded = decomposedItems.every(item => item.taxIncluded === true)
+  // Calcul des totaux pour le Store
+  const totalAdults = decomposedItems.reduce((sum, item) => sum + item.adults, 0)
+  const totalChildren = decomposedItems.reduce((sum, item) => sum + item.children, 0)
 
+  // Sommes pour 1 nuit
+  const sumPlanPriceTTC = decomposedItems.reduce((sum, item) => sum + item.planPriceTTC, 0)
+  const sumPlanPriceHT = decomposedItems.reduce((sum, item) => sum + item.planPriceHT, 0)
+  const sumExtrasCost = decomposedItems.reduce((sum, item) => sum + item.totalExtrasCost, 0)
+  const sumExtractedTax = decomposedItems.reduce((sum, item) => sum + item.extractedRoomTax, 0)
+  const sumExtrasTax = decomposedItems.reduce((sum, item) => sum + item.extrasTaxAmount, 0)
+  const sumFlatTax = decomposedItems.reduce((sum, item) => sum + item.flatTaxPerNight, 0)
 
-  // Fonction pour calculer les taxes pour un montant donné
-  const calculateTaxes = (amount:any) => {
-    let totalTaxAmount = 0
-    const taxDetails:any[] = []
+  // Multiplication par le nombre de nuits pour le Grand Total
+  const numberOfNights = Number(nights.value) || 1
+  const grandTotal = (sumPlanPriceTTC + sumExtrasCost) * numberOfNights
 
-    hotelTaxes.value.forEach(tax => {
-      let taxAmount = 0
+  // Totaux Taxes sur tout le séjour
+  const totalExtractedTax = sumExtractedTax * numberOfNights
+  const totalExtrasTax = sumExtrasTax * numberOfNights
+  const totalFlatTax = sumFlatTax * numberOfNights
+  const totalTaxAmount = (sumExtractedTax + sumExtrasTax + sumFlatTax) * numberOfNights
 
-      if (tax.type === 'flat_percentage' && tax.percent) {
-        // Taxe en pourcentage
-        taxAmount = amount * (parseFloat(tax.percent) / 100)
-      } else if (tax.type === 'flat_amount' && tax.rate) {
-        // Taxe fixe
-        taxAmount = parseFloat(tax.rate)
-      }
-
-      if (taxAmount > 0) {
-        totalTaxAmount += taxAmount
-        taxDetails.push({
-          id: tax.id,
-          name: tax.name,
-          rate: tax.rate,
-          percent: tax.percent,
-          type: tax.type,
-          amount: taxAmount
-        })
-      }
-    })
-
-    return {
-      totalTaxAmount,
-      taxDetails
-    }
-  }
-
-  // Appliquer les taxes à chaque chambre si non incluses
-  let totalTaxAmount = 0
-  const itemsWithTaxes = decomposedItems.map(item => {
-    if (item.taxIncluded) {
-      // Taxes déjà incluses dans le prix
-      return {
-        ...item,
-        taxesAmount: 0,
-        taxDetails: [],
-        totalPrice: item.subtotal
-      }
-    } else {
-      // Calculer les taxes
-      const { totalTaxAmount: roomTaxAmount, taxDetails } = calculateTaxes(item.subtotal)
-      totalTaxAmount += roomTaxAmount
-
-      return {
-        ...item,
-        taxesAmount: roomTaxAmount,
-        taxDetails: taxDetails,
-        totalPrice: item.subtotal + roomTaxAmount
-      }
-    }
-  })
-
-  // Calculer les totaux globaux
-  const totalAdults = itemsWithTaxes.reduce((sum, item) => sum + item.adults, 0)
-  const totalChildren = itemsWithTaxes.reduce((sum, item) => sum + item.children, 0)
-  const totalBasePrice = itemsWithTaxes.reduce((sum, item) => sum + item.planPrice, 0)
-  const totalExtraAdultCost = itemsWithTaxes.reduce((sum, item) => sum + item.extraAdultCost, 0)
-  const totalExtraChildCost = itemsWithTaxes.reduce((sum, item) => sum + item.extraChildCost, 0)
-  const totalExtrasCost = itemsWithTaxes.reduce((sum, item) => sum + item.totalExtrasCost, 0)
-  const totalSubtotal = itemsWithTaxes.reduce((sum, item) => sum + item.subtotal, 0)
-  const grandTotal = itemsWithTaxes.reduce((sum, item) => sum + item.totalPrice, 0)
+  // Totaux HT sur tout le séjour
+  const totalPlanPriceHT = sumPlanPriceHT * numberOfNights
+  const totalExtrasCost = sumExtrasCost * numberOfNights
+  const totalPlanPriceTTC = sumPlanPriceTTC * numberOfNights
 
   bookingStore.setBookingData({
     hotelId: String(hotelId),
@@ -488,19 +454,24 @@ function bookFromSummary() {
     adults: totalAdults,
     children: totalChildren,
     nights: String(nights.value),
-    items: itemsWithTaxes,
+    items: decomposedItems,
+
+    // On envoie les totaux multipliés par le nombre de nuits
+    totalPlanPriceTTC,
+    totalPlanPriceHT,
+    totalExtrasCost,
+    totalExtractedTax,
+    totalExtrasTax,
+    totalFlatTax,
+    totalTaxAmount,
     totalPrice: grandTotal,
-    totalBasePrice: totalBasePrice,
-    totalExtraAdultCost: totalExtraAdultCost,
-    totalExtraChildCost: totalExtraChildCost,
-    totalExtrasCost: totalExtrasCost,
-    totalSubtotal: totalSubtotal,
-    totalTaxAmount: totalTaxAmount,
+
     currency: selectedCurrency.value,
-    taxIncluded: allTaxIncluded,
+    taxIncluded: true,
+    totalBasePrice: totalPlanPriceTTC,
+    totalSubtotal: totalPlanPriceTTC + totalExtrasCost,
   })
 
-  // Naviguer vers le checkout
   router.push({ name: 'OtaCheckout', query: { hotelId } })
 }
 

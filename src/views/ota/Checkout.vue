@@ -11,17 +11,26 @@
         </div>
         <div class="hidden md:flex items-center gap-3 text-sm">
           <div class="flex items-center gap-2">
-            <span class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20">1</span>
+            <span
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20"
+              >1</span
+            >
             <span>Guest Info</span>
           </div>
           <span class="opacity-60">→</span>
           <div class="flex items-center gap-2">
-            <span class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20">2</span>
+            <span
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20"
+              >2</span
+            >
             <span>Policies</span>
           </div>
           <span class="opacity-60">→</span>
           <div class="flex items-center gap-2">
-            <span class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20">3</span>
+            <span
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/20"
+              >3</span
+            >
             <span>Review</span>
           </div>
         </div>
@@ -39,7 +48,11 @@
                 Not ready to submit your reservation? You can save for later.
               </div>
             </div>
-            <button @click="showSignIn = !showSignIn" type="button" class="hidden sm:inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded px-3 py-2 text-sm">
+            <button
+              @click="showSignIn = !showSignIn"
+              type="button"
+              class="hidden sm:inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded px-3 py-2 text-sm"
+            >
               <span>Sign in to Book Faster</span>
             </button>
           </div>
@@ -139,7 +152,8 @@
               <div>
                 <div class="flex items-center justify-end mb-2">
                   <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                    {{ bookingData?.items?.length || 0 }} {{ (bookingData?.items?.length || 0) > 1 ? 'Rooms' : 'Room' }}
+                    {{ bookingData?.items?.length || 0 }}
+                    {{ (bookingData?.items?.length || 0) > 1 ? 'Rooms' : 'Room' }}
                   </span>
                 </div>
 
@@ -154,91 +168,112 @@
                     class="border border-gray-200 rounded-lg p-4 bg-white hover:border-gray-300 transition-colors"
                   >
                     <!-- Room Header -->
-                     <template v-if="roomGuests[index]">
-                    <div class="flex items-center gap-3 mb-3">
-                      <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
-                        {{ index + 1 }}
-                      </div>
-                      <div>
-                        <div class="font-medium text-sm text-gray-900">{{ item.roomName }}</div>
-                        <div class="text-xs text-gray-500">
-                          {{ item.adults }} {{ item.adults > 1 ? 'Adults' : 'Adult' }}
-                          <span v-if="item.children > 0">, {{ item.children }} {{ item.children > 1 ? 'Children' : 'Child' }}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Guest Form -->
-                    <div class="grid sm:grid-cols-3 gap-3">
-                      <div class="flex flex-col">
-                        <Select
-                          :lb="'Title'"
-                          :options="GuestTitles"
-                          :default-value="'--Select--'"
-                          custom-class="h-11"
-                          v-model="roomGuests[index].title"
-                        />
-                      </div>
-                      <div class="flex flex-col">
-                        <Input
-                          :lb="'First Name'"
-                          :id="'firstName-' + index"
-                          :for-label="'firstName-' + index"
-                          :placeholder="'First Name'"
-                          v-model="roomGuests[index].firstName"
-                        />
-                      </div>
-                      <div class="flex flex-col">
-                        <Input
-                          :lb="'Last Name'"
-                          :id="'lastName-' + index"
-                          :for-label="'lastName-' + index"
-                          :placeholder="'Last Name'"
-                          v-model="roomGuests[index].lastName"
-                        />
-                      </div>
-                    </div>
-
-                    <!-- Special Requests Toggle -->
-                    <div class="mt-3 pt-3 border-t border-gray-100">
-                      <button
-                        type="button"
-                        @click="toggleSpecialRequests(index)"
-                        class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1.5 transition-colors"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-4 w-4 transition-transform"
-                          :class="{ 'rotate-180': showSpecialRequests[index] }"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
+                    <template v-if="roomGuests[index]">
+                      <div class="flex items-center gap-3 mb-3">
+                        <div
+                          class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0"
                         >
-                          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                        <span>Special Requests</span>
-                      </button>
-
-                      <div v-if="showSpecialRequests[index]" class="mt-2 space-y-2">
-                        <textarea
-                          v-model="roomGuests[index].specialRequests"
-                          rows="3"
-                          placeholder="e.g., High floor, quiet room, early check-in..."
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
-
-                        ></textarea>
-                        <div class="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                          </svg>
-                          <span>Special request cannot be guaranteed - but the accommodation will do its best to meet your needs.</span>
+                          {{ index + 1 }}
+                        </div>
+                        <div>
+                          <div class="font-medium text-sm text-gray-900">{{ item.roomName }}</div>
+                          <div class="text-xs text-gray-500">
+                            {{ item.adults }} {{ item.adults > 1 ? 'Adults' : 'Adult' }}
+                            <span v-if="item.children > 0"
+                              >, {{ item.children }}
+                              {{ item.children > 1 ? 'Children' : 'Child' }}</span
+                            >
+                          </div>
                         </div>
                       </div>
-                    </div>
+
+                      <!-- Guest Form -->
+                      <div class="grid sm:grid-cols-3 gap-3">
+                        <div class="flex flex-col">
+                          <Select
+                            :lb="'Title'"
+                            :options="GuestTitles"
+                            :default-value="'--Select--'"
+                            custom-class="h-11"
+                            v-model="roomGuests[index].title"
+                          />
+                        </div>
+                        <div class="flex flex-col">
+                          <Input
+                            :lb="'First Name'"
+                            :id="'firstName-' + index"
+                            :for-label="'firstName-' + index"
+                            :placeholder="'First Name'"
+                            v-model="roomGuests[index].firstName"
+                          />
+                        </div>
+                        <div class="flex flex-col">
+                          <Input
+                            :lb="'Last Name'"
+                            :id="'lastName-' + index"
+                            :for-label="'lastName-' + index"
+                            :placeholder="'Last Name'"
+                            v-model="roomGuests[index].lastName"
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Special Requests Toggle -->
+                      <div class="mt-3 pt-3 border-t border-gray-100">
+                        <button
+                          type="button"
+                          @click="toggleSpecialRequests(index)"
+                          class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1.5 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4 transition-transform"
+                            :class="{ 'rotate-180': showSpecialRequests[index] }"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                          <span>Special Requests</span>
+                        </button>
+
+                        <div v-if="showSpecialRequests[index]" class="mt-2 space-y-2">
+                          <textarea
+                            v-model="roomGuests[index].specialRequests"
+                            rows="3"
+                            placeholder="e.g., High floor, quiet room, early check-in..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 resize-none"
+                          ></textarea>
+                          <div
+                            class="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-4 w-4 mt-0.5 flex-shrink-0"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                            <span
+                              >Special request cannot be guaranteed - but the accommodation will do
+                              its best to meet your needs.</span
+                            >
+                          </div>
+                        </div>
+                      </div>
                     </template>
                   </div>
                 </div>
               </div>
-
 
               <div class="space-y-2">
                 <div class="grid sm:grid-cols-3 gap-3">
@@ -262,16 +297,23 @@
                   </div>
                 </div>
 
-                <div class="flex items-start gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                <div
+                  class="flex items-start gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 mt-0.5 flex-shrink-0"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
+                    />
                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                   </svg>
                   <span>Your voucher will be sent to this email address</span>
                 </div>
-
               </div>
-
             </form>
 
             <!-- Policies -->
@@ -280,22 +322,55 @@
               <div class="mt-2 space-y-4">
                 <div class="text-sm text-gray-700">
                   <div class="font-semibold mb-1">Hotel Policy</div>
-                  <p>{{ bookingData?.policies || 'Our hotel offers on-site dining, business facilities, spa and 24/7 front desk. Complimentary Wi‑Fi and secure parking are available.' }}</p>
+                  <p>
+                    {{
+                      bookingData?.policies ||
+                      'Our hotel offers on-site dining, business facilities, spa and 24/7 front desk. Complimentary Wi‑Fi and secure parking are available.'
+                    }}
+                  </p>
                 </div>
                 <div class="text-sm text-gray-700">
                   <div class="font-semibold mb-1">Cancellation Policy</div>
-                  <p>{{ bookingData?.cancellationPolicy || 'Free cancellation up to 24 hours before arrival on flexible rates. After that, one night may be charged depending on selected rate conditions.' }}</p>
+                  <p>
+                    {{
+                      bookingData?.cancellationPolicy ||
+                      'Free cancellation up to 24 hours before arrival on flexible rates. After that, one night may be charged depending on selected rate conditions.'
+                    }}
+                  </p>
                 </div>
               </div>
               <div class="mt-3 flex items-start gap-2">
                 <input type="checkbox" v-model="acceptPolicy" id="accept" class="mt-1" />
-                <label for="accept" class="text-sm">I acknowledge and accept the Terms of Cancellation Policy & Hotel Policy.</label>
+                <label for="accept" class="text-sm"
+                  >I acknowledge and accept the Terms of Cancellation Policy & Hotel Policy.</label
+                >
               </div>
               <div class="mt-3 flex gap-3">
-                <button class="bg-yellow-600 hover:bg-yellow-700 text-white rounded px-4 py-2 text-sm flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed" :disabled="!acceptPolicy || isBooking" @click="bookNow">
-                  <svg v-if="isBooking" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                <button
+                  class="bg-yellow-600 hover:bg-yellow-700 text-white rounded px-4 py-2 text-sm flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  :disabled="!acceptPolicy || isBooking"
+                  @click="bookNow"
+                >
+                  <svg
+                    v-if="isBooking"
+                    class="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
                   </svg>
                   <span>{{ isBooking ? 'Booking...' : 'Book Now' }}</span>
                 </button>
@@ -308,14 +383,16 @@
         </section>
 
         <!-- Booking summary -->
-        <aside class="bg-white rounded-xl shadow-sm border p-5 lg:sticky lg:top-24">
+        <aside
+          class="bg-white rounded-xl shadow-sm border p-5 lg:sticky lg:top-24 max-h-[fit-content]"
+        >
           <div class="font-semibold">{{ brand }}</div>
           <div class="text-[12px] text-gray-600">{{ bookingData?.address }}</div>
           <div class="text-[12px] text-gray-600">
             {{ bookingData?.email }} • {{ bookingData?.phoneNumber }}
           </div>
 
-          <div class="mt-2 grid grid-cols-2 gap-3 text-sm">
+          <div class="mt-2 grid grid-cols-3 gap-3 text-sm">
             <div>
               <div class="text-gray-600">Check-In</div>
               <div class="font-semibold">{{ formatDate(bookingData?.arrivalDate) }}</div>
@@ -329,102 +406,128 @@
               <div class="font-semibold">{{ nights }}</div>
             </div>
             <div>
-              <div class="text-gray-600">Guests</div>
+              <!-- <div class="text-gray-600">Guests</div>
               <div class="font-semibold">
                 {{ bookingData?.adults || 0 }} adults, {{ bookingData?.children || 0 }} children
-              </div>
+              </div> -->
             </div>
           </div>
+           <div class="py-2">
+              <button
+                class="bg-yellow-500 hover:bg-yellow-600 text-white rounded px-4 py-2 text-sm font-medium transition-colors"
+                @click="editBooking"
+              >
+                Change Dates
+              </button>
+            </div>
 
           <div class="mt-2 pt-2">
-            <div class="text-sm font-semibold mb-3">Rooms & Rates</div>
+            <div class="text-sm font-semibold mb-3">
+              Rooms & Rates ( Price for {{ nights }} Night{{ nights > 1 ? 's' : '' }} )
+            </div>
 
-            <!-- Liste des chambres -->
-            <div class="space-y-3 overflow-y-auto max-h-48 custom-scrollbar">
-              <div v-for="(item, index) in bookingData?.items || []" :key="index" class="text-sm bg-gray-50 rounded border p-3">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="font-medium">{{ item.roomName }}</div>
-                    <div class="text-gray-600 text-xs">{{ item.planName }}</div>
-                    <span v-if="item.taxIncluded" class="inline-block mt-1 text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                      Tax Included
-                    </span>
-                  </div>
+
+            <!-- Liste des chambres individuelles -->
+            <div class="space-y-4 px-2 overflow-y-auto max-h-[500px] custom-scrollbar">
+              <div
+                v-for="(item, index) in bookingData?.items || []"
+                :key="index"
+                class="border-b pb-4"
+              >
+                <!-- En-tête de la chambre -->
+                <div class="font-semibold text-sm mb-1">Room {{ index + 1 }} :</div>
+                <div class="text-sm text-gray-700 mb-1">
+                  Rateplan Name :{{ item.roomName }} - {{ item.planName }}
                 </div>
-                <div class="text-gray-500 text-xs mt-2">
-                  {{ item.quantity }} room(s) × {{ nights }} night(s) × {{ formatCurrency(item.planPrice) }}/night
+                <div class="text-sm text-gray-700 mb-2">
+                  <span class="font-medium">Pax Details :</span>
+                  {{ item.adults }} Adult{{ item.adults > 1 ? 's' : '' }},
+                  {{ item.children }} Child{{ item.children > 1 ? 'ren' : '' }}
                 </div>
-                <div class="text-gray-500 text-xs">
-                  {{ item.adults }} adults, {{ item.children }} children per room
+
+                <!-- Informations supplémentaires -->
+                <div class="text-sm text-green-600 italic mb-3">
+                  <span>Breakfast included</span>
+                  <span>, Pay at the hotel</span>
+                  <span>, Free Cancellation</span>
                 </div>
-                <div class="mt-2 flex justify-between">
-                  <div class="text-gray-600">Subtotal</div>
-                  <div class="font-semibold">
-                    {{ formatCurrency(item.planPrice * item.quantity * nights) }}
-                  </div>
-                </div>
+
+                <!-- Tableau des prix -->
+                <table class="w-full text-sm border-collapse border border-gray-300">
+                  <tbody>
+                    <tr>
+                      <td class="py-2 px-3 text-gray-700 border border-gray-300">Room Charges</td>
+                      <td class="py-2 px-3 text-right border border-gray-300">
+                        {{ formatCurrency( item.planPriceHT) }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-gray-700 border border-gray-300">
+                        Extra adult & child rates
+                      </td>
+                      <td class="py-2 px-3 text-right border border-gray-300">
+                        {{ formatCurrency(item.totalExtrasCost) }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-3 text-gray-700 border border-gray-300">Taxes & Fees</td>
+                      <td class="py-2 px-3 text-right border border-gray-300">
+                        {{
+                          formatCurrency(
+                            (item.extractedRoomTax || 0) + (item.flatTaxPerNight || 0) * nights,
+                          )
+                        }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <!-- Prix total section -->
-            <div class="pt-3 space-y-2 border-t mt-3">
-              <!-- Total des chambres HT (hors taxes) -->
-              <div class="flex justify-between text-sm">
-                <div class="text-gray-600">Room Charges (excl. tax)</div>
-                <div class="font-semibold">{{ formatCurrency(taxCalculation.roomChargesHT) }}</div>
-              </div>
-
-              <!-- Affichage des taxes -->
-              <div v-if="taxCalculation.breakdown.length > 0" class="space-y-1">
-                <!-- Afficher chaque taxe individuellement -->
-                <div v-for="tax in taxCalculation.breakdown" :key="tax.taxId" class="flex justify-between text-sm text-gray-600">
-                  <div class="flex items-center gap-1">
-                    <span>{{ tax.taxName }}</span>
-                    <span class="text-xs text-gray-400">
-                      {{ tax.type === 'flat_percentage' ? `(${bookingData?.taxes?.find(t => t.id === tax.taxId)?.percent}%)` : '(per room/night)' }}
-                    </span>
-                  </div>
-                  <div>{{ formatCurrency(tax.amount) }}</div>
-                </div>
-
-                <!-- Total des taxes -->
-                <div class="flex justify-between text-sm font-semibold border-t pt-2">
-                  <div>Total Taxes & Fees</div>
-                  <div>{{ formatCurrency(taxCalculation.total) }}</div>
-                </div>
-              </div>
-
-              <!-- Note pour les taxes incluses -->
-              <div v-if="taxCalculation.hasItemsWithTaxIncluded" class="flex items-start gap-1 text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                </svg>
-                <span>
-                  <span v-if="allTaxesIncluded">All prices include taxes. Taxes shown separately for transparency.</span>
-                  <span v-else>Some prices include taxes ({{ formatCurrency(taxCalculation.extractedTaxes) }} extracted)</span>
-                </span>
-              </div>
-
-              <!-- Réduction promo -->
-              <div v-if="discount > 0" class="flex justify-between text-sm text-green-600">
-                <div>Promo Discount</div>
-                <div>-{{ formatCurrency(discount) }}</div>
-              </div>
-
-              <!-- Total final -->
-              <div class="flex justify-between font-bold text-lg border-t pt-2">
-                <div>Total Price</div>
-                <div>{{ formatCurrency(finalTotal) }}</div>
-              </div>
+            <!-- Récapitulatif total -->
+            <div class="mt-4 pt-3 border-t bg-gray-50 -mx-4 px-4 pb-2">
+              <table class="w-full text-sm">
+                <tbody>
+                  <tr>
+                    <td class="py-1 font-medium">Total Room Charges</td>
+                    <td class="py-1 text-right font-medium">{{ formatCurrency(roomChargesHT) }}</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 font-medium">Total Taxes</td>
+                    <td class="py-1 text-right font-medium">{{ formatCurrency(taxCalculation.totalTaxes) }}</td>
+                  </tr>
+                  <tr>
+                    <td v-if="extrasTotalTTC" class="py-1 font-medium">
+                      Total Extra adult & child rates
+                    </td>
+                    <td class="py-1 text-right font-medium">
+                      {{ formatCurrency(extrasTotalTTC) }}
+                    </td>
+                  </tr>
+                  <tr class="border-t">
+                    <td class="py-2 font-bold">Total Price (Inc. Of Taxes)</td>
+                    <td class="py-2 text-right font-bold">{{ formatCurrency(finalTotal) }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-           <button
+            <button
               class="mt-2 text-blue-700 hover:underline text-sm font-medium flex items-center gap-1.5"
               @click="showDetailsModal = true"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+                <path
+                  fill-rule="evenodd"
+                  d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                  clip-rule="evenodd"
+                />
               </svg>
               View Detailed Breakdown
             </button>
@@ -434,16 +537,16 @@
               :is-open="showDetailsModal"
               :booking-data="bookingData"
               :nights="nights"
-              :total-room-charges="totalRoomCharges"
+              :total-room-charges="totalRoomChargesTTC"
               :tax-calculation="taxCalculation"
               :discount="discount"
               :final-total="finalTotal"
               :format-currency="formatCurrency"
               :format-tax-label="formatTaxLabel"
+              :totalExtracharge="totalExtrasCost"
               @close="showDetailsModal = false"
             />
           </div>
-
 
           <div class="mt-4 bg-yellow-50 border rounded p-3 flex justify-between items-center">
             <div class="text-sm">Pay at Hotel</div>
@@ -452,21 +555,87 @@
               <div class="text-xs text-gray-600 mt-1">
                 <span v-if="allTaxesIncluded">Taxes included</span>
                 <span v-else-if="hasMixedTaxStatus">Taxes vary by room</span>
-                <span v-else>+ {{ formatCurrency(taxCalculation.total) }} taxes</span>
+                <span v-else>+ {{ formatCurrency(taxCalculation.totalTaxes) }} taxes</span>
               </div>
             </div>
           </div>
 
           <div class="mt-4">
-            <div class="text-sm font-semibold">Offers</div>
-            <div class="mt-1 flex gap-2">
-              <input v-model="promo" class="flex-1 border rounded px-2 py-2 text-sm" placeholder="Enter promotional code" />
-              <button class="bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-2 text-sm" @click="applyPromo">
+            <div class="text-md font-semibold text-amber-600 border-b-2 border-amber-500 pb-1 mb-3">
+              Offers :
+            </div>
+
+            <!-- Liste des offres disponibles -->
+            <div class="space-y-2 mb-3">
+              <label
+                v-for="(offer, index) in availableOffers"
+                :key="index"
+                class="flex items-center gap-2 text-sm cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="offer"
+                  :value="offer.code"
+                  v-model="selectedOffer"
+                  class="w-4 h-4 text-amber-600"
+                />
+                <span class="text-gray-700">{{ offer.name }}</span>
+                <span v-if="offer.info" class="text-amber-500 cursor-help" :title="offer.info">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#d59d5d"
+                    stroke-width="1"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-info-icon lucide-info"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 16v-4" />
+                    <path d="M12 8h.01" />
+                  </svg>
+                </span>
+              </label>
+
+              <!-- Option code promo manuel -->
+              <label class="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="offer"
+                  value="manual"
+                  v-model="selectedOffer"
+                  class="w-4 h-4 text-amber-600"
+                />
+                <span class="text-gray-700">Enter Promotional code</span>
+              </label>
+            </div>
+
+            <!-- Champ de saisie du code promo -->
+            <div v-if="selectedOffer === 'manual'" class="flex gap-2">
+              <input
+                v-model="promo"
+                class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500"
+                placeholder="Enter Promotional code"
+              />
+              <button
+                class="bg-yellow-500 hover:bg-yellow-600 text-white rounded px-4 py-2 text-sm font-medium transition-colors"
+                @click="applyPromo"
+              >
                 Apply
               </button>
             </div>
-            <div v-if="promoApplied" class="mt-1 text-xs text-green-700">
-              Promo applied: -{{ formatCurrency(discount) }}
+
+            <!-- Message de confirmation -->
+            <div v-if="promoApplied" class="mt-2 text-xs text-green-700 bg-green-50 p-2 rounded">
+              ✓ Promo applied: -{{ formatCurrency(discount) }}
+            </div>
+
+            <!-- Message d'erreur -->
+            <div v-if="promoError" class="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+              ✗ {{ promoError }}
             </div>
           </div>
         </aside>
@@ -480,8 +649,8 @@
       :nights="nights"
       :brand="brand"
       :selected-currency="selectedCurrency"
-      :total-room-charges="totalRoomCharges"
-      :taxes="taxCalculation.total"
+      :total-room-charges="totalRoomChargesTTC"
+      :taxes="taxCalculation"
       :discount="discount"
       :final-total="finalTotal"
       :tax-calculation="taxCalculation"
@@ -527,23 +696,36 @@ const showSignIn = ref(false)
 const showPassword = ref(false)
 const loginData = ref({
   username: '',
-  password: ''
+  password: '',
 })
 
+const availableOffers = ref([
+  {
+    code: 'PROMO_ALL',
+    name: 'PROMO SUR TOUS TYPES DE CHAMBRES',
+    info: 'This promotion code will provide discount on all rooms you have selected',
+  },
+])
+
+const selectedOffer = ref(null)
+const promoError = ref('')
+
 // Room guests - Un guest par chambre
-const roomGuests = ref<Array<{
-  title: string
-  firstName: string
-  lastName: string
-  specialRequests: string
-}>>([])
+const roomGuests = ref<
+  Array<{
+    title: string
+    firstName: string
+    lastName: string
+    specialRequests: string
+  }>
+>([])
 
 // Special requests visibility
 const showSpecialRequests = ref<Record<number, boolean>>({})
 
 // Vérifier si on a des données
 onMounted(() => {
-  console.log('bookingData',bookingData.value)
+  console.log('bookingData', bookingData.value)
   if (!bookingData.value || !bookingData.value.items || bookingData.value.items.length === 0) {
     alert('No booking data found. Redirecting to booking page.')
     router.push({ name: 'WebBooking', params: { id: hotelId.value } })
@@ -553,7 +735,7 @@ onMounted(() => {
       title: '',
       firstName: '',
       lastName: '',
-      specialRequests: ''
+      specialRequests: '',
     }))
   }
 })
@@ -572,11 +754,7 @@ const nights = computed(() => {
 
 // Guest form
 const guest = ref({
-  title: 'Mr',
-  firstName: '',
-  lastName: '',
   mobile: '',
-  country: 'Cameroon',
   email: '',
 })
 
@@ -587,67 +765,29 @@ const showDetails = ref<boolean>(false)
 const promo = ref<string>('')
 const promoApplied = ref<boolean>(false)
 
-// Calculs financiers
-// Dans vos computed properties
-const totalRoomCharges = computed(() => {
-  return (bookingData.value?.items || []).reduce((sum, item) => {
-    return sum + (item.subtotal || (item.planPrice + (item.totalExtrasCost || 0))) * item.quantity * nights.value
-  }, 0)
+const taxesOnExtrasAmount = computed(() => Number(taxCalculation.value.taxesOnExtras ?? 0))
+
+const extrasTotalTTC = computed(() => {
+  return Number(taxCalculation.value.extrasCost ?? 0) + taxesOnExtrasAmount.value
 })
 
-const totalExtrasCost = computed(() => {
-  return (bookingData.value?.items || []).reduce((sum, item) => {
-    return sum + (item.totalExtrasCost || 0) * item.quantity * nights.value
-  }, 0)
-})
-// Vérifier si toutes les taxes sont incluses
-const allTaxesIncluded = computed(() => {
+const totalRoomChargesTTC = computed(() => {
   const items = bookingData.value?.items || []
-  return items.length > 0 && items.every(item => item.taxIncluded === true)
+  return items.reduce((sum, item) => {
+    // Prix unitaire TTC * Quantité * Nuits
+    const price = Number(item.planPriceTTC || item.planPrice || 0)
+    const qty = Number(item.quantity || 1)
+    return sum + price * qty * nights.value
+  }, 0)
 })
 
 // Vérifier si on a un mix
 const hasMixedTaxStatus = computed(() => {
   const items = bookingData.value?.items || []
-  const withTax = items.some(item => item.taxIncluded === true)
-  const withoutTax = items.some(item => item.taxIncluded !== true)
+  const withTax = items.some((item) => item.taxIncluded === true)
+  const withoutTax = items.some((item) => item.taxIncluded !== true)
   return withTax && withoutTax
 })
-
-// Calculer les taxes avec la fonction utilitaire
-const taxCalculation = computed(() => {
-  const items = (bookingData.value?.items || []).map(item => ({
-    roomId: item.roomId,
-    roomName: item.roomName,
-    planName: item.planName,
-    planPrice: item.planPrice,
-    quantity: item.quantity,
-    nights: nights.value,
-    // CORRECTION : Inclure les extras dans le subtotal
-    subtotal: (item.planPrice + (item.totalExtrasCost || 0)) * item.quantity * nights.value,
-    taxIncluded: item.taxIncluded || false
-  }))
-
-  const taxes = bookingData.value?.taxes || []
-
-  return calculateCartTaxes(items, taxes, nights.value)
-})
-
-// Le grand total est basé sur le prix TTC affiché
-const grandTotal = computed(() => {
-  const displayedTotal = totalRoomCharges.value
-
-  if (allTaxesIncluded.value) {
-    return displayedTotal
-  } else if (taxCalculation.value.hasItemsWithoutTax && !taxCalculation.value.hasItemsWithTaxIncluded) {
-    return displayedTotal + taxCalculation.value.total
-  } else {
-    return displayedTotal + (taxCalculation.value.total - taxCalculation.value.extractedTaxes)
-  }
-})
-
-const discount = computed(() => (promoApplied.value ? Math.round(grandTotal.value * 0.1) : 0))
-const finalTotal = computed(() => Math.max(grandTotal.value - discount.value, 0))
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', {
@@ -678,7 +818,7 @@ function applyPromo() {
 function toggleSpecialRequests(index: number) {
   showSpecialRequests.value = {
     ...showSpecialRequests.value,
-    [index]: !showSpecialRequests.value[index]
+    [index]: !showSpecialRequests.value[index],
   }
 }
 
@@ -709,7 +849,6 @@ async function bookNow() {
     return
   }
 
-
   if (!guest.value.mobile) {
     alert('Please enter your mobile number')
     return
@@ -737,16 +876,20 @@ async function bookNow() {
       departureDate: bookingData.value?.departureDate || '',
       nights: nights.value,
       email: guest.value.email,
-      mobile:guest.value.mobile,
+      mobile: guest.value.mobile,
+      guest: guest.value,
       roomGuests: roomGuests.value,
-      items: bookingData.value?.items.map((item, index) => ({
-        ...item,
-        totalPrice: item.planPrice * item.quantity * nights.value,
-        guestInfo: roomGuests.value[index]
-      })) || [],
+      items:
+        bookingData.value?.items.map((item, index) => ({
+          ...item,
+          totalPrice: item.planPrice * item.quantity * nights.value,
+          guestInfo: roomGuests.value[index],
+          extraCharges: item.extraCharges || [],
+          mealPlanRateInclude: item.mealPlanRateInclude ?? true
+        })) || [],
       subtotal: taxCalculation.value.roomChargesHT,
-      taxes: taxCalculation.value.total,
-      taxBreakdown: taxCalculation.value.breakdown,
+      taxes: taxCalculation.value.totalTaxes,
+      // taxBreakdown: taxCalculation.value.breakdown,
       discount: discount.value,
       totalPrice: finalTotal.value,
       currency: selectedCurrency.value,
@@ -756,10 +899,7 @@ async function bookNow() {
     console.log('Booking payload:', bookingPayload)
     console.log('roomGuests payload:', roomGuests)
 
-    const response = await createOTAReservation(
-      bookingPayload,
-      hotelId.value
-    )
+    const response = await createOTAReservation(bookingPayload, hotelId.value)
 
     if (response.success) {
       bookingStore.clearBookingData()
@@ -768,7 +908,7 @@ async function bookNow() {
         query: {
           reservationId: response.reservationId,
           email: guest.value.email,
-          hotelId: hotelId.value
+          hotelId: hotelId.value,
         },
       })
     } else {
@@ -776,7 +916,9 @@ async function bookNow() {
     }
   } catch (error: any) {
     console.error('Booking error:', error)
-    alert(`Booking failed: ${error.message || 'An error occurred. Please try again or contact support.'}`)
+    alert(
+      `Booking failed: ${error.message || 'An error occurred. Please try again or contact support.'}`,
+    )
   } finally {
     isBooking.value = false
   }
@@ -790,6 +932,109 @@ const editBooking = () => {
   showReviewModal.value = false
   router.push({ name: 'WebBooking', params: { id: hotelId.value } })
 }
+
+// Calcul des extras totaux
+const totalExtrasCost = computed(() => {
+  const items = bookingData.value?.items || []
+  return items.reduce((sum, item) => {
+    return sum + Number(item.totalExtrasCost || 0)
+  }, 0)
+})
+
+// Vérification des taxes (pour l'affichage "Taxes included")
+const allTaxesIncluded = computed(() => {
+  return bookingData.value?.taxIncluded === true
+})
+
+const grandTotal = computed(() => {
+  return totalRoomChargesTTC.value + totalExtrasCost.value
+})
+
+const taxRates = computed(() => {
+  const taxes = bookingData.value?.taxes || []
+
+  const percentRate = taxes
+    .filter((t) => t.type === 'flat_percentage')
+    .reduce((sum, t) => sum + parseFloat(t.percent) / 100, 0)
+
+  const flatAmountPerNight = taxes
+    .filter((t) => t.type === 'flat_amount')
+    .reduce((sum, t) => sum + parseFloat(t.rate), 0)
+
+  return { percentRate, flatAmountPerNight }
+})
+
+//
+const taxCalculation: any = computed(() => {
+  const items = bookingData.value?.items || []
+  const taxesDef = bookingData.value?.taxes || []
+
+  const totalRooms = items.reduce((acc, item) => acc + (item.quantity || 1), 0)
+
+  // Garder les valeurs brutes (non arrondies)
+  const totalFlatTax = taxRates.value.flatAmountPerNight * nights.value * totalRooms
+  const baseSubjectToVat = totalRoomChargesTTC.value - totalFlatTax
+  const totalHT = baseSubjectToVat / (1 + taxRates.value.percentRate)
+  const totalExtractedVat = baseSubjectToVat - totalHT
+
+  const extrasHT = totalExtrasCost.value / (1 + taxRates.value.percentRate)
+  const extrasVat = totalExtrasCost.value - extrasHT
+
+  const totalVat = totalExtractedVat + extrasVat
+
+
+  const totalTaxesRaw = totalFlatTax + totalVat
+
+  const breakdown: any[] = []
+
+  if (totalFlatTax > 0) {
+    const tName = taxesDef.find((t: any) => t.type === 'flat_amount')?.name || 'Taxe de Séjour'
+    breakdown.push({
+      taxId: 'flat',
+      taxName: tName,
+      amount: totalFlatTax,
+      amountDisplay: Math.round(totalFlatTax),
+      type: 'flat_amount',
+    })
+  }
+
+  if (totalVat > 0) {
+    const tName = taxesDef.find((t: any) => t.type === 'flat_percentage')?.name || 'TVA'
+    breakdown.push({
+      taxId: 'vat',
+      taxName: tName,
+      amount: totalVat,
+      amountDisplay: Math.round(totalVat),
+      type: 'flat_percentage',
+    })
+  }
+
+  return {
+    // Valeurs brutes pour les calculs
+    roomChargesHT: totalHT,
+    roomChargesTTC: totalRoomChargesTTC.value,
+    extrasCost: extrasHT + extrasVat,
+    extractedTaxes: totalVat,
+    flatTaxes: totalFlatTax,
+    totalTaxes: totalTaxesRaw,
+    grandTotal: grandTotal.value,
+
+    // Valeurs arrondies pour l'affichage
+    roomChargesHTDisplay: Math.round(totalHT),
+    roomChargesTTCDisplay: Math.round(totalRoomChargesTTC.value),
+    extrasCostDisplay: Math.round(extrasHT + extrasVat),
+    extractedTaxesDisplay: Math.round(totalVat),
+    flatTaxesDisplay: Math.round(totalFlatTax),
+    totalTaxesDisplay: Math.round(totalTaxesRaw),
+    grandTotalDisplay: Math.round(grandTotal.value),
+
+    breakdown: breakdown,
+  }
+})
+const roomChargesHT = computed(() => taxCalculation.value.roomChargesHT)
+const totalTaxes = computed(() => taxCalculation.value.totalTaxes)
+const discount = computed(() => (promoApplied.value ? Math.round(grandTotal.value * 0.1) : 0))
+const finalTotal = computed(() => Math.max(grandTotal.value - discount.value, 0))
 </script>
 
 <style scoped>
@@ -804,75 +1049,3 @@ const editBooking = () => {
   background-color: rgba(200, 200, 200, 0.2);
 }
 </style>
-<!-- async function bookNow() {
-  if (!acceptPolicy.value) {
-    alert('Please accept the terms and conditions')
-    return
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!guest.value.email || !emailRegex.test(guest.value.email)) {
-    alert('Please enter a valid email address')
-    return
-  }
-
-  if (!guest.value.firstName || !guest.value.lastName) {
-    alert('Please fill in all required fields')
-    return
-  }
-
-  if (!guest.value.mobile) {
-    alert('Please enter your mobile number')
-    return
-  }
-
-  try {
-    isBooking.value = true
-
-    const bookingPayload: any = {
-      hotelId: bookingData.value?.hotelId || '',
-      arrivalDate: bookingData.value?.arrivalDate || '',
-      departureDate: bookingData.value?.departureDate || '',
-      nights: nights.value,
-      guest: guest.value,
-      items: bookingData.value?.items.map((item) => ({
-        ...item,
-        totalPrice: item.planPrice * item.quantity * nights.value,
-      })) || [],
-      subtotal: taxCalculation.value.roomChargesHT,
-      taxes: taxCalculation.value.total,
-      taxBreakdown: taxCalculation.value.breakdown,
-      discount: discount.value,
-      totalPrice: finalTotal.value,
-      currency: selectedCurrency.value,
-      promoCode: promoApplied.value ? promo.value : null,
-    }
-
-    console.log('Booking payload:', bookingPayload)
-
-    const response = await createOTAReservation(
-      bookingPayload,
-      hotelId.value
-    )
-
-    if (response?.success) {
-      bookingStore.clearBookingData()
-      router.push({
-        path: '/ota/confirmation',
-        query: {
-          reservationId: response?.reservationId,
-          email: guest.value.email,
-          hotelId:hotelId.value
-        },
-      })
-    } else {
-      throw new Error(response?.error || 'Booking failed')
-    }
-  } catch (error: any) {
-    console.error('Booking error:', error)
-    alert(`Booking failed: ${error.message || 'An error occurred. Please try again or contact support.'}`)
-  } finally {
-    isBooking.value = false
-  }
-} -->
-

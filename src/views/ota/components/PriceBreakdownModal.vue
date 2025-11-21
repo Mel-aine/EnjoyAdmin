@@ -57,7 +57,7 @@
                       <td class="px-4 py-3 whitespace-nowrap text-center text-gray-900">{{ item.adults }}</td>
                       <td class="px-4 py-3 whitespace-nowrap text-center text-gray-900">{{ item.children }}</td>
                       <td class="px-4 py-3 whitespace-nowrap text-center text-gray-900">{{ nights }}</td>
-                      <td class="px-4 py-3 whitespace-nowrap text-center text-gray-700">{{ item.planPrice }}</td>
+                      <td class="px-4 py-3 whitespace-nowrap text-center text-gray-700">{{ item.planPriceHT }}</td>
                       <td class="px-4 py-3 whitespace-nowrap text-center text-gray-700">{{ item.extraAdultCost || 0 }}</td>
                       <td class="px-4 py-3 whitespace-nowrap text-center text-gray-700">{{ item.extraChildCost || 0 }}</td>
                       <td class="px-4 py-3 whitespace-nowrap text-center font-bold text-gray-900">
@@ -69,7 +69,7 @@
                     <tr>
                       <td colspan="6"></td>
                       <td class="px-4 py-2 text-center text-sm whitespace-nowrap font-semibold text-gray-600 border-l border-gray-200">Taxes & Fees</td>
-                      <td class="px-4 py-2 text-center text-sm font-normal text-gray-700">{{ item.taxesAmount }}</td>
+                      <td class="px-4 py-2 text-center text-sm font-normal text-gray-700">{{ (item.extractedRoomTax || 0) + (item.flatTaxPerNight || 0) * nights  }}</td>
                     </tr>
 
                     <!-- Round Off -->
@@ -91,7 +91,7 @@
                   <tr class="border-b border-gray-300">
                     <td colspan="6"></td>
                     <td class="px-4 py-3 text-center text-gray-600 border-l whitespace-nowrap border-gray-200">Total Taxes(Inc)</td>
-                    <td class="px-4 py-3 text-center font-normal text-gray-700">{{ taxCalculation.total }}</td>
+                    <td class="px-4 py-3 text-center font-normal text-gray-700">{{ taxCalculation.totalTaxes }}</td>
                   </tr>
 
                   <tr class="border-b border-gray-300">
@@ -118,10 +118,11 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue'
 interface Props {
   isOpen: boolean
   bookingData?: any
-  nights?: number
+  nights: number
   totalRoomCharges?: number
   totalExtracharge? : number
   taxCalculation?: any
@@ -147,8 +148,7 @@ const handleEscape = (e: KeyboardEvent) => {
   }
 }
 
-// Add/remove event listener
-import { watch } from 'vue'
+
 
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
@@ -160,13 +160,15 @@ watch(() => props.isOpen, (newVal) => {
   }
 })
 
-function calculateRoomTotal(item) {
-  const basePrice = item.planPrice
+function calculateRoomTotal(item:any) {
+  const basePrice = item.planPriceHT
   const extraAdultCost = item.extraAdultsCount * parseFloat(item.extraAdultRate)
   const extraChildCost = item.extraChildrenCount * parseFloat(item.extraChildRate)
 
   return basePrice + extraAdultCost + extraChildCost
 }
+
+
 
 </script>
 
