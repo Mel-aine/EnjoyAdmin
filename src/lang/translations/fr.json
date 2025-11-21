@@ -5294,7 +5294,7 @@
         "guestReview": "Avis client",
         "emailGuestReviewRequest": "Demande d'avis client par e-mail",
         "reservation": "Réservation",
-        "emailReservationReleased": "E-mail pour réservation libérée",
+        "emailReservationReleased_": "E-mail pour réservation libérée",
         "emailRatesContractedSource": "E-mail avec les tarifs et détails des montants à la source contractée",
         "emailWithoutRatesToGuest": "E-mail sans tarifs ni détails des montants au client",
         "emailReservationReleasedToGuestTA": "E-mail pour réservation libérée au Client / Agence",

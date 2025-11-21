@@ -44,7 +44,7 @@
             <div class="space-y-2">
               <label class="flex items-center gap-2">
                 <input type="checkbox" v-model="form.emailReservationReleased" class="rounded border-gray-300" />
-                <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.emailReservationReleased') }}</span>
+                <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.emailReservationReleased_') }}</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" v-model="form.emailRatesAndAmountToContracted" class="rounded border-gray-300" />
