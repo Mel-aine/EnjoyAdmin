@@ -5297,7 +5297,7 @@
         "guestReview": "Guest Review",
         "emailGuestReviewRequest": "Email Guest Review Request",
         "reservation": "Reservation",
-        "emailReservationReleased": "Email for Reservation Released",
+        "emailReservationReleased_": "Email for Reservation Released",
         "emailRatesContractedSource": "Email with Rates and Amount Details to Contracted source",
         "emailWithoutRatesToGuest": "Email without Rates and Amount Details to Guest",
         "emailReservationReleasedToGuestTA": "Email for Reservation Released to Guest / TA",
@@ -8505,5 +8505,6 @@
   "Email Accounts" : "Email Accounts",
   "Select group" : "Select group",
   "Token" : "Token",
-  "Select token" : "Select token"
+  "Select token" : "Select token",
+  "void_invoice":"Void invoice"
 }
