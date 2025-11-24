@@ -2,10 +2,11 @@
   <!-- <AdminLayout> -->
   <FullScreenLayout>
     <OverLoading v-if="isRefreshing" />
-  <AppHeader :show-sidebar="true" />
-  <div class="reservation-calendar font-sans h-screen flex flex-col ">
+    <AppHeader :show-sidebar="true" />
+    <div class="reservation-calendar font-sans h-screen flex flex-col ">
 
-      <div class="bg-white dark:bg-gray-900 px-6 py-1 flex items-center justify-between rounded-b-lg border-b dark:border-gray-700">
+      <div
+        class="bg-white dark:bg-gray-900 px-6 py-1 flex items-center justify-between rounded-b-lg border-b dark:border-gray-700">
         <div class="flex gap-2">
           <InputDatePicker class="bg-white dark:bg-gray-800 rounded-lg w-40 h-full" v-model="selectedDate" />
           <div
@@ -21,7 +22,8 @@
           <div class="flex gap-5 dark:text-white text-sm item-center self-center align-middle">
             <div v-for="(item, index) in statusElements" :key="index" class="flex gap-2">
               <span>{{ $t(item) }}</span>
-              <span class="rounded-full bg-gray-200 dark:bg-gray-700 dark:text-gray-200 px-2">{{ getRoomStatusCount(item) }}</span>
+              <span class="rounded-full bg-gray-200 dark:bg-gray-700 dark:text-gray-200 px-2">{{
+                getRoomStatusCount(item) }}</span>
             </div>
           </div>
         </div>
@@ -37,12 +39,15 @@
           <table class="w-full text-sm table-fixed">
             <thead>
               <tr>
-                <th class="bg-gray-100 dark:bg-gray-800 px-2 py-1 border-r border-gray-400 dark:border-gray-700" :style="`width: calc(200px)`">
+                <th class="bg-gray-100 dark:bg-gray-800 px-2 py-1 border-r border-gray-400 dark:border-gray-700"
+                  :style="`width: calc(200px)`">
                   <div class="flex justify-between items-center">
                     <div class="max-w-md">
                       <SelectDropdown v-model="selectedRoomTypes" :options="roomTypeOptions"
-                        :placeholder="$t('roomType')" button-class="bg-white dark:bg-gray-800 text-primary border border-blue-200 dark:border-gray-700  w-42"
-                        dropdown-class="w-full" :select-all-text="$t('bookings.calendar.labels.selectAll')" :max-display-items="3" />
+                        :placeholder="$t('roomType')"
+                        button-class="bg-white dark:bg-gray-800 text-primary border border-blue-200 dark:border-gray-700  w-42"
+                        dropdown-class="w-full" :select-all-text="$t('bookings.calendar.labels.selectAll')"
+                        :max-display-items="3" />
                     </div>
                   </div>
 
@@ -126,7 +131,8 @@
                     </tr>
                     <tr v-for="room in group.room_details" :key="room.room_number || room.room_status + Math.random()"
                       v-show="!collapsedRoomTypes[group.room_type]" class="transition-all duration-200 ease-in-out">
-                      <td class="text-sm uppercase px-2 py-1 border border-gray-400 dark:border-gray-700 dark:text-gray-300">
+                      <td
+                        class="text-sm uppercase px-2 py-1 border border-gray-400 dark:border-gray-700 dark:text-gray-300">
                         <div class="flex justify-between">
                           <span>{{ room.room_number || '-' }}</span>
                           <div class="flex gap-1 text-gray-500 dark:text-gray-400">
@@ -147,7 +153,7 @@
                             <span v-else>
                               <LucideBrush class="w-4 h-4" />
                             </span>
-                             <span class="text-xs" v-if="room.is_smoking">
+                            <span class="text-xs" v-if="room.is_smoking">
                               <Cigarette class="w-4 h-4" />
                             </span>
                             <span v-else>
@@ -158,83 +164,9 @@
                       </td>
 
                       <template v-for="cell in getRoomRowCellsApi(group, room)" :key="cell.key">
-                        <!-- Réservation -->
-                        <td v-if="cell.type === 'reservation'" :colspan="cell.colspan"
-                          class="relative px-[1px] py-[1px] h-8 border border-gray-400 dark:border-gray-700 group">
-                          <div :class="[
-                            'cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 w-[80%] min-w-0 ',
-                            getReservationColor(cell.reservation.reservation_status),
-                          ]" :style="getReservationStyle(cell)" @click="showReservationModal(cell.reservation)"
-                            @mouseenter="showReservationTooltip(cell.reservation, $event)"
-                            @mouseleave="hideReservationTooltip">
-                            <span class="truncate">
-                              {{ cell.reservation.guest_name }}
-                              <br>
-                            </span>
-
-                            <div class="absolute -top-2 flex items-center gap-1">
-                              <Crown v-if="cell.reservation.is_master"
-                                class="bg-white dark:bg-gray-800 w-3 h-3 text-yellow-400 flex-shrink-0" :title="$t('Primary')" />
-                              <DollarSignIcon v-if="cell.reservation?.is_balance"
-                                class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
-                              <User2 v-if="cell.reservation?.isWomen"
-                                class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
-                            </div>
-                          </div>
-                          <div
-                            class="absolute bottom-0  z-[99999] over  w-full flex-col items-center hidden mb-5 group-hover:flex">
-                            <div
-                              class="relative rounded-md  z-[99999] p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg">
-                              <div class='flex flex-col gap-2'>
-                                <div class="flex justify-between">{{ $t('Name') }}: <span class="">{{
-                                  cell.reservation.guest_name
-                                    }}</span></div>
-                                <div class="flex justify-between">{{ $t('Check-in Date') }}: <span class="">{{
-                                  formatDateLocal(cell.reservation.check_in_date) }} {{ cell.reservation.check_in_time
-                                    }}</span></div>
-                                <div class="flex justify-between gap-4">{{ $t('Check-out Date') }}: <span class="">{{
-                                  formatDateLocal(cell.reservation.check_out_date) }} {{
-                                      cell.reservation.check_out_time
-                                    }}</span></div>
-                                <div class="flex justify-between text-blue-600">
-                                  <span class=" font-medium">{{ $t('Total') }}:</span>
-                                  <span class="">{{
-                                    formatCurrency(cell.reservation.balance_summary?.totalChargesWithTaxes) }}</span>
-                                </div>
-                                <div class="flex justify-between text-green-600">
-                                  <span class=" font-medium">{{ $t('paid') }}:</span>
-                                  <span class="">{{
-                                    formatCurrency(cell.reservation.balance_summary?.totalPayments)
-                                  }}</span>
-                                </div>
-                                <div class="flex justify-between text-red-600">
-                                  <span class=" font-medium">{{ $t('balance') }}:</span>
-                                  <span class="">{{
-                                    formatCurrency(cell.reservation.balance_summary?.outstandingBalance) }}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="w-3 h-3 -mt-2 rotate-45 bg-blue-light-950"></div>
-                          </div>
-                        </td>
-
-                        <!-- Room Block -->
-                        <td v-else-if="cell.type === 'room_block'" :colspan="cell.colspan"
-                          class="relative px-[1px] py-[1px] h-8 border border-gray-400">
-                          <div :class="[
-                            'absolute left-0 top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 w-[80%] min-w-0 ',
-                            getRoomBlockColor(cell.roomBlock.status),
-                          ]" :style="getReservationStyle(cell)">
-                            <span class="truncate">
-                              {{ cell.roomBlock.reason }}
-                              <br>
-                            </span>
-                          </div>
-                        </td>
-
                         <!-- Chambres avec statut spécial (maintenance, out_of_service, cleaning) -->
                         <td
-                          v-else-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
+                          v-if="cell.type === 'room' && ['maintenance', 'out_of_service', 'cleaning'].includes(room.room_status)"
                           class="px-[1px] py-[1px] h-8 border border-gray-400">
                           <div
                             :class="['flex items-center justify-center h-full w-full', getRoomStatusColor(room.room_status)]">
@@ -244,13 +176,75 @@
                         </td>
 
                         <!-- Cellules vides/sélectionnables -->
-                        <td v-else-if="shouldShowCell(group, room, cell)"
-                          :colspan="getUnifiedColspan(group, room, cell)" :class="[
+                        <td v-else-if="shouldShowCell(group, room, cell)" :class="[
                             'px-[1px] py-[1px] h-8 border dark:bg-black border-gray-400 cell-transition cell-selectable cell-hoverable relative',
                             getUnifiedCellClass(group, room, cell)
                           ]" @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseup="endCellSelection($event)">
+                          <!-- Room block overlay full width -->
+                          <div v-if="cell.roomBlock" :class="[
+                              'absolute left-0 top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 w-full min-w-0 ',
+                              getRoomBlockColor(cell.roomBlock.status),
+                            ]" :style="{ left: '2px', width: 'calc(100% - 4px)' }">
+                            <span class="truncate">{{ cell.roomBlock.reason }}</span>
+                          </div>
+
+                          <!-- Middle-day reservation segment (full width) -->
+                          <!-- Single reservation overlay starting in this cell and spanning across cells -->
+                          <div v-if="cell.reservationStart || cell.reservationCarryOver"
+                            class="group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20"
+                            :style="getRowOverlayStyle(cell)"
+                            @click="showReservationModal(cell.reservationStart || cell.reservationCarryOver)"
+                            @mouseenter="showReservationTooltip((cell.reservationStart || cell.reservationCarryOver), $event)"
+                            @mouseleave="hideReservationTooltip">
+                            <span class="truncate">{{ getReservationText(cell.reservationStart ||
+                              cell.reservationCarryOver) }}</span>
+
+                            <!-- Status icons -->
+                            <div class="absolute -top-2 flex items-center gap-1">
+                              <Crown v-if="(cell.reservationStart || cell.reservationCarryOver)?.is_master"
+                                class="bg-white dark:bg-gray-800 w-3 h-3 text-yellow-400 flex-shrink-0" :title="$t('Primary')" />
+                              <DollarSignIcon v-if="(cell.reservationStart || cell.reservationCarryOver)?.is_balance"
+                                class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
+                              <User2 v-if="(cell.reservationStart || cell.reservationCarryOver)?.isWomen"
+                                class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
+                            </div>
+
+                            <!-- Hover tooltip -->
+                            <div class="absolute bottom-0 z-[99999] w-full flex-col items-center hidden mb-5 group-hover:flex">
+                              <div class="relative rounded-md z-[99999] p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg">
+                                <div class='flex flex-col gap-2'>
+                                  <div class="flex justify-between">
+                                    {{ $t('Name') }}:
+                                    <span>{{ (cell.reservationStart || cell.reservationCarryOver)?.guest_name }}</span>
+                                  </div>
+                                  <div class="flex justify-between">
+                                    {{ $t('Check-in Date') }}:
+                                    <span>{{ formatDateLocal((cell.reservationStart || cell.reservationCarryOver)?.check_in_date) }} {{ (cell.reservationStart || cell.reservationCarryOver)?.check_in_time }}</span>
+                                  </div>
+                                  <div class="flex justify-between gap-4">
+                                    {{ $t('Check-out Date') }}:
+                                    <span>{{ formatDateLocal((cell.reservationStart || cell.reservationCarryOver)?.check_out_date) }} {{ (cell.reservationStart || cell.reservationCarryOver)?.check_out_time }}</span>
+                                  </div>
+                                  <div class="flex justify-between text-blue-600">
+                                    <span class="font-medium">{{ $t('Total') }}:</span>
+                                    <span>{{ formatCurrency((cell.reservationStart || cell.reservationCarryOver)?.balance_summary?.totalChargesWithTaxes) }}</span>
+                                  </div>
+                                  <div class="flex justify-between text-green-600">
+                                    <span class="font-medium">{{ $t('paid') }}:</span>
+                                    <span>{{ formatCurrency((cell.reservationStart || cell.reservationCarryOver)?.balance_summary?.totalPayments) }}</span>
+                                  </div>
+                                  <div class="flex justify-between text-red-600">
+                                    <span class="font-medium">{{ $t('balance') }}:</span>
+                                    <span>{{ formatCurrency((cell.reservationStart || cell.reservationCarryOver)?.balance_summary?.outstandingBalance) }}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="w-3 h-3 -mt-2 rotate-45 bg-blue-light-950"></div>
+                            </div>
+                          </div>
+
                           <div v-if="isCellSelected(group.room_type, room.room_number, cell.date)"
                             class="absolute h-8 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-400 to-blue-600 border-l-2 border-r-2 border-blue-700 rounded-sm"
                             :style="getSelectionStyle(group.room_type, room.room_number, cell.date)">
@@ -270,7 +264,8 @@
 
             <tfoot>
               <tr>
-                <td class="bg-gray-100 dark:bg-black dark:text-white border h-7 border-gray-400 text-center" :style="`width: 200px`">
+                <td class="bg-gray-100 dark:bg-black dark:text-white border h-7 border-gray-400 text-center"
+                  :style="`width: 200px`">
                   {{ $t('Unassigned reservations') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-400 dark:bg-black dark:text-white', isWeekend(date) ? 'bg-gray-100' : '']"
@@ -278,15 +273,17 @@
                 </td>
               </tr>
               <tr>
-                <td class="bg-gray-100 dark:bg-black dark:text-white h-7 border border-gray-400 text-center" :style="`width: 200px`">% {{
-                  $t('Occupancy') }}
+                <td class="bg-gray-100 dark:bg-black dark:text-white h-7 border border-gray-400 text-center"
+                  :style="`width: 200px`">% {{
+                    $t('Occupancy') }}
                 </td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-400 dark:bg-black dark:text-white', isWeekend(date) ? 'bg-gray-100' : '']"
                   :style="`width: calc((100% - 200px) / ${visibleDates.length})`">{{ getOccupancyApi(date) }} %</td>
               </tr>
               <tr>
-                <td class="bg-gray-100 dark:bg-black dark:text-white h-7 border border-gray-400 text-center" :style="`width: 200px`">
+                <td class="bg-gray-100 dark:bg-black dark:text-white h-7 border border-gray-400 text-center"
+                  :style="`width: 200px`">
                   {{ $t('Available Rooms') }}</td>
                 <td v-for="(date, idx) in visibleDates" :key="idx"
                   :class="['text-center border border-gray-400 dark:bg-black dark:text-white', isWeekend(date) ? 'bg-gray-100' : '']"
@@ -334,7 +331,8 @@
         </div>
       </div>
 
-      <div class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-lg px-4 py-3 flex justify-end gap-2">
+      <div
+        class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-lg px-4 py-3 flex justify-end gap-2">
         <button @click="clearCellSelection"
           class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-600 transition">
           {{ $t('Clear') }}
@@ -353,9 +351,9 @@
     </template>
 
     <!-- Unassigned Reservations Modal -->
-    <UnassignedReservationsModal v-if="showUnassignedModal" :is-open="showUnassignedModal" :room-type-id="selectedRoomTypeId"
-      :date="selectedUnassignedDate" :reservations="unassignedReservations" @close="closeUnassignedModal"
-      @room-assigned="handleRoomAssigned" />
+    <UnassignedReservationsModal v-if="showUnassignedModal" :is-open="showUnassignedModal"
+      :room-type-id="selectedRoomTypeId" :date="selectedUnassignedDate" :reservations="unassignedReservations"
+      @close="closeUnassignedModal" @room-assigned="handleRoomAssigned" />
 
     <!-- Assign Room Reservation Modal -->
     <template v-if="selectedReservationForAssignment">
@@ -563,7 +561,7 @@ function openUnassignedModal(date: string) {
     unassignedReservations.value = allReservations.filter((res: any) => {
       const hasUnassignedRooms = res.reservationRooms?.some((room: any) => !room.roomId)
       const matchesDate = res.checkInDate === date ||
-                          (res.checkInDate <= date && res.checkOutDate > date)
+        (res.checkInDate <= date && res.checkOutDate > date)
       return hasUnassignedRooms && matchesDate
     })
   }
@@ -663,7 +661,6 @@ const apiRoomBlocks = computed(() => {
 
 function getRoomRowCellsApi(group: any, room: any) {
   const cells: any[] = []
-  let i = 0
 
   // --- Récupération des réservations ---
   const allReservations = group.reservations || []
@@ -680,96 +677,55 @@ function getRoomRowCellsApi(group: any, room: any) {
     (b: any) => b.room && b.room.room_number === room.room_number
   )
 
-  while (i < visibleDates.value.length) {
+  for (let i = 0; i < visibleDates.value.length; i++) {
     const date = visibleDates.value[i]
-    const dStr = date.toISOString().split("T")[0]
+    const dStr = date.toISOString().split('T')[0]
 
-    // --- Vérifier d'abord les room blocks (priorité plus haute) ---
+    // Room block covering this day
     const roomBlock = roomBlocks.find((b: any) => {
       const startDate = new Date(b.block_from_date)
       const endDate = new Date(b.block_to_date)
       return startDate <= date && endDate >= date
     })
 
-    if (roomBlock) {
-      // const start = new Date(roomBlock.block_from_date)
-      const end = new Date(roomBlock.block_to_date)
-      const lastVisible = visibleDates.value[visibleDates.value.length - 1]
-      const colspan = visibleDates.value.filter(
-        (d) => d >= date && d <= end && d <= lastVisible
-      ).length
-
-      cells.push({
-        type: "room_block",
-        roomBlock,
-        colspan,
-        date,
-        key: i,
-      })
-      i += colspan
-      continue
-    }
-
-    // --- Sinon, on cherche une réservation ---
-    let reservation = reservations.find((r: any) => {
-      return r.check_in_date.startsWith(dStr)
+    // Start and End segments for this day
+    const reservationStart = reservations.find((r: any) => r.check_in_date.startsWith(dStr))
+    const reservationEnd = reservations.find((r: any) => {
+      const end = new Date(r.check_out_date)
+      return (
+        end.getFullYear() === date.getFullYear() &&
+        end.getMonth() === date.getMonth() &&
+        end.getDate() === date.getDate()
+      )
     })
 
-    if (!reservation) {
-      reservation = reservations.find((r: any) => {
+    // Middle segment (strictly inside the range)
+    const reservationMiddle = reservations.find((r: any) => {
+      const start = new Date(r.check_in_date)
+      const end = new Date(r.check_out_date)
+      return start < date && end > date
+    })
+
+    // Carry-over anchor on first visible day when reservation started before range
+    let reservationCarryOver: any = null
+    if (i === 0) {
+      reservationCarryOver = reservations.find((r: any) => {
         const start = new Date(r.check_in_date)
         const end = new Date(r.check_out_date)
         return start < date && end >= date
-      })
+      }) || null
     }
 
-    if (reservation) {
-      // const start = new Date(reservation.check_in_date)
-      const end = new Date(reservation.check_out_date)
-      const lastVisible = visibleDates.value[visibleDates.value.length - 1]
-
-      const colspan = visibleDates.value.filter(
-        (d: any) => d >= date && d <= end && d <= lastVisible
-      ).length
-
-      const is_check_in = reservation.check_in_date.startsWith(dStr)
-
-      const reservationDates = visibleDates.value.filter(
-        (d: any) => d >= date && d <= end && d <= lastVisible
-      )
-      const lastVisibleDateOfReservation =
-        reservationDates.length > 0
-          ? reservationDates[reservationDates.length - 1]
-          : null
-      const checkOutDate = new Date(reservation.check_out_date)
-
-      const is_check_out =
-        lastVisibleDateOfReservation &&
-        lastVisibleDateOfReservation.getFullYear() ===
-        checkOutDate.getFullYear() &&
-        lastVisibleDateOfReservation.getMonth() === checkOutDate.getMonth() &&
-        lastVisibleDateOfReservation.getDate() === checkOutDate.getDate()
-
-      cells.push({
-        type: "reservation",
-        reservation,
-        middle: reservation.check_in_date.startsWith(dStr),
-        colspan,
-        is_check_in,
-        is_check_out,
-        date,
-        key: i,
-      })
-      i += colspan
-    } else {
-      // Pas de réservation ni de block → cellule libre
-      cells.push({
-        type: "room",
-        date,
-        key: i,
-      })
-      i += 1
-    }
+    cells.push({
+      type: 'room',
+      date,
+      key: i,
+      roomBlock: roomBlock || null,
+      reservationStart: reservationStart || null,
+      reservationEnd: reservationEnd || null,
+      reservationMiddle: reservationMiddle || null,
+      reservationCarryOver,
+    })
   }
 
   return cells
@@ -813,7 +769,7 @@ function getUnassignedRoomsByType(date: Date, roomTypeId: number) {
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
 
   if (metric && metric.unassigned_room_reservations_by_type) {
-    const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId )
+    const roomTypeData = metric.unassigned_room_reservations_by_type.find((rt: any) => rt.room_type_id === roomTypeId)
     return roomTypeData ? roomTypeData.unassigned_count : '0'
   }
 
@@ -834,29 +790,27 @@ function isWeekend(date: Date): boolean {
 }
 
 function getReservationStyle(cell: any) {
-  const { is_check_in, is_check_out, colspan } = cell;
+  const { is_check_in, is_check_out } = cell;
 
-
-
+  // Per-cell segment rendering without colspan/rowspan.
+  // - Middle days: full width
+  // - Start day: right half
+  // - End day: left half
+  // - Single-day (start & end): centered half
   let width = 'calc(100% - 4px)';
   let left = '2px';
 
-  if (colspan > 0) {
-    if (is_check_in && is_check_out) {
-      if (colspan === 1) {
-        width = 'calc(50% - 4px)';
-        left = 'calc(25% + 2px)';
-      } else {
-        width = `calc(${(colspan - 1) / colspan * 100}% - 4px)`;
-        left = `calc(${0.5 / colspan * 100}% + 2px)`;
-      }
-    } else if (is_check_in) {
-      width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
-      left = `calc(${0.5 / colspan * 100}% + 2px)`;
-    } else if (is_check_out) {
-      width = `calc(${(colspan - 0.5) / colspan * 100}% - 4px)`;
-    }
+  if (is_check_in && is_check_out) {
+    width = 'calc(50% - 4px)';
+    left = 'calc(25% + 2px)';
+  } else if (is_check_in) {
+    width = 'calc(50% - 4px)';
+    left = 'calc(50% + 2px)';
+  } else if (is_check_out) {
+    width = 'calc(50% - 4px)';
+    left = '2px';
   }
+
   if (cell.reservation && cell.reservation.reservation_status) {
     const backgroundColor = getReservationColor(cell.reservation.reservation_status);
     return { width, left, backgroundColor };
@@ -867,6 +821,98 @@ function getReservationStyle(cell: any) {
 }
 const getReservationColor = statusColorStore.getReservationColor;
 
+function getReservationText(reservation: any): string {
+  return reservation?.guest_name ?? reservation?.title ?? '';
+}
+
+function getRowOverlayStyle(cell: any) {
+  const res = cell.reservationStart || cell.reservationCarryOver;
+  if (!res) return {};
+
+  // Compute start anchor
+  const startHalf = !!cell.reservationStart; // true if start is visible
+  const startIndex = cell.key;
+
+  // Compute end anchor
+  const endDate = new Date(res.check_out_date);
+  const firstVisible = visibleDates.value[0];
+  const lastVisible = visibleDates.value[visibleDates.value.length - 1];
+  let endIndex = -1;
+  let endHalf = false;
+  for (let i = 0; i < visibleDates.value.length; i++) {
+    const d = visibleDates.value[i];
+    if (
+      d.getFullYear() === endDate.getFullYear() &&
+      d.getMonth() === endDate.getMonth() &&
+      d.getDate() === endDate.getDate()
+    ) {
+      endIndex = i;
+      endHalf = true; // end within visible → end at mid-cell
+      break;
+    }
+  }
+  if (endIndex < 0 && endDate > lastVisible) {
+    endIndex = visibleDates.value.length - 1;
+    endHalf = false; // end after visible → end at right edge
+  }
+
+  // Width calculation in % of cell width, relative to start cell:
+  // base cells: (endIndex - startIndex) * 100
+  // add end contribution: +50% if endHalf else +100%
+  // subtract start contribution: -50% if startHalf else -0%
+  const base = Math.max(0, endIndex - startIndex) * 100;
+  const endContribution = endHalf ? 50 : 110;
+  const startContribution = startHalf ? 50 : 0;
+  let widthPercent = base + endContribution - startContribution;
+
+  // Single-day reservation (start == end within visible): occupy half cell
+  if (endIndex === startIndex && startHalf && endHalf) {
+    widthPercent = 50;
+  }
+
+  const backgroundColor = getReservationColor(res.reservation_status);
+  const left = startHalf ? '50%' : '0%';
+  const width = `${widthPercent}%`;
+  return { left, width, backgroundColor };
+}
+
+
+// Determine occupancy type for a given room/date
+// Returns: 'free' | 'occupied_full' | 'occupied_left' | 'occupied_right' | 'occupied_center'
+function getCellOccupancyType(roomType: string, roomNumber: string, date: Date): string {
+  const group = (apiRoomGroups.value || []).find((g: any) => g.room_type === roomType);
+  if (!group) return 'free';
+  const allReservations = group.reservations || [];
+  const reservations = allReservations.filter((r: any) => {
+    return (
+      r.assigned_room_number === roomNumber ||
+      r.room_number === roomNumber ||
+      (roomNumber === null && !r.assigned_room_number)
+    );
+  });
+
+  const dStr = date.toISOString().split('T')[0];
+  const hasStart = reservations.some((r: any) => (r.check_in_date || '').startsWith(dStr));
+  const hasEnd = reservations.some((r: any) => {
+    const end = new Date(r.check_out_date);
+    return (
+      end.getFullYear() === date.getFullYear() &&
+      end.getMonth() === date.getMonth() &&
+      end.getDate() === date.getDate()
+    );
+  });
+  const hasMiddle = reservations.some((r: any) => {
+    const start = new Date(r.check_in_date);
+    const end = new Date(r.check_out_date);
+    return start < date && end > date;
+  });
+
+  if (hasMiddle) return 'occupied_full';
+  if (hasStart && hasEnd) return 'occupied_center';
+  if (hasStart) return 'occupied_right';
+  if (hasEnd) return 'occupied_left';
+  return 'free';
+}
 
 function getRoomBlockColor(status: string) {
   return getReservationColor('blocked');
@@ -1114,6 +1160,26 @@ function startCellSelection(roomType: string, roomNumber: string, date: Date, ev
   const target = event.currentTarget as HTMLElement;
   const cellWidth = target.offsetWidth;
 
+  // Prevent starting selection inside occupied parts of the cell
+  const occupancy = getCellOccupancyType(roomType, roomNumber, new Date(date));
+  const clickRatio = cellWidth > 0 ? (event.offsetX / cellWidth) : 0;
+  // Block full-day occupancy
+  if (occupancy === 'occupied_full') {
+    return;
+  }
+  // Block right half when start-day reservation occupies right half
+  if (occupancy === 'occupied_right' && clickRatio >= 0.5) {
+    return;
+  }
+  // Block left half when end-day reservation occupies left half
+  if (occupancy === 'occupied_left' && clickRatio < 0.5) {
+    return;
+  }
+  // Single-day reservation: block center 50%
+  if (occupancy === 'occupied_center' && clickRatio >= 0.25 && clickRatio <= 0.75) {
+    return;
+  }
+
   cellSelection.value.isSelecting = true
   cellSelection.value.inprogress = true;
   cellSelection.value.startCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
@@ -1157,21 +1223,42 @@ function calculateSelectedCells() {
 
   cellSelection.value.selectedCells.clear()
 
-  const startDate = cellSelection.value.startCell.date
-  const endDate = cellSelection.value.currentCell.date
+  const startDate = new Date(cellSelection.value.startCell.date)
+  const targetDate = new Date(cellSelection.value.currentCell.date)
   const roomType = cellSelection.value.startCell.roomType
   const roomNumber = cellSelection.value.startCell.roomNumber
 
-  // Déterminer la plage de dates (du plus petit au plus grand)
-  const minDate = new Date(Math.min(startDate.getTime(), endDate.getTime()))
-  const maxDate = new Date(Math.max(startDate.getTime(), endDate.getTime()))
+  const forward = targetDate.getTime() >= startDate.getTime()
+  let current = new Date(startDate)
+  // Always include the starting day
+  cellSelection.value.selectedCells.add(getCellKey(roomType, roomNumber, current))
 
-  // Ajouter toutes les dates dans la plage
-  const current = new Date(minDate)
-  while (current <= maxDate) {
-    const cellKey = getCellKey(roomType, roomNumber, current)
-    cellSelection.value.selectedCells.add(cellKey)
-    current.setDate(current.getDate() + 1)
+  // Step toward target date, stopping at first occupied day
+  while (true) {
+    // If we have reached the target date, stop
+    if (current.getTime() === targetDate.getTime()) break
+
+    // Compute next day in the drag direction
+    const next = new Date(current)
+    next.setDate(current.getDate() + (forward ? 1 : -1))
+
+    // Check occupancy for the next date
+    const occupancy = getCellOccupancyType(roomType, roomNumber, next)
+
+    if (occupancy === 'free') {
+      cellSelection.value.selectedCells.add(getCellKey(roomType, roomNumber, next))
+      current = next
+      continue
+    }
+
+    // If next date has any reservation segment, include it as the endpoint
+    // for half-day selection and stop expanding further
+    if (occupancy === 'occupied_left' || occupancy === 'occupied_right') {
+      cellSelection.value.selectedCells.add(getCellKey(roomType, roomNumber, next))
+    }
+    // For fully occupied or single-day centered reservations, do not include
+    // the next date; selection ends on the current free date.
+    break
   }
 }
 
@@ -1212,7 +1299,36 @@ function handleCellMouseMove(event: MouseEvent) {
       if (cellElement) {
         const rect = cellElement.getBoundingClientRect();
         const offsetX = event.clientX - rect.left;
-        currentCellInfo.offsetX = offsetX;
+        currentCellInfo.cellWidth = rect.width;
+        let adjustedOffsetX = offsetX;
+
+        // Clamp offset into free portion of the cell when hovering over reserved halves
+        const occupancy = getCellOccupancyType(
+          currentCellInfo.roomType,
+          currentCellInfo.roomNumber,
+          new Date(currentCellInfo.date)
+        );
+        const halfWidth = rect.width / 2;
+        const quarterWidth = rect.width / 4;
+
+        if (occupancy === 'occupied_full') {
+          // Prevent extending into fully occupied cell: snap to nearest free boundary
+          adjustedOffsetX = offsetX < halfWidth ? 0 : rect.width; // show zero-width on this cell
+        } else if (occupancy === 'occupied_right') {
+          // Right half occupied: clamp to left half
+          adjustedOffsetX = Math.min(offsetX, halfWidth - 0.5);
+        } else if (occupancy === 'occupied_left') {
+          // Left half occupied: clamp to right half
+          adjustedOffsetX = Math.max(offsetX, halfWidth + 0.5);
+        } else if (occupancy === 'occupied_center') {
+          // Center 50% occupied: allow only outer quarters
+          if (offsetX > quarterWidth && offsetX < rect.width - quarterWidth) {
+            // Snap to nearest allowed quarter boundary
+            adjustedOffsetX = (offsetX <= halfWidth) ? quarterWidth : (rect.width - quarterWidth);
+          }
+        }
+
+        currentCellInfo.offsetX = adjustedOffsetX;
       }
     }
   }
@@ -1265,20 +1381,39 @@ function getSelectionStyle(roomType: string, roomNumber: string, date: Date) {
     }
     return { width, left };
   } else {
-    // Case 2: After selection, merged cell
+    // Case 2: After selection, render per-cell segments (no merged cells)
     const selectionInfo = getSelectionInfo();
     if (!selectionInfo) return {};
-    const colspan = selectionInfo.cellCount;
-    if (colspan <= 0) return {};
 
-    const startOffset = (startCellInfo.offsetX / startCellInfo.cellWidth);
-    const endOffset = (endCellInfo.offsetX / endCellInfo.cellWidth);
+    const selectionStartDate = selectionInfo.startDate;
+    const selectionEndDate = selectionInfo.endDate;
 
-    const left = `${startOffset * 100 / colspan}%`;
+    const isStart = date.getTime() === selectionStartDate.getTime();
+    const isEnd = date.getTime() === selectionEndDate.getTime();
 
-    const widthInCells = (colspan - 1) + endOffset - startOffset;
-    const width = `${widthInCells * 100 / colspan}%`;
+    let width = '100%';
+    let left = '0';
 
+    if (isStart && isEnd) {
+      const startOffset = Math.min(startCellInfo.offsetX, endCellInfo.offsetX);
+      const endOffset = Math.max(startCellInfo.offsetX, endCellInfo.offsetX);
+      const cellWidth = startCellInfo.cellWidth;
+      if (cellWidth > 0) {
+        left = `${(startOffset / cellWidth) * 100}%`;
+        width = `${((endOffset - startOffset) / cellWidth) * 100}%`;
+      }
+    } else if (isStart) {
+      const cellWidth = startCellInfo.cellWidth;
+      if (cellWidth > 0) {
+        left = `${(startCellInfo.offsetX / cellWidth) * 100}%`;
+        width = `${100 - ((startCellInfo.offsetX / cellWidth) * 100)}%`;
+      }
+    } else if (isEnd) {
+      const cellWidth = endCellInfo.cellWidth;
+      if (cellWidth > 0) {
+        width = `${(endCellInfo.offsetX / cellWidth) * 100}%`;
+      }
+    }
     return { width, left };
   }
 }
@@ -1420,15 +1555,8 @@ function navigateToAddReservationFromCells() {
 
 // Fonction pour déterminer si la cellule doit être affichée
 function shouldShowCell(group: any, room: any, cell: any) {
-  // En mode sélection, toujours afficher toutes les cellules
-  if (cellSelection.value.isSelecting) {
-    return true
-  }
-
-  // En mode normal, ne pas afficher les cellules qui sont à l'intérieur d'une sélection
-  // mais qui ne sont pas le début de cette sélection
-  return !isInsideSelection(group.room_type, room.room_number, cell.date) ||
-    isStartOfSelection(group.room_type, room.room_number, cell.date)
+  // Always render all cells; no merged cells
+  return true
 }
 
 // Fonction pour déterminer le colspan unifié (que ce soit en mode sélection ou non)
