@@ -159,6 +159,20 @@ export const generateArrivalList = async (filters: ReportFilters = {}): Promise<
     handleApiError(error)
   }
 }
+
+export const generateNoShowList = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
+  try {
+    console.log('filters@@@', filters)
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
+      `${API_URL}/reservations/no-show`,
+      { reportType: 'noShowReservations', filters },
+      getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+  }
+}
 export const generateArrivalLis = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined | undefined> => {
   try {
     console.log('filters@@@', filters)
