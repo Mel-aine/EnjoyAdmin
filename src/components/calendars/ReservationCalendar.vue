@@ -148,7 +148,6 @@
                                 <path d="M5 14h14l1.973 6.767A1 1 0 0 1 20 22H4a1 1 0 0 1-.973-1.233z" />
                                 <path d="m8 22 1-4" />
                               </svg>
-                              <BrushClea class="w-4 h-4" />
                             </span>
                             <span v-else>
                               <LucideBrush class="w-4 h-4" />
@@ -182,11 +181,10 @@
                           ]" @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseup="endCellSelection($event)">
-                          <!-- Room block overlay full width -->
-                          <div v-if="cell.roomBlock" :class="[
-                              'absolute left-0 top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 w-full min-w-0 ',
-                              getRoomBlockColor(cell.roomBlock.status),
-                            ]" :style="{ left: '2px', width: 'calc(100% - 4px)' }">
+                          <!-- Room block overlay spanning across cells (full widths, no halves) -->
+                          <div v-if="cell.roomBlock && isRoomBlockAnchor(cell)"
+                            :class="['group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-10', getRoomBlockColor(cell.roomBlock.status)]"
+                            :style="getRowBlockOverlayStyle(cell)">
                             <span class="truncate">{{ cell.roomBlock.reason }}</span>
                           </div>
 
@@ -198,6 +196,10 @@
                             @click="showReservationModal(cell.reservationStart || cell.reservationCarryOver)"
                             @mouseenter="showReservationTooltip((cell.reservationStart || cell.reservationCarryOver), $event)"
                             @mouseleave="hideReservationTooltip">
+                            <img v-if="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
+                              :src="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
+                              alt="OTA" class="w-3 h-3 flex-shrink-0" />
+                            <Building2Icon v-else class="w-3 h-3 flex-shrink-0 text-white" />
                             <span class="truncate">{{ getReservationText(cell.reservationStart ||
                               cell.reservationCarryOver) }}</span>
 
@@ -217,7 +219,13 @@
                                 <div class='flex flex-col gap-2'>
                                   <div class="flex justify-between">
                                     {{ $t('Name') }}:
-                                    <span>{{ (cell.reservationStart || cell.reservationCarryOver)?.guest_name }}</span>
+                                    <span class="flex items-center gap-2">
+                                      <img v-if="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
+                                        :src="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
+                                        alt="OTA" class="w-4 h-4" />
+                                      <Building2Icon v-else class="w-4 h-4 text-white" />
+                                      <span>{{ (cell.reservationStart || cell.reservationCarryOver)?.guest_name }}</span>
+                                    </span>
                                   </div>
                                   <div class="flex justify-between">
                                     {{ $t('Check-in Date') }}:
@@ -365,7 +373,7 @@
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, LucideBrush, Crown, DollarSignIcon, User2, CheckCircleIcon, LinkIcon, CheckCircle } from 'lucide-vue-next'
+import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, LucideBrush, Crown, DollarSignIcon, User2, CheckCircleIcon, LinkIcon, CheckCircle, Building2Icon } from 'lucide-vue-next'
 
 import { watch, onUnmounted } from 'vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
@@ -418,6 +426,7 @@ import Select from '../forms/FormElements/Select.vue'
 import { getRateStayViewTypeByHotelId, } from '../../services/configrationApi';
 import SelectDropdown from '../common/SelectDropdown.vue';
 import StatusLegend from '../common/StatusLegend.vue';
+import { getOtaIconSrc } from '@/utils/otaIcons'
 import UnassignedReservationsModal from '../modal/UnassignedReservationsModal.vue';
 import { useRouter } from 'vue-router'
 import RoomSelectionModal from '../modal/RoomSelectionModal.vue';
@@ -825,6 +834,74 @@ function getReservationText(reservation: any): string {
   return reservation?.guest_name ?? reservation?.title ?? '';
 }
 
+function getOtaIconSrcForReservation(reservation: any): string | null {
+  if (!reservation) return null;
+  const name = reservation?.otaName || reservation?.bookingSourceName || reservation?.bookingSource?.name || reservation?.source || null;
+  return getOtaIconSrc(name);
+}
+
+// Room block overlay helpers: anchor and style (full cell widths, no half-day logic)
+function isRoomBlockAnchor(cell: any): boolean {
+  if (!cell?.roomBlock) return false;
+  const block = cell.roomBlock;
+  const startDate = new Date(block.block_from_date);
+  const endDate = new Date(block.block_to_date);
+  const current = cell.date;
+  const firstVisible = visibleDates.value[0];
+
+  const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+
+  // Anchor when block starts on this visible day
+  if (sameDay(startDate, current)) return true;
+  // Or when block started before the visible range and continues into it → anchor on first visible day
+  if (sameDay(current, firstVisible) && startDate < firstVisible && endDate >= firstVisible) return true;
+  return false;
+}
+
+function getRowBlockOverlayStyle(cell: any) {
+  const block = cell.roomBlock;
+  if (!block) return {};
+
+  const startDate = new Date(block.block_from_date);
+  const endDate = new Date(block.block_to_date);
+  const firstVisible = visibleDates.value[0];
+  const lastVisible = visibleDates.value[visibleDates.value.length - 1];
+
+  // Find start index within visible range (or clamp to 0 if before)
+  let startIndex = 0;
+  for (let i = 0; i < visibleDates.value.length; i++) {
+    const d = visibleDates.value[i];
+    if (d.getFullYear() === startDate.getFullYear() && d.getMonth() === startDate.getMonth() && d.getDate() === startDate.getDate()) {
+      startIndex = i;
+      break;
+    }
+    if (startDate < firstVisible) {
+      startIndex = 0;
+    }
+  }
+
+  // Find end index within visible range (or clamp to last if after)
+  let endIndex = visibleDates.value.length - 1;
+  for (let i = 0; i < visibleDates.value.length; i++) {
+    const d = visibleDates.value[i];
+    if (d.getFullYear() === endDate.getFullYear() && d.getMonth() === endDate.getMonth() && d.getDate() === endDate.getDate()) {
+      endIndex = i;
+      break;
+    }
+    if (endDate > lastVisible) {
+      endIndex = visibleDates.value.length - 1;
+    }
+  }
+
+  // Full cell widths across the span (inclusive)
+  const spanCells = Math.max(1, endIndex - startIndex + 1);
+  const widthPercent = spanCells * 100; // no half-day logic for blocks
+  const left = '0%';
+  const width = `${widthPercent}%`;
+  const backgroundColor = getRoomBlockColor(block.status);
+  return { left, width, backgroundColor };
+}
+
 function getRowOverlayStyle(cell: any) {
   const res = cell.reservationStart || cell.reservationCarryOver;
   if (!res) return {};
@@ -880,6 +957,15 @@ function getRowOverlayStyle(cell: any) {
 // Determine occupancy type for a given room/date
 // Returns: 'free' | 'occupied_full' | 'occupied_left' | 'occupied_right' | 'occupied_center'
 function getCellOccupancyType(roomType: string, roomNumber: string, date: Date): string {
+  // First, treat room blocks as fully occupied for selection purposes
+  const blocksForRoom = (apiRoomBlocks.value || []).filter((b: any) => b.room && b.room.room_number === roomNumber);
+  const isBlocked = blocksForRoom.some((b: any) => {
+    const start = new Date(b.block_from_date);
+    const end = new Date(b.block_to_date);
+    return start <= date && end >= date;
+  });
+  if (isBlocked) return 'occupied_full';
+
   const group = (apiRoomGroups.value || []).find((g: any) => g.room_type === roomType);
   if (!group) return 'free';
   const allReservations = group.reservations || [];
