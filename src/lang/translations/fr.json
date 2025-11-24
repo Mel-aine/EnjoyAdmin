@@ -5294,7 +5294,7 @@
         "guestReview": "Avis client",
         "emailGuestReviewRequest": "Demande d'avis client par e-mail",
         "reservation": "Réservation",
-        "emailReservationReleased": "E-mail pour réservation libérée",
+        "emailReservationReleased_": "E-mail pour réservation libérée",
         "emailRatesContractedSource": "E-mail avec les tarifs et détails des montants à la source contractée",
         "emailWithoutRatesToGuest": "E-mail sans tarifs ni détails des montants au client",
         "emailReservationReleasedToGuestTA": "E-mail pour réservation libérée au Client / Agence",
@@ -8673,7 +8673,7 @@
     }
   },
   "Failed to load email templates" : "Échec du chargement des Modèles d'Email",
-  "Email Addres" : "Adresse E-mail",
+  "Email Address" : "Adresse E-mail",
   "Email Accounts" : "Comptes de Messagerie",
   "Select group" : "Sélectionnez un groupe",
   "Token" : "Jeton",

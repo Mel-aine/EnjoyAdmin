@@ -15,232 +15,127 @@ export interface TaxBreakdown {
   type: string
 }
 
-export interface RoomItemWithTax {
-  roomId: number
-  roomName: string
-  planName: string
-  planPrice: number // Prix TTC (avec taxes incluses)
-  quantity: number
-  nights: number
-  subtotal: number
-  taxIncluded: boolean
-}
-
 export interface TaxCalculationResult {
-  total: number // Total des taxes à afficher
+  roomChargesHT: number
+  roomChargesTTC: number
+  extrasCost: number
+  extractedTaxes: number
+  taxesOnExtras: number
+  flatTaxes: number
+  totalTaxes: number
+  grandTotal: number
   breakdown: TaxBreakdown[]
-  hasItemsWithTaxIncluded: boolean
-  hasItemsWithoutTax: boolean
-  totalWithTaxIncluded: number // Total TTC des items avec taxe incluse
-  totalWithoutTax: number // Total HT des items sans taxe incluse
-  roomChargesHT: number // Total HT (hors taxes) pour tous les items
-  extractedTaxes: number // Taxes extraites des prix TTC
+
 }
 
-/**
- * Extrait les taxes d'un prix TTC
- * Formule: Prix HT = Prix TTC / (1 + taux_total)
- */
-function extractTaxesFromPrice(priceTTC: number, taxes: Tax[], nights: number, quantity: number): {
-  priceHT: number
-  extractedTaxes: number
-  breakdown: TaxBreakdown[]
-} {
-  // Calculer le taux total de taxation (uniquement les pourcentages)
-  let totalTaxRate = 0
+export function calculateCartTaxes(
+  items: Array<{
+    planPriceTTC?: number
+    planPrice?: number
+    totalExtrasCost?: number
+    quantity: number
+  }>,
+  taxes: Tax[],
+  nights: number
+): TaxCalculationResult {
+
   const percentageTaxes = taxes.filter(t => t.type === 'flat_percentage')
   const flatAmountTaxes = taxes.filter(t => t.type === 'flat_amount')
 
-  percentageTaxes.forEach(tax => {
-    totalTaxRate += parseFloat(tax.percent) / 100
-  })
+  const totalPercentRate = percentageTaxes.reduce(
+    (sum, t) => sum + parseFloat(t.percent || '0') / 100,
+    0
+  )
 
-  // Prix HT = Prix TTC / (1 + taux)
-  let priceHT = priceTTC
+  let roomChargesTTC = 0
+  let roomChargesHT = 0
+  let extrasCost = 0
+  let totalExtractedPercentageTax = 0
+  let totalFlatTax = 0
+  let taxesOnExtras = 0
   const breakdown: TaxBreakdown[] = []
-  let extractedTaxes = 0
 
-  // 1. Extraire les taxes en pourcentage du prix TTC
-  if (totalTaxRate > 0) {
-    priceHT = priceTTC / (1 + totalTaxRate)
-    const taxAmount = priceTTC - priceHT
+  const totalRooms = items.reduce((sum, item) => sum + item.quantity, 0)
 
-    // Répartir proportionnellement entre les taxes
-    percentageTaxes.forEach(tax => {
-      const taxPercent = parseFloat(tax.percent) / 100
-      const taxShare = (taxPercent / totalTaxRate) * taxAmount
-
-      breakdown.push({
-        taxId: tax.id,
-        taxName: tax.name,
-        amount: Math.round(taxShare),
-        type: tax.type
-      })
-
-      extractedTaxes += taxShare
-    })
-  }
-
-  // 2. Ajouter les taxes flat (par chambre/nuit) si elles existent
   flatAmountTaxes.forEach(tax => {
-    const flatRate = parseFloat(tax.rate)
-    const taxAmount = flatRate * nights * quantity
+    const amount = parseFloat(tax.rate || '0') * totalRooms * nights
+    totalFlatTax += amount
 
     breakdown.push({
       taxId: tax.id,
       taxName: tax.name,
-      amount: Math.round(taxAmount),
+      amount: Math.round(amount),
       type: tax.type
     })
-
-    extractedTaxes += taxAmount
   })
 
-  return {
-    priceHT: Math.round(priceHT),
-    extractedTaxes: Math.round(extractedTaxes),
-    breakdown
-  }
-}
+  items.forEach(item => {
 
-/**
- * Calcule les taxes pour tous les items du panier
- */
-export function calculateCartTaxes(
-  items: any[],
-  taxes: Tax[],
-  nights: number
-): TaxCalculationResult {
-  // a changer lorsqu on aura plus info sur les taxes
-  const itemsWithTaxIncluded = items.filter(item => item.taxIncluded !== true)
-  const itemsWithoutTax = items.filter(item => item.taxIncluded === true)
+    const unitPriceTTC = (item.planPriceTTC ?? item.planPrice ?? 0)
+    const itemTotalTTC = unitPriceTTC * item.quantity * nights
 
-  let roomChargesHT = 0
-  let extractedTaxes = 0
-  const allBreakdown: TaxBreakdown[] = []
 
-  // 1. Traiter les items AVEC taxes incluses (extraire les taxes)
-  itemsWithTaxIncluded.forEach(item => {
-    const result = extractTaxesFromPrice(
-      item.subtotal,
-      taxes,
-      nights,
-      item.quantity
-    )
+    const itemShareOfFlatTax = (item.quantity / totalRooms) * totalFlatTax
 
-    roomChargesHT += result.priceHT
-    extractedTaxes += result.extractedTaxes
+    const baseSubjectToVat = itemTotalTTC - itemShareOfFlatTax
 
-    // Fusionner les breakdowns
-    result.breakdown.forEach(newTax => {
-      const existing = allBreakdown.find(t => t.taxId === newTax.taxId)
-      if (existing) {
-        existing.amount += newTax.amount
-      } else {
-        allBreakdown.push({ ...newTax })
-      }
-    })
+    const itemHT = totalPercentRate > 0 ? baseSubjectToVat / (1 + totalPercentRate) : baseSubjectToVat
+    const itemPercentageTax = baseSubjectToVat - itemHT
+
+    const itemExtrasBase = (item.totalExtrasCost || 0) * item.quantity * nights
+    const itemExtrasTax = itemExtrasBase * totalPercentRate
+
+    roomChargesTTC += itemTotalTTC
+    roomChargesHT += itemHT
+    extrasCost += itemExtrasBase
+    totalExtractedPercentageTax += itemPercentageTax
+    taxesOnExtras += itemExtrasTax
   })
 
-  // 2. Traiter les items SANS taxes incluses (calculer les taxes)
-  const totalWithoutTax = itemsWithoutTax.reduce((sum, item) => sum + item.subtotal, 0)
-  const totalRoomsWithoutTax = itemsWithoutTax.reduce((sum, item) => sum + item.quantity, 0)
+  if (totalExtractedPercentageTax > 0 || taxesOnExtras > 0) {
+    const globalPercentageTax = totalExtractedPercentageTax + taxesOnExtras
 
-  roomChargesHT += totalWithoutTax
-  let taxesOnItemsWithoutTax = 0
+    percentageTaxes.forEach(tax => {
+      const taxPercent = parseFloat(tax.percent || '0') / 100
+      const share = (taxPercent / totalPercentRate) * globalPercentageTax
 
-  if (totalWithoutTax > 0) {
-    taxes.forEach(tax => {
-      let taxAmount = 0
-
-      if (tax.type === 'flat_percentage') {
-        const percent = parseFloat(tax.percent) / 100
-        taxAmount = totalWithoutTax * percent
-      } else if (tax.type === 'flat_amount') {
-        const flatRate = parseFloat(tax.rate)
-        taxAmount = flatRate * nights * totalRoomsWithoutTax
-      }
-
-      taxesOnItemsWithoutTax += taxAmount
-
-      const existing = allBreakdown.find(t => t.taxId === tax.id)
+      const existing = breakdown.find(b => b.taxId === tax.id)
       if (existing) {
-        existing.amount += Math.round(taxAmount)
+        existing.amount += Math.round(share)
       } else {
-        allBreakdown.push({
+        breakdown.push({
           taxId: tax.id,
           taxName: tax.name,
-          amount: Math.round(taxAmount),
+          amount: Math.round(share),
           type: tax.type
         })
       }
     })
   }
 
-  // Le total des taxes affiché = taxes extraites + taxes calculées
-  const totalTaxes = extractedTaxes + taxesOnItemsWithoutTax
+  const totalTaxes = totalExtractedPercentageTax + taxesOnExtras + totalFlatTax
+
+  const grandTotal = roomChargesTTC + extrasCost + taxesOnExtras
 
   return {
-    total: Math.round(totalTaxes),
-    breakdown: allBreakdown.map(b => ({
-      ...b,
-      amount: Math.round(b.amount)
-    })),
-    hasItemsWithTaxIncluded: itemsWithTaxIncluded.length > 0,
-    hasItemsWithoutTax: itemsWithoutTax.length > 0,
-    totalWithTaxIncluded: itemsWithTaxIncluded.reduce((sum, item) => sum + item.subtotal, 0),
-    totalWithoutTax: totalWithoutTax,
     roomChargesHT: Math.round(roomChargesHT),
-    extractedTaxes: Math.round(extractedTaxes)
+    roomChargesTTC: Math.round(roomChargesTTC),
+    extrasCost: Math.round(extrasCost),
+    extractedTaxes: Math.round(totalExtractedPercentageTax),
+    taxesOnExtras: Math.round(taxesOnExtras),
+    flatTaxes: Math.round(totalFlatTax),
+    totalTaxes: Math.round(totalTaxes),
+    grandTotal: Math.round(grandTotal),
+    breakdown
   }
 }
 
-/**
- * Formate l'affichage d'une taxe
- */
 export function formatTaxLabel(tax?: Tax): string {
   if (!tax) return 'Tax'
-
   if (tax.type === 'flat_percentage') {
     return `${tax.name} (${tax.percent}%)`
   } else if (tax.type === 'flat_amount') {
-    return `${tax.name} (${tax.rate} per room/night)`
+    return `${tax.name} (${tax.rate}/room/night)`
   }
   return tax.name
-}
-
-/**
- * Génère les informations d'affichage des taxes
- */
-export function getTaxDisplayInfo(
-  hasItemsWithTaxIncluded: boolean,
-  hasItemsWithoutTax: boolean,
-  taxRate: number,
-  itemsWithoutTaxCount: number,
-  itemsWithTaxCount: number
-) {
-  if (hasItemsWithTaxIncluded && !hasItemsWithoutTax) {
-    return {
-      label: `Taxes (${taxRate * 100}% included in price)`,
-      isIncluded: true,
-      showAmount: true,
-      note: 'Taxes are included in the displayed price'
-    }
-  }
-
-  if (hasItemsWithTaxIncluded && hasItemsWithoutTax) {
-    return {
-      label: `Taxes (${taxRate * 100}%)`,
-      isIncluded: false,
-      showAmount: true,
-      note: `${itemsWithTaxCount} room(s) with tax included, ${itemsWithoutTaxCount} without`
-    }
-  }
-
-  return {
-    label: `Taxes & Fees (${taxRate * 100}%)`,
-    isIncluded: false,
-    showAmount: true,
-    note: null
-  }
 }

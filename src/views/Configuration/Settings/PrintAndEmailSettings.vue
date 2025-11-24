@@ -44,7 +44,7 @@
             <div class="space-y-2">
               <label class="flex items-center gap-2">
                 <input type="checkbox" v-model="form.emailReservationReleased" class="rounded border-gray-300" />
-                <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.emailReservationReleased') }}</span>
+                <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.emailReservationReleased_') }}</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" v-model="form.emailRatesAndAmountToContracted" class="rounded border-gray-300" />
@@ -78,14 +78,15 @@
                   <span class="text-xs text-gray-600 dark:text-gray-300">{{ t('configuration.settings.print_and_email_settings.ignoreZeroBalance') }}</span>
                 </label>
               </div>
-              <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.expenseVoucher" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.expenseVoucher') }}</span></label>
+              <!--<label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.expenseVoucher" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.expenseVoucher') }}</span></label>
+              -->
               <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.managerReport" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.managerReport') }}</span></label>
               <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.frontDeskActivities" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.frontDeskActivities') }}</span></label>
               <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.noShowReport" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.noShowReport') }}</span></label>
               <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.monthlyOccupancyReport" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.monthlyOccupancyReport') }}</span></label>
               <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.monthlyStatisticsReport" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.monthlyStatisticsReport') }}</span></label>
-              <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.yearlyStatisticsReport" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.yearlyStatisticsReport') }}</span></label>
-              <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.roomsOnBooksReport" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.roomsOnBooksReport') }}</span></label>
+              <!--<label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.yearlyStatisticsReport" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.yearlyStatisticsReport') }}</span></label>
+              --><label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.roomsOnBooksReport" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.roomsOnBooksReport') }}</span></label>
               <div class="sm:col-span-2">
                 <label class="flex items-center gap-2"><input type="checkbox" v-model="form.reports.receiveTodayNextDaysBookingHtml" class="rounded border-gray-300" /> <span class="text-sm">{{ t('configuration.settings.print_and_email_settings.receiveBookingsHtml') }}</span></label>
                 <p class="text-xs text-gray-500 mt-1">{{ t('configuration.settings.print_and_email_settings.receiveBookingsHint') }}</p>
@@ -145,6 +146,7 @@ import ConfigurationLayout from '../ConfigurationLayout.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
 import { updateHotelPrintEmailSettings } from '../../../services/hotelApi'
 import { useServiceStore } from '../../../composables/serviceStore'
+import { emailTemplatesApi } from '../../../services/configrationApi'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -152,10 +154,28 @@ const serviceStore = useServiceStore()
 const currentService = computed(() => serviceStore.getCurrentService)
 const isSaving = ref(false)
 
-const templates = [
-  { value: 'thank_you_guest', label: t('configuration.settings.print_and_email_settings.templates.thankYouGuest') },
-  { value: 'folio_detail_t', label: t('configuration.settings.print_and_email_settings.templates.folioDetailTemplateT') }
-]
+const templates = ref<Array<{ value: string; label: string }>>([])
+
+// Fetch email templates from API and map to select options
+const fetchEmailTemplates = async (page = 1) => {
+  try {
+    const params = {
+      hotelId: useServiceStore().serviceId,
+      page,
+      limit: 20,
+      includeDeleted: false,
+    }
+    const response = await emailTemplatesApi.getEmailTemplates(params)
+    const items = response?.data || []
+    // Map using template name for both value and label
+    templates.value = items.map((tpl: any) => ({
+      value: tpl.id,
+      label: tpl.name,
+    }))
+  } catch (error) {
+    console.error('Error fetching email templates:', error)
+  }
+}
 
 const form = ref({
   // Check Out
@@ -269,6 +289,7 @@ const loadPrintEmailSettingsFromService = () => {
 
 onMounted(() => {
   loadPrintEmailSettingsFromService()
+  fetchEmailTemplates(1)
 })
 </script>
 

@@ -33,6 +33,8 @@ export interface RoomAvailability {
     max?: number
     children?: number
     adults?: number
+    baseAdult?:number
+    baseChild?:number
   }
   amenities?: any[]
   ratePlans: Array<{
@@ -155,29 +157,48 @@ export interface OTABookingPayload {
   arrivalDate: string
   departureDate: string
   nights: number
+  email?: string
+  mobile?: string
+
   guest: {
     title: string
     firstName: string
     lastName: string
     mobile: string
-    country: string
+    special_requests: string
     email: string
   }
+  roomGuests:Array<{
+     title: string
+    firstName: string
+    lastName: string
+    mobile: string
+    specialRequests: string
+    email: string
+
+  }>
   items: Array<{
     roomId: number
     roomName: string
     rateTypeId: string
     planName: string
     planPrice: number
+    planPriceTTC: number
     quantity: number
     adults: number
     children: number
     taxIncluded: boolean
     totalPrice: number
+     extraCharges?:any[]
+    extraAdultRate?:any
+    extraChildRate?:any
+    extraAdultsCount?:number
+    extraChildrenCount?:number
+    mealPlanRateInclude?:boolean
   }>
-   subtotal: number  // ✅ Prix HT total
-  taxes: number     // ✅ Total des taxes
-  taxBreakdown: Array<{  // ✅ Nouveau
+   subtotal: number
+  taxes: number
+  taxBreakdown: Array<{
     taxId: number
     taxName: string
     amount: number
@@ -240,48 +261,79 @@ export function transformOTAPayloadToReservation(
 ) {
   // Calculer le room_rate HT pour chaque item
   const roomsData = otaPayload.items.flatMap((item) => {
-    let roomRateHT = item.planPrice // Prix par nuit par chambre
+    let roomRateHT = item.planPriceTTC
     let taxesPerRoom = 0
 
     // Si les taxes sont incluses dans le prix, on doit les extraire
     if (item.taxIncluded && otaPayload.taxBreakdown && otaPayload.taxBreakdown.length > 0) {
-      // Calculer le taux total de taxation (uniquement les pourcentages)
       let totalTaxRate = 0
 
       otaPayload.taxBreakdown.forEach((tax: any) => {
         if (tax.type === 'flat_percentage') {
-
           const taxRatio = tax.amount / otaPayload.subtotal
           totalTaxRate += taxRatio
         }
       })
 
       if (totalTaxRate > 0) {
-        roomRateHT = item.planPrice / (1 + totalTaxRate)
+        roomRateHT = item.planPriceTTC / (1 + totalTaxRate)
         taxesPerRoom = item.planPrice - roomRateHT
       } else {
-
         const htRatio = otaPayload.subtotal / (otaPayload.subtotal + otaPayload.taxes)
-        roomRateHT = item.planPrice * htRatio
-        taxesPerRoom = item.planPrice - roomRateHT
+        roomRateHT = item.planPriceTTC * htRatio
+        taxesPerRoom = item.planPriceTTC - roomRateHT
       }
     }
     // Si les taxes ne sont pas incluses, on doit les calculer
     else if (!item.taxIncluded && otaPayload.taxes > 0 && otaPayload.subtotal > 0) {
-      // Le prix est déjà HT, on calcule juste les taxes à ajouter
-      const itemSubtotal = item.planPrice * item.quantity * otaPayload.nights
+      const itemSubtotal = item.planPriceTTC * item.quantity * otaPayload.nights
       const itemTaxes = (itemSubtotal / otaPayload.subtotal) * otaPayload.taxes
       taxesPerRoom = itemTaxes / (item.quantity * otaPayload.nights)
     }
 
+    const extraCharges: any[] = []
+    let totalExtrasCost = 0
 
+    // Calculer les adultes supplémentaires
+    const extraAdultsCount = item.extraAdultsCount || 0
+    if (extraAdultsCount > 0 && item.extraAdultRate) {
+      const extraAdultRate = parseFloat(item.extraAdultRate)
+      const extraAdultCost = extraAdultRate * extraAdultsCount
+
+      extraCharges.push({
+        name: 'Extra Adult',
+        rate: extraAdultRate,
+        quantity: extraAdultsCount,
+        type: 'extra_adult'
+      })
+
+      totalExtrasCost += extraAdultCost
+    }
+
+    // Calculer les enfants supplémentaires
+    const extraChildrenCount = item.extraChildrenCount || 0
+    if (extraChildrenCount > 0 && item.extraChildRate) {
+      const extraChildRate = parseFloat(item.extraChildRate)
+      const extraChildCost = extraChildRate * extraChildrenCount
+
+      extraCharges.push({
+        name: 'Extra Child',
+        rate: extraChildRate,
+        quantity: extraChildrenCount,
+        type: 'extra_child'
+      })
+
+      totalExtrasCost += extraChildCost
+    }
+
+    const finalRoomRate = roomRateHT + totalExtrasCost
 
     // Créer une entrée pour chaque chambre
     return Array.from({ length: item.quantity }, () => ({
       room_type_id: item.roomId,
       rate_type_id: parseInt(item.rateTypeId),
       room_id: null,
-      room_rate: Math.round(roomRateHT),
+      room_rate: Math.round(finalRoomRate),
       adult_count: item.adults,
       child_count: item.children,
       quantity: 1,
@@ -290,6 +342,7 @@ export function transformOTAPayloadToReservation(
       meal_plan_rate_include: false,
       room_rate_id: null,
       meal_plan_id: null,
+      extra_charges: extraCharges.length > 0 ? extraCharges : []
     }))
   })
 
@@ -299,21 +352,43 @@ export function transformOTAPayloadToReservation(
   const finalAmount = otaPayload.totalPrice
   const generateOTACode = (prefix: string = 'BK') => {
     const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const timestamp = Date.now().toString().slice(-4); // ex: 3842
-    return `${prefix}-${randomPart}-${timestamp}`; // ex: BK-A1B2C3-3842
+    const timestamp = Date.now().toString().slice(-4);
+    return `${prefix}-${randomPart}-${timestamp}`;
   };
   const otaCode = generateOTACode('BK')
 
-  console.log('Rooms Data:', roomsData)
+  const guestsData = otaPayload.roomGuests?.map((guest, index) => ({
+    first_name: guest.firstName,
+    last_name: guest.lastName,
+    email: index === 0 ? (guest.email || otaPayload.guest?.email || otaPayload.email) : null,
+    phone_primary: index === 0 ? (guest.mobile || otaPayload.guest?.mobile || otaPayload.mobile) : null,
+    title: guest.title,
+    special_requests: guest.specialRequests || '',
+    is_primary: index === 0,
+    guest_type: 'adult'
+  })) || []
+
+  if (guestsData.length === 0) {
+    guestsData.push({
+      first_name: otaPayload.guest?.firstName || '',
+      last_name: otaPayload.guest?.lastName || '',
+      email: otaPayload.guest?.email || otaPayload.email,
+      phone_primary: otaPayload.guest?.mobile || otaPayload.mobile,
+      title: otaPayload.guest?.title || 'Mr',
+      special_requests: otaPayload.guest?.special_requests || '',
+      is_primary: true,
+      guest_type: 'adult'
+    })
+  }
 
   return {
-    hotel_id: serviceId,
-    first_name: otaPayload.guest.firstName,
-    last_name: otaPayload.guest.lastName,
-    email: otaPayload.guest.email,
-    phone_primary: otaPayload.guest.mobile,
-    title: otaPayload.guest.title,
-    country: otaPayload.guest.country,
+    hotel_id: Number(serviceId),
+    first_name: guestsData[0]?.first_name,
+    last_name: guestsData[0]?.last_name,
+    email: guestsData[0]?.email,
+    phone_primary: guestsData[0]?.phone_primary,
+    title: guestsData[0]?.title,
+    guests: guestsData.slice(1),
 
     company_name: '',
     group_name: '',
@@ -334,8 +409,6 @@ export function transformOTAPayloadToReservation(
     reservation_status: 'confirmed',
     status: 'confirmed',
     paid_amount: finalAmount,
-
-    // Chambres (avec room_rate HT)
     rooms: roomsData,
 
     // Montants financiers
@@ -343,8 +416,8 @@ export function transformOTAPayloadToReservation(
     tax_amount: taxAmount,
     final_amount: finalAmount,
     remaining_amount: finalAmount,
-    ota_name : 'Booking.com',
-    ota_reservation_code : otaCode,
+    ota_name: 'Booking.com',
+    ota_reservation_code: otaCode,
 
     // Paiement
     payment_type: 'cash',

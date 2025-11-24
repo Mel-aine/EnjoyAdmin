@@ -224,7 +224,7 @@ interface Reservation {
 const router = useRouter()
 const route = useRoute()
 const bookingStore = useBookingSummaryStore()
-const hotelId = route.query.email as string
+
 
 // États
 const isLoading = ref(false)
@@ -248,6 +248,8 @@ const reservation = ref<Reservation>({
   total: 0,
   currency: 'XAF',
 })
+
+ const hotelId = route.query.hotelId as string
 
 onMounted(async () => {
   // Récupérer les données depuis les query params

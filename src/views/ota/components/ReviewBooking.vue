@@ -93,7 +93,7 @@
             </section>
 
             <!-- Guest Info -->
-            <section class="bg-white rounded-lg p-3 border border-slate-200">
+            <section v-if="guest>0" class="bg-white rounded-lg p-3 border border-slate-200">
               <h3 class="text-base font-semibold text-slate-800 mb-2 flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -101,7 +101,7 @@
                 </svg>
                 Guest Information
               </h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
                   <div class="text-slate-500 text-xs mb-0.5">Name</div>
                   <div class="font-medium text-slate-900">
@@ -116,10 +116,7 @@
                   <div class="text-slate-500 text-xs mb-0.5">Mobile</div>
                   <div class="font-medium text-slate-900">{{ guest.mobile }}</div>
                 </div>
-                <div>
-                  <div class="text-slate-500 text-xs mb-0.5">Country</div>
-                  <div class="font-medium text-slate-900">{{ guest.country }}</div>
-                </div>
+
               </div>
             </section>
 
@@ -158,13 +155,13 @@
                     <div class="text-right text-xs">
                       <div class="text-slate-500">{{ item.quantity }} room(s)</div>
                       <div class="font-bold text-blue-700 text-sm">
-                        {{ formatCurrency(item.planPrice * item.quantity * nights) }}
+                        {{ formatCurrency(item.planPriceTTC * item.quantity * nights) }}
                       </div>
                     </div>
                   </div>
                   <div class="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
                     <span>{{ item.adults }} adults, {{ item.children }} children/room</span>
-                    <span>{{ formatCurrency(item.planPrice) }}/night</span>
+                    <span>{{ formatCurrency(item.planPriceTTC) }}/night</span>
                   </div>
                 </div>
               </div>
@@ -194,7 +191,7 @@
                   </div>
                   <div class="flex justify-between font-semibold text-slate-700 pt-1 border-t border-slate-200">
                     <span>Total Taxes & Fees</span>
-                    <span>{{ formatCurrency(taxCalculation.total) }}</span>
+                    <span>{{ formatCurrency(taxCalculation.totalTaxes) }}</span>
                   </div>
                 </div>
 
@@ -255,14 +252,14 @@
             >
               Close
             </button>
-            <div class="flex gap-2">
+            <!-- <div class="flex gap-2">
               <button
                 @click="editBooking"
                 class="px-4 py-1 rounded-md bg-slate-700 text-white text-sm hover:bg-slate-800 transition"
               >
                 Edit Booking
               </button>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>

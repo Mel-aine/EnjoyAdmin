@@ -1,62 +1,51 @@
 <template>
-    <!-- Void Invoice Modal -->
-    <div v-if="isOpen" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div
-            class="relative top-10 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
-            <div class="mt-3">
-                <!-- Modal Header -->
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">
-                        {{ $t('void_invoice') }}
-                    </h3>
-                    <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-                        <X class="w-5 h-5" />
-                    </button>
-                </div>
+  <RightSideModal :is-open="isOpen" :title="$t('void_invoice')" @close="closeModal">
+    <template #default>
+      <div class="p-3 space-y-6 dark:text-gray-100">
+        <form @submit.prevent="handleSubmit">
+          <!-- Reason Selection aligned with VoidTransaction -->
+          <div class="mb-4">
+            <ReasonSelector
+              v-model="formData.reason"
+              :category="'Void Reservation'"
+              :label="$t('Reason')"
+              :is-required="true"
+              @reason-added="handleReasonAdded"
+            />
+          </div>
+        </form>
+      </div>
+    </template>
 
-                <!-- Modal Form -->
-                <form @submit.prevent="handleSubmit">
-                    <!-- Reason Selection -->
-                    <div class="mb-4">
-                        <Select 
-                            :lb="$t('reason')" 
-                            :is-loading="isLoadingReason" 
-                            v-model="formData.reason" 
-                            :options="reasonOptions"
-                            :is-required="true" 
-                        />
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex justify-end space-x-3">
-                        <BasicButton 
-                            type="button" 
-                            variant="outline" 
-                            @click="closeModal" 
-                            :label="$t('cancel')"
-                            :disabled="loading" 
-                        />
-                        <BasicButton 
-                            type="submit" 
-                            variant="danger" 
-                            :label="$t('void_invoice')"
-                            :loading="loading" 
-                        />
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <template #footer>
+      <div class="flex justify-end space-x-3">
+        <BasicButton
+          type="button"
+          variant="outline"
+          @click="closeModal"
+          :label="$t('cancel')"
+          :disabled="loading"
+        />
+        <BasicButton
+          type="submit"
+          variant="danger"
+          :label="$t('void_invoice')"
+          :loading="loading"
+          @click="handleSubmit"
+        />
+      </div>
+    </template>
+  </RightSideModal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import { X } from 'lucide-vue-next'
 import BasicButton from '../buttons/BasicButton.vue'
-import Select from '../forms/FormElements/Select.vue'
-import { getReasons, voidIncidentalInvoices } from '../../services/configrationApi'
+import { voidIncidentalInvoices } from '../../services/configrationApi'
+import RightSideModal from '../modal/RightSideModal.vue'
+import ReasonSelector from '../common/ReasonSelector.vue'
 
 interface Props {
     isOpen: boolean
@@ -78,19 +67,14 @@ const { t } = useI18n()
 const toast = useToast()
 
 const loading = ref(false)
-const isLoadingReason = ref(false)
-
 const formData = ref({
     reason: ''
 })
-
-const reasonOptions = ref([{ label: "select", value: '' }])
 
 // Reset form when modal opens
 watch(() => props.isOpen, (newValue) => {
     if (newValue) {
         resetForm()
-        loadReasons()
     }
 })
 
@@ -104,23 +88,8 @@ const closeModal = () => {
     emit('close')
 }
 
-const loadReasons = async () => {
-    isLoadingReason.value = true
-    try {
-        const res = await getReasons()
-        reasonOptions.value = res.data.data.map((item: any) => {
-            return {
-                label: item.reasonName,
-                value: item.reasonName
-            }
-        })
-        reasonOptions.value.unshift({ label: "select", value: '' })
-    } catch (error) {
-        console.error('Error loading reasons:', error)
-        toast.error(t('error_loading_reasons'))
-    } finally {
-        isLoadingReason.value = false
-    }
+const handleReasonAdded = (newReason: { value: string; label: string }) => {
+    formData.value.reason = newReason.value
 }
 
 const handleSubmit = async () => {

@@ -116,21 +116,22 @@
     </div>
 
     <!-- Occupants shown only when room added -->
-    <div v-if="selectedCount > 0" class="mt-3 grid grid-cols-[1fr_auto] gap-2 items-center">
-      <div class="flex gap-3 items-center">
-        <span class="text-xs text-gray-600">Room {{ selectedCount }}</span>
-        <label class="text-xs text-gray-600">Adult</label>
-        <select v-model.number="qtyAdults" class="border rounded px-2 py-1 text-xs w-16">
-          <option v-for="n in capacityAdults" :key="`a-${n}`" :value="n">{{ n }}</option>
-        </select>
-        <label class="text-xs text-gray-600">Child</label>
-        <select v-model.number="qtyChildren" class="border rounded px-2 py-1 text-xs w-16">
-          <option v-for="n in capacityChildren + 1" :key="`c-${n}`" :value="n - 1">
-            {{ n - 1 }}
-          </option>
-        </select>
-        <label class="text-xs text-gray-600">Add To Compare</label>
-        <input type="checkbox" class="ml-1" v-model="compare" />
+
+    <div v-if="selectedCount > 0" class="mt-3 space-y-2">
+      <div v-for="roomNum in selectedCount" :key="roomNum" class="grid grid-cols-[1fr_auto] gap-2 items-center">
+        <div class="flex gap-3 items-center">
+          <span class="text-xs text-gray-600">Room {{ roomNum }}</span>
+          <label class="text-xs text-gray-600">Adult</label>
+          <select v-model.number="roomOccupants[roomNum - 1].adults" class="border rounded px-2 py-1 text-xs w-16">
+            <option v-for="n in capacityAdults" :key="`a-${n}`" :value="n">{{ n }}</option>
+          </select>
+          <label class="text-xs text-gray-600">Child</label>
+          <select v-model.number="roomOccupants[roomNum - 1].children" class="border rounded px-2 py-1 text-xs w-16">
+            <option v-for="n in capacityChildren + 1" :key="`c-${n}`" :value="n - 1">
+              {{ n - 1 }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -273,9 +274,9 @@ interface RoomInfo {
 const props = defineProps<{ room: RoomInfo; plan: RatePlan; nights: number; currency?: string,selectedCount?: number ,hotelId?:any }>()
 
 const emit = defineEmits<{
-  (e: 'add', payload: { room: RoomInfo; plan: RatePlan; adults: number; children: number }): void
+  (e: 'add', payload: { room: RoomInfo; plan: RatePlan; occupants: Array<{ adults: number; children: number }> }): void
   (e: 'remove', payload: { room: RoomInfo; plan: RatePlan }): void
-  (e: 'update', payload: { room: RoomInfo; plan: RatePlan; adults: number; children: number }): void
+  (e: 'update', payload: { room: RoomInfo; plan: RatePlan; occupants: Array<{ adults: number; children: number }> }): void
 }>()
 
 const router = useRouter()
@@ -284,10 +285,11 @@ const capacityAdults = computed(() => props.room?.capacity?.adults ?? 2)
 const capacityChildren = computed(() => props.room?.capacity?.children ?? 0)
 
 // Initialiser avec les valeurs max de capacité
-const qtyAdults = ref(capacityAdults.value)
-const qtyChildren = ref(0)
+// const qtyAdults = ref(capacityAdults.value)
+// const qtyChildren = ref(0)
 const compare = ref(false)
 const currentImageIndex = ref(0)
+const roomOccupants = ref<Array<{ adults: number; children: number }>>([])
 const selectedCount = computed({
   get: () => props.selectedCount || 0,
   set: () => {}
@@ -300,25 +302,6 @@ function openModal() {
   modalImageIndex.value = 0 // Réinitialiser à la première image
   showInfo.value = true
 }
-
-// Mettre à jour qtyAdults si la capacité change
-watch(capacityAdults, (newVal) => {
-  if (qtyAdults.value > newVal) {
-    qtyAdults.value = newVal
-  }
-})
-
-watch(qtyAdults, (newVal) => {
-  if (selectedCount.value > 0) {
-    emit('update', { room: props.room, plan: props.plan, adults: newVal, children: qtyChildren.value })
-  }
-})
-
-watch(qtyChildren, (newVal) => {
-  if (selectedCount.value > 0) {
-    emit('update', { room: props.room, plan: props.plan, adults: qtyAdults.value, children: newVal })
-  }
-})
 
 
 const roomsLeftZero = computed(() => props.room.roomsLeft <= 0)
@@ -351,39 +334,23 @@ function formatCurrency(amount: number) {
   }).format(amount)
 }
 
-function increment() {
-  if (!canAdd.value) return
-  if (selectedCount.value >= props.room.roomsLeft) return
-  emit('add', {
-    room: props.room,
-    plan: props.plan,
-    adults: qtyAdults.value,
-    children: qtyChildren.value,
-  })
-}
+// function increment() {
+//   if (!canAdd.value) return
+//   if (selectedCount.value >= props.room.roomsLeft) return
+//   emit('add', {
+//     room: props.room,
+//     plan: props.plan,
+//     adults: qtyAdults.value,
+//     children: qtyChildren.value,
+//   })
+// }
 
 function decrement() {
   if (selectedCount.value <= 0) return
   emit('remove', { room: props.room, plan: props.plan })
 }
 
-// const roomImage = computed(() => {
 
-//   if (props.room.images && props.room.images.length > 0) {
-//     return props.room.images[0]
-//   }
-
-//   // Sinon, chercher dans les rooms disponibles
-//   if (props.room.rooms && props.room.rooms.length > 0) {
-//     for (const r of props.room.rooms) {
-//       if (r.images && r.images.length > 0) {
-//         return r.images[0]
-//       }
-//     }
-//   }
-
-//   return 'https://via.placeholder.com/160x112?text=No+Image'
-// })
 
 
 const allImages = computed(() => {
@@ -429,6 +396,54 @@ function enquireLocal() {
   router.push({
     name: 'OtaContactUs',
     query: { hotelId }
+  })
+}
+
+
+
+// Initialiser le tableau quand selectedCount change
+watch(selectedCount, (newCount:any, oldCount:any) => {
+  if (newCount > oldCount) {
+    // Ajouter des chambres
+    for (let i = oldCount; i < newCount; i++) {
+      roomOccupants.value.push({
+        adults: capacityAdults.value,
+        children: 0
+      })
+    }
+  } else if (newCount < oldCount) {
+    // Retirer des chambres
+    roomOccupants.value.splice(newCount)
+  }
+}, { immediate: true })
+
+// Mettre à jour les watchers :
+watch(roomOccupants, (newVal) => {
+  if (selectedCount.value > 0 && newVal.length > 0) {
+    // Émettre avec les infos de toutes les chambres
+    emit('update', {
+      room: props.room,
+      plan: props.plan,
+      occupants: newVal
+    })
+  }
+}, { deep: true })
+
+// Mettre à jour increment() :
+function increment() {
+  if (!canAdd.value) return
+  if (selectedCount.value >= props.room.roomsLeft) return
+
+  // Ajouter une nouvelle chambre avec capacité max
+  const newOccupants = [...roomOccupants.value, {
+    adults: capacityAdults.value,
+    children: 0
+  }]
+
+  emit('add', {
+    room: props.room,
+    plan: props.plan,
+    occupants: newOccupants,
   })
 }
 </script>

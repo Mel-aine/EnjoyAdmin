@@ -98,28 +98,6 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-end mt-5 pt-5 border-t border-gray-200 dark:border-gray-700 gap-4 justify-end">
-          <!-- Report Template -->
-          <!-- <div class="flex items-center gap-3 w-full sm:w-auto">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('reports.reportTemplate') }}</label>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <SelectComponent 
-                v-model="filters.reportTemplate"
-                :options="reportTemplateOptions"
-                :placeholder="t('common.default')"
-                class="min-w-32 w-full sm:w-auto"
-              />
-              <button 
-                @click="editTemplate"
-                class="p-1.5 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                :title="t('common.editTemplate')"
-              >
-                <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-              </button>
-            </div>
-          </div> -->
-
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <!-- Bouton d'export avec menu déroulant -->
@@ -320,9 +298,42 @@ const {
   reservationId,
 } = useBooking()
 
+// Fonction pour formater la date en YYYY-MM-DD
+const formatDateForAPI = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+// Fonction pour obtenir la date d'hier
+const getYesterday = (): Date => {
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  return yesterday
+}
+
+// Fonction pour obtenir la date d'aujourd'hui
+const getToday = (): Date => {
+  return new Date()
+}
+
+// Initialisation des dates par défaut
+const initializeDefaultDates = () => {
+  const yesterday = getYesterday()
+  const today = getToday()
+  
+  return {
+    arrivalFrom: formatDateForAPI(yesterday),
+    arrivalTo: formatDateForAPI(today)
+  }
+}
+
+const defaultDates = initializeDefaultDates()
+
 const filters = ref<Filters>({
-  arrivalFrom: '27/04/2019',
-  arrivalTo: '30/04/2019',
+  arrivalFrom: defaultDates.arrivalFrom,
+  arrivalTo: defaultDates.arrivalTo,
   roomType: '',
   rateType: '',
   showAmount: 'rent_per_night',
@@ -426,13 +437,21 @@ const generateReport = async (): Promise<void> => {
   
   try {
     console.log('Generating guest checked-in report with filters:', filters.value)
-    // Appel API pour générer le rapport
-    const response = await generateGuestCheckedIn({
+    
+    // Préparer les données pour l'API avec les dates formatées
+    const apiData = {
       ...filters.value,
+      arrivalFrom: filters.value.arrivalFrom, // Déjà au format YYYY-MM-DD
+      arrivalTo: filters.value.arrivalTo,     // Déjà au format YYYY-MM-DD
       rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
       rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined,
-    })
+    }
+    
+    console.log('API data with formatted dates:', apiData)
+    
+    // Appel API pour générer le rapport
+    const response = await generateGuestCheckedIn(apiData)
     console.log('Report generation response:', response)
     
     if (response && response.success && response.data) {
@@ -457,12 +476,17 @@ const exportCSV = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export CSV avec filtres:', filters.value)
-    const result = await exportData('csv', 'guestCheckedIn', 'guest-checked-in', {
+    
+    const exportDataParams = {
       ...filters.value,
+      arrivalFrom: filters.value.arrivalFrom, // Déjà au format YYYY-MM-DD
+      arrivalTo: filters.value.arrivalTo,     // Déjà au format YYYY-MM-DD
       rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
       rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
-    })
+    }
+    
+    const result = await exportData('csv', 'guestCheckedIn', 'guest-checked-in', exportDataParams)
     console.log('Résultat export CSV:', result)
   } catch (error) {
     console.error('Erreur détaillée CSV:', error)
@@ -482,12 +506,17 @@ const exportPDF = async (): Promise<void> => {
     }
 
     console.log('Export PDF avec filtres:', filters.value)
-    const result = await exportData('pdf', 'guestCheckedIn', 'guest-checked-in', {
+    
+    const exportDataParams = {
       ...filters.value,
+      arrivalFrom: filters.value.arrivalFrom, // Déjà au format YYYY-MM-DD
+      arrivalTo: filters.value.arrivalTo,     // Déjà au format YYYY-MM-DD
       rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
       rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
-    })
+    }
+    
+    const result = await exportData('pdf', 'guestCheckedIn', 'guest-checked-in', exportDataParams)
     pdfUrl.value = result?.fileUrl || ''
     openPDFInNewPage()
     console.log('Résultat export PDF:', result)
@@ -503,12 +532,17 @@ const exportExcel = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export Excel avec filtres:', filters.value)
-    const result = await exportData('excel', 'guestCheckedIn', 'guest-checked-in', {
+    
+    const exportDataParams = {
       ...filters.value,
+      arrivalFrom: filters.value.arrivalFrom, // Déjà au format YYYY-MM-DD
+      arrivalTo: filters.value.arrivalTo,     // Déjà au format YYYY-MM-DD
       rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
       rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
-    })
+    }
+    
+    const result = await exportData('excel', 'guestCheckedIn', 'guest-checked-in', exportDataParams)
     console.log('Résultat export Excel:', result)
   } catch (error) {
     console.error('Erreur détaillée Excel:', error)
@@ -661,9 +695,11 @@ const formatDate = (date: Date): string => {
 }
 
 const resetForm = (): void => {
+  const defaultDates = initializeDefaultDates()
+  
   filters.value = {
-    arrivalFrom: '',
-    arrivalTo: '',
+    arrivalFrom: defaultDates.arrivalFrom,
+    arrivalTo: defaultDates.arrivalTo,
     roomType: '',
     rateType: '',
     showAmount: 'rent_per_night',

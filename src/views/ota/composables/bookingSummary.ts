@@ -19,6 +19,20 @@ export interface BookingItem {
   adults: number
   children: number
   taxIncluded?: boolean
+  subtotal?:any
+  totalExtrasCost?:any
+  totalExtraAdultCost?:any
+  totalExtraChildCost?:any
+  totalBasePrice?:any
+  taxAmount?:any
+  planPriceTTC?:any
+  planPriceHT?:any
+  extractedRoomTaxes?:any
+  subtotalHT?:any
+  extractedRoomTax?:any
+  flatTaxPerNight?:any
+  mealPlanRateInclude?:boolean
+  extraCharges?: any[]
 }
 
 export interface BookingData {
@@ -39,13 +53,23 @@ export interface BookingData {
   taxIncluded?: boolean
   policies?: string
   cancellationPolicy?: string
+  totalBasePrice?:any
+  totalExtraAdultCost?:any
+  totalExtraChildCost?:any
+  totalExtrasCost?:any
+  totalSubtotal?:any
+  totalTaxAmount?:any
+  totalPlanPriceHT?:any
+  totalPlanPriceTTC?:any
+  planPriceHT?:any
+
 }
 
-const bookingData = ref<BookingData | null>(null)
+const bookingData = ref<any | null>(null)
 const bookingDraftStore = useBookingDraftStore()
 
 export function useBookingSummaryStore() {
-  const setBookingData = (data: BookingData) => {
+  const setBookingData = (data: any) => {
     bookingData.value = data
     bookingDraftStore.setDraft(data)
   }

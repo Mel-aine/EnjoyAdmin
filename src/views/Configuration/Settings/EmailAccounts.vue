@@ -172,7 +172,7 @@ const pagination = ref({
 // Table configuration
 const columns:  Column[] = [
   { key: 'title', label: t('Title'), type: 'text' },
-  { key: 'emailAddress', label: t('Email Address'), type: 'text' },
+  { key: 'emailAddress', label: t('Email Address'), type: 'email' },
   { key: 'displayName', label: t('emailAccounts.displayNameLabel'), type: 'text' },
   { key: 'isActive', label: t('Active'), type: 'custom' },
   { key: 'isVerified', label: t('emailAccounts.emailVerified'), type: 'custom' },
