@@ -197,7 +197,7 @@
                             @mouseenter="showReservationTooltip((cell.reservationStart || cell.reservationCarryOver), $event)"
                             @mouseleave="hideReservationTooltip">
                             <img v-if="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
-                              :src="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
+                              :src="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)??''"
                               alt="OTA" class="w-3 h-3 flex-shrink-0" />
                             <Building2Icon v-else class="w-3 h-3 flex-shrink-0 text-white" />
                             <span class="truncate">{{ getReservationText(cell.reservationStart ||
@@ -221,7 +221,7 @@
                                     {{ $t('Name') }}:
                                     <span class="flex items-center gap-2">
                                       <img v-if="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
-                                        :src="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
+                                        :src="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)??''"
                                         alt="OTA" class="w-4 h-4" />
                                       <Building2Icon v-else class="w-4 h-4 text-white" />
                                       <span>{{ (cell.reservationStart || cell.reservationCarryOver)?.guest_name }}</span>
