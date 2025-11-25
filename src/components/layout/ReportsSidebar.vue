@@ -416,7 +416,7 @@ const reservationReports = ref([
   { name: 'arrival-list', path: '/reports/reservation/arrival-list', label: 'reports.reservation.arrivalList' },
   { name: 'departure-list', path: '/reports/reservation/departure-list', label: 'reports.reservation.departureList' },
   { name: 'cancelled-reservations', path: '/reports/reservation/cancelled-reservations', label: 'reports.reservation.cancelledReservations' },
-  // To do { name: 'no-show-reservations', path: '/reports/reservation/no-show-reservations', label: 'reports.reservation.noShowReservations' },
+  { name: 'no-show-reservations', path: '/reports/reservation/no-show-reservations', label: 'reports.reservation.noShowReservations' },
   //TO DO  { name: 'country-wise-reservation-statistics', path: '/reports/reservation/country-wise-reservation-statistics', label: 'reports.reservation.countryWiseReservationStatistics' },
   //TO DO   { name: 'release-reservation-list', path: '/reports/reservation/release-reservation-list', label: 'reports.reservation.releaseReservationList' },
   //TO DO { name: 'reservation-activity', path: '/reports/reservation/reservation-activity', label: 'reports.reservation.reservationActivity' },
