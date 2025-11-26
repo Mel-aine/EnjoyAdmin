@@ -188,6 +188,67 @@
                             <span class="truncate">{{ cell.roomBlock.reason }}</span>
                           </div>
 
+                          <!-- Single-day reservations rendered by hours within the cell -->
+                          <div v-for="(res, idx) in cell.singleDayReservations" :key="`${res.reservation_id}-${idx}`"
+                               class="group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20"
+                               :style="getSingleDaySegmentStyle(res, idx)"
+                               @click="showReservationModal(res)"
+                               @mouseenter="showReservationTooltip(res, $event)"
+                               @mouseleave="hideReservationTooltip">
+                            <img v-if="getOtaIconSrcForReservation(res)" :src="getOtaIconSrcForReservation(res)??''" alt="OTA" class="w-3 h-3 flex-shrink-0" />
+                            <Building2Icon v-else class="w-3 h-3 flex-shrink-0 text-white" />
+                            <span class="truncate">{{ getReservationText(res) }}</span>
+
+                            <!-- Status icons (match normal reservation overlay) -->
+                            <div class="absolute -top-2 flex items-center gap-1">
+                              <Crown v-if="res?.is_master"
+                                class="bg-white dark:bg-gray-800 w-3 h-3 text-yellow-400 flex-shrink-0" :title="$t('Primary')" />
+                              <DollarSignIcon v-if="res?.is_balance"
+                                class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
+                              <User2 v-if="res?.isWomen"
+                                class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
+                            </div>
+
+                            <!-- Hover tooltip (match normal reservation overlay) -->
+                            <div class="absolute bottom-0 z-[99999] w-full flex-col items-center hidden mb-5 group-hover:flex">
+                              <div class="relative rounded-md z-[99999] p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg min-w-[18rem]">
+                                <div class='flex flex-col gap-2'>
+                                  <div class="flex justify-between">
+                                    {{ $t('Name') }}:
+                                    <span class="flex items-center gap-2">
+                                      <img v-if="getOtaIconSrcForReservation(res)"
+                                        :src="getOtaIconSrcForReservation(res)??''"
+                                        alt="OTA" class="w-4 h-4" />
+                                      <Building2Icon v-else class="w-4 h-4 text-white" />
+                                      <span>{{ res?.guest_name }}</span>
+                                    </span>
+                                  </div>
+                                  <div class="flex justify-between">
+                                    {{ $t('Check-in Date') }}:
+                                    <span>{{ formatDateLocal(res?.check_in_date) }} {{ res?.check_in_time }}</span>
+                                  </div>
+                                  <div class="flex justify-between gap-4">
+                                    {{ $t('Check-out Date') }}:
+                                    <span>{{ formatDateLocal(res?.check_out_date) }} {{ res?.check_out_time }}</span>
+                                  </div>
+                                  <div class="flex justify-between text-blue-600">
+                                    <span class="font-medium">{{ $t('Total') }}:</span>
+                                    <span>{{ formatCurrency(res?.balance_summary?.totalChargesWithTaxes) }}</span>
+                                  </div>
+                                  <div class="flex justify-between text-green-600">
+                                    <span class="font-medium">{{ $t('paid') }}:</span>
+                                    <span>{{ formatCurrency(res?.balance_summary?.totalPayments) }}</span>
+                                  </div>
+                                  <div class="flex justify-between text-red-600">
+                                    <span class="font-medium">{{ $t('balance') }}:</span>
+                                    <span>{{ formatCurrency(res?.balance_summary?.outstandingBalance) }}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="w-3 h-3 -mt-2 rotate-45 bg-blue-light-950"></div>
+                            </div>
+                          </div>
+
                           <!-- Middle-day reservation segment (full width) -->
                           <!-- Single reservation overlay starting in this cell and spanning across cells -->
                           <div v-if="cell.reservationStart || cell.reservationCarryOver"
@@ -215,7 +276,7 @@
 
                             <!-- Hover tooltip -->
                             <div class="absolute bottom-0 z-[99999] w-full flex-col items-center hidden mb-5 group-hover:flex">
-                              <div class="relative rounded-md z-[99999] p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg">
+                              <div class="relative rounded-md z-[99999] p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg min-w-[18rem]">
                                 <div class='flex flex-col gap-2'>
                                   <div class="flex justify-between">
                                     {{ $t('Name') }}:
@@ -697,14 +758,46 @@ function getRoomRowCellsApi(group: any, room: any) {
       return startDate <= date && endDate >= date
     })
 
-    // Start and End segments for this day
-    const reservationStart = reservations.find((r: any) => r.check_in_date.startsWith(dStr))
-    const reservationEnd = reservations.find((r: any) => {
+    // Identify reservations that start on this day
+    const reservationsStartingToday = reservations.filter((r: any) => r.check_in_date.startsWith(dStr))
+
+    // Identify reservations that end on this day
+    const reservationsEndingToday = reservations.filter((r: any) => {
       const end = new Date(r.check_out_date)
       return (
         end.getFullYear() === date.getFullYear() &&
         end.getMonth() === date.getMonth() &&
         end.getDate() === date.getDate()
+      )
+    })
+
+    // Single-day reservations that both start and end on this same day
+    const singleDayReservations = reservationsStartingToday.filter((r: any) => {
+      const end = new Date(r.check_out_date)
+      return (
+        end.getFullYear() === date.getFullYear() &&
+        end.getMonth() === date.getMonth() &&
+        end.getDate() === date.getDate()
+      )
+    })
+
+    // Start and End segments for this day (spanning reservations only)
+    const reservationStart = reservationsStartingToday.find((r: any) => {
+      const end = new Date(r.check_out_date)
+      // Exclude single-day reservations; only include spans
+      return !(
+        end.getFullYear() === date.getFullYear() &&
+        end.getMonth() === date.getMonth() &&
+        end.getDate() === date.getDate()
+      )
+    })
+    const reservationEnd = reservationsEndingToday.find((r: any) => {
+      const start = new Date(r.check_in_date)
+      // Exclude single-day reservations; only include spans
+      return !(
+        start.getFullYear() === date.getFullYear() &&
+        start.getMonth() === date.getMonth() &&
+        start.getDate() === date.getDate()
       )
     })
 
@@ -734,6 +827,7 @@ function getRoomRowCellsApi(group: any, room: any) {
       reservationEnd: reservationEnd || null,
       reservationMiddle: reservationMiddle || null,
       reservationCarryOver,
+      singleDayReservations,
     })
   }
 
@@ -950,6 +1044,29 @@ function getRowOverlayStyle(cell: any) {
   const backgroundColor = getReservationColor(res.reservation_status);
   const left = startHalf ? '50%' : '0%';
   const width = `${widthPercent}%`;
+  return { left, width, backgroundColor };
+}
+
+// Single-day segment style: position by hour within a 24-hour cell
+function parseTimeToFraction(timeStr: string | null | undefined): number {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(':');
+  const h = parseInt(parts[0] || '0', 10);
+  const m = parseInt(parts[1] || '0', 10);
+  const s = parseInt(parts[2] || '0', 10);
+  const totalHours = h + m / 60 + s / 3600;
+  return Math.min(1, Math.max(0, totalHours / 24));
+}
+
+function getSingleDaySegmentStyle(reservation: any, idx: number) {
+  const startFrac = parseTimeToFraction(reservation?.check_in_time || reservation?.checkInTime || '14:00:00');
+  const endFrac = parseTimeToFraction(reservation?.check_out_time || reservation?.checkOutTime || '12:00:00');
+  const start = Math.min(startFrac, endFrac);
+  const end = Math.max(startFrac, endFrac);
+
+  const left = `${start * 100}%`;
+  const width = `${Math.max(0.03, (end - start)) * 100}%`; // minimum 3% width
+  const backgroundColor = getReservationColor(reservation?.reservation_status || 'blocked');
   return { left, width, backgroundColor };
 }
 
