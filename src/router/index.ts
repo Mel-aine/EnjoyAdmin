@@ -70,6 +70,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/front-office/insert_transaction',
+      name: 'Insert Transaction',
+      component: () => import('../views/Bookings/InsertTransaction.vue'),
+      meta: {
+        title: 'Insert Transaction',
+        requiresAuth: true,
+      },
+    },
    {
       path: '/ota/booking/:id(\\d+)',
       name: 'WebBooking',
