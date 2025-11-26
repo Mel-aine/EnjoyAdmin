@@ -75,6 +75,8 @@
                       <div class="flex">
                         <InputDatePicker
                           v-model="reservation.checkoutDate"
+                          :allowPastDates="false"
+                          :minDate="reservation.checkinDate || ''"
                           :placeholder="$t('Selectdate')"
                           :custom-class="'rounded-none'"
 
@@ -1045,7 +1047,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref, defineAsyncComponent, nextTick } from 'vue'
+import { onMounted, computed, ref, defineAsyncComponent, nextTick, watch } from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
@@ -1502,6 +1504,20 @@ onMounted(async () => {
 })
 
 initialize()
+
+// Ensure checkout date is never before check-in date
+watch(
+  () => reservation.value.checkinDate,
+  (newCheckin) => {
+    const ci = newCheckin ? new Date(newCheckin) : null
+    const co = reservation.value.checkoutDate
+      ? new Date(reservation.value.checkoutDate)
+      : null
+    if (ci && co && co < ci) {
+      reservation.value.checkoutDate = newCheckin
+    }
+  }
+)
 </script>
 
 <style scoped>

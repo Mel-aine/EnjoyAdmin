@@ -164,7 +164,7 @@
                   {{ $t('check_out_date') }}
                 </label>
                 <div class="flex gap-0">
-                  <InputDatePicker v-model="reservation.checkoutDate" :placeholder="$t('Selectdate')"
+                  <InputDatePicker v-model="reservation.checkoutDate" :allowPastDates="false" :minDate="reservation.checkinDate || ''" :placeholder="$t('Selectdate')"
                     custom-class="rounded-none" />
                   <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" />
                 </div>
@@ -852,6 +852,20 @@ onMounted(async () => {
   await initialize()
   updateHtml()
 })
+
+// Ensure checkout date is never before check-in date
+watch(
+  () => reservation.value.checkinDate,
+  (newCheckin) => {
+    const ci = newCheckin ? new Date(newCheckin) : null
+    const co = reservation.value.checkoutDate
+      ? new Date(reservation.value.checkoutDate)
+      : null
+    if (ci && co && co < ci) {
+      reservation.value.checkoutDate = newCheckin
+    }
+  }
+)
 </script>
 
 <style scoped>
