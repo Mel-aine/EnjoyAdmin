@@ -201,6 +201,32 @@ export const createReservation = async (data: any) => {
     throw error
   }
 }
+
+/**
+ * Insert Reservation
+ */
+
+export const insertReservation = async (data: any) => {
+  try {
+    console.log('Sending reservation data to backend:', data)
+
+    const response = await apiClient.post('/reservation/inserttrasaction', data, getHeaders())
+
+    console.log('Backend response:', response.data)
+
+    return response.data
+  } catch (error: any) {
+    console.error('API Error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+
+    throw error
+  }
+}
 /**
  * get Reservation details by Id
  */

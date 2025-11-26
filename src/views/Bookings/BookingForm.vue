@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <PageBreadcrumb :pageTitle="$t('Booking')" />
+    <PageBreadcrumb :pageTitle="$t(breadcrumbKey)" />
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-4">
       <!-- Left Column: Add Reservation Form -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
@@ -16,7 +16,7 @@
               />
             </svg>
           </button>
-          <h1 class="text-xl font-semibold">{{ $t('AddBooking') }}</h1>
+          <h1 class="text-xl font-semibold">{{ $t(formTitleKey) }}</h1>
         </div>
 
         <!-- Form -->
@@ -39,7 +39,7 @@
                       <div class="flex">
                         <InputDatePicker
                           v-model="reservation.checkinDate"
-                          :allowPastDates="false"
+                          :allowPastDates="allowPastDates"
                           :placeholder="$t('Selectdate')"
                           :custom-class="'rounded-r-none'"
 
@@ -75,7 +75,7 @@
                       <div class="flex">
                         <InputDatePicker
                           v-model="reservation.checkoutDate"
-                          :allowPastDates="false"
+                          :allowPastDates="allowPastDates"
                           :minDate="reservation.checkinDate || ''"
                           :placeholder="$t('Selectdate')"
                           :custom-class="'rounded-none'"
@@ -1047,7 +1047,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref, defineAsyncComponent, nextTick, watch } from 'vue'
+import { onMounted, onUnmounted, computed, ref, defineAsyncComponent, nextTick, watch } from 'vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
@@ -1063,7 +1063,8 @@ import {
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import CustomerCard from '@/components/customers/CustomerCard.vue'
-import { useBooking } from '@/composables/useBooking2'
+import { useBooking, setReservationCreator, setAllowPastDates } from '@/composables/useBooking2'
+import { insertReservation, createReservation } from '@/services/reservation'
 const AddPaymentModal = defineAsyncComponent(
   () => import('../../components/reservations/foglio/AddPaymentModal.vue'),
 )
@@ -1084,6 +1085,14 @@ interface ReservationDetails {
   payment_method: any
   payment_type: any
 }
+
+// Props to control BookingForm behavior
+const props = defineProps<{ allowPastDates?: boolean; useInsertReservation?: boolean; formTitleKey?: string; breadcrumbKey?: string }>()
+const allowPastDates = computed(() => props.allowPastDates === true)
+const useInsertReservation = computed(() => props.useInsertReservation === true)
+const formTitleKey = computed(() => props.formTitleKey ?? 'AddBooking')
+const breadcrumbKey = computed(() => props.breadcrumbKey ?? 'Booking')
+
 const route = useRoute()
 const isCkeckInModalOpen = ref(false)
 const reservationDetails = ref<{ payment_method?: number; payment_type?: string }>({})
@@ -1493,6 +1502,13 @@ const handleViewDetails = () => {
   }
 }
 onMounted(async () => {
+  // Switch reservation creator if requested
+  if (useInsertReservation.value) {
+    setReservationCreator(insertReservation)
+  }
+  if (allowPastDates.value) {
+    setAllowPastDates(true)
+  }
   const draftLoaded = await loadDraft()
 
   if (!draftLoaded) {
@@ -1503,6 +1519,12 @@ onMounted(async () => {
   }
 })
 
+onUnmounted(() => {
+  if (useInsertReservation.value) {
+    setReservationCreator(createReservation)
+  }
+  setAllowPastDates(false)
+})
 initialize()
 
 // Ensure checkout date is never before check-in date

@@ -43,11 +43,11 @@ export const getHotelMenu = (t: (key: string) => string) => {
               path: '/guest_database',
               permission: 'access_to_guest_database',
             },
-           /* {
+           {
               name: t('insert_transaction'),
-              path: '/insert_transaction',
-              permission: 'dashboard_view',
-            },*/
+              path: '/front-office/insert_transaction',
+              permission: 'access_to_insert_transaction',
+            },
             {
               name: t('lost_and_found'),
               path: '/lost_and_found',

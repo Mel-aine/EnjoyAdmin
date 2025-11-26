@@ -4,7 +4,7 @@ import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useAuthStore } from '@/composables/user'
-import { createReservation } from '@/services/reservation'
+import { createReservation, insertReservation } from '@/services/reservation'
 import { getBaseRateByRoomAndRateType } from '@/services/roomRatesApi'
 import { prepareFolioAmount, safeParseInt } from '@/utils/numericUtils'
 import { getAvailableRoomsByTypeId, getFrontofficeBookingDataId, getMarketCodesByHotelId } from '../services/configrationApi'
@@ -453,7 +453,12 @@ export function useBooking() {
     departure.setHours(0, 0, 0, 0)
 
     if (arrival < today) {
-      dateError.value = 'validation.arrivalInPast'
+      // Suppress past-date error when past dates are allowed (transaction mode)
+      if (allowPastDatesFlag.value) {
+        dateError.value = null
+      } else {
+        dateError.value = 'validation.arrivalInPast'
+      }
     } else if (departure < arrival) {
       dateError.value = 'validation.departureAfterArrival'
     } else {
@@ -1207,7 +1212,7 @@ export function useBooking() {
 
       console.log('Final reservation payload:', reservationPayload)
 
-      const response = await createReservation(reservationPayload)
+      const response = await reservationCreator(reservationPayload)
       reservationId.value = response.reservationId
       console.log('reservationId.value', reservationId.value)
 
@@ -2239,4 +2244,16 @@ const formDataKey = ref(Date.now())
     getAdultOptions,
     formDataKey
   }
+}
+// Allow switching the reservation creation function
+type ReservationCreateFn = (payload: any) => Promise<any>
+let reservationCreator: ReservationCreateFn = createReservation
+export const setReservationCreator = (fn: ReservationCreateFn) => {
+  reservationCreator = fn
+}
+// Allow toggling past-date validation for arrival dates
+import { ref as vueRef } from 'vue'
+const allowPastDatesFlag = vueRef(false)
+export const setAllowPastDates = (allow: boolean) => {
+  allowPastDatesFlag.value = allow
 }
