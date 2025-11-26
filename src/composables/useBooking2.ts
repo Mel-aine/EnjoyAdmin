@@ -1081,6 +1081,7 @@ export function useBooking() {
 
       const reservationPayload = {
         // Guest information
+        guest_id : formData.value.guestId || null,
         first_name: formData.value.firstName,
         last_name: formData.value.lastName,
         email: formData.value.email,

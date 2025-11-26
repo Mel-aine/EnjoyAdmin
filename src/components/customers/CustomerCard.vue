@@ -107,6 +107,7 @@ const selectCustomer = (customer: any) => {
     return
   }
   selectedCustomer.value.firstName = customer.firstName ?? selectedCustomer.value.firstName
+  selectedCustomer.value.guestId = customer.id ?? selectedCustomer.value.guestId
   selectedCustomer.value.lastName = customer.lastName ?? selectedCustomer.value.lastName
   selectedCustomer.value.email = customer.email ?? selectedCustomer.value.email
   selectedCustomer.value.phoneNumber = customer.phonePrimary ?? selectedCustomer.value.phonePrimary
