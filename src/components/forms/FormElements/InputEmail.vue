@@ -1,7 +1,7 @@
 <template>
     <div>
         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-            {{ title }}
+            {{ title }}<span v-if="isRequired" class="text-red-500">*</span>
         </label>
         <div class="relative">
             <span
@@ -12,7 +12,7 @@
                         fill="#667085" />
                 </svg>
             </span>
-            <input type="personalEmail" :is-required="isRequired" v-model="localValue" @input="updateValue"
+            <input type="personalEmail" :required="isRequired" v-model="localValue" @input="updateValue"
                 :placeholder="placeholder ?? 'info@gmail.com'" :disabled="disabled"
                  :class="[
                     'dark:bg-dark-900 h-11 w-full rounded-lg  border border-black/50 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800',

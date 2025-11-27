@@ -372,7 +372,17 @@ const fetchUserData = async (id: string) => {
     isLoadingUser.value = false
   }
 }
+
+const validateForm = (): boolean => {
+  if (!form.value.gender || !form.value.lastName || !form.value.email || !form.value.roleId || !form.value.password) {
+    toast.error(t('toast.fillRequiredFields'))
+    return false
+  }
+  return true
+}
+
 const saveUser = async () => {
+  if (!validateForm()) return
   isLoading.value = true
   try {
     const hotelId = serviceStore.serviceId
@@ -399,7 +409,7 @@ const saveUser = async () => {
       national_id_number: form.value.nationalIdNumber,
       data_processing_consent: form.value.dataProcessingConsent,
       consent_date: form.value.consentDate,
-      language:form.value.language,
+      language:form.value.language || 'en',
       // Address fields
       address: form.value.addressLine,
       state_province: form.value.stateProvince,
@@ -580,7 +590,6 @@ onMounted(async () => {
                             :id="'firstName'"
                             :forLabel="'firstName'"
                             v-model="form.firstName"
-                            :is-required="true"
                             :placeholder="$t('FirstName')"
                           />
 
@@ -602,7 +611,7 @@ onMounted(async () => {
                           />
 
                           <InputPhone
-                            :is-required="true"
+                            :is-required="false"
                             v-model="form.phoneNumber"
                             :id="'phone'"
                             :title="t('Phone')"
@@ -617,7 +626,7 @@ onMounted(async () => {
 
                           <InputDatePicker
                             v-model="form.dateOfBirth"
-                            :is-required="true"
+                            :is-required="false"
                             :title="t('dateOfBirth')"
                             :placeholder="t('dateOfBirth')"
                           />
@@ -628,7 +637,7 @@ onMounted(async () => {
                             :forLabel="'placeOfBirth'"
                             v-model="form.placeOfBirth"
                             :placeholder="$t('placeOfBirth')"
-                            :is-required="true"
+                            :is-required="false"
                           />
 
                           <Input
@@ -636,7 +645,7 @@ onMounted(async () => {
                             :id="'nationalIdNumber'"
                             :forLabel="'nationalIdNumber'"
                             :inputType="'text'"
-                            :is-required="true"
+                            :is-required="false"
                             :placeholder="$t('nationalIdNumber')"
                             v-model="form.nationalIdNumber"
                           />
@@ -705,7 +714,7 @@ onMounted(async () => {
                           />
 
                           <Select
-                            :is-required="true"
+                            :is-required="false"
                             :lb="t('staffManager.department')"
                             :placeholder="$t('selectDepartment')"
                             v-model="form.department"
@@ -714,7 +723,7 @@ onMounted(async () => {
                           />
 
                            <Select
-                            :is-required="true"
+                            :is-required="false"
                             :lb="t('Language')"
                             v-model="form.language"
                             :placeholder="$t('selectLanguage')"

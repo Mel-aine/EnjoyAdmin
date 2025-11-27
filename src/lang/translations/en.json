@@ -555,6 +555,7 @@
       "roomNumberRequired": "Room {index}: Please select a Room Number.",
       "roomNumberInvalid": "Room {index}: Room number \"{value}\" is not available for {roomTypeName}."
     },
+    "fillRequiredFields": "Please fill in all required fields.",
     "userUpdatedSuccess": "User successfully updated ✅",
     "avheSuccess": "Room unassignment completed successfully!",
     "error_fetching_reservation_details": "Error fetching reservation details",
@@ -8507,5 +8508,14 @@
   "Select group" : "Select group",
   "Token" : "Token",
   "Select token" : "Select token",
-  "void_invoice":"Void invoice"
+  "void_invoice":"Void invoice",
+  "roomNumber" : "Room Number",
+  "checkYourEmail": "Check Your Email",
+  "verificationEmailSentTo": "We've sent a verification link to:",
+  "didntReceiveEmail": "Didn't receive the email? Check your spam folder or resend.",
+  "emailVerificationRequired": "Email Verification Required",
+  "verificationEmailResent": "Verification email has been resent successfully. Please check your inbox.",
+  "emailSent" : "Email Sent",
+  "unableToResendVerification": "Unable to resend verification email. Please try again.",
+  "resendVerificationEmail" : "Resend Verification Email"
 }

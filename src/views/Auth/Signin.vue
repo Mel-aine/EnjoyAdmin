@@ -53,7 +53,7 @@
                 </div>
               </template>
 
-              <form v-else-if="!resetMode" @submit.prevent="handleSubmit">
+              <form v-else-if="!resetMode && !emailVerificationRequired" @submit.prevent="handleSubmit">
                 <div class="space-y-3">
                   <p
                     v-if="error"
@@ -76,7 +76,7 @@
                     <span>{{ error }}</span>
                   </p>
 
-                  <div v-if="!selectedAccount">
+                  <div v-if="!selectedAccount && !emailVerificationRequired">
                     <label
                       for="email"
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
@@ -94,8 +94,9 @@
                       required
                     />
                   </div>
+
                   <div
-                    v-else
+                    v-if="selectedAccount"
                     class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5"
                   >
                     <div
@@ -340,16 +341,126 @@
                 </div>
               </div>
               <div></div>
+
+                <div v-if="emailVerificationRequired" class="space-y-4">
+                  <div class="flex items-center gap-2 text-sm font-semibold">
+                    <button
+                      type="button"
+                      @click="backToLogin"
+                      class="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/10"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        class="text-gray-600 dark:text-gray-300"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 19l-7-7 7-7"
+                        />
+                      </svg>
+                    </button>
+                    <span>{{ t('emailVerificationRequired') }}</span>
+                  </div>
+
+                  <div class="p-6 rounded-lg bg-purple-50 border border-purple-200 dark:bg-purple-900/20 dark:border-purple-800">
+                    <div class="flex flex-col items-center text-center gap-4">
+                      <div class="w-16 h-16 bg-purple-100 dark:bg-purple-800/50 rounded-full flex items-center justify-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-8 w-8 text-purple-600 dark:text-purple-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+
+                      <div>
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+                          {{ t('checkYourEmail') }}
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          {{ t('verificationEmailSentTo') }}
+                        </p>
+                        <p class="text-sm font-medium text-gray-800 dark:text-white">
+                          {{ verificationEmail }}
+                        </p>
+                      </div>
+
+                      <div class="w-full space-y-3 mt-2">
+                        <button
+                          type="button"
+                          @click="resendVerificationEmail"
+                          :disabled="isResendingVerification"
+                          class="w-full px-4 py-3 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center justify-center gap-2"
+                        >
+                          <span v-if="!isResendingVerification">
+                            {{ t('resendVerificationEmail') }}
+                          </span>
+                          <span v-else-if="isResendingVerification" class="flex items-center gap-2">
+                            <Spinner class="w-4 h-4" />
+                            {{ t('sending') }}...
+                          </span>
+
+                        </button>
+                        <button
+                          v-if="verificationResent"
+                          type="button"
+                          @click="backToLogin"
+                          class="w-full px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-900/30 hover:bg-gray-200 dark:hover:bg-purple-900/50 rounded-lg transition-colors"
+                        >
+                          {{ t('backToLogin') }}
+                        </button>
+
+                        <p v-if="resendVerificationError" class="text-sm text-red-600 dark:text-red-400">
+                          {{ resendVerificationError }}
+                        </p>
+
+                        <div v-if="verificationResent" class="p-3 rounded-lg bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-800">
+                          <p class="text-sm text-green-700 dark:text-green-300 flex items-center justify-center gap-2">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            {{ t('verificationEmailResent') }}
+                          </p>
+                        </div>
+                      </div>
+
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                        {{ t('didntReceiveEmail') }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
             </div>
           </div>
         </div>
       </div>
-      <!-- <div class="relative items-center hidden w-full h-full lg:w-1/2 bg-purple-900 dark:bg-white/5 lg:grid">
-          <div class="flex items-center justify-center z-50 shadow-xl h-full">
-            <common-grid-shape />
-
-          </div>
-        </div> -->
       <div
         class="relative hidden h-full lg:flex lg:w-1/2 items-center justify-center overflow-hidden bg-gradient-to-br from-[#7c4ad8] via-[#4C1D95] to-[#4e2a92]"
       >
@@ -465,7 +576,7 @@ import {
   validateEmail,
   validatePassword,
   stopAuthAutoRefresh,
-  startAuthAutoRefresh,
+  resendEmailVerification,
   requestPasswordReset,
 } from '@/services/api'
 import { checkHotelExists } from '@/services/configrationApi'
@@ -503,6 +614,12 @@ const currentMessageIndex = ref(0)
 let intervalId: number | null = null
 const loginAttempts = ref(0)
 const MAX_LOGIN_ATTEMPTS = 3
+// Email verification state
+const emailVerificationRequired = ref(false)
+const verificationEmail = ref('')
+const isResendingVerification = ref(false)
+const verificationResent = ref(false)
+const resendVerificationError = ref<string | null>(null)
 
 // Cookie helpers
 function setCookie(
@@ -665,6 +782,7 @@ const handleSubmit = async () => {
 
     const { user, access_token } = res.data.data
     const token = access_token.token
+
     authStore.login(user, token)
     authStore.setRoleId(user.roleId)
     authStore.setUserId(user.id)
@@ -688,8 +806,22 @@ const handleSubmit = async () => {
     loginAttempts.value = 0
     router.push({ path: '/setup' })
   } catch (err: any) {
+
+     if (err.response?.status === 403) {
+      const data = err.response.data
+
+      // Vérifier si c'est une erreur de vérification d'email
+      if (data?.error === 'EMAIL_NOT_VERIFIED' || data?.requiresVerification) {
+        emailVerificationRequired.value = true
+        verificationEmail.value = data.email || email.value
+        isLoading.value = false
+        return
+      }
+      error.value = t('accessForbidden')
+
+    }
     //Gestion du 503 (Service Unavailable)
-    if (err.response?.status === 503) {
+     else if (err.response?.status === 503) {
       error.value = t('serviceUnavailable')
 
       // Réessai automatique pour les erreurs de service
@@ -731,6 +863,12 @@ const backToLogin = () => {
   isSendingReset.value = false
   resetVerified.value = false
   resetSent.value = false
+
+  emailVerificationRequired.value = false
+  verificationEmail.value = ''
+  verificationResent.value = false
+  resendVerificationError.value = null
+
 
   // Réinitialiser aussi les champs de login
   email.value = ''
@@ -784,6 +922,22 @@ const partners = [
     logo: '/images/ota/trivago-logo-svg-vector.svg',
   },
 ]
+
+const resendVerificationEmail = async () => {
+  resendVerificationError.value = null
+  verificationResent.value = false
+  isResendingVerification.value = true
+
+  try {
+
+    await resendEmailVerification(verificationEmail.value)
+    verificationResent.value = true
+  } catch (err: any) {
+    resendVerificationError.value = err?.response?.data?.message || t('unableToResendVerification')
+  } finally {
+    isResendingVerification.value = false
+  }
+}
 
 onMounted(() => {
   intervalId = window.setInterval(() => {
