@@ -722,4 +722,8 @@ export const confirmPayment = (id: number | null, Payload: any): Promise<AxiosRe
   return axios.put(`${API_URL}/payment/${id}/confirm`, Payload, getHeaders())
 }
 
+//resend verification email
+export const resendEmailVerification = (email: string): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL}/auth/resend-verification`, { email }, getHeaders())
+}
 
