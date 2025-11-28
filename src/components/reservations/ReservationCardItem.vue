@@ -63,7 +63,6 @@ const toast = useToast()
 watch(() => props.reservation, (newReservation) => {
   if (newReservation) {
     localReservation.value = { ...newReservation }
-    console.log('Local reservation updated:', localReservation.value)
   }
 }, { deep: true, immediate: true })
 
