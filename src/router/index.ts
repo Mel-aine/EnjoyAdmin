@@ -5,7 +5,8 @@ import { isLoading } from '@/composables/spinner'
 import { checkHotelExists } from '@/services/configrationApi'
 
 const router = createRouter({
-  history: createWebHistory(),
+  // Use the app base URL to ensure correct paths in production and subpaths
+  history: createWebHistory(import.meta.env.BASE_URL),
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { left: 0, top: 0 }
   },
@@ -1667,6 +1668,36 @@ router.afterEach(() => {
   setTimeout(() => {
     isLoading.value = false
   }, 3000)
+})
+
+// Globally recover from failed dynamic imports during navigation (dev and production)
+// This avoids noisy warnings like:
+// "Failed to fetch dynamically imported module" / "Loading chunk failed" / "Importing a module script failed"
+router.onError((err: unknown) => {
+  const msg = String((err as any)?.message || '')
+  const patterns = [
+    'Failed to fetch dynamically imported module',
+    'Importing a module script failed',
+    'Loading chunk',
+    'Loading CSS chunk',
+  ]
+  if (patterns.some((p) => msg.includes(p))) {
+    // Prevent potential reload loops: reload at most once per 60 seconds
+    const key = 'reload-on-chunk-fail-ts'
+    const lastTs = Number(sessionStorage.getItem(key) || '0')
+    const now = Date.now()
+    if (!lastTs || now - lastTs > 60_000) {
+      sessionStorage.setItem(key, String(now))
+      console.warn('[Router] Recovering from dynamic import failure. Reloading...')
+      try {
+        window.location.reload()
+      } catch (_) {
+        // no-op
+      }
+    } else {
+      console.warn('[Router] Dynamic import failure detected but reload throttled.')
+    }
+  }
 })
 
 export default router
