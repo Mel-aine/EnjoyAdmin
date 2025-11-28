@@ -325,7 +325,7 @@ export function useBooking() {
   const BusinessSource = computed(() => businessSourcesLo.value || [])
   const BookingType = computed(() => bookingTypeLo.value || [])
   const MarketCode = computed(() => marketCodesLo.value || [])
-  console.log('BookingType', BookingType.value)
+  //console.log('BookingType', BookingType.value)
   const creditTypes = computed(() => [
     { label: 'Visa', value: 'visa' },
     { label: 'MasterCard', value: 'mastercard' },
@@ -556,7 +556,6 @@ export function useBooking() {
   const getRoomsForRoom = (roomId: string): Option[] => {
     const room = roomConfigurations.value.find((r) => r.id === roomId)
     if (!room || !room.roomType) return []
-    console.log('roomTypeRooms.value', RoomTypes.value)
     return RoomTypes.value.find((rt) => rt.value === Number(room.roomType))?.roomOptions || []
   }
 
