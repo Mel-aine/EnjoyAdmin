@@ -85,7 +85,7 @@ const GuestTitles = computed(() => [
 watch(
   () => props.modelValue,
   (newVal) => {
-    console.log('newVal', newVal)
+    //console.log('newVal', newVal)
     if (!isEqual(newVal, selectedCustomer.value)) {
       selectedCustomer.value = { ...newVal }
     }
