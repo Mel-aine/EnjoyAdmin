@@ -6661,7 +6661,9 @@
         "payment": "Payment",
         "maintenance": "Maintenance",
         "housekeeping": "Housekeeping",
-        "communication": "Communication"
+        "communication": "Communication",
+        "creation": "Creation",
+        "deletion": "Deletion"
       },
       "activityDescriptions": {
         "receiptCreatedForPayment": "Receipt created for payment transaction"

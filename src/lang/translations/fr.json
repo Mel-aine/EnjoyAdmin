@@ -6661,7 +6661,9 @@
         "payment": "Paiement",
         "maintenance": "Maintenance",
         "housekeeping": "Entretien ménager",
-        "communication": "Communication"
+        "communication": "Communication",
+        "creation": "Création",
+        "deletion": "Suppression"
       },
       "activityDescriptions": {
         "receiptCreatedForPayment": "Reçu créé pour la transaction de paiement"
