@@ -494,7 +494,7 @@ const renderPrintHtml = () => {
     })()
     const roomNumberLabel = (() => {
       const rc: any = roomConfig.value || {}
-      const rn: any = rc.roomNumber
+      const rn: any = rc.roomNumberLabel
       if (!rn) return ''
       if (typeof rn === 'object') return getSafe(rn.label || rn.value)
       return getSafe(rn)
