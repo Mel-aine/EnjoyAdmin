@@ -240,9 +240,9 @@
                     </div>
                   </div>
 
-                  <span :class="getActivityTypeClass(activity.type)"
+                  <span
                     class="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
-                    {{ $t(`frontOffice.dashboard.activityTypes.${activity.type}`) }}
+                    {{ activity.user }}
                   </span>
                 </div>
               </div>

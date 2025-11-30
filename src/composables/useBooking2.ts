@@ -25,6 +25,7 @@ interface RoomConfiguration {
   extraCharges: any[],
   isLoadingRooms?: boolean
   isLoadingRate?: boolean
+  roomNumberLabel?: string
 }
 
 interface Reservation {
@@ -204,6 +205,7 @@ export function useBooking() {
       extraCharges: [],
       isLoadingRooms: false,
       isLoadingRate: false,
+      roomNumberLabel: '',
 
     },
   ])
@@ -664,6 +666,7 @@ export function useBooking() {
       extraCharges: [],
       isLoadingRooms: false,
       isLoadingRate: false,
+      roomNumberLabel: '',
     }
     roomConfigurations.value.push(newRoom)
     reservation.value.rooms = roomConfigurations.value.length
@@ -1685,6 +1688,8 @@ const formDataKey = ref(Date.now())
         taxes: [],
         extraCharges: [],
         isLoadingRooms: false,
+        isLoadingRate: false,
+        roomNumberLabel: '',
       },
     ]
 
@@ -1906,6 +1911,7 @@ const formDataKey = ref(Date.now())
           roomConfigurations.value.forEach((room: any) => {
             if (room.id === roomC.id) {
               room.taxes = roomC.taxes
+              room.roomNumberLabel =  selectedRoom.roomNumber
             }
           })
 
