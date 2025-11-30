@@ -8697,11 +8697,12 @@
   "This reason already exists in this category": "Cette raison existe déjà dans cette catégorie",
   "Category is required": "La catégorie est requise",
   "Service ID not available": "ID de l'hôtel non disponible"
-
-
-
-
-
-
-
+,
+  "notificationMenu": {
+    "empty": {
+      "noneTitle": "Aucune notification",
+      "noneDesc": "Vous êtes à jour",
+      "noReservation": "Aucune notification de réservation"
+    }
+  }
 }
