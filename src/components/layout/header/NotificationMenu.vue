@@ -58,16 +58,25 @@
         </button>
       </div>
 
-      <ul class="flex flex-col h-auto overflow-y-auto custom-scrollbar" v-if="notifications">
-        <li v-for="notification in notifications" :key="notification.id" @click="handleItemClick">
+      <ul class="flex flex-col h-auto overflow-y-auto custom-scrollbar" v-if="notifications && notifications.length">
+        <li v-for="notification in notifications" :key="notification.id" @click="(e) => handleItemClick(e, notification)">
           <a
             class="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
             href="#"
           >
             <span class="relative block w-full h-10 rounded-full z-1 max-w-10">
-              <img :src="notification.userImage" alt="User" class="overflow-hidden rounded-full" />
+              <template v-if="notification.recipientUser?.avatarUrl">
+                <img :src="notification.recipientUser?.avatarUrl" alt="User" class="overflow-hidden rounded-full w-10 h-10 object-cover border-2 border-gray-500" />
+              </template>
+              <template v-else>
+                <div
+                  class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-sm font-bold border-2 border-gray-500"
+                >
+                  {{ getUserInitials(notification.recipientUser?.fullName) }}
+                </div>
+              </template>
               <span
-                :class="notification.status === 'online' ? 'bg-success-500' : 'bg-error-500'"
+                :class="!notification.isRead ? 'bg-error-500' : 'bg-success-500'"
                 class="absolute bottom-0 right-0 z-10 h-2.5 w-full max-w-2.5 rounded-full border-[1.5px] border-white dark:border-gray-900"
               ></span>
             </span>
@@ -75,77 +84,130 @@
             <span class="block">
               <span class="mb-1.5 block text-theme-sm text-gray-500 dark:text-gray-400">
                 <span class="font-medium text-gray-800 dark:text-white/90">
-                  {{ notification.userName }}
+                  {{ notification.recipientUser?.fullName || 'Staff' }}
                 </span>
-                {{ notification.action }}
+                {{ notification.title || notification.template?.title || notification.template?.name || 'Notification' }}
                 <span class="font-medium text-gray-800 dark:text-white/90">
-                  {{ notification.project }}
+                  <template v-if="notification.relatedEntityType">
+                    • {{ notification.relatedEntityType }}
+                    <template v-if="notification.relatedEntityId">#{{ notification.relatedEntityId }}</template>
+                  </template>
                 </span>
               </span>
 
               <span class="flex items-center gap-2 text-gray-500 text-theme-xs dark:text-gray-400">
-                <span>{{ notification.type }}</span>
+                <span>{{ notification.body || '—' }}</span>
                 <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
-                <span>{{ notification.time }}</span>
+                <span>{{ new Date(notification.createdAt || '').toLocaleString() }}</span>
               </span>
             </span>
           </a>
         </li>
+        <!-- Removed reservation-only note when list is non-empty. Requirement: show this only when there are no notifications. -->
       </ul>
-      <div v-else>
-
+      <div v-else class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400">
+        <svg
+          class="fill-current mb-2"
+          width="32"
+          height="32"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M10.75 2.29248C10.75 1.87827 10.4143 1.54248 10 1.54248C9.58583 1.54248 9.25004 1.87827 9.25004 2.29248V2.83613C6.08266 3.20733 3.62504 5.9004 3.62504 9.16748V14.4591H3.33337C2.91916 14.4591 2.58337 14.7949 2.58337 15.2091C2.58337 15.6234 2.91916 15.9591 3.33337 15.9591H4.37504H15.625H16.6667C17.0809 15.9591 17.4167 15.6234 17.4167 15.2091C17.4167 14.7949 17.0809 14.4591 16.6667 14.4591H16.375V9.16748C16.375 5.9004 13.9174 3.20733 10.75 2.83613V2.29248ZM14.875 14.4591V9.16748C14.875 6.47509 12.6924 4.29248 10 4.29248C7.30765 4.29248 5.12504 6.47509 5.12504 9.16748V14.4591H14.875ZM8.00004 17.7085C8.00004 18.1228 8.33583 18.4585 8.75004 18.4585H11.25C11.6643 18.4585 12 18.1228 12 17.7085C12 17.2943 11.6643 16.9585 11.25 16.9585H8.75004C8.33583 16.9585 8.00004 17.2943 8.00004 17.7085Z"
+            fill=""
+          />
+        </svg>
+        <div class="text-sm">{{ $t('notificationMenu.empty.noneTitle') }}</div>
+        <div class="text-xs text-gray-400 dark:text-gray-500">{{ $t('notificationMenu.empty.noneDesc') }}</div>
+        <div class="mt-1 text-xs text-gray-400 dark:text-gray-500">{{ $t('notificationMenu.empty.noReservation') }}</div>
       </div>
     </div>
     <!-- Dropdown End -->
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed, type Ref } from 'vue'
+import { fetchMyNotifications, markNotificationRead, type NotificationItem } from '@/services/notificationsApi'
+import { subscribeNotifications, type Unsubscribe } from '@/services/notificationsStream'
 
 const dropdownOpen = ref(false)
-const notifying = computed(()=> notifications.value.length > 0)
-const dropdownRef = ref(null)
+const notifying = computed(() => (notifications.value || []).some((n) => !n.isRead))
+const dropdownRef: Ref<HTMLElement | null> = ref(null)
 
-const notifications = ref([
+const notifications = ref<NotificationItem[]>([])
+let unsubscribe: Unsubscribe | null = null
 
-  // Add more notifications here...
-])
+const hasReservationNotifications = computed(() =>
+  (notifications.value || []).some((n) => (n as any).relatedEntityType === 'RESERVATION')
+)
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value
-  notifying.value = false
 }
 
 const closeDropdown = () => {
   dropdownOpen.value = false
 }
 
-const handleClickOutside = (event) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+const handleClickOutside = (event: MouseEvent) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     closeDropdown()
   }
 }
 
-const handleItemClick = (event) => {
+const handleItemClick = async (event: MouseEvent, notif: NotificationItem) => {
   event.preventDefault()
-  // Handle the item click action here
-  console.log('Notification item clicked')
+  try {
+    if (!notif.isRead) await markNotificationRead(notif.id)
+    notif.isRead = true
+  } catch (e) {
+    // non-fatal
+  }
   closeDropdown()
 }
 
-const handleViewAllClick = (event) => {
+const handleViewAllClick = (event: MouseEvent) => {
   event.preventDefault()
   // Handle the "View All Notification" action here
   console.log('View All Notifications clicked')
   closeDropdown()
 }
 
-onMounted(() => {
+function getUserInitials(fullName?: string): string {
+  const name = (fullName || '').trim()
+  if (!name) return 'U'
+  const parts = name.split(/\s+/)
+  const first = parts[0]?.[0] || ''
+  const second = parts.length > 1 ? parts[parts.length - 1]?.[0] || '' : ''
+  return (first + second).toUpperCase() || first.toUpperCase() || 'U'
+}
+
+onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
+  try {
+    notifications.value = await fetchMyNotifications()
+  } catch (e) {
+    notifications.value = []
+  }
+  // Subscribe to realtime notifications via SSE
+  unsubscribe = subscribeNotifications(
+    (item) => {
+      notifications.value = [item, ...notifications.value].slice(0, 100)
+    },
+    (err) => {
+      // optional: show offline badge
+      console.warn('Notifications stream error', err)
+    },
+  )
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  try { unsubscribe?.() } catch {}
 })
 </script>

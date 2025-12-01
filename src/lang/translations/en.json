@@ -8527,4 +8527,12 @@
   "This reason already exists in this category" : "This reason already exists in this category",
   "Category is required" : "Category is required",
   "Service ID not available" : "Hotel ID not available"
+  ,
+  "notificationMenu": {
+    "empty": {
+      "noneTitle": "No notifications",
+      "noneDesc": "You’re all caught up",
+      "noReservation": "No reservation notifications"
+    }
+  }
 }
