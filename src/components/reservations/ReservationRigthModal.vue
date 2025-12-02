@@ -149,7 +149,7 @@
                                         </div>
 
                                         <!-- Contact Type-->
-                                        <templat v-if="reservation.guest?.contactType">
+                                        <template v-if="reservation.guest?.contactType">
                                             <div
                                                 class="flex align-middle self-center content-center items-center gap-1">
                                                 <!-- Mobile -->
@@ -168,7 +168,7 @@
 
                                                 <span v-if="reservation.guest.contactTypeValue">{{ reservation.guest.contactTypeValue }}</span>
                                             </div>
-                                        </templat>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -393,6 +393,7 @@ import { getReservationDetailsById, printGuestReservationCard } from '../../serv
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
 const GroupReservationRoomList = defineAsyncComponent(() => import('./GroupReservationRoomList.vue'))
+const AssignRoomReservation = defineAsyncComponent(() => import('./AssignRoomReservation.vue'))
 import ReservationAction from './ReservationAction.vue'
 import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
