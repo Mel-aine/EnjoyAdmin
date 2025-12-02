@@ -199,6 +199,7 @@ import BasicButton from '../../../components/buttons/BasicButton.vue'
 import { getRatesByHotelIdAndRoomType } from '../../../services/configrationApi'
 import Select from '../../../components/forms/FormElements/Select.vue'
 import { formatDate } from '../../../components/utilities/UtilitiesFunction'
+import router from '@/router'
 
 interface Props {
     isOpen: boolean
@@ -525,6 +526,7 @@ const handleSubmit = async () => {
         }
 
         emit('save', res?.data ?? payload)
+        // router.go(0)
     } catch (error: any) {
         const msg = error?.message || error?.response?.data?.message || t('updateFailed')
         toast.error(msg)
