@@ -193,7 +193,7 @@ const fetchAvailableRooms = async (index: number) => {
       return
     }
 
-    const response: any = await getAvailableRoomsByTypeId(roomTypeId, new Date().toISOString().split('T')[0],
+    const response: any = await getAvailableRoomsByTypeId(roomTypeId, res.checkInDate,
       res.checkOutDate)
     console.log(response)
     availableRoomsByReservation.value[index] = response.data.data.rooms || []
