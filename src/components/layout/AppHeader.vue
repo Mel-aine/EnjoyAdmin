@@ -189,10 +189,12 @@ const gotoCalendar = () => {
   router.push({ name: "ReservationCalendar" })
 }
 const gotoReservation = () => {
-  router.push({ name: "ReservationGridView" })
+  const url = router.resolve({ name: 'ReservationGridView' }).href
+  window.open(url, '_blank')
 }
 const gotoAddReservation = () => {
-  showModalAddingModal.value = true;
+  const url = router.resolve({ name: 'New Booking' }).href
+  window.open(url, '_blank')
 }
 const openGuestRegistration = () => {
   showGuestRegistration.value = true;
