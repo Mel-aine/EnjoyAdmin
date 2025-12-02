@@ -525,7 +525,7 @@ const handleSubmit = async () => {
             toast.success(t('reservationUpdated'))
         }
 
-        emit('save', res?.data ?? payload)
+        emit('save', { needsRefresh: true, data: res?.data ?? payload })
         // router.go(0)
     } catch (error: any) {
         const msg = error?.message || error?.response?.data?.message || t('updateFailed')

@@ -161,6 +161,11 @@ const handleRoomAssignmentRefresh = async () => {
 
   await getBookingDetailsById()
 }
+
+const handleRoomChargeRefresh = async () => {
+
+  await getBookingDetailsById()
+}
 // ====== GESTION DES OPTIONS ======
 
 // ====== CHARGEMENT INITIAL ======
@@ -467,7 +472,7 @@ onMounted(() => {
 
       <!--tab content-->
       <div v-if="activeTab === 'room_charges'">
-        <RoomCharge :reservation-id="localReservation.id" :reservation="localReservation"></RoomCharge>
+        <RoomCharge :reservation-id="localReservation.id" :reservation="localReservation" @refresh="handleRoomChargeRefresh"></RoomCharge>
       </div>
       <div v-if="activeTab === 'folio_operations' && localReservation && localReservation.id">
         <FoglioOperation ref="foglioRef" :reservation-id="localReservation.id" :reservation="localReservation" @refresh="refresReservation">
