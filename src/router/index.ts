@@ -801,6 +801,16 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Old Transactions route
+    {
+      path: '/reports/oldTransaction/historical',
+      name: 'OldTransactions',
+      component: () => import('../views/Reports/OldTransaction/Historical.vue'),
+      meta: {
+        title: 'Old Transactions',
+        requiresAuth: true,
+      },
+    },
     // Configuration Routes
     {
       path: '/configuration',

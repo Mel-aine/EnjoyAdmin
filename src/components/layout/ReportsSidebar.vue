@@ -299,6 +299,44 @@
                 </transition>
               </div>
 
+              <!-- Old Transaction Report -->
+              <div v-if="filteredOldTransaction.length > 0">
+                <button @click="toggleSection('oldTransaction')" :class="[
+                  'menu-item group text-sm w-full',
+                  {
+                    'menu-item-active': openSections.oldTransaction,
+                    'menu-item-inactive': !openSections.oldTransaction,
+                  },
+                  !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start',
+                ]">
+
+                  <span v-if="isExpanded || isHovered || isMobileOpen" class="menu-item-text">
+                    {{ $t('reports.oldTransaction.title') }}
+                  </span>
+                  <ChevronDownIcon v-if="isExpanded || isHovered || isMobileOpen" :class="[
+                    'ml-auto w-5 h-5 transition-transform duration-200',
+                    {
+                      'rotate-180 text-purple-400': openSections.oldTransaction,
+                    },
+                  ]" />
+                </button>
+
+                <transition name="slide-down">
+                  <div v-show="openSections.oldTransaction && (isExpanded || isHovered || isMobileOpen)"
+                    class="ml-9 mt-2 space-y-1">
+                    <router-link v-for="report in filteredOldTransaction" :key="report.path" :to="report.path" :class="[
+                      'menu-dropdown-item text-sm flex items-center gap-2',
+                      {
+                        'menu-dropdown-item-active': isActive(report.path),
+                        'menu-dropdown-item-inactive': !isActive(report.path),
+                      },
+                    ]">
+                      {{ $t(report.label) }}
+                    </router-link>
+                  </div>
+                </transition>
+              </div>
+
             </div>
           </div>
         </nav>
@@ -327,7 +365,8 @@ const openSections = ref<any>({
   backOffice: true, // Ouvrir la section Back Office par défaut
   audit: false,
   statistical: false,
-  custom: false
+  custom: false,
+  oldTransaction: false,
 })
 
 // Mapping des noms de rapports vers les permissions
@@ -406,7 +445,10 @@ const reportPermissions = {
   'monthly-revenue': 'monthly_revenue',
   'payment-summary': 'payment_summary',
   'revenue-by-rate-type-summary': 'revenue_by_rate_type_summary',
-  'statistics-by-room-type': 'statistics_by_room_type'
+  'statistics-by-room-type': 'statistics_by_room_type',
+
+  // Old Transaction
+  'old-transaction-report': 'old_transactions_report',
 }
 const dashbordReport = ref([
   { name: 'dashbord', path: '/reports/dashboard', label: 'Dashboard' },
@@ -500,6 +542,10 @@ const customReports = ref([
   //TO DO  { name: 'statistics-by-room-type', path: '/reports/custom/statistics-by-room-type', label: 'reports.custom.statisticsByRoomType' }
 ])
 
+//Old Transaction
+const oldTransactionReports = ref([
+  { name: 'old-transaction-report', path: '/reports/oldTransaction/historical', label: 'reports.oldTransaction.history' },
+])
 // Computed properties pour filtrer les rapports selon les permissions
 const filteredReservationReports = computed(() => {
   return reservationReports.value.filter(report => {
@@ -510,6 +556,13 @@ const filteredReservationReports = computed(() => {
 
 const filteredFrontOfficeReports = computed(() => {
   return frontOfficeReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    return permission ? authStore.hasReportPermission(permission) : false
+  })
+})
+
+const filteredOldTransaction = computed(() => {
+  return oldTransactionReports.value.filter(report => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })

@@ -1982,6 +1982,7 @@
     "allTravelAgents": "All Travel Agents",
     "allMarkets": "All Markets",
     "allUsers": "All Users",
+    "show" : "Show",
     "businessSources": {
       "online": "Online",
       "phone": "Phone",
@@ -4851,6 +4852,12 @@
       "paymentSummary": "Payment Summary",
       "revenueByRateTypeSummary": "Revenue By Rate Type Summary",
       "statisticsByRoomType": "Statistics By Room Type"
+    },
+    "oldTransaction": {
+      "title": "Old Transactions",
+      "description": "Reports on historical transactions and data",
+      "history" : "History"
+   
     },
     "folio": {
       "transaction": "Transaction",
@@ -8534,5 +8541,14 @@
       "noneDesc": "You’re all caught up",
       "noReservation": "No reservation notifications"
     }
-  }
+  },
+  "Arrival Date": "Arrival Date",
+  "Departure Date": "Departure Date",
+  "Remarks": "Remarks",
+  "Cancellation Date": "Cancellation Date",
+  "Last Modified": "Last Modified",
+  "No of Rooms Booked": "No of Rooms Booked",
+  "Extra Charges": "Extra Charges",
+  "Sales Person": "Sales Person",
+  "No extra charges" : "No extra charges"
 }
