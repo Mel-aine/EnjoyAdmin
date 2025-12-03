@@ -191,6 +191,7 @@ onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
   try {
     notifications.value = await fetchMyNotifications()
+    console.log('🔍 Notifications fetched:', notifications.value)
   } catch (e) {
     notifications.value = []
   }
