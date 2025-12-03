@@ -15,7 +15,7 @@
         :config="flatpickrConfig"
         @on-change="updateValue"
         :class="[
-          'h-11 w-full rounded-lg border border-gray-300 bg-white px-2 py-2.5 pl-2 pr-6 text-sm text-gray-900 shadow-theme-xs placeholder:text-gray-500 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-dark-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:bg-gray-700 dark:disabled:text-gray-400 dark:disabled:border-gray-700',
+          'h-11 w-full rounded-lg border border-black/50 bg-white px-2 py-2.5 pl-2 pr-6 text-sm text-gray-900 shadow-theme-xs placeholder:text-gray-500 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-dark-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-300 dark:disabled:bg-gray-700 dark:disabled:text-gray-400 dark:disabled:border-gray-700',
           props.customClass
         ]"
         :placeholder="placeholder"

@@ -42,11 +42,11 @@ interface ReasonSelectorProps {
 
 export default defineComponent({
   name: 'ReasonSelector',
-  
+
   components: {
     CloneAutoCompleteSelect
   },
-  
+
   props: {
     modelValue: {
       type: String,
@@ -69,9 +69,9 @@ export default defineComponent({
       default: true
     }
   },
-  
+
   emits: ['update:modelValue', 'reason-added'],
-  
+
   setup(props: ReasonSelectorProps, { emit }) {
     const { t } = useI18n()
     const toast = useToast()
@@ -80,12 +80,12 @@ export default defineComponent({
     const isLoading = ref(false)
     const useDropdown = ref(true)
     const error = ref('')
-    
+
     // Déclaration des méthodes avant leur utilisation
     const updateModelValue = (value: string) => {
       emit('update:modelValue', value)
     }
-    
+
     const onUseDropdownUpdate = (value: boolean) => {
       useDropdown.value = value
     }
@@ -97,25 +97,25 @@ export default defineComponent({
           console.error('Service ID not available in serviceStore:', serviceStore)
           throw new Error('Service ID not available')
         }
-        
+
         if (!props.category) {
           console.warn('No category provided for ReasonSelector')
           reasons.value = []
           return
         }
-        
+
         isLoading.value = true
         error.value = ''
-        
+
         console.log('Calling getByCategory with:', {
           hotelId: serviceStore.serviceId,
           category: props.category
         })
-        
+
         const response = await getByCategory(serviceStore.serviceId, props.category)
-        
+
         console.log('API Response:', response)
-        
+
         if (Array.isArray(response?.data)) {
           reasons.value = response.data
             .map((reason: { reasonName?: string; name?: string; isActive?: boolean }) => ({
@@ -125,7 +125,7 @@ export default defineComponent({
             }))
             .filter((r: Reason) => r.value && r.label && r.isActive)
             .sort((a, b) => a.label.localeCompare(b.label))
-          
+
           console.log(`Loaded ${reasons.value.length} reasons for category '${props.category}':`, reasons.value)
         } else {
           console.warn('Unexpected response format when loading reasons:', response)
@@ -163,44 +163,44 @@ export default defineComponent({
         error.value = t('Service ID not available')
         return false
       }
-      
+
       if (!props.category) {
         error.value = t('Category is required')
         return false
       }
-      
+
       // Vérifier si la raison existe déjà dans la catégorie actuelle
       const reasonExists = reasons.value.some(
-        r => r.value.toLowerCase() === reason.toLowerCase() || 
+        r => r.value.toLowerCase() === reason.toLowerCase() ||
              r.label.toLowerCase() === reason.toLowerCase()
       )
-      
+
       if (reasonExists) {
         error.value = t('This reason already exists in this category')
         toast.warning(t('This reason already exists in this category'))
         return false
       }
-      
+
       try {
         isLoading.value = true
         error.value = ''
-        
+
         const reasonData = {
           reasonName: reason,
           category: props.category,
           isActive: true,
           hotelId: serviceStore.serviceId
         }
-        
+
         console.log('Sending reason data:', reasonData)
-        
+
         const response = await postReason(reasonData)
-        
+
         console.log('API Response:', response)
-        
+
         if (response?.data) {
           console.log('Response data:', response.data)
-          
+
           // Vérifier que la raison a bien été enregistrée avec la bonne catégorie
           if (response.data.category !== props.category) {
             console.warn('Warning: The reason was not saved with the expected category', {
@@ -208,31 +208,32 @@ export default defineComponent({
               received: response.data.category
             })
           }
-          
+
           // Recharger la liste des raisons pour cette catégorie
           await loadReasons()
-          
+
           // Mettre à jour la valeur sélectionnée avec la nouvelle raison
           const newReasonValue = response.data.reasonName || response.data.name || reason
           updateModelValue(newReasonValue)
-          
+
           // Émettre l'événement pour informer le composant parent
           emit('reason-added', {
             value: newReasonValue,
             label: response.data.reasonName || response.data.name || reason,
             category: response.data.category || props.category
           })
-          
+
           // Afficher un message de succès
-          toast.success(t('Reason added successfully to category: {category}', {
-            category: response.data.category || props.category
-          }))
+          toast.success(t('Reason added successfully to category'))
+          // toast.success(t('Reason added successfully to category: {category}', {
+          //   category: response.data.category || props.category
+          // }))
           return true
         }
-        
+
         error.value = t('Unexpected response format when adding reason')
         return false
-        
+
       } catch (err: unknown) {
         const errorObj = err as {
           message: string
@@ -278,13 +279,13 @@ export default defineComponent({
       updateModelValue,
       handleAddCustomReason,
       onUseDropdownUpdate,
-      
+
       // Références réactives
       reasons: reasons as unknown as Reason[],
       isLoading: isLoading as unknown as boolean,
       useDropdown: useDropdown as unknown as boolean,
       error: error as unknown as string,
-      
+
       // Propriétés du composant nécessaires au template
       label: props.label,
       defaultValue: props.defaultValue

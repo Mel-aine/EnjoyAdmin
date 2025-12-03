@@ -781,6 +781,10 @@ function getRoomRowCellsApi(group: any, room: any) {
       )
     })
 
+    // Use the existing single-day segment renderer to also show the departure half
+    // when a spanning reservation ends today. This avoids adding new template blocks.
+    const hourSegments: any[] = [...singleDayReservations]
+
     // Start and End segments for this day (spanning reservations only)
     const reservationStart = reservationsStartingToday.find((r: any) => {
       const end = new Date(r.check_out_date)
@@ -800,6 +804,16 @@ function getRoomRowCellsApi(group: any, room: any) {
         start.getDate() === date.getDate()
       )
     })
+
+    // If a spanning reservation ends today, add a left-half hour segment
+    // from 00:00 to actual checkout time (defaulting to 12:00 when missing).
+    const isFirstVisibleDay = i === 0;
+    if (isFirstVisibleDay && reservationEnd && reservationsStartingToday.length > 0) {
+      const endSeg: any = { ...reservationEnd }
+      endSeg.check_in_time = '00:00:00'
+      endSeg.check_out_time = endSeg.check_out_time || endSeg.checkOutTime || '12:00:00'
+      hourSegments.push(endSeg)
+    }
 
     // Middle segment (strictly inside the range)
     const reservationMiddle = reservations.find((r: any) => {
@@ -827,7 +841,7 @@ function getRoomRowCellsApi(group: any, room: any) {
       reservationEnd: reservationEnd || null,
       reservationMiddle: reservationMiddle || null,
       reservationCarryOver,
-      singleDayReservations,
+      singleDayReservations: hourSegments,
     })
   }
 
@@ -1027,23 +1041,27 @@ function getRowOverlayStyle(cell: any) {
     endHalf = false; // end after visible → end at right edge
   }
 
+  // Calculate start/end fractions by time within the day
+  const startFrac = startHalf ? parseTimeToFraction(res?.check_in_time || res?.checkInTime || '14:00:00') : 0;
+  const endFrac = endHalf ? parseTimeToFraction(res?.check_out_time || res?.checkOutTime || '12:00:00') : 1;
+
   // Width calculation in % of cell width, relative to start cell:
   // base cells: (endIndex - startIndex) * 100
-  // add end contribution: +50% if endHalf else +100%
-  // subtract start contribution: -50% if startHalf else -0%
+  // add end contribution: +endFrac*100 if endHalf else +100
+  // subtract start contribution: -startFrac*100 if startHalf else -0
   const base = Math.max(0, endIndex - startIndex) * 100;
-  const endContribution = endHalf ? 50 : 110;
-  const startContribution = startHalf ? 50 : 0;
+  const endContribution = endHalf ? endFrac * 100 : 100;
+  const startContribution = startHalf ? startFrac * 100 : 0;
   let widthPercent = base + endContribution - startContribution;
 
-  // Single-day reservation (start == end within visible): occupy half cell
-  if (endIndex === startIndex && startHalf && endHalf) {
-    widthPercent = 50;
-  }
-
   const backgroundColor = getReservationColor(res.reservation_status);
-  const left = startHalf ? '50%' : '0%';
-  const width = `${widthPercent}%`;
+  let left = startHalf ? `${startFrac * 100}%` : '0%';
+  let width = `${widthPercent}%`;
+  // Add a 1px visual gap when both end and start occur on the same day
+  if (startHalf && cell?.reservationEnd) {
+    left = `calc(${startFrac * 100}% + 1px)`;
+    width = `calc(${widthPercent}% - 1px)`;
+  }
   return { left, width, backgroundColor };
 }
 

@@ -1,6 +1,7 @@
 <template>
     <!-- Cancel Reservation Modal -->
-    <div v-if="isOpen" class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:bg-gray-900/25">
+    <div v-if="isOpen"
+        class="fixed inset-0 bg-gray-600/25 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:bg-gray-900/25">
         <div
             class="relative top-10 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto dark:bg-gray-800 dark:border-gray-800">
             <div class="mt-3">
@@ -9,7 +10,8 @@
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                         {{ $t('amen_stay') }}
                     </h3>
-                    <button @click="closeModal" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-200">
+                    <button @click="closeModal"
+                        class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-200">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
@@ -43,39 +45,29 @@
                         </label>
                         <div class="flex space-x-4">
                             <label class="flex items-center">
-                                <input
-                                    v-model="formData.amendType"
-                                    type="radio"
-                                    value="group"
-                                    class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary"
-                                />
+                                <input v-model="formData.amendType" type="radio" value="group"
+                                    class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary" />
                                 <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Group') }}</span>
                             </label>
                             <label class="flex items-center">
-                                <input
-                                    v-model="formData.amendType"
-                                    type="radio"
-                                    value="individual"
-                                    class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary"
-                                />
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('IndividualReservation') }}</span>
+                                <input v-model="formData.amendType" type="radio" value="individual"
+                                    class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 focus:ring-primary" />
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{
+                                    $t('IndividualReservation') }}</span>
                             </label>
                         </div>
                     </div>
 
                     <!-- Room Selection (only show for individual amend with multiple rooms) -->
-                    <div v-if="isGroupAmend && formData.amendType === 'individual' && reservationRooms.length > 0" class="mb-4">
+                    <div v-if="isGroupAmend && formData.amendType === 'individual' && reservationRooms.length > 0"
+                        class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             {{ $t('Select Rooms') }}
                         </label>
                         <div class="space-y-2 max-h-32 overflow-y-auto">
                             <label v-for="room in reservationRooms" :key="room.id" class="flex items-center">
-                                <input
-                                    v-model="formData.selectedRooms"
-                                    type="checkbox"
-                                    :value="room.room.id"
-                                    class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 rounded focus:ring-primary"
-                                />
+                                <input v-model="formData.selectedRooms" type="checkbox" :value="room.room.id"
+                                    class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 rounded focus:ring-primary" />
                                 <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
                                     {{ room.room.roomNumber }} - {{ room.roomType?.roomTypeName }}
                                 </span>
@@ -86,7 +78,7 @@
                     <!-- Date and Nights Fields -->
                     <div class="mb-7 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <InputDatePicker :title="$t('arrivalDate')" v-model="formData.newArrivalDate"
-                            :is-required="true" :disabled="true"/>
+                            :is-required="true" :disabled="isCheckedIn" />
                         <InputDatePicker :title="$t('departureDate')" v-model="formData.newDepartureDate"
                             :is-required="true" />
                         <Input input-type="number" :lb="$t('nights')" :title="$t('nights')" v-model="formData.nights"
@@ -97,7 +89,8 @@
                     <div class="flex justify-end space-x-3">
                         <BasicButton type="button" variant="outline" @click="closeModal" :label="$t('cancel')"
                             :disabled="loading" />
-                        <BasicButton type="submit" variant="primary" :label="$t('save')" :loading="loading" :disabled="!canAmend" />
+                        <BasicButton type="submit" variant="primary" :label="$t('save')" :loading="loading"
+                            :disabled="!canAmend" />
                     </div>
                 </form>
             </div>
@@ -158,6 +151,14 @@ const formData = ref<AmendReservationData>({
     nights: 0,
     amendType: 'group',
     selectedRooms: []
+})
+
+// Disable arrival date if reservation is checked-in
+const isCheckedIn = computed(() => {
+    const s: any = props.reservation?.status || props.reservation?.reservationStatus || props.reservation?.reservation_status
+    if (!s || typeof s !== 'string') return false
+    const norm = String(s).trim().toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-')
+    return norm === 'checked-in' || norm === 'check-in' || norm === 'checkedin'
 })
 
 // Computed property to check if group amend should be applied
@@ -243,7 +244,7 @@ const handleSubmit = async () => {
         console.log('amendData', amendData)
 
         const resp = await amendReservation(amendData);
-        console.log("resp",resp)
+        console.log("resp", resp)
         // Emit the cancel confirmation event
         emit('amend-confirmed', {
             ...amendData,
@@ -332,9 +333,27 @@ watch([() => formData.value.newArrivalDate, () => formData.value.nights], ([newA
 
 
 onMounted(() => {
-    if (props.isOpen && props.reservationId) {
-        getBookingDetailsById()
-    }
+    if (props.reservation && props.reservation.id) {
+        const response = props.reservation;
+        reservationRooms.value = response.reservationRooms || []
+         if (response) {
+            formData.value.newArrivalDate = new Date(response.arrivedDate).toISOString().split('T')[0]
+            formData.value.newDepartureDate = new Date(response.departDate).toISOString().split('T')[0]
+            formData.value.nights = response.nights ?? response.numberOfNights
+
+            // Set amend type based on number of rooms
+            if (reservationRooms.value.length > 1) {
+                formData.value.amendType = 'group'
+                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
+            } else {
+                formData.value.amendType = 'individual'
+                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
+            }
+        }
+    } else
+        if (props.isOpen && props.reservationId) {
+            getBookingDetailsById()
+        }
 })
 </script>
 

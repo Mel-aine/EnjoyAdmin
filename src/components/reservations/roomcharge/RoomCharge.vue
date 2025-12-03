@@ -280,6 +280,7 @@ interface RoomChargeItem {
 interface Emits {
   (e: 'close'): void
   (e: 'save', data?: any): void
+  (e: 'refresh'): void
 }
 
 const loading = ref(false)
@@ -713,7 +714,8 @@ const closeUpdateReservationDetailsModal = () => {
 
 const handleUpdateDetailsApplied = async (_response: any) => {
   // Refresh data after details update (discount applied)
-  await getTransactionFolio()
+  // await getTransactionFolio()
+  emit('refresh')
   closeUpdateReservationDetailsModal()
 }
 

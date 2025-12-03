@@ -776,7 +776,10 @@ const handleRoomMoveSuccess = async () => {
   closeRoomMoveModal()
   if (selectedReservation.value) {
     await refreshReservationData(selectedReservation.value.id)
+    await refresh()
   }
+
+
 }
 
 const handlePrintSuccess = (data: any) => {

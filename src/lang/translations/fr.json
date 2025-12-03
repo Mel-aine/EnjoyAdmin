@@ -6661,7 +6661,10 @@
         "payment": "Paiement",
         "maintenance": "Maintenance",
         "housekeeping": "Entretien ménager",
-        "communication": "Communication"
+        "communication": "Communication",
+        "creation": "Création",
+        "deletion": "Suppression",
+        "assignment": "Attribution"
       },
       "activityDescriptions": {
         "receiptCreatedForPayment": "Reçu créé pour la transaction de paiement"
@@ -8687,12 +8690,19 @@
   "verificationEmailResent": "L'e-mail de vérification a été renvoyé avec succès. Veuillez vérifier votre boîte de réception.",
   "emailSent": "E-mail envoyé",
   "unableToResendVerification": "Impossible de renvoyer l'e-mail de vérification. Veuillez réessayer.",
-  "resendVerificationEmail": "Renvoyer l'e-mail de vérification"
-
-
-
-
-
-
-
+  "resendVerificationEmail": "Renvoyer l'e-mail de vérification",
+  "Reason added successfully to category": "Raison ajoutée avec succès à la catégorie",
+  "Unexpected response format when adding reason": "Format de réponse inattendu lors de l’ajout de la raison",
+  "Failed to add custom reason: ": "Échec de l’ajout de la raison personnalisée : ",
+  "This reason already exists in this category": "Cette raison existe déjà dans cette catégorie",
+  "Category is required": "La catégorie est requise",
+  "Service ID not available": "ID de l'hôtel non disponible"
+,
+  "notificationMenu": {
+    "empty": {
+      "noneTitle": "Aucune notification",
+      "noneDesc": "Vous êtes à jour",
+      "noReservation": "Aucune notification de réservation"
+    }
+  }
 }

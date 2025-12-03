@@ -1,5 +1,5 @@
 <template>
-    <div :class="'relative dropdown-container '+id " :id="id" ref="dropdownContainer" @mouseenter="onHoverOpen">
+    <div :class="'relative dropdown-container '+id " :id="id" ref="dropdownContainer" @mouseenter="onHoverOpen" @mouseleave="onHoverClose">
 
         <button @click="handleButtonClick" :class="[
             'flex items-center gap-2 px-4 py-2 rounded-md  duration-200',
@@ -13,7 +13,7 @@
 
         <!-- Dropdown Menu -->
         <div v-if="isOpen" :class="[
-            'absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-999 dark:bg-gray-800 dark:border-gray-700',
+            'absolute right-0 top-full pt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-999 dark:bg-gray-800 dark:border-gray-700',
             dropdownClass
         ]">
             <div class="py-2">
@@ -70,6 +70,12 @@ const onHoverOpen = () => {
         isOpen.value = true
         // Notify other dropdowns to close
         window.dispatchEvent(new CustomEvent('button-dropdown-open', { detail: { id: instanceId } }))
+    }
+}
+
+const onHoverClose = () => {
+    if (props.openOnHover) {
+        isOpen.value = false
     }
 }
 

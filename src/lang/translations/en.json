@@ -6661,7 +6661,10 @@
         "payment": "Payment",
         "maintenance": "Maintenance",
         "housekeeping": "Housekeeping",
-        "communication": "Communication"
+        "communication": "Communication",
+        "creation": "Creation",
+        "deletion": "Deletion",
+        "assignment": "Assignment"
       },
       "activityDescriptions": {
         "receiptCreatedForPayment": "Receipt created for payment transaction"
@@ -8517,5 +8520,19 @@
   "verificationEmailResent": "Verification email has been resent successfully. Please check your inbox.",
   "emailSent" : "Email Sent",
   "unableToResendVerification": "Unable to resend verification email. Please try again.",
-  "resendVerificationEmail" : "Resend Verification Email"
+  "resendVerificationEmail" : "Resend Verification Email",
+  "Reason added successfully to category": "Reason added successfully",
+  "Unexpected response format when adding reason" : "Unexpected response format when adding reason",
+  "Failed to add custom reason: " : "Failed to add custom reason: ",
+  "This reason already exists in this category" : "This reason already exists in this category",
+  "Category is required" : "Category is required",
+  "Service ID not available" : "Hotel ID not available"
+  ,
+  "notificationMenu": {
+    "empty": {
+      "noneTitle": "No notifications",
+      "noneDesc": "You’re all caught up",
+      "noReservation": "No reservation notifications"
+    }
+  }
 }
