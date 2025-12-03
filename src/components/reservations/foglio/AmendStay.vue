@@ -344,10 +344,10 @@ onMounted(() => {
             // Set amend type based on number of rooms
             if (reservationRooms.value.length > 1) {
                 formData.value.amendType = 'group'
-                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
+                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room?.id)
             } else {
                 formData.value.amendType = 'individual'
-                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
+                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room?.id)
             }
         }
     } else
