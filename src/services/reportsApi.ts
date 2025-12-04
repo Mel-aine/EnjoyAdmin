@@ -8,7 +8,7 @@ const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`
 const getHeaders  = () => {
   const authStore = useAuthStore()
   return {
-    headers: {  
+    headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
     withCredentials: true,
@@ -51,7 +51,7 @@ export interface DailyRevenueParams {
 // Interface pour les paramètres d'export Word du rapport d'état des chambres
 export interface RoomStatusWordExportParams {
   date: string  // Format: YYYY-MM-DD
-  hotelId: number 
+  hotelId: number
 }
 
 
@@ -313,9 +313,9 @@ export const generateGuestCheckedOut = async (filters: GuestCheckoutFilters): Pr
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/guest-checkout`,
       filters,
-      getHeaders() 
+      getHeaders()
     )
-    
+
     return response.data
   } catch (error) {
     handleApiError(error)
@@ -327,9 +327,9 @@ export const generateDailyReceiptSummary = async (filters: DailyReceipt): Promis
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/daily-receipt-summary`,
       filters,
-      getHeaders() 
+      getHeaders()
     )
-    
+
     return response.data
   } catch (error) {
     handleApiError(error)
@@ -341,7 +341,7 @@ export const generateDailyReceiptDetail = async (filters: DailyReceipt): Promise
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/daily-receipt-detail`,
       filters,
-      getHeaders() 
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -354,9 +354,9 @@ export const generatePickupDropoff = async (filters: PickupDropoffFilters): Prom
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
       `${API_URL}/statistics/pickup-dropoff`,
       filters,
-      getHeaders() 
+      getHeaders()
     )
-    
+
     return response.data
   } catch (error) {
     handleApiError(error)
@@ -472,7 +472,7 @@ export const generateOccupancyReport = async (filters: ReportFilters = {}): Prom
 
 
 ///***
-// 
+//
 // getVoidPaymentReport
 //  */
 
@@ -490,9 +490,9 @@ export const getVoidPaymentReport = async (data: any) => {
 }
 
 /***
- * 
+ *
  * void-charge
- * 
+ *
  */
 
 export const getVoidChargeReport = async (data: any) => {
@@ -572,7 +572,7 @@ export const getAuditReport = async (data: any) => {
 }
 
 /***
- * 
+ *
  */
 export const generateADRReport = async (filters: ReportFilters = {}): Promise<ApiResponse | undefined> => {
   try {
@@ -874,7 +874,7 @@ export const generateDailyRevenueReport = async (filters: DailyRevenueReportFilt
 export const getDailyRevenuePDF = async (params: DailyRevenueParams): Promise<Blob> => {
   try {
     const queryParams = new URLSearchParams()
-    
+
     // Construire les paramètres de requête
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -883,7 +883,7 @@ export const getDailyRevenuePDF = async (params: DailyRevenueParams): Promise<Bl
     })
 
     const url = `${API_URL}/statistics/daily-y-pdf?${queryParams.toString()}`
-    
+
     // Configuration axios pour recevoir une réponse blob
     const config = {
       ...getHeaders(),
@@ -891,7 +891,7 @@ export const getDailyRevenuePDF = async (params: DailyRevenueParams): Promise<Bl
     }
 
     const response: AxiosResponse<Blob> = await axios.get(url, config)
-    
+
     // Valider que nous avons reçu un blob PDF
     if (response.data.type && response.data.type !== 'application/pdf') {
       throw new Error('Invalid response type: Expected PDF blob')
@@ -920,16 +920,16 @@ export const downloadDailyRevenuePDF = async (params: DailyRevenueParams, filena
   try {
     const blob = await getDailyRevenuePDF(params)
     const url = URL.createObjectURL(blob)
-    
+
     // Créer un élément de téléchargement temporaire
     const link = document.createElement('a')
     link.href = url
     link.download = filename || `daily-revenue-${params.date}.pdf`
-    
+
     // Déclencher le téléchargement
     document.body.appendChild(link)
     link.click()
-    
+
     // Nettoyer
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
@@ -944,17 +944,17 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
   if (!params.hotelId) {
     throw new Error('Hotel ID is required')
   }
-  
+
   if (!params.asOnDate) {
     throw new Error('As On Date is required')
   }
-  
+
   // Valider le format de la date (YYYY-MM-DD)
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/
   if (!dateRegex.test(params.asOnDate)) {
     throw new Error('Date must be in YYYY-MM-DD format')
   }
-  
+
   // Valider que la date est valide
   const date = new Date(params.asOnDate)
   if (isNaN(date.getTime())) {
@@ -969,12 +969,12 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
  */
   export const exportRoomStatusToWord = async (params: RoomStatusWordExportParams): Promise<Blob> => {
     const { date, hotelId } = params;
-    
+
     // Validation des paramètres
     if (!date) {
       throw new Error('La date est requise pour l\'export du rapport');
     }
-    
+
     if (!hotelId) {
       throw new Error('L\'ID de l\'hôtel est requis pour l\'export du rapport');
     }
@@ -996,11 +996,11 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
       // Vérification du type de contenu
       const contentType = response.headers['content-type'] || '';
       const isWordDocument = contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-      
+
       if (!isWordDocument) {
         // Tentative de lecture du message d'erreur
         const errorText = await new Response(response.data).text();
-        
+
         try {
           const errorData = JSON.parse(errorText);
           throw new Error(errorData.message || 'Réponse inattendue du serveur');
@@ -1010,12 +1010,12 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
       }
       return response.data;
     } catch (error) {
-      
+
       // Propagation des erreurs existantes
       if (error instanceof Error) {
         throw error;
       }
-      
+
       throw new Error('Une erreur inattendue est survenue lors de l\'export du rapport');
     }
 };
@@ -1026,22 +1026,22 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
  * @param filename - Nom du fichier (optionnel, par défaut: 'etat-chambres-{date}.docx')
  */
   export const downloadRoomStatusWordDocument = async (
-    params: RoomStatusWordExportParams, 
+    params: RoomStatusWordExportParams,
     filename?: string
   ): Promise<void> => {
     try {
       const blob = await exportRoomStatusToWord(params);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      
+
       link.href = url;
       link.download = filename || `etat-chambres-${params.date}.docx`;
       link.style.display = 'none';
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Libération de la mémoire
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -1055,9 +1055,9 @@ export const validateDailyRevenueParams = (params: DailyRevenueParams): void => 
 
 export const generateReceiptPdf = async (transactionId: string): Promise<Blob> => {
   try {
-      
+
     const url = `${API_URL}/receipt/${transactionId}`
-    
+
     // Configuration axios pour recevoir une réponse blob
     const config = {
       ...getHeaders(),
@@ -1065,7 +1065,7 @@ export const generateReceiptPdf = async (transactionId: string): Promise<Blob> =
     }
 
     const response: AxiosResponse<Blob> = await axios.get(url, config)
-    
+
     // Valider que nous avons reçu un blob PDF
     if (response.data.type && response.data.type !== 'application/pdf') {
       throw new Error('Invalid response type: Expected PDF blob')
@@ -1090,9 +1090,9 @@ export const generateReceiptPdfUrl = async (transactionId: string): Promise<stri
 }
 export const generateInvoicePdf = async (transactionId: string): Promise<Blob> => {
   try {
-      
+
     const url = `${API_URL}/invoice/${transactionId}`
-    
+
     // Configuration axios pour recevoir une réponse blob
     const config = {
       ...getHeaders(),
@@ -1100,7 +1100,7 @@ export const generateInvoicePdf = async (transactionId: string): Promise<Blob> =
     }
 
     const response: AxiosResponse<Blob> = await axios.get(url, config)
-    
+
     // Valider que nous avons reçu un blob PDF
     if (response.data.type && response.data.type !== 'application/pdf') {
       throw new Error('Invalid response type: Expected PDF blob')
@@ -1124,9 +1124,9 @@ export const generateInvoicePdfUrl = async (transactionId: string): Promise<stri
 }
 export const generatePosReceiptPdf = async (transactionId: string): Promise<Blob> => {
   try {
-      
+
     const url = `${API_URL}/pos-receipt/${transactionId}`
-    
+
     // Configuration axios pour recevoir une réponse blob
     const config = {
       ...getHeaders(),
@@ -1134,7 +1134,7 @@ export const generatePosReceiptPdf = async (transactionId: string): Promise<Blob
     }
 
     const response: AxiosResponse<Blob> = await axios.get(url, config)
-    
+
     // Valider que nous avons reçu un blob PDF
     if (response.data.type && response.data.type !== 'application/pdf') {
       throw new Error('Invalid response type: Expected PDF blob')
@@ -1149,17 +1149,17 @@ export const generatePosReceiptPdf = async (transactionId: string): Promise<Blob
 export const generateIncidentalInvoice = async (transactionIds: number[]): Promise<Blob> => {
   try {
     const url = `${API_URL}/incidental-invoice`
-    
+
     // Utilisation de POST avec les données dans le body
     const response: AxiosResponse<Blob> = await axios.post(
-      url, 
+      url,
       { transactionIds }, // ← Données dans le body
       {
         ...getHeaders(),
         responseType: 'blob' as const,
       }
     )
-    
+
     // Valider que nous avons reçu un blob PDF
     if (response.data.type && response.data.type !== 'application/pdf') {
       throw new Error('Invalid response type: Expected PDF blob')
@@ -1320,12 +1320,12 @@ export const generateOperationReport = async (params: dailyReportOration): Promi
         responseType: 'blob'
       }
     )
-    
+
     // Créer un objet URL à partir du blob
     const blob = new Blob([response.data], { type: 'application/pdf' })
     const url = URL.createObjectURL(blob)
     return url
-    
+
   } catch (error) {
     handleApiError(error)
     throw error // Important : propager l'erreur
@@ -1341,12 +1341,12 @@ export const generateDailyReceiptSummaryPdf = async (params: DailyReceipt): Prom
         responseType: 'blob'
       }
     )
-    
+
     // Créer un objet URL à partir du blob
     const blob = new Blob([response.data], { type: 'application/pdf' })
     const url = URL.createObjectURL(blob)
     return url
-    
+
   } catch (error) {
     handleApiError(error)
     throw error // Important : propager l'erreur
@@ -1362,12 +1362,12 @@ export const generateDailyReceiptPdf = async (params: DailyReceipt): Promise<str
         responseType: 'blob'
       }
     )
-    
+
     // Créer un objet URL à partir du blob
     const blob = new Blob([response.data], { type: 'application/pdf' })
     const url = URL.createObjectURL(blob)
     return url
-    
+
   } catch (error) {
     handleApiError(error)
     throw error // Important : propager l'erreur
@@ -1383,14 +1383,40 @@ export const generateDailyRevenuPdf = async (params: DailyRevenueReportFilters):
         responseType: 'blob'
       }
     )
-    
+
     // Créer un objet URL à partir du blob
     const blob = new Blob([response.data], { type: 'application/pdf' })
     const url = URL.createObjectURL(blob)
     return url
-    
+
   } catch (error) {
     handleApiError(error)
     throw error // Important : propager l'erreur
+  }
+}
+
+// hotel history
+export const getHotelHistory = async (filters: {
+  hotelId?: number
+  searchText?: string
+  roomType?: string
+  rateType?: string
+  reservationType?: string
+  source?: string
+  showBookings?: string
+  dateType?: string
+  dateStart?: string
+  dateEnd?: string
+  stayCheckInDate?: string
+  stayCheckOutDate?: string
+  page?: number
+  limit?: number
+}) => {
+  try {
+    const response = await apiClient.get('/reports/hotel-histories', { params: filters ,...getHeaders() })
+    return response.data
+  } catch (error) {
+    console.error('Error fetching reservation history:', error)
+    throw error
   }
 }

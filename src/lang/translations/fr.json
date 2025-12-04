@@ -4519,6 +4519,12 @@
         "cancelTest": "Test d'annulation"
       }
     },
+    "oldTransaction": {
+      "title": "Anciennes transactions",
+      "description": "Rapports sur les transactions historiques et les données",
+      "history": "Historique"
+   
+    },
     "frontOffice": {
       "title": "Rapports de la réception",
       "description": "Surveiller les opérations de la réception et les services aux clients",
@@ -8704,5 +8710,14 @@
       "noneDesc": "Vous êtes à jour",
       "noReservation": "Aucune notification de réservation"
     }
-  }
+  },
+  "Arrival Date": "Date d'arrivée",
+  "Departure Date": "Date de départ",
+  "Remarks": "Remarques",
+  "Cancellation Date": "Date d'annulation",
+  "Last Modified": "Dernière modification",
+  "No of Rooms Booked": "Nombre de chambres réservées",
+  "Extra Charges": "Suppléments",
+  "Sales Person": "Vendeur",
+  "No extra charges": "Aucun supplément"
 }
