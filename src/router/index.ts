@@ -1688,14 +1688,14 @@ router.onError((err: unknown) => {
     const now = Date.now()
     if (!lastTs || now - lastTs > 60_000) {
       sessionStorage.setItem(key, String(now))
-      console.warn('[Router] Recovering from dynamic import failure. Reloading...')
+      // console.warn('[Router] Recovering from dynamic import failure. Reloading...')
       try {
         window.location.reload()
       } catch (_) {
         // no-op
       }
     } else {
-      console.warn('[Router] Dynamic import failure detected but reload throttled.')
+      // console.warn('[Router] Dynamic import failure detected but reload throttled.')
     }
   }
 })

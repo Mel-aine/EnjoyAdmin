@@ -20,6 +20,10 @@ import router from './router'
 import { createPinia } from 'pinia'
 import { createI18n } from 'vue-i18n';
 import { useLanguageStore } from '@/lang/language';
+// Import the console silencer only in production
+if (import.meta.env.PROD) {
+  import('@/utils/silenceConsole')
+}
 
 
 import messages from '@/lang/index';
