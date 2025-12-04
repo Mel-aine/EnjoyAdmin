@@ -8550,5 +8550,10 @@
   "No of Rooms Booked": "No of Rooms Booked",
   "Extra Charges": "Extra Charges",
   "Sales Person": "Sales Person",
-  "No extra charges" : "No extra charges"
+  "No extra charges" : "No extra charges",
+  "Booking Information" : "Booking Information",
+  "Room & Rate Information" : "Room & Rate Information",
+  "Financial Information" : "Financial Information",
+  "Booking Source & Type" : "Booking Source & Type",
+  "Additional Information" : "Additional Information"
 }

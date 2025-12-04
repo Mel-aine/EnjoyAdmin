@@ -60,7 +60,7 @@
             <BasicButton variant="primary" :label="$t('Search')" @click="onSearch" />
 
             <!-- Dropdown Column Manager -->
-            <div v-if="showColumnPanel" class="absolute right-0 mt-12 w-96 z-50 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
+            <div v-if="showColumnPanel" class="absolute right-0 mt-12 w-96 z-9 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
               <div class="flex justify-between items-center px-3 py-2">
                 <span class="text-sm font-medium">{{ $t('Select Columns') }} (max {{ maxColumns }})</span>
                 <span class="text-xs text-gray-600 dark:text-gray-300">{{ $t('Selected') }}: {{ selectedColumnsModel.length }}/{{ maxColumns }}</span>
@@ -79,7 +79,7 @@
     </div>
 
     <div class="">
-      <ReusableTable :showHeader="true" :columns="tableColumns" :data="Historical" :searchable="false"
+      <ReusableTable :showHeader="true" :columns="tableColumns" :data="Historical" :searchable="false" @row-click="handleRowClick"
        :loading="loading" :title="$t('reports.oldTransaction.history')" @page-change="handlePageChange" :meta="paginationMeta">
         <!-- Custom column for reservation number -->
         <template #column-reservationNumber="{ item }">
@@ -152,6 +152,12 @@
         </template>
 
       </ReusableTable>
+
+       <HistoryDetailsModal
+          :is-open="showDetailsModal"
+          :reservation-data="selectedReservation"
+          @close="closeDetailsModal"
+        />
     </div>
 
     </FullScreenLayout>
@@ -178,6 +184,7 @@ import MultipleSelect from '@/components/forms/FormElements/MultipleSelect.vue'
 import { getFrontofficeBookingDataId } from '@/services/configrationApi'
 import getOtaIconSrc from '@/utils/otaIcons'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import HistoryDetailsModal from '@/components/reservations/bookingdetails/HistoryDetailsModal.vue'
 
 const Historical = ref([])
 const { t, locale } = useI18n({ useScope: 'global' })
@@ -185,6 +192,20 @@ const loading = ref(false)
 const serviceStore = useServiceStore()
 const paginationMeta = ref<any>({})
 const lastFilters = ref<any>({})
+const showDetailsModal = ref(false)
+const selectedReservation = ref<any>(null)
+
+
+const handleRowClick = (item: any) => {
+  selectedReservation.value = item
+  showDetailsModal.value = true
+}
+
+const closeDetailsModal = () => {
+  showDetailsModal.value = false
+  selectedReservation.value = null
+}
+
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {

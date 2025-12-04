@@ -8719,5 +8719,10 @@
   "No of Rooms Booked": "Nombre de chambres réservées",
   "Extra Charges": "Suppléments",
   "Sales Person": "Vendeur",
-  "No extra charges": "Aucun supplément"
+  "No extra charges": "Aucun supplément",
+  "Booking Information" : "Informations sur la réservation",
+  "Room & Rate Information" : "Informations sur la chambre & les tarifs",
+  "Financial Information" : "Informations financières",
+  "Booking Source & Type" : "Source & Type de réservation,",
+  "Additional Information" : "Informations complémentaires"
 }
