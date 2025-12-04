@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { signOut as signOutService } from '@/services/userApi'
+import { routeProgressVisible } from '@/composables/routeProgress'
 import { isLoading } from '@/composables/spinner'
 import { checkHotelExists } from '@/services/configrationApi'
 
@@ -1616,74 +1617,63 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to, from, next) => {
-  isLoading.value = true
+router.beforeEach((to, from, next) => {
+  // Démarrer la barre de progression de route
+  routeProgressVisible.value = true
 
   const authStore = useAuthStore()
 
-  try {
-    const { token, user, UserId, roleId } = authStore
+  // État d’authentification calculé
+  const isAuthenticated = authStore.isFullyAuthenticated
+  const isLoginRoute =
+    to.path === '/' || (to.name && String(to.name).toLowerCase() === 'login') || to.path.includes('/login')
 
+  // Si une réauthentification est requise, ne pas bloquer la navigation
+  if (authStore.reauthRequired && !isLoginRoute) {
 
-    // Utiliser la getter isFullyAuthenticated
-    const isAuthenticated = authStore.isFullyAuthenticated
-
-    // Si une réauthentification est requise, forcer la déconnexion peu importe la route
-    // (sauf la page de login '/').
-    const isLoginRoute = to.path === '/' || (to.name && String(to.name).toLowerCase() === 'login') || to.path.includes('/login')
-    if (authStore.reauthRequired && !isLoginRoute) {
-      try {
-        await signOutService()
-      } catch (e) {
-        console.error('Erreur lors de la déconnexion forcée (reauthRequired):', e)
-        // Même en cas d'erreur API, nettoyer côté client
-        authStore.forceLogout()
-      }
-      return next('/')
-    }
-
-    // Si la route nécessite une auth
-    if (to.meta.requiresAuth && !isAuthenticated) {
-      console.log(' Redirection - auth manquante')
-      return next('/')
-    }
-
-    // Redirection dashboard seulement si COMPLÈTEMENT authentifié
-    if (to.path === '/' && isAuthenticated) {
-      console.log(' Redirection vers dashboard - utilisateur complètement connecté')
-      return next('/front-office/dashboard')
-    }
-    if (to.path === '/reports' || to.path === '/reports/') {
-      return next('/reports/dashboard')
-    }
-
-    if (to.path === '/configuration' || to.path === '/configuration/') {
-      return next('/configuration/rooms/amenities')
-    }
-
-    if (to.path === '/') {
-      console.log(' Accès à la page de login autorisé')
-    }
-
-    return next()
-  } catch (error) {
-    console.error('Error in navigation guard:', error)
+    // Appeler l’API en arrière-plan sans bloquer
+    signOutService().catch((e) => {
+authStore.forceLogout()    })
     return next('/')
-  } finally {
-    isLoading.value = false
   }
+
+  // Empêcher l’accès aux routes protégées
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next('/')
+  }
+
+  // Redirections conviviales
+  if (to.path === '/' && isAuthenticated) {
+    return next('/front-office/dashboard')
+  }
+  if (to.path === '/reports' || to.path === '/reports/') {
+    return next('/reports/dashboard')
+  }
+  if (to.path === '/configuration' || to.path === '/configuration/') {
+    return next('/configuration/rooms/amenities')
+  }
+
+  return next()
+})
+
+router.beforeResolve(() => {
+  // Hook déclenché juste avant la confirmation de navigation
+  // (couvre la résolution des composants async)
+  routeProgressVisible.value = true
 })
 
 router.afterEach(() => {
-  setTimeout(() => {
-    isLoading.value = false
-  }, 3000)
+  // Arrêter la barre une fois la navigation confirmée
+  routeProgressVisible.value = false
+  isLoading.value = false
 })
 
 // Globally recover from failed dynamic imports during navigation (dev and production)
 // This avoids noisy warnings like:
 // "Failed to fetch dynamically imported module" / "Loading chunk failed" / "Importing a module script failed"
 router.onError((err: unknown) => {
+  // Toujours arrêter la barre en cas d'erreur de navigation
+  routeProgressVisible.value = false
   const msg = String((err as any)?.message || '')
   const patterns = [
     'Failed to fetch dynamically imported module',
@@ -1698,14 +1688,14 @@ router.onError((err: unknown) => {
     const now = Date.now()
     if (!lastTs || now - lastTs > 60_000) {
       sessionStorage.setItem(key, String(now))
-      console.warn('[Router] Recovering from dynamic import failure. Reloading...')
+      // console.warn('[Router] Recovering from dynamic import failure. Reloading...')
       try {
         window.location.reload()
       } catch (_) {
         // no-op
       }
     } else {
-      console.warn('[Router] Dynamic import failure detected but reload throttled.')
+      // console.warn('[Router] Dynamic import failure detected but reload throttled.')
     }
   }
 })

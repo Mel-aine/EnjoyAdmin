@@ -1,15 +1,15 @@
 <template>
   <SpeedInsights />
-  <ThemeProvider> 
+  <ThemeProvider>  
     <SidebarProvider> 
+      <TopProgressBar />
       <RouterView />   
       <ReAuthModal   
-        :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute" 
+        :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
         @close="handleClose"  
         @success="handleSuccess"
       />
     </SidebarProvider>  
-    <OverLoading v-if="isLoading" /> 
   </ThemeProvider>
 </template> 
 <script setup lang="ts">
@@ -23,6 +23,7 @@ import { useRoute ,useRouter} from 'vue-router'
 import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import { useAuthStore } from '@/composables/user'
 import OverLoading from '@/components/spinner/OverLoading.vue'
+import TopProgressBar from '@/components/spinner/TopProgressBar.vue'
 import { isLoading } from '@/composables/spinner'
 import {stopAuthAutoRefresh,startAuthAutoRefresh}  from '@/services/api'
 const useLanguage = useLanguageStore();

@@ -25,7 +25,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { visualizer } from 'rollup-plugin-visualizer'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     vue({
       template: {
@@ -51,6 +51,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  // Supprimer console/debugger uniquement en production
+  esbuild: mode === 'production' ? {
+    drop: ['console', 'debugger']
+  } : undefined,
   // Electron support
   base: process.env.ELECTRON === 'true' ? './' : '/',
   server: {
@@ -104,4 +108,4 @@ export default defineConfig({
     // Enable source maps temporarily to debug the vendor _s error in preview
     sourcemap: true,
   }
-})
+}))
