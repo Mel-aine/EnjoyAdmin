@@ -286,7 +286,7 @@ const nightsSummary = computed(() => {
           <div @click="handleViewDetails" class="flex items-center align-middle self-center gap-2 cursor-pointer">
             <img v-if="otaIconSrc" :src="otaIconSrc" alt="OTA" class="w-8 h-8" />
             <Building2Icon v-else class="w-8 h-8 text-primary" />
-            <Users v-if="localReservation.reservationRooms.length > 1" />
+            <Users v-if="localReservation.isGroup" />
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white text-lg truncate capitalize">
                 {{ localReservation.guest?.displayName }}
@@ -359,7 +359,7 @@ const nightsSummary = computed(() => {
             </span>
             <div v-else-if="assignedRoomNumbers.length > 0" class="flex items-center gap-2">
               <span class="text-sm inline-flex items-center gap-1">
-                <Users v-if="localReservation.reservationRooms.length > 1" class="w-4 h-4" />
+                <Users v-if="localReservation.isGroup" class="w-4 h-4" />
                 {{ assignedRoomNumbers.join(', ') }}
               </span>
               <AssignRoomReservation

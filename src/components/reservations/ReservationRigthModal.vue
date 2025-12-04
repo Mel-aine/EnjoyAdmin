@@ -256,8 +256,7 @@
                                             <p class="text-sm text-gray-900 dark:text-white">{{
                                                 formatDate(reservation.createdAt) }}</p>
                                         </div>
-                                        <div
-                                            v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
+                                        <div>
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ $t('roomType') }}
@@ -269,7 +268,7 @@
                                         </div>
 
                                         <div
-                                            v-if="reservation.reservationRooms && reservation.reservationRooms.length === 1">
+                                            >
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                 {{ t('roomNumber') }}
@@ -326,7 +325,7 @@
                             </slot>
                         </div>
                         <!-- Show room list for multiple rooms -->
-                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1"
+                        <div v-if="reservation.reservationRooms && reservation.reservationRooms.length > 1 && reservation.isGroup"
                             class="py-6 pe-6">
                             <GroupReservationRoomList :rooms="reservation.reservationRooms" :reservation="reservation"
                                 @room-selected="handleRoomSelected" @refresh="loadReservationData" />
@@ -577,7 +576,7 @@ const roomRateTypeSummary = computed(() => {
         return 'N/A';
     }
 
-    const reservationRooms = reservation.value.reservationRooms;
+    const reservationRooms = reservation.value.reservationRooms.filter((room: any) => room.isSplitedOrigin === false);
 
     // Get room numbers and create summary
     const roomNumbers = reservationRooms.map((room: any) => {
@@ -594,7 +593,7 @@ const ratePlan = computed(() => {
         return 'N/A';
     }
 
-    const reservationRooms = reservation.value.reservationRooms;
+    const reservationRooms = reservation.value.reservationRooms.filter((room: any) => room.isSplitedOrigin === false);
 
     // Get room numbers and create summary
     const roomNumbers = reservationRooms.map((room: any) => {
@@ -609,7 +608,7 @@ const roomTypeSumarry = computed(() => {
         return 'N/A';
     }
 
-    const reservationRooms = reservation.value.reservationRooms;
+    const reservationRooms = reservation.value.reservationRooms.filter((room: any) => room.isSplitedOrigin === false);
 
     // Get room numbers and create summary
     const roomNumbers = reservationRooms.map((room: any) => {
