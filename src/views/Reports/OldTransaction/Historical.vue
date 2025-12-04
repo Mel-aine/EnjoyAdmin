@@ -204,6 +204,47 @@ const getTodayDate = (): string => {
   return `${year}-${month}-${day}`
 }
 
+
+const getDateOffsetByMonths = (months: number): string => {
+  const date = new Date()
+  const day = date.getDate();
+
+  date.setMonth(date.getMonth() + months)
+
+  if (date.getDate() !== day) {
+      date.setDate(0);
+      date.setDate(day);
+
+      const newDate = new Date();
+      newDate.setDate(1);
+      newDate.setMonth(newDate.getMonth() + months);
+      newDate.setDate(day);
+
+      if (newDate.getMonth() !== (new Date().getMonth() + months) % 12) {
+          newDate.setDate(0);
+      }
+
+      const year = newDate.getFullYear()
+      const month = String(newDate.getMonth() + 1).padStart(2, '0')
+      const d = String(newDate.getDate()).padStart(2, '0')
+      return `${year}-${month}-${d}`
+  }
+
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${d}`
+}
+
+
+const getSixMonthRange = () => {
+  return {
+    start: getDateOffsetByMonths(-6),
+    end: getDateOffsetByMonths(6),
+  }
+}
+
 // Methods
 const applyFilter = async (filterItem: any, pageNumber:number) => {
   loading.value = true
@@ -358,7 +399,7 @@ const filters = ref({
   guestName: '',
   reservationNumber: '',
   dateType: 'arrival',
-  dateRange: { start: getTodayDate(), end: getTodayDate() },
+  dateRange: getSixMonthRange(),
   roomType: '',
   rateType: '',
   source: '',
