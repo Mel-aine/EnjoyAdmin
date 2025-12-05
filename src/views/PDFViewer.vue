@@ -6,6 +6,7 @@
         :pdf-url="pdfUrl" 
         :is-generating="isLoading" 
         :pdf-viewer-config="pdfViewerConfig"
+        :download-file-name="pageTitle"
       />
     </div>
   </div>

@@ -82,6 +82,7 @@ interface EnjoyPDFViewProps {
   isGenerating?: boolean
   pdfViewerConfig?: PdfViewerConfig
   pdfTheme?: Record<string, string>
+  downloadFileName?: string
 }
 
 // Props
@@ -251,6 +252,51 @@ const handlePrintShortcut = (e: KeyboardEvent) => {
 }
 
 /**
+ * Téléchargement avec nom de fichier personnalisé
+ */
+const sanitizeFileName = (name: string) => {
+  return (name || 'document').replace(/[<>:\"/\\|?*]+/g, '').trim() || 'document'
+}
+
+const ensurePdfExt = (name: string) => {
+  return name.toLowerCase().endsWith('.pdf') ? name : `${name}.pdf`
+}
+
+const downloadPdf = async () => {
+  if (!props.pdfUrl) {
+    console.error('❌ No PDF URL available for download')
+    alert('Unable to download PDF. No PDF available.')
+    return
+  }
+
+  const baseName = sanitizeFileName(props.downloadFileName || 'document')
+  const fileName = ensurePdfExt(baseName)
+
+  try {
+    // Tente de forcer le nom via blob pour les URLs cross-origin
+    const res = await fetch(props.pdfUrl, { mode: 'cors' })
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    console.log(`✅ Download started with filename: ${fileName}`)
+  } catch (error) {
+    console.warn('⚠️ Blob download failed, falling back to direct download:', error)
+    const a = document.createElement('a')
+    a.href = props.pdfUrl
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+}
+
+/**
  * Interception des clics sur le bouton d'impression du viewer PDF
  * 
  * IMPORTANT: Vue3-pdf-app utilise une structure DOM spécifique.
@@ -287,6 +333,38 @@ const interceptPdfViewerPrint = () => {
   document.addEventListener('click', interceptClick, true)
   
   // Retourne la fonction de nettoyage
+  return () => document.removeEventListener('click', interceptClick, true)
+}
+
+/**
+ * Interception des clics sur le bouton de téléchargement du viewer PDF
+ */
+const interceptPdfViewerDownload = () => {
+  const interceptClick = (e: Event) => {
+    const target = e.target as HTMLElement
+
+    const downloadSelectors = [
+      '#download',
+      '.download',
+      '[title*="download" i]',
+      '[title*="télécharger" i]',
+      'button[data-l10n-id="download"]'
+    ]
+
+    const isDownloadButton = downloadSelectors.some(selector => 
+      target.matches?.(selector) || target.closest?.(selector)
+    )
+
+    if (isDownloadButton) {
+      e.preventDefault()
+      e.stopPropagation()
+      console.log('⬇️ Download button intercepted in PDF viewer')
+      downloadPdf()
+      return false
+    }
+  }
+
+  document.addEventListener('click', interceptClick, true)
   return () => document.removeEventListener('click', interceptClick, true)
 }
 
@@ -330,6 +408,7 @@ const onPdfError = (error: any) => {
 
 // Lifecycle
 let cleanupIntercept: (() => void) | null = null
+let cleanupDownloadIntercept: (() => void) | null = null
 
 onMounted(() => {
   // Raccourci clavier
@@ -337,6 +416,8 @@ onMounted(() => {
   
   // Interception des clics sur le bouton d'impression
   cleanupIntercept = interceptPdfViewerPrint()
+  // Interception des clics sur le bouton de téléchargement
+  cleanupDownloadIntercept = interceptPdfViewerDownload()
   
   console.log('✅ Enhanced print system initialized')
 })
@@ -345,6 +426,7 @@ onUnmounted(() => {
   // Nettoyage
   window.removeEventListener('keydown', handlePrintShortcut)
   cleanupIntercept?.()
+  cleanupDownloadIntercept?.()
   
   console.log('🧹 Print system cleanup completed')
 })
@@ -352,6 +434,7 @@ onUnmounted(() => {
 // Exposition de l'API
 defineExpose({
   printPdf,
+  downloadPdf,
   currentPage,
   totalPages
 })
@@ -367,14 +450,25 @@ defineExpose({
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 32px 0;
   background-color: #f8fafc;
   min-height: 100%;
 }
 
+/* Espacement et style par page */
+.enjoy-pdf-view :deep(.pdf-viewer-container .page) {
+  margin: 24px 0;
+}
+
 .enjoy-pdf-view :deep(.pdf-viewer-container canvas) {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background: white;
-  margin-bottom: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  border-radius: 8px;
+  margin: 16px 0;
+  /* Amélioration de la netteté sur les canvases */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 </style>
