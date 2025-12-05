@@ -3,6 +3,7 @@
   <ThemeProvider>  
     <SidebarProvider> 
       <TopProgressBar />
+      <OverLoading v-if="isLoading" />
       <RouterView />   
       <ReAuthModal   
         :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  

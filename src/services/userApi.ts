@@ -10,6 +10,7 @@ import { useCurrencyStore } from '@/composables/currencyStore'
 import router from '@/router'
 import { nextTick } from 'vue'
 import { logout } from '@/services/api'
+import { isLoading } from '@/composables/spinner'
 import type {
 
   FitlterItem
@@ -123,6 +124,8 @@ export const deleteRoles = (id: any): Promise<AxiosResponse<any>> => {
  */
 export const signOut = async (): Promise<void> => {
   try {
+    // Show full-page overlay during logout
+    isLoading.value = true
     await nextTick();
 
     try {
@@ -158,6 +161,8 @@ export const signOut = async (): Promise<void> => {
     console.error('💥 Erreur critique lors du logout:', error);
     // Rediriger quand même vers login
     await router.push('/');
+  } finally {
+    // Ensure overlay is hidden after navigation completes
+    isLoading.value = false
   }
 }
-
