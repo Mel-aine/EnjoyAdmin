@@ -83,7 +83,7 @@
           <DetailField :label="$t('Total Charges')" :value="formatCurrency(reservationData?.balanceSummary?.totalCharges)" />
           <DetailField :label="$t('Total Tax')" :value="formatCurrency(reservationData?.balanceSummary?.totalTaxes)" />
           <DetailField :label="$t('Deposit')" :value="formatCurrency(reservationData?.deposit)" />
-          <DetailField :label="$t('Due Amount')" :value="formatCurrency(reservationData?.dueAmount)" />
+          <DetailField :label="$t('Due Amt.')" :value="formatCurrency(reservationData?.dueAmount)" />
           <DetailField :label="$t('Commission')" :value="formatCurrency(reservationData?.commission)" />
           <DetailField :label="$t('Voucher')" :value="reservationData?.voucher" />
           <DetailField :label="$t('Payment Type')" :value="reservationData?.paymentType" />
