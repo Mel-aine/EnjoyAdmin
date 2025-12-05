@@ -218,7 +218,7 @@ const nightsSummary = computed(() => {
   const minNights = Math.min(...nightsArray)
   const maxNights = Math.max(...nightsArray)
 
-  return `${minNights}-${maxNights}`
+  return `${maxNights}`
 })
 
 const printDocumentData = computed(() => {
