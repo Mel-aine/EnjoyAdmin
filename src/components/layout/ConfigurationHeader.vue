@@ -4,7 +4,7 @@
     <div class="flex flex-col items-center justify-between dark:bg-gray-800 grow lg:flex-row lg:px-8">
       <div
         class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
-        
+
         <HeaderLogo />
         <button @click="toggleApplicationMenu"
           class="flex items-center justify-center w-10 h-10 text-gray-600 rounded-xl z-99999 transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:border-blue-200 hover:shadow-md hover:scale-105 dark:text-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 lg:hidden">
@@ -35,7 +35,7 @@
       <div :class="[isApplicationMenuOpen ? 'flex' : 'hidden']"
         class="items-center justify-between w-full gap-4 px-5 py-4 bg-gradient-to-r from-white/80 via-gray-50/80 to-white/80 backdrop-blur-sm shadow-xl border-t border-gray-100 dark:border-gray-700 dark:from-gray-800/80 dark:via-gray-700/80 dark:to-gray-800/80 lg:flex lg:justify-end lg:px-0 lg:shadow-none lg:bg-transparent lg:border-t-0 lg:backdrop-blur-none">
         <div class="flex items-center gap-1 sm:gap-2">
-          <NotificationMenu />
+          <NotificationMenu  @open="showNotification = true" :notifying="notifying" />
           <!-- Support button -->
           <button
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
@@ -55,18 +55,29 @@
   <template v-if="showSupportModal">
     <SupportTicketModal v-if="showSupportModal" @close="showSupportModal = false" />
   </template>
+  <template v-if="showNotification">
+    <NotificationModal :is-open="showNotification" @close="showNotification=false" :notifications="notifications"/>
+  </template>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref,computed,onMounted} from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import HeaderLogo from './header/HeaderLogo.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import ConfigurationUserMenu from './header/ConfigurationUserMenu.vue'
 import SupportTicketModal from '../modal/SupportTicketModal.vue'
+import NotificationModal from '../modal/NotificationModal.vue'
 import { HelpCircle } from 'lucide-vue-next'
+import { fetchMyNotifications, markNotificationRead, type NotificationItem } from '@/services/notificationsApi'
+import { subscribeNotifications, type Unsubscribe } from '@/services/notificationsStream'
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
+const notifications = ref<NotificationItem[]>([])
+const showNotification = ref(false)
+let unsubscribe: Unsubscribe | null = null
+
+const notifying = computed(() => (notifications.value || []).some((n) => !n.isRead))
 
 const handleToggle = () => {
   if (window.innerWidth >= 1024) {
@@ -86,4 +97,23 @@ const showSupportModal = ref(false)
 const openSupportModal = () => {
   showSupportModal.value = true
 }
+
+onMounted(async () => {
+  try {
+    notifications.value = await fetchMyNotifications()
+    console.log('🔍 Notifications fetched:', notifications.value)
+  } catch (e) {
+    notifications.value = []
+  }
+  // Subscribe to realtime notifications via SSE
+  unsubscribe = subscribeNotifications(
+    (item) => {
+      notifications.value = [item, ...notifications.value].slice(0, 100)
+    },
+    (err) => {
+      // optional: show offline badge
+      console.warn('Notifications stream error', err)
+    },
+  )
+})
 </script>

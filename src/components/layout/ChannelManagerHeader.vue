@@ -82,7 +82,7 @@
             {{ $t('Support') }}
           </span>
         </button>
-        <NotificationMenu />
+        <NotificationMenu @open="showNotification = true" :notifying="notifying"/>
         <ChannelManagerUserMenu />
       </div>
     </div>
@@ -90,10 +90,13 @@
   <template v-if="showSupportModal">
     <SupportTicketModal v-if="showSupportModal" @close="showSupportModal = false" />
   </template>
+  <template v-if="showNotification">
+    <NotificationModal :is-open="showNotification" @close="showNotification=false" :notifications="notifications"/>
+  </template>
 </template>
 
 <script setup lang="ts">
-import { ref, markRaw } from 'vue'
+import { ref, markRaw,computed,onMounted } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import { useRoute } from 'vue-router'
 import NotificationMenu from './header/NotificationMenu.vue'
@@ -113,6 +116,9 @@ import { migrateCompleteHotel } from '@/services/channelManagerApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import SupportTicketModal from '../modal/SupportTicketModal.vue'
 import { HelpCircle } from 'lucide-vue-next'
+import { fetchMyNotifications, markNotificationRead, type NotificationItem } from '@/services/notificationsApi'
+import { subscribeNotifications, type Unsubscribe } from '@/services/notificationsStream'
+import NotificationModal from '../modal/NotificationModal.vue'
 
 const route = useRoute()
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
@@ -120,6 +126,11 @@ const { t } = useI18n({ useScope: 'global' })
 const toast = useToast()
 const isLoading = ref(false)
 const currentService = useServiceStore().getCurrentService
+const notifications = ref<NotificationItem[]>([])
+const showNotification = ref(false)
+let unsubscribe: Unsubscribe | null = null
+
+const notifying = computed(() => (notifications.value || []).some((n) => !n.isRead))
 
 const handleMigrate = async () => {
   try {
@@ -188,6 +199,24 @@ const showSupportModal = ref(false)
 const openSupportModal = () => {
   showSupportModal.value = true
 }
+onMounted(async () => {
+  try {
+    notifications.value = await fetchMyNotifications()
+    console.log('🔍 Notifications fetched:', notifications.value)
+  } catch (e) {
+    notifications.value = []
+  }
+  // Subscribe to realtime notifications via SSE
+  unsubscribe = subscribeNotifications(
+    (item) => {
+      notifications.value = [item, ...notifications.value].slice(0, 100)
+    },
+    (err) => {
+      // optional: show offline badge
+      console.warn('Notifications stream error', err)
+    },
+  )
+})
 </script>
 
 <style scoped>
