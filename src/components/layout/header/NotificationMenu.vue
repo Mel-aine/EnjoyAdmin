@@ -52,21 +52,4 @@ const OpenModal = () => {
 //   (notifications.value || []).some((n) => (n as any).relatedEntityType === 'RESERVATION')
 // )
 
-// const handleItemClick = async (event: MouseEvent, notif: NotificationItem) => {
-//   event.preventDefault()
-//   try {
-//     if (!notif.isRead) await markNotificationRead(notif.id)
-//     notif.isRead = true
-//   } catch (e) {
-//     // non-fatal
-//   }
-//   closeDropdown()
-// }
-
-// const handleViewAllClick = (event: MouseEvent) => {
-//   event.preventDefault()
-//   // Handle the "View All Notification" action here
-//   console.log('View All Notifications clicked')
-//   closeDropdown()
-// }
 </script>
