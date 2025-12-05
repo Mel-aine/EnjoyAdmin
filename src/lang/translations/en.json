@@ -1983,6 +1983,9 @@
     "allMarkets": "All Markets",
     "allUsers": "All Users",
     "show" : "Show",
+    "csv" : "CSV",
+    "pdf" : "PDF",
+    "word" : "Word",
     "businessSources": {
       "online": "Online",
       "phone": "Phone",

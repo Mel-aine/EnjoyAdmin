@@ -1,6 +1,6 @@
 <template>
 
-    <RightSideModal :is-open="isOpen" :title="$t('Reservation Details')" @close="closeModal"  size="xl">
+    <RightSideModal :is-open="isOpen" :title="$t('Reservation Details')" @close="closeModal"  size="md">
     <template #header>
       <div class="flex items-center justify-start">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
