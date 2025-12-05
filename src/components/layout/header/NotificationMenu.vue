@@ -1,8 +1,8 @@
 <template>
-  <div class="relative" ref="dropdownRef">
+  <div class="relative">
     <button
       class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-      @click="toggleDropdown"
+      @click="OpenModal"
     >
       <span
         :class="{ hidden: !notifying, flex: notifying }"
@@ -28,187 +28,45 @@
         />
       </svg>
     </button>
-
-    <!-- Dropdown Start -->
-    <div
-      v-if="dropdownOpen"
-      class="absolute -right-[240px] mt-[17px] flex h-[300px] w-[350px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[361px] lg:right-0"
-    >
-      <div
-        class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-800"
-      >
-        <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">{{ $t('notifications') }}</h5>
-
-        <button @click="closeDropdown" class="text-gray-500 dark:text-gray-400">
-          <svg
-            class="fill-current"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M6.21967 7.28131C5.92678 6.98841 5.92678 6.51354 6.21967 6.22065C6.51256 5.92775 6.98744 5.92775 7.28033 6.22065L11.999 10.9393L16.7176 6.22078C17.0105 5.92789 17.4854 5.92788 17.7782 6.22078C18.0711 6.51367 18.0711 6.98855 17.7782 7.28144L13.0597 12L17.7782 16.7186C18.0711 17.0115 18.0711 17.4863 17.7782 17.7792C17.4854 18.0721 17.0105 18.0721 16.7176 17.7792L11.999 13.0607L7.28033 17.7794C6.98744 18.0722 6.51256 18.0722 6.21967 17.7794C5.92678 17.4865 5.92678 17.0116 6.21967 16.7187L10.9384 12L6.21967 7.28131Z"
-              fill=""
-            />
-          </svg>
-        </button>
-      </div>
-
-      <ul class="flex flex-col h-auto overflow-y-auto custom-scrollbar" v-if="notifications && notifications.length">
-        <li v-for="notification in notifications" :key="notification.id" @click="(e) => handleItemClick(e, notification)">
-          <a
-            class="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-            href="#"
-          >
-            <span class="relative block w-full h-10 rounded-full z-1 max-w-10">
-              <template v-if="notification.recipientUser?.avatarUrl">
-                <img :src="notification.recipientUser?.avatarUrl" alt="User" class="overflow-hidden rounded-full w-10 h-10 object-cover border-2 border-gray-500" />
-              </template>
-              <template v-else>
-                <div
-                  class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-white backdrop-blur-sm flex items-center justify-center text-gray-800 text-sm font-bold border-2 border-gray-500"
-                >
-                  {{ getUserInitials(notification.recipientUser?.fullName) }}
-                </div>
-              </template>
-              <span
-                :class="!notification.isRead ? 'bg-error-500' : 'bg-success-500'"
-                class="absolute bottom-0 right-0 z-10 h-2.5 w-full max-w-2.5 rounded-full border-[1.5px] border-white dark:border-gray-900"
-              ></span>
-            </span>
-
-            <span class="block">
-              <span class="mb-1.5 block text-theme-sm text-gray-500 dark:text-gray-400">
-                <span class="font-medium text-gray-800 dark:text-white/90">
-                  {{ notification.recipientUser?.fullName || 'Staff' }}
-                </span>
-                {{ notification.title || notification.template?.title || notification.template?.name || 'Notification' }}
-                <span class="font-medium text-gray-800 dark:text-white/90">
-                  <template v-if="notification.relatedEntityType">
-                    • {{ notification.relatedEntityType }}
-                    <template v-if="notification.relatedEntityId">#{{ notification.relatedEntityId }}</template>
-                  </template>
-                </span>
-              </span>
-
-              <span class="flex items-center gap-2 text-gray-500 text-theme-xs dark:text-gray-400">
-                <span>{{ notification.body || '—' }}</span>
-                <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
-                <span>{{ new Date(notification.createdAt || '').toLocaleString() }}</span>
-              </span>
-            </span>
-          </a>
-        </li>
-        <!-- Removed reservation-only note when list is non-empty. Requirement: show this only when there are no notifications. -->
-      </ul>
-      <div v-else class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400">
-        <svg
-          class="fill-current mb-2"
-          width="32"
-          height="32"
-          viewBox="0 0 20 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M10.75 2.29248C10.75 1.87827 10.4143 1.54248 10 1.54248C9.58583 1.54248 9.25004 1.87827 9.25004 2.29248V2.83613C6.08266 3.20733 3.62504 5.9004 3.62504 9.16748V14.4591H3.33337C2.91916 14.4591 2.58337 14.7949 2.58337 15.2091C2.58337 15.6234 2.91916 15.9591 3.33337 15.9591H4.37504H15.625H16.6667C17.0809 15.9591 17.4167 15.6234 17.4167 15.2091C17.4167 14.7949 17.0809 14.4591 16.6667 14.4591H16.375V9.16748C16.375 5.9004 13.9174 3.20733 10.75 2.83613V2.29248ZM14.875 14.4591V9.16748C14.875 6.47509 12.6924 4.29248 10 4.29248C7.30765 4.29248 5.12504 6.47509 5.12504 9.16748V14.4591H14.875ZM8.00004 17.7085C8.00004 18.1228 8.33583 18.4585 8.75004 18.4585H11.25C11.6643 18.4585 12 18.1228 12 17.7085C12 17.2943 11.6643 16.9585 11.25 16.9585H8.75004C8.33583 16.9585 8.00004 17.2943 8.00004 17.7085Z"
-            fill=""
-          />
-        </svg>
-        <div class="text-sm">{{ $t('notificationMenu.empty.noneTitle') }}</div>
-        <div class="text-xs text-gray-400 dark:text-gray-500">{{ $t('notificationMenu.empty.noneDesc') }}</div>
-        <div class="mt-1 text-xs text-gray-400 dark:text-gray-500">{{ $t('notificationMenu.empty.noReservation') }}</div>
-      </div>
-    </div>
-    <!-- Dropdown End -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, type Ref } from 'vue'
-import { fetchMyNotifications, markNotificationRead, type NotificationItem } from '@/services/notificationsApi'
-import { subscribeNotifications, type Unsubscribe } from '@/services/notificationsStream'
+// import { ref, onMounted, onUnmounted, computed, type Ref } from 'vue'
 
-const dropdownOpen = ref(false)
-const notifying = computed(() => (notifications.value || []).some((n) => !n.isRead))
-const dropdownRef: Ref<HTMLElement | null> = ref(null)
-
-const notifications = ref<NotificationItem[]>([])
-let unsubscribe: Unsubscribe | null = null
-
-const hasReservationNotifications = computed(() =>
-  (notifications.value || []).some((n) => (n as any).relatedEntityType === 'RESERVATION')
-)
-
-const toggleDropdown = () => {
-  dropdownOpen.value = !dropdownOpen.value
+interface Props {
+  notifying: any
 }
 
-const closeDropdown = () => {
-  dropdownOpen.value = false
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  (e: 'open'): void
+}>()
+
+const OpenModal = () => {
+  emit('open')
 }
 
-const handleClickOutside = (event: MouseEvent) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
-    closeDropdown()
-  }
-}
+// const hasReservationNotifications = computed(() =>
+//   (notifications.value || []).some((n) => (n as any).relatedEntityType === 'RESERVATION')
+// )
 
-const handleItemClick = async (event: MouseEvent, notif: NotificationItem) => {
-  event.preventDefault()
-  try {
-    if (!notif.isRead) await markNotificationRead(notif.id)
-    notif.isRead = true
-  } catch (e) {
-    // non-fatal
-  }
-  closeDropdown()
-}
+// const handleItemClick = async (event: MouseEvent, notif: NotificationItem) => {
+//   event.preventDefault()
+//   try {
+//     if (!notif.isRead) await markNotificationRead(notif.id)
+//     notif.isRead = true
+//   } catch (e) {
+//     // non-fatal
+//   }
+//   closeDropdown()
+// }
 
-const handleViewAllClick = (event: MouseEvent) => {
-  event.preventDefault()
-  // Handle the "View All Notification" action here
-  console.log('View All Notifications clicked')
-  closeDropdown()
-}
-
-function getUserInitials(fullName?: string): string {
-  const name = (fullName || '').trim()
-  if (!name) return 'U'
-  const parts = name.split(/\s+/)
-  const first = parts[0]?.[0] || ''
-  const second = parts.length > 1 ? parts[parts.length - 1]?.[0] || '' : ''
-  return (first + second).toUpperCase() || first.toUpperCase() || 'U'
-}
-
-onMounted(async () => {
-  document.addEventListener('click', handleClickOutside)
-  try {
-    notifications.value = await fetchMyNotifications()
-    console.log('🔍 Notifications fetched:', notifications.value)
-  } catch (e) {
-    notifications.value = []
-  }
-  // Subscribe to realtime notifications via SSE
-  unsubscribe = subscribeNotifications(
-    (item) => {
-      notifications.value = [item, ...notifications.value].slice(0, 100)
-    },
-    (err) => {
-      // optional: show offline badge
-      console.warn('Notifications stream error', err)
-    },
-  )
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-  try { unsubscribe?.() } catch {}
-})
+// const handleViewAllClick = (event: MouseEvent) => {
+//   event.preventDefault()
+//   // Handle the "View All Notification" action here
+//   console.log('View All Notifications clicked')
+//   closeDropdown()
+// }
 </script>

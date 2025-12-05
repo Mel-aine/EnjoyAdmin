@@ -103,7 +103,7 @@
             </span>
           </button>
 
-          <NotificationMenu />
+          <NotificationMenu @open="showNotification = true" :notifying="notifying"/>
           <!-- Bouton Aide / Support -->
           <button
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
@@ -141,11 +141,14 @@
   <template v-if="showSupportModal">
     <SupportTicketModal v-if="showSupportModal" @close="showSupportModal = false" />
   </template>
+  <template v-if="showNotification">
+    <NotificationModal :is-open="showNotification" @close="showNotification=false" :notifications="notifications"/>
+  </template>
 
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref,onMounted,onUnmounted } from 'vue'
 import { useSidebar } from '@/composables/useSidebar'
 import SearchBar from './header/SearchBar.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
@@ -161,14 +164,21 @@ import AddBookinIcon from '../../icons/AddBookinIcon.vue'
 import { useTheme } from '@/composables/theme'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 import type { ReservationDetails } from '@/utils/models'
+import NotificationModal from '../modal/NotificationModal.vue'
+import { fetchMyNotifications, markNotificationRead, type NotificationItem } from '@/services/notificationsApi'
+import { subscribeNotifications, type Unsubscribe } from '@/services/notificationsStream'
 
 const authStore = useAuthStore();
-
+const showNotification = ref(false)
 const showModalAddingModal = ref(false);
 const showGuestRegistration = ref(false);
 const showSupportModal = ref(false);
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen, isExpanded } = useSidebar()
+const notifications = ref<NotificationItem[]>([])
+let unsubscribe: Unsubscribe | null = null
 
+
+const notifying = computed(() => (notifications.value || []).some((n) => !n.isRead))
 const handleToggle = () => {
   if (window.innerWidth >= 1024) {
     toggleSidebar()
@@ -229,4 +239,27 @@ interface HeaderProps {
 const props = withDefaults(defineProps<HeaderProps>(), {
   showSidebar: true
 })
+
+
+
+onMounted(async () => {
+  try {
+    notifications.value = await fetchMyNotifications()
+    console.log('🔍 Notifications fetched:', notifications.value)
+  } catch (e) {
+    notifications.value = []
+  }
+  // Subscribe to realtime notifications via SSE
+  unsubscribe = subscribeNotifications(
+    (item) => {
+      notifications.value = [item, ...notifications.value].slice(0, 100)
+    },
+    (err) => {
+      // optional: show offline badge
+      console.warn('Notifications stream error', err)
+    },
+  )
+})
+
+
 </script>
