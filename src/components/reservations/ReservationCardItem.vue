@@ -283,12 +283,12 @@ const nightsSummary = computed(() => {
       <!-- Card Header -->
       <div class="p-4 border-b border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-start mb-2">
-          <div @click="handleViewDetails" class="flex items-center align-middle self-center gap-2 cursor-pointer">
+          <div @click="handleViewDetails" class="flex items-center align-middle self-center gap-2 cursor-pointer min-w-0 flex-1">
             <img v-if="otaIconSrc" :src="otaIconSrc" alt="OTA" class="w-8 h-8" />
             <Building2Icon v-else class="w-8 h-8 text-primary" />
             <Users v-if="localReservation.isGroup" />
-            <div>
-              <h3 class="font-semibold text-gray-900 dark:text-white text-lg truncate capitalize">
+            <div class="min-w-0">
+              <h3 class="font-semibold text-gray-900 dark:text-white text-lg truncate capitalize max-w-full">
                 {{ localReservation.guest?.displayName }}
               </h3>
               <p class="text-xs text-gray-600 dark:text-gray-400 font-mono">
