@@ -1,7 +1,7 @@
 <template>
   <SpeedInsights />
   <ThemeProvider>  
-    <SidebarProvider> 
+    <SidebarProvider>  
       <TopProgressBar />
       <OverLoading v-if="isLoading" /> 
       <RouterView />    
