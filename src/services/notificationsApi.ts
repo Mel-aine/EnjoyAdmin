@@ -10,7 +10,7 @@ const getHeaders = (): AxiosRequestConfig => {
     headers: {
       Authorization: `Bearer ${authStore.token ?? ''}`,
     },
-    withCredentials: false,
+    withCredentials: true,
   }
 }
 

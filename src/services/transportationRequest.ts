@@ -17,7 +17,7 @@ const getAuthHeaders = () => {
       Authorization: `Bearer ${authStore.token}`,
       'Content-Type': 'application/json'
     },
-    withCredentials: false,
+    withCredentials: true,
   }
 }
 
@@ -27,4 +27,5 @@ const getAuthHeaders = () => {
 export const createTransportationRequest = (data: any): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/transportation-requests`, data, getAuthHeaders())
 }
+
 

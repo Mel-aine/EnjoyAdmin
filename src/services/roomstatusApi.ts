@@ -11,7 +11,7 @@ const getHeaders  = () => {
     headers: {  
       Authorization: `Bearer ${authStore.token}`,
     },
-    withCredentials: false,
+    withCredentials: true,
   }
 }
 export interface RoomStatusWordExportParams {

@@ -15,7 +15,7 @@ const getHeaders = () => {
       Authorization: `Bearer ${authStore.token}`,
       'X-Hotel-Code': String(serviceStore?.serviceId ?? ''),
     },
-    withCredentials: false,
+    withCredentials: true,
   }
 }
 
@@ -27,5 +27,6 @@ const getHeaders = () => {
 export const getPaymentMethods = (hotelId:number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/${hotelId}`, getHeaders())
 }
+
 
 

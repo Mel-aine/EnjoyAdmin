@@ -14,7 +14,7 @@ const getAuthHeaders = () => {
       Authorization: `Bearer ${authStore.token}`,
       'Content-Type': 'application/json'
     },
-    withCredentials: false,
+    withCredentials: true,
   }
 }
 
@@ -49,6 +49,7 @@ export const updateDpt = (
 export const deleteDpt = ( id: number): Promise<AxiosResponse<any>> => {
   return axios.delete(`${API_URL}/department/${id}`, getAuthHeaders())
 }
+
 
 
 
