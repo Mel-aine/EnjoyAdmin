@@ -4,7 +4,7 @@
     <SidebarProvider> 
       <TopProgressBar />
       <OverLoading v-if="isLoading" />
-      <RouterView />   
+      <RouterView />    
       <ReAuthModal   
         :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
         @close="handleClose"  
