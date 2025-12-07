@@ -22,14 +22,13 @@ if (import.meta.env.PROD) {
       'timeLog',
     ]
 
+    const c = console as unknown as Record<string, any>
     silentMethods.forEach((m) => {
       try {
-        if (typeof console[m] === 'function') {
-          // @ts-expect-error: assignment to console method
-          console[m] = boundNoop
+        if (typeof c[m] === 'function') {
+          c[m] = boundNoop
         } else {
-          // @ts-expect-error: assignment to console method
-          console[m] = boundNoop
+          c[m] = boundNoop
         }
       } catch (_) {
         // Ignorer les erreurs d’assignation éventuelles
