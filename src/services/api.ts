@@ -29,7 +29,8 @@ const getHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
-    withCredentials: true,
+    // Avoid sending cookies by default to prevent session conflicts
+    withCredentials: false,
   }
 }
 const getRefreshHeaders = () => {
@@ -38,7 +39,8 @@ const getRefreshHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.refreshToken ?? ''}`,
     },
-    withCredentials: true,
+    // Refresh via header token only; do not attach cookies
+    withCredentials: false,
   }
 }
 const getRefreshRequestOptions = () => {
@@ -47,7 +49,8 @@ const getRefreshRequestOptions = () => {
     headers: {
       Authorization: `Bearer ${authStore.refreshToken}`,
     },
-    withCredentials: true,
+    // Keep cookie-free to avoid stale session loops
+    withCredentials: false,
   }
 }
 // --- Types ---
@@ -382,7 +385,7 @@ axios.interceptors.response.use(
 // --- Dans votre fonction auth ---
 export function auth(credentials: { email: string; password: string; keepLoggedIn?: boolean }) {
   return axios
-    .post(`${API_URL}/authLogin`, credentials, { withCredentials: true })
+    .post(`${API_URL}/authLogin`, credentials, { withCredentials: false })
     .then((resp) => {
       const authStore = useAuthStore()
 
@@ -458,7 +461,8 @@ export function logout() {
       headers: {
         Authorization: `Bearer ${currentToken}`,
       },
-      withCredentials: true,
+      // Do not attach cookies; rely on Bearer token only
+      withCredentials: false,
     },
   ).then(response => {
     return response
@@ -726,4 +730,3 @@ export const confirmPayment = (id: number | null, Payload: any): Promise<AxiosRe
 export const resendEmailVerification = (email: string): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/auth/resend-verification`, { email }, getHeaders())
 }
-

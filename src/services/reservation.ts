@@ -10,7 +10,7 @@ const getHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
-    withCredentials: true,
+    withCredentials: false,
   }
 }
 
@@ -540,4 +540,3 @@ export const confirmBooking = async (id: number,data:any): Promise<any | undefin
     handleApiError(error)
   }
 }
-

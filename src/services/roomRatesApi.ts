@@ -7,7 +7,7 @@ const getHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
-    withCredentials: true,
+    withCredentials: false,
   }
 }
 
@@ -50,5 +50,4 @@ export const getBaseRateByRoomAndRateType = async (params: BaseRateParams) => {
     throw error
   }
 }
-
 

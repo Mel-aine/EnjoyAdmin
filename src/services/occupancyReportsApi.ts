@@ -22,10 +22,10 @@ const API_URL = `${import.meta.env.VITE_API_URL as string}/reports/statistics`
 const getHeaders = () => {
   const authStore = useAuthStore()
   return {
-    headers: {  
+    headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
-    withCredentials: true,
+    withCredentials: false,
   }
 }
 

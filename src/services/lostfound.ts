@@ -10,7 +10,7 @@ const getHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
-    withCredentials: true,
+    withCredentials: false,
   }
 }
 
@@ -102,4 +102,3 @@ export const deleteLostFoundItem = async (itemId: number): Promise<any | undefin
     return undefined
   }
 }
-

@@ -59,7 +59,7 @@ export function subscribeNotifications(
   if (token) params.set('token', token)
 
   const url = `${API_URL}/notifications/stream${params.toString() ? `?${params.toString()}` : ''}`
-  const es = new EventSource(url, { withCredentials: true })
+  const es = new EventSource(url, { withCredentials: false })
 
   const handleNotification = (e: MessageEvent) => {
     try {

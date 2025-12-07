@@ -17,7 +17,7 @@ const getHeaders = () => {
       Authorization: `Bearer ${authStore.token}`,
       'X-Hotel-Code': String(serviceStore?.serviceId ?? ''),
     },
-    withCredentials: true,
+    withCredentials: false,
   }
 }
 

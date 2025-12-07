@@ -17,7 +17,7 @@ const getHeaders = () => {
       'Content-Type': 'application/json',
       'X-Hotel-Code': String(serviceStore?.serviceId ?? ''),
     },
-    withCredentials: true,
+    withCredentials: false,
   }
 }
 
@@ -29,7 +29,7 @@ const headers = () => {
       Authorization: `Bearer ${authStore.token}`,
       'X-Hotel-Code': String(serviceStore?.serviceId ?? ''),
     },
-    withCredentials: true,
+    withCredentials: false,
   }
 }
 

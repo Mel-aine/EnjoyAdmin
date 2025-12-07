@@ -27,7 +27,7 @@ const getHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
-    withCredentials: true,
+    withCredentials: false,
   }
 }
 
@@ -236,7 +236,6 @@ export const getFrontOfficeDashboard = async (serviceId: number | null, params?:
     return { success: false, data: null, error: error.message }
   }
 }
-
 
 
 
