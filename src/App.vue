@@ -3,7 +3,7 @@
   <ThemeProvider>  
     <SidebarProvider>  
       <TopProgressBar />
-      <OverLoading v-if="isLoading" /> 
+      <OverLoading v-if="isCheckoutOverlay" /> 
       <RouterView />    
       <ReAuthModal     
         :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
@@ -25,7 +25,7 @@ import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import { useAuthStore } from '@/composables/user' 
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import TopProgressBar from '@/components/spinner/TopProgressBar.vue'
-import { isLoading } from '@/composables/spinner'
+import { isCheckoutOverlay } from '@/composables/spinner'
 import {stopAuthAutoRefresh,startAuthAutoRefresh}  from '@/services/api'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
