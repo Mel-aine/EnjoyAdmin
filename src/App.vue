@@ -5,7 +5,7 @@
       <TopProgressBar />
       <OverLoading v-if="isLoading" /> 
       <RouterView />    
-      <ReAuthModal    
+      <ReAuthModal     
         :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
         @close="handleClose"   
         @success="handleSuccess"
