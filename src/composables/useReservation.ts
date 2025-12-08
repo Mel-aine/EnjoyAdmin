@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import { isCheckoutOverlay } from '@/composables/spinner'
 import {
   checkInReservation,
   checkOutReservation,
@@ -115,6 +116,7 @@ export function useReservation() {
   // Check-out reservation
   const performCheckOut = async (reservationId: number, payload: CheckOutReservationPayload, refreshCallback?: () => Promise<void>) => {
     isCheckingOut.value = true
+    isCheckoutOverlay.value = true
 
     try {
       const response = await checkOutReservation(reservationId, payload)
@@ -151,6 +153,7 @@ export function useReservation() {
     // throw error
     } finally {
       isCheckingOut.value = false
+      isCheckoutOverlay.value = false
     }
   }
 
