@@ -9,9 +9,9 @@
           </div>
         </div>
         <div class="flex space-x-2">
-          <BasicButton :label="$t('previous')" variant="secondary" @click="previousStep"
-            :disabled="currentStep === 1" />
-          <BasicButton v-if="currentStep < 6" :label="$t('next')" variant="primary" @click="nextStep" />
+          <BasicButton :label="$t('previous')" variant="secondary" @click="previousStep" 
+            :disabled="currentStep === 1 || isLoading" />
+          <BasicButton v-if="currentStep < 6" :label="$t('next')" variant="primary" @click="nextStep" :disabled="loading" />
         </div>
       </div>
 
@@ -222,6 +222,7 @@ import {
 import { createPayment, confirmPayment } from '@/services/api'
 import { useServiceStore } from '../../composables/serviceStore'
 import { getNightAuditNightlyCharges, getNightAuditRoomStatus, getNightAuditUnsettledFolios, createNightAudit, getNightAuditPendingReservations, postNightlyCharges } from '../../services/nightAudit'
+import { isLoading } from '../../composables/spinner'
 // Lazy load modal components for better code splitting
 const VoidReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/VoidReservation.vue'))
 const NoShowReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/NoShowReservation.vue'))
@@ -402,8 +403,9 @@ const roomStatusColumns: Column[] = [
   { key: 'guest.name', label: t('Guest'), type: 'text' },
   { key: 'reservation.checkInDate', label: t('arrival'), type: 'date' },
   { key: 'reservation.checkOutDate', label: t('departure'), type: 'date' },
-  { key: 'folio.totalPayments', label: t('Total'), type: 'text' },
-  { key: 'folio.balance', label: t('Balance'), type: 'text' },
+  { key: 'folio.totalCharges', label: t('Total'), type: 'currency' },
+  { key: 'folio.totalPayments', label: t('paid'), type: 'currency' },
+  { key: 'folio.balance', label: t('Balance'), type: 'currency' },
   { key: 'status', label: t('Status'), type: 'custom' },
   // { key: 'actions', label: t('Actions'), type: 'custom' }
 ]
@@ -424,7 +426,7 @@ const nightlyChargesColumns: Column[] = [
   { key: 'guest_name', label: t('Guest'), type: 'text' },
   { key: 'folio_id', label: t('Folio'), type: 'text' },
   { key: 'rate_type', label: t('Type'), type: 'text' },
-  { key: 'rate', label: t('Amount'), type: 'text' },
+  { key: 'rate', label: t('Amount'), type: 'currency' },
 ]
 
 const pendingReservationsActions: Action[] = [

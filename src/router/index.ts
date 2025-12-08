@@ -46,7 +46,7 @@ const router = createRouter({
       },
     },
     {
-       path: '/front-office/unsettled_folios',
+      path: '/front-office/unsettled_folios',
       name: 'UnsettledFolios',
       component: () => import('../views/FrontOffice/UnsettledFolios.vue'),
       meta: {
@@ -81,7 +81,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-   {
+    {
       path: '/ota/booking/:id(\\d+)',
       name: 'WebBooking',
       component: () => import('../views/ota/WebBooking.vue'),
@@ -158,7 +158,7 @@ const router = createRouter({
         requiresAuth: false,
       },
     },
-     {
+    {
       path: '/ota/confirmation',
       name: 'ConfirmationBooking',
       component: () => import('../views/ota/ConfirmationBooking.vue'),
@@ -281,7 +281,7 @@ const router = createRouter({
         title: 'Reservation Activity',
         requiresAuth: true,
       },
-    },    {
+    }, {
       path: '/reports/reservation/release-reservation-list',
       name: 'releaseReservationList',
       component: () => import('../views/Reports/Reservation/ReleaseReservations.vue'),
@@ -289,7 +289,7 @@ const router = createRouter({
         title: 'Release Reservation List',
         requiresAuth: true,
       },
-    },    {
+    }, {
       path: '/reports/reservation/country-wise-reservation-statistics',
       name: 'countryWiseReservationStatistics',
       component: () => import('../views/Reports/Reservation/CountryWiseReservations.vue'),
@@ -1234,7 +1234,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-      {
+    {
       path: '/configuration/staff/staff_management',
       name: 'Staff Management',
       component: () => import('../views/Configuration/Staff/EStaffStaffManager.vue'),
@@ -1243,7 +1243,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-      {
+    {
       path: '/users/new',
       name: 'newUser',
       component: () => import('../views/Configuration/Staff/UserUpsertForm.vue'),
@@ -1252,7 +1252,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-      {
+    {
       path: '/users/new/:id',
       name: 'editUser',
       component: () => import('../views/Configuration/Staff/UserUpsertForm.vue'),
@@ -1260,9 +1260,9 @@ const router = createRouter({
         title: 'new User',
         requiresAuth: true,
       },
-      props : true
+      props: true
     },
-     {
+    {
       path: '/configuration/staff/user_role',
       name: 'User Role',
       component: () => import('../views/Configuration/Staff/UserRoleView.vue'),
@@ -1275,7 +1275,7 @@ const router = createRouter({
     {
       path: '/configuration/channel-manager',
       name: 'ChannelManager',
-       component: () => import('../views/Configuration/ChannelManager/Overview.vue'),
+      component: () => import('../views/Configuration/ChannelManager/Overview.vue'),
       meta: {
         title: 'Channel Manager',
         requiresAuth: true,
@@ -1289,7 +1289,7 @@ const router = createRouter({
         title: 'Inventory Channel Booking',
         requiresAuth: true,
       },
-    },{
+    }, {
       path: '/configuration/channel-manager/channel-manager',
       name: 'channel',
       component: () => import('../views/Configuration/ChannelManager/ChannelManager.vue'),
@@ -1364,7 +1364,7 @@ const router = createRouter({
     },
 
 
-     {
+    {
       path: '/stay_view',
       name: 'ReservationCalendar',
       component: () => import('../views/Bookings/BookinCalender.vue'),
@@ -1418,6 +1418,7 @@ const router = createRouter({
       component: () => import('../views/Auth/Signin.vue'),
       meta: {
         title: 'Signin',
+        requiresAuth: false,
       },
     },
     {
@@ -1450,7 +1451,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-   {
+    {
       path: '/amenities_booking_view/:id',
       name: 'Amenities Booking Interface',
       component: () => import('../views/hotelServices/AmenitiesBookingInterface.vue'),
@@ -1471,17 +1472,17 @@ const router = createRouter({
       },
     },
     {
-        path: '/new',
-        name: 'CustomerCreate',
-        component: () => import('@/views/Customers/CustomerEditPage.vue'),
-      },
+      path: '/new',
+      name: 'CustomerCreate',
+      component: () => import('@/views/Customers/CustomerEditPage.vue'),
+    },
 
-      {
-        path: '/edit/:id',
-        name: 'CustomerEdit',
-        component: () => import('@/views/Customers/CustomerEditPage.vue'),
-        props: true
-      },
+    {
+      path: '/edit/:id',
+      name: 'CustomerEdit',
+      component: () => import('@/views/Customers/CustomerEditPage.vue'),
+      props: true
+    },
     {
       path: '/reusable-table-example',
       name: 'Reusable Table Example',
@@ -1633,7 +1634,8 @@ router.beforeEach((to, from, next) => {
 
     // Appeler l’API en arrière-plan sans bloquer
     signOutService().catch((e) => {
-authStore.forceLogout()    })
+      authStore.forceLogout()
+    })
     return next('/')
   }
 

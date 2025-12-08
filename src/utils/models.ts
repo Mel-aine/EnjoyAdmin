@@ -489,12 +489,19 @@ export interface PaymentFilterItem {
 export interface Column {
   key: string
   label: string
-  type?: 'text' | 'email' | 'badge' | 'image' | 'custom' | 'date'
+  type?: 'text' | 'email' | 'badge' | 'image' | 'custom' | 'date' | 'currency'
   imageKey?: string // For image type, the key for the image URL
   badgeColors?: Record<string, any> // For badge type, color mapping
   searchable?: boolean
   translatable?: boolean // Whether the column content should be translated
   dateFormat?: string // Format for date columns
+  // Currency-specific options
+  currencyCode?: string // Static currency code (e.g., 'XAF')
+  currencyKey?: string // Path to currency code in item (e.g., 'currency')
+  currencyDisplay?: 'symbol' | 'code' // Display style; default 'code' (e.g., 'XAF')
+  minimumFractionDigits?: number
+  maximumFractionDigits?: number
+  locale?: string // Formatting locale; default 'fr-FR'
 }
 
 export interface Action {

@@ -77,5 +77,5 @@ export const getNightAuditPendingReservations = (hotelId: number, auditDate:stri
  * post postNightlyCharges
  * */
 export const postNightlyCharges = (hotelId: number, auditDate:string, data:any): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/${hotelId}/${auditDate}/post-nightly-charges`, data, getHeaders())
+  return axios.post(`${API_URL}/${hotelId}/${auditDate}/nightly-charges`, data, getHeaders())
 }
