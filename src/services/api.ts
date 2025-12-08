@@ -29,8 +29,8 @@ const getHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
-    // Avoid sending cookies by default to prevent session conflicts
-    withCredentials: false,
+    // Send cookies with API requests
+    withCredentials: true,
   }
 }
 const getRefreshHeaders = () => {
@@ -39,8 +39,8 @@ const getRefreshHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.refreshToken ?? ''}`,
     },
-    // Refresh via header token only; do not attach cookies
-    withCredentials: false,
+    // Send cookies during refresh requests
+    withCredentials: true,
   }
 }
 const getRefreshRequestOptions = () => {
@@ -49,8 +49,8 @@ const getRefreshRequestOptions = () => {
     headers: {
       Authorization: `Bearer ${authStore.refreshToken}`,
     },
-    // Keep cookie-free to avoid stale session loops
-    withCredentials: false,
+    // Send cookies with refresh requests
+    withCredentials: true,
   }
 }
 // --- Types ---
@@ -385,7 +385,7 @@ axios.interceptors.response.use(
 // --- Dans votre fonction auth ---
 export function auth(credentials: { email: string; password: string; keepLoggedIn?: boolean }) {
   return axios
-    .post(`${API_URL}/authLogin`, credentials, { withCredentials: false })
+    .post(`${API_URL}/authLogin`, credentials, { withCredentials: true })
     .then((resp) => {
       const authStore = useAuthStore()
 
@@ -461,8 +461,8 @@ export function logout() {
       headers: {
         Authorization: `Bearer ${currentToken}`,
       },
-      // Do not attach cookies; rely on Bearer token only
-      withCredentials: false,
+      // Attach cookies along with Bearer token
+      withCredentials: true,
     },
   ).then(response => {
     return response
