@@ -1620,22 +1620,32 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // Démarrer la barre de progression de route
+  console.log('Navigation', to, from)
+
   routeProgressVisible.value = true
 
   const authStore = useAuthStore()
 
   // État d’authentification calculé
-  const isAuthenticated = authStore.isFullyAuthenticated
+  // Utiliser le token pour autoriser la navigation aux routes protégées.
+  // Les détails (UserId, role) sont complétés après via SetupSpace.
+  const isAuthenticated = authStore.isAuthenticated
   const isLoginRoute =
     to.path === '/' || (to.name && String(to.name).toLowerCase() === 'login') || to.path.includes('/login')
 
   // Si une réauthentification est requise, ne pas bloquer la navigation
   if (authStore.reauthRequired && !isLoginRoute) {
-
-    // Appeler l’API en arrière-plan sans bloquer
-    signOutService().catch((e) => {
-      authStore.forceLogout()
-    })
+    // Autoriser la navigation si un token est encore présent (la modale gère la réauth)
+    // Sinon, rediriger vers la page de connexion.
+    if (authStore.isAuthenticated) {
+      if (to.path === '/reports' || to.path === '/reports/') {
+        return next('/reports/dashboard')
+      }
+      if (to.path === '/configuration' || to.path === '/configuration/') {
+        return next('/configuration/rooms/amenities')
+      }
+      return next()
+    }
     return next('/')
   }
 
@@ -1643,18 +1653,6 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated) {
     return next('/')
   }
-
-  // Redirections conviviales
-  if (to.path === '/' && isAuthenticated) {
-    return next('/front-office/dashboard')
-  }
-  if (to.path === '/reports' || to.path === '/reports/') {
-    return next('/reports/dashboard')
-  }
-  if (to.path === '/configuration' || to.path === '/configuration/') {
-    return next('/configuration/rooms/amenities')
-  }
-
   return next()
 })
 
@@ -1675,6 +1673,7 @@ router.afterEach(() => {
 // "Failed to fetch dynamically imported module" / "Loading chunk failed" / "Importing a module script failed"
 router.onError((err: unknown) => {
   // Toujours arrêter la barre en cas d'erreur de navigation
+  console.log('Navigation', err)
   routeProgressVisible.value = false
   const msg = String((err as any)?.message || '')
   const patterns = [
