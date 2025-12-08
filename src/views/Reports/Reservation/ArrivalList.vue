@@ -783,7 +783,7 @@ const formatCurrency = (amount: number): string => {
   if (!amount && amount !== 0) return t('common.na')
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: 'EUR'
+    currency: 'XAF'
   }).format(amount)
 }
 

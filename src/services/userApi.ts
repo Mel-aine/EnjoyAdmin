@@ -27,7 +27,7 @@ const getAuthHeaders = () => {
       Authorization: `Bearer ${authStore.token}`,
       'Content-Type': 'application/json'
     },
-    withCredentials: false,
+    withCredentials: true,
   }
 }
 

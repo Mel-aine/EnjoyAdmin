@@ -48,7 +48,7 @@
             >
               <Spinner v-if="loading" class="w-4 h-4 mr-1" />
               <span class="flex items-center">
-                {{ loading ? $t('common.generating') : $t('common.report') }}
+                {{ loading ? $t('common.report') : $t('common.report') }}
                 <svg v-if="!loading" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
