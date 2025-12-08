@@ -26,7 +26,7 @@
     <!-- Form -->
     <div v-else class="px-2 space-y-4 ">
       <!-- Perform Check-in on -->
-      <div class="mb-4">
+      <div class="mb-4" v-if="reservation && reservation.isGroup">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
           {{ $t('PerformCheck-inon') }}
         </label>
@@ -63,7 +63,8 @@
               'bg-gray-50 dark:bg-gray-800 opacity-60 cursor-not-allowed': isRoomCheckedIn(room),
               'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer': !isRoomCheckedIn(room)
             }">
-            <input v-model="formData.selectedRooms" type="checkbox" :value="room.id" :disabled="isRoomCheckedIn(room)"
+            <input v-model="formData.selectedRooms" type="checkbox" :value="room.id"
+              :disabled="isRoomCheckedIn(room) || !reservation?.isGroup"
               class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 rounded focus:ring-primary disabled:opacity-50" />
             <div class="ml-2 flex-1">
               <div class="flex items-center justify-between">
@@ -78,7 +79,8 @@
                   {{ $t('reservationStatus.Checked-in') }}
                 </span>
               </div>
-              <div v-if="isRoomCheckedIn(room) && room.actualCheckInTime" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <div v-if="isRoomCheckedIn(room) && room.actualCheckInTime"
+                class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {{ $t('Check-in') }}: {{ formatCheckInDateTime(room.actualCheckInTime) }}
               </div>
             </div>
@@ -86,7 +88,8 @@
         </div>
 
         <!-- Info message if all rooms are checked in -->
-        <div v-if="allRoomsCheckedIn" class="mt-3 p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-400 rounded-md">
+        <div v-if="allRoomsCheckedIn"
+          class="mt-3 p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-400 rounded-md">
           <div class="flex items-center">
             <svg class="w-5 h-5 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd"
@@ -130,10 +133,10 @@
 
       <!-- Normal Footer -->
       <div v-else class="flex justify-end space-x-2 dark:bg-gray-800">
-        <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')" :disabled="isLoading" />
+        <BasicButton variant="secondary" @click="closeModal" :label="$t('Cancel')" :disabled="isCheckedIn" />
         <BasicButton variant="primary" @click="performCheckIn"
-          :label="formData.checkInType === 'group' ? $t('GroupCheck-in') : $t('Check-in')" :loading="isLoading"
-          :disabled="isLoading || !canCheckIn" />
+          :label="(formData.checkInType === 'group' && reservation.value?.isGroup) ? $t('GroupCheck-in') : $t('Check-in')"
+          :loading="isLoading" :disabled="isCheckedIn || !canCheckIn" />
       </div>
     </template>
   </RightSideModal>
@@ -146,16 +149,8 @@ import BasicButton from '../buttons/BasicButton.vue'
 import { useReservation, type CheckInReservationPayload } from '../../composables/useReservation'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
-import { getReservationDetailsById } from '../../services/reservation'
+import { getReservationBasicDetailsById } from '../../services/reservation'
 
-interface ReservationRoom {
-  id: number
-  roomNumber: string
-  guestName: string
-  actualCheckInTime?: string
-  status?: string
-  checkedIn?: boolean
-}
 
 interface Props {
   isOpen: boolean
@@ -178,10 +173,10 @@ const { t } = useI18n()
 const isLoading = ref(false)
 const loading = ref(false)
 const reservation = ref<any>()
-
+const isCheckedIn = ref(false);
 // Form data
 const formData = reactive({
-  checkInType: 'group',
+  checkInType: '',
   selectedRooms: [] as number[],
   checkInDate: new Date().toISOString().split('T')[0],
   checkInTime: new Date().toTimeString().slice(0, 5),
@@ -227,6 +222,7 @@ const canCheckIn = computed(() => {
   if (formData.checkInType === 'group') {
     return availableRooms.value.length > 0
   } else {
+    console.log('here bro')
     return formData.selectedRooms.length > 0
   }
 })
@@ -306,7 +302,7 @@ const getBookingDetailsById = async () => {
   try {
     loading.value = true
     const id = props.reservationId
-    const response = await getReservationDetailsById(Number(id))
+    const response = await getReservationBasicDetailsById(Number(id))
     console.log('Check-in reservation details:', response)
     reservation.value = response
     reservationRooms.value = response.reservationRooms.map((e: any) => {
@@ -334,7 +330,7 @@ const performCheckIn = async () => {
   }
 
   try {
-    isLoading.value = true
+    isCheckedIn.value = true
 
     // Prepare check-in payload - only include available rooms
     const checkInDateTime = `${formData.checkInDate}T${formData.checkInTime}:00`
@@ -375,7 +371,7 @@ const performCheckIn = async () => {
 
     toast.error(errorMessage)
   } finally {
-    isLoading.value = false
+    isCheckedIn.value = false
   }
 }
 

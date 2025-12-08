@@ -9,9 +9,9 @@
           </div>
         </div>
         <div class="flex space-x-2">
-          <BasicButton :label="$t('previous')" variant="secondary" @click="previousStep"
-            :disabled="currentStep === 1" />
-          <BasicButton v-if="currentStep < 6" :label="$t('next')" variant="primary" @click="nextStep" />
+          <BasicButton :label="$t('previous')" variant="secondary" @click="previousStep" 
+            :disabled="currentStep === 1 || isLoading" />
+          <BasicButton v-if="currentStep < 6" :label="$t('next')" variant="primary" @click="nextStep" :disabled="loading" />
         </div>
       </div>
 
@@ -53,7 +53,8 @@
         <!-- Step 1: Pending Reservations -->
         <div v-if="currentStep === 1" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.pendingReservations.name') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{
+              $t('frontOffice.nightAudit.steps.pendingReservations.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               {{ $t('frontOffice.nightAudit.steps.pendingReservations.description') }}
             </p>
@@ -66,7 +67,8 @@
         <!-- Step 2: Release Reservations -->
         <div v-if="currentStep === 2" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.releaseReservations.name') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{
+              $t('frontOffice.nightAudit.steps.releaseReservations.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               {{ $t('frontOffice.nightAudit.steps.releaseReservations.description') }}
             </p>
@@ -85,7 +87,8 @@
         <!-- Step 3: Room Status -->
         <div v-if="currentStep === 3" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.roomStatus.name') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{
+              $t('frontOffice.nightAudit.steps.roomStatus.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               {{ $t('frontOffice.nightAudit.steps.roomStatus.description') }}
             </p>
@@ -103,7 +106,8 @@
         <!-- Step 4: Unsettled Folios -->
         <div v-if="currentStep === 4" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.unsettledFolios.name') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{
+              $t('frontOffice.nightAudit.steps.unsettledFolios.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               {{ $t('frontOffice.nightAudit.steps.unsettledFolios.description') }}
             </p>
@@ -123,15 +127,18 @@
         <!-- Step 5: Nightly Charges -->
         <div v-if="currentStep === 5" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.nightlyCharges.name') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{
+              $t('frontOffice.nightAudit.steps.nightlyCharges.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               {{ $t('frontOffice.nightAudit.steps.nightlyCharges.description') }}
             </p>
           </div>
           <div class="mb-4 flex gap-3 " v-if="canPostCharges">
-            <span class="align-middle self-center items-center">{{ selectedCharges.length }} {{ $t('frontOffice.nightAudit.recordsSelected') }}
+            <span class="align-middle self-center items-center">{{ selectedCharges.length }} {{
+              $t('frontOffice.nightAudit.recordsSelected') }}
             </span>
-            <BasicButton :label="$t('frontOffice.nightAudit.post')" variant="primary" @click="postSelectedCharges" :loading="postingCharges" />
+            <BasicButton :label="$t('frontOffice.nightAudit.post')" variant="primary" @click="postSelectedCharges"
+              :loading="postingCharges" />
           </div>
           <ReusableTable :columns="nightlyChargesColumns" :data="nightlyChargesData" :searchable="false"
             :show-header="false" :loading="loading" :selectable="true" @selection-change="handleChargesSelectionChange">
@@ -142,7 +149,8 @@
         <!-- Step 6: Create New Day -->
         <div v-if="currentStep === 6" class="p-6">
           <div class="mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('frontOffice.nightAudit.steps.createNewDay.name') }}</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{
+              $t('frontOffice.nightAudit.steps.createNewDay.name') }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               {{ $t('frontOffice.nightAudit.steps.createNewDay.description') }}
             </p>
@@ -151,7 +159,9 @@
             <div class="flex items-center">
               <InfoIcon class="h-5 w-5 text-blue-400 mr-3" />
               <div>
-                <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200">{{ $t('frontOffice.nightAudit.readyToCloseDay') }}</h4>
+                <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200">{{
+                  $t('frontOffice.nightAudit.readyToCloseDay')
+                }}</h4>
                 <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
                   {{ $t('frontOffice.nightAudit.currentDate') }}: {{ formatDateT(currentDate) }}<br>
                   {{ $t('frontOffice.nightAudit.nextDate') }}: {{ formatDateT(nextDate) }}
@@ -160,27 +170,37 @@
             </div>
           </div>
           <div class="flex space-x-4">
-            <BasicButton :label="$t('frontOffice.nightAudit.finishNightAudit')" variant="primary" @click="finishNightAudit"
-              :loading="finishingAudit" />
+            <BasicButton :label="$t('frontOffice.nightAudit.finishNightAudit')" variant="primary"
+              @click="finishNightAudit" :loading="finishingAudit" />
           </div>
 
         </div>
       </div>
     </div>
-    <VoidReservation v-if="selectdReservationId" :is-open="showVoidModal" :reservation-id="selectdReservationId"
-      @close="closeVoidReservationModal" @void-confirmed="handleVoidConfirmed" />
-    <NoShowReservation v-if="selectdReservationId" :is-open="showNoShowModal" :reservation-id="selectdReservationId"
-      @close="closeNoShowReservationModal" @noshow-confirmed="handleNoShowConfirmed" />
-    <CancelReseravtion v-if="selectdReservationId" :is-open="showCancelModal" :reservation-id="selectdReservationId"
-      @close="closeCancelReservationModal" @cancel-confirmed="handleCancelConfirmed" />
+    <template v-if="showVoidModal">
+      <VoidReservation v-if="selectdReservationId" :is-open="showVoidModal" :reservation-id="selectdReservationId"
+        @close="closeVoidReservationModal" @void-confirmed="handleVoidConfirmed" />
+    </template>
+    <template v-if="showNoShowModal">
+      <NoShowReservation v-if="selectdReservationId" :is-open="showNoShowModal" :reservation-id="selectdReservationId"
+        @close="closeNoShowReservationModal" @noshow-confirmed="handleNoShowConfirmed" />
+    </template>
+    <template v-if="showCancelModal">
+      <CancelReseravtion v-if="selectdReservationId" :is-open="showCancelModal" :reservation-id="selectdReservationId"
+        @close="closeCancelReservationModal" @cancel-confirmed="handleCancelConfirmed" />
+    </template>
     <template v-if="selectdReservationId && showCheckInModal">
       <CheckInReservation :is-open="showCheckInModal" :reservation-id="selectdReservationId" @close="closeCheckInModal"
         @success="handleCheckInSuccess" />
     </template>
-    <CheckOutReservation v-if="selectdReservationId" :is-open="showCheckOutModal" :reservation-id="selectdReservationId"
-      @close="closeCheckOutModal" @success="handleCheckOutSuccess" />
-    <AmendStay v-if="selectdReservationId" :is-open="showAmendStayModal" :reservation-id="selectdReservationId"
-      @close="closeAmendStayModal" @amend-confirmed="handleAmendStaySuccess" />
+    <template v-if="showCheckOutModal">
+      <CheckOutReservation v-if="selectdReservationId" :is-open="showCheckOutModal"
+        :reservation-id="selectdReservationId" @close="closeCheckOutModal" @success="handleCheckOutSuccess" />
+    </template>
+    <template v-if="showAmendStayModal">
+      <AmendStay v-if="selectdReservationId" :is-open="showAmendStayModal" :reservation-id="selectdReservationId"
+        @close="closeAmendStayModal" @amend-confirmed="handleAmendStaySuccess" />
+    </template>
   </AdminLayout>
 </template>
 
@@ -202,12 +222,13 @@ import {
 import { createPayment, confirmPayment } from '@/services/api'
 import { useServiceStore } from '../../composables/serviceStore'
 import { getNightAuditNightlyCharges, getNightAuditRoomStatus, getNightAuditUnsettledFolios, createNightAudit, getNightAuditPendingReservations, postNightlyCharges } from '../../services/nightAudit'
+import { isLoading } from '../../composables/spinner'
 // Lazy load modal components for better code splitting
 const VoidReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/VoidReservation.vue'))
 const NoShowReservation = defineAsyncComponent(() => import('../../components/reservations/foglio/NoShowReservation.vue'))
 const CheckInReservation = defineAsyncComponent(() => import('../../components/reservations/CheckInReservation.vue'))
 const CheckOutReservation = defineAsyncComponent(() => import('../../components/reservations/CheckOutReservation.vue'))
-const CancelReseravtion = defineAsyncComponent(()=>import('../../components/reservations/foglio/CancelReseravtion.vue'))
+const CancelReseravtion = defineAsyncComponent(() => import('../../components/reservations/foglio/CancelReseravtion.vue'))
 const AmendStay = defineAsyncComponent(() => import('../../components/reservations/foglio/AmendStay.vue'))
 const serviceStore = useServiceStore();
 const router = useRouter()
@@ -382,8 +403,9 @@ const roomStatusColumns: Column[] = [
   { key: 'guest.name', label: t('Guest'), type: 'text' },
   { key: 'reservation.checkInDate', label: t('arrival'), type: 'date' },
   { key: 'reservation.checkOutDate', label: t('departure'), type: 'date' },
-  { key: 'folio.totalPayments', label: t('Total'), type: 'text' },
-  { key: 'folio.balance', label: t('Balance'), type: 'text' },
+  { key: 'folio.totalCharges', label: t('Total'), type: 'currency' },
+  { key: 'folio.totalPayments', label: t('paid'), type: 'currency' },
+  { key: 'folio.balance', label: t('Balance'), type: 'currency' },
   { key: 'status', label: t('Status'), type: 'custom' },
   // { key: 'actions', label: t('Actions'), type: 'custom' }
 ]
@@ -404,7 +426,7 @@ const nightlyChargesColumns: Column[] = [
   { key: 'guest_name', label: t('Guest'), type: 'text' },
   { key: 'folio_id', label: t('Folio'), type: 'text' },
   { key: 'rate_type', label: t('Type'), type: 'text' },
-  { key: 'rate', label: t('Amount'), type: 'text' },
+  { key: 'rate', label: t('Amount'), type: 'currency' },
 ]
 
 const pendingReservationsActions: Action[] = [

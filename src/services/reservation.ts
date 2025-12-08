@@ -10,7 +10,7 @@ const getHeaders = () => {
     headers: {
       Authorization: `Bearer ${authStore.token}`,
     },
-    withCredentials: false,
+    withCredentials: true,
   }
 }
 
@@ -240,9 +240,21 @@ export const getReservationDetailsById = async (reservationId: number): Promise<
     console.error('Erreur récupération réservations pour chambre:', error)
     return []
   }
+}
 
-
-
+/**
+ * get Reservation details by Id
+ */
+export const getReservationBasicDetailsById = async (reservationId: number): Promise<any> => {
+  try {
+    const response: AxiosResponse<ApiResponse<Reservation[]>> = await apiClient.get(
+      `/reservation/${reservationId}/basicdetails`, getHeaders()
+    )
+    return response.data || []
+  } catch (error) {
+    console.error('Erreur récupération réservations pour chambre:', error)
+    return []
+  }
 }
 
 /**

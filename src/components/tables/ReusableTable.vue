@@ -113,6 +113,10 @@
                   {{ formatDate(getNestedValue(item, column.key), column.dateFormat) }}
                 </div>
 
+                <div v-else-if="column.type === 'currency'" class="text-sm text-gray-900 dark:text-white break-words">
+                  {{ formatCurrencyValue(item, column) }}
+                </div>
+
                 <div v-else-if="column.type === 'custom'" class="text-sm">
                   <slot :name="`column-${column.key}`" :item="item" :value="getNestedValue(item, column.key)">
                     {{ getColumnValue(item, column) }}
@@ -628,6 +632,29 @@ const getColumnValue = (item: any, column: Column) => {
   }
 
   return value
+}
+
+const formatCurrencyValue = (item: any, column: Column) => {
+  const raw = getNestedValue(item, column.key)
+  const num = typeof raw === 'string' ? parseFloat(raw) : Number(raw)
+  if (Number.isNaN(num)) return '-'
+
+  const codeFromItem = column.currencyKey ? getNestedValue(item, column.currencyKey) : undefined
+  const currencyCode = (codeFromItem || column.currencyCode || 'XAF') as string
+  const locale = column.locale || 'fr-FR'
+  const opts: Intl.NumberFormatOptions = {
+    style: 'currency',
+    currency: currencyCode,
+  }
+  if (column.minimumFractionDigits !== undefined) opts.minimumFractionDigits = column.minimumFractionDigits
+  if (column.maximumFractionDigits !== undefined) opts.maximumFractionDigits = column.maximumFractionDigits
+
+  try {
+    return new Intl.NumberFormat(locale, opts).format(num)
+  } catch (_) {
+    // Fallback if Intl formatting fails
+    return `${currencyCode} ${num.toLocaleString(locale)}`
+  }
 }
 
 const formatDate = (value: any, format?: string) => {
