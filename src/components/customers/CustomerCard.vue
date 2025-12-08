@@ -477,6 +477,7 @@ console.log('modalevalue', props.modelValue)
                       :lb="$t('LastName')"
                       v-model="selectedCustomer.lastName"
                       :placeholder="$t('LastName')"
+                      :is-required="true"
                       custom-class="rounded-none h-11 border-l-0"
                     />
                   </div>

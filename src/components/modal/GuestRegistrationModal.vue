@@ -65,7 +65,7 @@
                   {{ $t('validation.invalidRoomType') }}
                 </p>
                 <AutoCompleteSelect v-model="roomConfig.roomType" :lb="$t('roomType')" :options="RoomTypes"
-                  :defaultValue="$t('SelectRoomType')" :is-required="false" :use-dropdown="useDropdownRoomType"
+                  :defaultValue="$t('SelectRoomType')" :is-required="true" :use-dropdown="useDropdownRoomType"
                   :disabled="isLoadingRoom" @update:modelValue="handleRoomTypeChange"
                   :class="{ 'border-red-500': submitted && !roomConfig.roomType }" />
               </div>
@@ -76,7 +76,7 @@
                   {{ $t('validation.invalidRateType') }}
                 </p>
                 <AutoCompleteSelect v-model="roomConfig.rateType" :lb="$t('rateType')" :options="rateTypeOptions"
-                  :defaultValue="$t('SelectRateType')" :is-required="false" :use-dropdown="useDropdownRateType"
+                  :defaultValue="$t('SelectRateType')" :is-required="true" :use-dropdown="useDropdownRateType"
                   :disabled="!roomConfig.roomType" @update:modelValue="handleRateTypeChange"
                   :class="{ 'border-red-500': submitted && !roomConfig.rateType }" />
               </div>
@@ -224,7 +224,7 @@
               </div>
 
               <div class="flex-1">
-                <Input :lb="$t('LastName')" v-model="formData.lastName" :placeholder="$t('LastName')"
+                <Input :lb="$t('LastName')" v-model="formData.lastName" :placeholder="$t('LastName')" :is-required="true"
                   custom-class="rounded-none h-11 border-l-0" />
               </div>
 
@@ -523,7 +523,7 @@ const renderPrintHtml = () => {
       'Se rendant à :': getSafe(reservation.value?.goingTo),
       'Mode de transport :': getOptionLabel(TransportationModes as unknown as any[], reservation.value?.meansOfTransport),
       'Mode de paiement :': getPaymentMethodName(billing.value?.paymentMode),
-      'NOM (en gros characters) :': getSafe(formData.value.lastName),
+      'NOM (en gros characters) :': getSafe(formData.value.firstName) +' '+ getSafe(formData.value.lastName),
       'NOM jeune fille :': getSafe(formData.value.maidenName),
       'Date de naissance :': getSafe(formData.value.dateOfBirth),
       'Lieu de naissance :': getSafe(formData.value.placeOfBirth),
