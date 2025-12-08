@@ -400,6 +400,7 @@ import { useBooking } from '@/composables/useBooking2'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+import { getPaymentMethods } from '@/services/paymentMethodApi'
 // @ts-ignore
 import pHtml from '@/views/Bookings/p.html?raw'
 
@@ -446,7 +447,7 @@ const {
   onRoomNumberChange,
   getAdultOptions,
   getChildOptions,
-  TransportationModes,
+  TransportationModes
 } = useBooking()
 
 // State management
@@ -454,6 +455,7 @@ const submitted = ref(false)
 const showIdentitySection = ref(true)
 const htmlContent = ref<string>('')
 const isPreviewLoading = ref(true)
+const PaymentMethods = ref<any[]>([])
 
 // Cache parsed template once; clone for subsequent renders
 let _baseDoc: Document | null = null
@@ -499,6 +501,14 @@ const renderPrintHtml = () => {
       if (typeof rn === 'object') return getSafe(rn.label || rn.value)
       return getSafe(rn)
     })()
+   const getPaymentMethodName = (paymentModeId: any) => {
+      if (!paymentModeId) return ''
+      if (PaymentMethods.value && PaymentMethods.value.length > 0) {
+        const method = PaymentMethods.value.find((m: any) => m.id === paymentModeId)
+        return getSafe(method?.name || method?.methodName || paymentModeId)
+      }
+      return getSafe(paymentModeId)
+    }
     const getOptionLabel = (options: any[], value: any) => {
       const opt = options?.find?.((o: any) => o.value === value)
       return getSafe(opt?.label ?? value)
@@ -512,7 +522,7 @@ const renderPrintHtml = () => {
       'Venant de :': getSafe(reservation.value?.arrivingTo),
       'Se rendant à :': getSafe(reservation.value?.goingTo),
       'Mode de transport :': getOptionLabel(TransportationModes as unknown as any[], reservation.value?.meansOfTransport),
-      'Mode de paiement :': getSafe(billing.value?.paymentMode),
+      'Mode de paiement :': getPaymentMethodName(billing.value?.paymentMode),
       'NOM (en gros characters) :': getSafe(formData.value.lastName),
       'NOM jeune fille :': getSafe(formData.value.maidenName),
       'Date de naissance :': getSafe(formData.value.dateOfBirth),
@@ -846,11 +856,44 @@ watch(() => formData.value.contactType, (newType, oldType) => {
   }
 })
 
+const loadPaymentMethods = async () => {
+  try {
+    isLoading.value = true
+    const hotelId = useServiceStore().serviceId!
+    const response = await getPaymentMethods(hotelId)
+    console.log('city test', response)
+
+    if (response.data && Array.isArray(response.data.data)) {
+      PaymentMethods.value = response.data.data.map((method: any) => ({
+        id: method.id,
+        name: method.methodName,
+        description: method.description,
+        type: method.methodType,
+        ...method
+      }))
+    } else if (response.data && Array.isArray(response.data)) {
+      PaymentMethods.value = response.data.map((method: any) => ({
+        id: method.id,
+        name: method.methodName,
+        description: method.description,
+        type: method.methodType,
+        ...method
+      }))
+    }
+  } catch (error) {
+    console.error('Error loading payment methods:', error)
+    PaymentMethods.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // Initialize on mount
 onMounted(async () => {
   await fetchIdentityTypes()
   await initialize()
   updateHtml()
+  loadPaymentMethods()
 })
 
 // Ensure checkout date is never before check-in date

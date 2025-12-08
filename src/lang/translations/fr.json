@@ -535,6 +535,8 @@
       "roomNumberRequired": "Chambre {index} : Veuillez sélectionner un numéro de chambre.",
       "roomNumberInvalid": "Chambre {index} : Le numéro de chambre \"{value}\" n'est pas disponible pour {roomTypeName}."
     },
+    "duplicateRoomNumber": "Cette chambre est sélectionnée {count} fois. Veuillez choisir des chambres différentes.",
+    "roomTypeExceeded": "Type de chambre '{roomType}' : {selected} chambre(s) sélectionnée(s) mais seulement {available} disponible(s)",
     "userUpdatedSuccess": "Utilisateur modifié avec succès ✅",
     "fillRequiredFields": "Veuillez remplir tous les champs obligatoires.",
     "avheSuccess": "Désaffectation de la chambre terminée avec succès !",

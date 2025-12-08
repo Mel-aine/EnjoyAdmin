@@ -13,7 +13,7 @@
 
         <!-- Dropdown Menu -->
         <div v-if="isOpen" :class="[
-            'absolute right-0 top-full pt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-999 dark:bg-gray-800 dark:border-gray-700',
+            'absolute right-0 top-full pt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-9 dark:bg-gray-800 dark:border-gray-700',
             dropdownClass
         ]">
             <div class="py-2">

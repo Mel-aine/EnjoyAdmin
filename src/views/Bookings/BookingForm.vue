@@ -302,7 +302,7 @@
                           :use-dropdown="useDropdownRoomType"
                           :disabled="isLoadingRoom"
                           :isLoading="isLoadingRoom"
-                          @update:modelValue="onRoomTypeChange(room.id, $event)"
+                          @update:modelValue="onRoomTypeChangeWithValidation(room.id, $event)"
                           @clear-error="emit('clear-error')"
                           :class="{ 'border-red-500': isRoomTypeInvalid(room) }"
                         />
@@ -1040,8 +1040,9 @@
     <CheckInReservation
       :reservation-id="reservationId"
       :is-open="isCkeckInModalOpen"
-      :check-in-complete="handleCheckInComplete"
+      @check-in-complete="handleCheckInGroupComplete"
       @close="closeCheckInReservationModal"
+
     />
   </template>
 </template>
@@ -1252,7 +1253,9 @@ const {
   loadDraftAsyncData,
   getChildOptions,
   getAdultOptions,
-  formDataKey
+  formDataKey,
+  onRoomTypeChangeWithValidation,
+  validateRoomTypeAvailability
 } = useBooking()
 
 // Computed pour vérifier s'il y a des uploads en cours
@@ -1278,7 +1281,7 @@ const handleCheckIn = async () => {
     if (isGroupReservation.value) {
       // Pour les réservations de groupe, ouvrir la modal
       openCheckInReservationModal()
-      clearBooking()
+
     } else {
       isLoading.value = true
 
@@ -1320,13 +1323,13 @@ const handleCheckIn = async () => {
       console.log('ReservationRoom being checked in:', availableReservationRoom)
       const result = await performCheckIn(reservationId.value!, payload)
 
-      if (result) {
+       if (result) {
         handleCheckInComplete()
-        // clearBooking()
-
+        clearBooking()
         await router.push({
           name: 'ReservationDetails',
           params: { id: reservationId.value },
+          query: { tab: 'folio_operations' }
         })
       }
     }
@@ -1335,6 +1338,18 @@ const handleCheckIn = async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+
+const handleCheckInGroupComplete = async () => {
+  handleCheckInComplete()
+  clearBooking()
+  closeCheckInReservationModal()
+  await router.push({
+    name: 'ReservationDetails',
+    params: { id: reservationId.value },
+    query: { tab: 'folio_operations' }
+  })
 }
 
 // Ajoutez
@@ -1361,10 +1376,6 @@ const handleConfirmReservation = async () => {
 
       toast.success(t('bookings.success.reservationConfirmed'))
 
-      // await router.push({
-      //   name: 'ReservationDetails',
-      //   params: { id: reservationId.value },
-      // })
     }
   } catch (error: any) {
     console.error('Error confirming reservation:', error)
@@ -1418,11 +1429,19 @@ const selectOption = (option: any, roomId: string) => {
 const handleSubmit = async () => {
   submitted.value = true
   try {
+     const validation = validateRoomTypeAvailability()
+
+  if (!validation.isValid) {
+    validation.errors.forEach(error => toast.error(error))
+    return
+  }
     await saveReservation()
   } catch (error) {
     console.error('Error submitting reservation:', error)
   }
 }
+
+
 
 // const quickGroupBooking = ref(false)
 
@@ -1540,6 +1559,7 @@ watch(
     }
   }
 )
+
 </script>
 
 <style scoped>

@@ -518,6 +518,7 @@ const handleNoShowConfirmed = async () => {
   showNoShowModal.value = false
   updateLocalReservation({ status: 'no_show', availableActions: [] })
   emit('save', { action: 'noshow', reservationId: localRes.value?.id })
+  await refreshAvailableActions()
 }
 
 const handleUnAssignConfirmed = async (data: any) => {

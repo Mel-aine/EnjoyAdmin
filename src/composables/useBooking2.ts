@@ -547,6 +547,20 @@ export function useBooking() {
     },
   )
 
+  // Watcher pour détecter les problèmes de disponibilité en temps réel
+watch(
+  roomConfigurations,
+  (newConfigs) => {
+    // Vérification silencieuse (sans afficher d'erreurs)
+    const validation = validateRoomTypeAvailability()
+
+    if (!validation.isValid) {
+      console.warn('Availability issues detected:', validation.errors)
+    }
+  },
+  { deep: true }
+)
+
   // Methods pour la gestion des room types
   const getRateTypesForRoom = (roomId: string): Option[] => {
     const room = roomConfigurations.value.find((r) => r.id === roomId)
@@ -893,8 +907,6 @@ export function useBooking() {
     if (!isValid) {
       const roomTypeName = RoomTypes.value.find(rt => rt.value.toString() === room.roomType.toString())?.label || 'Unknown'
       toast.error(`Le numéro de chambre "${newRoomNumber}" n'est pas disponible pour le type "${roomTypeName}"`) // Corrected escaping for consistency
-      // Optionnel : réinitialiser le numéro de chambre
-      // room.roomNumber = ''
       return false
     }
 
@@ -946,6 +958,119 @@ export function useBooking() {
 
     return { isValid, errors };
   };
+
+  /**
+ * Valide que le nombre de chambres sélectionnées pour chaque type
+ * ne dépasse pas la disponibilité
+ */
+const validateRoomTypeAvailability = (): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = []
+
+  // Compter le nombre de chambres par type
+  const roomTypeCount = new Map<string, number>()
+
+  roomConfigurations.value.forEach((room) => {
+    if (room.roomType) {
+      const currentCount = roomTypeCount.get(room.roomType) || 0
+      roomTypeCount.set(room.roomType, currentCount + 1)
+    }
+  })
+
+  // Vérifier chaque type de chambre
+  roomTypeCount.forEach((count, roomTypeId) => {
+    const roomTypeOption = RoomTypes.value.find(rt => rt.value.toString() === roomTypeId.toString())
+
+    if (roomTypeOption) {
+      const availableCount = roomTypeOption.count || 0
+
+      if (count > availableCount) {
+        errors.push(
+          t('toast.roomTypeExceeded', {
+            roomType: roomTypeOption.label,
+            selected: count,
+            available: availableCount
+          })
+        )
+      }
+    }
+  })
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  }
+}
+
+/**
+ * Valide qu'aucun numéro de chambre n'est utilisé en double
+ */
+const validateNoDuplicateRoomNumbers = (): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = []
+  const roomNumberCounts = new Map<string, number>()
+
+  // Compter les occurrences de chaque numéro de chambre
+  roomConfigurations.value.forEach((room, index) => {
+    if (room.roomNumber) {
+      const roomNumberStr = room.roomNumber.toString()
+      const count = roomNumberCounts.get(roomNumberStr) || 0
+      roomNumberCounts.set(roomNumberStr, count + 1)
+    }
+  })
+
+  // Vérifier les doublons
+  roomNumberCounts.forEach((count, roomNumber) => {
+    if (count > 1) {
+      // Trouver le label du numéro de chambre pour un message plus clair
+      const roomLabel = roomConfigurations.value.find(
+        r => r.roomNumber?.toString() === roomNumber
+      )?.roomNumberLabel || roomNumber
+
+      errors.push(
+        t('toast.duplicateRoomNumber', {
+          roomNumber: roomLabel,
+          count: count
+        })
+      )
+    }
+  })
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  }
+}
+
+/**
+ * Validation complète
+ */
+
+const validateAllRoomsWithAvailability = () => {
+  let isValid = true
+  const errors: string[] = []
+
+  // Validation existante des champs
+  const basicValidation = validateAllRooms()
+  if (!basicValidation.isValid) {
+    errors.push(...basicValidation.errors)
+    isValid = false
+  }
+
+  // Validation de la disponibilité
+  const availabilityValidation = validateRoomTypeAvailability()
+  if (!availabilityValidation.isValid) {
+    errors.push(...availabilityValidation.errors)
+    isValid = false
+  }
+
+  const duplicateValidation = validateNoDuplicateRoomNumbers()
+  if (!duplicateValidation.isValid) {
+    errors.push(...duplicateValidation.errors)
+    isValid = false
+  }
+
+  return { isValid, errors }
+}
+
 
   const getAdultOptions = (roomTypeId: any | null) => {
     if (!roomTypeId) return []
@@ -1015,14 +1140,12 @@ export function useBooking() {
          throw new Error(t('Please select the payment method'))
        }*/
 
-      const roomValidation = validateAllRooms()
-      if (!roomValidation.isValid) {
-        // Afficher toutes les erreurs de validation des chambres
-        roomValidation.errors.forEach(error => toast.error(error))
-        isLoading.value = false
-        return
-        // throw new Error('Validation des numéros de chambre échouée')
-      }
+       const roomValidation = validateAllRoomsWithAvailability()
+        if (!roomValidation.isValid) {
+          roomValidation.errors.forEach(error => toast.error(error))
+          isLoading.value = false
+          return
+        }
 
       //email client
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -1385,6 +1508,39 @@ export function useBooking() {
       room.childCount = 0
     }
   }
+
+  /**
+ * Gestion du changement de type de chambre avec validation de disponibilité
+ */
+const onRoomTypeChangeWithValidation = async (roomId: string, newRoomTypeId: string) => {
+  const room = roomConfigurations.value.find((r) => r.id === roomId)
+  if (!room) return
+
+  // Sauvegarder l'ancien type pour pouvoir revenir en arrière si nécessaire
+  const oldRoomType = room.roomType
+
+  // Si on change vers un nouveau type, vérifier la disponibilité
+  if (newRoomTypeId && newRoomTypeId !== oldRoomType) {
+    // Compter temporairement comme si la chambre était déjà de ce type
+    const tempRoomType = room.roomType
+    room.roomType = newRoomTypeId
+
+    const validation = validateRoomTypeAvailability()
+
+    if (!validation.isValid) {
+      // Revenir à l'ancien type
+      room.roomType = tempRoomType
+
+      // Afficher l'erreur
+      validation.errors.forEach(error => toast.error(error))
+      return
+    }
+  }
+
+  // Si la validation passe, procéder avec le changement normal
+  await onRoomTypeChange(roomId, newRoomTypeId)
+}
+
 
   // Fonction updateBilling
   const updateBilling = () => {
@@ -1862,6 +2018,21 @@ const formDataKey = ref(Date.now())
       return
     }
 
+    const duplicateCount = roomConfigurations.value.filter(
+      r => r.roomNumber?.toString() === roomC.roomNumber?.toString()
+    ).length
+
+    if (duplicateCount > 1) {
+      const roomLabel = roomC.roomNumberLabel || roomC.roomNumber
+      toast.error(
+        t('toast.duplicateRoomNumber', {
+          roomNumber: roomLabel,
+          count: duplicateCount
+        })
+      )
+      return
+    }
+
     try {
       // Récupérer les détails de la chambre depuis l'API des chambres disponibles
       const response = await getAvailableRoomsByTypeId(
@@ -2247,7 +2418,11 @@ const formDataKey = ref(Date.now())
     isExtraChargesIncluded,
     getChildOptions,
     getAdultOptions,
-    formDataKey
+    formDataKey,
+    validateRoomTypeAvailability,
+    validateAllRoomsWithAvailability,
+    onRoomTypeChangeWithValidation,
+     validateNoDuplicateRoomNumbers,
   }
 }
 // Allow switching the reservation creation function

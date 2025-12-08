@@ -1,7 +1,7 @@
 <template>
   <RightSideModal :is-open="isOpen" :title="$t('AssignRoom')" @close="$emit('close')">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900">{{ $t('assignRooms') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900">{{ $t('AssignRoom') }}</h3>
     </template>
     <!-- Content -->
     <div class="space-y-6">
