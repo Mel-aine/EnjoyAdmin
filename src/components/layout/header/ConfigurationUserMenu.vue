@@ -70,7 +70,7 @@ const menuItems = computed(() => {
   ]
 
   if (authStore.hasPermission('access_to_channel_manager')) {
-    menus.push({ href: '/configuration/channel-manager/', icon: PlugInIcon, text: t('configuration.channelManager.title') })
+    menus.push({ href: '/configuration/channel-manager', icon: PlugInIcon, text: t('configuration.channelManager.title') })
   }
   return menus;
 })
