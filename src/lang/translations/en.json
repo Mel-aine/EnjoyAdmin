@@ -555,6 +555,7 @@
       "roomNumberRequired": "Room {index}: Please select a Room Number.",
       "roomNumberInvalid": "Room {index}: Room number \"{value}\" is not available for {roomTypeName}."
     },
+    "ROOM_NOT_ASSIGNED" : "Cannot check in without an assigned room.",
     "duplicateRoomNumber": "This Room is selected {count} times. Please choose different rooms.",
     "roomTypeExceeded": "Room type '{roomType}': {selected} room(s) selected but only {available} available",
     "fillRequiredFields": "Please fill in all required fields.",
@@ -7548,7 +7549,7 @@
   "Someroomshavealreadybeencheckedoutandcannotbeselected": "Some rooms have already been checked out and cannot be selected",
   "GroupCheck-out": "Group Check-out",
   "Check-out": "Check-out",
-  "All rooms have already been checked in": "All rooms have already been checked in",
+  "All rooms have already been checked in": "All rooms have already been checked in or or no rooms assigned",
   "Please select at least one available room for check-in": "Please select at least one available room for check-in",
   "Please provide check-in date and time": "Please provide check-in date and time",
   "Successfully checked in {count} room(s)": "Successfully checked in {count} room(s)",

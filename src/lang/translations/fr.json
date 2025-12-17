@@ -7516,7 +7516,7 @@
   "Someroomshavealreadybeencheckedoutandcannotbeselected": "Certaines chambres ont déjà été libérées et ne peuvent pas être sélectionnées",
   "GroupCheck-out": "Départ de groupe",
   "Check-out": "Départ",
-  "All rooms have already been checked in": "Toutes les chambres ont déjà été enregistrées",
+  "All rooms have already been checked in": "Toutes les chambres sont déjà occupées ou aucune chambre n'a été attribuée.",
   "Please select at least one available room for check-in": "Veuillez sélectionner au moins une chambre disponible pour l'enregistrement",
   "Please provide check-in date and time": "Veuillez fournir la date et l'heure d'enregistrement",
   "Successfully checked in {count} room(s)": "Enregistrement réussi pour {count} chambre(s)",

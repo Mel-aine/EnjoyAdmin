@@ -896,24 +896,24 @@ async function bookNow() {
       promoCode: promoApplied.value ? promo.value : null,
     }
 
-    console.log('Booking payload:', bookingPayload)
+    console.log('Booking payload:', bookingData.value)
     console.log('roomGuests payload:', roomGuests)
 
-    const response = await createOTAReservation(bookingPayload, hotelId.value)
+    // const response = await createOTAReservation(bookingPayload, hotelId.value)
 
-    if (response.success) {
-      bookingStore.clearBookingData()
-      router.push({
-        path: '/ota/confirmation',
-        query: {
-          reservationId: response.reservationId,
-          email: guest.value.email,
-          hotelId: hotelId.value,
-        },
-      })
-    } else {
-      throw new Error(response.error || 'Booking failed')
-    }
+    // if (response.success) {
+    //   bookingStore.clearBookingData()
+    //   router.push({
+    //     path: '/ota/confirmation',
+    //     query: {
+    //       reservationId: response.reservationId,
+    //       email: guest.value.email,
+    //       hotelId: hotelId.value,
+    //     },
+    //   })
+    // } else {
+    //   throw new Error(response.error || 'Booking failed')
+    // }
   } catch (error: any) {
     console.error('Booking error:', error)
     alert(

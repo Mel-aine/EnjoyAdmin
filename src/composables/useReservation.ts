@@ -100,14 +100,20 @@ export function useReservation() {
       }
 
       return response
-    } catch (error:any) {
-      console.error('Check-in error:', error)
-      if (!error.response || error.response.status !== 400) {
-        toast.error(t('toast.checkInError') || t('Failed to complete check-in. Please try again.'))
-      } else {
-        toast.error(error.response.data?.message || t('toast.checkInError'))
-      }
-      // throw error
+    } catch (error: any) {
+        console.error('Check-in error:', error)
+
+        const errorCode = error?.code
+        const backendMessage = error?.message
+
+        if (errorCode) {
+          toast.error(t(`toast.${errorCode}`))
+        } else if (backendMessage) {
+          toast.error(backendMessage)
+        } else {
+          toast.error(t('toast.checkInError'))
+        }
+
     } finally {
       isCheckingIn.value = false
     }
