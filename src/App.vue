@@ -4,10 +4,10 @@
     <SidebarProvider>  
       <TopProgressBar />
       <OverLoading v-if="isCheckoutOverlay" /> 
-      <RouterView />    
-      <ReAuthModal   
+      <RouterView />     
+      <ReAuthModal     
         :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
-        @close="handleClose"   
+        @close="handleClose"    
         @success="handleSuccess"
       />
     </SidebarProvider>  
