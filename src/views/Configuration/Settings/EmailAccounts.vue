@@ -65,8 +65,7 @@
             </div>
             <!-- Email Address -->
             <div class="mb-4">
-              <InputEmail :title="$t('Email Address')" :isRequired="true" v-model="formData.emailAddress" type="email"
-                :placeholder="t('emailAccounts.emailPlaceholder')" required />
+              <Input :lb="$t('email')" :isRequired="true" v-model="formData.emailAddress"  input-type="email" />
             </div>
 
             <!-- Display Name -->
