@@ -44,7 +44,7 @@
     <!-- Add Payment -->
     <template v-if="isAddPaymentModalOpen">
       <AddPaymentModal :reservation-id="localRes.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
-        @save="handleSavePayment" />
+        @save="handleSavePayment" :folio-id="primaryFolioId" />
     </template>
 
     <!-- Check Out -->
@@ -419,7 +419,7 @@ const isRoomMoveModalOpen = ref(false)
 const isExchangeRoomModalOpen = ref(false)
 
 // Modal open/close helpers
-const openAddPaymentModal = () => { isAddPaymentModalOpen.value = true }
+const openAddPaymentModal = () => { console.log('localRes.value:', localRes.value),isAddPaymentModalOpen.value = true }
 const closeAddPaymentModal = () => { isAddPaymentModalOpen.value = false }
 const openCheckOutReservationModal = () => { isCkeckOutModalOpen.value = true }
 const closeCheckOutReservationModal = () => { isCkeckOutModalOpen.value = false }
@@ -553,4 +553,18 @@ const handleSavePayment = (data: any) => {
   // Emit a save event, letting the parent component handle the refresh.
   emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data, needsRefresh: true });
 }
+
+const primaryFolioId = computed(() => {
+  if (!localRes.value) return null
+
+  if (localRes.value.folios && localRes.value.folios.length > 0) {
+    const primaryFolio = localRes.value.folios.find((f: any) => f.isPrimary)
+    if (primaryFolio) return primaryFolio.id
+
+    return localRes.value.folios[0].id
+  }
+
+
+  return null
+})
 </script>

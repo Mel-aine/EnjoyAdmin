@@ -21,7 +21,7 @@
           </div>
           <div v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber">
             <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
-            <div v-for="(fo, index) in folioList.filter(fo => fo.reservationRoomId === re.id)" :key="index">
+            <div v-for="(fo, index) in folioList" :key="`folio-${fo.id}`">
               <div
                 class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
                 :class="selectedFolio?.id === fo.id
@@ -430,9 +430,9 @@ const foglioData = computed(() => {
 const columns = computed<Column[]>(() => [
   { key: 'transactionDate', label: t('Day'), type: 'date' },
   { key: 'transactionNumber', label: t('Ref No.'), type: 'text' },
-  { key: 'particular', label: t('Particulars'), type: 'text', translatable: true },
-  { key: 'description', label: t('Description'), type: 'text' },
-  { key: 'modifier.fullName', label: t('User'), type: 'custom' },
+  { key: 'description', label: t('Particulars'), type: 'text', translatable: true },
+  { key: 'notes', label: t('Description'), type: 'text' },
+  { key: 'creator.fullName', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
   { key: 'actions', label: '', type: 'custom' }
 ])

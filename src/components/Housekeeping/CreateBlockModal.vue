@@ -51,7 +51,7 @@
               :modelValue="range"
               @update:modelValue="updateDateRange(index, $event)"
               :title="$t('DateRange')"
-              :allowPastDates="false"
+              :allowPastDates="true"
               :is-required="true"
               @clear-error="clearDateRangeError(index)"
             />
@@ -77,9 +77,9 @@
           />
         </div>
 
-        <p v-if="validationErrors.dateRanges" class="mt-1 text-xs text-red-500">
+        <!-- <p v-if="validationErrors.dateRanges" class="mt-1 text-xs text-red-500">
           {{ validationErrors.dateRanges }}
-        </p>
+        </p> -->
       </div>
 
       <!-- Status -->
@@ -287,14 +287,14 @@ const isFormValid = computed(() => {
   const hasServiceId = !!serviceStore.serviceId
   const hasRoomType = !!selectedRoomTypeId.value
   const hasSelectedRooms = formData.selectedRooms.length > 0
-  const hasValidDateRanges = formData.dateRanges.some(range => range.start && range.end)
+  // const hasValidDateRanges = formData.dateRanges.some(range => range.start && range.end)
   const hasReason = formData.reason && formData.reason.trim() !== ''
   const noValidationErrors = Object.values(validationErrors).every(error => error === '')
 
   return hasServiceId &&
          hasRoomType &&
          hasSelectedRooms &&
-         hasValidDateRanges &&
+        //  hasValidDateRanges &&
          hasReason &&
          noValidationErrors
 })
@@ -455,15 +455,15 @@ const validateForm = (): boolean => {
       today.setHours(0, 0, 0, 0)
 
       // Vérifier que les dates ne sont pas dans le passé
-      if (startDate < today) {
-        validationErrors.dateRanges = t('StartDateCannotBeInPast')
-        return false
-      }
+      // if (startDate < today) {
+      //   validationErrors.dateRanges = t('StartDateCannotBeInPast')
+      //   return false
+      // }
 
-      if (endDate < today) {
-        validationErrors.dateRanges = t('EndDateCannotBeInPast')
-        return false
-      }
+      // if (endDate < today) {
+      //   validationErrors.dateRanges = t('EndDateCannotBeInPast')
+      //   return false
+      // }
 
       // Vérifier que la date de fin est après la date de début
       if (startDate >= endDate) {

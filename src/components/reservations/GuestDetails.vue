@@ -893,7 +893,12 @@ const fullName = computed(() => (guestData.firstName + ' ' + guestData.lastName 
 watch(
   selectedGuest,
   (newGuest) => {
-    Object.assign(guestData, initializeGuestData(newGuest))
+    //  Réinitialiser complètement guestData
+    const newData = initializeGuestData(newGuest)
+    Object.keys(guestData).forEach(key => {
+      delete guestData[key as keyof GuestData]
+    })
+    Object.assign(guestData, newData)
     resetKey.value++
   },
   { deep: true },
@@ -925,11 +930,22 @@ const guestTypeOptions: SelectOption[] = [
 
 
 
-
 const selectGuest = (guest: any) => {
-  selectedGuest.value = guest
+  //  Créer une COPIE PROFONDE pour éviter les références partagées
+  selectedGuest.value = JSON.parse(JSON.stringify(guest))
   isCreatingNewGuest.value = false
-  Object.assign(guestData, initializeGuestData(guest))
+
+  // Réinitialiser complètement guestData avec les nouvelles données
+  const newGuestData = initializeGuestData(selectedGuest.value)
+
+  // Supprimer toutes les propriétés existantes
+  Object.keys(guestData).forEach(key => {
+    delete guestData[key as keyof GuestData]
+  })
+
+  // Assigner les nouvelles données
+  Object.assign(guestData, newGuestData)
+
   isEditing.value = false
   resetKey.value++
 }
@@ -1165,9 +1181,25 @@ const saveGuest = async () => {
       await updateGuest(guestId, payload)
       toast.success(t('Guest updated successfully'))
 
-      // Mettre à jour les données de l'invité sélectionné
+
+     //  Mettre à jour l'invité dans la liste avec une NOUVELLE référence
+      const guestIndex = guestList.value.findIndex((g:any) => g.id === guestId)
+      if (guestIndex !== -1) {
+        // Créer un NOUVEL objet pour forcer la réactivité
+        guestList.value[guestIndex] = {
+          ...guestList.value[guestIndex],
+          ...guestData,
+          id: guestId // S'assurer que l'ID reste correct
+        }
+      }
+
+      //  Mettre à jour selectedGuest avec une nouvelle référence
       if (selectedGuest.value) {
-        Object.assign(selectedGuest.value, guestData)
+        selectedGuest.value = {
+          ...selectedGuest.value,
+          ...guestData,
+          id: guestId
+        }
       }
     }
 
@@ -1185,6 +1217,7 @@ const saveGuest = async () => {
 
 const cancelEdit = () => {
   isEditing.value = false
+
   if (isCreatingNewGuest.value) {
     isCreatingNewGuest.value = false
     const guestToSelect = props.guest || guestList.value?.[0]
@@ -1192,11 +1225,21 @@ const cancelEdit = () => {
       selectGuest(guestToSelect)
     } else {
       selectedGuest.value = null
-      Object.assign(guestData, initializeGuestData(null))
+      const emptyData = initializeGuestData(null)
+      Object.keys(guestData).forEach(key => {
+        delete guestData[key as keyof GuestData]
+      })
+      Object.assign(guestData, emptyData)
     }
   } else {
-    Object.assign(guestData, initializeGuestData(selectedGuest.value))
+    //  Recharger les données originales de l'invité
+    const originalData = initializeGuestData(selectedGuest.value)
+    Object.keys(guestData).forEach(key => {
+      delete guestData[key as keyof GuestData]
+    })
+    Object.assign(guestData, originalData)
   }
+
   resetKey.value++
 }
 

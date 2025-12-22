@@ -51,11 +51,17 @@
           </h3>
 
           <form @submit.prevent="savePayMethod">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
               <div class="mb-4">
                 <Input v-model="formData.shortCode" :lb="$t('configuration.payment_method.short_code')"
                   inputType="text" :isRequired="true"
                   :placeholder="$t('configuration.payment_method.short_code_placeholder')" />
+              </div>
+
+              <div class="mb-4">
+                <Input v-model="formData.methodCode" :lb="$t('configuration.payment_method.method_code')"
+                  inputType="text" :isRequired="true"
+                  :placeholder="$t('configuration.payment_method.method_code_placeholder')" />
               </div>
 
               <div class="mb-4">
@@ -215,8 +221,8 @@ const actions = computed<Action[]>(() => [
 ])
 
 const Types = computed(()=>[
-  {label:t('configuration.payment_method.type_cash') ,value:'CASH'},
-  {label:t('configuration.payment_method.type_bank') ,value:'BANK'},
+  {label:t('configuration.payment_method.type_cash') ,value:'cash'},
+  {label:t('configuration.payment_method.type_bank') ,value:'city_ledger'},
 ])
 
 const surChargesTypes = computed(()=>[
@@ -232,9 +238,10 @@ const formData = ref({
   cardProcessing: false,
   surchargeSetting: false,
   surchargeType: 'amount',
-  surchargeValue: '',
+  surchargeValue: 0,
   extraCharge: '',
-  receiptNoSetting: 'auto_general'
+  receiptNoSetting: 'auto_general',
+  methodCode : ''
 })
 
 const payMethods = ref<any[]>([])
@@ -265,9 +272,10 @@ const openAddModal = () => {
     cardProcessing: false,
     surchargeSetting: false,
     surchargeType: 'amount',
-    surchargeValue: '',
+    surchargeValue: 0,
     extraCharge: '',
-    receiptNoSetting: 'auto_general'
+    receiptNoSetting: 'auto_general',
+    methodCode : ''
   }
   showModal.value = true
 }
@@ -289,16 +297,20 @@ const savePayMethod = async () => {
 
     const paymentMethodData = {
       shortCode: formData.value.shortCode,
-      name: formData.value.name,
-      type: formData.value.type,
+      methodName: formData.value.name,
+      methodType: formData.value.type,
       cardProcessing: formData.value.cardProcessing,
-      surchargeSetting: formData.value.surchargeSetting,
+      surchargeEnabled: formData.value.surchargeSetting,
       surchargeType: formData.value.surchargeType,
       surchargeValue: formData.value.surchargeValue,
-      extraCharge: formData.value.extraCharge,
+      extraChargeId: formData.value.extraCharge,
       receiptNoSetting: formData.value.receiptNoSetting,
-      hotelId: serviceStore.serviceId
+      hotelId: serviceStore.serviceId,
+      methodCode : formData.value.methodCode
+
     }
+
+    console.log('paymentMethodData', paymentMethodData)
 
     if (isEditing.value && formData.value.id) {
       // Update existing payment method

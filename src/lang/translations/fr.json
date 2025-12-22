@@ -535,6 +535,7 @@
       "roomNumberRequired": "Chambre {index} : Veuillez sélectionner un numéro de chambre.",
       "roomNumberInvalid": "Chambre {index} : Le numéro de chambre \"{value}\" n'est pas disponible pour {roomTypeName}."
     },
+    "error_save_extra_charge": "Erreur lors de l'enregistrement des frais supplémentaires ❌",
     "duplicateRoomNumber": "Cette chambre est sélectionnée {count} fois. Veuillez choisir des chambres différentes.",
     "roomTypeExceeded": "Type de chambre '{roomType}' : {selected} chambre(s) sélectionnée(s) mais seulement {available} disponible(s)",
     "userUpdatedSuccess": "Utilisateur modifié avec succès ✅",
@@ -5986,7 +5987,9 @@
       "type": "Type",
       "select_type": "Sélectionner le type",
       "type_cash": "Espèces",
-      "type_bank": "Banque",
+      "type_bank": "City Ledger",
+      "method_code": "Code de la méthode",
+      "method_code_placeholder": "Entrer le code de la méthode",
       "type_credit_card": "Carte de crédit",
       "type_debit_card": "Carte de débit",
       "type_bank_transfer": "Virement bancaire",
@@ -6297,7 +6300,10 @@
       "confirm_delete_title": "Supprimer la taxe",
       "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer '{name}' ?",
       "confirm_delete_selected_title": "Supprimer les taxes sélectionnées",
-      "confirm_delete_selected_message": "Êtes-vous sûr de vouloir supprimer {count} taxes sélectionnées ?"
+      "confirm_delete_selected_message": "Êtes-vous sûr de vouloir supprimer {count} taxes sélectionnées ?",
+      "save_error": "Échec de l'enregistrement de la taxe",
+      "delete_error": "Échec de la suppression de la taxe",
+      "fetch_error": "Échec du chargement des taxes"
     },
     "payout_reasons": {
       "title": "Gestion des Motifs de Décaissement",
@@ -8726,5 +8732,6 @@
   "Room & Rate Information" : "Informations sur la chambre & les tarifs",
   "Financial Information" : "Informations financières",
   "Booking Source & Type" : "Source & Type de réservation",
-  "Additional Information" : "Informations complémentaires"
+  "Additional Information" : "Informations complémentaires",
+  "Error deleting extra charge": "Erreur lors de la suppression des frais supplémentaires"
 }

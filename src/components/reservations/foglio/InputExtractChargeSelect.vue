@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import DotSpinner from '@/components/spinner/DotSpinner.vue'
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
-import { getExtraCharges } from '@/services/configrationApi'
+import { getAllExtraCharges } from '@/services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash'
 import { formatCurrency } from '../../../utils/numericUtils'
@@ -192,7 +192,7 @@ const debouncedSearch = debounce((query: string) => {
 const loadExtraCharges = async () => {
   try {
     isLoading.value = true
-    const response = await getExtraCharges()
+    const response = await getAllExtraCharges(props.hotelId!)
     console.log('response.data',response.data)
     // Transform the response data
     const charges = (response.data?.data?.data || response.data?.data || response.data || []).map((charge: any) => {
@@ -270,7 +270,7 @@ const selectCharge = (charge: ExtraChargeOption) => {
     emit('update:modelValue', charge.id)
     emit('select', charge)
     emit('change', charge.id)
-  
+
 }
 
 const handleClickOutside = (event: MouseEvent) => {

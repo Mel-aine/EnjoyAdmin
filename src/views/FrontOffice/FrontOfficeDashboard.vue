@@ -169,11 +169,9 @@
                         <span class="">
                           {{ $t('reports.frontOffice.occupancyRate') }}:
                           <span :class="{
-                            'text-green-600 font-semibold': parseFloat(suite.occupancyRate) < 50,
-                            'text-yellow-600 font-semibold':
-                              parseFloat(suite.occupancyRate) >= 50 &&
-                              parseFloat(suite.occupancyRate) < 80,
-                            'text-red-600 font-semibold': parseFloat(suite.occupancyRate) >= 80,
+                            'text-green-600 font-semibold': parseFloat(suite.occupancyRate) >= 50,
+
+                            'text-red-600 font-semibold': parseFloat(suite.occupancyRate) < 50,
                           }">
                             {{ suite.occupancyRate }}
                           </span>
