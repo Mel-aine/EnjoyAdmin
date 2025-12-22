@@ -555,6 +555,7 @@
       "roomNumberRequired": "Room {index}: Please select a Room Number.",
       "roomNumberInvalid": "Room {index}: Room number \"{value}\" is not available for {roomTypeName}."
     },
+    "error_save_extra_charge": "Error saving extra charge",
     "ROOM_NOT_ASSIGNED" : "Cannot check in without an assigned room.",
     "duplicateRoomNumber": "This Room is selected {count} times. Please choose different rooms.",
     "roomTypeExceeded": "Room type '{roomType}': {selected} room(s) selected but only {available} available",
@@ -5985,13 +5986,15 @@
       "save_payment_method": "Save Payment Method",
       "update_payment_method": "Update Payment Method",
       "short_code": "Short Code",
+      "method_code_placeholder": "Enter method code",
+      "method_code": "Method Code",
       "short_code_placeholder": "Enter short code",
       "payment_method": "Payment Method",
       "name_placeholder": "e.g., Cash, VISA, MASTERCARD",
       "type": "Type",
       "select_type": "Select type",
       "type_cash": "Cash",
-      "type_bank": "Bank",
+      "type_bank": "City Ledger",
       "type_credit_card": "Credit Card",
       "type_debit_card": "Debit Card",
       "type_bank_transfer": "Bank Transfer",
@@ -6301,7 +6304,10 @@
       "confirm_delete_title": "Delete Tax",
       "confirm_delete_message": "Are you sure you want to delete '{name}'?",
       "confirm_delete_selected_title": "Delete Selected Taxes",
-      "confirm_delete_selected_message": "Are you sure you want to delete {count} selected taxes?"
+      "confirm_delete_selected_message": "Are you sure you want to delete {count} selected taxes?",
+      "fetch_error": "Failed to load taxes",
+      "delete_error": "Error deleting tax",
+      "save_error": "Failed to save tax"
     },
     "payout_reasons": {
       "title": "Payout Reasons Management",
@@ -8561,5 +8567,6 @@
   "Room & Rate Information" : "Room & Rate Information",
   "Financial Information" : "Financial Information",
   "Booking Source & Type" : "Booking Source & Type",
-  "Additional Information" : "Additional Information"
+  "Additional Information" : "Additional Information",
+  "Error deleting extra charge": "Error deleting extra charge"
 }

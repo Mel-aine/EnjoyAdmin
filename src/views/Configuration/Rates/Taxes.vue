@@ -383,7 +383,7 @@ const loadTaxes = async (pageNumber=1) => {
     console.log('taxes',taxes.value)
   } catch (error) {
     console.error('Error loading taxes:', error)
-    toast.error(t('something_went_wrong'))
+    toast.error(t('configuration.taxes.fetch_error'))
   } finally {
     loading.value = false
   }
@@ -427,7 +427,7 @@ const deleteTax = async (tax: any) => {
     await loadTaxes()
   } catch (error) {
     console.error('Error deleting tax:', error)
-    toast.error(t('something_went_wrong'))
+    toast.error(t('configuration.taxes.delete_error'))
   } finally {
     confirmLoading.value = false
   }
@@ -444,7 +444,7 @@ const deleteSelected = async () => {
     await loadTaxes()
   } catch (error) {
     console.error('Error deleting selected taxes:', error)
-    toast.error(t('something_went_wrong'))
+    toast.error(t('configuration.taxes.delete_error'))
   } finally {
     confirmLoading.value = false
   }
@@ -506,7 +506,7 @@ const saveTax = async () => {
     await loadTaxes(1)
   } catch (error) {
     console.error('Error saving tax:', error)
-    toast.error(t('something_went_wrong'))
+    toast.error(t('configuration.taxes.save_error'))
   } finally {
     loading.value = false
   }

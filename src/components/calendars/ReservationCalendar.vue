@@ -98,7 +98,7 @@
                   <template v-if="selectedRoomTypes.includes(group.room_type_id)">
                     <tr>
                       <td
-                        class="h-8 min-w-50 font-bold bg-green-100 dark:bg-green-900/30 px-2 py-1 border border-gray-400 dark:border-gray-700 cursor-pointer hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors dark:text-gray-200"
+                        class="h-8 min-w-50 font-bold bg-green-100 dark:bg-green-900/30 px-2 py-1 border border-gray-400 dark:border-gray-700 cursor-pointer hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors dark:text-gray-200  z-40"
                         @click="toggleRoomType(group.room_type)">
                         <div class="flex items-center justify-between">
                           <div class="flex items-center gap-2">
@@ -112,7 +112,7 @@
                         </div>
                       </td>
                       <td v-for="(date, j) in visibleDates" :key="j"
-                        class="bg-green-100 dark:bg-green-900/30 px-2 py-1 border border-gray-400 dark:border-gray-700 cursor-pointer hover:bg-green-200 dark:hover:bg-green-900/50 text-center dark:text-gray-200">
+                        class="bg-green-100 dark:bg-green-900/30 px-2 py-1 border border-gray-400 dark:border-gray-700 cursor-pointer hover:bg-green-200 dark:hover:bg-green-900/50 text-center dark:text-gray-200 z-30">
                         <div class="flex flex-col gap-1 justify-center align-middle self-center items-center">
                           <div class="flex gap-1">
                             <span
@@ -176,14 +176,14 @@
 
                         <!-- Cellules vides/sélectionnables -->
                         <td v-else-if="shouldShowCell(group, room, cell)" :class="[
-                          'px-[1px] py-[1px] h-8 border dark:bg-black border-gray-400 cell-transition cell-selectable cell-hoverable relative',
+                          'px-[1px] py-[1px] h-8 border dark:bg-black border-gray-400 cell-transition cell-selectable cell-hoverable relative ',
                           getUnifiedCellClass(group, room, cell)
                         ]" @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date, $event)"
                           @mouseup="endCellSelection($event)">
                           <!-- Room block overlay spanning across cells (full widths, no halves) -->
                           <div v-if="cell.roomBlock && isRoomBlockAnchor(cell)"
-                            :class="['group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-10', getRoomBlockColor(cell.roomBlock.status)]"
+                            :class="['group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20', getRoomBlockColor(cell.roomBlock.status)]"
                             :style="getRowBlockOverlayStyle(cell)">
                             <span class="truncate">{{ cell.roomBlock.reason }}</span>
                           </div>
@@ -207,50 +207,12 @@
                                 class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
                               <User2 v-if="res?.isWomen" class="bg-pink-400 w-3 h-3 text-white flex-shrink-0"
                                 :title="$t('Female Guest')" />
-                                
+
                               <SplitIcon v-if="res?.isSplitedOrigin || res?.isSplitedDestination"
                                 class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
                             </div>
 
-                            <!-- Hover tooltip (match normal reservation overlay) -->
-                            <div
-                              class="absolute bottom-0 z-[99999] w-full flex-col items-center hidden mb-5 group-hover:flex">
-                              <div
-                                class="relative rounded-md z-[99999] p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg min-w-[18rem]">
-                                <div class='flex flex-col gap-2'>
-                                  <div class="flex justify-between">
-                                    {{ $t('Name') }}:
-                                    <span class="flex items-center gap-2">
-                                      <img v-if="getOtaIconSrcForReservation(res)"
-                                        :src="getOtaIconSrcForReservation(res) ?? ''" alt="OTA" class="w-4 h-4" />
-                                      <Building2Icon v-else class="w-4 h-4 text-white" />
-                                      <span>{{ res?.guest_name }}</span>
-                                    </span>
-                                  </div>
-                                  <div class="flex justify-between">
-                                    {{ $t('Check-in Date') }}:
-                                    <span>{{ formatDateLocal(res?.check_in_date) }} {{ res?.check_in_time }}</span>
-                                  </div>
-                                  <div class="flex justify-between gap-4">
-                                    {{ $t('Check-out Date') }}:
-                                    <span>{{ formatDateLocal(res?.check_out_date) }} {{ res?.check_out_time }}</span>
-                                  </div>
-                                  <div class="flex justify-between text-blue-600">
-                                    <span class="font-medium">{{ $t('Total') }}:</span>
-                                    <span>{{ formatCurrency(res?.balance_summary?.totalChargesWithTaxes) }}</span>
-                                  </div>
-                                  <div class="flex justify-between text-green-600">
-                                    <span class="font-medium">{{ $t('paid') }}:</span>
-                                    <span>{{ formatCurrency(res?.balance_summary?.totalPayments) }}</span>
-                                  </div>
-                                  <div class="flex justify-between text-red-600">
-                                    <span class="font-medium">{{ $t('balance') }}:</span>
-                                    <span>{{ formatCurrency(res?.balance_summary?.outstandingBalance) }}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="w-3 h-3 -mt-2 rotate-45 bg-blue-light-950"></div>
-                            </div>
+
                           </div>
 
                           <!-- Middle-day reservation segment (full width) -->
@@ -281,55 +243,6 @@
                                 class=" w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
                             </div>
 
-                            <!-- Hover tooltip -->
-                            <div
-                              class="absolute bottom-0 z-[99999] w-full flex-col items-center hidden mb-5 group-hover:flex">
-                              <div
-                                class="relative rounded-md z-[99999] p-4 text-md leading-none text-white whitespace-no-wrap bg-blue-950 shadow-lg min-w-[18rem]">
-                                <div class='flex flex-col gap-2'>
-                                  <div class="flex justify-between">
-                                    {{ $t('Name') }}:
-                                    <span class="flex items-center gap-2">
-                                      <img
-                                        v-if="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver)"
-                                        :src="getOtaIconSrcForReservation(cell.reservationStart || cell.reservationCarryOver) ?? ''"
-                                        alt="OTA" class="w-4 h-4" />
-                                      <Building2Icon v-else class="w-4 h-4 text-white" />
-                                      <span>{{ (cell.reservationStart || cell.reservationCarryOver)?.guest_name
-                                      }}</span>
-                                    </span>
-                                  </div>
-                                  <div class="flex justify-between">
-                                    {{ $t('Check-in Date') }}:
-                                    <span>{{ formatDateLocal((cell.reservationStart ||
-                                      cell.reservationCarryOver)?.check_in_date) }} {{ (cell.reservationStart ||
-                                        cell.reservationCarryOver)?.check_in_time }}</span>
-                                  </div>
-                                  <div class="flex justify-between gap-4">
-                                    {{ $t('Check-out Date') }}:
-                                    <span>{{ formatDateLocal((cell.reservationStart ||
-                                      cell.reservationCarryOver)?.check_out_date) }} {{ (cell.reservationStart ||
-                                        cell.reservationCarryOver)?.check_out_time }}</span>
-                                  </div>
-                                  <div class="flex justify-between text-blue-600">
-                                    <span class="font-medium">{{ $t('Total') }}:</span>
-                                    <span>{{ formatCurrency((cell.reservationStart ||
-                                      cell.reservationCarryOver)?.balance_summary?.totalChargesWithTaxes) }}</span>
-                                  </div>
-                                  <div class="flex justify-between text-green-600">
-                                    <span class="font-medium">{{ $t('paid') }}:</span>
-                                    <span>{{ formatCurrency((cell.reservationStart ||
-                                      cell.reservationCarryOver)?.balance_summary?.totalPayments) }}</span>
-                                  </div>
-                                  <div class="flex justify-between text-red-600">
-                                    <span class="font-medium">{{ $t('balance') }}:</span>
-                                    <span>{{ formatCurrency((cell.reservationStart ||
-                                      cell.reservationCarryOver)?.balance_summary?.outstandingBalance) }}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="w-3 h-3 -mt-2 rotate-45 bg-blue-light-950"></div>
-                            </div>
                           </div>
 
                           <div v-if="isCellSelected(group.room_type, room.room_number, cell.date)"
@@ -346,7 +259,7 @@
             </tbody>
           </table>
         </div>
-        <div class="sticky bottom-0 bg-white shadow z-10">
+        <div class="sticky bottom-0 bg-white dark:bg-gray-900 shadow-lg z-40 border-t border-gray-400 dark:border-gray-700">
           <table class="w-full border-t border border-gray-400 text-sm table-fixed">
 
             <tfoot>
@@ -449,6 +362,56 @@
     </template>
   </FullScreenLayout>
   <!-- </AdminLayout> -->
+   <!-- Tooltip Portal Container -->
+<Teleport to="body">
+  <div v-if="tooltipReservation && tooltipPosition"
+    class="fixed z-[9999] pointer-events-none"
+    :style="{
+      left: `${tooltipPosition.x}px`,
+      top: `${tooltipPosition.y - 20}px`,
+      transform: 'translate(-50%, -100%)'
+    }">
+    <div class="relative rounded-md p-4 text-sm leading-none text-white whitespace-nowrap bg-blue-950 shadow-2xl min-w-[18rem] border border-blue-800">
+      <div class='flex flex-col gap-2'>
+        <div class="flex justify-between">
+          <span class="text-gray-300">{{ $t('Name') }}:</span>
+          <span class="flex items-center gap-2 font-semibold">
+            <img v-if="getOtaIconSrcForReservation(tooltipReservation)"
+              :src="getOtaIconSrcForReservation(tooltipReservation) ?? ''"
+              alt="OTA" class="w-4 h-4" />
+            <Building2Icon v-else class="w-4 h-4 text-white" />
+            <span>{{ tooltipReservation?.guest_name }}</span>
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-300">{{ $t('Check-in Date') }}:</span>
+          <span class="font-medium">{{ formatDateLocal(tooltipReservation?.check_in_date) }} {{ tooltipReservation?.check_in_time }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-300">{{ $t('Check-out Date') }}:</span>
+          <span class="font-medium">{{ formatDateLocal(tooltipReservation?.check_out_date) }} {{ tooltipReservation?.check_out_time }}</span>
+        </div>
+        <div class="h-px bg-blue-800 my-1"></div>
+        <div class="flex justify-between text-blue-400">
+          <span class="font-medium">{{ $t('Total') }}:</span>
+          <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.totalChargesWithTaxes) }}</span>
+        </div>
+        <div class="flex justify-between text-green-400">
+          <span class="font-medium">{{ $t('paid') }}:</span>
+          <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.totalPayments) }}</span>
+        </div>
+        <div class="flex justify-between text-red-400">
+          <span class="font-medium">{{ $t('balance') }}:</span>
+          <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.outstandingBalance) }}</span>
+        </div>
+      </div>
+    </div>
+    <!-- Flèche pointant vers le bas -->
+    <div class="absolute left-1/2 -translate-x-1/2 -bottom-1">
+      <div class="w-3 h-3 rotate-45 bg-blue-950 border-r border-b border-blue-800"></div>
+    </div>
+  </div>
+</Teleport>
 </template>
 
 <script setup lang="ts">
@@ -478,6 +441,7 @@ import { useStatusColor } from '@/composables/statusColorStore'
 const isLoading = ref(false);
 const isRefreshing = ref(false);
 const laoded = ref(false);
+const currentHoveredReservation = ref<string | null>(null)
 const statusColorStore = useStatusColor()
 function getReservationTypeIcon(type: string) {
   switch (type) {
@@ -1252,17 +1216,58 @@ watch([selectedDate, daysToShow], () => {
 
 
 
+
+
 const tooltipReservation = ref<any | null>(null)
 const tooltipPosition = ref<{ x: number, y: number } | null>(null)
 
+
 function showReservationTooltip(reservation: any, event: MouseEvent) {
+  const reservationId = reservation?.reservation_id || reservation?.id
+
+  // Éviter les tooltips multiples
+  if (currentHoveredReservation.value && currentHoveredReservation.value !== reservationId) {
+    hideReservationTooltip()
+  }
+
+  currentHoveredReservation.value = reservationId
   tooltipReservation.value = reservation
-  tooltipPosition.value = { x: event.clientX, y: event.clientY }
+
+  // Position avec ajustement intelligent
+  const rect = (event.target as HTMLElement).getBoundingClientRect()
+  const viewportHeight = window.innerHeight
+  const tooltipHeight = 300 // Hauteur estimée de la tooltip
+
+  let x = event.clientX
+  let y = event.clientY
+
+  // Si trop proche du haut, afficher en dessous
+  if (y < tooltipHeight + 20) {
+    y = rect.bottom + 10
+  }
+
+  // Si trop proche du bas, afficher au-dessus
+  if (y + tooltipHeight > viewportHeight) {
+    y = rect.top - 10
+  }
+
+  tooltipPosition.value = { x, y }
 }
+
 function hideReservationTooltip() {
+  currentHoveredReservation.value = null
   tooltipReservation.value = null
   tooltipPosition.value = null
 }
+
+// function showReservationTooltip(reservation: any, event: MouseEvent) {
+//   tooltipReservation.value = reservation
+//   tooltipPosition.value = { x: event.clientX, y: event.clientY }
+// }
+// function hideReservationTooltip() {
+//   tooltipReservation.value = null
+//   tooltipPosition.value = null
+// }
 
 const statusElements = ref([
   'all',
