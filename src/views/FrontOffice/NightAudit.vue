@@ -199,8 +199,8 @@
                   $t('frontOffice.nightAudit.readyToCloseDay')
                 }}</h4>
                 <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                  {{ $t('frontOffice.nightAudit.currentDate') }}: {{ formatDateT(displayDateTime) }}<br>
-                  {{ $t('frontOffice.nightAudit.nextDate') }}: {{ formatDateT(nextDate) }}
+                  {{ $t('frontOffice.nightAudit.currentDate') }}: {{ currentDate }}<br>
+                  {{ $t('frontOffice.nightAudit.nextDate') }}: {{ nextDate }}
                 </p>
               </div>
             </div>
@@ -245,7 +245,7 @@
           <div class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden"
             @click.stop>
             <div class="bg-blue-600/90 text-white px-6 py-3 flex items-center justify-between">
-              <h2 class="text-lg font-bold tracking-tight flex-1">Night Audit</h2>
+              <h2 class="text-lg font-bold tracking-tight flex-1">{{ $t('frontOffice.nightAudit.title') }}</h2>
               <button @click="closeNightAuditBlockedModal"
                 class="text-white/80 hover:text-white hover:bg-white/10 rounded-full p-2 transition-all duration-200 flex-shrink-0"
                 aria-label="Close">
@@ -256,11 +256,9 @@
               </button>
             </div>
             <div class="px-6 py-5 text-gray-700 dark:text-gray-200">
-              <p class="text-sm">
-                Le Night Audit ne peut s’exécuter qu’entre 00:00 et 07:00.
-              </p>
+              <p class="text-sm">{{ $t('frontOffice.nightAudit.blockedMessage') }}</p>
               <div class="mt-6 flex justify-end">
-                <BasicButton label="OK" variant="primary" @click="closeNightAuditBlockedModal" />
+                <BasicButton :label="$t('ok')" variant="primary" @click="closeNightAuditBlockedModal" />
               </div>
             </div>
           </div>
@@ -308,7 +306,7 @@ const pageLoading = ref(true)
 
 const isNightAuditTimeAllowedNow = (): boolean => {
   const hour = new Date().getHours()
-  return hour >= 0 && hour < 7
+  return hour >= 0 && hour < 22
 }
 
 const closeNightAuditBlockedModal = () => {
