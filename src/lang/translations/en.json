@@ -6699,7 +6699,7 @@
       "nextDate": "Next Date",
       "currentWorkingDate": "Current Working Date",
       "lastNightAudit": "Last Night Audit",
-      "blockedMessage": "Night Audit can only be executed between 00:00 and 07:00.",
+      "blockedMessage": "Night Audit can only be executed between {start} and {end}.",
       "steps": {
         "pendingReservations": {
           "name": "Pending Reservations",

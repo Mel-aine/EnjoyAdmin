@@ -244,7 +244,7 @@
           @click.self="closeNightAuditBlockedModal">
           <div class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden"
             @click.stop>
-            <div class="bg-blue-600/90 text-white px-6 py-3 flex items-center justify-between">
+            <div class="bg-primary text-white px-6 py-3 flex items-center justify-between">
               <h2 class="text-lg font-bold tracking-tight flex-1">{{ $t('frontOffice.nightAudit.title') }}</h2>
               <button @click="closeNightAuditBlockedModal"
                 class="text-white/80 hover:text-white hover:bg-white/10 rounded-full p-2 transition-all duration-200 flex-shrink-0"
@@ -256,7 +256,14 @@
               </button>
             </div>
             <div class="px-6 py-5 text-gray-700 dark:text-gray-200">
-              <p class="text-sm">{{ $t('frontOffice.nightAudit.blockedMessage') }}</p>
+              <p class="text-sm">
+                {{
+                  $t('frontOffice.nightAudit.blockedMessage', {
+                    start: nightAuditStartLabel,
+                    end: nightAuditEndLabel
+                  })
+                }}
+              </p>
               <div class="mt-6 flex justify-end">
                 <BasicButton :label="$t('ok')" variant="primary" @click="closeNightAuditBlockedModal" />
               </div>
@@ -303,15 +310,25 @@ const nightAuditAllowed = ref(true)
 const showNightAuditBlockedModal = ref(false)
 const lastNightAuditDate = ref('')
 const pageLoading = ref(true)
+const nightAuditStartTime = ref(0)
+const nightAuditEndTime = ref(7)
+
+const nightAuditStartLabel = computed(() => `${String(nightAuditStartTime.value).padStart(2, '0')}:00`)
+const nightAuditEndLabel = computed(() => `${String(nightAuditEndTime.value).padStart(2, '0')}:00`)
 
 const isNightAuditTimeAllowedNow = (): boolean => {
   const hour = new Date().getHours()
-  return hour >= 0 && hour < 22
+  const start = nightAuditStartTime.value
+  const end = nightAuditEndTime.value
+
+  if (start === end) return false
+  if (start < end) return hour >= start && hour < end
+  return hour >= start || hour < end
 }
 
 const closeNightAuditBlockedModal = () => {
   showNightAuditBlockedModal.value = false
-  router.push({ name: 'FrontOfficeDashboard' })
+  router.back()
 }
 
 const currentStep = ref(1)
@@ -880,9 +897,14 @@ const initFu = async () => {
       console.log('hotel', hotel.value)
       const rawCurrentWorkingDate = hotel?.currentWorkingDate;
       lastNightAuditDate.value = hotel?.lastNightAuditDate;
+      if (typeof hotel?.nightAuditStartTime === 'number') {
+        nightAuditStartTime.value = hotel.nightAuditStartTime
+      }
+      if (typeof hotel?.nightAuditEndTime === 'number') {
+        nightAuditEndTime.value = hotel.nightAuditEndTime
+      }
       const normalized = normalizeAuditDate(rawCurrentWorkingDate)
       if (normalized) currentDate.value = normalized
-      await fetchPendingReservations()
     } catch (error) {
       console.error('Error loading hotel information:', error)
     }
@@ -890,15 +912,14 @@ const initFu = async () => {
 }
 onMounted(async () => {
   pageLoading.value = true
-  nightAuditAllowed.value = isNightAuditTimeAllowedNow()
-  if (!nightAuditAllowed.value) {
-    showNightAuditBlockedModal.value = true
-    pageLoading.value = false
-    return
-  }
-
   try {
     await initFu()
+    nightAuditAllowed.value = isNightAuditTimeAllowedNow()
+    if (!nightAuditAllowed.value) {
+      showNightAuditBlockedModal.value = true
+      return
+    }
+    await fetchPendingReservations()
     if (currentStep.value === 2) {
       await fetchReleaseReservations()
     } else if (currentStep.value === 3) {
