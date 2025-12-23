@@ -6697,6 +6697,9 @@
       "readyToCloseDay": "Ready to Close Day",
       "currentDate": "Current Date",
       "nextDate": "Next Date",
+      "currentWorkingDate": "Current Working Date",
+      "lastNightAudit": "Last Night Audit",
+      "blockedMessage": "Night Audit can only be executed between {start} and {end}.",
       "steps": {
         "pendingReservations": {
           "name": "Pending Reservations",

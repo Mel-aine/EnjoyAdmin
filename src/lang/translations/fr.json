@@ -6692,6 +6692,7 @@
       "readyToCloseDay": "Prêt à clôturer la journée",
       "currentDate": "Date actuelle",
       "nextDate": "Date suivante",
+      "blockedMessage": "Le Night Audit ne peut s’exécuter qu’entre {start} et {end}.",
       "steps": {
         "pendingReservations": {
           "name": "Réservations en attente",
