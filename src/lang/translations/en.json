@@ -6697,6 +6697,8 @@
       "readyToCloseDay": "Ready to Close Day",
       "currentDate": "Current Date",
       "nextDate": "Next Date",
+      "currentWorkingDate": "Current Working Date",
+      "lastNightAudit": "Last Night Audit",
       "steps": {
         "pendingReservations": {
           "name": "Pending Reservations",

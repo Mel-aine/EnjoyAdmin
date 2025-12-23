@@ -1,17 +1,53 @@
 <template>
   <AdminLayout>
-    <div class="bg-white dark:bg-gray-800 shadow-sm">
+    <div v-if="pageLoading" class="p-6">
+      <div class="animate-pulse">
+        <div class="mb-4 p-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+          <div class="flex gap-5 items-center">
+            <div class="h-6 w-44 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="h-4 w-80 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          </div>
+          <div class="flex space-x-2">
+            <div class="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          </div>
+        </div>
+
+        <div class="border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div class="flex space-x-8">
+            <div v-for="n in 6" :key="n" class="flex items-center">
+              <div class="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+              <div class="ml-3 space-y-2">
+                <div class="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div class="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              </div>
+              <div v-if="n < 6" class="ml-8 flex-1 h-0.5 w-20 bg-gray-200 dark:bg-gray-700"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 space-y-4">
+          <div class="h-5 w-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div class="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div class="h-4 w-5/6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div class="h-[360px] w-full bg-gray-100 dark:bg-gray-700/60 rounded-xl"></div>
+        </div>
+      </div>
+    </div>
+    <div v-else class="bg-white dark:bg-gray-800 shadow-sm">
       <div class="mb-0 p-3 flex justify-between items-center border-b border-gray-200">
         <div class="flex gap-5 align-middle items-center dark:border-gray-700">
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $t('frontOffice.nightAudit.title') }}</h2>
           <div class="text-sm text-gray-600 dark:text-gray-400">
-            {{ formatDateT(currentDate) }}
+            {{ $t('frontOffice.nightAudit.lastNightAudit') }}: {{ formatDateT(lastNightAuditDate) }} {{
+              $t('frontOffice.nightAudit.currentWorkingDate') }}:{{ currentDate }}
           </div>
         </div>
         <div class="flex space-x-2">
-          <BasicButton :label="$t('previous')" variant="secondary" @click="previousStep" 
-            :disabled="currentStep === 1 || isLoading" />
-          <BasicButton v-if="currentStep < 6" :label="$t('next')" variant="primary" @click="nextStep" :disabled="loading" />
+          <BasicButton :label="$t('previous')" variant="secondary" @click="previousStep"
+            :disabled="currentStep === 1 || isLoading || !nightAuditAllowed" />
+          <BasicButton v-if="currentStep < 6" :label="$t('next')" variant="primary" @click="nextStep"
+            :disabled="loading || !nightAuditAllowed" />
         </div>
       </div>
 
@@ -163,7 +199,7 @@
                   $t('frontOffice.nightAudit.readyToCloseDay')
                 }}</h4>
                 <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                  {{ $t('frontOffice.nightAudit.currentDate') }}: {{ formatDateT(currentDate) }}<br>
+                  {{ $t('frontOffice.nightAudit.currentDate') }}: {{ formatDateT(displayDateTime) }}<br>
                   {{ $t('frontOffice.nightAudit.nextDate') }}: {{ formatDateT(nextDate) }}
                 </p>
               </div>
@@ -171,7 +207,7 @@
           </div>
           <div class="flex space-x-4">
             <BasicButton :label="$t('frontOffice.nightAudit.finishNightAudit')" variant="primary"
-              @click="finishNightAudit" :loading="finishingAudit" />
+              @click="finishNightAudit" :loading="finishingAudit" :disabled="!nightAuditAllowed" />
           </div>
 
         </div>
@@ -201,6 +237,36 @@
       <AmendStay v-if="selectdReservationId" :is-open="showAmendStayModal" :reservation-id="selectdReservationId"
         @close="closeAmendStayModal" @amend-confirmed="handleAmendStaySuccess" />
     </template>
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showNightAuditBlockedModal"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          @click.self="closeNightAuditBlockedModal">
+          <div class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden"
+            @click.stop>
+            <div class="bg-blue-600/90 text-white px-6 py-3 flex items-center justify-between">
+              <h2 class="text-lg font-bold tracking-tight flex-1">Night Audit</h2>
+              <button @click="closeNightAuditBlockedModal"
+                class="text-white/80 hover:text-white hover:bg-white/10 rounded-full p-2 transition-all duration-200 flex-shrink-0"
+                aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div class="px-6 py-5 text-gray-700 dark:text-gray-200">
+              <p class="text-sm">
+                Le Night Audit ne peut s’exécuter qu’entre 00:00 et 07:00.
+              </p>
+              <div class="mt-6 flex justify-end">
+                <BasicButton label="OK" variant="primary" @click="closeNightAuditBlockedModal" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -220,6 +286,7 @@ import {
   getReleaseReservations
 } from '@/services/reservation'
 import { createPayment, confirmPayment } from '@/services/api'
+import { getHotelById } from '@/services/hotelApi'
 import { useServiceStore } from '../../composables/serviceStore'
 import { getNightAuditNightlyCharges, getNightAuditRoomStatus, getNightAuditUnsettledFolios, createNightAudit, getNightAuditPendingReservations, postNightlyCharges } from '../../services/nightAudit'
 import { isLoading } from '../../composables/spinner'
@@ -234,10 +301,19 @@ const serviceStore = useServiceStore();
 const router = useRouter()
 const { t } = useI18n()
 const toast = useToast()
-const getYesterday = () => {
-  const date = new Date()
-  date.setDate(date.getDate() - 1)
-  return date.toISOString().split('T')[0]
+const nightAuditAllowed = ref(true)
+const showNightAuditBlockedModal = ref(false)
+const lastNightAuditDate = ref('')
+const pageLoading = ref(true)
+
+const isNightAuditTimeAllowedNow = (): boolean => {
+  const hour = new Date().getHours()
+  return hour >= 0 && hour < 7
+}
+
+const closeNightAuditBlockedModal = () => {
+  showNightAuditBlockedModal.value = false
+  router.push({ name: 'FrontOfficeDashboard' })
 }
 
 const currentStep = ref(1)
@@ -245,7 +321,15 @@ const loading = ref(false)
 const postingCharges = ref(false)
 const finishingAudit = ref(false)
 const auditCompleted = ref(false)
-const currentDate = ref(getYesterday())
+const currentDate = ref('');
+const hotel = ref<any>(null);
+const displayDateTime = computed(() => {
+  const value = currentDate.value
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return new Date(`${value}`)
+  }
+  return new Date(value)
+})
 const nextDate = computed(() => {
   const date = new Date(currentDate.value)
   date.setDate(date.getDate() + 1)
@@ -776,19 +860,58 @@ const finishNightAudit = async () => {
 
 
 // Load data on mount
-onMounted(() => {
-  // Load initial data for all steps
-  fetchPendingReservations()
+const initFu = async () => {
+  const normalizeAuditDate = (raw: any): string | null => {
+    if (!raw) return null
+    if (typeof raw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw
+    const dt = new Date(raw)
+    if (Number.isNaN(dt.getTime())) return null
+    const y = dt.getFullYear()
+    const m = String(dt.getMonth() + 1).padStart(2, '0')
+    const d = String(dt.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
 
-  // Load data for the current step if not step 1
-  if (currentStep.value === 2) {
-    fetchReleaseReservations()
-  } else if (currentStep.value === 3) {
-    fetchRoomStatus()
-  } else if (currentStep.value === 4) {
-    fetchUnsettledFolios()
-  } else if (currentStep.value === 5) {
-    fetchNightlyCharges()
+  const hotelId = serviceStore.serviceId
+  if (hotelId) {
+    try {
+      const res = await getHotelById(hotelId)
+      const hotel = res.data?.data ?? res.data;
+      console.log('hotel', hotel)
+      hotel.value = hotel;
+      console.log('hotel', hotel.value)
+      const rawCurrentWorkingDate = hotel?.currentWorkingDate;
+      lastNightAuditDate.value = hotel?.lastNightAuditDate;
+      const normalized = normalizeAuditDate(rawCurrentWorkingDate)
+      if (normalized) currentDate.value = normalized
+      await fetchPendingReservations()
+    } catch (error) {
+      console.error('Error loading hotel information:', error)
+    }
+  }
+}
+onMounted(async () => {
+  pageLoading.value = true
+  nightAuditAllowed.value = isNightAuditTimeAllowedNow()
+  if (!nightAuditAllowed.value) {
+    showNightAuditBlockedModal.value = true
+    pageLoading.value = false
+    return
+  }
+
+  try {
+    await initFu()
+    if (currentStep.value === 2) {
+      await fetchReleaseReservations()
+    } else if (currentStep.value === 3) {
+      await fetchRoomStatus()
+    } else if (currentStep.value === 4) {
+      await fetchUnsettledFolios()
+    } else if (currentStep.value === 5) {
+      await fetchNightlyCharges()
+    }
+  } finally {
+    pageLoading.value = false
   }
 })
 </script>
