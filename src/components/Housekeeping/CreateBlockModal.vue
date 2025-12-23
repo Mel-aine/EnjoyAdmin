@@ -4,12 +4,6 @@
       <h3 class="text-lg font-semibold text-gray-900">{{ modalTitle }}</h3>
     </template>
 
-
-    <!-- Error message -->
-    <!-- <div v-if="errorMessage" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
-      <p class="text-sm text-red-600">{{ errorMessage }}</p>
-    </div> -->
-
     <!-- Form -->
     <div  class="space-y-6">
       <!-- Room Type -->
@@ -76,10 +70,6 @@
             size="sm"
           />
         </div>
-
-        <!-- <p v-if="validationErrors.dateRanges" class="mt-1 text-xs text-red-500">
-          {{ validationErrors.dateRanges }}
-        </p> -->
       </div>
 
       <!-- Status -->
@@ -110,21 +100,6 @@
         <textarea v-model="formData.description" :placeholder="$t('Largetext')" rows="6"
           class="dark:bg-dark-900 h-20 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"></textarea>
       </div>
-      <!-- <div>
-        <AutoCompleteSelect
-          v-model="formData.reason"
-          :options="reasonOptions"
-          :defaultValue="$t('SelectReason')"
-          :lb="$t('Reason')"
-          :is-required="true"
-          :use-dropdown="useDropdownReason"
-          @update:useDropdown="useDropdownReason = $event"
-          @clear-error="emit('clear-error')"
-        />
-        <p v-if="validationErrors.reason" class="mt-1 text-xs text-red-500">
-          {{ validationErrors.reason }}
-        </p>
-      </div> -->
 
     </div>
 
@@ -300,91 +275,87 @@ const isFormValid = computed(() => {
 })
 
 // Methods
+const isDataLoaded = ref(false)
+const populateFormData = async () => {
 
-
-const populateFormData = () => {
   if (props.blockData && props.isEditing) {
-    console.log('Populating form data for editing:', props.blockData)
 
-    // Sélectionner le type de chambre - Correction
+
     const roomTypeId = props.blockData.roomType?.id || props.blockData.room?.roomType?.id
     if (roomTypeId) {
       selectedRoomTypeId.value = Number(roomTypeId)
-      nextTick(() => {
 
-        if (filteredRooms.value.length > 0) {
-          const roomToSelect = filteredRooms.value.find((room:any) =>
-            room.value === props.blockData!.room.id
-          )
+      await nextTick()
 
-          if (roomToSelect) {
-            formData.selectedRooms = [roomToSelect]
-            console.log('Room selected:', roomToSelect)
-          }
-        }
-      })
-    }
-
-    // Définir les dates
-    formData.dateRanges = [{
-      start: props.blockData.blockFromDate || null,
-      end: props.blockData.blockToDate || null
-    }]
-
-    formData.reason = props.blockData.reason || ''
-    formData.status = props.blockData.status || ''
-    formData.description = props.blockData.description || ''
-  }
-
-  else if (props.preSelectedRoom && !props.isEditing) {
-    console.log('Pre-selecting room from RemarkModal:', props.preSelectedRoom)
-
-    if (props.preSelectedRoom.roomTypeId) {
-      selectedRoomTypeId.value = Number(props.preSelectedRoom.roomTypeId)
-
-      // Attendre que filteredRooms soit mis à jour
-      nextTick(() => {
-
+      if (filteredRooms.value.length > 0) {
         const roomToSelect = filteredRooms.value.find((room: any) =>
-          room.value === props.preSelectedRoom!.roomId
+          room.value === props.blockData!.room.id
         )
 
         if (roomToSelect) {
           formData.selectedRooms = [roomToSelect]
-          console.log('Pre-selected room:', roomToSelect)
+        } else {
+          console.warn('Chambre non trouvée dans filteredRooms')
         }
-      })
+      } else {
+        console.warn(' filteredRooms vide après sélection du type')
+      }
     }
-    // Si pas de roomTypeId, chercher le type dans les options chargées
+
+    formData.dateRanges = [{
+      start: props.blockData.blockFromDate || null,
+      end: props.blockData.blockToDate || null
+    }]
+    formData.reason = props.blockData.reason || ''
+    formData.status = props.blockData.status || ''
+    formData.description = props.blockData.description || ''
+  }
+  else if (props.preSelectedRoom && !props.isEditing) {
+
+    if (props.preSelectedRoom.roomTypeId) {
+      selectedRoomTypeId.value = Number(props.preSelectedRoom.roomTypeId)
+
+      await nextTick()
+
+      const roomToSelect = filteredRooms.value.find((room: any) =>
+        room.value === props.preSelectedRoom!.roomId
+      )
+
+      if (roomToSelect) {
+        formData.selectedRooms = [roomToSelect]
+      } else {
+        console.error('Chambres disponibles:', filteredRooms.value)
+      }
+    }
     else if (props.preSelectedRoom.roomId) {
-      // Chercher dans toutes les chambres de tous les types
-      nextTick(() => {
-        for (const roomType of roomTypeOptions.value) {
-          const roomFound = roomType.rooms?.find((room: any) =>
-            room.id === props.preSelectedRoom!.roomId
+
+      for (const roomType of roomTypeOptions.value) {
+        const roomFound = roomType.rooms?.find((room: any) =>
+          room.id === props.preSelectedRoom!.roomId
+        )
+
+        if (roomFound) {
+          selectedRoomTypeId.value = roomType.id
+
+          await nextTick()
+
+          const roomToSelect = filteredRooms.value.find((room: any) =>
+            room.value === props.preSelectedRoom!.roomId
           )
-          if (roomFound) {
-            selectedRoomTypeId.value = roomType.id
-            // Attendre encore une fois que filteredRooms soit mis à jour
-            nextTick(() => {
-              const roomToSelect = filteredRooms.value.find((room: any) =>
-                room.value === props.preSelectedRoom!.roomId
-              )
-              if (roomToSelect) {
-                formData.selectedRooms = [roomToSelect]
-                console.log('Auto-found and pre-selected room:', roomToSelect)
-              }
-            })
-            break
+
+          if (roomToSelect) {
+            formData.selectedRooms = [roomToSelect]
           }
+          break
         }
-      })
+      }
     }
   }
   else {
     resetForm()
   }
 }
+
 
 const resetForm = () => {
   formData.selectedRooms = []
@@ -453,17 +424,6 @@ const validateForm = (): boolean => {
       const endDate = new Date(range.end!)
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-
-      // Vérifier que les dates ne sont pas dans le passé
-      // if (startDate < today) {
-      //   validationErrors.dateRanges = t('StartDateCannotBeInPast')
-      //   return false
-      // }
-
-      // if (endDate < today) {
-      //   validationErrors.dateRanges = t('EndDateCannotBeInPast')
-      //   return false
-      // }
 
       // Vérifier que la date de fin est après la date de début
       if (startDate >= endDate) {
@@ -544,8 +504,6 @@ const saveBlock = async () => {
         }
       }
     } else {
-
-      console.log(' Mode création')
 
       let successCount = 0
       let errorCount = 0
@@ -675,13 +633,19 @@ const removeDateRange = (index: number) => {
 
 // Watchers
 
-watch(() => props.isOpen, (newVal) => {
+watch(() => props.isOpen, async (newVal) => {
   if (newVal) {
-    nextTick(() => {
-      populateFormData()
-    })
+    await nextTick()
+    await populateFormData()
   }
 })
+
+watch(() => props.preSelectedRoom, async (newVal) => {
+  if (props.isOpen && newVal) {
+    await nextTick()
+    await populateFormData()
+  }
+}, { deep: true, immediate: true })
 
 watch(() => props.blockData, () => {
   if (props.isOpen) {
@@ -711,7 +675,9 @@ watch(() => formData.reason, (newValue) => {
 })
 
 // Load data on mount
+
 onMounted(async () => {
+
   isLoading.value = true
 
   try {
@@ -720,11 +686,11 @@ onMounted(async () => {
       throw new Error(t('HotelIdNotSet'))
     }
 
-    // Load room types
-
     const roomTypesResponse = await getRoomTypesIndex(hotel_id)
-       console.log(' Loading room types for hotel:', roomTypesResponse)
-    const roomTypesData = roomTypesResponse.data?.data?.data || roomTypesResponse.data?.data || roomTypesResponse.data
+
+    const roomTypesData = roomTypesResponse.data?.data?.data ||
+                         roomTypesResponse.data?.data ||
+                         roomTypesResponse.data
 
     if (Array.isArray(roomTypesData)) {
       roomTypeOptions.value = roomTypesData.map((type: any) => ({
@@ -732,31 +698,26 @@ onMounted(async () => {
         value: type.id,
         label: type.roomTypeName || type.name
       }))
-      console.log(' Room types loaded:', roomTypeOptions.value.length)
+
+
+      // Marquer les données comme chargées
+      isDataLoaded.value = true
+
+      // Si le modal est déjà ouvert, peupler les données maintenant
+      if (props.isOpen) {
+        await nextTick()
+        await populateFormData()
+      }
     }
 
-    // Load reasons
-    // console.log(' Loading maintenance block reasons')
-    // const reasonsResponse = await getByCategory(hotel_id, 'Maintenance Block')
-    // const reasonsData = reasonsResponse.data
-
-    // if (Array.isArray(reasonsData)) {
-    //   reasonOptions.value = reasonsData.map((reason: any) => ({
-    //     value: reason.reasonName || reason.name,
-    //     label: reason.reasonName || reason.name
-    //   }))
-    //   console.log(' Reasons loaded:', reasonOptions.value.length)
-    // }
-
   } catch (err: any) {
-    console.error(' Error loading data:', err)
+    console.error('Erreur chargement données:', err)
     errorMessage.value = err.message || t('ErrorLoadingData')
     toast.error(t('ErrorLoadingData'))
   } finally {
     isLoading.value = false
   }
 })
-
 const clearDateRangeError = (index: number) => {
   // Clear l'erreur de validation pour les dates
   validationErrors.dateRanges = ''

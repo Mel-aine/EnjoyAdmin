@@ -225,6 +225,7 @@
                   :status="$t(`roomStatus.${room.status}`)"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
+                  :housekeepingStatus="room.housekeepingStatus"
                   :existingRemarkData="room.housekeepersRemarks"
                   :room-data="{
                     id: room.id,
@@ -251,6 +252,7 @@
                   :room-id="room.id"
                   :status="$t(`roomStatus.${room.status}`)"
                   :HousekeeperOptions="housekeeperOptions"
+                  :housekeepingStatus="room.housekeepingStatus"
                   :existingRemarkData="room.housekeepersRemarks"
                   :room-data="{
                     id: room.id,
@@ -279,6 +281,7 @@
                   :status="$t(`roomStatus.${room.status}`)"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
+                  :housekeepingStatus="room.housekeepingStatus"
                   :existingRemarkData="room.housekeepersRemarks"
                   :room-data="{
                     id: room.id,
@@ -306,6 +309,7 @@
                   :status="$t(`roomStatus.${room.status}`)"
                   :tag="room.tag"
                   :HousekeeperOptions="housekeeperOptions"
+                  :housekeepingStatus="room.housekeepingStatus"
                   :existingRemarkData="room.housekeepersRemarks"
                   :room-data="{
                     id: room.id,

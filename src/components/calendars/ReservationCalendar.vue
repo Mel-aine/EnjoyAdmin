@@ -585,6 +585,12 @@ function handleReservationSave(data?: any) {
   console.log('Reservation saved:', data)
   // Refresh the calendar data when reservation is saved/updated
   refresh()
+   if (data?.action) {
+        console.log('✅ Action completed:', data.action)
+        if (data.action === 'checkout' || data.action === 'void' || data.action === 'cancel') {
+            closeReservationModal()
+        }
+    }
 }
 
 // Unassigned reservations modal handlers
@@ -1129,7 +1135,22 @@ const getLocaleDailyOccupancyAndReservations = async () => {
   isRefreshing.value = false;
   laoded.value = true;
 }
+// const refresh = async () => {
+//   isRefreshing.value = true
+//   try {
+//     showModalAddingModal.value = false;
+//     closeAssignRoomModal();
+//     const serviceId = serviceStore.serviceId!
+//     const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
+//     serviceResponse.value = response.data
+//     console.log('this is the response', serviceResponse.value)
+//   } finally {
+//     isRefreshing.value = false
+//   }
+// }
+
 const refresh = async () => {
+  console.log('🔄 REFRESH TRIGGERED')
   isRefreshing.value = true
   try {
     showModalAddingModal.value = false;
@@ -1137,7 +1158,7 @@ const refresh = async () => {
     const serviceId = serviceStore.serviceId!
     const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
     serviceResponse.value = response.data
-    console.log('this is the response', serviceResponse.value)
+    console.log('✅ REFRESH COMPLETED:', serviceResponse.value)
   } finally {
     isRefreshing.value = false
   }

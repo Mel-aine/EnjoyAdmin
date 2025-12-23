@@ -166,6 +166,11 @@ const handleRoomChargeRefresh = async () => {
 
   await getBookingDetailsById()
 }
+
+const handleGuestRefresh = async () => {
+
+  await getBookingDetailsById()
+}
 // ====== GESTION DES OPTIONS ======
 
 // ====== CHARGEMENT INITIAL ======
@@ -375,7 +380,7 @@ onMounted(() => {
           <div class="flex">
             <Child class="w-4" />
             <span class="text-sm items-end align-bottom self-center pt-2">{{
-              localReservation.child ?? 0
+              localReservation.children ?? 0
             }}</span>
           </div>
           <div class="flex gap-8 ms-10">
@@ -482,7 +487,7 @@ onMounted(() => {
         <BookingDetails :booking="localReservation" :guest="localReservation.guest"></BookingDetails>
       </div>
       <div v-if="activeTab === 'guest_details'">
-        <GuestDetails :reservation="localReservation" :guest="localReservation.guest" :reservationId="localReservation.id" />
+        <GuestDetails :reservation="localReservation" :guest="localReservation.guest" :reservationId="localReservation.id" @refresh="handleGuestRefresh"/>
       </div>
       <div v-if="activeTab === 'audit_trial'">
         <AuditTrail :entity-ids="[localReservation.id]" />

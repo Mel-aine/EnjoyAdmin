@@ -6838,7 +6838,7 @@
   "errorApplyingDiscount": "Error applying discount",
   "errorFetchingReservationDetails": "Error fetching reservation details",
   "errorLoadingTransactions": "Error loading transactions",
-  "reservation_cancellation_initiated": "Reservation cancellation initiated",
+  "reservation_cancellation_initiated": "Reservation cancel successfully",
   "error_cancelling_reservation": "Error initiating reservation cancellation",
   "departureDate": "Departure Date",
   "dueOut": "Due out",
