@@ -20,7 +20,7 @@
               for="remarkDescription"
               class="block text-sm font-medium text-gray-700 mb-1.5 text-left"
             >
-              {{ $t('Remark') }} <span class="text-red-500">*</span>
+              {{ $t('Remark') }}
             </label>
             <textarea
               id="remarkDescription"
@@ -76,7 +76,7 @@
                 id="housekeeper"
                 v-model="form.housekeeper"
                 :options="housekeeperOptions"
-                :placeholder="$t('SelectHousekeeper')"
+                :placeholder="$t('select')"
               />
             </div>
           </div>
@@ -291,8 +291,8 @@
         <BasicButton
           variant="primary"
           @click="saveRemark"
-          :label="$t('CreateRemark')"
-          :disabled="!isFormValid || isSaving || isLoadingRemark"
+          :label="$t('Save')"
+          :disabled="isSaving || isLoadingRemark"
           :loading="isSaving"
         />
       </div>
@@ -321,6 +321,7 @@ interface RemarkModalProps {
   housekeeperOptions: Array<{ value: string; label: string }>
   existingRemarkData?: ExistingRemarkData[] | null
   isLoadingRemark?: boolean
+  currentStatus?: string
   roomData?: {
     id: string
     roomNumber: string
@@ -395,6 +396,8 @@ const preSelectedRoomData = computed(() => {
   console.log('props.roomId:', props.roomId)
   console.log('props.roomName:', props.roomName)
 
+
+
   if (!props.roomData && !props.roomId) {
     console.log('Aucune donnée de chambre disponible')
     return null
@@ -440,6 +443,11 @@ const loadExistingRemark = () => {
 
   isLoadingRemark.value = true
   try {
+     if (props.currentStatus) {
+      form.status = props.currentStatus
+      console.log('Status actuel pré-rempli:', props.currentStatus)
+    }
+
     if (props.roomData?.assignedHousekeeper) {
       form.housekeeper = props.roomData.assignedHousekeeper
 
@@ -463,7 +471,7 @@ const resetForm = () => {
   form.housekeeper = ''
   form.remark = ''
   form.fdRemark = ''
-  form.status = 'clean'
+   form.status = props.currentStatus || 'clean'
   errors.remark = ''
 }
 
@@ -509,24 +517,26 @@ const handleBlockClose = () => {
 }
 
 const saveRemark = async () => {
-  if (!validateForm()) return
+
 
   try {
     isSaving.value = true
 
-    const remarkData = {
-      ...form,
+     const payload = {
+      housekeepingStatus: form.status,
+      data: {
+        remark: form.remark,
+        fdRemark: form.fdRemark,
+        status: form.status,
+        housekeeper: form.housekeeper
+      }
     }
 
     // Appel API
-    await updateHouseStatus(Number(props.roomId), remarkData)
-    form.remark = remarkData.remark
-    form.fdRemark = remarkData.fdRemark
-    form.status = remarkData.status
-    form.housekeeper = remarkData.housekeeper
+    await updateHouseStatus(Number(props.roomId), payload)
 
     toast.success(isEditing.value ? t('RemarkUpdated') : t('RemarkCreated'))
-    emit('saved', remarkData as any)
+    emit('saved', payload as any)
   } catch (error) {
     console.error('Erreur lors de la sauvegarde:', error)
     toast.error(t('ErrorSavingRemark'))

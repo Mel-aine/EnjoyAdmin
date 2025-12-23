@@ -138,19 +138,10 @@
                           <div class="flex gap-1 text-gray-500 dark:text-gray-400">
 
                             <span class="text-xs" v-if="room.room_housekeeping_status === 'clean'">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-brush-cleaning-icon lucide-brush-cleaning w-4 h-4">
-                                <path d="m16 22-1-4" />
-                                <path
-                                  d="M19 13.99a1 1 0 0 0 1-1V12a2 2 0 0 0-2-2h-3a1 1 0 0 1-1-1V4a2 2 0 0 0-4 0v5a1 1 0 0 1-1 1H6a2 2 0 0 0-2 2v.99a1 1 0 0 0 1 1" />
-                                <path d="M5 14h14l1.973 6.767A1 1 0 0 1 20 22H4a1 1 0 0 1-.973-1.233z" />
-                                <path d="m8 22 1-4" />
-                              </svg>
+                             <Bed class="w-4 h-4" />
                             </span>
                             <span v-else>
-                              <LucideBrush class="w-4 h-4" />
+                              <BroomIcons class="w-4 h-4 text-gray-500" />
                             </span>
                             <span class="text-xs" v-if="room.is_smoking">
                               <Cigarette class="w-4 h-4" />
@@ -369,7 +360,7 @@
     :style="{
       left: `${tooltipPosition.x}px`,
       top: `${tooltipPosition.y - 20}px`,
-      transform: 'translate(-50%, -100%)'
+      transform: 'translate(-20%, -100%)'
     }">
     <div class="relative rounded-md p-4 text-sm leading-none text-white whitespace-nowrap bg-blue-950 shadow-2xl min-w-[18rem] border border-blue-800">
       <div class='flex flex-col gap-2'>
@@ -380,7 +371,7 @@
               :src="getOtaIconSrcForReservation(tooltipReservation) ?? ''"
               alt="OTA" class="w-4 h-4" />
             <Building2Icon v-else class="w-4 h-4 text-white" />
-            <span>{{ tooltipReservation?.guest_name }}</span>
+            <span class="truncate w-[350px]">{{ tooltipReservation?.guest_name }}</span>
           </span>
         </div>
         <div class="flex justify-between">
@@ -415,7 +406,7 @@
 </template>
 
 <script setup lang="ts">
-import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, LucideBrush, Crown, DollarSignIcon, User2, CheckCircleIcon, LinkIcon, CheckCircle, Building2Icon } from 'lucide-vue-next'
+import { HotelIcon, GlobeIcon, UserIcon, UsersIcon, BookIcon, Cigarette, CigaretteOff, LucideBrush, Crown, DollarSignIcon, User2, CheckCircleIcon, LinkIcon, CheckCircle, Building2Icon, Bed } from 'lucide-vue-next'
 
 import { watch, onUnmounted } from 'vue'
 import InputDatePicker from '../forms/FormElements/InputDatePicker.vue';
@@ -594,6 +585,12 @@ function handleReservationSave(data?: any) {
   console.log('Reservation saved:', data)
   // Refresh the calendar data when reservation is saved/updated
   refresh()
+   if (data?.action) {
+        console.log('✅ Action completed:', data.action)
+        if (data.action === 'checkout' || data.action === 'void' || data.action === 'cancel') {
+            closeReservationModal()
+        }
+    }
 }
 
 // Unassigned reservations modal handlers
@@ -808,10 +805,13 @@ function getRoomRowCellsApi(group: any, room: any) {
     // Carry-over anchor on first visible day when reservation started before range
     let reservationCarryOver: any = null
     if (i === 0) {
+
       reservationCarryOver = reservations.find((r: any) => {
         const start = new Date(r.check_in_date)
         const end = new Date(r.check_out_date)
-        return start < date && end >= date
+        const firstVisible = visibleDates.value[0]
+
+        return start < firstVisible && end >= firstVisible
       }) || null
     }
 
@@ -1135,7 +1135,22 @@ const getLocaleDailyOccupancyAndReservations = async () => {
   isRefreshing.value = false;
   laoded.value = true;
 }
+// const refresh = async () => {
+//   isRefreshing.value = true
+//   try {
+//     showModalAddingModal.value = false;
+//     closeAssignRoomModal();
+//     const serviceId = serviceStore.serviceId!
+//     const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
+//     serviceResponse.value = response.data
+//     console.log('this is the response', serviceResponse.value)
+//   } finally {
+//     isRefreshing.value = false
+//   }
+// }
+
 const refresh = async () => {
+  console.log('🔄 REFRESH TRIGGERED')
   isRefreshing.value = true
   try {
     showModalAddingModal.value = false;
@@ -1143,7 +1158,7 @@ const refresh = async () => {
     const serviceId = serviceStore.serviceId!
     const response = await getDailyOccupancyAndReservations(serviceId, start_date.value, end_date.value)
     serviceResponse.value = response.data
-    console.log('this is the response', serviceResponse.value)
+    console.log('✅ REFRESH COMPLETED:', serviceResponse.value)
   } finally {
     isRefreshing.value = false
   }
