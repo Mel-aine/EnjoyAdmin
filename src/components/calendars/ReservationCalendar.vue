@@ -138,7 +138,7 @@
                           <div class="flex gap-1 text-gray-500 dark:text-gray-400">
 
                             <span class="text-xs" v-if="room.room_housekeeping_status === 'clean'">
-                             <Bed class="w-4 h-4" />
+                              <Bed class="w-4 h-4" />
                             </span>
                             <span v-else>
                               <BroomIcons class="w-4 h-4 text-gray-500" />
@@ -230,7 +230,8 @@
                                 class="bg-red-400 w-3 h-3 text-yellow-400 flex-shrink-0" />
                               <User2 v-if="(cell.reservationStart || cell.reservationCarryOver)?.isWomen"
                                 class="bg-pink-400 w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
-                              <SplitIcon v-if="(cell.reservationStart || cell.reservationCarryOver)?.isSplitedOrigin || (cell.reservationStart || cell.reservationCarryOver)?.isSplitedDestination"
+                              <SplitIcon
+                                v-if="(cell.reservationStart || cell.reservationCarryOver)?.isSplitedOrigin || (cell.reservationStart || cell.reservationCarryOver)?.isSplitedDestination"
                                 class=" w-3 h-3 text-white flex-shrink-0" :title="$t('Female Guest')" />
                             </div>
 
@@ -250,7 +251,8 @@
             </tbody>
           </table>
         </div>
-        <div class="sticky bottom-0 bg-white dark:bg-gray-900 shadow-lg z-40 border-t border-gray-400 dark:border-gray-700">
+        <div
+          class="sticky bottom-0 bg-white dark:bg-gray-900 shadow-lg z-40 border-t border-gray-400 dark:border-gray-700">
           <table class="w-full border-t border border-gray-400 text-sm table-fixed">
 
             <tfoot>
@@ -353,56 +355,57 @@
     </template>
   </FullScreenLayout>
   <!-- </AdminLayout> -->
-   <!-- Tooltip Portal Container -->
-<Teleport to="body">
-  <div v-if="tooltipReservation && tooltipPosition"
-    class="fixed z-[9999] pointer-events-none"
-    :style="{
+  <!-- Tooltip Portal Container -->
+  <Teleport to="body">
+    <div v-if="tooltipReservation && tooltipPosition" class="fixed z-[9999] pointer-events-none" :style="{
       left: `${tooltipPosition.x}px`,
       top: `${tooltipPosition.y - 20}px`,
       transform: 'translate(-20%, -100%)'
     }">
-    <div class="relative rounded-md p-4 text-sm leading-none text-white whitespace-nowrap bg-blue-950 shadow-2xl min-w-[18rem] border border-blue-800">
-      <div class='flex flex-col gap-2'>
-        <div class="flex justify-between">
-          <span class="text-gray-300">{{ $t('Name') }}:</span>
-          <span class="flex items-center gap-2 font-semibold">
-            <img v-if="getOtaIconSrcForReservation(tooltipReservation)"
-              :src="getOtaIconSrcForReservation(tooltipReservation) ?? ''"
-              alt="OTA" class="w-4 h-4" />
-            <Building2Icon v-else class="w-4 h-4 text-white" />
-            <span class="truncate w-[350px]">{{ tooltipReservation?.guest_name }}</span>
-          </span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-300">{{ $t('Check-in Date') }}:</span>
-          <span class="font-medium">{{ formatDateLocal(tooltipReservation?.check_in_date) }} {{ tooltipReservation?.check_in_time }}</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-300">{{ $t('Check-out Date') }}:</span>
-          <span class="font-medium">{{ formatDateLocal(tooltipReservation?.check_out_date) }} {{ tooltipReservation?.check_out_time }}</span>
-        </div>
-        <div class="h-px bg-blue-800 my-1"></div>
-        <div class="flex justify-between text-blue-400">
-          <span class="font-medium">{{ $t('Total') }}:</span>
-          <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.totalChargesWithTaxes) }}</span>
-        </div>
-        <div class="flex justify-between text-green-400">
-          <span class="font-medium">{{ $t('paid') }}:</span>
-          <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.totalPayments) }}</span>
-        </div>
-        <div class="flex justify-between text-red-400">
-          <span class="font-medium">{{ $t('balance') }}:</span>
-          <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.outstandingBalance) }}</span>
+      <div
+        class="relative rounded-md p-4 text-sm leading-none text-white whitespace-nowrap bg-blue-950 shadow-2xl min-w-[18rem] border border-blue-800">
+        <div class='flex flex-col gap-2'>
+          <div class="flex justify-between">
+            <span class="text-gray-300">{{ $t('Name') }}:</span>
+            <span class="flex items-center gap-2 font-semibold">
+              <img v-if="getOtaIconSrcForReservation(tooltipReservation)"
+                :src="getOtaIconSrcForReservation(tooltipReservation) ?? ''" alt="OTA" class="w-4 h-4" />
+              <Building2Icon v-else class="w-4 h-4 text-white" />
+              <span class="truncate w-[350px]">{{ tooltipReservation?.guest_name }}</span>
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-300">{{ $t('Check-in Date') }}:</span>
+            <span class="font-medium">{{ formatDateLocal(tooltipReservation?.check_in_date) }} {{
+              tooltipReservation?.check_in_time }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-300">{{ $t('Check-out Date') }}:</span>
+            <span class="font-medium">{{ formatDateLocal(tooltipReservation?.check_out_date) }} {{
+              tooltipReservation?.check_out_time }}</span>
+          </div>
+          <div class="h-px bg-blue-800 my-1"></div>
+          <div class="flex justify-between text-blue-400">
+            <span class="font-medium">{{ $t('Total') }}:</span>
+            <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.totalChargesWithTaxes)
+            }}</span>
+          </div>
+          <div class="flex justify-between text-green-400">
+            <span class="font-medium">{{ $t('paid') }}:</span>
+            <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.totalPayments) }}</span>
+          </div>
+          <div class="flex justify-between text-red-400">
+            <span class="font-medium">{{ $t('balance') }}:</span>
+            <span class="font-bold">{{ formatCurrency(tooltipReservation?.balance_summary?.outstandingBalance) }}</span>
+          </div>
         </div>
       </div>
+      <!-- Flèche pointant vers le bas -->
+      <div class="absolute left-1/2 -translate-x-1/2 -bottom-1">
+        <div class="w-3 h-3 rotate-45 bg-blue-950 border-r border-b border-blue-800"></div>
+      </div>
     </div>
-    <!-- Flèche pointant vers le bas -->
-    <div class="absolute left-1/2 -translate-x-1/2 -bottom-1">
-      <div class="w-3 h-3 rotate-45 bg-blue-950 border-r border-b border-blue-800"></div>
-    </div>
-  </div>
-</Teleport>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -466,6 +469,7 @@ import { useRouter } from 'vue-router'
 import RoomSelectionModal from '../modal/RoomSelectionModal.vue';
 import { formatCurrency, formatDateLocal } from '../utilities/UtilitiesFunction';
 import SplitIcon from '@/icons/BookingStatus/splitIcon.vue';
+import { getHotelById } from '../../services/hotelApi';
 
 
 
@@ -585,12 +589,12 @@ function handleReservationSave(data?: any) {
   console.log('Reservation saved:', data)
   // Refresh the calendar data when reservation is saved/updated
   refresh()
-   if (data?.action) {
-        console.log('✅ Action completed:', data.action)
-        if (data.action === 'checkout' || data.action === 'void' || data.action === 'cancel') {
-            closeReservationModal()
-        }
+  if (data?.action) {
+    console.log('✅ Action completed:', data.action)
+    if (data.action === 'checkout' || data.action === 'void' || data.action === 'cancel') {
+      closeReservationModal()
     }
+  }
 }
 
 // Unassigned reservations modal handlers
@@ -1221,7 +1225,11 @@ const todayStats = ref<any>(null);
 //   }
 //   getLocaleDailyOccupancyAndReservations()
 // })
-onMounted(() => {
+onMounted(async () => {
+  const hotelId = serviceStore.serviceId
+  const res = await getHotelById(hotelId!);
+  const hotel = res.data?.data ?? res.data;
+  selectedDate.value = hotel?.currentWorkingDate;
   getLocaleDailyOccupancyAndReservations()
 })
 
@@ -1847,6 +1855,7 @@ onUnmounted(() => {
   document.removeEventListener('mouseup', endCellSelection)
   document.removeEventListener('mousemove', handleCellMouseMove)
 })
+
 </script>
 <style scoped>
 @reference "tailwindcss";
