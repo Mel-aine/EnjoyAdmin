@@ -359,8 +359,8 @@
   <Teleport to="body">
     <div v-if="tooltipReservation && tooltipPosition" class="fixed z-[9999] pointer-events-none" :style="{
       left: `${tooltipPosition.x}px`,
-      top: `${tooltipPosition.y - 20}px`,
-      transform: 'translate(-20%, -100%)'
+      top: `${tooltipPosition.y}px`,
+      transform: 'translate(-50%, -100%)'
     }">
       <div
         class="relative rounded-md p-4 text-sm leading-none text-white whitespace-nowrap bg-blue-950 shadow-2xl min-w-[18rem] border border-blue-800">
@@ -470,6 +470,7 @@ import RoomSelectionModal from '../modal/RoomSelectionModal.vue';
 import { formatCurrency, formatDateLocal } from '../utilities/UtilitiesFunction';
 import SplitIcon from '@/icons/BookingStatus/splitIcon.vue';
 import { getHotelById } from '../../services/hotelApi';
+import { useAuthStore } from '../../composables/user';
 
 
 
@@ -577,6 +578,9 @@ const legends = [
 const selectRateType = ref(0);
 const modalReservation = ref<any | null>(null)
 function showReservationModal(reservation: any) {
+  if (!useAuthStore().hasPermission('edit_reservation')) {
+    return
+  }
   showDetail.value = true
   modalReservation.value = reservation
 }
@@ -1212,22 +1216,10 @@ const roomTypeOptions = computed(() => {
   return []
 })
 const todayStats = ref<any>(null);
-// onMounted(async () => {
-//   const serviceId = serviceStore.serviceId!
-//   const today = new Date().toISOString().split('T')[0];
-//   try {
-//     const response = await getDailyOccupancyAndReservations(serviceId, today, today);
-//     if(response.data && response.data.global_room_status_stats){
-//       todayStats.value = response.data.global_room_status_stats;
-//     }
-//   } catch (error) {
-//     console.error("Failed to fetch today's stats:", error);
-//   }
-//   getLocaleDailyOccupancyAndReservations()
-// })
 onMounted(async () => {
   const hotelId = serviceStore.serviceId
   const res = await getHotelById(hotelId!);
+  console.log('hotel',res)
   const hotel = res.data?.data ?? res.data;
   selectedDate.value = hotel?.currentWorkingDate;
   getLocaleDailyOccupancyAndReservations()
