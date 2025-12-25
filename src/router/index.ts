@@ -1634,7 +1634,7 @@ router.beforeEach((to, from, next) => {
     to.path === '/' || (to.name && String(to.name).toLowerCase() === 'login') || to.path.includes('/login')
 
   // Si une réauthentification est requise, ne pas bloquer la navigation
-  if (authStore.reauthRequired && !isLoginRoute) {
+  if (!authStore.reauthRequired && !isLoginRoute) {
     // Autoriser la navigation si un token est encore présent (la modale gère la réauth)
     // Sinon, rediriger vers la page de connexion.
     if (authStore.isAuthenticated) {

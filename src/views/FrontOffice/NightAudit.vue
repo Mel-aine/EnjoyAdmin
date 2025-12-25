@@ -892,9 +892,7 @@ const initFu = async () => {
     try {
       const res = await getHotelById(hotelId)
       const hotel = res.data?.data ?? res.data;
-      console.log('hotel', hotel)
       hotel.value = hotel;
-      console.log('hotel', hotel.value)
       const rawCurrentWorkingDate = hotel?.currentWorkingDate;
       lastNightAuditDate.value = hotel?.lastNightAuditDate;
       if (typeof hotel?.nightAuditStartTime === 'number') {

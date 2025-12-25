@@ -72,7 +72,7 @@
           </button>
 
           <!-- Nouveau bouton: Fiche d'enregistrement client -->
-          <button
+          <button v-if="canAddBooking"
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
             @click="openGuestRegistration">
             <PlusCircle class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />
