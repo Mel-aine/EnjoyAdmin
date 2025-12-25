@@ -61,13 +61,13 @@
 
     <!-- Undo Check In -->
     <template v-if="isUndoCheckInModalOpen">
-      <UndoCheckInReservation :reservation-id="localRes.id" :is-open="isUndoCheckInModalOpen"
+      <UndoCheckInReservation :reservation-id="localRes.id" :isOpen ="isUndoCheckInModalOpen"
         @close="closeUndoCheckInReservationModal" @success="handleUndoCheckInSuccess" />
     </template>
 
     <!-- Undo Check Out -->
     <template v-if="isUndoCheckOutModalOpen">
-      <UndoCheckOutReservation :reservation-id="localRes.id" :is-open="isUndoCheckOutModalOpen"
+      <UndoCheckOutReservation :reservation-id="localRes.id" :isOpen ="isUndoCheckOutModalOpen"
         @close="closeUndoCheckOutReservationModal" @success="handleUndoCheckOutSuccess" />
     </template>
 
@@ -160,6 +160,14 @@ const updateLocalReservation = (updates: any) => {
     ...updates
   }
   emit('reservation-updated', localRes.value)
+}
+
+const openUndoCheckInReservationModal = () => {
+  console.log('🔍 Opening Undo Check-In Modal')
+  console.log('  Before:', isUndoCheckInModalOpen.value)
+  isUndoCheckInModalOpen.value = true
+  console.log('  After:', isUndoCheckInModalOpen.value)
+  console.log('  localRes:', localRes.value?.id)
 }
 
 // Action icons and colors
@@ -357,6 +365,7 @@ const handleOptionSelected = async (option: any) => {
       } else if (rooms.length === 1) {
         await executeAction('undo_check_in', () => performAutoUndoCheckIn(rooms[0]))
       } else {
+        console.log('Opening Undo Check-In Modal')
         openUndoCheckInReservationModal()
       }
       break
@@ -427,7 +436,7 @@ const openCheckInReservationModal = () => { isCkeckInModalOpen.value = true }
 const closeCheckInReservationModal = () => { isCkeckInModalOpen.value = false }
 const openUnAssignReservationModal = () => { isUnAssignModalOpen.value = true }
 const closeUnAssignReservationModal = () => { isUnAssignModalOpen.value = false }
-const openUndoCheckInReservationModal = () => { isUndoCheckInModalOpen.value = true }
+// const openUndoCheckInReservationModal = () => { isUndoCheckInModalOpen.value = true }
 const closeUndoCheckInReservationModal = () => { isUndoCheckInModalOpen.value = false }
 const openUndoCheckOutReservationModal = () => { isUndoCheckOutModalOpen.value = true }
 const closeUndoCheckOutReservationModal = () => { isUndoCheckOutModalOpen.value = false }

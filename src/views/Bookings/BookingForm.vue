@@ -638,7 +638,7 @@
 
             <div class="flex space-x-3">
               <BasicButton
-                v-if="showCheckinButton && !pendingReservation"
+                v-if="showCheckinButton && !pendingReservation  && !hideCheckInButton"
                 type="button"
                 @click="handleCheckIn"
                 :loading="isLoading"
@@ -1088,11 +1088,12 @@ interface ReservationDetails {
 }
 
 // Props to control BookingForm behavior
-const props = defineProps<{ allowPastDates?: boolean; useInsertReservation?: boolean; formTitleKey?: string; breadcrumbKey?: string }>()
+const props = defineProps<{ allowPastDates?: boolean; useInsertReservation?: boolean; formTitleKey?: string; breadcrumbKey?: string ;hideCheckInButton?: boolean}>()
 const allowPastDates = computed(() => props.allowPastDates === true)
 const useInsertReservation = computed(() => props.useInsertReservation === true)
 const formTitleKey = computed(() => props.formTitleKey ?? 'AddBooking')
 const breadcrumbKey = computed(() => props.breadcrumbKey ?? 'Booking')
+const hideCheckInButton = computed(() => props.hideCheckInButton === true)
 
 const route = useRoute()
 const isCkeckInModalOpen = ref(false)
