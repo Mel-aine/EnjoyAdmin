@@ -852,7 +852,7 @@ function getUnassignedApi(date: Date) {
 function getOccupancyApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
-  return metric ? metric.occupancy_rate : '0.00'
+  return metric ? metric.occupancy_rate : '0'
 }
 function getAvailableRoomsApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
