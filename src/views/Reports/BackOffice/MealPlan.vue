@@ -105,7 +105,7 @@ import { useCurrencyStore } from '@/composables/currencyStore'
 import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import { getManagerReportPdfUrl } from '@/services/occupancyReportsApi'
+import { getMealPlanReportPdfUrl } from '@/services/occupancyReportsApi'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -169,7 +169,7 @@ const generateReport = async (): Promise<void> => {
     }
     console.log('🔄 Generating manager report with params:', currentParams.value)
     // Generate new PDF URL
-    const newPdfUrl = await getManagerReportPdfUrl(currentParams.value)
+    const newPdfUrl = await getMealPlanReportPdfUrl(currentParams.value)
     pdfUrl.value = newPdfUrl
     openPDFInNewPage()
 

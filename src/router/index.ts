@@ -490,6 +490,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/reports/back-office/Meal-plan',
+      name: 'mealPlanReport',
+      component: () => import('../views/Reports/BackOffice/MealPlan.vue'),
+      meta: {
+        title: 'Meal Plan Report',
+        requiresAuth: true,
+      },
+    },
+    
+    {
       path: '/reports/audit/audit-trail',
       name: 'auditTrail',
       component: () => import('../views/Reports/Audit/AuditTrails.vue'),

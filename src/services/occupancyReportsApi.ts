@@ -339,6 +339,30 @@ export const getManagerReportPDF = async (data: any): Promise<Blob> => {
   }
 }
 
+export const getMealPlanReportPDF = async (data: any): Promise<Blob> => {
+  try {
+    const url = `${API_URL}/MealPlan-report-pdf`
+    
+    // Configure axios to receive blob response
+    const config = {
+      ...getHeaders(),
+      responseType: 'blob' as const,
+    }
+
+    const response: AxiosResponse<Blob> = await axios.post(url, data, config)
+    
+    // Validate that we received a PDF blob
+    if (response.data.type !== 'application/pdf') {
+      throw new Error('Invalid response type: Expected PDF blob')
+    }
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching manager report PDF:', error)
+    throw error
+  }
+}
+
 /**
  * Get Manager Report PDF URL
  * 
@@ -350,6 +374,16 @@ export const getManagerReportPDF = async (data: any): Promise<Blob> => {
 export const getManagerReportPdfUrl = async (data: any): Promise<string> => {
   try {
     const pdfBlob = await getManagerReportPDF(data)
+    console.log(pdfBlob)
+    return URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    console.error('Error creating manager report PDF URL:', error)
+    throw error
+  }
+}
+export const getMealPlanReportPdfUrl = async (data: any): Promise<string> => {
+  try {
+    const pdfBlob = await getMealPlanReportPDF(data)
     console.log(pdfBlob)
     return URL.createObjectURL(pdfBlob)
   } catch (error) {
