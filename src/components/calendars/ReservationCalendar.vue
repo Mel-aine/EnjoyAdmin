@@ -360,7 +360,7 @@
     <div v-if="tooltipReservation && tooltipPosition" class="fixed z-[9999] pointer-events-none" :style="{
       left: `${tooltipPosition.x}px`,
       top: `${tooltipPosition.y}px`,
-      transform: 'translate(-50%, -100%)'
+      transform: tooltipPosition.placement === 'below' ? 'translate(-50%, 0)' : 'translate(-50%, -100%)'
     }">
       <div
         class="relative rounded-md p-4 text-sm leading-none text-white whitespace-nowrap bg-blue-950 shadow-2xl min-w-[18rem] border border-blue-800">
@@ -400,8 +400,8 @@
           </div>
         </div>
       </div>
-      <!-- Flèche pointant vers le bas -->
-      <div class="absolute left-1/2 -translate-x-1/2 -bottom-1">
+      <!-- Flèche -->
+      <div :class="tooltipPosition.placement === 'below' ? 'absolute left-1/2 -translate-x-1/2 -top-1' : 'absolute left-1/2 -translate-x-1/2 -bottom-1'">
         <div class="w-3 h-3 rotate-45 bg-blue-950 border-r border-b border-blue-800"></div>
       </div>
     </div>
@@ -1450,7 +1450,7 @@ watch([selectedDate, daysToShow], () => {
 
 
 const tooltipReservation = ref<any | null>(null)
-const tooltipPosition = ref<{ x: number, y: number } | null>(null)
+const tooltipPosition = ref<{ x: number, y: number, placement?: 'above' | 'below' } | null>(null)
 
 
 function showReservationTooltip(reservation: any, event: MouseEvent) {
@@ -1464,25 +1464,23 @@ function showReservationTooltip(reservation: any, event: MouseEvent) {
   currentHoveredReservation.value = reservationId
   tooltipReservation.value = reservation
 
-  // Position avec ajustement intelligent
-  const rect = (event.target as HTMLElement).getBoundingClientRect()
+  // Positionnement centré sur l'élément survolé
+  // Utiliser currentTarget pour cibler l'élément sur lequel le listener est attaché
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
   const viewportHeight = window.innerHeight
-  const tooltipHeight = 300 // Hauteur estimée de la tooltip
+  const tooltipEstimatedHeight = 300 // Hauteur estimée de la tooltip
+  const margin = 8
 
-  let x = event.clientX
-  let y = event.clientY
+  const x = rect.left + rect.width / 2
 
-  // Si trop proche du haut, afficher en dessous
-  if (y < tooltipHeight + 20) {
-    y = rect.bottom + 10
+  // Placer au-dessus si possible, sinon en dessous
+  if (rect.top >= tooltipEstimatedHeight + margin) {
+    // placer au-dessus : y correspond au bas de la tooltip (coordonnée de référence)
+    tooltipPosition.value = { x, y: rect.top - margin, placement: 'above' }
+  } else {
+    // placer en dessous : y correspond au sommet de la tooltip
+    tooltipPosition.value = { x, y: rect.bottom + margin, placement: 'below' }
   }
-
-  // Si trop proche du bas, afficher au-dessus
-  if (y + tooltipHeight > viewportHeight) {
-    y = rect.top - 10
-  }
-
-  tooltipPosition.value = { x, y }
 }
 
 function hideReservationTooltip() {
