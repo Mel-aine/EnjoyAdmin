@@ -1824,7 +1824,7 @@ function navigateToAddReservationFromCells() {
   const checkoutDateStr = selectionInfo.endDate.toISOString().split('T')[0]
   const { checkinTime, checkoutTime } = getSelectionTimes()
 
-
+  console.log('selectionInfo',selectionInfo)
   router.push({
     name: 'New Booking',
     query: {
