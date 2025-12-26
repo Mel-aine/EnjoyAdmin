@@ -415,6 +415,7 @@ const reportPermissions = {
   'revenue-by-room-type': 'revenue_by_room_type',
   'travel-agent-commission-detail': 'travel_agent_commission_detail',
   'travel-agent-commission-summary': 'travel_agent_commission_summary',
+  'meal-plan': 'meal_plan',
   // Audit Reports
   'audit-trail': 'audit_trail',
   'ip-report': 'ip_report',
@@ -500,6 +501,7 @@ const backOfficeReports = ref([
   { name: 'manager-report', path: '/reports/back-office/manager-report', label: 'reports.backOffice.managerReport' },
   { name: 'revenue-by-rate-type', path: '/reports/back-office/revenue-by-rate-type', label: 'reports.backOffice.revenueByRateType' },
   { name: 'revenue-by-room-type', path: '/reports/back-office/revenue-by-room-type', label: 'reports.backOffice.revenueByRoomType' },
+  { name: 'meal-plan', path: '/reports/back-office/meal-plan', label: 'reports.backOffice.mealPlan' },
   //TODO  { name: 'travel-agent-commission-detail', path: '/reports/back-office/travel-agent-commission-detail', label: 'reports.backOffice.travelAgentCommissionDetail' },
   //TODO  { name: 'travel-agent-commission-summary', path: '/reports/back-office/travel-agent-commission-summary', label: 'reports.backOffice.travelAgentCommissionSummary' }
 ])

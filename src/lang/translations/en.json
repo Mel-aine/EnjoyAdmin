@@ -4645,6 +4645,7 @@
       "billTo": "Bill To",
       "charge": "Charge",
       "grandTotal": "Grand Total",
+      "mealPlan":"Meal Plan",
       "payMethodWiseSummary": "Pay Method Wise Summary",
       "chargeWiseSummary": "Charge wise Summary",
       "chargeType": "Charge Type",
