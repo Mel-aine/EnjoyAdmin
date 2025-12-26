@@ -169,8 +169,8 @@
                         <td v-else-if="shouldShowCell(group, room, cell)" :class="[
                           'px-[1px] py-[1px] h-8 border dark:bg-black border-gray-400 cell-transition cell-selectable cell-hoverable relative ',
                           getUnifiedCellClass(group, room, cell)
-                        ]" @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
-                          @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date, $event)"
+                        ]" @mousedown="startCellSelection(group.room_type, group.room_type_id, room.room_number, cell.date, $event)"
+                          @mouseenter="updateCellSelection(group.room_type, group.room_type_id, room.room_number, cell.date, $event)"
                           @mouseup="endCellSelection($event)">
                           <!-- Room block overlay spanning across cells (full widths, no halves) -->
                           <div v-if="cell.roomBlock && isRoomBlockAnchor(cell)"
@@ -852,7 +852,7 @@ function getUnassignedApi(date: Date) {
 function getOccupancyApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
   const metric = apiOccupancyMetrics.value.find((m: any) => m.date === dStr)
-  return metric ? metric.occupancy_rate : '0.00'
+  return metric ? metric.occupancy_rate : '0'
 }
 function getAvailableRoomsApi(date: Date) {
   const dStr = date.toISOString().split('T')[0]
@@ -1404,9 +1404,10 @@ const cellSelection = ref({
   selectedCells: new Set<string>(), // Format: "roomType_roomNumber_date"
   isSelecting: false,
   inprogress: false,
-  startCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
-  currentCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
+  startCell: null as { roomType: string; roomTypeId: number; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
+  currentCell: null as { roomType: string; roomTypeId: number; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
 })
+const MIN_CELL_SELECTION_HOURS = 1
 
 // Fonction pour créer une clé unique pour une cellule
 function getCellKey(roomType: string, roomNumber: string, date: Date): string {
@@ -1415,7 +1416,7 @@ function getCellKey(roomType: string, roomNumber: string, date: Date): string {
 }
 
 // Fonction pour démarrer la sélection de cellules
-function startCellSelection(roomType: string, roomNumber: string, date: Date, event: MouseEvent) {
+function startCellSelection(roomType: string, roomTypeId: number, roomNumber: string, date: Date, event: MouseEvent) {
   event.preventDefault()
   const target = event.currentTarget as HTMLElement;
   const cellWidth = target.offsetWidth;
@@ -1442,8 +1443,8 @@ function startCellSelection(roomType: string, roomNumber: string, date: Date, ev
 
   cellSelection.value.isSelecting = true
   cellSelection.value.inprogress = true;
-  cellSelection.value.startCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
-  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
+  cellSelection.value.startCell = { roomType, roomTypeId, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
+  cellSelection.value.currentCell = { roomType, roomTypeId, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
 
   // Effacer la sélection précédente
   cellSelection.value.selectedCells.clear()
@@ -1458,12 +1459,13 @@ function startCellSelection(roomType: string, roomNumber: string, date: Date, ev
 }
 
 // Fonction pour mettre à jour la sélection de cellules lors du survol
-function updateCellSelection(roomType: string, roomNumber: string, date: Date, event: MouseEvent) {
+function updateCellSelection(roomType: string, roomTypeId: number, roomNumber: string, date: Date, event: MouseEvent) {
   if (!cellSelection.value.isSelecting || !cellSelection.value.startCell) return
 
   // Autoriser uniquement la sélection sur la même chambre
   if (
     cellSelection.value.startCell.roomType !== roomType ||
+    cellSelection.value.startCell.roomTypeId !== roomTypeId ||
     cellSelection.value.startCell.roomNumber !== roomNumber
   ) {
     return
@@ -1471,7 +1473,7 @@ function updateCellSelection(roomType: string, roomNumber: string, date: Date, e
   const target = event.currentTarget as HTMLElement;
   const cellWidth = target.offsetWidth;
 
-  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
+  cellSelection.value.currentCell = { roomType, roomTypeId, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
 
   // Recalculer les cellules sélectionnées
   calculateSelectedCells()
@@ -1680,24 +1682,31 @@ function getSelectionStyle(roomType: string, roomNumber: string, date: Date) {
 
 
 function getSelectionTimes() {
-  const startCellInfo = cellSelection.value.startCell;
-  const endCellInfo = cellSelection.value.currentCell;
+  const selectionInfo = getSelectionInfo()
+  if (selectionInfo?.startHour != null && selectionInfo?.endHour != null) {
+    const checkinTime = `${String(selectionInfo.startHour).padStart(2, '0')}:00`
+    const checkoutTime = selectionInfo.endHour === 24 ? '00:00' : `${String(selectionInfo.endHour).padStart(2, '0')}:00`
+    return { checkinTime, checkoutTime }
+  }
 
-  let checkinTime = '14:00';
-  let checkoutTime = '12:00';
+  const startCellInfo = cellSelection.value.startCell
+  const endCellInfo = cellSelection.value.currentCell
+
+  let checkinTime = '14:00'
+  let checkoutTime = '12:00'
 
   if (startCellInfo && startCellInfo.cellWidth > 0) {
-    const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
-    const checkinHour = Math.floor(checkinPercentage * 24);
-    checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
+    const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth
+    const checkinHour = Math.floor(checkinPercentage * 24)
+    checkinTime = `${String(checkinHour).padStart(2, '0')}:00`
   }
   if (endCellInfo && endCellInfo.cellWidth > 0) {
-    const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
-    const checkoutHour = Math.floor(checkoutPercentage * 24);
-    checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
+    const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth
+    const checkoutHour = Math.floor(checkoutPercentage * 24)
+    checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`
   }
 
-  return { checkinTime, checkoutTime };
+  return { checkinTime, checkoutTime }
 }
 
 // Fonction pour effacer la sélection de cellules
@@ -1712,20 +1721,59 @@ function clearCellSelection() {
 function getSelectionInfo() {
   if (cellSelection.value.selectedCells.size === 0 || cellSelection.value.isSelecting) return null
 
+  const startCellInfo = cellSelection.value.startCell
+  const endCellInfo = cellSelection.value.currentCell
+
   // Analyser les cellules sélectionnées pour extraire les informations
   const cells: any[] = Array.from(cellSelection.value.selectedCells)
   const firstCell = cells[0].split('_')
-  const roomType = firstCell[0]
-  const roomNumber = firstCell[1]
+  const roomType = startCellInfo?.roomType ?? firstCell[0]
+  const roomTypeId = startCellInfo?.roomTypeId
+  const roomNumber = startCellInfo?.roomNumber ?? firstCell[1]
 
   // Extraire toutes les dates
   const dates = cells
     .map((cell: any) => new Date(cell.split('_')[2]))
     .sort((a: any, b: any) => a.getTime() - b.getTime())
-  if (dates[0].getTime() === dates[dates.length - 1].getTime())
-    return null
+
+  const sameDay = dates[0].getTime() === dates[dates.length - 1].getTime()
+  if (sameDay) {
+    if (!startCellInfo || !endCellInfo || startCellInfo.cellWidth <= 0 || endCellInfo.cellWidth <= 0) return null
+    if (startCellInfo.date.toISOString().split('T')[0] !== endCellInfo.date.toISOString().split('T')[0]) return null
+
+    const startOffset = Math.min(startCellInfo.offsetX, endCellInfo.offsetX)
+    const endOffset = Math.max(startCellInfo.offsetX, endCellInfo.offsetX)
+    const cellWidth = startCellInfo.cellWidth
+
+    const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n))
+    const startHour = clamp(Math.floor((startOffset / cellWidth) * 24), 0, 23)
+    const endHourRaw = clamp(Math.ceil((endOffset / cellWidth) * 24), 0, 24)
+    const endHour = Math.max(endHourRaw, startHour + MIN_CELL_SELECTION_HOURS)
+    if (endHour > 24) return null
+    if (endHour - startHour < MIN_CELL_SELECTION_HOURS) return null
+
+    const startDate = dates[0]
+    const endDate = new Date(startDate)
+    if (endHour === 24) {
+      endDate.setDate(endDate.getDate() + 1)
+    }
+
+    return {
+      roomType,
+      roomTypeId,
+      roomNumber,
+      startDate,
+      endDate,
+      totalNights: 0,
+      cellCount: 1,
+      startHour,
+      endHour,
+    } as any
+  }
+
   return {
     roomType,
+    roomTypeId,
     roomNumber,
     startDate: dates[0],
     endDate: dates[dates.length - 1],
@@ -1777,27 +1825,8 @@ function navigateToAddReservationFromCells() {
   if (!selectionInfo) return
 
   const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
-  const checkoutDate = new Date(selectionInfo.endDate)
-  checkoutDate.setDate(checkoutDate.getDate())
-  const checkoutDateStr = checkoutDate.toISOString().split('T')[0]
-
-  const startCellInfo = cellSelection.value.startCell;
-  const endCellInfo = cellSelection.value.currentCell;
-
-  let checkinTime = '14:00';
-  let checkoutTime = '12:00';
-
-  if (startCellInfo && startCellInfo.cellWidth > 0) {
-    const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
-    const checkinHour = Math.floor(checkinPercentage * 24);
-    checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
-  }
-  if (endCellInfo && endCellInfo.cellWidth > 0) {
-    const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
-    const checkoutHour = Math.floor(checkoutPercentage * 24);
-    checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
-  }
-
+  const checkoutDateStr = selectionInfo.endDate.toISOString().split('T')[0]
+  const { checkinTime, checkoutTime } = getSelectionTimes()
 
   router.push({
     name: 'New Booking',
@@ -1805,6 +1834,7 @@ function navigateToAddReservationFromCells() {
       checkin: checkinDate,
       checkout: checkoutDateStr,
       roomType: selectionInfo.roomType,
+      roomTypeId: selectionInfo.roomTypeId,
       roomNumber: selectionInfo.roomNumber,
       checkInTime: checkinTime,
       checkOutTime: checkoutTime,

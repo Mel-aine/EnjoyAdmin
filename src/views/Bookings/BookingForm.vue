@@ -1406,6 +1406,11 @@ const initializeForm = () => {
   if (route.query.checkOutTime) {
     reservation.value.checkoutTime = route.query.checkOutTime as string
   }
+  if(route.query.roomTypeId) {
+    console.log("roomTypeId",route.query.roomTypeId)
+    console.log('roomConfigurations',roomConfigurations.value)
+    roomConfigurations.value[0].roomType = route.query.roomTypeId as string
+  }
 }
 
 // Dropdown options pour les actions de chambre
