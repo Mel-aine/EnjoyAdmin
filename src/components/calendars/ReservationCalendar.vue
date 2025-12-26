@@ -1407,6 +1407,7 @@ const cellSelection = ref({
   startCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
   currentCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
 })
+const MIN_CELL_SELECTION_HOURS = 1
 
 // Fonction pour créer une clé unique pour une cellule
 function getCellKey(roomType: string, roomNumber: string, date: Date): string {
@@ -1680,24 +1681,31 @@ function getSelectionStyle(roomType: string, roomNumber: string, date: Date) {
 
 
 function getSelectionTimes() {
-  const startCellInfo = cellSelection.value.startCell;
-  const endCellInfo = cellSelection.value.currentCell;
+  const selectionInfo = getSelectionInfo()
+  if (selectionInfo?.startHour != null && selectionInfo?.endHour != null) {
+    const checkinTime = `${String(selectionInfo.startHour).padStart(2, '0')}:00`
+    const checkoutTime = selectionInfo.endHour === 24 ? '00:00' : `${String(selectionInfo.endHour).padStart(2, '0')}:00`
+    return { checkinTime, checkoutTime }
+  }
 
-  let checkinTime = '14:00';
-  let checkoutTime = '12:00';
+  const startCellInfo = cellSelection.value.startCell
+  const endCellInfo = cellSelection.value.currentCell
+
+  let checkinTime = '14:00'
+  let checkoutTime = '12:00'
 
   if (startCellInfo && startCellInfo.cellWidth > 0) {
-    const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
-    const checkinHour = Math.floor(checkinPercentage * 24);
-    checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
+    const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth
+    const checkinHour = Math.floor(checkinPercentage * 24)
+    checkinTime = `${String(checkinHour).padStart(2, '0')}:00`
   }
   if (endCellInfo && endCellInfo.cellWidth > 0) {
-    const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
-    const checkoutHour = Math.floor(checkoutPercentage * 24);
-    checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
+    const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth
+    const checkoutHour = Math.floor(checkoutPercentage * 24)
+    checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`
   }
 
-  return { checkinTime, checkoutTime };
+  return { checkinTime, checkoutTime }
 }
 
 // Fonction pour effacer la sélection de cellules
@@ -1712,6 +1720,9 @@ function clearCellSelection() {
 function getSelectionInfo() {
   if (cellSelection.value.selectedCells.size === 0 || cellSelection.value.isSelecting) return null
 
+  const startCellInfo = cellSelection.value.startCell
+  const endCellInfo = cellSelection.value.currentCell
+
   // Analyser les cellules sélectionnées pour extraire les informations
   const cells: any[] = Array.from(cellSelection.value.selectedCells)
   const firstCell = cells[0].split('_')
@@ -1722,8 +1733,41 @@ function getSelectionInfo() {
   const dates = cells
     .map((cell: any) => new Date(cell.split('_')[2]))
     .sort((a: any, b: any) => a.getTime() - b.getTime())
-  if (dates[0].getTime() === dates[dates.length - 1].getTime())
-    return null
+
+  const sameDay = dates[0].getTime() === dates[dates.length - 1].getTime()
+  if (sameDay) {
+    if (!startCellInfo || !endCellInfo || startCellInfo.cellWidth <= 0 || endCellInfo.cellWidth <= 0) return null
+    if (startCellInfo.date.toISOString().split('T')[0] !== endCellInfo.date.toISOString().split('T')[0]) return null
+
+    const startOffset = Math.min(startCellInfo.offsetX, endCellInfo.offsetX)
+    const endOffset = Math.max(startCellInfo.offsetX, endCellInfo.offsetX)
+    const cellWidth = startCellInfo.cellWidth
+
+    const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n))
+    const startHour = clamp(Math.floor((startOffset / cellWidth) * 24), 0, 23)
+    const endHourRaw = clamp(Math.ceil((endOffset / cellWidth) * 24), 0, 24)
+    const endHour = Math.max(endHourRaw, startHour + MIN_CELL_SELECTION_HOURS)
+    if (endHour > 24) return null
+    if (endHour - startHour < MIN_CELL_SELECTION_HOURS) return null
+
+    const startDate = dates[0]
+    const endDate = new Date(startDate)
+    if (endHour === 24) {
+      endDate.setDate(endDate.getDate() + 1)
+    }
+
+    return {
+      roomType,
+      roomNumber,
+      startDate,
+      endDate,
+      totalNights: 0,
+      cellCount: 1,
+      startHour,
+      endHour,
+    } as any
+  }
+
   return {
     roomType,
     roomNumber,
@@ -1777,26 +1821,8 @@ function navigateToAddReservationFromCells() {
   if (!selectionInfo) return
 
   const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
-  const checkoutDate = new Date(selectionInfo.endDate)
-  checkoutDate.setDate(checkoutDate.getDate())
-  const checkoutDateStr = checkoutDate.toISOString().split('T')[0]
-
-  const startCellInfo = cellSelection.value.startCell;
-  const endCellInfo = cellSelection.value.currentCell;
-
-  let checkinTime = '14:00';
-  let checkoutTime = '12:00';
-
-  if (startCellInfo && startCellInfo.cellWidth > 0) {
-    const checkinPercentage = startCellInfo.offsetX / startCellInfo.cellWidth;
-    const checkinHour = Math.floor(checkinPercentage * 24);
-    checkinTime = `${String(checkinHour).padStart(2, '0')}:00`;
-  }
-  if (endCellInfo && endCellInfo.cellWidth > 0) {
-    const checkoutPercentage = endCellInfo.offsetX / endCellInfo.cellWidth;
-    const checkoutHour = Math.floor(checkoutPercentage * 24);
-    checkoutTime = `${String(checkoutHour).padStart(2, '0')}:00`;
-  }
+  const checkoutDateStr = selectionInfo.endDate.toISOString().split('T')[0]
+  const { checkinTime, checkoutTime } = getSelectionTimes()
 
 
   router.push({
