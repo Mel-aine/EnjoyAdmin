@@ -169,8 +169,8 @@
                         <td v-else-if="shouldShowCell(group, room, cell)" :class="[
                           'px-[1px] py-[1px] h-8 border dark:bg-black border-gray-400 cell-transition cell-selectable cell-hoverable relative ',
                           getUnifiedCellClass(group, room, cell)
-                        ]" @mousedown="startCellSelection(group.room_type, room.room_number, cell.date, $event)"
-                          @mouseenter="updateCellSelection(group.room_type, room.room_number, cell.date, $event)"
+                        ]" @mousedown="startCellSelection(group.room_type, group.room_type_id, room.room_number, cell.date, $event)"
+                          @mouseenter="updateCellSelection(group.room_type, group.room_type_id, room.room_number, cell.date, $event)"
                           @mouseup="endCellSelection($event)">
                           <!-- Room block overlay spanning across cells (full widths, no halves) -->
                           <div v-if="cell.roomBlock && isRoomBlockAnchor(cell)"
@@ -1404,8 +1404,8 @@ const cellSelection = ref({
   selectedCells: new Set<string>(), // Format: "roomType_roomNumber_date"
   isSelecting: false,
   inprogress: false,
-  startCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
-  currentCell: null as { roomType: string; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
+  startCell: null as { roomType: string; roomTypeId: number; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
+  currentCell: null as { roomType: string; roomTypeId: number; roomNumber: string; date: Date; offsetX: number; cellWidth: number } | null,
 })
 const MIN_CELL_SELECTION_HOURS = 1
 
@@ -1416,7 +1416,7 @@ function getCellKey(roomType: string, roomNumber: string, date: Date): string {
 }
 
 // Fonction pour démarrer la sélection de cellules
-function startCellSelection(roomType: string, roomNumber: string, date: Date, event: MouseEvent) {
+function startCellSelection(roomType: string, roomTypeId: number, roomNumber: string, date: Date, event: MouseEvent) {
   event.preventDefault()
   const target = event.currentTarget as HTMLElement;
   const cellWidth = target.offsetWidth;
@@ -1443,8 +1443,8 @@ function startCellSelection(roomType: string, roomNumber: string, date: Date, ev
 
   cellSelection.value.isSelecting = true
   cellSelection.value.inprogress = true;
-  cellSelection.value.startCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
-  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
+  cellSelection.value.startCell = { roomType, roomTypeId, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
+  cellSelection.value.currentCell = { roomType, roomTypeId, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
 
   // Effacer la sélection précédente
   cellSelection.value.selectedCells.clear()
@@ -1459,12 +1459,13 @@ function startCellSelection(roomType: string, roomNumber: string, date: Date, ev
 }
 
 // Fonction pour mettre à jour la sélection de cellules lors du survol
-function updateCellSelection(roomType: string, roomNumber: string, date: Date, event: MouseEvent) {
+function updateCellSelection(roomType: string, roomTypeId: number, roomNumber: string, date: Date, event: MouseEvent) {
   if (!cellSelection.value.isSelecting || !cellSelection.value.startCell) return
 
   // Autoriser uniquement la sélection sur la même chambre
   if (
     cellSelection.value.startCell.roomType !== roomType ||
+    cellSelection.value.startCell.roomTypeId !== roomTypeId ||
     cellSelection.value.startCell.roomNumber !== roomNumber
   ) {
     return
@@ -1472,7 +1473,7 @@ function updateCellSelection(roomType: string, roomNumber: string, date: Date, e
   const target = event.currentTarget as HTMLElement;
   const cellWidth = target.offsetWidth;
 
-  cellSelection.value.currentCell = { roomType, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
+  cellSelection.value.currentCell = { roomType, roomTypeId, roomNumber, date: new Date(date), offsetX: event.offsetX, cellWidth }
 
   // Recalculer les cellules sélectionnées
   calculateSelectedCells()
@@ -1726,8 +1727,9 @@ function getSelectionInfo() {
   // Analyser les cellules sélectionnées pour extraire les informations
   const cells: any[] = Array.from(cellSelection.value.selectedCells)
   const firstCell = cells[0].split('_')
-  const roomType = firstCell[0]
-  const roomNumber = firstCell[1]
+  const roomType = startCellInfo?.roomType ?? firstCell[0]
+  const roomTypeId = startCellInfo?.roomTypeId
+  const roomNumber = startCellInfo?.roomNumber ?? firstCell[1]
 
   // Extraire toutes les dates
   const dates = cells
@@ -1758,6 +1760,7 @@ function getSelectionInfo() {
 
     return {
       roomType,
+      roomTypeId,
       roomNumber,
       startDate,
       endDate,
@@ -1770,6 +1773,7 @@ function getSelectionInfo() {
 
   return {
     roomType,
+    roomTypeId,
     roomNumber,
     startDate: dates[0],
     endDate: dates[dates.length - 1],
@@ -1824,13 +1828,13 @@ function navigateToAddReservationFromCells() {
   const checkoutDateStr = selectionInfo.endDate.toISOString().split('T')[0]
   const { checkinTime, checkoutTime } = getSelectionTimes()
 
-  console.log('selectionInfo',selectionInfo)
   router.push({
     name: 'New Booking',
     query: {
       checkin: checkinDate,
       checkout: checkoutDateStr,
       roomType: selectionInfo.roomType,
+      roomTypeId: selectionInfo.roomTypeId,
       roomNumber: selectionInfo.roomNumber,
       checkInTime: checkinTime,
       checkOutTime: checkoutTime,
