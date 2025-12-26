@@ -175,8 +175,8 @@
                           <!-- Room block overlay spanning across cells (full widths, no halves) -->
                           <div v-if="cell.roomBlock && isRoomBlockAnchor(cell)"
                             :class="['group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20', getRoomBlockColor(cell.roomBlock.status)]"
-                            :style="getRowBlockOverlayStyle(cell)">
-                            <span class="truncate">{{ cell.roomBlock.reason }}</span>
+                            :style="getRowBlockOverlayStyle(cell)"  @mouseenter="showRoomBlockTooltip(cell.roomBlock, $event)" @mouseleave="hideRoomBlockTooltip">
+                            <span class="truncate">{{ $t('Maintenance Block') }}</span>
                           </div>
 
                           <!-- Single-day reservations rendered by hours within the cell -->
@@ -406,6 +406,70 @@
       </div>
     </div>
   </Teleport>
+
+  <!--tooltip room block-->
+<Teleport to="body">
+  <div
+    v-if="tooltipRoomBlock && tooltipRoomBlockPosition"
+    class="fixed z-[999]"
+    :style="getTooltipPosition()"
+    @mouseenter="keepRoomBlockTooltipOpen"
+    @mouseleave="hideRoomBlockTooltip">
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-600 p-4 min-w-[280px] max-w-[400px]">
+
+      <div class="flex items-center justify-end mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+        <button
+          @click="closeRoomBlockTooltipNow"
+          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenu -->
+      <div class="space-y-2 mb-2">
+
+
+        <div class="flex justify-start items-start">
+          <span class="text-sm text-gray-900 dark:text-white">
+            {{ tooltipRoomBlock?.reason || '-' }}
+          </span>
+        </div>
+
+
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+        <button
+          @click.stop="handleEditRoomBlock(tooltipRoomBlock)"
+          class="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          {{ $t('Edit') }}
+        </button>
+
+        <button
+          @click.stop="handleUnblockRoom(tooltipRoomBlock?.id || tooltipRoomBlock?.block_id)"
+          class="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+          </svg>
+          {{ $t('Unblock') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Flèche (position dynamique) -->
+    <div :class="getArrowClass()">
+      <div class="w-3 h-3 -translate-y-1/2 rotate-45 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+           :class="getArrowBorderClass()"></div>
+    </div>
+  </div>
+</Teleport>
 </template>
 
 <script setup lang="ts">
@@ -479,6 +543,10 @@ const bookingStore = useBookingStore()
 const selectionTooltipPosition = ref({ x: 0, y: 0 })
 const isTooltipAbove = ref(false)
 const selectedRoomTypeId = ref<number | null>(null)
+const tooltipRoomBlock = ref<any | null>(null)
+const tooltipRoomBlockPosition = ref<{ x: number, y: number } | null>(null)
+const currentHoveredRoomBlock = ref<string | null>(null)
+let closeTooltipTimer: NodeJS.Timeout | null = null
 
 const tooltipStyle = computed((): Record<string, string | number> => {
   const pos = selectionTooltipPosition.value;
@@ -600,6 +668,154 @@ function handleReservationSave(data?: any) {
     }
   }
 }
+
+
+// Fonction simplifiée pour afficher la tooltip
+function showRoomBlockTooltip(roomBlock: any, event: MouseEvent) {
+  // Annuler le timer de fermeture si existe
+  if (closeTooltipTimer) {
+    clearTimeout(closeTooltipTimer)
+    closeTooltipTimer = null
+  }
+
+  const blockId = roomBlock?.id || roomBlock?.block_id
+
+  // Si c'est déjà le bon block, ne rien faire
+  if (currentHoveredRoomBlock.value === blockId) {
+    return
+  }
+
+  currentHoveredRoomBlock.value = blockId
+  tooltipRoomBlock.value = roomBlock
+
+  // Calculer position simple et stable
+  const rect = (event.target as HTMLElement).getBoundingClientRect()
+  const x = rect.left + rect.width / 2
+  const y = rect.top
+
+  tooltipRoomBlockPosition.value = { x, y }
+}
+
+// Fonction pour cacher la tooltip avec délai
+function hideRoomBlockTooltip() {
+  // Délai de 200ms avant fermeture
+  closeTooltipTimer = setTimeout(() => {
+    currentHoveredRoomBlock.value = null
+    tooltipRoomBlock.value = null
+    tooltipRoomBlockPosition.value = null
+  }, 200)
+}
+
+// Fonction pour garder la tooltip ouverte
+function keepRoomBlockTooltipOpen() {
+  if (closeTooltipTimer) {
+    clearTimeout(closeTooltipTimer)
+    closeTooltipTimer = null
+  }
+}
+
+// Fonction pour fermer immédiatement
+function closeRoomBlockTooltipNow() {
+  if (closeTooltipTimer) {
+    clearTimeout(closeTooltipTimer)
+    closeTooltipTimer = null
+  }
+  currentHoveredRoomBlock.value = null
+  tooltipRoomBlock.value = null
+  tooltipRoomBlockPosition.value = null
+}
+
+async function handleUnblockRoom(roomBlockId: number) {
+  closeRoomBlockTooltipNow()
+
+  if (!confirm(t('Are you sure you want to unblock this room?'))) {
+    return
+  }
+
+  try {
+    isRefreshing.value = true
+
+    console.log('Unblocking room block:', roomBlockId)
+
+    await refresh()
+
+  } catch (error) {
+    console.error('Error unblocking room:', error)
+  } finally {
+    isRefreshing.value = false
+  }
+}
+
+function handleEditRoomBlock(roomBlock: any) {
+  closeRoomBlockTooltipNow()
+  console.log('Editing room block:', roomBlock)
+
+}
+
+// Fonction pour calculer la position de la tooltip (en haut ou en bas)
+function getTooltipPosition() {
+  if (!tooltipRoomBlockPosition.value) return {}
+
+  const { x, y } = tooltipRoomBlockPosition.value
+  const tooltipHeight = 250 // Hauteur estimée de la tooltip
+  const spaceAbove = y
+  const spaceBelow = window.innerHeight - y
+
+  // Si plus d'espace en bas, afficher en bas
+  if (spaceBelow > tooltipHeight || spaceBelow > spaceAbove) {
+    return {
+      left: `${x}px`,
+      top: `${y}px`,
+      transform: 'translate(-50%, 0)',
+      marginTop: '25px'
+    }
+  }
+
+  // Sinon afficher en haut
+  return {
+    left: `${x}px`,
+    top: `${y}px`,
+    transform: 'translate(-50%, -100%)',
+    marginTop: '-25px'
+  }
+}
+
+// Fonction pour la classe CSS de la flèche
+function getArrowClass() {
+  if (!tooltipRoomBlockPosition.value) return ''
+
+  const { y } = tooltipRoomBlockPosition.value
+  const tooltipHeight = 250
+  const spaceBelow = window.innerHeight - y
+  const spaceAbove = y
+
+  // Flèche en haut si tooltip en bas
+  if (spaceBelow > tooltipHeight || spaceBelow > spaceAbove) {
+    return 'absolute left-1/2 -translate-x-1/2 top-0 -translate-y-full'
+  }
+
+  // Flèche en bas si tooltip en haut
+  return 'absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-full'
+}
+
+// Fonction pour les bordures de la flèche
+function getArrowBorderClass() {
+  if (!tooltipRoomBlockPosition.value) return ''
+
+  const { y } = tooltipRoomBlockPosition.value
+  const tooltipHeight = 250
+  const spaceBelow = window.innerHeight - y
+  const spaceAbove = y
+
+  // Bordures bas-droite si flèche en haut (tooltip en bas)
+  if (spaceBelow > tooltipHeight || spaceBelow > spaceAbove) {
+    return 'border-b border-r'
+  }
+
+  // Bordures haut-gauche si flèche en bas (tooltip en haut)
+  return 'border-t border-l'
+}
+
 
 // Unassigned reservations modal handlers
 
