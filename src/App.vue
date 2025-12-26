@@ -1,16 +1,16 @@
 <template>
   <SpeedInsights />
   <ThemeProvider>  
-    <SidebarProvider>  
-      <TopProgressBar />
-      <OverLoading v-if="isCheckoutOverlay" /> 
-      <RouterView />    
-      <ReAuthModal   
+    <SidebarProvider>   
+      <TopProgressBar /> 
+      <OverLoading v-if="isCheckoutOverlay" />    
+      <RouterView />      
+      <ReAuthModal      
         :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
-        @close="handleClose"   
-        @success="handleSuccess"
+        @close="handleClose"     
+        @success="handleSuccess" 
       />
-    </SidebarProvider>  
+    </SidebarProvider>   
   </ThemeProvider>
 </template> 
 <script setup lang="ts">

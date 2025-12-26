@@ -113,3 +113,25 @@ export const formatDateLocal = (dateString?: string) => {
         return dateString
     }
 }
+
+export const toIntegerAmount = (value: any): number => {
+  if (value === null || value === undefined || value === '') {
+    return 0
+  }
+
+  // Si c'est une string, enlever les espaces et convertir
+  if (typeof value === 'string') {
+    value = value.trim().replace(/\s/g, '')
+  }
+
+  const num = Number(value)
+
+  // Vérifier si c'est un nombre valide
+  if (isNaN(num)) {
+    return 0
+  }
+
+  // Retourner la valeur arrondie en entier
+  return Math.round(Math.abs(num))
+}
+

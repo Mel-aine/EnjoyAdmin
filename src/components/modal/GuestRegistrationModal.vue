@@ -65,7 +65,7 @@
                   {{ $t('validation.invalidRoomType') }}
                 </p>
                 <AutoCompleteSelect v-model="roomConfig.roomType" :lb="$t('roomType')" :options="RoomTypes"
-                  :defaultValue="$t('SelectRoomType')" :is-required="false" :use-dropdown="useDropdownRoomType"
+                  :defaultValue="$t('SelectRoomType')" :is-required="true" :use-dropdown="useDropdownRoomType"
                   :disabled="isLoadingRoom" @update:modelValue="handleRoomTypeChange"
                   :class="{ 'border-red-500': submitted && !roomConfig.roomType }" />
               </div>
@@ -76,7 +76,7 @@
                   {{ $t('validation.invalidRateType') }}
                 </p>
                 <AutoCompleteSelect v-model="roomConfig.rateType" :lb="$t('rateType')" :options="rateTypeOptions"
-                  :defaultValue="$t('SelectRateType')" :is-required="false" :use-dropdown="useDropdownRateType"
+                  :defaultValue="$t('SelectRateType')" :is-required="true" :use-dropdown="useDropdownRateType"
                   :disabled="!roomConfig.roomType" @update:modelValue="handleRateTypeChange"
                   :class="{ 'border-red-500': submitted && !roomConfig.rateType }" />
               </div>
@@ -224,7 +224,7 @@
               </div>
 
               <div class="flex-1">
-                <Input :lb="$t('LastName')" v-model="formData.lastName" :placeholder="$t('LastName')"
+                <Input :lb="$t('LastName')" v-model="formData.lastName" :placeholder="$t('LastName')" :is-required="true"
                   custom-class="rounded-none h-11 border-l-0" />
               </div>
 
@@ -400,6 +400,7 @@ import { useBooking } from '@/composables/useBooking2'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
+import { getPaymentMethods } from '@/services/paymentMethodApi'
 // @ts-ignore
 import pHtml from '@/views/Bookings/p.html?raw'
 
@@ -446,7 +447,7 @@ const {
   onRoomNumberChange,
   getAdultOptions,
   getChildOptions,
-  TransportationModes,
+  TransportationModes
 } = useBooking()
 
 // State management
@@ -454,6 +455,7 @@ const submitted = ref(false)
 const showIdentitySection = ref(true)
 const htmlContent = ref<string>('')
 const isPreviewLoading = ref(true)
+const PaymentMethods = ref<any[]>([])
 
 // Cache parsed template once; clone for subsequent renders
 let _baseDoc: Document | null = null
@@ -499,6 +501,14 @@ const renderPrintHtml = () => {
       if (typeof rn === 'object') return getSafe(rn.label || rn.value)
       return getSafe(rn)
     })()
+   const getPaymentMethodName = (paymentModeId: any) => {
+      if (!paymentModeId) return ''
+      if (PaymentMethods.value && PaymentMethods.value.length > 0) {
+        const method = PaymentMethods.value.find((m: any) => m.id === paymentModeId)
+        return getSafe(method?.name || method?.methodName || paymentModeId)
+      }
+      return getSafe(paymentModeId)
+    }
     const getOptionLabel = (options: any[], value: any) => {
       const opt = options?.find?.((o: any) => o.value === value)
       return getSafe(opt?.label ?? value)
@@ -512,8 +522,8 @@ const renderPrintHtml = () => {
       'Venant de :': getSafe(reservation.value?.arrivingTo),
       'Se rendant à :': getSafe(reservation.value?.goingTo),
       'Mode de transport :': getOptionLabel(TransportationModes as unknown as any[], reservation.value?.meansOfTransport),
-      'Mode de paiement :': getSafe(billing.value?.paymentMode),
-      'NOM (en gros characters) :': getSafe(formData.value.lastName),
+      'Mode de paiement :': getPaymentMethodName(billing.value?.paymentMode),
+      'NOM (en gros characters) :': getSafe(formData.value.firstName) +' '+ getSafe(formData.value.lastName),
       'NOM jeune fille :': getSafe(formData.value.maidenName),
       'Date de naissance :': getSafe(formData.value.dateOfBirth),
       'Lieu de naissance :': getSafe(formData.value.placeOfBirth),
@@ -846,11 +856,44 @@ watch(() => formData.value.contactType, (newType, oldType) => {
   }
 })
 
+const loadPaymentMethods = async () => {
+  try {
+    isLoading.value = true
+    const hotelId = useServiceStore().serviceId!
+    const response = await getPaymentMethods(hotelId)
+    console.log('city test', response)
+
+    if (response.data && Array.isArray(response.data.data)) {
+      PaymentMethods.value = response.data.data.map((method: any) => ({
+        id: method.id,
+        name: method.methodName,
+        description: method.description,
+        type: method.methodType,
+        ...method
+      }))
+    } else if (response.data && Array.isArray(response.data)) {
+      PaymentMethods.value = response.data.map((method: any) => ({
+        id: method.id,
+        name: method.methodName,
+        description: method.description,
+        type: method.methodType,
+        ...method
+      }))
+    }
+  } catch (error) {
+    console.error('Error loading payment methods:', error)
+    PaymentMethods.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // Initialize on mount
 onMounted(async () => {
   await fetchIdentityTypes()
   await initialize()
   updateHtml()
+  loadPaymentMethods()
 })
 
 // Ensure checkout date is never before check-in date

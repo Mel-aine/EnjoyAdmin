@@ -414,7 +414,7 @@ const saveExtraCharge = async () => {
         closeModal()
         await loadata()
       } else {
-        toast.error(t('something_went_wrong'))
+        toast.error(t('toast.error_save_extra_charge'))
       }
     } else {
       const newExtraCgarge = { ...formData, hotelId: serviceStore.serviceId, taxRateIds: taxRateIds  }
@@ -424,12 +424,12 @@ const saveExtraCharge = async () => {
         closeModal()
         await loadata(1)
       } else {
-        toast.error(t('something_went_wrong'))
+        toast.error(t('toast.error_save_extra_charge'))
       }
     }
   } catch (e) {
     console.log('error',e);
-    toast.error(t('something_went_wrong'));
+    toast.error(t('toast.error_save_extra_charge'));
   } finally {
     isSaving.value = false;
   }
@@ -457,7 +457,7 @@ const confirmDelete = async () => {
     }
   } catch (error) {
     console.error('Error deleting extra charge:', error)
-    toast.error(t('something_went_wrong'))
+    toast.error(t('configuration.extra_charge.delete_error') || t('Error deleting extra charge'))
   } finally {
     isDeletingLoading.value = false
   }
@@ -497,7 +497,7 @@ const loadata = async (page = 1) => {
     paginationMeta.value = response.data.data.meta;
   } catch (error) {
     console.error('Error fetching identity types:', error)
-    toast.error(t('configuration.identity_type.fetch_error'))
+    toast.error(t('configuration.extra_charge.fetch_error'))
   } finally {
     loading.value = false
   }

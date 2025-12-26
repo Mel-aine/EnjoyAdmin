@@ -478,13 +478,10 @@ const filteredReservations = computed(() => {
   }
 
   if (reservationMode.value === 'single') {
-    filtered = filtered.filter((reservation: any) => {
-      return !reservation.reservationRooms || reservation.reservationRooms.length === 1
-    })
+    console.log('filtered',filtered )
+    filtered = filtered.filter((reservation: any) => reservation.isGroup === false)
   } else if (reservationMode.value === 'group') {
-    filtered = filtered.filter((reservation: any) => {
-      return reservation.reservationRooms && reservation.reservationRooms.length > 1
-    })
+    filtered = filtered.filter((reservation: any) => reservation.isGroup === true)
   }
 
   filtered.sort((a, b) => {

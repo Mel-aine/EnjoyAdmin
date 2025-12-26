@@ -41,6 +41,7 @@ export interface Reservation {
 const handleApiError = (error: any): never => {
   console.error('Erreur API:', error)
   throw {
+    code: error.response?.data?.code,
     message: error.response?.data?.message || 'Erreur API',
     error: error.response?.data?.error || error.message,
   }

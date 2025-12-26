@@ -456,11 +456,14 @@ const mapFiltersToApi = () => {
   if (filters.value.guestName?.trim()) {
     searchTerms.push(filters.value.guestName.trim())
   }
-  if (filters.value.reservationNumber?.trim()) {
-    searchTerms.push(filters.value.reservationNumber.trim())
-  }
+
   if (searchTerms.length > 0) {
     params.searchText = searchTerms.join(' ')
+  }
+
+  //reservation number
+  if (filters.value.reservationNumber?.trim()) {
+    params.reservationNumber = filters.value.reservationNumber
   }
 
   // Room type

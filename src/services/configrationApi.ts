@@ -1428,6 +1428,13 @@ export const getExtraCharges = (params: any = {}): Promise<AxiosResponse<any>> =
   return axios.get(`${API_URL()}/extra_charges`, { ...getHeaders(), params })
 }
 
+export const getAllExtraCharges = (hotelId: number, params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/extra_charges`, {
+    ...getHeaders(),
+    params: { ...params, hotelId, all: true }
+  })
+}
+
 
 
 /**

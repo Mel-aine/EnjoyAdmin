@@ -8,24 +8,24 @@
             <PlusCircle class="text-primary cursor-pointer" @click="createNewGuest" />
           </div>
 
-          <Accordion
+        <Accordion
             v-for="(fo, index) in reservation.reservationRooms"
             :key="index"
             :title="`${fo.room?.roomNumber || 'No Room Number'}`"
             class="mb-2"
           >
-            <div v-for="(guest, guestIndex) in guestList" :key="guestIndex">
+            <div v-if="fo.guest">
               <div
                 class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
                 :class="
-                  selectedGuest?.id === guest.id
+                  selectedGuest?.id === fo.guest.id
                     ? 'bg-blue-100 border-l-4 border-blue-500 dark:bg-blue-900 dark:border-blue-400'
                     : 'bg-gray-100 dark:bg-gray-800'
                 "
-                @click="selectGuest(guest)"
+                @click="selectGuest(fo.guest)"
               >
                 <span class="capitalize dark:text-gray-200">{{
-                  guest.displayName || guest.firstName + ' ' + guest.lastName
+                  fo.guest.displayName || fo.guest.firstName + ' ' + fo.guest.lastName
                 }}</span>
                 <ChevronRight class="w-4 h-4" />
               </div>
@@ -123,14 +123,14 @@
               <!-- Champs d'information de base -->
               <div class="col-span-12 md:col-span-10 space-y-6">
                 <!-- Ligne Nom, Téléphone, Mobile -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                   <!-- Nom -->
-                  <div>
+                  <div class="md:col-span-7">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{
                       $t('Name')
                     }}</label>
                     <div class="flex">
-                      <div class="w-20 -translate-y-1/9">
+                      <div class="w-20 -translate-y-1/9 z-10">
                         <Select
                           v-model="guestData.title"
                           :options="titleOptions"
@@ -142,11 +142,13 @@
 
                       <!-- Mode Affichage: Nom complet en lecture seule -->
                       <div v-if="!isEditing" class="flex-1">
-                        <div
-                          class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white/90"
-                        >
-                          {{ fullName }}
-                        </div>
+                        <input
+                          type="text"
+                          :value="fullName"
+                          readonly
+                          :title="fullName"
+                          class="h-11 w-full rounded-lg rounded-l-none border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 cursor-default truncate"
+                        />
                       </div>
 
                       <!-- Mode Édition: Prénom et Nom -->
@@ -183,7 +185,7 @@
                   </div>
 
                    <!--  Date de naissance -->
-                    <div class="">
+                    <div class="md:col-span-3">
                       <InputDatePicker
                         :title="$t('DateOfBirth')"
                         v-model="guestData.dateOfBirth"
@@ -192,7 +194,7 @@
                       />
                     </div>
                     <!-- Lieu de naissance -->
-                    <div class="">
+                    <div class="md:col-span-2">
                       <Input
                         :lb="$t('PlaceOfBirth')"
                         :id="'placeOfBirth'"
@@ -727,7 +729,7 @@ interface RichSelectOption extends SelectOption {
   dateField: string
   label_fr: string
 }
-const emit = defineEmits(['clear-error'])
+const emit = defineEmits(['clear-error','refresh'])
 const props = defineProps<Props>()
 const { t } = useI18n()
 const toast = useToast()
@@ -886,14 +888,32 @@ const initializeGuestData = (guest: any = null): GuestData => {
 const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
 
 // Computed properties
-const guestList = computed(() => props.reservation?.guests || [])
+const guestList = computed(() => {
+  const rooms = props.reservation?.reservationRooms || []
+
+  // Extraire les guests uniques de chaque chambre
+  const uniqueGuests = new Map()
+
+  rooms.forEach((room:any) => {
+    if (room.guest && room.guest.id && !uniqueGuests.has(room.guest.id)) {
+      uniqueGuests.set(room.guest.id, room.guest)
+    }
+  })
+
+  return Array.from(uniqueGuests.values())
+})
 const fullName = computed(() => (guestData.firstName + ' ' + guestData.lastName + ' ' + guestData.maidenName).trim() || '')
 
 // Watch for changes in selected guest
 watch(
   selectedGuest,
   (newGuest) => {
-    Object.assign(guestData, initializeGuestData(newGuest))
+    //  Réinitialiser complètement guestData
+    const newData = initializeGuestData(newGuest)
+    Object.keys(guestData).forEach(key => {
+      delete guestData[key as keyof GuestData]
+    })
+    Object.assign(guestData, newData)
     resetKey.value++
   },
   { deep: true },
@@ -925,11 +945,22 @@ const guestTypeOptions: SelectOption[] = [
 
 
 
-
 const selectGuest = (guest: any) => {
-  selectedGuest.value = guest
+  //  Créer une COPIE PROFONDE pour éviter les références partagées
+  selectedGuest.value = JSON.parse(JSON.stringify(guest))
   isCreatingNewGuest.value = false
-  Object.assign(guestData, initializeGuestData(guest))
+
+  // Réinitialiser complètement guestData avec les nouvelles données
+  const newGuestData = initializeGuestData(selectedGuest.value)
+
+  // Supprimer toutes les propriétés existantes
+  Object.keys(guestData).forEach(key => {
+    delete guestData[key as keyof GuestData]
+  })
+
+  // Assigner les nouvelles données
+  Object.assign(guestData, newGuestData)
+
   isEditing.value = false
   resetKey.value++
 }
@@ -1165,14 +1196,31 @@ const saveGuest = async () => {
       await updateGuest(guestId, payload)
       toast.success(t('Guest updated successfully'))
 
-      // Mettre à jour les données de l'invité sélectionné
+
+     //  Mettre à jour l'invité dans la liste avec une NOUVELLE référence
+      const guestIndex = guestList.value.findIndex((g:any) => g.id === guestId)
+      if (guestIndex !== -1) {
+        // Créer un NOUVEL objet pour forcer la réactivité
+        guestList.value[guestIndex] = {
+          ...guestList.value[guestIndex],
+          ...guestData,
+          id: guestId // S'assurer que l'ID reste correct
+        }
+      }
+
+      //  Mettre à jour selectedGuest avec une nouvelle référence
       if (selectedGuest.value) {
-        Object.assign(selectedGuest.value, guestData)
+        selectedGuest.value = {
+          ...selectedGuest.value,
+          ...guestData,
+          id: guestId
+        }
       }
     }
 
     isEditing.value = false
     resetKey.value++
+    emit('refresh')
 
   } catch (error: any) {
     console.error('Error saving guest:', error)
@@ -1185,6 +1233,7 @@ const saveGuest = async () => {
 
 const cancelEdit = () => {
   isEditing.value = false
+
   if (isCreatingNewGuest.value) {
     isCreatingNewGuest.value = false
     const guestToSelect = props.guest || guestList.value?.[0]
@@ -1192,11 +1241,21 @@ const cancelEdit = () => {
       selectGuest(guestToSelect)
     } else {
       selectedGuest.value = null
-      Object.assign(guestData, initializeGuestData(null))
+      const emptyData = initializeGuestData(null)
+      Object.keys(guestData).forEach(key => {
+        delete guestData[key as keyof GuestData]
+      })
+      Object.assign(guestData, emptyData)
     }
   } else {
-    Object.assign(guestData, initializeGuestData(selectedGuest.value))
+    //  Recharger les données originales de l'invité
+    const originalData = initializeGuestData(selectedGuest.value)
+    Object.keys(guestData).forEach(key => {
+      delete guestData[key as keyof GuestData]
+    })
+    Object.assign(guestData, originalData)
   }
+
   resetKey.value++
 }
 
@@ -1390,6 +1449,7 @@ onMounted(() => {
   fetchIdentityTypes()
   fetchVipStatuses()
   getCompaniesList()
+  console.log('Mounted GuestDetails with reservation:', guestList.value)
 
 })
 </script>

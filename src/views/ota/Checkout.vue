@@ -896,7 +896,7 @@ async function bookNow() {
       promoCode: promoApplied.value ? promo.value : null,
     }
 
-    console.log('Booking payload:', bookingPayload)
+    console.log('Booking payload:', bookingData.value)
     console.log('roomGuests payload:', roomGuests)
 
     const response = await createOTAReservation(bookingPayload, hotelId.value)

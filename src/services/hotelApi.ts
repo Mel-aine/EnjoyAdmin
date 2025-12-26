@@ -21,6 +21,10 @@ const getHeaders = () => {
   }
 }
 
+export const getHotelById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${id}/details`, getHeaders())
+}
+
 
 ///// this is the amenities sections
 /**

@@ -82,6 +82,7 @@ import { safeParseInt, prepareFolioAmount } from '../../../utils/numericUtils'
 import { useI18n } from 'vue-i18n'
 import InputPaymentMethodSelect from './InputPaymentMethodSelect.vue'
 import { useAuthStore } from '../../../composables/user'
+import { toIntegerAmount } from '@/components/utilities/UtilitiesFunction'
 
 interface Props {
   isOpen: boolean
@@ -165,9 +166,9 @@ const loadPaymentData = () => {
     const methodType = payment.paymentMethod?.type?.toLowerCase() || payment.transactionCategory || 'cash'
     formData.type = methodType === 'city_ledger' ? 'city_ledger' : 'cash'
     formData.folio = payment.folioId
-    formData.amount = Math.abs(payment.grossAmount || payment.amount || payment.totalAmount || 0)
+    formData.amount = toIntegerAmount(payment.grossAmount || payment.amount || payment.totalAmount || 0)
     formData.method = payment.paymentMethodId || 0
-    formData.currency = payment.currencyCode 
+    formData.currency = payment.currencyCode
     formData.comment = payment.notes || payment.description || ''
 
     if (payment.paymentMethod) {
@@ -200,7 +201,7 @@ watch(() => props.folioId, (newVal) => {
 })
 
 const folioSelected = (item: any) => {
-  formData.amount = item.balance;
+  formData.amount = toIntegerAmount(item.balance);
 }
 
 const methodeSelected = ref<any>(null)

@@ -308,7 +308,7 @@
                                                 </div>
                                                 <div class="flex items-center">
                                                     <Child class="w-5 h-10" /><span class="pt-2 text-sm">{{
-                                                        reservation.child ?? 0 }}</span>
+                                                        reservation.children ?? 0 }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -466,17 +466,27 @@ const updateLocalReservation = (updates: any) => {
 
     console.log('Updated reservation:', localReservation.value)
     emit('reservation-updated', localReservation.value)
+    emit('save', {
+        action: 'dataUpdated',
+        reservationId: localReservation.value?.id,
+        data: updates
+    })
 }
 
 const handleChildReservationUpdated = (updated: any) => {
-    localReservation.value = { ...updated }
+      localReservation.value = { ...updated }
     getBookingDetailsById();
     emit('reservation-updated', localReservation.value)
+    emit('save', {
+        action: 'reservationUpdated',
+        reservationId: updated.id,
+        data: updated
+    })
 }
 
 const handleChildSave = (payload: any) => {
     getBookingDetailsById();
-    emit('save', payload)
+    emit('save', payload || { action: 'updated' })
 }
 
 // Legacy cancel/void/amend/noshow handlers removed; ReservationAction manages these and emits via handleChildSave
@@ -485,13 +495,21 @@ const closePrint = () => {
     pdfUrl.value = null
 }
 const handleRoomAssigned = (data: any) => {
-    console.log('Room assigned:', data)
-    // Mettre à jour les chambres localement
+
     if (data.rooms) {
-        updateLocalReservation({ reservationRooms: data.rooms })
+        localReservation.value = {
+            ...localReservation.value,
+            reservationRooms: data.rooms
+        }
+        emit('reservation-updated', localReservation.value)
     }
-    // Émettre l'événement save pour compatibilité
-    emit('save', { action: 'roomAssigned', reservationId: localReservation.value.id, data })
+
+    // Émettre save pour déclencher le refresh
+    emit('save', {
+        action: 'roomAssigned',
+        reservationId: localReservation.value.id,
+        data
+    })
 }
 
 // Legacy add payment handlers removed; child component emits are forwarded by handleChildSave

@@ -64,7 +64,7 @@
               'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer': !isRoomCheckedIn(room)
             }">
             <input v-model="formData.selectedRooms" type="checkbox" :value="room.id"
-              :disabled="isRoomCheckedIn(room) || !reservation?.isGroup"
+              :disabled="isRoomCheckedIn(room) || reservation?.isGroup"
               class="w-4 h-4 text-primary border-gray-300 dark:border-gray-700 rounded focus:ring-primary disabled:opacity-50" />
             <div class="ml-2 flex-1">
               <div class="flex items-center justify-between">

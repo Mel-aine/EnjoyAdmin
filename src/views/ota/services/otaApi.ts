@@ -181,6 +181,7 @@ export interface OTABookingPayload {
     roomId: number
     roomName: string
     rateTypeId: string
+    roomRateId:number
     planName: string
     planPrice: number
     planPriceTTC: number
@@ -334,13 +335,13 @@ export function transformOTAPayloadToReservation(
       rate_type_id: parseInt(item.rateTypeId),
       room_id: null,
       room_rate: Math.round(finalRoomRate),
+      room_rate_id: item.roomRateId,
       adult_count: item.adults,
       child_count: item.children,
       quantity: 1,
       tax_includes: item.taxIncluded,
       taxes: Math.round(taxesPerRoom),
       meal_plan_rate_include: false,
-      room_rate_id: null,
       meal_plan_id: null,
       extra_charges: extraCharges.length > 0 ? extraCharges : []
     }))

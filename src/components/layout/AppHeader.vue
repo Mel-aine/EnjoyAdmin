@@ -1,6 +1,6 @@
 <template>
   <header
-    class="sticky top-0 flex w-full bg-gradient-to-r from-white via-gray-50 to-white border-gray-200 z-10 dark:border-gray-800 dark:bg-gradient-to-r dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 lg:border-b shadow-lg backdrop-blur-sm">
+    class="sticky top-0 flex w-full bg-gradient-to-r from-white via-gray-50 to-white border-gray-200 z-50 dark:border-gray-800 dark:bg-gradient-to-r dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 lg:border-b shadow-lg backdrop-blur-sm">
     <div class="flex flex-col items-center justify-between grow lg:flex-row dark:bg-gray-800 lg:px-8">
       <div
         class="flex items-center  justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
@@ -72,7 +72,7 @@
           </button>
 
           <!-- Nouveau bouton: Fiche d'enregistrement client -->
-          <button
+          <button v-if="canAddBooking"
             class="relative group flex items-center px-4 py-2 rounded-xl transition-all duration-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 hover:shadow-md dark:hover:from-gray-700 dark:hover:to-gray-600"
             @click="openGuestRegistration">
             <PlusCircle class="w-5 h-5 cursor-pointer text-gray-600 dark:text-gray-300" />

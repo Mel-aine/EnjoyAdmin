@@ -3,7 +3,12 @@
     <div v-if="!status" class="text-center">
       {{ room }}
     </div>
-    <div v-else class="flex items-center justify-center relative">
+    <!-- <div v-else class="flex items-center justify-center relative"> -->
+    <button
+      v-else
+      @click="openRemarkModal"
+      class="flex items-center justify-center relative w-full cursor-pointer hover:opacity-80 transition-opacity"
+    >
       <div
         :class="[
           'flex items-center px-2 py-1 rounded w-full',
@@ -42,7 +47,7 @@
       >
         <MessageSquareMore :size="10" class="text-gray-600 hover:text-blue-600" />
       </button>
-    </div>
+   </button>
 
     <!-- Modal de remarque -->
     <RemarkModal
@@ -53,6 +58,7 @@
       :existingRemarkData="existingRemarkData"
       :housekeeperOptions = "HousekeeperOptions"
       :isLoadingRemark = "isLoadingRemark"
+      :current-status="currentStatus"
       @close="closeRemarkModal"
       @saved="onRemarkSaved"
       @remark-deleted="handleRemarkDeleted"
@@ -61,9 +67,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Bed as BedIcon, MessageSquareMore } from 'lucide-vue-next'
 import RemarkModal from '@/components/Housekeeping/RemarkModal.vue'
+import { useI18n } from 'vue-i18n'
 
 interface StatusBadgeProps {
   room: string
@@ -73,10 +80,12 @@ interface StatusBadgeProps {
   roomId?: string
   HousekeeperOptions: Array<{ value: string; label: string }>
   existingRemarkData?: any
+  housekeepingStatus?: string
   roomData?: {
     id: string
     roomNumber: string
     assignedHousekeeper?:any
+    housekeepingStatus?: string
     roomType?: {
       id: any
       roomTypeName: string
@@ -85,13 +94,35 @@ interface StatusBadgeProps {
 }
 
 const props = defineProps<StatusBadgeProps>()
-
+const { t } = useI18n()
 const emit = defineEmits(['remark-updated'])
 
 // État de la modal de remarque
 const isRemarkModalOpen = ref(false)
 const isLoadingRemark = ref(false)
 
+const currentStatus = computed(() => {
+
+  if (props.housekeepingStatus) {
+    const normalized = props.housekeepingStatus.toLowerCase()
+    return normalized
+  }
+
+  if (props.roomData?.housekeepingStatus) {
+    const normalized = props.roomData.housekeepingStatus.toLowerCase()
+    return normalized
+  }
+
+  const typeMapping: Record<string, string> = {
+    'red': 'dirty',
+    'green': 'clean',
+    'orange': 'maintenance',
+    'gray': 'out-of-order'
+  }
+
+  const mappedStatus = typeMapping[props.type] || 'clean'
+  return mappedStatus
+})
 // Détermine la couleur de fond
 const getBgColor = () => {
   switch (props.type) {

@@ -161,7 +161,7 @@ onUnmounted(() => {
   <div class="relative" ref="dropdownContainer">
     <form @submit.prevent>
       <div class="relative">
-        <Input :lb="$t('FirstName')" v-model="searchQuery" @input="filterCustomer" :id="'customer-search'"
+        <Input :lb="$t('FirstName')" v-model="searchQuery" @input="filterCustomer" :id="'customer-search'" :is-required="true"
           custom-class="rounded-none" :placeholder="$t('FirstName')" :forLabel="'customer-search'" />
       </div>
 
