@@ -371,6 +371,13 @@ onMounted(() => {
           <Building2Icon v-else class="text-primary"></Building2Icon>
           <Users v-if="localReservation.isGroup" />
           <span class="font-bold">{{ localReservation.guest?.displayName }}</span>
+          <span
+            v-if="localReservation.businessSource?.name"
+            class="font-bold truncate max-w-[200px]"
+            :title="localReservation.businessSource.name">
+            // {{ localReservation.businessSource.name }}
+          </span>
+
           <div class="flex">
             <Adult class="w-5" />
             <span class="text-sm items-end align-center self-center pt-2">{{
