@@ -504,9 +504,10 @@ const handleWorkOrderSave = async (eventData: any) => {
 
 const handleBlockSave = async (eventData: any) => {
   if (eventData.isEditing && eventData.updated) {
-    toast.success(t('BlockUpdatedSuccessfully'))
+    // toast.success(t('BlockUpdatedSuccessfully'))
+    console.log('Block mis à jour avec succès')
   } else if (!eventData.isEditing && eventData.successCount > 0) {
-    toast.success(t('BlockCreatedSuccessfully'))
+    console.log('Block(s) créé(s) avec succès:', eventData.successCount)
   }
   handleBlockClose()
 }

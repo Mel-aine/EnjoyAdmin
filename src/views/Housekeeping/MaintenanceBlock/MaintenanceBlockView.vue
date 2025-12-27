@@ -72,7 +72,7 @@
           <template #column-reason="{ item }">
             <div class="max-w-xs">
               <p class="text-sm text-gray-600 truncate" :title="item.reason">
-                {{ $t(`statuses.${item.reason}`) }}
+                {{ item.reason }}
               </p>
             </div>
           </template>

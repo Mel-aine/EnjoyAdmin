@@ -1,5 +1,5 @@
 <template>
-  <RightSideModal :open="isOpen" :title="t('Undo check-in')" @close="closeModal">
+  <RightSideModal :isOpen="isOpen" :title="t('Undo check-in')" @close="closeModal">
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900">{{ t('Undo check-in') }}</h3>
     </template>

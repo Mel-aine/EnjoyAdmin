@@ -84,12 +84,14 @@
 
       <!-- Reason -->
         <div>
-        <Select
+        <!-- <Select
           v-model="formData.reason"
           :options="reasonOptions"
           :placeholder="$t('SelectReason')"
           :lb="$t('Reason')"
-        />
+        /> -->
+         <ReasonSelector v-model="formData.reason" :category="'Block Room'" :label="$t('reason')"
+                    :is-required="false" @reason-added="handleReasonAdded" />
       </div>
 
       <!-- Description -->
@@ -136,6 +138,7 @@ import { Trash2 } from 'lucide-vue-next'
 import { getRoomTypesIndex } from '@/services/roomTypeApi'
 import { createRoomBlock, updateRoomBlock } from '@/services/roomBlockApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import ReasonSelector from '@/components/common/ReasonSelector.vue'
 
 // Interfaces
 interface MaintenanceBlock {
@@ -248,6 +251,10 @@ const validationErrors = reactive({
 const modalTitle = computed(() => {
   return props.isEditing ? t('UpdateBlock') : t('CreateBlock')
 })
+
+const handleReasonAdded = (newReason: { value: string; label: string }) => {
+    formData.reason = newReason.value
+}
 
 const filteredRooms = computed(() => {
   if (!selectedRoomTypeId.value) return []

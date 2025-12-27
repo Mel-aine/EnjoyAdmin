@@ -1124,7 +1124,7 @@ const validateAllRoomsWithAvailability = () => {
         throw new Error(t(validation.error || 'validation.invalidDateTime'))
       }
       // Validation
-      if (!formData.value.firstName || !formData.value.lastName) {
+      if (!formData.value.firstName) {
         throw new Error(t('Guest information is incomplete'))
       }
 

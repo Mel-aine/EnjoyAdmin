@@ -1,5 +1,5 @@
 <template>
-  <RightSideModal :open="isOpen" :title="t('Undo check-out')" @close="closeModal">
+  <RightSideModal :isOpen="isOpen" :title="t('Undo check-out')" @close="closeModal">
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900">{{ t('Undo check-out') }}</h3>
     </template>
@@ -41,7 +41,7 @@
       <div class="flex justify-end gap-2 p-4 border-t">
         <BasicButton variant="secondary" @click="closeModal" :label="t('cancel')"></BasicButton>
         <BasicButton :disabled="!canSubmit || isUndoingCheckOut" :loading="isUndoingCheckOut" @click="performUndo" :label="t('Undo check-out')">
-         
+
         </BasicButton>
       </div>
     </template>
