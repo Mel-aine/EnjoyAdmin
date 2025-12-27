@@ -3,10 +3,10 @@
     <div class="p-6">
       <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ $t('reports.backOffice.managerReport') }}
+          {{ $t('reports.backOffice.mealPlanReport') }}
         </h1>
         <p class="text-gray-600 dark:text-gray-400">
-          {{ $t('reports.backOffice.managerReportDescription') }}
+          {{ $t('reports.backOffice.mealPlanReportDescription') }}
         </p>
       </div>
 
@@ -28,15 +28,16 @@
           <!-- Currency -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('common.currency') }}
+              {{ $t('common.mealPlan') }}
             </label>
             <Select 
               v-model="filters.currency"
-              :options="currencyOptions"
-              :placeholder="'XAF'"
+              :options="mealPlans.map(plan => ({ value: plan.code, label: plan.name }))"
+              :placeholder="'-- Select --'"
               class="w-full"
             />
           </div>
+          
         </div>
 
         <!-- Action Buttons -->
@@ -97,7 +98,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -106,6 +107,7 @@ import Select from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { getMealPlanReportPdfUrl } from '@/services/occupancyReportsApi'
+import {getMealPlans} from '@/services/configrationApi'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -128,6 +130,7 @@ const isLoading = ref(false)
 const isLoad = ref(false)
 const errorMessage = ref('')
 const pdfUrl = ref('')
+const mealPlans = ref<any[]>([])
 
 const filters = ref<Filters>({
   reportDate: (() => {
@@ -205,6 +208,19 @@ const resetForm = (): void => {
   showResults.value = false
 }
 
+const fetchMealPlans = async () => {
+  try {
+    isLoading.value = true
+    const res = await getMealPlans()
+    console.log('res',res)
+    mealPlans.value = (res.data?.data?.data || res.data?.data || res.data || [])
+  } catch (e) {
+    console.error('Failed to load meal plans', e)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // Cleanup
 const cleanup = () => {
   if (pdfUrl.value) {
@@ -212,7 +228,9 @@ const cleanup = () => {
   }
 }
 
-
+onMounted(() => {
+  fetchMealPlans()
+})
 // Cleanup on unmount
 onUnmounted(cleanup)
 </script>
