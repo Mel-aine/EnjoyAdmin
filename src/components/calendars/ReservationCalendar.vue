@@ -114,7 +114,7 @@
         </div>
         <!-- Scrollable Content -->
         <div
-          class="flex-1 overflow-y-auto border border-gray-400 dark:border-gray-700 scrollbar-hide"
+          class="flex-1 overflow-y-auto border border-gray-400 dark:border-gray-700 scrollbar"
         >
           <table class="w-full text-sm table-fixed">
             <colgroup>
@@ -507,13 +507,25 @@
     <!-- Confirmed Selection Tooltip with Action -->
     <div
       v-if="getSelectionInfo()"
+      class="fixed inset-0 bg-black/40 z-[999]"
+      @wheel.prevent
+      @touchmove.prevent
+    ></div>
+    <div
+      v-if="getSelectionInfo()"
       :style="tooltipStyle"
-      class="w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg text-sm"
+      class="relative w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg text-sm mt-5"
     >
       <div
-        class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg px-4 py-2"
+        class="absolute left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-gray-100 dark:bg-gray-900 border border-gray-100 dark:border-gray-700"
+        :class="isTooltipAbove ? 'bottom-0 translate-y-1/2' : 'top-0 -translate-y-1/2'"
+      ></div>
+      <div
+        class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg px-4 py-2 flex justify-between"
       >
         <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ $t('SelectionDetails') }}</h3>
+        <XIcon class="w-5 h-5 text-red-600 dark:text-red-300 cursor-pointer" @click="clearCellSelection" />
+        
       </div>
 
       <div class="p-4">
@@ -549,17 +561,19 @@
       <div
         class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-lg px-4 py-3 flex justify-end gap-2"
       >
-        <button
-          @click="clearCellSelection"
-          class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-        >
-          {{ $t('Clear') }}
-        </button>
+    
         <button
           @click="navigateToAddReservationFromCells"
-          class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition"
+          class="bg-transparent text-blue-600 px-3 py-1 rounded text-smtransition"
         >
-          {{ $t('Booking') }}
+          {{ $t('walkin_reservation') }}
+        </button>
+
+        <button
+          @click="handleCreateRoomBlock"
+          class="bg-transparent text-blue-600 px-3 py-1 rounded text-smtransition"
+        >
+          {{ $t('maintenance_block') }}
         </button>
       </div>
     </div>
@@ -686,23 +700,6 @@
       <div
         class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-300 dark:border-gray-600 p-4 min-w-[280px] max-w-[400px]"
       >
-        <div
-          class="flex items-center justify-end mb-3 pb-2 border-b border-gray-200 dark:border-gray-700"
-        >
-          <button
-            @click="closeRoomBlockTooltipNow"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
 
         <!-- Contenu -->
         <div class="space-y-2 mb-2">
@@ -714,35 +711,21 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex gap-2 border-t border-gray-200 dark:border-gray-700">
           <button
             @click.stop="handleEditRoomBlock(tooltipRoomBlock)"
-            class="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5"
+            class="flex-1 px-3 py-2 text-blue-600 bg-transparent text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-            {{ $t('Edit') }}
+            {{ $t('EditBlockRoom') }}
           </button>
-
+        </div>
+        <div class="flex gap-2 border-t border-gray-200 dark:border-gray-700">
           <button
             @click.stop="handleUnblockRoom(tooltipRoomBlock?.id || tooltipRoomBlock?.block_id)"
-            class="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5"
+            class="flex-1 px-3 py-2 text-blue-600 bg-transparent text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
-              />
-            </svg>
-            {{ $t('Unblock') }}
+            
+            {{ $t('UnblockRoom') }}
           </button>
         </div>
       </div>
@@ -750,7 +733,7 @@
       <!-- Flèche (position dynamique) -->
       <div :class="getArrowClass()">
         <div
-          class="w-3 h-3 -translate-y-1/2 rotate-45 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+          class="w-3 h-3 rotate-45 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
           :class="getArrowBorderClass()"
         ></div>
       </div>
@@ -762,6 +745,7 @@
     :block-data="selectedBlock"
     :is-editing="isEditing"
     :pre-selected-room="preSelectedRoomData"
+    :pre-selected-date-range="preSelectedDateRange"
     @close="handleBlockClose"
     @save="handleBlockSave"
   />
@@ -797,6 +781,7 @@ import {
   CheckCircle,
   Building2Icon,
   Bed,
+  XIcon,
 } from 'lucide-vue-next'
 
 import { watch, onUnmounted } from 'vue'
@@ -883,10 +868,12 @@ const isBlockModalOpen = ref(false)
 const isEditing = ref(false)
 const selectedBlock = ref<any | null>(null)
 const preSelectedRoomData = ref<{
-  roomType: string
-  roomTypeId: number
+  roomId: any
   roomNumber: string
+  roomTypeId?: any
+  roomTypeName?: string
 } | null>(null)
+const preSelectedDateRange = ref<{ start: string | null; end: string | null } | null>(null)
 const showUnblockModal = ref(false)
 const blockToUnblockId = ref<number | null>(null)
 const deleting = ref(false)
@@ -894,11 +881,18 @@ const deleting = ref(false)
 const openCreateBlockModal = (
   isEdit: boolean,
   blockData: any = null,
-  preSelectedRoom: { roomType: string; roomTypeId: number; roomNumber: string } | null = null,
+  preSelectedRoom: {
+    roomId: any
+    roomNumber: string
+    roomTypeId?: any
+    roomTypeName?: string
+  } | null = null,
+  dateRange: { start: string | null; end: string | null } | null = null,
 ) => {
   isEditing.value = isEdit
   selectedBlock.value = blockData
   preSelectedRoomData.value = preSelectedRoom
+  preSelectedDateRange.value = dateRange
   isBlockModalOpen.value = true
 }
 
@@ -906,6 +900,7 @@ const handleBlockClose = () => {
   isBlockModalOpen.value = false
   selectedBlock.value = null
   preSelectedRoomData.value = null
+  preSelectedDateRange.value = null
 }
 
 const tooltipStyle = computed((): Record<string, string | number> => {
@@ -1089,9 +1084,10 @@ function closeRoomBlockTooltipNow() {
   tooltipRoomBlockPosition.value = null
 }
 
-async function handleUnblockRoom(roomBlockId: number) {
+async function handleUnblockRoom(roomBlockId: number | null | undefined) {
   closeRoomBlockTooltipNow()
 
+  if (!roomBlockId) return
   blockToUnblockId.value = roomBlockId
   showUnblockModal.value = true
 }
@@ -1108,7 +1104,7 @@ const confirmUnblockRoom = async () => {
   try {
     deleting.value = true
 
-    await deleteBlock(roomBlockId)
+    await deleteBlock(String(roomBlockId))
 
     await refresh()
   } catch (error) {
@@ -1194,13 +1190,11 @@ function getArrowClass() {
   const spaceBelow = window.innerHeight - y
   const spaceAbove = y
 
-  // Flèche en haut si tooltip en bas
   if (spaceBelow > tooltipHeight || spaceBelow > spaceAbove) {
-    return 'absolute left-1/2 -translate-x-1/2 top-0 -translate-y-full'
+    return 'pointer-events-none absolute left-1/2 -translate-x-1/2 top-0 -translate-y-1/2'
   }
 
-  // Flèche en bas si tooltip en haut
-  return 'absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-full'
+  return 'pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2'
 }
 
 // Fonction pour les bordures de la flèche
@@ -1212,12 +1206,10 @@ function getArrowBorderClass() {
   const spaceBelow = window.innerHeight - y
   const spaceAbove = y
 
-  // Bordures bas-droite si flèche en haut (tooltip en bas)
   if (spaceBelow > tooltipHeight || spaceBelow > spaceAbove) {
     return 'border-b border-r'
   }
 
-  // Bordures haut-gauche si flèche en bas (tooltip en haut)
   return 'border-t border-l'
 }
 
@@ -1695,7 +1687,7 @@ function getRowOverlayStyle(cell: any) {
   const base = Math.max(0, endIndex - startIndex) * 100
   const endContribution = endHalf ? endFrac * 100 : 100
   const startContribution = startHalf ? startFrac * 100 : 0
-  let widthPercent = base + endContribution - startContribution
+  const widthPercent = base + endContribution - startContribution
 
   const backgroundColor = getReservationColor(res.reservation_status)
   let left = startHalf ? `${startFrac * 100}%` : '0%'
@@ -2568,6 +2560,47 @@ function navigateToAddReservationFromCells() {
   })
 }
 
+function handleCreateRoomBlock() {
+  const selectionInfo = getSelectionInfo()
+  if (!selectionInfo) return
+
+  const startStr = selectionInfo.startDate.toISOString().split('T')[0]
+  let endStr = selectionInfo.endDate.toISOString().split('T')[0]
+  if (new Date(endStr) <= new Date(startStr)) {
+    const tmp = new Date(selectionInfo.startDate)
+    tmp.setDate(tmp.getDate() + 1)
+    endStr = tmp.toISOString().split('T')[0]
+  }
+  const dateRange = { start: startStr, end: endStr }
+
+  const group = (apiRoomGroups.value || []).find((g: any) => {
+    if (selectionInfo.roomTypeId != null && g?.room_type_id != null) {
+      return Number(g.room_type_id) === Number(selectionInfo.roomTypeId)
+    }
+    return g?.room_type === selectionInfo.roomType
+  })
+
+  const room = group?.room_details?.find((r: any) => {
+    return (r?.room_number ?? r?.roomNumber) === selectionInfo.roomNumber
+  })
+
+  const roomId = room?.id ?? room?.room_id ?? room?.roomId
+
+  clearCellSelection()
+
+  if (roomId == null) {
+    openCreateBlockModal(false, null, null, dateRange)
+    return
+  }
+
+  openCreateBlockModal(false, null, {
+    roomId,
+    roomNumber: selectionInfo.roomNumber,
+    roomTypeId: selectionInfo.roomTypeId,
+    roomTypeName: selectionInfo.roomType,
+  }, dateRange)
+}
+
 // Fonction pour déterminer si la cellule doit être affichée
 function shouldShowCell(group: any, room: any, cell: any) {
   // Always render all cells; no merged cells
@@ -2636,7 +2669,7 @@ onUnmounted(() => {
 @layer utilities {
   /* Chrome, Safari, Edge, Opera */
   .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+    display: block;
   }
 
   /* IE, Edge, Firefox */

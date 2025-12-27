@@ -8575,5 +8575,8 @@
   "Financial Information" : "Financial Information",
   "Booking Source & Type" : "Booking Source & Type",
   "Additional Information" : "Additional Information",
-  "Error deleting extra charge": "Error deleting extra charge"
+  "Error deleting extra charge": "Error deleting extra charge",
+  "walkin_reservation":"Walk In / Reservation",
+  "EditBlockRoom":"Edit Block Room",
+  "UnblockRoom":"Unblock Room"
 }

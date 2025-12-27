@@ -178,6 +178,10 @@ interface Props {
     roomTypeId?: any
     roomTypeName?: string
   } | null
+  preSelectedDateRange?: {
+    start: string | null
+    end: string | null
+  } | null
 }
 
 interface Emits {
@@ -317,9 +321,16 @@ const populateFormData = async () => {
     formData.status = props.blockData.status || ''
     formData.description = props.blockData.description || ''
   }
-  else if (props.preSelectedRoom && !props.isEditing) {
+  else if ((props.preSelectedRoom || props.preSelectedDateRange) && !props.isEditing) {
 
-    if (props.preSelectedRoom.roomTypeId) {
+    if (props.preSelectedDateRange?.start || props.preSelectedDateRange?.end) {
+      formData.dateRanges = [{
+        start: props.preSelectedDateRange?.start ?? null,
+        end: props.preSelectedDateRange?.end ?? null
+      }]
+    }
+
+    if (props.preSelectedRoom?.roomTypeId) {
       selectedRoomTypeId.value = Number(props.preSelectedRoom.roomTypeId)
 
       await nextTick()
@@ -334,7 +345,7 @@ const populateFormData = async () => {
         console.error('Chambres disponibles:', filteredRooms.value)
       }
     }
-    else if (props.preSelectedRoom.roomId) {
+    else if (props.preSelectedRoom?.roomId) {
 
       for (const roomType of roomTypeOptions.value) {
         const roomFound = roomType.rooms?.find((room: any) =>
@@ -648,6 +659,13 @@ watch(() => props.isOpen, async (newVal) => {
 })
 
 watch(() => props.preSelectedRoom, async (newVal) => {
+  if (props.isOpen && newVal) {
+    await nextTick()
+    await populateFormData()
+  }
+}, { deep: true, immediate: true })
+
+watch(() => props.preSelectedDateRange, async (newVal) => {
   if (props.isOpen && newVal) {
     await nextTick()
     await populateFormData()
