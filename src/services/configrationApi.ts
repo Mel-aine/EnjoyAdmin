@@ -2075,6 +2075,8 @@ export interface MealPlanComponentPayload {
   targetGuestType: string // e.g., 'adult' | 'child'
 }
 
+export type MealPlanAssignMealPlanOn = 'CheckIn' | 'StayOver' | 'CheckOut'
+
 export interface MealPlanPayload {
   name: string
   shortCode: string
@@ -2082,6 +2084,8 @@ export interface MealPlanPayload {
   status: string // e.g., 'Active' | 'Inactive'
   isAllInclusive: boolean
   components: MealPlanComponentPayload[]
+  assignMealPlanOn?: MealPlanAssignMealPlanOn[]
+  assignOn?: string[]
 }
 
 /**

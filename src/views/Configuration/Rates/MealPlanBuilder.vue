@@ -33,6 +33,11 @@
           >
           </BasicButton>
         </template>
+        <template #column-assignMealPlanOn="{ item }">
+          <span class="text-sm text-gray-900 dark:text-white break-words">
+            {{ formatAssignMealPlanOn(item) }}
+          </span>
+        </template>
       </ReusableTable>
 
       <!-- Add/Edit Modal -->
@@ -57,6 +62,25 @@
               <div class="flex items-center">
                 <input id="isAllInclusive" v-model="formData.isAllInclusive" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
                 <label for="isAllInclusive" class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('All-Inclusive (includes drinks and activities)') }}</label>
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {{ $t('Assign meal plan on') }}
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label class="flex items-center">
+                    <input v-model="formData.assignMealPlanOn" type="checkbox" value="CheckIn" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Check In') }}</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input v-model="formData.assignMealPlanOn" type="checkbox" value="StayOver" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Stay Over') }}</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input v-model="formData.assignMealPlanOn" type="checkbox" value="CheckOut" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700 dark:bg-gray-700 rounded" />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('Check Out') }}</span>
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -167,6 +191,7 @@ const columns :Column[] = [
   { key: 'name', label: t('Name'), type: 'text' },
   { key: 'shortCode', label: t('Short Code'), type: 'text' },
   { key: 'status', label: t('Status'), type: 'badge', translatable:true },
+  { key: 'assignMealPlanOn', label: t('Assign meal plan on'), type: 'custom' },
 ]
 
 const actions = [
@@ -186,6 +211,7 @@ const formData = reactive({
   shortCode: '',
   status: 'Active',
   isAllInclusive: false,
+  assignMealPlanOn: [] as string[],
 })
 
 const statusOptions = [
@@ -235,7 +261,48 @@ const resetForm = () => {
   formData.shortCode = ''
   formData.status = 'Active'
   formData.isAllInclusive = false
+  formData.assignMealPlanOn = []
   components.value = []
+}
+
+type AssignMealPlanOn = 'CheckIn' | 'StayOver' | 'CheckOut'
+
+const assignMealPlanOnLabel: Record<AssignMealPlanOn, string> = {
+  CheckIn: 'Check In',
+  StayOver: 'Stay Over',
+  CheckOut: 'Check Out',
+}
+
+const normalizeAssignMealPlanOn = (value: unknown): AssignMealPlanOn[] => {
+  const rawValues: string[] = Array.isArray(value)
+    ? value.map((v) => String(v))
+    : typeof value === 'string'
+      ? value.split(',')
+      : []
+
+  const mapped = rawValues
+    .map((v) => String(v).trim())
+    .filter(Boolean)
+    .map((v) => {
+      const normalized = v.replace(/\s+/g, '').toLowerCase()
+      if (normalized === 'checkin') return 'CheckIn'
+      if (normalized === 'stayover') return 'StayOver'
+      if (normalized === 'checkout') return 'CheckOut'
+      return null
+    })
+    .filter((v): v is AssignMealPlanOn => v !== null)
+
+  return Array.from(new Set(mapped))
+}
+
+const formatAssignMealPlanOn = (item: any): string => {
+  const raw =
+    item?.assignMealPlanOn ??
+    item?.assign_meal_plan_on ??
+    item?.assignOn ??
+    item?.assign_on
+  const values = normalizeAssignMealPlanOn(raw)
+  return values.length ? values.map((v) => t(assignMealPlanOnLabel[v])).join(', ') : '-'
 }
 
 const addComponent = () => {
@@ -304,6 +371,7 @@ const saveMealPlan = async () => {
       shortCode: formData.shortCode,
       status: formData.status,
       isAllInclusive: !!formData.isAllInclusive,
+      assignMealPlanOn: normalizeAssignMealPlanOn(formData.assignMealPlanOn),
       components: components.value.map((c) => ({
         extraChargeId: c.extraChargeId,
         quantityPerDay: c.quantityPerDay,
@@ -347,6 +415,12 @@ const editMealPlan = (item: any) => {
   formData.shortCode = item.shortCode || ''
   formData.status = item.status || 'Active'
   formData.isAllInclusive = !!item.isAllInclusive
+  formData.assignMealPlanOn = normalizeAssignMealPlanOn(
+    item.assignMealPlanOn ??
+      item.assign_meal_plan_on ??
+      item.assignOn ??
+      item.assign_on,
+  )
   // Map API components to local components table if present
   const apiComponents = item.components || []
   components.value = apiComponents.map((c: any) => ({
