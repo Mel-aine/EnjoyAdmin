@@ -2083,22 +2083,17 @@ function startCellSelection(
   const target = event.currentTarget as HTMLElement
   const cellWidth = target.offsetWidth
 
-  // Prevent starting selection inside occupied parts of the cell
   const occupancy = getCellOccupancyType(roomType, roomNumber, new Date(date))
   const clickRatio = cellWidth > 0 ? event.offsetX / cellWidth : 0
-  // Block full-day occupancy
   if (occupancy === 'occupied_full') {
     return
   }
-  // Block right half when start-day reservation occupies right half
   if (occupancy === 'occupied_right' && clickRatio >= 0.5) {
     return
   }
-  // Block left half when end-day reservation occupies left half
   if (occupancy === 'occupied_left' && clickRatio < 0.5) {
     return
   }
-  // Single-day reservation: block center 50%
   if (occupancy === 'occupied_center' && clickRatio >= 0.25 && clickRatio <= 0.75) {
     return
   }
@@ -2152,6 +2147,10 @@ function updateCellSelection(
   ) {
     return
   }
+
+  const occupancy = getCellOccupancyType(roomType, roomNumber, new Date(date))
+  if (occupancy === 'occupied_full') return
+
   const target = event.currentTarget as HTMLElement
   const cellWidth = target.offsetWidth
 
@@ -2202,14 +2201,25 @@ function calculateSelectedCells() {
       continue
     }
 
-    // If next date has any reservation segment, include it as the endpoint
-    // for half-day selection and stop expanding further
     if (occupancy === 'occupied_left' || occupancy === 'occupied_right') {
       cellSelection.value.selectedCells.add(getCellKey(roomType, roomNumber, next))
+      current = next
     }
-    // For fully occupied or single-day centered reservations, do not include
-    // the next date; selection ends on the current free date.
+
     break
+  }
+  if (cellSelection.value.currentCell) {
+    const currentCellInfo = cellSelection.value.currentCell
+    const currentDateStr = current.toISOString().split('T')[0]
+    const currentCellDateStr = currentCellInfo.date.toISOString().split('T')[0]
+    if (currentCellDateStr !== currentDateStr) {
+      const w = currentCellInfo.cellWidth || cellSelection.value.startCell?.cellWidth || 0
+      if (w > 0) {
+        currentCellInfo.cellWidth = w
+        currentCellInfo.offsetX = forward ? w : 0
+      }
+      currentCellInfo.date = new Date(current)
+    }
   }
 }
 

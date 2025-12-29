@@ -2,7 +2,7 @@ export interface ProductOption {
   "name"?: string,
   "api": string,
   "quantity": number,
-  "inputField"?:String
+  "inputField"?:string
   "Id"?: number;
 }
 

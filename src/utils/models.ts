@@ -62,11 +62,11 @@ export interface ReservationDetails {
   reservationServiceProducts: ReservationServiceProduct[]
   reservation_id?: number
   guest: Record<string, any>
-  nights: Number
-  child: Number
-  adults: Number
+  nights: number
+  child: number
+  adults: number
   checkInTime: string
-  dayuseDuration: Number
+  dayuseDuration: number
   checkOutTime: string
 }
 
