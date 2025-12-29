@@ -293,7 +293,9 @@
                             :key="`${res.reservation_id}-${idx}`"
                             class="group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20"
                             :style="getSingleDaySegmentStyle(res, idx)"
-                            @click="showReservationModal(res)"
+                            @mousedown.stop="$event"
+                            @mouseup.stop="$event"
+                            @click.stop="showReservationModal(res)"
                             @mouseenter="showReservationTooltip(res, $event)"
                             @mouseleave="hideReservationTooltip"
                           >
@@ -337,11 +339,9 @@
                             v-if="cell.reservationStart || cell.reservationCarryOver"
                             class="group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20"
                             :style="getRowOverlayStyle(cell)"
-                            @click="
-                              showReservationModal(
-                                cell.reservationStart || cell.reservationCarryOver,
-                              )
-                            "
+                            @mousedown.stop="$event"
+                            @mouseup.stop="$event"
+                            @click.stop="showReservationModal(cell.reservationStart || cell.reservationCarryOver)"
                             @mouseenter="
                               showReservationTooltip(
                                 cell.reservationStart || cell.reservationCarryOver,
@@ -525,7 +525,7 @@
       >
         <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ $t('SelectionDetails') }}</h3>
         <XIcon class="w-5 h-5 text-red-600 dark:text-red-300 cursor-pointer" @click="clearCellSelection" />
-        
+
       </div>
 
       <div class="p-4">
@@ -561,7 +561,7 @@
       <div
         class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-lg px-4 py-3 flex justify-end gap-2"
       >
-    
+
         <button
           @click="navigateToAddReservationFromCells"
           class="bg-transparent text-blue-600 px-3 py-1 rounded text-smtransition"
@@ -724,7 +724,7 @@
             @click.stop="handleUnblockRoom(tooltipRoomBlock?.id || tooltipRoomBlock?.block_id)"
             class="flex-1 px-3 py-2 text-blue-600 bg-transparent text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5"
           >
-            
+
             {{ $t('UnblockRoom') }}
           </button>
         </div>
@@ -1009,6 +1009,8 @@ function showReservationModal(reservation: any) {
   if (!useAuthStore().hasPermission('edit_reservation')) {
     return
   }
+  // Clear any active cell selection to avoid opening the selection details panel
+  clearCellSelection()
   showDetail.value = true
   modalReservation.value = reservation
 }

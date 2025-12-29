@@ -157,6 +157,9 @@ const showRoomSelectionModal = ref(false)
 const selectedReservationRoom = ref<Room | null>(null)
 const availableRooms = ref<any[]>([])
 
+
+
+
 // Mock function to get available rooms - replace with actual API call
 const getAvailableRoomsForRoomType = async (roomTypeId: string) => {
   // TODO: Replace with actual API call

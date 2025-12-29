@@ -156,6 +156,7 @@ const saveCharge = async () => {
 
     const chargeData :any = {
       folioId: Number(formData.folio),
+      transactionDate: formData.date,
       transactionType: 'charge',
       category: 'extract_charge',
       description: `${selectedCharge.value?.name || selectedCharge.value?.charge_name} Qt[${formData.quantity}]`,

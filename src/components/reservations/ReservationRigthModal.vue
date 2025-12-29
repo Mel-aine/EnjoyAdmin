@@ -662,7 +662,7 @@ const getBookingDetailsById = async () => {
     console.log(response)
     reservation.value = response
     reservation.value.reservationRooms = response.reservationRooms.map((e: any) => {
-        return { ...e, guest: reservation.value.guest }
+        return { ...e }
     })
 
     isLoading.value = false;

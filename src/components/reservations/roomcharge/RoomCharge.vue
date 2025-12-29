@@ -14,8 +14,9 @@
               <div>
                 <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1">
                   <div class="flex flex-col">
-                    <span class="capitalize">{{ singleRoom?.roomNumber }}-{{ singleRoom?.guestName }}</span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ }}</span>
+                    <!-- ✅ Afficher le guest name de la chambre -->
+                    <span class="capitalize">{{ singleRoom?.roomNumber }} - {{ singleRoom?.guestName }}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ singleRoom?.roomType }}</span>
                   </div>
                   <ChevronRight class="w-4 h-4" />
                 </div>
@@ -28,7 +29,8 @@
               @click="selectRoom(room.id)">
               <div class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1">
                 <div class="flex flex-col">
-                  <span class="capitalize">{{ room.roomNumber }}-{{ room.guestName }}</span>
+                  <!-- ✅ Afficher le guest name de la chambre -->
+                  <span class="capitalize">{{ room.roomNumber }} - {{ room.guestName }}</span>
                   <span class="text-xs text-gray-500 dark:text-gray-400">{{ room.roomType || '' }}</span>
                 </div>
                 <ChevronRight class="w-4 h-4" />
@@ -70,37 +72,6 @@
       <div class="flex flex-wrap gap-2 p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 dark:text-gray-100">
         <BasicButton :label="$t('updateDetails')" @click="updateDetails" />
         <BasicButton :label="$t('applyDiscount')" @click="openApplyDiscountModal" />
-
-        <!-- More Actions Dropdown
-        <div class="relative">
-          <ButtonDropdown
-            v-model="selectedMoreAction"
-            :options="getMoreActionOptions()"
-            :button-text="$t('more')"
-            :button-class="'bg-white border border-gray-200'"
-            @option-selected="handleMoreAction"
-          />
-        </div>-->
-
-        <!-- Status Indicators
-        <div class="ml-auto flex items-center gap-2">
-          <span class="flex items-center gap-1 text-sm">
-            <div class="w-3 h-3 bg-orange-400 rounded"></div>
-            {{ $t('unposted') }}
-          </span>
-          <span class="flex items-center gap-1 text-sm">
-            <div class="w-3 h-3 bg-gray-600 rounded"></div>
-            {{ $t('posted') }}
-          </span>
-          <div class="flex gap-1">
-            <button class="p-1 hover:bg-gray-100 rounded" @click="refreshData">
-              <RefreshCcw class="w-4 h-4" />
-            </button>
-            <button class="p-1 hover:bg-gray-100 rounded">
-              <SettingsIcon class="w-4 h-4" />
-            </button>
-          </div>
-        </div>-->
       </div>
 
       <!-- Room Charges Table -->
@@ -112,6 +83,16 @@
           <template #column-transactionDate="{ item }">
             <div class="text-sm text-gray-900 dark:text-gray-100">
               <div class="font-medium">{{ formatTransactionDate(item.transactionDate) }}</div>
+            </div>
+          </template>
+
+          <!--  Custom Guest Column -->
+          <template #column-guest="{ item }">
+            <div class="text-sm">
+              <div class="font-medium">{{ item.guest?.name || '---' }}</div>
+              <div v-if="item.guest?.email" class="text-xs text-gray-500 dark:text-gray-400">
+                {{ item.guest.email }}
+              </div>
             </div>
           </template>
 
@@ -143,7 +124,6 @@
             </div>
           </template>
 
-
           <!-- Custom Tax Column -->
           <template #column-tax="{ item }">
             <div class="text-sm text-black dark:text-gray-100">
@@ -164,8 +144,6 @@
               {{ formatAmount(item.netAmount) }}
             </div>
           </template>
-
-
         </ReusableTable>
       </div>
 
@@ -210,7 +188,6 @@
       </template>
     </div>
     <template v-if="isApplyDiscountModalOpen">
-      <!-- Apply Discount Modal -->
       <ApplyDiscountRoomCharge v-if="isApplyDiscountModalOpen" :is-open="isApplyDiscountModalOpen"
         :reservation-id="reservationId" :room-charges="roomChargeData" @close="closeApplyDiscountModal"
         @discount-applied="handleDiscountApplied" />
@@ -222,6 +199,7 @@
     </template>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, watch, defineAsyncComponent } from 'vue'
@@ -367,6 +345,7 @@ const canCancel = computed(() => {
 // Table Columns
 const columns = computed<Column[]>(() => [
   { key: 'transactionDate', label: t('Stay'), type: 'custom' },
+  { key: 'guest', label: t('Guest'), type: 'custom' },
   { key: 'room', label: t('Room'), type: 'custom' },
   { key: 'rateType', label: t('RateType'), type: 'custom' },
   { key: 'pax', label: t('Pax(A/C)'), type: 'custom' },
@@ -582,21 +561,17 @@ const loadRoomCharges = async () => {
       roomChargeData.value = response.data.roomChargesTable || []
       summaryData.value = response.data.summary || {}
       totalAmount.value = response.data.summary?.totalNetAmount || 0
-      // balanceAmount.value = response.data.summary?.outstandingBalance || 0
 
-      // Récupérer le statut et la date de check-in depuis la réponse
       reservationStatus.value = response.data.status || response.data.reservationStatus || ''
       checkInDate.value = response.data.checkInDate || response.data.stay?.checkInDate || ''
 
-      // Handle single room reservation
       if (response.data.roomChargesTable && response.data.roomChargesTable.length > 0) {
-        // Extract unique rooms from room charges
         const uniqueRooms = response.data.roomChargesTable
           .map((charge: any) => ({
             id: charge.room?.roomId,
             roomNumber: charge.room?.roomNumber,
-            roomType: charge.room?.roomType,
-            guestName: charge.guestName || response.data.guestName || 'Guest'
+            roomType: charge.room?.roomType || charge.rateType?.ratePlanName,
+            guestName: charge.guest?.name || response.data.primaryGuest?.name || 'Guest'
           }))
           .filter((room: any, index: number, self: any[]) =>
             room.id && index === self.findIndex(r => r.id === room.id)
@@ -612,7 +587,6 @@ const loadRoomCharges = async () => {
           singleRoom.value = uniqueRooms[0]
           groupRooms.value = []
           selectedRoomId.value = null
-
         }
       }
     }

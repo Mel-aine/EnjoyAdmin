@@ -220,6 +220,11 @@ const savePayment = async () => {
 
   try {
     isSaving.value = true
+    if(!methodeSelected.value){
+      toast.error(t('Please select a payment method'))
+      isSaving.value = false
+      return
+    }
      const methodName = methodeSelected.value?.methodName || methodeSelected.value?.name || 'Payment'
     // Prepare transaction data for API with safe numeric conversion
     const transactionData:any = {
@@ -299,21 +304,7 @@ const onMethodSelect = (item: any) => {
   methodeSelected.value = item;
 }
 
-// Close modal on escape key
-// watch(() => props.isOpen, (newVal) => {
-//   if (newVal) {
-//     const handleEscape = (e: KeyboardEvent) => {
-//       if (e.key === 'Escape') {
-//         closeModal()
-//       }
-//     }
-//     document.addEventListener('keydown', handleEscape)
 
-//     return () => {
-//       document.removeEventListener('keydown', handleEscape)
-//     }
-//   }
-// })
 
 watch(() => props.isOpen, async(newVal) => {
   if (newVal) {

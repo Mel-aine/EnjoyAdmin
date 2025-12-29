@@ -497,6 +497,14 @@ const handleSubmit = async () => {
             applyOn: formData.value.applyOn === 'date' ? 'date' : 'stay',
         }
 
+         if (formData.value.applyOn === 'date') {
+          if (!formData.value.transactionIds || formData.value.transactionIds.length === 0) {
+            toast.warning(t('pleaseSelectTransactions'))
+            return
+          }
+          payload.transactionIds = formData.value.transactionIds
+        }
+
         // Optional date
         if (formData.value.date) {
             // Ensure ISO date (YYYY-MM-DD)
