@@ -82,6 +82,13 @@ export const getCompanies = async (params: any = {}): Promise<Company[] | undefi
   }
 }
 
+export const getAllCompanies = ( params: any = {}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}`, {
+    ...getHeaders(),
+    params: { ...params, all: true }
+  })
+}
+
 // Get filtered companies
 export const getFilteredCompanies = async (filter: CompanyFilter): Promise<any> => {
   try {
