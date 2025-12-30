@@ -1686,13 +1686,14 @@ router.onError((err: unknown) => {
   console.log('Navigation', err)
   routeProgressVisible.value = false
   const msg = String((err as any)?.message || '')
-  const patterns = [
-    'Failed to fetch dynamically imported module',
-    'Importing a module script failed',
-    'Loading chunk',
-    'Loading CSS chunk',
-  ]
-  if (patterns.some((p) => msg.includes(p))) {
+  const name = String((err as any)?.name || '')
+  const isChunkFailure =
+    name === 'ChunkLoadError' ||
+    /chunkloaderror/i.test(msg) ||
+    /failed to fetch dynamically imported module/i.test(msg) ||
+    /importing a module script failed/i.test(msg) ||
+    /loading (css )?chunk [^ ]+ failed/i.test(msg)
+  if (isChunkFailure) {
     // Prevent potential reload loops: reload at most once per 60 seconds
     const key = 'reload-on-chunk-fail-ts'
     const lastTs = Number(sessionStorage.getItem(key) || '0')
