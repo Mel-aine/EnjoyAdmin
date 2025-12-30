@@ -370,12 +370,12 @@ onMounted(() => {
           <img v-if="otaIconSrc" :src="otaIconSrc" alt="OTA" class="w-6 h-6"/>
           <Building2Icon v-else class="text-primary"></Building2Icon>
           <Users v-if="localReservation.isGroup" />
-          <span class="font-bold">{{ localReservation.guest?.displayName }}</span>
+          <span class="font-bold">{{ localReservation.guest?.displayName }}  // </span>
           <span
             v-if="localReservation.businessSource?.name"
             class="font-bold truncate max-w-[200px]"
             :title="localReservation.businessSource.name">
-            // {{ localReservation.businessSource.name }}
+          {{ localReservation.businessSource.name }}
           </span>
 
           <div class="flex">

@@ -1550,7 +1550,6 @@ function getReservationStyle(cell: any) {
 }
 const getReservationColor = statusColorStore.getReservationColor
 function getReservationText(reservation: any): string {
-  console.log('Getting text for reservation:', reservation)
 
   if (reservation.businessSourceId) {
     return (reservation?.guest_name ?? reservation?.title ?? '') + ' // ' + reservation.businessSource.name
@@ -2556,7 +2555,17 @@ function navigateToAddReservationFromCells() {
 
   const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
   const checkoutDateStr = selectionInfo.endDate.toISOString().split('T')[0]
-  const { checkinTime, checkoutTime } = getSelectionTimes()
+
+  // Déterminer si c'est un day-use (même jour check-in et check-out)
+  const isDayUse = checkinDate === checkoutDateStr
+
+  // Obtenir l'heure actuelle pour le check-in
+  const now = new Date()
+  const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+
+  // Gérer les heures selon le type de réservation
+  let finalCheckinTime = currentTime
+  let finalCheckoutTime = isDayUse ? '20:00' : '12:00'
 
   router.push({
     name: 'New Booking',
@@ -2566,8 +2575,9 @@ function navigateToAddReservationFromCells() {
       roomType: selectionInfo.roomType,
       roomTypeId: selectionInfo.roomTypeId,
       roomNumber: selectionInfo.roomNumber,
-      checkInTime: checkinTime,
-      checkOutTime: checkoutTime,
+      checkInTime: finalCheckinTime,
+      checkOutTime: finalCheckoutTime,
+      isDayUse: isDayUse ? 'true' : 'false'
     },
   })
 }

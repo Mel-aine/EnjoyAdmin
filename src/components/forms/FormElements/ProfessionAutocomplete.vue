@@ -30,11 +30,12 @@
         ]"
       />
 
-      <!-- Liste -->
+      <!-- Liste avec option personnalisée -->
       <ul
-        v-if="isOpen && filteredProfessions.length && !disabled"
+        v-if="isOpen && (filteredProfessions.length || searchQuery) && !disabled"
         class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm dark:bg-gray-800 dark:ring-gray-600"
       >
+        <!-- Options de la liste prédéfinie -->
         <li
           v-for="profession in filteredProfessions"
           :key="profession.value"
@@ -43,15 +44,18 @@
         >
           <span class="block truncate">{{ profession.label }}</span>
         </li>
-      </ul>
 
-      <!-- Aucun résultat -->
-      <div
-        v-else-if="isOpen && !filteredProfessions.length && searchQuery && !disabled"
-        class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md py-2 px-3 text-sm text-gray-500 dark:text-gray-400"
-      >
-        {{ $t('no_results') }}
-      </div>
+        <!-- Option pour ajouter une profession personnalisée -->
+        <li
+          v-if="searchQuery && !exactMatch"
+          @mousedown.prevent="selectCustomProfession"
+          class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-green-600 hover:text-white dark:hover:bg-green-500 transition-colors duration-150 ease-in-out rounded-md border-t border-gray-200 dark:border-gray-600 mt-1"
+        >
+          <span class="block truncate font-medium">
+            {{ $t('add_custom') || 'Ajouter' }}: "{{ searchQuery }}"
+          </span>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -115,13 +119,32 @@ const filteredProfessions = computed(() => {
   return professions.value.filter((p) => p.label.toLowerCase().includes(q))
 })
 
+// --- Vérifier si la saisie correspond exactement à une profession
+const exactMatch = computed(() => {
+  if (!searchQuery.value) return false
+  const q = searchQuery.value.toLowerCase()
+  return professions.value.some((p) => p.label.toLowerCase() === q)
+})
+
 // --- Synchronisation du v-model
 watch(
   () => props.modelValue,
   (newVal) => {
+    if (!newVal) {
+      selectedProfession.value = null
+      searchQuery.value = ''
+      return
+    }
+
     const selected = professions.value.find((p) => p.value === newVal)
-    selectedProfession.value = selected || null
-    searchQuery.value = selected ? selected.label : ''
+    if (selected) {
+      selectedProfession.value = selected
+      searchQuery.value = selected.label
+    } else {
+      // Profession personnalisée
+      selectedProfession.value = { value: newVal, label: newVal }
+      searchQuery.value = newVal
+    }
   },
   { immediate: true }
 )
@@ -142,18 +165,28 @@ function handleBlur() {
   setTimeout(() => {
     isOpen.value = false
 
+    // Si le champ est vide, on émet une valeur vide
+    if (!searchQuery.value.trim()) {
+      selectedProfession.value = null
+      emits('update:modelValue', '')
+      return
+    }
+
+    // Vérifier si c'est une profession de la liste
     const match = professions.value.find(
       (p) => p.label.toLowerCase() === searchQuery.value.toLowerCase()
     )
 
     if (match) {
+      // Profession de la liste
       selectedProfession.value = match
       searchQuery.value = match.label
       emits('update:modelValue', match.value)
     } else {
-      selectedProfession.value = null
-      searchQuery.value = ''
-      emits('update:modelValue', '')
+      // Profession personnalisée : on garde la valeur saisie
+      const customValue = searchQuery.value.trim()
+      selectedProfession.value = { value: customValue, label: customValue }
+      emits('update:modelValue', customValue)
     }
   }, 200)
 }
@@ -165,6 +198,16 @@ const selectProfession = (profession: { value: string; label: string }) => {
   emits('update:modelValue', profession.value)
   emits('select', profession.value)
   emits('change', profession.value)
+  isOpen.value = false
+}
+
+const selectCustomProfession = () => {
+  if (props.disabled || !searchQuery.value.trim()) return
+  const customValue = searchQuery.value.trim()
+  selectedProfession.value = { value: customValue, label: customValue }
+  emits('update:modelValue', customValue)
+  emits('select', customValue)
+  emits('change', customValue)
   isOpen.value = false
 }
 </script>
