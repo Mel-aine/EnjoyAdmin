@@ -1,5 +1,5 @@
 <template>
-  <SpeedInsights />  
+  <SpeedInsights />   
   <ThemeProvider>  
     <SidebarProvider>    
       <TopProgressBar />  
