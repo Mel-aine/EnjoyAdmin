@@ -293,8 +293,8 @@
                             :key="`${res.reservation_id}-${idx}`"
                             class="group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20"
                             :style="getSingleDaySegmentStyle(res, idx)"
-                            @mousedown.stop="$event"
-                            @mouseup.stop="$event"
+                            @mousedown.stop
+                            @mouseup.stop
                             @click.stop="showReservationModal(res)"
                             @mouseenter="showReservationTooltip(res, $event)"
                             @mouseleave="hideReservationTooltip"
@@ -339,8 +339,8 @@
                             v-if="cell.reservationStart || cell.reservationCarryOver"
                             class="group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20"
                             :style="getRowOverlayStyle(cell)"
-                            @mousedown.stop="$event"
-                            @mouseup.stop="$event"
+                            @mousedown.stop
+                            @mouseup.stop
                             @click.stop="showReservationModal(cell.reservationStart || cell.reservationCarryOver)"
                             @mouseenter="
                               showReservationTooltip(
