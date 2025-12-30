@@ -2558,6 +2558,25 @@ function navigateToAddReservationFromCells() {
   const checkoutDateStr = selectionInfo.endDate.toISOString().split('T')[0]
   const { checkinTime, checkoutTime } = getSelectionTimes()
 
+  const selectedRateTypeId = selectRateType.value
+  const selectedRateTypeName = (rateTypeOptions.value || []).find(
+    (rt: any) => String(rt?.value) === String(selectedRateTypeId),
+  )?.label
+
+  const group = (apiRoomGroups.value || []).find((g: any) => {
+    if (selectionInfo.roomTypeId != null && g?.room_type_id != null) {
+      return Number(g.room_type_id) === Number(selectionInfo.roomTypeId)
+    }
+    return g?.room_type === selectionInfo.roomType
+  })
+
+  const room = group?.room_details?.find((r: any) => {
+    return (r?.room_number ?? r?.roomNumber) === selectionInfo.roomNumber
+  })
+
+  const roomId = room?.id ?? room?.room_id ?? room?.roomId
+  const roomRate = selectionInfo.roomTypeId != null ? (roomRateForDate.value as any)?.[selectionInfo.roomTypeId] : undefined
+
   router.push({
     name: 'New Booking',
     query: {
@@ -2568,6 +2587,13 @@ function navigateToAddReservationFromCells() {
       roomNumber: selectionInfo.roomNumber,
       checkInTime: checkinTime,
       checkOutTime: checkoutTime,
+      rateTypeId: selectedRateTypeId,
+      rateTypeName: selectedRateTypeName,
+      roomId,
+      roomRate,
+      totalNights: selectionInfo.totalNights,
+      startHour: selectionInfo.startHour,
+      endHour: selectionInfo.endHour,
     },
   })
 }
