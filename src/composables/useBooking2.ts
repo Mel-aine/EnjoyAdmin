@@ -924,7 +924,7 @@ watch(
         isValid = false;
         errors.push(t('toast.validation.roomTypeRequired', { index: index + 1 }));
       } else {
-        const roomTypeExists = RoomTypes.value.some(option => option.value === room.roomType);
+        const roomTypeExists = RoomTypes.value.some(option => option.value.toString() === room.roomType.toString());
         if (!roomTypeExists) {
           isValid = false;
           errors.push(t('toast.validation.roomTypeInvalid', { index: index + 1, value: room.roomType }));
@@ -936,7 +936,7 @@ watch(
         isValid = false;
         errors.push(t('toast.validation.rateTypeRequired', { index: index + 1 }));
       } else {
-        const rateTypeExists = getRateTypesForRoom(room.id).some(option => option.value === room.rateType);
+        const rateTypeExists = getRateTypesForRoom(room.id).some(option => option.value.toString() === room.rateType.toString());
         if (!rateTypeExists) {
           isValid = false;
           errors.push(t('toast.validation.rateTypeInvalid', { index: index + 1, value: room.rateType }));

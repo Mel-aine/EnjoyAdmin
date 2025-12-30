@@ -1164,13 +1164,13 @@ const submitted = ref(false)
 const isRoomTypeInvalid = (room: any) => {
   if (!submitted.value) return false
   if (!room.roomType) return true // Required
-  return !RoomTypes.value.some((option) => option.value === room.roomType) // Must be in list
+  return !RoomTypes.value.some((option) => option.value.toString() === room.roomType.toString()) // Must be in list
 }
 
 const isRateTypeInvalid = (room: any) => {
   if (!submitted.value) return false
   if (!room.rateType) return true // Required
-  return !getRateTypesForRoom(room.id).some((option) => option.value === room.rateType) // Must be in list
+  return !getRateTypesForRoom(room.id).some((option) => option.value.toString() === room.rateType.toString()) // Must be in list
 }
 
 const isRoomNumberInvalid = (room: any) => {
@@ -1390,8 +1390,6 @@ const handleConfirmReservation = async () => {
   }
 }
 const initializeForm = async () => {
-  resetForm()
-
   if (route.query.checkin) {
     reservation.value.checkinDate = route.query.checkin as string
   }

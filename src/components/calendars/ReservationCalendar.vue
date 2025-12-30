@@ -842,7 +842,6 @@ import FullScreenLayout from '../layout/FullScreenLayout.vue'
 import OverLoading from '../spinner/OverLoading.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 import Select from '../forms/FormElements/Select.vue'
-import { getRateStayViewTypeByHotelId } from '../../services/configrationApi'
 import SelectDropdown from '../common/SelectDropdown.vue'
 import StatusLegend from '../common/StatusLegend.vue'
 import { getOtaIconSrc } from '@/utils/otaIcons'
@@ -1875,12 +1874,15 @@ const roomTypeOptions = computed(() => {
   }
   return []
 })
-const todayStats = ref<any>(null)
 onMounted(async () => {
   const hotelId = serviceStore.serviceId
-  const res = await getHotelById(hotelId!)
-  console.log('hotel', res)
-  const hotel = res.data?.data ?? res.data
+  let hotel = serviceStore.getCurrentService
+  
+  if (!hotel) {
+     const res = await getHotelById(hotelId!)
+     hotel = res.data?.data ?? res.data
+  }
+
   selectedDate.value = hotel?.currentWorkingDate
   getLocaleDailyOccupancyAndReservations()
 })
@@ -1937,7 +1939,7 @@ function hideReservationTooltip() {
 //   tooltipPosition.value = null
 // }
 
-const statusElements = ref(['all', 'vacant', 'occupied', 'reserved', 'blocked', 'dueOut', 'dirty'])
+const statusElements = ref(['all', 'blocked', 'occupied', 'reserved', 'dueOut', 'dirty']) // 'vacant',
 
 // Function to get room status count from API response
 // function getRoomStatusCount(status: string): number {
@@ -1959,10 +1961,11 @@ const selectedRoomTypes = ref<any>([])
 
 const fectRateTypes = async () => {
   loadingRates.value = true
-  const response = await getRateStayViewTypeByHotelId(serviceStore.serviceId!)
-  console.log('rateTypeOptions', response.data?.data)
-  currentRateTypeData.value = response.data?.data
-  rateTypeOptions.value = response.data?.data?.map((item: any) => {
+  const data = serviceStore.rateTypes || []
+  console.log('rateTypeOptions', data)
+
+  currentRateTypeData.value = data
+  rateTypeOptions.value = data.map((item: any) => {
     return {
       label: item.rateTypeName,
       value: item.rateTypeId,
@@ -1970,7 +1973,7 @@ const fectRateTypes = async () => {
   })
   selectRateType.value = rateTypeOptions.value[0]?.value
   loadingRates.value = false
-  return response.data?.data || []
+  return data
 }
 fectRateTypes()
 // Function to get room rate for a specific room type and date
