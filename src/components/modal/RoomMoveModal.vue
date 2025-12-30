@@ -96,22 +96,37 @@
 
             <!-- Room Type Selection -->
             <div class="mb-4 mt-4">
-              <Select :lb="$t('Room Type')"
-                :options="[{ label: res.roomType?.roomTypeName || '', value: res.roomType?.id || '' }]"
-                :model-value="res.roomType?.id" :disabled="true" :placeholder="$t('Select Room Type')" />
+              <AutoCompleteSelect
+                :lb="$t('Room Type')"
+                :options="getRoomTypeOptionsFor(res)"
+                v-model="res.selectedRoomTypeId"
+                :defaultValue="$t('Select Room Type')"
+                @change="onRoomTypeChanged(ind)"
+              />
+            </div>
+            <div v-if="isRoomTypeDifferent(res)" class="mb-4">
+              <Toggle :title="$t('Overwrite room rate')" v-model="res.overwriteRoomRate" />
             </div>
             <div class="mb-4 mt-4">
               <Input :lb="$t('From room')" :model-value="res.room.roomNumber" :disabled="true" />
             </div>
             <!-- Room Number Input -->
             <div class="mb-6">
-              <Select :lb="$t('To room')" :options="[
-                { label: $t('-- none --'), value: '' },
-                ...(availableRoomsByReservation[ind] || []).map(rs => ({
-                  label: rs.roomNumber,
-                  value: rs.id
-                }))
-              ]" v-model="res.roomId" :placeholder="$t('Select Room')" />
+              <AutoCompleteSelect
+                :lb="$t('To room')"
+                :options="[
+                  { label: $t('-- none --'), value: '' },
+                  ...(availableRoomsByReservation[ind] || []).map(rs => ({
+                    label: rs.roomNumber,
+                    value: rs.id,
+                    status: String(rs.status ?? '').toLowerCase(),
+                    disabled: String(rs.status ?? '').toLowerCase() === 'occupied',
+                  }))
+                ]"
+                v-model="res.roomId"
+                :defaultValue="$t('Select Room')"
+                :disabled="!res.selectedRoomTypeId"
+              />
             </div>
           </div>
         </div>
@@ -135,12 +150,13 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import RightSideModal from './RightSideModal.vue'
-import Select from '../forms/FormElements/Select.vue'
+import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 import BasicButton from '../buttons/BasicButton.vue'
 import { getReservationDetailsById, postRoomMoveReservation } from '../../services/reservation'
-import { getAvailableRoomsByTypeId } from '../../services/configrationApi'
+import { getFrontofficeBookingDataId } from '../../services/configrationApi'
 import { formatDateDisplay } from '@/utils/dateUtils'
 import Input from '../forms/FormElements/Input.vue'
+import Toggle from '../forms/FormElements/Toggle.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -157,11 +173,180 @@ const reservation = ref<any | null>(null)
 
 // Store available rooms per reservation entry
 const availableRoomsByReservation = ref<Record<number, Array<any>>>({})
+const frontofficeRoomTypes = ref<any[]>([])
+
+const baseRoomTypeOptions = computed(() => {
+      console.log('frontofficeRoomTypes',frontofficeRoomTypes)
+  return (frontofficeRoomTypes.value || []).map((rt: any) => {
+    const rooms = Array.isArray(rt?.rooms) ? rt.rooms : []
+    const availableCount = rooms.length
+    const roomRates = Array.isArray(rt?.roomRates) ? rt.roomRates : []
+    const rateTypeIds = roomRates
+      .map((rm: any) => Number(rm?.rateType?.id ?? rm?.rateTypeId ?? rm?.rateType?.rateTypeId ?? rm?.rateType))
+      .filter((n: number) => Number.isFinite(n) && n > 0)
+      console.log('rateTypeIds',rateTypeIds)
+    const rateTypeNames = roomRates
+      .map((rm: any) => String(rm?.rateType?.rateTypeName ?? rm?.rateTypeName ?? ''))
+      .map((s: string) => s.trim())
+      .filter(Boolean)
+    return {
+      label: rt.roomTypeName,
+      value: rt.id,
+      count: availableCount,
+      rateTypeIds,
+      rateTypeNames,
+    }
+  })
+})
+
+const getRoomTypeOptionsFor = (resRoom: any) => {
+  const originalRoomTypeId = getOriginalRoomTypeId(resRoom)
+  const originalRateTypeId = getOriginalRateTypeId(resRoom)
+  const originalRateTypeName = getOriginalRateTypeName(resRoom)
+  console.log('originalRateTypeName',originalRateTypeName,originalRateTypeId,originalRoomTypeId)
+  return baseRoomTypeOptions.value.filter((opt: any) => {
+    const count = Number(opt?.count ?? 0)
+    const matchesAvailability = count > 0 || (originalRoomTypeId !== null && Number(opt?.value) === originalRoomTypeId)
+    if (!matchesAvailability) return false
+      console.log('opt',opt,originalRateTypeId)
+
+    if (originalRoomTypeId !== null && Number(opt?.value) === originalRoomTypeId) return true
+          console.log('opt 2',opt,originalRateTypeId)
+
+    if (originalRateTypeId !== null) {
+      const ids = Array.isArray(opt?.rateTypeIds) ? opt.rateTypeIds : []
+      return ids.some((id: any) => Number(id) === originalRateTypeId)
+    }
+
+    if (originalRateTypeName) {
+      const names = Array.isArray(opt?.rateTypeNames) ? opt.rateTypeNames : []
+      return names.some((name: any) => String(name).toLowerCase() === originalRateTypeName.toLowerCase())
+    }
+
+    return true
+  })
+}
 
 const isAssignButtonEnabled = computed(() => {
   if (!reservation.value?.reservationRooms) return false
   return reservation.value.reservationRooms.some((res: any) => res.roomId && res.roomId !== '' && res.roomId !== 0)
 })
+
+type UnknownRecord = Record<string, unknown>
+
+const isRecord = (value: unknown): value is UnknownRecord => typeof value === 'object' && value !== null
+
+const normalizeStatus = (status: unknown): string =>
+  String(status ?? '')
+    .toLowerCase()
+    .replace(/[_\s-]/g, '')
+
+const toDateOnly = (value: unknown): string => {
+  const s = String(value ?? '')
+  return s.length >= 10 ? s.slice(0, 10) : s
+}
+
+const maxDateString = (a?: string, b?: string): string => {
+  if (a && b) return a > b ? a : b
+  return a || b || ''
+}
+
+const isRoomCheckedInNow = (room: unknown): boolean => {
+  const status = normalizeStatus(isRecord(room) ? room['status'] : undefined)
+  const actualCheckInTime = isRecord(room) ? room['actualCheckInTime'] : undefined
+  const checkedIn = isRecord(room) ? room['checkedIn'] : undefined
+  return Boolean(actualCheckInTime || checkedIn === true || status === 'checkedin' || status === 'occupied')
+}
+
+const isReservationCheckedInNow = (res: unknown): boolean => {
+  const status = normalizeStatus(isRecord(res) ? res['status'] : undefined)
+  if (status === 'checkedin' || status === 'occupied') return true
+  const rooms = isRecord(res) ? res['reservationRooms'] : undefined
+  return Array.isArray(rooms) ? rooms.some((r: unknown) => isRoomCheckedInNow(r)) : false
+}
+
+const getAvailabilityRangeForRoomMove = (rooms: unknown[]): { startDate?: string; endDate?: string } => {
+  const today = new Date().toISOString().split('T')[0]
+  const startDates = rooms
+    .map((r: unknown) => toDateOnly(isRecord(r) ? r['checkInDate'] : undefined))
+    .filter(Boolean)
+  const endDates = rooms
+    .map((r: unknown) => toDateOnly(isRecord(r) ? r['checkOutDate'] : undefined))
+    .filter(Boolean)
+  let startDate = startDates.sort()[0]
+  const endDate = endDates.sort().slice(-1)[0]
+  if (isReservationCheckedInNow(reservation.value)) {
+    startDate = maxDateString(startDate, today)
+  }
+  if (startDate && endDate && startDate > endDate) {
+    startDate = endDate
+  }
+  return {
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate }),
+  }
+}
+
+const getAvailabilityRangeForRoom = (room: unknown): { startDate?: string; endDate?: string } => {
+  const today = new Date().toISOString().split('T')[0]
+  let startDate = toDateOnly(isRecord(room) ? room['checkInDate'] : undefined)
+  const endDate = toDateOnly(isRecord(room) ? room['checkOutDate'] : undefined)
+  if (isRoomCheckedInNow(room) || isReservationCheckedInNow(reservation.value)) {
+    startDate = maxDateString(startDate, today)
+  }
+  if (startDate && endDate && startDate > endDate) {
+    startDate = endDate
+  }
+  return {
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate }),
+  }
+}
+
+const getOriginalRoomTypeId = (resRoom: any): number | null => {
+  const id = resRoom?.originalRoomTypeId ?? resRoom?.roomType?.id ?? resRoom?.roomTypeId
+  const n = Number(id)
+  return Number.isFinite(n) && n > 0 ? n : null
+}
+
+const getOriginalRateTypeId = (resRoom: any): number | null => {
+  const id =
+    resRoom?.originalRateTypeId ??
+    resRoom?.roomRates?.rateType?.id ??
+    resRoom?.roomRates?.rateTypeId ??
+    resRoom?.roomRate?.rateType?.id ??
+    resRoom?.roomRate?.rateTypeId ??
+    resRoom?.rateType?.id ??
+    resRoom?.rateTypeId ??
+    resRoom?.rateType
+  const n = Number(id)
+  return Number.isFinite(n) && n > 0 ? n : null
+}
+
+const getOriginalRateTypeName = (resRoom: any): string | null => {
+  const name =
+    resRoom?.roomRates?.rateType?.rateTypeName ??
+    resRoom?.roomRates?.rateTypeName ??
+    resRoom?.roomRate?.rateType?.rateTypeName ??
+    resRoom?.roomRate?.rateTypeName ??
+    resRoom?.rateType?.rateTypeName ??
+    resRoom?.rateTypeName
+  const s = String(name ?? '').trim()
+  return s ? s : null
+}
+
+const isRoomTypeDifferent = (resRoom: any): boolean => {
+  const original = getOriginalRoomTypeId(resRoom)
+  const selected = Number(resRoom?.selectedRoomTypeId ?? original)
+  return Boolean(original && Number.isFinite(selected) && selected > 0 && selected !== original)
+}
+
+const fetchFrontofficeRoomTypes = async (startDate?: string, endDate?: string) => {
+  const response: any = await getFrontofficeBookingDataId(startDate, endDate)
+  const data = response?.data?.data
+  console.log('frontofficeRoomTypes',data)
+  frontofficeRoomTypes.value = Array.isArray(data) ? data : []
+}
 
 const getBookingDetailsById = async () => {
   if (!props.reservationId) return
@@ -169,6 +354,22 @@ const getBookingDetailsById = async () => {
   try {
     const response: any = await getReservationDetailsById(props.reservationId)
     reservation.value = response
+
+    const rooms = reservation.value?.reservationRooms || []
+    if (rooms.length > 0) {
+      const range = getAvailabilityRangeForRoomMove(rooms)
+      await fetchFrontofficeRoomTypes(range.startDate, range.endDate)
+    }
+
+    if (reservation.value?.reservationRooms) {
+      for (const resRoom of reservation.value.reservationRooms) {
+        const originalRoomTypeId = getOriginalRoomTypeId(resRoom)
+        resRoom.originalRoomTypeId = originalRoomTypeId
+        resRoom.originalRateTypeId = getOriginalRateTypeId(resRoom)
+        resRoom.selectedRoomTypeId = originalRoomTypeId
+        resRoom.overwriteRoomRate = false
+      }
+    }
 
     // Fetch available rooms for each reservation room type
     if (reservation.value?.reservationRooms) {
@@ -186,21 +387,34 @@ const getBookingDetailsById = async () => {
 const fetchAvailableRooms = async (index: number) => {
   try {
     const res = reservation.value!.reservationRooms[index]
-    const roomTypeId = res?.roomType?.id || res?.roomTypeId
+    const roomTypeId = Number(res?.selectedRoomTypeId ?? res?.roomType?.id ?? res?.roomTypeId)
 
     if (!roomTypeId) {
       availableRoomsByReservation.value[index] = []
       return
     }
 
-    const response: any = await getAvailableRoomsByTypeId(roomTypeId, res.checkInDate,
-      res.checkOutDate)
-    console.log(response)
-    availableRoomsByReservation.value[index] = response.data.data.rooms || []
+    if (!frontofficeRoomTypes.value.length) {
+      const range = getAvailabilityRangeForRoom(res)
+      await fetchFrontofficeRoomTypes(range.startDate, range.endDate)
+    }
+    const roomType = (frontofficeRoomTypes.value || []).find((rt: any) => Number(rt.id) === roomTypeId)
+    const rooms = Array.isArray(roomType?.rooms) ? roomType.rooms : []
+    availableRoomsByReservation.value[index] = rooms
   } catch (error) {
     console.error('Error fetching available rooms:', error)
     availableRoomsByReservation.value[index] = []
   }
+}
+
+const onRoomTypeChanged = async (index: number) => {
+  const res = reservation.value?.reservationRooms?.[index]
+  if (!res) return
+  if (!isRoomTypeDifferent(res)) {
+    res.overwriteRoomRate = false
+  }
+  res.roomId = ''
+  await fetchAvailableRooms(index)
 }
 
 const confirmRoomSelection = async () => {
@@ -216,7 +430,10 @@ const confirmRoomSelection = async () => {
           reservationRoomId: res.id,
           // roomNumber: res.roomNumber,
           newRoomId: res.roomId,
-          // roomTypeId: res.roomTypeId,
+          roomTypeId: Number(res.selectedRoomTypeId ?? res?.roomType?.id ?? res?.roomTypeId),
+          newroomTypeId: Number(res.selectedRoomTypeId ?? res?.roomType?.id ?? res?.roomTypeId),
+          rateTypeId: getOriginalRateTypeId(res),
+          overwrite_room_rate: isRoomTypeDifferent(res) ? Boolean(res.overwriteRoomRate) : false,
           // reservationId: props.reservationId
         })
       }
@@ -231,7 +448,6 @@ const confirmRoomSelection = async () => {
         reservationId: props.reservationId,
         moves: roomSelections,
       }
-      console.log("@@@@data", data)
       await postRoomMoveReservation(props.reservationId, data)
       toast.success(t('Room move completed successfully'))
       emit('success')

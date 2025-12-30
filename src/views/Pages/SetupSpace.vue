@@ -76,11 +76,12 @@ const initializeSpace = async () => {
       const service = userServices[0];
       serviceStore.setServiceId(service.id);
       serviceStore.setCurrentService(service);
-      if (authStore.hasPermission('access_to_dashboard_view')) {
-        router.push({ path: '/front-office/dashboard' });
-      }else if (authStore.hasPermission('access_to_stay_view')) {
+      if (authStore.hasPermission('access_to_stay_view')) {
         router.push({ path: '/stay_view' });
-      }
+      } else
+        if (authStore.hasPermission('access_to_dashboard_view')) {
+          router.push({ path: '/front-office/dashboard' });
+        }
     }
   } catch (err: any) {
     console.error("Erreur handleSubmit:", err);
