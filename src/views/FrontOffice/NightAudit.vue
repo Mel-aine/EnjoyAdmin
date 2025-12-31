@@ -863,7 +863,7 @@ const finishNightAudit = async () => {
     auditCompleted.value = true
     // Success notification
     toast.success(t('frontOffice.nightAudit.success.completedAndClosed'))
-    router.back();
+    router.push({ name: 'SetupSpace' });
 
   } catch (error) {
     console.error('Night audit completion error:', error)

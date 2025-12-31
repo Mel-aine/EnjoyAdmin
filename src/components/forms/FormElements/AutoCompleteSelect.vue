@@ -106,9 +106,11 @@ const displayOptions = computed(() => {
 
 // Initialiser la valeur sélectionnée
 watch(
-  () => props.modelValue,
-  (newVal) => {
-    const newSelectedOption = props.options.find((option) => option.value === newVal);
+  [() => props.modelValue, () => props.options],
+  ([newVal]) => {
+    const newSelectedOption = props.options.find(
+      (option) => String(option.value) === String(newVal),
+    )
     if (newSelectedOption) {
       selectedOption.value = newSelectedOption;
       search.value = newSelectedOption.label;

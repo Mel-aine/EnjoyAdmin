@@ -842,7 +842,6 @@ import FullScreenLayout from '../layout/FullScreenLayout.vue'
 import OverLoading from '../spinner/OverLoading.vue'
 import ReservationRigthModal from '../reservations/ReservationRigthModal.vue'
 import Select from '../forms/FormElements/Select.vue'
-import { getRateStayViewTypeByHotelId } from '../../services/configrationApi'
 import SelectDropdown from '../common/SelectDropdown.vue'
 import StatusLegend from '../common/StatusLegend.vue'
 import { getOtaIconSrc } from '@/utils/otaIcons'
@@ -1874,12 +1873,15 @@ const roomTypeOptions = computed(() => {
   }
   return []
 })
-const todayStats = ref<any>(null)
 onMounted(async () => {
   const hotelId = serviceStore.serviceId
-  const res = await getHotelById(hotelId!)
-  console.log('hotel', res)
-  const hotel = res.data?.data ?? res.data
+  let hotel = serviceStore.getCurrentService
+
+  if (!hotel) {
+     const res = await getHotelById(hotelId!)
+     hotel = res.data?.data ?? res.data
+  }
+
   selectedDate.value = hotel?.currentWorkingDate
   getLocaleDailyOccupancyAndReservations()
 })
@@ -1936,7 +1938,7 @@ function hideReservationTooltip() {
 //   tooltipPosition.value = null
 // }
 
-const statusElements = ref(['all', 'vacant', 'occupied', 'reserved', 'blocked', 'dueOut', 'dirty'])
+const statusElements = ref(['all', 'blocked', 'occupied', 'reserved', 'dueOut', 'dirty']) // 'vacant',
 
 // Function to get room status count from API response
 // function getRoomStatusCount(status: string): number {
@@ -1958,10 +1960,11 @@ const selectedRoomTypes = ref<any>([])
 
 const fectRateTypes = async () => {
   loadingRates.value = true
-  const response = await getRateStayViewTypeByHotelId(serviceStore.serviceId!)
-  console.log('rateTypeOptions', response.data?.data)
-  currentRateTypeData.value = response.data?.data
-  rateTypeOptions.value = response.data?.data?.map((item: any) => {
+  const data = serviceStore.rateTypes || []
+  console.log('rateTypeOptions', data)
+
+  currentRateTypeData.value = data
+  rateTypeOptions.value = data.map((item: any) => {
     return {
       label: item.rateTypeName,
       value: item.rateTypeId,
@@ -1969,7 +1972,7 @@ const fectRateTypes = async () => {
   })
   selectRateType.value = rateTypeOptions.value[0]?.value
   loadingRates.value = false
-  return response.data?.data || []
+  return data
 }
 fectRateTypes()
 // Function to get room rate for a specific room type and date
@@ -2555,17 +2558,26 @@ function navigateToAddReservationFromCells() {
 
   const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
   const checkoutDateStr = selectionInfo.endDate.toISOString().split('T')[0]
+  const { checkinTime, checkoutTime } = getSelectionTimes()
 
-  // Déterminer si c'est un day-use (même jour check-in et check-out)
-  const isDayUse = checkinDate === checkoutDateStr
+  const selectedRateTypeId = selectRateType.value
+  const selectedRateTypeName = (rateTypeOptions.value || []).find(
+    (rt: any) => String(rt?.value) === String(selectedRateTypeId),
+  )?.label
 
-  // Obtenir l'heure actuelle pour le check-in
-  const now = new Date()
-  const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  const group = (apiRoomGroups.value || []).find((g: any) => {
+    if (selectionInfo.roomTypeId != null && g?.room_type_id != null) {
+      return Number(g.room_type_id) === Number(selectionInfo.roomTypeId)
+    }
+    return g?.room_type === selectionInfo.roomType
+  })
 
-  // Gérer les heures selon le type de réservation
-  let finalCheckinTime = currentTime
-  let finalCheckoutTime = isDayUse ? '20:00' : '12:00'
+  const room = group?.room_details?.find((r: any) => {
+    return (r?.room_number ?? r?.roomNumber) === selectionInfo.roomNumber
+  })
+
+  const roomId = room?.id ?? room?.room_id ?? room?.roomId
+  const roomRate = selectionInfo.roomTypeId != null ? (roomRateForDate.value as any)?.[selectionInfo.roomTypeId] : undefined
 
   router.push({
     name: 'New Booking',
@@ -2575,9 +2587,15 @@ function navigateToAddReservationFromCells() {
       roomType: selectionInfo.roomType,
       roomTypeId: selectionInfo.roomTypeId,
       roomNumber: selectionInfo.roomNumber,
-      checkInTime: finalCheckinTime,
-      checkOutTime: finalCheckoutTime,
-      isDayUse: isDayUse ? 'true' : 'false'
+      checkInTime: checkinTime,
+      checkOutTime: checkoutTime,
+      rateTypeId: selectedRateTypeId,
+      rateTypeName: selectedRateTypeName,
+      roomId,
+      roomRate,
+      totalNights: selectionInfo.totalNights,
+      startHour: selectionInfo.startHour,
+      endHour: selectionInfo.endHour,
     },
   })
 }

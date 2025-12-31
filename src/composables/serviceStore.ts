@@ -10,7 +10,8 @@ export const useServiceStore = defineStore('service', {
     permissions: [] as { id: string; name: string; description: string }[],
     reservationType: [] as any[],
     businessSources: [] as any[],
-    bookingSources: [] as any[]
+    bookingSources: [] as any[],
+    rateTypes: [] as any[]
   }),
 
   getters: {
@@ -31,6 +32,10 @@ export const useServiceStore = defineStore('service', {
 
       const found = this.getService.find((s) => s.id === serviceId)
       if (found) this.setCurrentService(found)
+    },
+
+    setRateTypes(types: any[]) {
+      this.rateTypes = types
     },
 
     setService(services: any[]) {

@@ -1164,13 +1164,13 @@ const submitted = ref(false)
 const isRoomTypeInvalid = (room: any) => {
   if (!submitted.value) return false
   if (!room.roomType) return true // Required
-  return !RoomTypes.value.some((option) => option.value === room.roomType) // Must be in list
+  return !RoomTypes.value.some((option) => option.value.toString() === room.roomType.toString()) // Must be in list
 }
 
 const isRateTypeInvalid = (room: any) => {
   if (!submitted.value) return false
   if (!room.rateType) return true // Required
-  return !getRateTypesForRoom(room.id).some((option) => option.value === room.rateType) // Must be in list
+  return !getRateTypesForRoom(room.id).some((option) => option.value.toString() === room.rateType.toString()) // Must be in list
 }
 
 const isRoomNumberInvalid = (room: any) => {
@@ -1389,11 +1389,7 @@ const handleConfirmReservation = async () => {
     isConfirmingReservation.value = false
   }
 }
-const initializeForm = () => {
-  // Call the original initialize from useBooking if it sets default values
-  initialize()
-
-  // Check for query parameters and update reservation object
+const initializeForm = async () => {
   if (route.query.checkin) {
     reservation.value.checkinDate = route.query.checkin as string
   }
@@ -1406,10 +1402,41 @@ const initializeForm = () => {
   if (route.query.checkOutTime) {
     reservation.value.checkoutTime = route.query.checkOutTime as string
   }
-  if(route.query.roomTypeId) {
-    console.log("roomTypeId",route.query.roomTypeId)
-    console.log('roomConfigurations',roomConfigurations.value)
-    roomConfigurations.value[0].roomType = route.query.roomTypeId as string
+
+  await initialize()
+
+  if (route.query.roomTypeId && roomConfigurations.value.length > 0) {
+    const room = roomConfigurations.value[0]
+    const roomTypeId = Number(route.query.roomTypeId)
+    const roomTypeValue = Number.isFinite(roomTypeId) ? roomTypeId : String(route.query.roomTypeId)
+    room.roomType = String(roomTypeValue)
+    await onRoomTypeChange(room.id, room.roomType)
+
+    const rateTypes = getRateTypesForRoom(room.id)
+    const requestedRateTypeId = route.query.rateTypeId ? String(route.query.rateTypeId) : ''
+    const rateTypeToSelect =
+      (requestedRateTypeId &&
+        rateTypes.find((opt) => String(opt.value) === requestedRateTypeId)?.value) ||
+      rateTypes[0]?.value
+
+    if (rateTypeToSelect != null && rateTypeToSelect !== '') {
+      room.rateType = String(rateTypeToSelect)
+      await onRateTypeChange(room.id, room.rateType)
+    }
+
+    const requestedRoomNumber = route.query.roomNumber ? String(route.query.roomNumber) : ''
+    if (requestedRoomNumber) {
+      const rooms = getRoomsForRoom(room.id)
+      const match = rooms.find(
+        (opt) =>
+          String(opt.value) === requestedRoomNumber ||
+          String(opt.label).toLowerCase() === requestedRoomNumber.toLowerCase(),
+      )
+      if (match?.value != null && match.value !== '') {
+        room.roomNumber = String(match.value)
+        await onRoomNumberChange(room)
+      }
+    }
   }
 }
 
@@ -1505,16 +1532,15 @@ const loadDraft = async () => {
   }
 }
 
-const handleNewBooking = () => {
+const handleNewBooking = async () => {
   clearBooking()
-  resetForm()
   isCheckedIn.value = false
   confirmReservation.value = false
   pendingReservation.value = false
   reservationId.value = null
 
   // Réinitialiser le formulaire avec les valeurs par défaut
-  initializeForm()
+  await initializeForm()
 
 }
 
@@ -1537,8 +1563,9 @@ onMounted(async () => {
   const draftLoaded = await loadDraft()
 
   if (!draftLoaded) {
-    initializeForm()
+    await initializeForm()
   } else {
+    await initialize()
     await nextTick()
     console.log('Draft loaded and components updated')
   }
@@ -1550,8 +1577,6 @@ onUnmounted(() => {
   }
   setAllowPastDates(false)
 })
-initialize()
-
 // Ensure checkout date is never before check-in date
 watch(
   () => reservation.value.checkinDate,
