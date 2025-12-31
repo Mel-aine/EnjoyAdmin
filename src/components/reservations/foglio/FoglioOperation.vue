@@ -433,8 +433,8 @@ const foglioData = computed(() => {
 const columns = computed<Column[]>(() => [
   { key: 'transactionDate', label: t('Day'), type: 'date' },
   { key: 'transactionNumber', label: t('Ref No.'), type: 'text' },
-  { key: 'description', label: t('Particulars'), type: 'text', translatable: true },
-  { key: 'notes', label: t('Description'), type: 'text' },
+  { key: 'particular', label: t('Particulars'), type: 'text', translatable: true },
+  { key: 'description', label: t('Description'), type: 'text' },
   { key: 'creator.fullName', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
   { key: 'actions', label: '', type: 'custom' }

@@ -132,6 +132,6 @@ export const toIntegerAmount = (value: any): number => {
   }
 
   // Retourner la valeur arrondie en entier
-  return Math.round(Math.abs(num))
+  return Math.round(num)
 }
 
