@@ -102,6 +102,9 @@
               <div>
                 <InputCheckBox :label="$t('publishToWebsite')" :id="'publish'" v-model="formData.publishToWebsite" />
               </div>
+              <div>
+                <InputCheckBox :label="$t('isPaymaster')" :id="'isPaymaster'" v-model="formData.isPaymaster" />
+              </div>
 
               <div>
                 <Input v-model.number="formData.defaultWebInventory"  min="0" :lb="$t('defaultWebInventory')" :id="'inventory'" :forLabel="'inventory'" :inputType="'number'"
@@ -199,6 +202,7 @@ const formData = ref({
   maxAdult: 2,
   maxChild: 0,
   publishToWebsite: true,
+  isPaymaster: false,
   roomAmenities: [],
   color: '#3B82F6',
   defaultWebInventory: 0
@@ -300,6 +304,7 @@ const editRoomType = (roomType) => {
     maxAdult: roomType.maxAdult,
     maxChild: roomType.maxChild,
     publishToWebsite: roomType.publishToWebsite,
+    isPaymaster: roomType.isPaymaster,
     roomAmenities: roomType.roomAmenities && roomType.roomAmenities.length > 0 ? [...roomType.roomAmenities] : [],
     color: roomType.color,
     defaultWebInventory: roomType.defaultWebInventory
@@ -350,6 +355,7 @@ const saveRoomType = async () => {
         maxAdult: formData.value.maxAdult,
         maxChild: formData.value.maxChild,
         publishToWebsite: formData.value.publishToWebsite,
+        isPaymaster: formData.value.isPaymaster,
         roomAmenities: [...formData.value.roomAmenities],
         color: formData.value.color,
         defaultWebInventory: formData.value.defaultWebInventory,
@@ -379,6 +385,7 @@ const saveRoomType = async () => {
           maxAdult: formData.value.maxAdult,
           maxChild: formData.value.maxChild,
           publishToWebsite: formData.value.publishToWebsite,
+          isPaymaster: formData.value.isPaymaster,
           roomAmenities: [...formData.value.roomAmenities],
           color: formData.value.color,
         }
