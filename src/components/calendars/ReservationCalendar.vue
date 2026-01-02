@@ -1550,10 +1550,6 @@ function getReservationStyle(cell: any) {
 const getReservationColor = statusColorStore.getReservationColor
 function getReservationText(reservation: any): string {
 
-  if (reservation.businessSourceId) {
-    return (reservation?.guest_name ?? reservation?.title ?? '') + ' // ' + reservation.businessSource.name
-  }
-
   return reservation?.guest_name ?? reservation?.title ?? ''
 }
 function getOtaIconSrcForReservation(reservation: any): string | null {

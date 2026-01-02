@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  ArrowLeft,
-  Building2Icon,
-  Users,
-} from 'lucide-vue-next'
+import { ArrowLeft, Building2Icon, Users } from 'lucide-vue-next'
 import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
 
 const props = defineProps<{
@@ -11,9 +7,15 @@ const props = defineProps<{
 }>()
 
 import { useI18n } from 'vue-i18n'
-const FoglioOperation = defineAsyncComponent(() => import('../../../components/reservations/foglio/FoglioOperation.vue'))
-const RoomCharge = defineAsyncComponent(() => import('../../../components/reservations/roomcharge/RoomCharge.vue'))
-const BookingDetails = defineAsyncComponent(() => import('../../../components/reservations/bookingdetails/BookingDetails.vue'))
+const FoglioOperation = defineAsyncComponent(
+  () => import('../../../components/reservations/foglio/FoglioOperation.vue'),
+)
+const RoomCharge = defineAsyncComponent(
+  () => import('../../../components/reservations/roomcharge/RoomCharge.vue'),
+)
+const BookingDetails = defineAsyncComponent(
+  () => import('../../../components/reservations/bookingdetails/BookingDetails.vue'),
+)
 import router from '../../../router'
 import { useRoute } from 'vue-router'
 import { getReservationDetailsById } from '../../../services/api'
@@ -21,17 +23,25 @@ import AdminLayout from '../../../components/layout/AdminLayout.vue'
 import Adult from '../../../icons/Adult.vue'
 import Child from '../../../icons/Child.vue'
 import { formatTimeFromTimeString } from '../../../components/utilities/UtilitiesFunction'
-const GuestDetails = defineAsyncComponent(() => import('../../../components/reservations/GuestDetails.vue'))
+const GuestDetails = defineAsyncComponent(
+  () => import('../../../components/reservations/GuestDetails.vue'),
+)
 import ReservationDetailsSkeleton from '../../../components/skeletons/ReservationDetailsSkeleton.vue'
 import ReservationAction from '../../../components/reservations/ReservationAction.vue'
 
 import PrintModal from '../../../components/common/PrintModal.vue'
-const BookingConfirmationTemplate = defineAsyncComponent(() => import('../../../components/common/templates/BookingConfirmationTemplate.vue'))
+const BookingConfirmationTemplate = defineAsyncComponent(
+  () => import('../../../components/common/templates/BookingConfirmationTemplate.vue'),
+)
 const AuditTrail = defineAsyncComponent(() => import('../../../components/audit/AuditTrail.vue'))
-const ReservationStatus = defineAsyncComponent(() => import('../../../components/common/ReservationStatus.vue'))
-const AssignRoomReservation = defineAsyncComponent(() => import('../../../components/reservations/AssignRoomReservation.vue'))
+const ReservationStatus = defineAsyncComponent(
+  () => import('../../../components/common/ReservationStatus.vue'),
+)
+const AssignRoomReservation = defineAsyncComponent(
+  () => import('../../../components/reservations/AssignRoomReservation.vue'),
+)
 import { useToast } from 'vue-toastification'
-import { confirmBooking } from '@/services/reservation';
+import { confirmBooking } from '@/services/reservation'
 import OverLoading from '../../../components/spinner/OverLoading.vue'
 import getOtaIconSrc from '@/utils/otaIcons'
 
@@ -46,7 +56,6 @@ const toast = useToast()
 const localReservation = ref<any>({})
 const isLoading = ref(false)
 const isRefreshing = ref(false)
-
 
 const tabs = computed(() => [
   { id: 'folio_operations', label: t('Folio Operations') },
@@ -93,7 +102,7 @@ const updateLocalReservation = (updates: any) => {
   console.log('Updating reservation with:', updates)
   localReservation.value = {
     ...localReservation.value,
-    ...updates
+    ...updates,
   }
   console.log('Updated reservation:', localReservation.value)
 }
@@ -128,7 +137,7 @@ const refreshAvailableActions = async () => {
       updateLocalReservation({
         availableActions: response.data.availableActions,
         status: response.data.status,
-        balanceSummary: response.data.balanceSummary
+        balanceSummary: response.data.balanceSummary,
       })
     }
   } catch (error) {
@@ -139,36 +148,25 @@ const refreshAvailableActions = async () => {
   }
 }
 
-
-
-
 // ====== CHECK-IN ======
-
 
 // ====== CHECK-OUT ======
 
-
-
-
-
-
-
-
-
-
 // ====== ROOM ASSIGNMENT ======
 const handleRoomAssignmentRefresh = async () => {
-
   await getBookingDetailsById()
 }
 
 const handleRoomChargeRefresh = async () => {
+  await getBookingDetailsById()
+}
 
+// ====== BOOKING DETAILS REFRESH ======
+const refreshBookingData = async () => {
   await getBookingDetailsById()
 }
 
 const handleGuestRefresh = async () => {
-
   await getBookingDetailsById()
 }
 // ====== GESTION DES OPTIONS ======
@@ -177,10 +175,10 @@ const handleGuestRefresh = async () => {
 const getBookingDetailsById = async () => {
   isLoading.value = true
   const response = await getReservationDetailsById(Number(props.id))
-  console.log('reservation',response)
+  console.log('reservation', response)
   if (response.status === 200) {
     localReservation.value = response.data
-    if(response.data.status === 'pending'){
+    if (response.data.status === 'pending') {
       isPending.value = true
     }
   }
@@ -189,7 +187,10 @@ const getBookingDetailsById = async () => {
 
 // ====== COMPUTED PROPERTIES ======
 const roomRateTypeSummary = computed(() => {
-  if (!localReservation.value?.reservationRooms || localReservation.value.reservationRooms.length === 0) {
+  if (
+    !localReservation.value?.reservationRooms ||
+    localReservation.value.reservationRooms.length === 0
+  ) {
     return 'N/A'
   }
 
@@ -202,7 +203,10 @@ const roomRateTypeSummary = computed(() => {
 })
 
 const nightsSummary = computed(() => {
-  if (!localReservation.value?.reservationRooms || localReservation.value.reservationRooms.length === 0) {
+  if (
+    !localReservation.value?.reservationRooms ||
+    localReservation.value.reservationRooms.length === 0
+  ) {
     return 0
   }
 
@@ -265,18 +269,19 @@ const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   }
   return new Date(dateString).toLocaleDateString('en', options)
 }
 
-const otaName = computed(() =>
-  localReservation.value?.otaName ||
-  localReservation.value?.bookingSourceName ||
-  localReservation.value?.bookingSource?.name || null
+const otaName = computed(
+  () =>
+    localReservation.value?.otaName ||
+    localReservation.value?.bookingSourceName ||
+    localReservation.value?.bookingSource?.name ||
+    null,
 )
 const otaIconSrc = computed(() => getOtaIconSrc(otaName.value))
-
 
 const handlePrintClose = () => {
   showPrintModal.value = false
@@ -315,15 +320,15 @@ const ReservationConfirm = async () => {
     isConfirming.value = true
 
     const data = {
-      status: 'confirmed'
+      status: 'confirmed',
     }
 
     const res = await confirmBooking(localReservation.value.id, data)
-    console.log("res", res)
+    console.log('res', res)
 
     if (res.status === 200 || res.data) {
       updateLocalReservation({
-        status: 'confirmed'
+        status: 'confirmed',
       })
 
       isPending.value = false
@@ -337,10 +342,10 @@ const ReservationConfirm = async () => {
         isRefreshing.value = false
       }
     }
-
   } catch (error: any) {
     console.error('Error confirming reservation:', error)
-    const errorMessage = error.response?.data?.message || error.message || t('Failed to confirm reservation')
+    const errorMessage =
+      error.response?.data?.message || error.message || t('Failed to confirm reservation')
     toast.error(errorMessage)
   } finally {
     isConfirming.value = false
@@ -361,22 +366,21 @@ onMounted(() => {
     <OverLoading v-if="isRefreshing" />
     <ReservationDetailsSkeleton v-if="isLoading" />
 
-    <div class="h-full" v-else-if="localReservation && localReservation.id"
-      :class="{ 'void-status': localReservation.status === 'voided' }">
+    <div
+      class="h-full"
+      v-else-if="localReservation && localReservation.id"
+      :class="{ 'void-status': localReservation.status === 'voided' }"
+    >
       <!--Header-->
-      <div class="shadow-sm px-4 py-2 mx-4 bg-white dark:bg-gray-800 dark:text-gray-100 flex justify-between">
+      <div
+        class="shadow-sm px-4 py-2 mx-4 bg-white dark:bg-gray-800 dark:text-gray-100 flex justify-between"
+      >
         <div class="flex gap-2 align-middle self-center items-center">
           <ArrowLeft @click="router.back()" class="cursor-pointer"></ArrowLeft>
-          <img v-if="otaIconSrc" :src="otaIconSrc" alt="OTA" class="w-6 h-6"/>
+          <img v-if="otaIconSrc" :src="otaIconSrc" alt="OTA" class="w-6 h-6" />
           <Building2Icon v-else class="text-primary"></Building2Icon>
           <Users v-if="localReservation.isGroup" />
-          <span class="font-bold">{{ localReservation.guest?.displayName }}  // </span>
-          <span
-            v-if="localReservation.businessSource?.name"
-            class="font-bold truncate max-w-[200px]"
-            :title="localReservation.businessSource.name">
-          {{ localReservation.businessSource.name }}
-          </span>
+          <span class="font-bold">{{ localReservation?.displayName }} </span>
 
           <div class="flex">
             <Adult class="w-5" />
@@ -394,13 +398,19 @@ onMounted(() => {
             <div class="flex flex-col">
               <span class="text-sm font-bold">{{ $t('booking.arrival') }}</span>
               <span class="text-xs flex gap-2">
-                <span>{{ formatDate(localReservation.arrivedDate) }}, {{ formatTimeFromTimeString(localReservation.checkInTime) }}</span>
+                <span
+                  >{{ formatDate(localReservation.arrivedDate) }},
+                  {{ formatTimeFromTimeString(localReservation.checkInTime) }}</span
+                >
               </span>
             </div>
             <div class="flex flex-col">
               <span class="text-sm font-bold capitalize">{{ $t('booking.departure') }}</span>
               <span class="text-xs flex gap-2">
-                <span>{{ formatDate(localReservation.departDate) }}, {{ formatTimeFromTimeString(localReservation.checkOutTime) }}</span>
+                <span
+                  >{{ formatDate(localReservation.departDate) }},
+                  {{ formatTimeFromTimeString(localReservation.checkOutTime) }}</span
+                >
               </span>
             </div>
             <div class="flex flex-col">
@@ -411,13 +421,23 @@ onMounted(() => {
             </div>
             <div class="flex flex-col">
               <span class="text-sm font-bold">{{ $t('Room/Rate types') }}</span>
-              <span class="text-xs flex gap-2 flex-col"
-                v-if="localReservation.reservationRooms.length > 0 && localReservation.reservationRooms.every((room: any) => room.room?.id)">
+              <span
+                class="text-xs flex gap-2 flex-col"
+                v-if="
+                  localReservation.reservationRooms.length > 0 &&
+                  localReservation.reservationRooms.every((room: any) => room.room?.id)
+                "
+              >
                 <span>{{ roomRateTypeSummary }}</span>
               </span>
-              <AssignRoomReservation :reservation="localReservation"
-                v-if="localReservation.reservationRooms.length === 0 || localReservation.reservationRooms.some((room: any) => !room.room?.id)"
-                @refresh="handleRoomAssignmentRefresh" />
+              <AssignRoomReservation
+                :reservation="localReservation"
+                v-if="
+                  localReservation.reservationRooms.length === 0 ||
+                  localReservation.reservationRooms.some((room: any) => !room.room?.id)
+                "
+                @refresh="handleRoomAssignmentRefresh"
+              />
             </div>
             <div class="flex flex-col">
               <span class="text-sm font-bold capitalize">{{ $t('res.no') }}</span>
@@ -427,7 +447,10 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        <div v-if="isPending" class="flex gap-x-2 h-full align-middle self-center items-center justify-center">
+        <div
+          v-if="isPending"
+          class="flex gap-x-2 h-full align-middle self-center items-center justify-center"
+        >
           <button
             type="button"
             @click="ReservationConfirm"
@@ -441,30 +464,51 @@ onMounted(() => {
               fill="none"
               viewBox="0 0 24 24"
             >
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
-            <span>{{ isConfirming ? $t('processing') || 'Processing...' : $t('ConfirmBooking') }}</span>
+            <span>{{
+              isConfirming ? $t('processing') || 'Processing...' : $t('ConfirmBooking')
+            }}</span>
           </button>
         </div>
-        <div v-else class="flex gap-x-2 h-full align-middle self-center items-center justify-center">
+        <div
+          v-else
+          class="flex gap-x-2 h-full align-middle self-center items-center justify-center"
+        >
           <ReservationStatus :status="localReservation.status" />
         </div>
-
-
       </div>
 
       <!--main-->
-      <div class="shadow-sm px-2 pt-1 mx-4 bg-white dark:bg-gray-800 dark:text-gray-100 mt-5 flex justify-between">
+      <div
+        class="shadow-sm px-2 pt-1 mx-4 bg-white dark:bg-gray-800 dark:text-gray-100 mt-5 flex justify-between"
+      >
         <div class="flex justify-between w-full">
           <div class="border-b border-gray-200 dark:border-gray-700">
             <nav class="flex space-x-8 px-6">
-              <button v-for="tab in tabs" :key="tab.id" @click="onTabClick(tab.id)" :class="[
-                'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-200 dark:hover:border-gray-600',
-              ]">
+              <button
+                v-for="tab in tabs"
+                :key="tab.id"
+                @click="onTabClick(tab.id)"
+                :class="[
+                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-200 dark:hover:border-gray-600',
+                ]"
+              >
                 <div class="flex items-center space-x-2">
                   <span>{{ tab.label }}</span>
                 </div>
@@ -484,17 +528,35 @@ onMounted(() => {
 
       <!--tab content-->
       <div v-if="activeTab === 'room_charges'">
-        <RoomCharge :reservation-id="localReservation.id" :reservation="localReservation" @refresh="handleRoomChargeRefresh"></RoomCharge>
+        <RoomCharge
+          :reservation-id="localReservation.id"
+          :reservation="localReservation"
+          @refresh="handleRoomChargeRefresh"
+        ></RoomCharge>
       </div>
       <div v-if="activeTab === 'folio_operations' && localReservation && localReservation.id">
-        <FoglioOperation ref="foglioRef" :reservation-id="localReservation.id" :reservation="localReservation" @refresh="refresReservation">
+        <FoglioOperation
+          ref="foglioRef"
+          :reservation-id="localReservation.id"
+          :reservation="localReservation"
+          @refresh="refresReservation"
+        >
         </FoglioOperation>
       </div>
       <div v-if="activeTab === 'booking_details'">
-        <BookingDetails :booking="localReservation" :guest="localReservation.guest"></BookingDetails>
+        <BookingDetails
+          :booking="localReservation"
+          :guest="localReservation.guest"
+          :refresh-booking-data="refreshBookingData"
+        ></BookingDetails>
       </div>
       <div v-if="activeTab === 'guest_details'">
-        <GuestDetails :reservation="localReservation" :guest="localReservation.guest" :reservationId="localReservation.id" @refresh="handleGuestRefresh"/>
+        <GuestDetails
+          :reservation="localReservation"
+          :guest="localReservation.guest"
+          :reservationId="localReservation.id"
+          @refresh="handleGuestRefresh"
+        />
       </div>
       <div v-if="activeTab === 'audit_trial'">
         <AuditTrail :entity-ids="[localReservation.id]" />
@@ -510,9 +572,15 @@ onMounted(() => {
 
   <!-- Print Modal -->
   <template v-if="showPrintModal">
-    <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="handlePrintClose"
-      :reservation-id="localReservation.id" @print-success="handlePrintSuccess" @print-error="handlePrintError"
-      :templates="templates" />
+    <PrintModal
+      :is-open="showPrintModal"
+      :document-data="printDocumentData"
+      @close="handlePrintClose"
+      :reservation-id="localReservation.id"
+      @print-success="handlePrintSuccess"
+      @print-error="handlePrintError"
+      :templates="templates"
+    />
   </template>
 </template>
 

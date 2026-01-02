@@ -63,6 +63,7 @@ const toast = useToast()
 watch(() => props.reservation, (newReservation) => {
   if (newReservation) {
     localReservation.value = { ...newReservation }
+    console.log('Local reservation updated:', localReservation.value)
   }
 }, { deep: true, immediate: true })
 
@@ -289,7 +290,7 @@ const nightsSummary = computed(() => {
             <Users v-if="localReservation.isGroup" />
             <div class="min-w-0">
               <h3 class="font-semibold text-gray-900 dark:text-white text-lg truncate capitalize max-w-full">
-                {{ localReservation.guest?.displayName }}
+                {{ localReservation?.displayName }}
               </h3>
               <p class="text-xs text-gray-600 dark:text-gray-400 font-mono">
                 #{{ localReservation.reservationNumber }}

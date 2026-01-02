@@ -904,7 +904,7 @@ const applyFilter = async (filterItem: FitlterItem) => {
     const res = await filterReservation(serviceStore.serviceId!, filterItem)
 
     if (res.status === 200 || res.status === 201) {
-      console.log(res.data)
+      console.log("re",res.data)
 
       const mappedReservations = res.data?.reservations.map((res: any) => {
         const user = res.guest

@@ -315,6 +315,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 interface Emits {
   (e: 'clear-error'): void
+  (e: 'refresh-booking-data'): void
 }
 
 const emit = defineEmits<Emits>()
@@ -407,6 +408,7 @@ const UpdateReservationRoom = async () => {
     console.log('Update data:', updateData)
 
     const response = await updateBookingDetail(props.booking.id, updateData)
+     emit('refresh-booking-data')
 
     console.log('Response from API:', response)
 
