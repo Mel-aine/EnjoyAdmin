@@ -1,4 +1,4 @@
-<template>
+ <template>
   <SpeedInsights />   
   <ThemeProvider>  
     <SidebarProvider>    
