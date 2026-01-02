@@ -8738,5 +8738,6 @@
   "Financial Information" : "Informations financières",
   "Booking Source & Type" : "Source & Type de réservation",
   "Additional Information" : "Informations complémentaires",
-  "Error deleting extra charge": "Erreur lors de la suppression des frais supplémentaires"
+  "Error deleting extra charge": "Erreur lors de la suppression des frais supplémentaires",
+  "add_custom" : "Ajouter"
 }

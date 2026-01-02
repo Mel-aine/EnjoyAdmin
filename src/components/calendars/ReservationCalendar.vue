@@ -2558,7 +2558,7 @@ function navigateToAddReservationFromCells() {
 
   const checkinDate = selectionInfo.startDate.toISOString().split('T')[0]
   const checkoutDateStr = selectionInfo.endDate.toISOString().split('T')[0]
-  const { checkinTime, checkoutTime } = getSelectionTimes()
+  //const { checkinTime, checkoutTime } = getSelectionTimes()
 
   const selectedRateTypeId = selectRateType.value
   const selectedRateTypeName = (rateTypeOptions.value || []).find(
@@ -2575,6 +2575,15 @@ function navigateToAddReservationFromCells() {
   const room = group?.room_details?.find((r: any) => {
     return (r?.room_number ?? r?.roomNumber) === selectionInfo.roomNumber
   })
+   const isDayUse = checkinDate === checkoutDateStr
+
+  // Obtenir l'heure actuelle pour le check-in
+  const now = new Date()
+  const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+
+  // Gérer les heures selon le type de réservation
+  let finalCheckinTime = currentTime
+  let finalCheckoutTime = isDayUse ? '20:00' : '12:00'
 
   const roomId = room?.id ?? room?.room_id ?? room?.roomId
   const roomRate = selectionInfo.roomTypeId != null ? (roomRateForDate.value as any)?.[selectionInfo.roomTypeId] : undefined
@@ -2587,8 +2596,8 @@ function navigateToAddReservationFromCells() {
       roomType: selectionInfo.roomType,
       roomTypeId: selectionInfo.roomTypeId,
       roomNumber: selectionInfo.roomNumber,
-      checkInTime: checkinTime,
-      checkOutTime: checkoutTime,
+      checkInTime: finalCheckinTime,
+      checkOutTime: finalCheckoutTime,
       rateTypeId: selectedRateTypeId,
       rateTypeName: selectedRateTypeName,
       roomId,
@@ -2596,6 +2605,7 @@ function navigateToAddReservationFromCells() {
       totalNights: selectionInfo.totalNights,
       startHour: selectionInfo.startHour,
       endHour: selectionInfo.endHour,
+      isDayUse: isDayUse ? '20:00' : '12:00',
     },
   })
 }

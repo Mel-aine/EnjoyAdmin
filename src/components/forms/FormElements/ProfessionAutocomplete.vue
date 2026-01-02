@@ -52,7 +52,7 @@
           class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-green-600 hover:text-white dark:hover:bg-green-500 transition-colors duration-150 ease-in-out rounded-md border-t border-gray-200 dark:border-gray-600 mt-1"
         >
           <span class="block truncate font-medium">
-            {{ $t('add_custom') || 'Ajouter' }}: "{{ searchQuery }}"
+            {{ $t('add_custom') }}: "{{ searchQuery }}"
           </span>
         </li>
       </ul>

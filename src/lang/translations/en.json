@@ -8578,5 +8578,6 @@
   "Error deleting extra charge": "Error deleting extra charge",
   "walkin_reservation":"Walk In / Reservation",
   "EditBlockRoom":"Edit Block Room",
-  "UnblockRoom":"Unblock Room"
+  "UnblockRoom":"Unblock Room",
+  "add_custom" : "Add"
 }

@@ -1,8 +1,8 @@
 <template>
   <div class="w-full">
     <!-- Tableau avec scrollbar invisible -->
-    <div class="w-full overflow-auto border border-gray-200  dark:bg-black border-gray-600 rounded max-h-[600px] scrollbar-hide">
-      <table class="w-full text-sm">
+    <div class="w-full overflow-auto border  dark:bg-black border-gray-600 rounded max-h-[600px] scrollbar-hide">
+      <table class="w-full text-sm min-w-[700px] sm:min-w-full">
         <thead class="sticky top-0 bg-white z-8">
           <!-- En-tête normal quand aucune sélection -->
           <tr class="bg-gray-100 dark:bg-black border-l-4 border-l-gray-200" v-if="!selectedRoomsCount">

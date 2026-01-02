@@ -29,39 +29,40 @@
     </div>
 
     <!-- Table -->
-    <div ref="tableContainer" @scroll="handleScroll"   :class="[
+    <div ref="tableContainer" @scroll="handleScroll" :class="[
+        'overflow-x-auto',
         scrollableBody ? 'custom-scrollbar overflow-y-auto' : ''
       ]"
       :style="scrollableBody ? { maxHeight: props.maxHeight } : {}">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+      <table class="min-w-[700px] sm:min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-8">
           <tr>
             <th v-if="selectable"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
+              class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
               <input type="checkbox" v-model="selectAll" @change="toggleSelectAll"
                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
             </th>
             <th v-for="column in columns" :key="column.key"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300  capitalize tracking-wider">
+              class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300  capitalize tracking-wider">
               {{ getColumnLabel(column) }}
             </th>
             <th v-if="hasActions"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
+              class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 capitalize tracking-wider">
             </th>
-            <th v-if="expandable" class="px-6 py-3 w-12"></th>
+            <th v-if="expandable" class="px-3 py-2 sm:px-6 sm:py-3 w-12"></th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
           <!-- Skeleton Loading Rows -->
           <template v-if="loading">
             <tr v-for="n in 5" :key="`skeleton-${n}`" class="animate-pulse">
-              <td v-if="selectable" class="px-6 py-4">
+              <td v-if="selectable" class="px-3 py-2 sm:px-6 sm:py-4">
                 <div class="w-4 h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
               </td>
-              <td v-for="column in columns" :key="column.key" class="px-6 py-4">
+              <td v-for="column in columns" :key="column.key" class="px-3 py-2 sm:px-6 sm:py-4">
                 <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
               </td>
-              <td v-if="hasActions" class="px-6 py-4">
+              <td v-if="hasActions" class="px-3 py-2 sm:px-6 sm:py-4">
                 <div class="w-5 h-5 bg-gray-200 dark:bg-gray-600 rounded"></div>
               </td>
             </tr>
@@ -77,12 +78,12 @@
                 item.status === 'voided' ? 'line-through opacity-60' : '',
                 rowClass(item)
               ]" @click="emit('row-click', item)">
-              <td v-if="selectable" class="px-6 py-4">
+              <td v-if="selectable" class="px-3 py-2 sm:px-6 sm:py-4">
                 <input type="checkbox" v-model="selectedItems" :value="item"
                   :disabled="!isItemSelectable(item)"
                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" />
               </td>
-              <td v-for="column in columns" :key="column.key" class="px-6 py-4 break-words max-w-xs">
+              <td v-for="column in columns" :key="column.key" class="px-3 py-2 sm:px-6 sm:py-4 break-words max-w-xs">
                 <div v-if="column.type === 'text'" class="text-sm text-gray-900 dark:text-white break-words">
                   {{ getColumnValue(item, column) }}
                 </div>
@@ -128,7 +129,7 @@
                 </div>
               </td>
 
-              <td v-if="hasActions" class="px-6 py-4 relative">
+              <td v-if="hasActions" class="px-3 py-2 sm:px-6 sm:py-4 relative">
                 <div class="flex items-center gap-2">
                   <!-- Dropdown Actions -->
                   <div class="relative" v-if="getItemActions(item).length > 0">
@@ -164,7 +165,7 @@
                   </div>
                 </div>
               </td>
-              <td v-if="expandable" class="px-6 py-4">
+              <td v-if="expandable" class="px-3 py-2 sm:px-6 sm:py-4">
                 <button @click.stop="toggleExpand(index)" class="text-gray-400 hover:text-gray-600">
                   <ChevronDown
                     class="w-5 h-5 transition-transform"
