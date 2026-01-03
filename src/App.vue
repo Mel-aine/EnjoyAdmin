@@ -1,9 +1,9 @@
-<template>
-  <SpeedInsights />  
+ <template>
+  <SpeedInsights />   
   <ThemeProvider>  
     <SidebarProvider>    
       <TopProgressBar />  
-      <OverLoading v-if="isCheckoutOverlay" />    
+      <OverLoading v-if="isCheckoutOverlay" />     
       <RouterView />         
       <ReAuthModal      
         :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  

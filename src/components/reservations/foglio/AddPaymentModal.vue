@@ -166,7 +166,9 @@ const loadPaymentData = () => {
     const methodType = payment.paymentMethod?.type?.toLowerCase() || payment.transactionCategory || 'cash'
     formData.type = methodType === 'city_ledger' ? 'city_ledger' : 'cash'
     formData.folio = payment.folioId
-    formData.amount = toIntegerAmount(payment.grossAmount || payment.amount || payment.totalAmount || 0)
+    const rawAmount = toIntegerAmount(payment.grossAmount || payment.amount || payment.totalAmount || 0)
+    const isRefund = payment.transactionType === 'refund' || payment.category === 'refund'
+    formData.amount = isRefund ? -rawAmount : rawAmount
     formData.method = payment.paymentMethodId || 0
     formData.currency = payment.currencyCode
     formData.comment = payment.notes || payment.description || ''
@@ -213,8 +215,8 @@ const savePayment = async () => {
     return
   }
 
-  if (formData.amount <= 0) {
-    toast.error('Amount must be greater than 0')
+  if (formData.amount === 0) {
+    toast.error('Amount must not be 0')
     return
   }
 
@@ -226,14 +228,15 @@ const savePayment = async () => {
       return
     }
      const methodName = methodeSelected.value?.methodName || methodeSelected.value?.name || 'Payment'
+     const isRefund = formData.amount < 0
     // Prepare transaction data for API with safe numeric conversion
     const transactionData:any = {
       folioId: safeParseInt(formData.folio),
-      transactionType: 'payment',
+      transactionType: isRefund ? 'refund' : 'payment',
       //transactionCategory: formData.type,
-      category: 'payment',
-      description: `Payment - ${methodName}`,
-      amount: prepareFolioAmount(formData.amount),
+      category: isRefund ? 'refund' : 'payment',
+      description: isRefund ? `[Refund] - ${methodName}` : `Payment - ${methodName}`,
+      amount: prepareFolioAmount(Math.abs(formData.amount)),
       reference: formData.recVouNumber,
       notes: formData.comment,
       paymentMethodId: safeParseInt(formData.method),
