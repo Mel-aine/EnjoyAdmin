@@ -51,6 +51,11 @@ const emit = defineEmits(['click'])
     color: #fff;
 }
 
+.btn-print {
+    background-color: #f97316;
+    color: #fff;
+}
+
 .btn-danger {
     background-color: #dc3545;
     color: #fff;
@@ -214,5 +219,9 @@ const emit = defineEmits(['click'])
 .dark .btn-outline-dark {
     color: #d1d5db; /* text-gray-300 */
     border-color: #374151; /* border-gray-700 */
+}
+.dark .btn-print {
+    background-color: orange;
+    color: #fff;
 }
 </style>

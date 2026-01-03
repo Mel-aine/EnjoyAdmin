@@ -119,7 +119,7 @@
                             <div>
                                 <div>
                                     <h2 class="text-lg font-semibold max-w-sm text-gray-900 dark:text-white">
-                                        {{ reservation.guest?.displayName }}
+                                        {{ reservation?.displayName }}
                                     </h2>
                                     <!-- <div class="text-sm flex gap-2 text-gray-500 dark:text-gray-400">
                                         <div v-if="reservation.guest?.country"

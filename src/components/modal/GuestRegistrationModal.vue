@@ -1,13 +1,22 @@
 <template>
   <div class="fixed inset-0 z-999 flex items-start hide-scrollbar justify-end">
-    <div class="bg-white dark:bg-gray-800 shadow-lg  w-[80%] h-full mr-0 relative flex flex-col">
+    <div class="bg-white dark:bg-gray-800 shadow-lg w-[80%] h-full mr-0 relative flex flex-col">
       <!-- Header -->
       <div
-        class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('QuickBooking') }}</h2>
+        class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0"
+      >
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+          {{ $t('QuickBooking') }}
+        </h2>
         <button class="text-gray-500 hover:text-red-500" @click="$emit('close')">
           <span class="sr-only">Close</span>
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -25,11 +34,11 @@
                 <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
 
                 <div class="mt-4 grid grid-cols-2 gap-4">
-                  <div v-for="n in 6" :key="'col1-'+n" class="flex items-center gap-2">
+                  <div v-for="n in 6" :key="'col1-' + n" class="flex items-center gap-2">
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
                   </div>
-                  <div v-for="n in 6" :key="'col2-'+n" class="flex items-center gap-2">
+                  <div v-for="n in 6" :key="'col2-' + n" class="flex items-center gap-2">
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
                   </div>
@@ -56,203 +65,324 @@
           </div>
           <div class="w-8/12 ps-2 min-h-0 overflow-y-auto space-y-6">
             <form @submit.prevent="handleSubmit">
-          <!-- Room Configuration Section -->
-          <section class="space-y-4">
-            <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end">
-              <!-- Room Type -->
-              <div class="relative col-span-3">
-                <p v-if="submitted && !roomConfig.roomType" class="text-sm text-red-600 mb-1">
-                  {{ $t('validation.invalidRoomType') }}
-                </p>
-                <AutoCompleteSelect v-model="roomConfig.roomType" :lb="$t('roomType')" :options="RoomTypes"
-                  :defaultValue="$t('SelectRoomType')" :is-required="true" :use-dropdown="useDropdownRoomType"
-                  :disabled="isLoadingRoom" @update:modelValue="handleRoomTypeChange"
-                  :class="{ 'border-red-500': submitted && !roomConfig.roomType }" />
-              </div>
-
-              <!-- Rate Type -->
-              <div class="relative col-span-2">
-                <p v-if="submitted && !roomConfig.rateType" class="text-sm text-red-600 mb-1">
-                  {{ $t('validation.invalidRateType') }}
-                </p>
-                <AutoCompleteSelect v-model="roomConfig.rateType" :lb="$t('rateType')" :options="rateTypeOptions"
-                  :defaultValue="$t('SelectRateType')" :is-required="true" :use-dropdown="useDropdownRateType"
-                  :disabled="!roomConfig.roomType" @update:modelValue="handleRateTypeChange"
-                  :class="{ 'border-red-500': submitted && !roomConfig.rateType }" />
-              </div>
-
-              <!-- Room Number -->
-              <div class="relative col-span-2">
-
-                <AutoCompleteSelect v-model="roomConfig.roomNumber" :lb="$t('Room')" :options="roomOptions"
-                  :defaultValue="$t('SelectRoom')" :is-required="false" :use-dropdown="useDropdownRoom"
-                  :disabled="!roomConfig.roomType" :isLoading="roomConfig.isLoadingRooms"
-                  @update:modelValue="handleRoomNumberChange"
-                  :class="{ 'border-red-500': submitted && !roomConfig.roomNumber }" />
-              </div>
-
-              <!-- Adult Count -->
-              <div class="col-span-1">
-                <Select v-model="roomConfig.adultCount" :lb="$t('Adult')" :options="adultOptions"
-                  :disabled="!roomConfig.roomType" :placeholder="$t('1')"
-                  @change="handleOccupancyChange('adultCount', $event)" />
-              </div>
-
-              <!-- Child Count -->
-              <div class="col-span-1">
-                <Select v-model="roomConfig.childCount" :lb="$t('child')" :options="childOptions"
-                  :disabled="!roomConfig.roomType" :placeholder="$t('0')"
-                  @change="handleOccupancyChange('childCount', $event)" />
-              </div>
-
-              <!-- Rate -->
-              <div class="flex align-center self-center col-span-2">
-                <div class="relative inline-block w-full">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    {{ $t('rate') }} (XAF)
-                  </label>
-                  <div v-if="!isCustomPrize"
-                    class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11 bg-gray-200 dark:bg-black px-4 py-2.5 text-sm"
-                    :class="{ 'opacity-50': roomConfig.isLoadingRate }">
-                    <span class="text-gray-500 hover:text-gray-700 mr-3 cursor-pointer" @click="isCustomPrize = true">
-                      <PencilLine :size="18" />
-                    </span>
-
-                    <div v-if="roomConfig.isLoadingRate" class="flex-grow flex justify-end items-end">
-                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
+              <div
+                class="space-y-6"
+                :class="{ 'pointer-events-none opacity-60': confirmReservation }"
+              >
+                <!-- Room Configuration Section -->
+                <section class="space-y-4">
+                  <div class="grid md:grid-cols-12 grid-cols-12 gap-1 items-end">
+                    <!-- Room Type -->
+                    <div class="relative col-span-3">
+                      <p v-if="submitted && !roomConfig.roomType" class="text-sm text-red-600 mb-1">
+                        {{ $t('validation.invalidRoomType') }}
+                      </p>
+                      <AutoCompleteSelect
+                        v-model="roomConfig.roomType"
+                        :lb="$t('roomType')"
+                        :options="RoomTypes"
+                        :defaultValue="$t('SelectRoomType')"
+                        :is-required="true"
+                        :use-dropdown="useDropdownRoomType"
+                        :disabled="isLoadingRoom"
+                        @update:modelValue="handleRoomTypeChange"
+                        :class="{ 'border-red-500': submitted && !roomConfig.roomType }"
+                      />
                     </div>
 
-                    <div v-else class="flex-grow">
-                      <div class="font-medium text-gray-800 justify-end flex">
-                        {{ roomConfig.rate }}
+                    <!-- Rate Type -->
+                    <div class="relative col-span-2">
+                      <p v-if="submitted && !roomConfig.rateType" class="text-sm text-red-600 mb-1">
+                        {{ $t('validation.invalidRateType') }}
+                      </p>
+                      <AutoCompleteSelect
+                        v-model="roomConfig.rateType"
+                        :lb="$t('rateType')"
+                        :options="rateTypeOptions"
+                        :defaultValue="$t('SelectRateType')"
+                        :is-required="true"
+                        :use-dropdown="useDropdownRateType"
+                        :disabled="!roomConfig.roomType"
+                        @update:modelValue="handleRateTypeChange"
+                        :class="{ 'border-red-500': submitted && !roomConfig.rateType }"
+                      />
+                    </div>
+
+                    <!-- Room Number -->
+                    <div class="relative col-span-2">
+                      <AutoCompleteSelect
+                        v-model="roomConfig.roomNumber"
+                        :lb="$t('Room')"
+                        :options="roomOptions"
+                        :defaultValue="$t('SelectRoom')"
+                        :is-required="false"
+                        :use-dropdown="useDropdownRoom"
+                        :disabled="!roomConfig.roomType"
+                        :isLoading="roomConfig.isLoadingRooms"
+                        @update:modelValue="handleRoomNumberChange"
+                        :class="{ 'border-red-500': submitted && !roomConfig.roomNumber }"
+                      />
+                    </div>
+
+                    <!-- Adult Count -->
+                    <div class="col-span-1">
+                      <Select
+                        v-model="roomConfig.adultCount"
+                        :lb="$t('Adult')"
+                        :options="adultOptions"
+                        :disabled="!roomConfig.roomType"
+                        :placeholder="$t('1')"
+                        @change="handleOccupancyChange('adultCount', $event)"
+                      />
+                    </div>
+
+                    <!-- Child Count -->
+                    <div class="col-span-1">
+                      <Select
+                        v-model="roomConfig.childCount"
+                        :lb="$t('child')"
+                        :options="childOptions"
+                        :disabled="!roomConfig.roomType"
+                        :placeholder="$t('0')"
+                        @change="handleOccupancyChange('childCount', $event)"
+                      />
+                    </div>
+
+                    <!-- Rate -->
+                    <div class="flex align-center self-center col-span-2">
+                      <div class="relative inline-block w-full">
+                        <label
+                          class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                        >
+                          {{ $t('rate') }} (XAF)
+                        </label>
+                        <div
+                          v-if="!isCustomPrize"
+                          class="flex items-center rounded-lg border border-gray-300 mt-1.5 h-11 bg-gray-200 dark:bg-black px-4 py-2.5 text-sm"
+                          :class="{ 'opacity-50': roomConfig.isLoadingRate }"
+                        >
+                          <span
+                            class="text-gray-500 hover:text-gray-700 mr-3 cursor-pointer"
+                            @click="isCustomPrize = true"
+                          >
+                            <PencilLine :size="18" />
+                          </span>
+
+                          <div
+                            v-if="roomConfig.isLoadingRate"
+                            class="flex-grow flex justify-end items-end"
+                          >
+                            <div
+                              class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"
+                            ></div>
+                          </div>
+
+                          <div v-else class="flex-grow">
+                            <div class="font-medium text-gray-800 justify-end flex">
+                              {{ roomConfig.rate }}
+                            </div>
+                          </div>
+                        </div>
+                        <div v-else>
+                          <input
+                            type="number"
+                            v-model.number="roomConfig.rate"
+                            class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 mt-1.5 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div v-else>
-                    <input type="number" v-model.number="roomConfig.rate"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 mt-1.5 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+                </section>
 
-          <!-- Check-in/out Section -->
-          <section class="pt-4 space-y-4">
-            <div class="md:flex relative items-start gap-0">
-              <div class="flex flex-col w-full">
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  {{ $t('check_in_date') }}
-                </label>
-                <div class="flex gap-0">
-                  <InputDatePicker v-model="reservation.checkinDate" custom-class="rounded-r-none"
-                    :allowPastDates="false" :placeholder="$t('Selectdate')" />
-                  <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
-                </div>
-              </div>
+                <!-- Check-in/out Section -->
+                <section class="pt-4 space-y-4">
+                  <div class="md:flex relative items-start gap-0">
+                    <div class="flex flex-col w-full">
+                      <label
+                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                      >
+                        {{ $t('check_in_date') }}
+                      </label>
+                      <div class="flex gap-0">
+                        <InputDatePicker
+                          v-model="reservation.checkinDate"
+                          custom-class="rounded-r-none"
+                          :allowPastDates="false"
+                          :placeholder="$t('Selectdate')"
+                        />
+                        <InputTimePicker v-model="reservation.checkinTime" class="rounded-l-none" />
+                      </div>
+                    </div>
 
-              <div class="flex flex-col  w-1/5">
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  {{ $t('nights') }}
-                </label>
-                <input type="text" disabled :value="numberOfNights.toString()"
-                  class="h-11 w-full rounded-none bg-black text-white px-4 py-2.5 text-sm">
-              </div>
+                    <div class="flex flex-col w-1/5">
+                      <label
+                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                      >
+                        {{ $t('nights') }}
+                      </label>
+                      <input
+                        type="text"
+                        disabled
+                        :value="numberOfNights.toString()"
+                        class="h-11 w-full rounded-none bg-black text-white px-4 py-2.5 text-sm"
+                      />
+                    </div>
 
-              <div class="flex flex-col w-full">
-                <label class="mb-1.5 ml-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  {{ $t('check_out_date') }}
-                </label>
-                <div class="flex gap-0">
-                  <InputDatePicker v-model="reservation.checkoutDate" :allowPastDates="false" :minDate="reservation.checkinDate || ''" :placeholder="$t('Selectdate')"
-                    custom-class="rounded-none" />
-                  <InputTimePicker v-model="reservation.checkoutTime" custom-class="rounded-r-lg" />
-                </div>
-                <p v-if="dateError" class="text-sm text-red-600 mt-1">
-                  {{ $t(dateError) }}
-                </p>
-              </div>
+                    <div class="flex flex-col w-full">
+                      <label
+                        class="mb-1.5 ml-2 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                      >
+                        {{ $t('check_out_date') }}
+                      </label>
+                      <div class="flex gap-0">
+                        <InputDatePicker
+                          v-model="reservation.checkoutDate"
+                          :allowPastDates="false"
+                          :minDate="reservation.checkinDate || ''"
+                          :placeholder="$t('Selectdate')"
+                          custom-class="rounded-none"
+                        />
+                        <InputTimePicker
+                          v-model="reservation.checkoutTime"
+                          custom-class="rounded-r-lg"
+                        />
+                      </div>
+                      <p v-if="dateError" class="text-sm text-red-600 mt-1">
+                        {{ $t(dateError) }}
+                      </p>
+                    </div>
 
-              <div class="flex-col flex w-[500px] ms-2">
-                <AutoCompleteSelect v-model="reservation.bookingType" :options="BookingType"
+                    <div class="flex-col flex w-[500px] ms-2">
+                      <!-- <AutoCompleteSelect v-model="reservation.bookingType" :options="BookingType"
                   :defaultValue="$t('SelectReservationType')" :lb="$t('ReservationType')" :is-required="false"
-                  :use-dropdown="useDropdownBooking" />
-              </div>
-            </div>
-          </section>
+                  :use-dropdown="useDropdownBooking" /> -->
 
-          <!-- Additional Info Section -->
-          <section class="pt-4 space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'" :placeholder="$t('ArrivingTo')"
-                  v-model="reservation.arrivingTo" />
-              </div>
-              <div>
-                <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')"
-                  v-model="reservation.goingTo" />
-              </div>
-              <div>
-                <AutoCompleteSelect
-                    v-model="reservation.meansOfTransport"
-                    :options="TransportationModes"
-                    :defaultValue="$t('MeansOfTransportation')"
-                    :lb="$t('MeansOfTransportation')"
-                    :is-required="false"
-                    :use-dropdown="useDropdownBooking"
-                    @clear-error="emit('clear-error')"
-                  />
-              </div>
-              <div>
-                <InputPaymentMethodSelect :label="$t('PaymentMethod')" v-model="billing.paymentMode" />
-              </div>
-            </div>
-          </section>
+                      <AutoCompleteSelect
+                        v-model="reservation.businessSource"
+                        :options="BusinessSource"
+                        :defaultValue="$t('SelectBusinessSource')"
+                        :lb="$t('business_source')"
+                        :is-required="false"
+                        :use-dropdown="useDropdownBooking"
+                        @clear-error="emit('clear-error')"
+                      />
+                    </div>
+                  </div>
+                </section>
 
-          <!-- Personal Information Section -->
-          <section class="pt-4 space-y-4 border-t border-black/50 mt-3">
+                <!-- Additional Info Section -->
+                <section class="pt-4 space-y-4">
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <Input
+                        :lb="$t('ArrivingTo')"
+                        :id="'arriving'"
+                        :forLabel="'arriving'"
+                        :placeholder="$t('ArrivingTo')"
+                        v-model="reservation.arrivingTo"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        :lb="$t('GoingTo')"
+                        :id="'going'"
+                        :forLabel="'going'"
+                        :placeholder="$t('GoingTo')"
+                        v-model="reservation.goingTo"
+                      />
+                    </div>
+                    <div>
+                      <AutoCompleteSelect
+                        v-model="reservation.meansOfTransport"
+                        :options="TransportationModes"
+                        :defaultValue="$t('MeansOfTransportation')"
+                        :lb="$t('MeansOfTransportation')"
+                        :is-required="false"
+                        :use-dropdown="useDropdownBooking"
+                        @clear-error="emit('clear-error')"
+                      />
+                    </div>
+                    <div>
+                      <InputPaymentMethodSelect
+                        :label="$t('PaymentMethod')"
+                        v-model="billing.paymentMode"
+                        :is-loading="isLoadingPayment"
+                      />
+                    </div>
+                  </div>
+                </section>
 
+                <!-- Personal Information Section -->
+                <section class="pt-4 space-y-4 border-t border-black/50 mt-3">
+                  <div class="flex items-end w-full space-x-0">
+                    <div class="w-18">
+                      <Select
+                        :lb="$t('Title')"
+                        :options="GuestTitles"
+                        v-model="formData.title"
+                        :default-value="$t('guestTitles.mr')"
+                        custom-class="rounded-r-none h-11"
+                      />
+                    </div>
 
-            <div class="flex items-end w-full space-x-0">
-              <div class="w-18">
-                <Select :lb="$t('Title')" :options="GuestTitles" v-model="formData.title"
-                  :default-value="$t('guestTitles.mr')" custom-class="rounded-r-none h-11" />
-              </div>
+                    <div class="flex-1">
+                      <CustomerSearch @customer-selected="onCustomerSelected" v-model="formData" />
+                    </div>
 
-              <div class="flex-1">
-                <CustomerSearch @customer-selected="onCustomerSelected" v-model="formData" />
-              </div>
+                    <div class="flex-1">
+                      <Input
+                        :lb="$t('LastName')"
+                        v-model="formData.lastName"
+                        :placeholder="$t('LastName')"
+                        :is-required="false"
+                        custom-class="rounded-none h-11 border-l-0"
+                      />
+                    </div>
 
-              <div class="flex-1">
-                <Input :lb="$t('LastName')" v-model="formData.lastName" :placeholder="$t('LastName')" :is-required="true"
-                  custom-class="rounded-none h-11 border-l-0" />
-              </div>
+                    <div class="flex-1">
+                      <Input
+                        :lb="$t('MaidenName')"
+                        v-model="formData.maidenName"
+                        :placeholder="$t('MaidenName')"
+                        custom-class="rounded-l-none h-11 border-l-0"
+                      />
+                    </div>
+                  </div>
 
-              <div class="flex-1">
-                <Input :lb="$t('MaidenName')" v-model="formData.maidenName" :placeholder="$t('MaidenName')"
-                  custom-class="rounded-l-none h-11 border-l-0" />
-              </div>
-            </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div>
+                      <InputDatePicker
+                        :title="$t('DateOfBirth')"
+                        v-model="formData.dateOfBirth"
+                        :placeholder="$t('select_date')"
+                      />
+                    </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <div>
-                <InputDatePicker :title="$t('DateOfBirth')"  v-model="formData.dateOfBirth" :placeholder="$t('select_date')" />
-              </div>
+                    <Input
+                      :lb="$t('placeOfBirth')"
+                      v-model="formData.placeOfBirth"
+                      :placeholder="$t('placeOfBirth')"
+                    />
 
-              <Input :lb="$t('placeOfBirth')" v-model="formData.placeOfBirth" :placeholder="$t('placeOfBirth')" />
+                    <div>
+                      <InputCountries
+                        :lb="$t('nationality')"
+                        v-model="formData.nationality"
+                        :placeholder="$t('search_nationality')"
+                      />
+                    </div>
+                    <div>
+                      <InputCountries
+                        :lb="$t('countryOfPermanentResidence')"
+                        v-model="formData.country"
+                      />
+                    </div>
+                  </div>
+                </section>
 
-              <div>
-                <InputCountries :lb="$t('nationality')" v-model="formData.nationality"
-                  :placeholder="$t('search_nationality')" />
-              </div>
-              <div>
-                <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="formData.country" />
-              </div>
-            </div>
-          </section>
-
-          <!-- Contact Information Section -->
-          <section class="pt-4 space-y-4">
+                <!-- Contact Information Section -->
+                <!-- <section class="pt-4 space-y-4">
             <div :class="[
               'grid grid-cols-1 gap-4',
                formData.contactType ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
@@ -270,7 +400,7 @@
                   @clear-error="emit('clear-error')"
                   custom-class="h-11"
                 />
-                <!-- Input conditionnel basé sur le type de contact -->
+
                 <div v-if="formData.contactType">
                   <InputPhone
                     v-if="contactInputComponent === 'InputPhone'"
@@ -313,68 +443,133 @@
                   custom-class="h-11"
                 />
             </div>
-          </section>
+          </section> -->
 
-          <!-- Document Information Section -->
-          <section class="pt-4">
-            <button @click.prevent="toggleIdentitySection" type="button"
-              class="flex items-center justify-between w-full text-left group hover:bg-gray-50 dark:hover:text-black -m-2 p-2 rounded-md transition-colors">
-              <h2 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
-                <svg class="w-5 h-5 mr-2 text-black dark:text-white " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1">
-                  </path>
-                </svg>
-                {{ $t('IdentityInformation') }}
-              </h2>
+                <!-- Document Information Section -->
+                <section class="pt-4">
+                  <button
+                    @click.prevent="toggleIdentitySection"
+                    type="button"
+                    class="flex items-center justify-between w-full text-left group hover:bg-gray-50 dark:hover:text-black -m-2 p-2 rounded-md transition-colors"
+                  >
+                    <h2
+                      class="text-md font-semibold text-gray-900 dark:text-white flex items-center"
+                    >
+                      <svg
+                        class="w-5 h-5 mr-2 text-black dark:text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-2 5v3m0 0l-1-1m1 1l1-1"
+                        ></path>
+                      </svg>
+                      {{ $t('IdentityInformation') }}
+                    </h2>
 
-              <div class="flex items-center">
-                <ChevronDownIcon :class="[
-                  'w-5 h-5 text-gray-500 transition-all duration-200 group-hover:text-gray-700',
-                  { 'rotate-180': showIdentitySection },
-                ]" />
+                    <div class="flex items-center">
+                      <ChevronDownIcon
+                        :class="[
+                          'w-5 h-5 text-gray-500 transition-all duration-200 group-hover:text-gray-700',
+                          { 'rotate-180': showIdentitySection },
+                        ]"
+                      />
+                    </div>
+                  </button>
+
+                  <div
+                    v-show="showIdentitySection"
+                    class="mt-2 transition-all duration-300 ease-in-out"
+                  >
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div>
+                        <Select
+                          :lb="$t('IDType')"
+                          v-model="formData.idType"
+                          :options="idTypeOptions"
+                          :placeholder="$t('select_id_type')"
+                        />
+                      </div>
+                      <div class="">
+                        <Input
+                          :lb="idNumberLabel"
+                          v-model="formData.idNumber"
+                          type="text"
+                          :placeholder="idNumberLabel"
+                        />
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
+                      <div>
+                        <InputDatePicker
+                          :title="$t('ExpiryDate')"
+                          v-model="formData.idExpiryDate"
+                          :placeholder="$t('select_date')"
+                        />
+                      </div>
+                      <div>
+                        <InputCountries
+                          :lb="$t('Countryofissue')"
+                          v-model="formData.issuingCountry"
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          :lb="$t('Cityofissue')"
+                          v-model="formData.issuingCity"
+                          :placeholder="$t('Cityofissue')"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </section>
               </div>
-            </button>
-
-            <div v-show="showIdentitySection" class="mt-2 transition-all duration-300 ease-in-out">
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Select :lb="$t('IDType')" v-model="formData.idType" :options="idTypeOptions"
-                    :placeholder="$t('select_id_type')" />
-                </div>
-                <div class="">
-                  <Input :lb="idNumberLabel" v-model="formData.idNumber" type="text" :placeholder="idNumberLabel" />
-                </div>
-              </div>
-               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
-
-                <div>
-                  <InputDatePicker :title="$t('ExpiryDate')" v-model="formData.idExpiryDate"
-                    :placeholder="$t('select_date')" />
-                </div>
-                <div>
-                  <InputCountries :lb="$t('Countryofissue')" v-model="formData.issuingCountry" />
-                </div>
-                <div>
-                  <Input :lb="$t('Cityofissue')" v-model="formData.issuingCity" :placeholder="$t('Cityofissue')" />
-                </div>
-              </div>
-            </div>
-          </section>
-        </form>
+            </form>
           </div>
         </div>
       </div>
 
       <!-- Footer with buttons -->
-      <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-        <BasicButton type="button" variant="outline" @click="printHtml" :label="$t('print')" />
-        <BasicButton v-if="!confirmReservation" variant="info" :loading="isLoading" type="submit"
-          @click="handleSubmit()" :disabled="isLoading || hasPendingUploads"
-          :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')">
+      <div
+        class="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0"
+      >
+        <BasicButton type="button" variant="print" @click="printHtml" :label="$t('print')" />
+
+        <BasicButton
+          v-if="!showCheckinButton && !confirmReservation"
+          variant="info"
+          :loading="isLoading"
+          type="submit"
+          @click="handleSubmit()"
+          :disabled="isLoading || hasPendingUploads"
+          :label="hasPendingUploads ? $t('UploadingImages') : $t('Reserve')"
+        >
+        </BasicButton>
+
+        <BasicButton
+          v-if="showCheckinButton && !isCheckedIn"
+          type="button"
+          @click="handleCheckIn"
+          :loading="isLoading"
+          :disabled="isLoading"
+          variant="info"
+          :label="$t('Quick Check-In')"
+        >
+        </BasicButton>
+
+        <BasicButton
+          v-if="confirmReservation && (isCheckedIn || !showCheckinButton)"
+          type="button"
+          @click="handleViewDetails"
+          :disabled="isLoading"
+          :label="$t('viewDetails')"
+        >
         </BasicButton>
       </div>
-
     </div>
   </div>
 </template>
@@ -401,9 +596,11 @@ import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 import { getPaymentMethods } from '@/services/paymentMethodApi'
+import { useReservation } from '@/composables/useReservation'
+import { getReservationDetailsById } from '../../services/reservation'
+const { performCheckIn } = useReservation()
 // @ts-ignore
 import pHtml from '@/views/Bookings/p.html?raw'
-
 
 interface SelectOption {
   value: string
@@ -417,8 +614,7 @@ interface RichSelectOption extends SelectOption {
   label_fr: string
 }
 const { t } = useI18n()
-const emit = defineEmits(['close', 'save','clear-error'])
-
+const emit = defineEmits(['close', 'save', 'clear-error'])
 
 // Utiliser le composable useBooking
 const {
@@ -447,7 +643,10 @@ const {
   onRoomNumberChange,
   getAdultOptions,
   getChildOptions,
-  TransportationModes
+  TransportationModes,
+  BusinessSource,
+  showCheckinButton,
+  isCheckedIn,
 } = useBooking()
 
 // State management
@@ -456,6 +655,7 @@ const showIdentitySection = ref(true)
 const htmlContent = ref<string>('')
 const isPreviewLoading = ref(true)
 const PaymentMethods = ref<any[]>([])
+const isLoadingPayment = ref(false)
 
 // Cache parsed template once; clone for subsequent renders
 let _baseDoc: Document | null = null
@@ -469,7 +669,9 @@ const renderPrintHtml = () => {
       _baseDoc = _parser.parseFromString(pHtml as string, 'text/html')
     }
     const doc = document.implementation.createHTMLDocument('')
-    const clonedRoot = (_baseDoc ?? (_parser ?? new DOMParser()).parseFromString(pHtml as string, 'text/html')).documentElement.cloneNode(true) as HTMLElement
+    const clonedRoot = (
+      _baseDoc ?? (_parser ?? new DOMParser()).parseFromString(pHtml as string, 'text/html')
+    ).documentElement.cloneNode(true) as HTMLElement
     doc.replaceChild(clonedRoot, doc.documentElement)
 
     // Inject hotel header from current service
@@ -501,7 +703,7 @@ const renderPrintHtml = () => {
       if (typeof rn === 'object') return getSafe(rn.label || rn.value)
       return getSafe(rn)
     })()
-   const getPaymentMethodName = (paymentModeId: any) => {
+    const getPaymentMethodName = (paymentModeId: any) => {
       if (!paymentModeId) return ''
       if (PaymentMethods.value && PaymentMethods.value.length > 0) {
         const method = PaymentMethods.value.find((m: any) => m.id === paymentModeId)
@@ -521,9 +723,13 @@ const renderPrintHtml = () => {
       'Date de départ :': getSafe(reservation.value?.checkoutDate),
       'Venant de :': getSafe(reservation.value?.arrivingTo),
       'Se rendant à :': getSafe(reservation.value?.goingTo),
-      'Mode de transport :': getOptionLabel(TransportationModes as unknown as any[], reservation.value?.meansOfTransport),
+      'Mode de transport :': getOptionLabel(
+        TransportationModes as unknown as any[],
+        reservation.value?.meansOfTransport,
+      ),
       'Mode de paiement :': getPaymentMethodName(billing.value?.paymentMode),
-      'NOM (en gros characters) :': getSafe(formData.value.firstName) +' '+ getSafe(formData.value.lastName),
+      'NOM (en gros characters) :':
+        getSafe(formData.value.firstName) + ' ' + getSafe(formData.value.lastName),
       'NOM jeune fille :': getSafe(formData.value.maidenName),
       'Date de naissance :': getSafe(formData.value.dateOfBirth),
       'Lieu de naissance :': getSafe(formData.value.placeOfBirth),
@@ -536,7 +742,9 @@ const renderPrintHtml = () => {
       'Profession :': getSafe(formData.value.profession),
       "Passeport / Carte d'identité N° :": getSafe(formData.value.idNumber),
       'Délivré le :': getSafe(formData.value.idExpiryDate),
-      'A :': getSafe([formData.value.issuingCity, formData.value.issuingCountry].filter(Boolean).join(', ')),
+      'A :': getSafe(
+        [formData.value.issuingCity, formData.value.issuingCountry].filter(Boolean).join(', '),
+      ),
     }
 
     const frLabels = Array.from(doc.querySelectorAll('.label-fr'))
@@ -545,7 +753,10 @@ const renderPrintHtml = () => {
       const valueToInsert = filledMap[text]
       if (!valueToInsert) return
       const sibling = el.nextElementSibling as HTMLElement | null
-      if (sibling && (sibling.classList.contains('line-dot') || sibling.classList.contains('line-empty'))) {
+      if (
+        sibling &&
+        (sibling.classList.contains('line-dot') || sibling.classList.contains('line-empty'))
+      ) {
         const span = doc.createElement('span')
         span.className = 'filled-value'
         span.textContent = valueToInsert
@@ -556,9 +767,9 @@ const renderPrintHtml = () => {
     })
 
     const container = doc.createElement('div')
-     container.className = 'print-container'
-     while (doc.body.firstChild) container.appendChild(doc.body.firstChild as Node)
-     doc.body.appendChild(container)
+    container.className = 'print-container'
+    while (doc.body.firstChild) container.appendChild(doc.body.firstChild as Node)
+    doc.body.appendChild(container)
 
     const style = doc.createElement('style')
     style.textContent = `
@@ -634,32 +845,36 @@ const childOptions = computed(() => {
 })
 
 // Replace deep watchers with targeted field watchers
-watch([
-  () => formData.value.lastName,
-  () => formData.value.maidenName,
-  () => formData.value.dateOfBirth,
-  () => formData.value.placeOfBirth,
-  () => formData.value.nationality,
-  () => formData.value.country,
-  () => formData.value.phoneNumber,
-  () => formData.value.fax,
-  () => formData.value.email,
-  () => formData.value.zipcode,
-  () => formData.value.profession,
-  () => formData.value.idNumber,
-  () => formData.value.idExpiryDate,
-  () => formData.value.issuingCity,
-  () => formData.value.issuingCountry,
-  () => billing.value?.paymentMode,
-  () => reservation.value?.checkinDate,
-  () => reservation.value?.checkoutDate,
-  () => reservation.value?.arrivingTo,
-  () => reservation.value?.goingTo,
-  () => reservation.value?.meansOfTransport,
-  () => roomConfig.value?.adultCount,
-  () => roomConfig.value?.childCount,
-  () => roomConfig.value?.roomNumber,
-], () => debouncedUpdateHtml(), { immediate: true })
+watch(
+  [
+    () => formData.value.lastName,
+    () => formData.value.maidenName,
+    () => formData.value.dateOfBirth,
+    () => formData.value.placeOfBirth,
+    () => formData.value.nationality,
+    () => formData.value.country,
+    () => formData.value.phoneNumber,
+    () => formData.value.fax,
+    () => formData.value.email,
+    () => formData.value.zipcode,
+    () => formData.value.profession,
+    () => formData.value.idNumber,
+    () => formData.value.idExpiryDate,
+    () => formData.value.issuingCity,
+    () => formData.value.issuingCountry,
+    () => billing.value?.paymentMode,
+    () => reservation.value?.checkinDate,
+    () => reservation.value?.checkoutDate,
+    () => reservation.value?.arrivingTo,
+    () => reservation.value?.goingTo,
+    () => reservation.value?.meansOfTransport,
+    () => roomConfig.value?.adultCount,
+    () => roomConfig.value?.childCount,
+    () => roomConfig.value?.roomNumber,
+  ],
+  () => debouncedUpdateHtml(),
+  { immediate: true },
+)
 
 const fetchIdentityTypes = async () => {
   try {
@@ -783,18 +998,79 @@ const handleSubmit = async () => {
 
   try {
     await saveReservation()
-    emit('save', {
-      reservation: reservation.value,
-      guest: formData.value
-    })
-    await router.push({
-      name: 'ReservationDetails',
-      params: { id: reservationId.value },
-    })
-    emit('close')
+    // emit('save', {
+    //   reservation: reservation.value,
+    //   guest: formData.value
+    // })
+    // await router.push({
+    //   name: 'ReservationDetails',
+    //   params: { id: reservationId.value },
+    // })
   } catch (error) {
     console.error('Error submitting form:', error)
   }
+}
+
+const handleCheckIn = async () => {
+  try {
+    isLoading.value = true
+
+    let currentReservationRooms = []
+
+    try {
+      const reservationDetails = await getReservationDetailsById(reservationId.value!)
+      currentReservationRooms = reservationDetails.reservationRooms || []
+    } catch (error) {
+      console.error('Error fetching reservation details:', error)
+      return
+    }
+
+    // Trouver une reservationRoom disponible
+    const availableReservationRoom: any = currentReservationRooms.find((resRoom: any) => {
+      return (
+        !resRoom.actualCheckInTime &&
+        !resRoom.checkedIn &&
+        resRoom.status !== 'checked_in' &&
+        resRoom.status !== 'occupied'
+      )
+    })
+
+    if (!availableReservationRoom) {
+      console.error(t('bookings.errors.noAvailableRoomsForCheckin'))
+      return
+    }
+
+    const checkInDateTime = new Date().toISOString()
+    const payload = {
+      reservationRooms: [availableReservationRoom.id],
+      actualCheckInTime: checkInDateTime,
+      notes: '',
+      keyCardsIssued: 2,
+      depositAmount: 0,
+    }
+
+    console.log('Quick check-in payload:', payload)
+    console.log('ReservationRoom being checked in:', availableReservationRoom)
+    const result = await performCheckIn(reservationId.value!, payload)
+
+    if (result) {
+      isCheckedIn.value = true
+    }
+  } catch (error) {
+    console.error('Error during check-in:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleViewDetails = () => {
+  if (reservationId.value) {
+    router.push({
+      name: 'ReservationDetails',
+      params: { id: reservationId.value },
+    })
+  }
+  emit('close')
 }
 
 const TypesOfContact = computed(() => [
@@ -804,8 +1080,6 @@ const TypesOfContact = computed(() => [
   { label: t('contactTypes.facebook'), value: 'Facebook' },
   { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
 ])
-
-
 
 const contactInputComponent = computed(() => {
   if (!formData.value.contactType) return null
@@ -848,17 +1122,20 @@ const contactValue = computed({
   get: () => formData.value.contactValue,
   set: (value) => {
     formData.value.contactValue = value
-  }
+  },
 })
-watch(() => formData.value.contactType, (newType, oldType) => {
-  if (newType !== oldType) {
-    formData.value.contactTypeValue = ''
-  }
-})
+watch(
+  () => formData.value.contactType,
+  (newType, oldType) => {
+    if (newType !== oldType) {
+      formData.value.contactTypeValue = ''
+    }
+  },
+)
 
 const loadPaymentMethods = async () => {
   try {
-    isLoading.value = true
+    isLoadingPayment.value = true
     const hotelId = useServiceStore().serviceId!
     const response = await getPaymentMethods(hotelId)
     console.log('city test', response)
@@ -869,7 +1146,7 @@ const loadPaymentMethods = async () => {
         name: method.methodName,
         description: method.description,
         type: method.methodType,
-        ...method
+        ...method,
       }))
     } else if (response.data && Array.isArray(response.data)) {
       PaymentMethods.value = response.data.map((method: any) => ({
@@ -877,14 +1154,14 @@ const loadPaymentMethods = async () => {
         name: method.methodName,
         description: method.description,
         type: method.methodType,
-        ...method
+        ...method,
       }))
     }
   } catch (error) {
     console.error('Error loading payment methods:', error)
     PaymentMethods.value = []
   } finally {
-    isLoading.value = false
+    isLoadingPayment.value = false
   }
 }
 
@@ -901,13 +1178,11 @@ watch(
   () => reservation.value.checkinDate,
   (newCheckin) => {
     const ci = newCheckin ? new Date(newCheckin) : null
-    const co = reservation.value.checkoutDate
-      ? new Date(reservation.value.checkoutDate)
-      : null
+    const co = reservation.value.checkoutDate ? new Date(reservation.value.checkoutDate) : null
     if (ci && co && co < ci) {
       reservation.value.checkoutDate = newCheckin
     }
-  }
+  },
 )
 </script>
 

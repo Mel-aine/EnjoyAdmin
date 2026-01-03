@@ -1954,44 +1954,135 @@ function getRoomStatusCount(status: string): number {
 const currentRateTypeData = ref<any>([])
 const selectedRoomTypes = ref<any>([])
 
+// const fectRateTypes = async () => {
+//   loadingRates.value = true
+//   const data = serviceStore.rateTypes || []
+//   console.log('rateTypeOptions', data)
+
+//   currentRateTypeData.value = data
+//   rateTypeOptions.value = data.map((item: any) => {
+//     return {
+//       label: item.rateTypeName,
+//       value: item.rateTypeId,
+//     }
+//   })
+//   selectRateType.value = rateTypeOptions.value[0]?.value
+//   console.log('✅ Initialized selectRateType:', selectRateType.value)
+//   loadingRates.value = false
+//   return data
+// }
+
 const fectRateTypes = async () => {
   loadingRates.value = true
-  const data = serviceStore.rateTypes || []
-  console.log('rateTypeOptions', data)
 
-  currentRateTypeData.value = data
-  rateTypeOptions.value = data.map((item: any) => {
-    return {
-      label: item.rateTypeName,
-      value: item.rateTypeId,
+  try {
+    const data = serviceStore.rateTypes || []
+
+    if (data.length === 0) {
+      console.warn(' No rate types in serviceStore')
+      loadingRates.value = false
+      return []
+    }
+
+    currentRateTypeData.value = data
+
+    // Mapper avec gestion flexible des noms de propriétés
+    rateTypeOptions.value = data.map((item: any, index: number) => {
+      const value = item.rateTypeId ?? item.id ?? item.rate_type_id
+      const label = item.rateTypeName ?? item.name ?? item.label ?? `Rate ${index + 1}`
+
+      return { label, value }
+    }).filter(opt => opt.value != null)
+
+
+    // Initialiser avec la première option valide
+    if (rateTypeOptions.value.length > 0) {
+      selectRateType.value = rateTypeOptions.value[0].value
+    } else {
+      console.error(' No valid options created!')
+    }
+
+  } catch (error) {
+    console.error(' Error in fectRateTypes:', error)
+  } finally {
+    loadingRates.value = false
+  }
+
+  return currentRateTypeData.value
+}
+
+
+fectRateTypes()
+//Function to get room rate for a specific room type and date
+// const roomRateForDate = computed(() => {
+//   console.log('rumm', selectRateType.value)
+//   console.log('currentRateTypeData.value', currentRateTypeData.value)
+//   if (!selectRateType.value || !currentRateTypeData.value.length) {
+//     return []
+//   }
+
+//   // Find the selected rate type in the current data
+//   const selectedRateTypes = currentRateTypeData.value.find(
+//     (rateType: any) => rateType.rateTypeId === selectRateType.value,
+//   )
+//   console.log('selected rates', selectedRateTypes)
+//   if (!selectedRateTypes || !selectedRateTypes.roomTypes) {
+//     return []
+//   }
+//   const result = {} as any
+//   selectedRateTypes.roomTypes.forEach((roomType: any) => {
+//     result[roomType.roomTypeId] = roomType.roomRate
+//   })
+//   console.log('result', result)
+//   return result
+// })
+
+const roomRateForDate = computed(() => {
+
+  if (!selectRateType.value || !currentRateTypeData.value?.length) {
+    return {}
+  }
+
+  const selectedRateTypes = currentRateTypeData.value.find((rateType: any) => {
+    const id = rateType.rateTypeId ?? rateType.id
+    return Number(id) === Number(selectRateType.value)
+  })
+
+  if (!selectedRateTypes?.roomTypes) {
+    return {}
+  }
+
+  const result = {} as Record<number, string>
+
+  selectedRateTypes.roomTypes.forEach((roomType: any) => {
+    const roomTypeId = Number(roomType.id)
+
+    if (Array.isArray(roomType.roomRates) && roomType.roomRates.length > 0) {
+      const matchingRate = roomType.roomRates.find((r: any) => {
+        const rateId = Number(r.rateTypeId ?? r.rate_type_id ?? r.rateType?.id)
+        return rateId === Number(selectRateType.value)
+      })
+
+      if (matchingRate) {
+        const rate = matchingRate.baseRate
+        if (rate != null && !isNaN(Number(rate))) {
+          //  Formater sans décimales
+          const numRate = Number(rate)
+          result[roomTypeId] = new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          }).format(numRate)
+
+        } else {
+          console.warn(` Invalid rate: ${rate}`)
+          result[roomTypeId] = 'N/A'
+        }
+      } else {
+        console.warn(` No rate found for rateTypeId ${selectRateType.value}`)
+        result[roomTypeId] = 'N/A'
+      }
     }
   })
-  selectRateType.value = rateTypeOptions.value[0]?.value
-  loadingRates.value = false
-  return data
-}
-fectRateTypes()
-// Function to get room rate for a specific room type and date
-const roomRateForDate = computed(() => {
-  console.log('rumm', selectRateType.value)
-  console.log('currentRateTypeData.value', currentRateTypeData.value)
-  if (!selectRateType.value || !currentRateTypeData.value.length) {
-    return []
-  }
-
-  // Find the selected rate type in the current data
-  const selectedRateTypes = currentRateTypeData.value.find(
-    (rateType: any) => rateType.rateTypeId === selectRateType.value,
-  )
-  console.log('selected rates', selectedRateTypes)
-  if (!selectedRateTypes || !selectedRateTypes.roomTypes) {
-    return []
-  }
-  const result = {} as any
-  selectedRateTypes.roomTypes.forEach((roomType: any) => {
-    result[roomType.roomTypeId] = roomType.roomRate
-  })
-  console.log('result', result)
   return result
 })
 
