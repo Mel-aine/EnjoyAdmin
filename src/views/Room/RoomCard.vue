@@ -92,7 +92,7 @@
 
           <div class="flex flex-col">
 
-            <p v-if="block.reason" class="text-xs font-normal">{{ $t(`statuses.${block.reason}`) }}</p>
+            <p v-if="block.reason" class="text-xs font-normal">{{ block.reason }}</p>
             <div class="flex items-center gap-4 text-amber-800 text-xs">
 
 
