@@ -1,6 +1,6 @@
  <template>
   <SpeedInsights />   
-  <ThemeProvider>  
+  <ThemeProvider>   
     <SidebarProvider>     
       <TopProgressBar />  
       <OverLoading v-if="isCheckoutOverlay" />     
