@@ -44,6 +44,8 @@ const props = defineProps({
   errorMsg: { type: String, default: '' },
   allowPastDates: { type: Boolean, default: false },
   customClass:{ type: String, default: '' },
+  minDate: { type: [String, Date], default: null },
+  maxDate: { type: [String, Date], default: null },
 })
 
 const emits = defineEmits(['update:modelValue', 'clear-error'])
@@ -53,13 +55,18 @@ const isUpdatingFromParent = ref(false)
 
 const flatpickrInstance = ref<Instance | null>(null)
 
-const minDate = computed(() => {
+const computedMinDate = computed(() => {
+  if (props.minDate) return props.minDate
   if (props.allowPastDates) {
     return undefined
   }
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   return today
+})
+
+const computedMaxDate = computed(() => {
+  return props.maxDate || undefined
 })
 
 const rangeConfig = computed((): Partial<BaseOptions & { utc: boolean }> => ({
@@ -71,7 +78,8 @@ const rangeConfig = computed((): Partial<BaseOptions & { utc: boolean }> => ({
   locale: {
     rangeSeparator: ' -> '
   },
-  minDate: minDate.value,
+  minDate: computedMinDate.value,
+  maxDate: computedMaxDate.value,
   clickOpens: true,
   allowInput: false,
   static: false,
@@ -122,9 +130,13 @@ const updateValue = async (selectedDates: Date[]) => {
     return
   }
 
-  emits('clear-error')
-
   const [start, end] = selectedDates
+
+  if (selectedDates.length < 2) {
+    return
+  }
+
+  emits('clear-error')
 
   if (!props.allowPastDates) {
     const today = new Date()
@@ -145,6 +157,14 @@ const updateValue = async (selectedDates: Date[]) => {
   })
 }
 
+watch(
+  () => [props.minDate, props.maxDate],
+  () => {
+    if (flatpickrInstance.value) {
+      flatpickrInstance.value.destroy()
+    }
+  }
+)
 const parseDateFromString = (dateStr: string | null): Date | null => {
   if (!dateStr) return null
   try {

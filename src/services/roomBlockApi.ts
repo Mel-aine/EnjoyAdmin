@@ -40,7 +40,13 @@ export const updateRoomBlock = (blockId: string, data: any): Promise<AxiosRespon
   console.log('Updating room block:', blockId, 'with data:', data)
   return apiClient.put(`${API_URL}/${blockId}`, data, getAuthHeaders())
 }
-
+/**
+ * Update Room Block
+ */
+export const unLockRoomBlock = (blockId: string, data: any): Promise<AxiosResponse<any>> => {
+  console.log('Updating room block:', blockId, 'with data:', data)
+  return apiClient.post(`${API_URL}/${blockId}/unblock-range`, data, getAuthHeaders())
+}
 /**
  * Delete Room Block
  */

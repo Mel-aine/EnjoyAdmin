@@ -721,7 +721,7 @@
         </div>
         <div class="flex gap-2 border-t border-gray-200 dark:border-gray-700">
           <button
-            @click.stop="handleUnblockRoom(tooltipRoomBlock?.id || tooltipRoomBlock?.block_id)"
+            @click.stop="handleUnblockRoom(tooltipRoomBlock)"
             class="flex-1 px-3 py-2 text-blue-600 bg-transparent text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5"
           >
 
@@ -749,18 +749,16 @@
     @close="handleBlockClose"
     @save="handleBlockSave"
   />
-
-  <ConfirmationModal
-    v-model:show="showUnblockModal"
-    :title="$t('Unblock Room')"
-    :message="$t('Are you sure you want to unblock this room?')"
-    :confirm-text="$t('Confirm')"
-    :cancel-text="$t('Cancel')"
-    variant="danger"
-    :loading="deleting"
-    @confirm="confirmUnblockRoom"
-    @cancel="closeUnblockModal"
+  <template  v-if="showUnlockModal">
+    <UnlockModal
+    v-if="showUnlockModal"
+    :is-open="showUnlockModal"
+    :block-data="unlockBlockData"
+    @close="closeUnlockModal"
+    @save="handleUnlockSaved"
   />
+  </template>
+  
 </template>
 
 <script setup lang="ts">
@@ -806,6 +804,7 @@ import AccessibleIcons from '@/icons/BookingStatus/AccessibleIcon.vue'
 import { useStatusColor } from '@/composables/statusColorStore'
 import CreateBlockModal from '@/components/Housekeeping/CreateBlockModal.vue'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import UnlockModal from '@/components/Housekeeping/UnlockModal.vue'
 
 const isLoading = ref(false)
 const isRefreshing = ref(false)
@@ -873,9 +872,11 @@ const preSelectedRoomData = ref<{
   roomTypeName?: string
 } | null>(null)
 const preSelectedDateRange = ref<{ start: string | null; end: string | null } | null>(null)
-const showUnblockModal = ref(false)
-const blockToUnblockId = ref<number | null>(null)
-const deleting = ref(false)
+const showUnblockModal = ref(false) // deprecated by UnlockModal
+const blockToUnblockId = ref<number | null>(null) // deprecated by UnlockModal
+const deleting = ref(false) // deprecated by UnlockModal
+const showUnlockModal = ref(false)
+const unlockBlockData = ref<any | null>(null)
 
 const openCreateBlockModal = (
   isEdit: boolean,
@@ -1085,34 +1086,40 @@ function closeRoomBlockTooltipNow() {
   tooltipRoomBlockPosition.value = null
 }
 
-async function handleUnblockRoom(roomBlockId: number | null | undefined) {
+async function handleUnblockRoom(roomBlock: any) {
   closeRoomBlockTooltipNow()
 
-  if (!roomBlockId) return
-  blockToUnblockId.value = roomBlockId
-  showUnblockModal.value = true
-}
-
-function closeUnblockModal() {
-  showUnblockModal.value = false
-  blockToUnblockId.value = null
-}
-const confirmUnblockRoom = async () => {
-  if (!blockToUnblockId.value) return
-  const roomBlockId = blockToUnblockId.value
-  closeUnblockModal()
-
-  try {
-    deleting.value = true
-
-    await deleteBlock(String(roomBlockId))
-
-    await refresh()
-  } catch (error) {
-    console.error('Error unblocking room:', error)
-  } finally {
-    deleting.value = false
+  if (!roomBlock) return
+  // Build block data for UnlockModal (edit mode clone)
+  unlockBlockData.value ={
+    id: roomBlock.id,
+    blockFromDate: roomBlock.block_from_date,
+    blockToDate: roomBlock.block_to_date,
+    reason: roomBlock.reason,
+    status: roomBlock.status,
+    description: roomBlock.description || '',
+    room: {
+      id: roomBlock.room?.id,
+      roomNumber: roomBlock.room?.room_number,
+    },
+    roomType: {
+      id: roomBlock.room_type?.id,
+      roomTypeName: roomBlock.room_type?.name,
+    },
+    createdAt: roomBlock.created_at,
+    updatedAt: roomBlock.updated_at,
   }
+  console.log('unlockBlockData',unlockBlockData.value);
+  showUnlockModal.value = true
+}
+
+function closeUnlockModal() {
+  showUnlockModal.value = false
+  unlockBlockData.value = null
+}
+async function handleUnlockSaved(data: any) {
+  closeUnlockModal()
+  await refresh()
 }
 
 function handleEditRoomBlock(roomBlock: any) {
@@ -2669,8 +2676,8 @@ function navigateToAddReservationFromCells() {
   const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
   // Gérer les heures selon le type de réservation
-  let finalCheckinTime = currentTime
-  let finalCheckoutTime = isDayUse ? '20:00' : '12:00'
+  const finalCheckinTime = currentTime
+  const finalCheckoutTime = isDayUse ? '20:00' : '12:00'
 
   const roomId = room?.id ?? room?.room_id ?? room?.roomId
   const roomRate = selectionInfo.roomTypeId != null ? (roomRateForDate.value as any)?.[selectionInfo.roomTypeId] : undefined
