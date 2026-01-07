@@ -2106,7 +2106,7 @@ const legendSections = computed(() => {
         { label: t('Confirmed Reservation'), color: colorGetter('confirmed') },
         { label: t('Maintenance Block'), color: colorGetter('blocked') },
         { label: t('Stayover'), color: colorGetter('inhouse') },
-        { label: t('Dayuse Reservation'), color: colorGetter('dayuse') },
+        { label: t('Dayuse Reservation'), color: colorGetter('confirmed') },
       ],
     },
     {
