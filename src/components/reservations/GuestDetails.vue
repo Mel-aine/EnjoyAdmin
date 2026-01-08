@@ -206,10 +206,7 @@
 
 
                     </div>
-                    <div :class="[
-                      'mt-4 grid grid-cols-1 gap-4',
-                      guestData.contactType ? 'md:grid-cols-4' : 'md:grid-cols-3',
-                    ]">
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
 
                        <div>
                       <!-- <Input
@@ -227,58 +224,6 @@
                           :disabled="!isEditing"
                         />
                     </div>
-                    <!-- <div>
-                       <Select
-                          v-model="guestData.contactType"
-                          :placeholder="$t('-select-')"
-                          :lb="$t('contactType')"
-                          :options="TypesOfContact"
-                           :disabled="!isEditing"
-                        />
-                    </div> -->
-                     <div>
-                    <AutoCompleteSelect
-                      v-model="guestData.contactType"
-                      :options="TypesOfContact"
-                      :defaultValue="$t('contact_type')"
-                      :lb="$t('contact_type')"
-                      :is-required="false"
-                      :use-dropdown="useDropdownBooking"
-                      @clear-error="emit('clear-error')"
-                      custom-class="h-11"
-                      :disabled="!isEditing"
-                    />
-                  </div>
-
-                  <div v-if="guestData.contactType">
-                    <InputPhone
-                      v-if="contactInputComponent === 'InputPhone'"
-                      :title="contactInputLabel"
-                      v-model="contactValue"
-                      :id="'contact-input'"
-                      :is-required="false"
-                      custom-class="h-11"
-                      :disabled="!isEditing"
-                    />
-
-                    <InputEmail
-                      v-else-if="contactInputComponent === 'InputEmail'"
-                      v-model="contactValue"
-                      :placeholder="contactInputLabel"
-                      :title="contactInputLabel"
-                      custom-class="h-11"
-                      :disabled="!isEditing"
-                    />
-
-                    <Input
-                      v-else-if="contactInputComponent === 'Input'"
-                      :lb="contactInputLabel"
-                      v-model="contactValue"
-                      :placeholder="contactInputLabel"
-                      custom-class="h-11"
-                      :disabled="!isEditing"
-                    />
-                  </div>
 
                   <!-- Téléphone -->
 
@@ -288,6 +233,15 @@
                       v-model="guestData.phone"
                       :id="'phone'"
                       :is-required="false"
+                      :disabled="!isEditing"
+                    />
+                  </div>
+                   <!-- Email -->
+                  <div>
+                    <InputEmail
+                      :title="$t('Email')"
+                      v-model="guestData.email"
+                      :placeholder="$t('Email')"
                       :disabled="!isEditing"
                     />
                   </div>
@@ -306,17 +260,8 @@
                 </div>
 
                 <!-- Ligne Email, Genre, Type de client, Statut VIP -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <!-- Email -->
-                  <div>
-                    <InputEmail
-                      :title="$t('Email')"
-                      v-model="guestData.email"
-                      :placeholder="$t('Email')"
-                      :disabled="!isEditing"
-                    />
-                  </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 
                   <!-- Genre -->
                   <div>
                     <Select
@@ -383,10 +328,11 @@
 
                 <!-- État/Province -->
                 <div>
-                  <Input
+                  <AutoCompleteSelect
                     :lb="$t('State/Province')"
                     v-model="guestData.stateProvince"
-                    :placeholder="$t('State/Province')"
+                    :options="stateOptions"
+                    :defaultValue="$t('State/Province')"
                     :disabled="!isEditing"
                   />
                 </div>
@@ -398,16 +344,6 @@
                     v-model="guestData.city"
                     type="text"
                     :placeholder="$t('City')"
-                    :disabled="!isEditing"
-                  />
-                </div>
-
-                <!-- Code Postal -->
-                <div>
-                  <Input
-                    :lb="$t('postalCode')"
-                    v-model="guestData.postalCode"
-                    :placeholder="$t('postalCode')"
                     :disabled="!isEditing"
                   />
                 </div>
@@ -428,11 +364,11 @@
                 </div>
                 <!-- Société -->
                 <div>
-                  <Select
+                  <AutoCompleteSelect
                     :lb="$t('Company Name')"
                     v-model="guestData.company"
                     :options="companyOptions"
-                    :placeholder="$t('-select-')"
+                    :defaultValue="$t('-select-')"
                     :disabled="!isEditing"
                   />
                 </div>
@@ -453,7 +389,7 @@
                     v-model="guestData.registrationNo"
                     type="text"
                     :placeholder="$t('RegistrationNo')"
-                    :disabled="!isEditing"
+                    :disabled="true"
                   />
                 </div>
               </div>
@@ -517,7 +453,7 @@
                     </div>
                     <div>
                       <InputDatePicker
-                        :title="$t('ExpiryDate')"
+                        :title="$t('Issue Date')"
                         v-model="guestData.idExpiryDate"
                         :placeholder="$t('select_date')"
                         :disabled="!isEditing"
@@ -604,7 +540,7 @@
 
              <BasicButton
                variant="primary"
-              :label="$t('printGuestCard')"
+              :label="$t('Print Guest Registration')"
               @click="handlePrint()"
             />
             </div>
@@ -675,6 +611,7 @@ import { vipStatusApi } from '@/services/configrationApi'
 import { getCompanies } from '@/services/companyApi'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
+import { cities } from '@/assets/data/cities'
 
 interface GuestData {
   title: string
@@ -691,7 +628,6 @@ interface GuestData {
   country: string
   stateProvince: string
   city: string
-  postalCode: string
   nationality: string
   company: string
   fax: string
@@ -706,9 +642,7 @@ interface GuestData {
   issuingCountry: string
   issuingCity: string
   preferences?: any;
-  contactType?:string
   maidenName?:string
-  contactTypeValue?:string
 }
 
 interface Props {
@@ -736,6 +670,7 @@ const toast = useToast()
 const serviceStore = useServiceStore()
 const Preferences = ref<SelectOption[]>([])
 const companyOptions = ref<Array<{ label: string; value: string }>>([])
+const stateOptions = ref<Array<{ label: string; value: string }>>([])
 const useDropdownBooking = ref(true)
 
 // State
@@ -750,14 +685,6 @@ const loading = ref(false)
 const vipStatusOptions = ref<any[]>([])
 const idTypeOptions = ref<SelectOption[]>([])
 const showPdfExporter = ref(false);
-const TypesOfContact = computed(() => [
-  { label: t('contactTypes.mobile'), value: 'Mobile' },
-  { label: t('contactTypes.fix'), value: 'Fix' },
-  { label: t('contactTypes.email'), value: 'Email' },
-  { label: t('contactTypes.facebook'), value: 'Facebook' },
-  { label: t('contactTypes.whatsapp'), value: 'Whatsapp' },
-])
-
 
 const selectedGuest = ref(
   props.guest || (props.reservation?.guests && props.reservation.guests[0]) || null,
@@ -801,14 +728,12 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     address: customer?.addressLine || customer?.address || '',
     country: customer?.country || '',
     stateProvince: customer?.stateProvince || '',
-    contactType :customer?.contactType || '',
     maidenName :customer?.maidenName || '',
     city: customer?.city || '',
-    postalCode: customer?.postalCode || '',
     nationality: customer?.nationality || '',
     company: customer?.companyName || customer?.company || '',
     fax: customer?.fax || '',
-    registrationNo: customer?.registrationNumber || customer?.registrationNo || '',
+    registrationNo: customer?.guestCode || customer?.registrationNumber || customer?.registrationNo || '',
     idPhoto: customer?.idPhoto || null,
     idType: '',
     idNumber: '',
@@ -818,7 +743,6 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     idExpiryDate: '',
     issuingCountry: customer?.issuingCountry || '',
     issuingCity: customer?.issuingCity || '',
-    contactTypeValue : customer?.contactTypeValue || '',
     preferences: parsePreferencesFromDB(customer?.preferences)
   }
 
@@ -864,7 +788,6 @@ const initializeGuestData = (guest: any = null): GuestData => {
     country: '',
     stateProvince: '',
     city: '',
-    postalCode: '',
     nationality: '',
     company: '',
     fax: '',
@@ -878,9 +801,7 @@ const initializeGuestData = (guest: any = null): GuestData => {
     idExpiryDate: '',
     issuingCountry: '',
     issuingCity: '',
-    contactType: '',
     maidenName: '',
-    contactTypeValue: '',
     preferences: []
   }
 }
@@ -917,6 +838,27 @@ watch(
     resetKey.value++
   },
   { deep: true },
+)
+
+watch(
+  () => guestData.country,
+  (newCountry) => {
+    if (!newCountry) {
+      stateOptions.value = []
+      return
+    }
+    const countryCode = newCountry.toLowerCase()
+    const relevantCities = cities.filter((c) => c.country.toLowerCase() === countryCode)
+    const uniqueSubcountries = [...new Set(relevantCities.map((c) => c.subcountry))]
+      .filter(Boolean)
+      .sort()
+
+    stateOptions.value = uniqueSubcountries.map((sc) => ({
+      label: sc,
+      value: sc,
+    }))
+  },
+  { immediate: true },
 )
 
 // Options pour les 'Select'
@@ -991,56 +933,6 @@ const toggleOtherInfoSection = () => {
   showOtherInfoSection.value = !showOtherInfoSection.value
 }
 
-const contactInputComponent = computed(() => {
-  if (!guestData.contactType) return null
-
-  switch (guestData.contactType) {
-    case 'Email':
-      return 'InputEmail'
-    case 'Mobile':
-    case 'Fix':
-    case 'Whatsapp':
-      return 'InputPhone'
-    case 'Facebook':
-      return 'Input'
-    default:
-      return null
-  }
-})
-
-const contactInputLabel = computed(() => {
-  const type = guestData.contactType
-  if (!type) return ''
-
-  switch (type) {
-    case 'Mobile':
-      return t('contactTypes.mobile')
-    case 'Fix':
-      return t('contactTypes.fix')
-    case 'Email':
-      return t('Email')
-    case 'Facebook':
-      return t('contactTypes.facebook')
-    case 'Whatsapp':
-      return t('contactTypes.whatsapp')
-    default:
-      return type
-  }
-})
-
-watch(() => guestData.contactType, (newType, oldType) => {
-  if (newType !== oldType) {
-    guestData.contactTypeValue = ''
-  }
-})
-
-// Créer un computed bidirectionnel
-const contactValue = computed({
-  get: () => guestData.contactTypeValue,
-  set: (value) => {
-    guestData.contactTypeValue = value
-  }
-})
 const fetchVipStatuses = async () => {
   try {
     loading.value = true
@@ -1129,7 +1021,6 @@ const prepareGuestPayload = (): GuestPayload => {
     country: guestData.country,
     stateProvince: guestData.stateProvince,
     city: guestData.city,
-    postalCode: guestData.postalCode,
     nationality: guestData.nationality,
     companyName: guestData.company,
     fax: guestData.fax,
@@ -1143,8 +1034,6 @@ const prepareGuestPayload = (): GuestPayload => {
     idExpiryDate: guestData.idExpiryDate,
     issuingCountry: guestData.issuingCountry,
     issuingCity: guestData.issuingCity,
-    contactType : guestData.contactType,
-    contactTypeValue : guestData.contactTypeValue,
     maidenName : guestData.maidenName,
     preferences: formatPreferencesForDB(guestData.preferences)
   }
