@@ -160,18 +160,16 @@
                   :disabled="!editMode" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 ">{{ $t('Company') }}</label>
-                <div class="flex">
-                  <div class="flex-1">
-                    <Select v-model="sourceData.company" :options="companyOptions" :placeholder="$t('-Select-')"
-                      :disabled="!editMode" customClass="rounded-r-none h-11 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700" />
-                  </div>
-                  <button
-                    class="w-11 mt-1.5 flex items-center justify-center bg-gray-100 dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
-                    :disabled="!editMode">
-                    <Building class="w-4 h-4" />
-                  </button>
-                </div>
+                <AutoCompleteSelect
+                  v-model="sourceData.company"
+                  :options="companyOptions"
+                  :defaultValue="$t('-Select-')"
+                  :lb="$t('Company')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  :disabled="!editMode"
+                  @clear-error="emit('clear-error')"
+                />
               </div>
             </div>
           </div>
@@ -268,7 +266,7 @@ import { useToast } from 'vue-toastification'
 import BasicButton from '../../buttons/BasicButton.vue'
 import Input from '../../forms/FormElements/Input.vue'
 import Select from '../../forms/FormElements/Select.vue'
-import { ChevronRight, Building } from 'lucide-vue-next'
+import { ChevronRight } from 'lucide-vue-next'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import { useBooking } from '@/composables/useBooking2'
 import { getCompanies } from '@/services/companyApi'
