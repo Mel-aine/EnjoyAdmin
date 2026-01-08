@@ -8579,5 +8579,8 @@
   "walkin_reservation":"Walk In / Reservation",
   "EditBlockRoom":"Edit Block Room",
   "UnblockRoom":"Unblock Room",
-  "add_custom" : "Add"
+  "add_custom" : "Add",
+  "Print Guest Registration": "Print Guest Registration",
+  "Issue Date": "Issue Date",
+  "SelectMarketCode": "Select Market Code"
 }

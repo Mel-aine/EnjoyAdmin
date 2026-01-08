@@ -1,23 +1,6 @@
 <template>
   <div class="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-lg shadow-md p-4 md:p-6 mx-2 md:mx-4 mt-4">
-    <!-- Status Bar -->
-    <!-- <div class="flex flex-wrap gap-3 md:gap-6 mb-4 md:mb-6 text-xs md:text-sm">
-      <span class="text-gray-600">{{ $t('All') }} {{ totalRooms }}</span>
-      <span class="text-gray-600">{{ $t('Reserved') }} {{ statusCounts.reserved }}</span>
-      <span class="text-gray-600">{{ $t('DueOut') }} {{ statusCounts.dueOut }}</span>
-      <span class="text-gray-600">{{ $t('Departed') }} {{ statusCounts.departed }}</span>
-      <span class="text-gray-600">{{ $t('Void') }} {{ statusCounts.void }}</span>
-      <span class="text-gray-600">{{ $t('NoShow') }} {{ statusCounts.noShow }}</span>
-      <span class="text-gray-600">{{ $t('InHouse') }} {{ statusCounts.inHouse }}</span>
-      <span class="text-gray-600">{{ $t('Cancel') }} {{ statusCounts.cancel }}</span>
-      <div class="ml-auto flex flex-wrap gap-3 md:gap-6">
-        <span class="text-gray-600">{{ $t('Remark') }} {{ remarkCount }}</span>
-        <span class="text-gray-600">{{ $t('Task') }} {{ taskCount }}</span>
-        <span class="text-gray-600">{{ $t('Message') }} {{ messageCount }}</span>
-        <span class="text-gray-600">{{ $t('Preference') }} {{ preferenceCount }}</span>
-      </div>
-    </div> -->
-
+ 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
       <!-- Left Section - Room Details -->
@@ -144,13 +127,29 @@
             <!-- Market Code and Business Source -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Select :lb="$t('MarketCode')" v-model="sourceData.marketCode" :options="MarketCode"
-                  :placeholder="$t('-Select-')" :disabled="!editMode" />
+                <AutoCompleteSelect
+                  v-model="sourceData.marketCode"
+                  :options="MarketCode"
+                  :defaultValue="$t('SelectMarketCode')"
+                  :lb="$t('MarketCode')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  :disabled="!editMode"
+                  @clear-error="emit('clear-error')"
+                />
               </div>
 
               <div>
-                <Select :lb="$t('BusinessSource')" v-model="sourceData.sourceOfBusiness" :options="BusinessSource"
-                  :placeholder="$t('-Select-')" :disabled="!editMode" />
+                <AutoCompleteSelect
+                  v-model="sourceData.sourceOfBusiness"
+                  :options="BusinessSource"
+                  :defaultValue="$t('SelectBusinessSource')"
+                  :lb="$t('BusinessSource')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  :disabled="!editMode"
+                  @clear-error="emit('clear-error')"
+                />
               </div>
             </div>
 
@@ -161,18 +160,16 @@
                   :disabled="!editMode" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 ">{{ $t('Company') }}</label>
-                <div class="flex">
-                  <div class="flex-1">
-                    <Select v-model="sourceData.company" :options="companyOptions" :placeholder="$t('-Select-')"
-                      :disabled="!editMode" customClass="rounded-r-none h-11 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700" />
-                  </div>
-                  <button
-                    class="w-11 mt-1.5 flex items-center justify-center bg-gray-100 dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
-                    :disabled="!editMode">
-                    <Building class="w-4 h-4" />
-                  </button>
-                </div>
+                <AutoCompleteSelect
+                  v-model="sourceData.company"
+                  :options="companyOptions"
+                  :defaultValue="$t('-Select-')"
+                  :lb="$t('Company')"
+                  :is-required="false"
+                  :use-dropdown="useDropdownBooking"
+                  :disabled="!editMode"
+                  @clear-error="emit('clear-error')"
+                />
               </div>
             </div>
           </div>
@@ -269,7 +266,7 @@ import { useToast } from 'vue-toastification'
 import BasicButton from '../../buttons/BasicButton.vue'
 import Input from '../../forms/FormElements/Input.vue'
 import Select from '../../forms/FormElements/Select.vue'
-import { ChevronRight, Building } from 'lucide-vue-next'
+import { ChevronRight } from 'lucide-vue-next'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import { useBooking } from '@/composables/useBooking2'
 import { getCompanies } from '@/services/companyApi'
