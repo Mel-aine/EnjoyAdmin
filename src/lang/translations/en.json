@@ -3334,7 +3334,7 @@
   "selectBusinessSource": "Select Business Source...",
   "dailyExtraChargeDetail": "Daily Extra Charge - Detail",
   "dailyReceiptDetail": "Daily Receipt - Detail",
-  "dailyReceiptSummary": "Daily Receipt - Summary",
+  "dailyReceiptRefundDetail": "Daily Refund - Detail",
   "viewAndManageDailyExtraChargeDetails": "View and manage daily extra charge details",
   "viewAndManageDailyReceiptDetails": "View and manage daily receipt details",
   "viewAndManageDailyReceiptSummary": "View and manage daily receipt summary",
@@ -8579,5 +8579,8 @@
   "walkin_reservation":"Walk In / Reservation",
   "EditBlockRoom":"Edit Block Room",
   "UnblockRoom":"Unblock Room",
-  "add_custom" : "Add"
+  "add_custom" : "Add",
+  "Print Guest Registration": "Print Guest Registration",
+  "Issue Date": "Issue Date",
+  "SelectMarketCode": "Select Market Code"
 }

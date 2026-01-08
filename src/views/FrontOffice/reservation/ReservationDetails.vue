@@ -547,7 +547,7 @@ onMounted(() => {
         <BookingDetails
           :booking="localReservation"
           :guest="localReservation.guest"
-          :refresh-booking-data="refreshBookingData"
+          @refresh-booking-data="refreshBookingData"
         ></BookingDetails>
       </div>
       <div v-if="activeTab === 'guest_details'">

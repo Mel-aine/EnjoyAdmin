@@ -5,23 +5,9 @@
       <span v-if="isRequired" class="text-red-500">*</span>
     </label>
     <div class="relative">
-      <Select  v-model="selectedValue"
-        @change="handleSelect" :disabled="isLoading" :is-Loading="isLoading" :placeholder="$t('Select transportation mode')" :options="transportationModes"
+      <AutoCompleteSelect  v-model="selectedValue"
+        @change="handleSelect" :disabled="isLoading" :isLoading="isLoading" :defaultValue="$t('Select transportation mode')" :options="transportationModes"
         />
-      <!-- <select
-        v-model="selectedValue"
-        @change="handleSelect"
-        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        :disabled="isLoading"
-      >
-        <option value="">{{ isLoading ? 'Loading...' : 'Select transportation mode' }}</option>
-        <option v-for="mode in transportationModes"
-                :key="mode.id"
-                :value="mode.id">
-          {{ mode.name }}
-          <span v-if="mode.description"> - {{ mode.description }}</span>
-        </option>
-      </select> -->
 
       <!-- Mode type indicator -->
       <div v-if="selectedMode" class="mt-1">
@@ -43,7 +29,7 @@ import { ref, watch, computed, onMounted } from 'vue'
 import { getTransportationModes } from '@/services/configrationApi'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
-import Select from './Select.vue'
+import AutoCompleteSelect from './AutoCompleteSelect.vue'
 
 interface Props {
   modelValue: number | null

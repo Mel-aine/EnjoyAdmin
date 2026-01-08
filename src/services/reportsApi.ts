@@ -336,6 +336,20 @@ export const generateDailyReceiptSummary = async (filters: DailyReceipt): Promis
     return undefined
   }
 }
+export const generateDailyReceiptRefund = async (filters: DailyReceipt): Promise<ApiResponse | undefined> => {
+  try {
+    const response: AxiosResponse<ApiResponse> = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-refund-detail`,
+      filters,
+      getHeaders()
+    )
+
+    return response.data
+  } catch (error) {
+    handleApiError(error)
+    return undefined
+  }
+}
 export const generateDailyReceiptDetail = async (filters: DailyReceipt): Promise<ApiResponse | undefined> => {
   try {
     const response: AxiosResponse<ApiResponse> = await apiClient.post(
@@ -1335,6 +1349,27 @@ export const generateDailyReceiptSummaryPdf = async (params: DailyReceipt): Prom
   try {
     const response = await apiClient.post(
       `${API_URL}/statistics/daily-receipt-summary-pdf`,
+      params,
+      {
+        ...getHeaders(),
+        responseType: 'blob'
+      }
+    )
+
+    // Créer un objet URL à partir du blob
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    return url
+
+  } catch (error) {
+    handleApiError(error)
+    throw error // Important : propager l'erreur
+  }
+}
+export const generateDailyReceiptRefundPdf = async (params: DailyReceipt): Promise<string> => {
+  try {
+    const response = await apiClient.post(
+      `${API_URL}/statistics/daily-receipt-refund-detail-pdf`,
       params,
       {
         ...getHeaders(),

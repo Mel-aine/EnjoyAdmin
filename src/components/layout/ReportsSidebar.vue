@@ -492,7 +492,7 @@ const backOfficeReports = ref([
   // TOD DO{ name: 'daily-extra-charge-detail', path: '/reports/back-office/daily-extra-charge-detail', label: 'reports.backOffice.dailyExtraChargeDetail' },
   { name: 'daily-receipt-detail', path: '/reports/back-office/daily-receipt-detail', label: 'reports.backOffice.dailyReceiptDetail' },
   { name: 'daily-receipt-summary', path: '/reports/back-office/daily-receipt-summary', label: 'reports.backOffice.dailyReceiptSummary' },
-  //TODO { name: 'daily-refund-report', path: '/reports/back-office/daily-refund-report', label: 'reports.backOffice.dailyRefundReport' },
+  { name: 'daily-refund-report', path: '/reports/back-office/daily-refund-report', label: 'reports.backOffice.dailyRefundReport' },
   { name: 'daily-revenue', path: '/reports/back-office/daily-revenue', label: 'reports.backOffice.dailyRevenue' },
   //TODO  { name: 'expense-voucher', path: '/reports/back-office/expense-voucher', label: 'reports.backOffice.expenseVoucher' },
   { name: 'folio-list', path: '/reports/back-office/folio-list', label: 'reports.backOffice.folioList' },

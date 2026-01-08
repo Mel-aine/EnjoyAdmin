@@ -3330,6 +3330,7 @@
   "dailyExtraChargeDetail": "Frais supplémentaires quotidiens - Détail",
   "dailyReceiptDetail": "Reçu quotidien - Détail",
   "dailyReceiptSummary": "Reçu quotidien - Résumé",
+  "dailyReceiptRefundDetail": "Remboursement quotidien - Détail",
   "viewAndManageDailyExtraChargeDetails": "Consulter et gérer les détails des frais supplémentaires quotidiens",
   "viewAndManageDailyReceiptDetails": "Consulter et gérer les détails des reçus quotidiens",
   "viewAndManageDailyReceiptSummary": "Consulter et gérer le résumé des reçus quotidiens",
@@ -8739,5 +8740,8 @@
   "Booking Source & Type" : "Source & Type de réservation",
   "Additional Information" : "Informations complémentaires",
   "Error deleting extra charge": "Erreur lors de la suppression des frais supplémentaires",
-  "add_custom" : "Ajouter"
+  "add_custom" : "Ajouter",
+  "Print Guest Registration": "Imprimer la fiche d'enregistrement",
+  "Issue Date": "Date de délivrance",
+  "SelectMarketCode": "Sélectionner le code marché"
 }

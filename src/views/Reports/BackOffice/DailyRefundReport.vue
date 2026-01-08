@@ -12,31 +12,37 @@
 
       <!-- Filters -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Receipt From -->
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {{ $t('common.filters') }}
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Receipt From Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('receiptFrom') }}
             </label>
             <InputDatepicker 
               v-model="filters.receiptFrom" 
-              :placeholder="$t('fromDate')"
+              :placeholder="$t('dateFormat')"
               class="w-full"
-            />
+              @update:modelValue="updateDateFilter('fromDate', $event)"
+            ></InputDatepicker>
           </div>
-
-          <!-- Receipt To -->
+          
+          <!-- To Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('To') }}
             </label>
             <InputDatepicker 
               v-model="filters.receiptTo" 
-              :placeholder="$t('toDate')"
+              :placeholder="$t('dateFormat')"
               class="w-full"
-            />
+              @update:modelValue="updateDateFilter('toDate', $event)"
+            ></InputDatepicker>
           </div>
-
+          
           <!-- Received By -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -47,9 +53,9 @@
               :options="receivedByOptions"
               :placeholder="$t('select')"
               class="w-full"
-            />
+            ></SelectComponent>
           </div>
-
+          
           <!-- Payment Method -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -60,9 +66,9 @@
               :options="paymentMethodOptions"
               :placeholder="$t('select')"
               class="w-full"
-            />
+            ></SelectComponent>
           </div>
-
+          
           <!-- Currency -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -73,141 +79,193 @@
               :options="currencyOptions"
               :placeholder="$t('select')"
               class="w-full"
-            />
-          </div>
-
-          <!-- Report Template -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ $t('reportTemplate') }}
-            </label>
-            <SelectComponent 
-              v-model="filters.reportTemplate"
-              :options="reportTemplateOptions"
-              :placeholder="$t('default')"
-              class="w-full"
-            />
+            ></SelectComponent>
           </div>
         </div>
-
+        
         <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-2 justify-end mt-6">
-          <ButtonComponent 
-            @click="resetForm"
-            variant="outline"
-            class="min-w-24"
-          >
-            {{ $t('Reset') }}
-          </ButtonComponent>
+        <div class="flex flex-col sm:flex-row gap-2 justify-end mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <!-- Export Button with Dropdown -->
+          <div class="relative">
+            <button
+              @click="toggleExportMenu"
+              :disabled="exportLoading"
+              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24 transition-all duration-200 hover:shadow-md"
+            >
+              <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span v-if="!exportLoading">{{ $t('export') }}</span>
+              <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            
+            <!-- Export Dropdown Menu -->
+            <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+             <!--  <button 
+                @click="exportCSV" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left transition-colors"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                CSV
+              </button> -->
+              <button 
+                @click="exportPDF" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left transition-colors"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                PDF
+              </button>
+  <!--             <button 
+                @click="exportExcel" 
+                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left transition-colors"
+                :disabled="exportLoading"
+              >
+                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+              </button> -->
+            </div>
+          </div>
           
-          <ButtonComponent 
+          <!-- Report Button -->
+          <button 
             @click="generateReport"
-            variant="primary"
-            class="min-w-24"
+            :disabled="loading"
+            class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24 transition-all duration-200 hover:shadow-md"
           >
+            <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg v-if="!loading" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
             {{ $t('Report') }}
-          </ButtonComponent>
+          </button>
+          
+          <!-- Reset Button -->
+          <button 
+            @click="resetForm"
+            class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24 transition-all duration-200 hover:shadow-md"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {{ $t('Reset') }}
+          </button>
         </div>
       </div>
 
-      <!-- Results Table -->
-      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ $t('dailyRefundReportResults') }}
-          </h2>
-          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <span>{{ hotelName }}</span> • 
-            <span>{{ $t('period') }}: {{ filters.receiptFrom }} {{ $t('To') }} {{ filters.receiptTo }}</span> • 
-            <span>{{ $t('Currency') }}: {{ getCurrencyLabel(filters.currency) }}</span>
+      <!-- Results Section -->
+      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6 border border-gray-200 dark:border-gray-700 px-4 py-3">
+        
+        <!-- Report Header -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-gray-800 dark:border-gray-400 pb-1 mb-1">
+          <div class="text-base font-bold text-blue-800 dark:text-blue-300">
+            {{ reportData?.hotelDetails?.hotelName || $t('hotelName') }}
+          </div>
+          <div class="text-base text-red-800 dark:text-red-400 font-bold">
+            {{ $t('dailyReceiptRefundDetail') }}
           </div>
         </div>
-        
-        <div class="overflow-x-auto">
-          <ResultTable 
-            :title="$t('Daily Refund Report')"
-            :data="refundData"
-            :columns="tableColumns"
-            class="w-full"
-          />
+
+        <!-- Date Range -->
+        <div class="text-sm mb-2 space-x-3 text-gray-900 dark:text-gray-100">
+          <span><strong class="font-semibold">{{ $t('fromDate') }}:</strong> {{ reportData?.dateRange?.fromDate || filters.receiptFrom }}</span>
+          <span><strong class="font-semibold">{{ $t('toDate') }}:</strong> {{ reportData?.dateRange?.toDate || filters.receiptTo }}</span>
+          <span><strong class="font-semibold">{{ $t('Currency') }}:</strong> {{ currency }}</span>
         </div>
-        
-        <!-- Summary -->
-        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('totalRefunds') }}:</span>
-              <span class="ml-2 font-bold text-red-600 dark:text-red-400">{{ totalRefundCount }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('cashRefunds') }}:</span>
-              <span class="ml-2 font-bold text-green-600 dark:text-green-400">{{ totalCashRefunds.toLocaleString() }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('cardRefunds') }}:</span>
-              <span class="ml-2 font-bold text-blue-600 dark:text-blue-400">{{ $t('currencySymbol') }} {{ totalCardRefunds.toLocaleString() }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('grandTotal') }}:</span>
-              <span class="ml-2 font-bold text-gray-900 dark:text-white text-lg">{{ $t('currencySymbol') }} {{ grandTotalRefunds.toLocaleString() }}</span>
-            </div>
+
+        <div class="border-t border-gray-800 dark:border-gray-400 mb-2"></div>
+
+        <!-- Si le rapport contient du HTML, l'afficher -->
+        <div v-if="reportData?.html" v-html="reportData.html" class="w-full"></div>
+
+        <!-- Sinon, afficher les données avec Tailwind -->
+        <div v-else class="w-full">
+          <!-- User Sections -->
+          <div v-for="(userSummary, index) in reportData?.userSummaries" :key="index" class="mb-4">
+            <table class="w-full border-collapse text-sm">
+              <thead>
+                <tr class="bg-white dark:bg-gray-800">
+                  <th class="text-left border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">{{ $t('date') }}</th>
+                  <th class="text-left border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">{{ $t('receipt') }}</th>
+                  <th class="text-left border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100 w-2/5">{{ $t('reference') }}</th>
+                  <th class="text-right border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">{{ $t('Amount') }} ({{ currency }})</th>
+                  <th class="text-left border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">{{ $t('user') }}</th>
+                  <th class="text-left border-b border-gray-800 dark:border-gray-300 px-2 py-1 font-bold text-gray-900 dark:text-gray-100">{{ $t('enteredOn') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- User Name Row -->
+                <tr class="bg-white dark:bg-gray-800">
+                  <td colspan="6" class="px-2 py-1.5 font-bold text-gray-900 dark:text-gray-100">{{ $t('user') }}: {{ userSummary.userName }}</td>
+                </tr>
+                
+                <!-- Transactions -->
+                <tr v-for="(transaction, transIndex) in userSummary.transactions" :key="transIndex" class="bg-white dark:bg-gray-800">
+                  <td class="px-2 py-0.5 text-gray-900 dark:text-gray-100">{{ formatDate(transaction.date) }}</td>
+                  <td class="px-2 py-0.5 text-gray-900 dark:text-gray-100">{{ transaction.receipt }}</td>
+                  <td class="px-2 py-0.5 text-gray-900 dark:text-gray-100 w-2/5">{{ transaction.reference }}</td>
+                  <td class="text-right px-2 py-0.5 font-mono text-gray-900 dark:text-gray-100">{{ formatCurrency(transaction.amount) }}</td>
+                  <td class="px-2 py-0.5 text-gray-900 dark:text-gray-100">{{ transaction.user }}</td>
+                  <td class="px-2 py-0.5 text-gray-900 dark:text-gray-100">{{ formatDate(transaction.enteredOn) }}</td>
+                </tr>
+                
+                <!-- User Total -->
+                <tr class="bg-white dark:bg-gray-800 font-bold">
+                  <td colspan="3" class="px-2 py-0.5 text-gray-900 dark:text-gray-100">{{ $t('userTotal') }}</td>
+                  <td class="text-right px-2 py-0.5 font-mono border-t border-b border-dotted border-gray-800 dark:border-gray-300 text-gray-900 dark:text-gray-100">{{ formatCurrency(userSummary.userTotal) }}</td>
+                  <td colspan="2" class="px-2 py-0.5 text-gray-900 dark:text-gray-100"></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          
-          <!-- Additional Summary Row -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('bankTransfer') }}:</span>
-              <span class="ml-2 font-bold text-purple-600 dark:text-purple-400">{{ $t('currencySymbol') }} {{ totalBankRefunds.toLocaleString() }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('otherMethods') }}:</span>
-              <span class="ml-2 font-bold text-orange-600 dark:text-orange-400">{{ $t('currencySymbol') }} {{ totalOtherRefunds.toLocaleString() }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ $t('averageRefund') }}:</span>
-              <span class="ml-2 font-bold text-gray-600 dark:text-gray-400">{{ $t('currencySymbol') }} {{ averageRefund.toLocaleString() }}</span>
-            </div>
-          </div>
+
+          <!-- Grand Total -->
+          <table class="w-full border-collapse text-sm mt-1">
+            <tbody>
+              <tr class="bg-white dark:bg-gray-800 font-bold">
+                <td colspan="3" class="px-2 py-1 text-gray-900 dark:text-gray-100">{{ $t('grandTotal') }}</td>
+                <td class="text-right px-2 py-1 font-mono border-b border-dotted border-gray-800 dark:border-gray-300 text-gray-900 dark:text-gray-100">{{ formatCurrency(reportData?.grandTotals?.netTotal || 0) }}</td>
+                <td colspan="2" class="px-2 py-1 text-gray-900 dark:text-gray-100"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </ReportsLayout>
 </template>
-
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectComponent from '@/components/forms/FormElements/Select.vue'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
-import ButtonComponent from '@/components/buttons/ButtonComponent.vue'
-import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
-import type { Column } from '../../../utils/models'
+import { generateDailyReceiptRefund, exportData, generateDailyReceiptRefundPdf, type DailyReceipt } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import { getEmployeesForService } from '@/services/userApi'
+import { getPaymentMethods } from '@/services/paymentMethodApi'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
+const router = useRouter()
 const serviceStore = useServiceStore()
 
 interface FilterOptions {
-  value: string;
+  value: string | number;
   label: string;
-}
-
-interface RefundData {
-  receiptNo: string;
-  refundDate: string;
-  refundTime: string;
-  reservationNo: string;
-  guestName: string;
-  roomNo: string;
-  refundReason: string;
-  paymentMethod: string;
-  refundAmount: number;
-  currency: string;
-  receivedBy: string;
-  authorizedBy: string;
-  remarks: string;
-  status: string;
 }
 
 interface Filters {
@@ -216,200 +274,216 @@ interface Filters {
   receivedBy: string;
   paymentMethod: string;
   currency: string;
-  reportTemplate: string;
 }
 
-const hotelName = computed(() => {
-  return serviceStore.getCurrentService?.hotelName || t('hotelName')
-})
-const showResults = ref<boolean>(false)
+interface ReportData {
+  hotelDetails: {
+    hotelId: number;
+    hotelName: string;
+  };
+  dateRange: {
+    fromDate: string;
+    toDate: string;
+  };
+  userSummaries: any[];
+  grandTotals: {
+    totalTransactions: number;
+    totalAmount: number;
+    totalVoid: number;
+    voidAmount: number;
+    netTotal: number;
+  };
+  summary: {
+    userSummary: any[];
+    paymentMethodSummary: any[];
+    grandTotalUserSummary: any;
+    grandTotalPaymentMethodSummary: any;
+  };
+  html?: string;
+  title?: string;
+  generatedAt?: string;
+}
 
+const showResults = ref<boolean>(false)
+const reportData = ref<ReportData | null>(null)
+const loading = ref<boolean>(false)
+const exportMenuOpen = ref<boolean>(false)
+const exportLoading = ref<boolean>(false)
+const pdfUrl = ref('')
+const errorMessage = ref('')
+
+const idHotel = serviceStore.serviceId
+
+// Filters for UI
 const filters = ref<Filters>({
-  receiptFrom: '27/04/2019',
-  receiptTo: '27/04/2019',
+  receiptFrom: (() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  })(),
+  receiptTo: (() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  })(),
   receivedBy: '',
   paymentMethod: '',
-  currency: '',
-  reportTemplate: 'default'
+  currency: ''
+})
+
+// API Filters
+const apiFilters = ref<DailyReceipt>({
+  fromDate: filters.value.receiptFrom,
+  toDate: filters.value.receiptTo,
+  hotelId: idHotel !== null ? idHotel : 0,
+  receiptByUserId: 0,
+  currencyId: 0,
+  paymentMethodId: 0
 })
 
 // Options for selects
-const receivedByOptions = ref<FilterOptions[]>([
-  { value: 'helpdesksupport', label: 'helpdesksupport' },
-  { value: 'front_office', label: 'Front Office Manager' },
-  { value: 'cashier1', label: 'Cashier 1' },
-  { value: 'cashier2', label: 'Cashier 2' },
-  { value: 'admin', label: 'Admin' }
-])
+const receivedByOptions = ref<FilterOptions[]>([])
+const paymentMethodOptions = ref<FilterOptions[]>([])
+const currencyOptions = ref<FilterOptions[]>([])
 
-const paymentMethodOptions = ref<FilterOptions[]>([
-  { value: 'cash', label: 'Cash' },
-  { value: 'credit_card', label: 'Credit Card' },
-  { value: 'debit_card', label: 'Debit Card' },
-  { value: 'bank_transfer', label: 'Bank Transfer' },
-  { value: 'cheque', label: 'Cheque' },
-  { value: 'mobile_payment', label: 'Mobile Payment' },
-  { value: 'other', label: 'Other' }
-])
+const reportTitle = computed(() => {
+  return reportData.value?.title || t('dailyReceiptSummaryReport')
+})
 
-const currencyOptions = ref<FilterOptions[]>([
-  { value: 'INR', label: 'INR (₹)' },
-  { value: 'USD', label: 'USD ($)' },
-  { value: 'EUR', label: 'EUR (€)' },
-  { value: 'GBP', label: 'GBP (£)' }
-])
+const currency = computed(() => {
+  return 'XAF'
+})
 
-const reportTemplateOptions = computed<FilterOptions[]>(() => [
-  { value: 'default', label: t('default') },
-  { value: 'detailed', label: t('detailed') },
-  { value: 'summary', label: t('Summary') },
-  { value: 'custom', label: t('custom') }
-])
-
-// Sample refund data
-const refundData = ref<RefundData[]>([
-  {
-    receiptNo: 'REF-001',
-    refundDate: '27/04/2019',
-    refundTime: '10:30:00 AM',
-    reservationNo: 'BE306',
-    guestName: 'Mr. John Smith',
-    roomNo: '101',
-    refundReason: 'Early Checkout',
-    paymentMethod: 'Credit Card',
-    refundAmount: 2500,
-    currency: 'INR',
-    receivedBy: 'helpdesksupport',
-    authorizedBy: 'Manager',
-    remarks: 'Guest requested early checkout due to emergency',
-    status: 'Processed'
-  },
-  {
-    receiptNo: 'REF-002',
-    refundDate: '27/04/2019',
-    refundTime: '02:15:00 PM',
-    reservationNo: 'BE307',
-    guestName: 'Mrs. Sarah Johnson',
-    roomNo: '205',
-    refundReason: 'Room Service Overcharge',
-    paymentMethod: 'Cash',
-    refundAmount: 450,
-    currency: 'INR',
-    receivedBy: 'front_office',
-    authorizedBy: 'Supervisor',
-    remarks: 'Overcharged for room service items',
-    status: 'Processed'
-  },
-  {
-    receiptNo: 'REF-003',
-    refundDate: '27/04/2019',
-    refundTime: '04:45:00 PM',
-    reservationNo: 'BE308',
-    guestName: 'Mr. David Wilson',
-    roomNo: '310',
-    refundReason: 'Cancelled Additional Services',
-    paymentMethod: 'Debit Card',
-    refundAmount: 1200,
-    currency: 'INR',
-    receivedBy: 'cashier1',
-    authorizedBy: 'Manager',
-    remarks: 'Spa services cancelled due to illness',
-    status: 'Processed'
-  },
-  {
-    receiptNo: 'REF-004',
-    refundDate: '27/04/2019',
-    refundTime: '06:20:00 PM',
-    reservationNo: 'BE309',
-    guestName: 'Ms. Emily Davis',
-    roomNo: '150',
-    refundReason: 'Duplicate Payment',
-    paymentMethod: 'Bank Transfer',
-    refundAmount: 3500,
-    currency: 'INR',
-    receivedBy: 'helpdesksupport',
-    authorizedBy: 'Manager',
-    remarks: 'Guest accidentally paid twice for same services',
-    status: 'Pending'
-  },
-  {
-    receiptNo: 'REF-005',
-    refundDate: '27/04/2019',
-    refundTime: '08:10:00 PM',
-    reservationNo: 'BE310',
-    guestName: 'Mr. Michael Brown',
-    roomNo: '220',
-    refundReason: 'Service Not Delivered',
-    paymentMethod: 'Cash',
-    refundAmount: 800,
-    currency: 'INR',
-    receivedBy: 'cashier2',
-    authorizedBy: 'Supervisor',
-    remarks: 'Laundry service not completed on time',
-    status: 'Processed'
+// Fetch options from API
+const fetchUsers = async () => {
+  try {
+    const resp = await getEmployeesForService(idHotel!)
+    receivedByOptions.value = resp.data.data.map((u: any) => ({
+      label: `${u.firstName} ${u.lastName}`,
+      value: u.user_id
+    }))
+  } catch (error) {
+    console.error('Error fetching users:', error)
   }
-])
+}
 
-// Table columns
-const tableColumns = computed<Column[]>(() => [
-  { key: 'receiptNo', label: t('receiptNo') },
-  { key: 'refundDate', label: t('refundDate') },
-  { key: 'refundTime', label: t('Time') },
-  { key: 'reservationNo', label: t('reservationNo') },
-  { key: 'guestName', label: t('guestName') },
-  { key: 'roomNo', label: t('roomNo') },
-  { key: 'refundReason', label: t('refundReason'), translatable: true },
-  { key: 'paymentMethod', label: t('Payment Method'), translatable: true },
-  { key: 'refundAmount', label: t('refundAmount'), type: 'text' },
-  { key: 'currency', label: t('Currency') },
-  { key: 'receivedBy', label: t('receivedBy'), translatable: true },
-  { key: 'authorizedBy', label: t('authorizedBy'), translatable: true },
-  { key: 'status', label: t('Status'), type: 'custom' },
-  { key: 'remarks', label: t('remarks') }
-])
+const fetchPaymentMethods = async () => {
+  try {
+    const resp = await getPaymentMethods(idHotel!)
+    paymentMethodOptions.value = resp.data.data.map((pm: any) => ({
+      label: pm.methodName,
+      value: pm.id
+    }))
+  } catch (error) {
+    console.error('Error fetching payment methods:', error)
+  }
+}
 
-// Computed properties
-const totalRefundCount = computed(() => {
-  return refundData.value.length
-})
-
-const totalCashRefunds = computed(() => {
-  return refundData.value
-    .filter(item => item.paymentMethod === 'Cash')
-    .reduce((total, item) => total + item.refundAmount, 0)
-})
-
-const totalCardRefunds = computed(() => {
-  return refundData.value
-    .filter(item => ['Credit Card', 'Debit Card'].includes(item.paymentMethod))
-    .reduce((total, item) => total + item.refundAmount, 0)
-})
-
-const totalBankRefunds = computed(() => {
-  return refundData.value
-    .filter(item => item.paymentMethod === 'Bank Transfer')
-    .reduce((total, item) => total + item.refundAmount, 0)
-})
-
-const totalOtherRefunds = computed(() => {
-  return refundData.value
-    .filter(item => !['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer'].includes(item.paymentMethod))
-    .reduce((total, item) => total + item.refundAmount, 0)
-})
-
-const grandTotalRefunds = computed(() => {
-  return refundData.value.reduce((total, item) => total + item.refundAmount, 0)
-})
-
-const averageRefund = computed(() => {
-  if (refundData.value.length === 0) return 0
-  return Math.round(grandTotalRefunds.value / refundData.value.length)
-})
+// Watch filters and update API filters
+watch(filters, (newFilters) => {
+  apiFilters.value = {
+    ...apiFilters.value,
+    fromDate: newFilters.receiptFrom,
+    toDate: newFilters.receiptTo,
+    receiptByUserId: newFilters.receivedBy ? parseInt(newFilters.receivedBy) : 0,
+    paymentMethodId: newFilters.paymentMethod ? parseInt(newFilters.paymentMethod) : 0,
+    currencyId: newFilters.currency ? parseInt(newFilters.currency) : 0,
+  }
+}, { deep: true })
 
 // Methods
-const generateReport = (): void => {
-  showResults.value = true
-  console.log('Generating daily refund report with filters:', filters.value)
+const updateDateFilter = (field: 'fromDate' | 'toDate', value: string) => {
+  if (value) {
+    const date = new Date(value)
+    apiFilters.value[field] = date.toISOString().split('T')[0]
+  } else {
+    apiFilters.value[field] = ''
+  }
+}
+
+const generateReport = async (): Promise<void> => {
+  loading.value = true
+  showResults.value = false
+  
+  try {
+    console.log('Generating daily receipt summary report with filters:', apiFilters.value)
+    const response = await generateDailyReceiptRefund(apiFilters.value)
+    console.log('API Response:', response)
+    
+    if (response && response.success && response.data) {
+      reportData.value = response.data
+      showResults.value = true
+    }
+  } catch (error) {
+    console.error('Error generating report:', error)
+    errorMessage.value = error instanceof Error ? error.message : t('failedToGenerateReport')
+  } finally {
+    loading.value = false
+  }
+}
+
+const exportCSV = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    const result = await exportData('csv', 'dailyReceiptSummary', 'daily-receipt-summary', apiFilters.value)
+    console.log('CSV export result:', result)
+  } catch (error) {
+    console.error('CSV export error:', error)
+    errorMessage.value = error instanceof Error ? error.message : t('failedToExportCSV')
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportPDF = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+
+    if (pdfUrl.value) {
+      URL.revokeObjectURL(pdfUrl.value)
+      pdfUrl.value = ''
+    }
+
+    const newPdfUrl = await generateDailyReceiptRefundPdf(apiFilters.value)
+    pdfUrl.value = newPdfUrl
+    openPDFInNewPage()
+
+    console.log('📊 Daily receipt report generated successfully:', reportTitle.value)
+  } catch (error) {
+    console.error('❌ Error generating daily receipt report:', error)
+    errorMessage.value = error instanceof Error ? error.message : t('failedToGeneratePDF')
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const exportExcel = async (): Promise<void> => {
+  try {
+    exportLoading.value = true
+    exportMenuOpen.value = false
+    console.log('Export Excel with filters:', apiFilters.value)
+    const result = await exportData('excel', 'dailyReceiptSummary', 'daily-receipt-summary', apiFilters.value)
+    console.log('Excel export result:', result)
+  } catch (error) {
+    console.error('Excel export error:', error)
+    errorMessage.value = error instanceof Error ? error.message : t('failedToExportExcel')
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+const openPDFInNewPage = () => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer',
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
+  }
 }
 
 const resetForm = (): void => {
@@ -418,37 +492,44 @@ const resetForm = (): void => {
     receiptTo: '',
     receivedBy: '',
     paymentMethod: '',
-    currency: '',
-    reportTemplate: 'default'
+    currency: ''
   }
   showResults.value = false
+  reportData.value = null
+  errorMessage.value = ''
 }
 
-const getCurrencyLabel = (value: string): string => {
-  const option = currencyOptions.value.find(opt => opt.value === value)
-  return option ? option.label : 'INR (₹)'
-}
-</script>
-
-<style scoped>
-@reference "tailwindcss";
-
-/* Custom styles for refund report */
-.status-processed {
-  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+const toggleExportMenu = () => {
+  exportMenuOpen.value = !exportMenuOpen.value
 }
 
-.status-pending {
-  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount || 0)
 }
 
-.status-cancelled {
-  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+const formatDate = (dateStr: string): string => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleDateString()
 }
 
-@media (max-width: 640px) {
-  .grid-cols-1 {
-    grid-template-columns: 1fr;
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.relative')) {
+    exportMenuOpen.value = false
   }
 }
-</style>
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  fetchUsers()
+  fetchPaymentMethods()
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+</script>

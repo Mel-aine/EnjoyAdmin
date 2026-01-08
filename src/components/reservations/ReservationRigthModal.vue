@@ -516,7 +516,7 @@ const handleRoomAssigned = (data: any) => {
 
 // Print options
 const printOptions = computed(() => [
-    { id: 'guestCard', label: t('printGuestCard'), icon: Printer },
+    { id: 'guestCard', label: t('Print Guest Registration'), icon: Printer },
     { id: 'printResVourcher', label: t('printResVourcher'), icon: FileCheck },
     { id: 'invoice', label: t('printInvoice'), icon: CreditCard },
     // { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
@@ -577,7 +577,7 @@ const handlePrintOptionSelected = (option: any) => {
     console.log('Print option selected:', option)
 
     if (option.id === 'guestCard') {
-        documentTitle.value = t('printGuestCard')
+        documentTitle.value = t('Print Guest Registration')
         handlePrint('guestCard')
     }
     else if (option.id === 'printResVourcher') {
