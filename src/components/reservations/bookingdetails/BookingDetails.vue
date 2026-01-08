@@ -522,21 +522,21 @@ const selectRoom = (room: any) => {
 
 const updateBillingDataFromRoom = (room: any) => {
   if (room) {
-    billingData.billTo = room.billTo || billingData.billTo
-    billingData.paymentMode = room.paymentMode || billingData.paymentMode
-    billingData.paymentType = room.paymentType || billingData.paymentType
-    billingData.gstinNo = room.gstinNo || billingData.gstinNo
-    billingData.reservationType = room.reservationType || billingData.reservationType
+    billingData.billTo = room.billTo || ''
+    billingData.paymentMode = room.paymentMode || null
+    billingData.paymentType = room.paymentType || ''
+    billingData.gstinNo = room.gstinNo || ''
+    billingData.reservationType = room.reservationType || null
   }
 }
 
 const updateSourceDataFromRoom = (room: any) => {
   if (room) {
-    sourceData.marketCode = room.marketCode || sourceData.marketCode
-    sourceData.sourceOfBusiness = room.sourceOfBusiness || sourceData.sourceOfBusiness
+    sourceData.marketCode = room.marketCode || ''
+    sourceData.sourceOfBusiness = room.sourceOfBusiness || null
     sourceData.voucherNo = room.voucherNo || bookingData.value.reservationNumber || ''
-    sourceData.company = room.company || sourceData.company
-    sourceData.planValue = room.roomRate || sourceData.planValue
+    sourceData.company = room.company || ''
+    sourceData.planValue = room.roomRate || ''
   }
 }
 
@@ -663,12 +663,29 @@ onMounted(async () => {
 // Watch for changes in booking data
 watch(() => props.booking, (newBooking) => {
   if (newBooking) {
-    // Sélectionner la première chambre si aucune n'est sélectionnée
-    if (!selectedRoom.value && reservationRooms.value.length > 0) {
-      selectedRoom.value = reservationRooms.value[0]
-      updateRoomOptions(selectedRoom.value)
-      updateBillingDataFromRoom(selectedRoom.value)
-      updateSourceDataFromRoom(selectedRoom.value)
+    // If rooms exist
+    if (reservationRooms.value.length > 0) {
+      // If we already had a selected room, try to maintain selection
+      if (selectedRoom.value) {
+        const currentId = selectedRoom.value.id
+        const foundRoom = reservationRooms.value.find((r: any) => r.id === currentId)
+        if (foundRoom) {
+          selectedRoom.value = foundRoom
+        } else {
+          // If previous room not found (e.g. deleted), select first
+          selectedRoom.value = reservationRooms.value[0]
+        }
+      } else {
+        // No previous selection, select first
+        selectedRoom.value = reservationRooms.value[0]
+      }
+
+      // Update local state from the selected room (whether maintained or new)
+      if (selectedRoom.value) {
+        updateRoomOptions(selectedRoom.value)
+        updateBillingDataFromRoom(selectedRoom.value)
+        updateSourceDataFromRoom(selectedRoom.value)
+      }
     }
 
     // initBillingData()
