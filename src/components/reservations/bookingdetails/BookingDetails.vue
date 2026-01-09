@@ -171,6 +171,40 @@
                   @clear-error="emit('clear-error')"
                 />
               </div>
+              
+            <!-- Booking Source -->
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <AutoCompleteSelect v-model="sourceData.bookingSource" :options="BookingSource"
+                  :defaultValue="$t('SelectBookingSource')" :lb="$t('booking_source')" :is-required="false"
+                  :use-dropdown="useDropdownBooking" :disabled="!editMode" @clear-error="emit('clear-error')" />
+              </div>
+            </div>
+<!-- Means of Transportation -->
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <AutoCompleteSelect v-model="sourceData.meansOfTransport" :options="TransportationModes"
+                  :defaultValue="$t('MeansOfTransportation')" :lb="$t('MeansOfTransportation')" :is-required="false"
+                  :use-dropdown="useDropdownBooking" :disabled="!editMode" @clear-error="emit('clear-error')" />
+              </div>
+            </div>
+            <!-- Arriving To -->
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <Input :lb="$t('ArrivingTo')" :id="'arriving'" :forLabel="'arriving'" :placeholder="$t('ArrivingTo')"
+                  v-model="sourceData.arrivingTo" :disabled="!editMode" />
+              </div>
+            </div>
+
+            <!-- Going To -->
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <Input :lb="$t('GoingTo')" :id="'going'" :forLabel="'going'" :placeholder="$t('GoingTo')"
+                  v-model="sourceData.goingTo" :disabled="!editMode" />
+              </div>
+            </div>
+
+            
             </div>
           </div>
         </div>
@@ -296,6 +330,10 @@ interface SourceData {
   planValue: string
   company: string
   salesPerson: string
+  bookingSource: number | null
+  arrivingTo: string
+  goingTo: string
+  meansOfTransport: string
 }
 
 interface RoomOptions {
@@ -337,6 +375,7 @@ const {
   billToOptions,
   MarketCode,
   reservationId,
+  TransportationModes,
 
   //customer methods
   canCityLedgerPay
@@ -350,7 +389,11 @@ const sourceData = reactive<any>({
   commissionPlan: '',
   planValue: '',
   company: '',
-  salesPerson: ''
+  salesPerson: '',
+  bookingSource: null,
+  arrivingTo: '',
+  goingTo: '',
+  meansOfTransport: ''
 })
 
 // CHANGEMENT PRINCIPAL : Utiliser ref au lieu de reactive pour roomOptions
@@ -396,6 +439,10 @@ const UpdateReservationRoom = async () => {
       paymentMethodId: billingData.paymentMode,
       paymentType: billingData.paymentType,
       reservationTypeId: billingData.reservationType,
+      bookingSourceId: sourceData.bookingSource,
+      arrivingTo: sourceData.arrivingTo,
+      goingTo: sourceData.goingTo,
+      meansOfTransport: sourceData.meansOfTransport,
       marketCodeId: sourceData.marketCode,
       businessSourceId: sourceData.sourceOfBusiness,
       companyName: sourceData.company
@@ -537,6 +584,10 @@ const updateSourceDataFromRoom = (room: any) => {
     sourceData.voucherNo = room.voucherNo || bookingData.value.reservationNumber || ''
     sourceData.company = room.company || ''
     sourceData.planValue = room.roomRate || ''
+    sourceData.bookingSource = room.bookingSource || null
+    sourceData.arrivingTo = room.arrivingTo || ''
+    sourceData.goingTo = room.goingTo || ''
+    sourceData.meansOfTransport = room.meansOfTransport || ''
   }
 }
 
@@ -600,9 +651,23 @@ const saveChanges = async () => {
 // Initialize source data from booking
 const initSourceData = () => {
   if (bookingData.value) {
+    console.log(bookingData.value)
     // Set market code and business source if available in booking data
     if (bookingData.value.businessSourceId) {
       sourceData.sourceOfBusiness = bookingData.value.businessSourceId
+    }
+
+    if (bookingData.value.bookingSourceId) {
+      sourceData.bookingSource = bookingData.value.bookingSourceId
+    }
+    if (bookingData.value.arrivingTo) {
+      sourceData.arrivingTo = bookingData.value.arrivingTo
+    }
+    if (bookingData.value.goingTo) {
+      sourceData.goingTo = bookingData.value.goingTo
+    }
+    if (bookingData.value.meansOfTransportation) {
+      sourceData.meansOfTransport = bookingData.value.meansOfTransportation
     }
 
      if (bookingData.value.paymentType) {
@@ -624,7 +689,7 @@ const initSourceData = () => {
     if (bookingData.value.reservationNumber) {
       sourceData.voucherNo = bookingData.value.reservationNumber
     }
-
+    
     // Set company if available
     if (bookingData.value.companyName) {
       sourceData.company = bookingData.value.companyName

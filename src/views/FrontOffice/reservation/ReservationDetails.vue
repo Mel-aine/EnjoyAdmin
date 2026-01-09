@@ -154,35 +154,38 @@ const refreshAvailableActions = async () => {
 
 // ====== ROOM ASSIGNMENT ======
 const handleRoomAssignmentRefresh = async () => {
-  await getBookingDetailsById()
+  await getBookingDetailsById(false)
 }
 
 const handleRoomChargeRefresh = async () => {
-  await getBookingDetailsById()
+  await getBookingDetailsById(false)
 }
 
 // ====== BOOKING DETAILS REFRESH ======
 const refreshBookingData = async () => {
-  await getBookingDetailsById()
+  await getBookingDetailsById(false)
 }
 
 const handleGuestRefresh = async () => {
-  await getBookingDetailsById()
+  await getBookingDetailsById(false)
 }
 // ====== GESTION DES OPTIONS ======
 
 // ====== CHARGEMENT INITIAL ======
-const getBookingDetailsById = async () => {
-  isLoading.value = true
-  const response = await getReservationDetailsById(Number(props.id))
-  console.log('reservation', response)
-  if (response.status === 200) {
-    localReservation.value = response.data
-    if (response.data.status === 'pending') {
-      isPending.value = true
+const getBookingDetailsById = async (showLoading = true) => {
+  if (showLoading) isLoading.value = true
+  try {
+    const response = await getReservationDetailsById(Number(props.id))
+    console.log('reservation', response)
+    if (response.status === 200) {
+      localReservation.value = response.data
+      if (response.data.status === 'pending') {
+        isPending.value = true
+      }
     }
+  } finally {
+    if (showLoading) isLoading.value = false
   }
-  isLoading.value = false
 }
 
 // ====== COMPUTED PROPERTIES ======

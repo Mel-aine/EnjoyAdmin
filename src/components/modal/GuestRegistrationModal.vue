@@ -382,15 +382,17 @@
                 </section>
 
                 <!-- Contact Information Section -->
-                <!-- <section class="pt-4 space-y-4">
+                <section class="pt-4 space-y-4">
             <div :class="[
               'grid grid-cols-1 gap-4',
                formData.contactType ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
             ]">
                 <InputPhone :title="$t('Phone')" v-model="formData.phoneNumber" :id="'phone'" :is-required="false"
                 custom-class="h-11" />
+                                <InputEmail v-model="formData.email" placeholder="info@gmail.com" :title="$t('Email')" required
+                custom-class="h-11" />
 
-              <AutoCompleteSelect
+        <!--       <AutoCompleteSelect
                   v-model="formData.contactType"
                   :options="TypesOfContact"
                   :defaultValue="$t('contact_type')"
@@ -399,7 +401,7 @@
                   :use-dropdown="useDropdownBooking"
                   @clear-error="emit('clear-error')"
                   custom-class="h-11"
-                />
+                /> -->
 
                 <div v-if="formData.contactType">
                   <InputPhone
@@ -411,39 +413,39 @@
                     custom-class="h-11"
                   />
 
+
+<!-- 
                   <InputEmail
                     v-else-if="contactInputComponent === 'InputEmail'"
                     v-model="contactValue"
                     :placeholder="contactInputLabel"
                     :title="contactInputLabel"
                     custom-class="h-11"
-                  />
+                  /> -->
 
-                  <Input
+<!--                   <Input
                     v-else-if="contactInputComponent === 'Input'"
                     :lb="contactInputLabel"
                     v-model="contactValue"
                     :placeholder="contactInputLabel"
                     custom-class="h-11"
-                  />
+                  /> -->
                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
 
-              <Input :lb="$t('Fax')" v-model="formData.fax" :placeholder="$t('Fax')" />
-              <InputEmail v-model="formData.email" placeholder="info@gmail.com" :title="$t('Email')" required
-                custom-class="h-11" />
+<!--               <Input :lb="$t('Fax')" v-model="formData.fax" :placeholder="$t('Fax')" /> -->
 
-              <Input :lb="$t('B.P')" v-model="formData.zipcode" :placeholder="$t('B.P')" />
+  <!--             <Input :lb="$t('B.P')" v-model="formData.zipcode" :placeholder="$t('B.P')" />
                <ProfessionAutocomplete
                   v-model="formData.profession"
                   :lb="$t('profession')"
                   :placeholder="$t('profession')"
                   custom-class="h-11"
-                />
+                /> -->
             </div>
-          </section> -->
+          </section>
 
                 <!-- Document Information Section -->
                 <section class="pt-4">
@@ -506,7 +508,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
                       <div>
                         <InputDatePicker
-                          :title="$t('ExpiryDate')"
+                          :title="$t('Issue Date')"
                           v-model="formData.idExpiryDate"
                           :placeholder="$t('select_date')"
                         />
@@ -760,6 +762,10 @@ const renderPrintHtml = () => {
         const span = doc.createElement('span')
         span.className = 'filled-value'
         span.textContent = valueToInsert
+        
+        // Ajout de la classe pour le style bleu
+        span.classList.add('user-filled')
+        
         span.style.marginLeft = '6px'
         span.style.maxWidth = '30ch'
         sibling.appendChild(span)
@@ -775,6 +781,19 @@ const renderPrintHtml = () => {
     style.textContent = `
     .filled-value{font-weight:normal;color:#111;font-size:9pt;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .line-dot,.line-empty{overflow:hidden;}
+    
+    /*  Texte bleu */
+    .user-filled {
+      color: #1e40af;
+      font-weight: 500 !important;
+    }
+    
+    /* Pour l'impression en noir et blanc, utiliser le bleu plus foncé */
+    @media print {
+      .user-filled {
+        color: #0000AA !important; /* Bleu plus visible à l'impression */
+      }
+    }
 
     @media print {
       @page { size: A4 portrait; margin: 10mm; }
@@ -1190,6 +1209,9 @@ watch(
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+.filled-value {
+  color: #2563eb !important; /* Bleu */
 }
 
 .hide-scrollbar::-webkit-scrollbar {
