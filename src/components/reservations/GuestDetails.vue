@@ -1038,14 +1038,7 @@ const prepareGuestPayload = (): GuestPayload => {
     preferences: formatPreferencesForDB(guestData.preferences)
   }
 
-  // Optionnel: Nettoyer les valeurs vides
-  Object.keys(payload).forEach((key) => {
-    const value = payload[key as keyof GuestPayload]
-    if (value === '' || value === null || value === undefined) {
-      delete payload[key as keyof GuestPayload]
-    }
-  })
-
+  console.log('payload',payload)
   return payload
 }
 
