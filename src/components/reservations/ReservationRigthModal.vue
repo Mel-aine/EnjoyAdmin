@@ -522,20 +522,31 @@ const printOptions = computed(() => [
     // { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
 ])
 
-
+const getStoredLanguage = () => {
+    try {
+        const languageData = localStorage.getItem('language')
+        if (languageData) {
+            const parsed = JSON.parse(languageData)
+            return parsed.language || 'en' // Par défaut 'en' si non trouvé
+        }
+    } catch (error) {
+        console.error('Error reading language from localStorage:', error)
+    }
+    return 'en' // Langue par défaut
+}
 const handlePrint = async (templateType: string) => {
     try {
         laodingPrint.value = true
 
         // Show PDF exporter
         showPdfExporter.value = true
-
+        const language = getStoredLanguage()
         // Generate PDF based on template type
         let pdfBlob: Blob
-
         if (templateType === 'confirmation') {
             pdfBlob = await printConfirmBookingPdf({
-                reservationId: reservation.value?.id
+                reservationId: reservation.value?.id,
+                language: language 
             })
             console.log('PDF Blob for confirmation:', pdfBlob)
             // Libérer l'ancienne URL si elle existe
@@ -546,7 +557,8 @@ const handlePrint = async (templateType: string) => {
         }
         else if (templateType === 'receipt') {
             pdfBlob = await printHotelPdf({
-                reservationId: reservation.value?.id
+                reservationId: reservation.value?.id,
+                language: language 
             })
             if (pdfUrl.value) {
                 window.URL.revokeObjectURL(pdfUrl.value)

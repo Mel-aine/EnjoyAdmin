@@ -868,6 +868,7 @@ export const printFolioPdf = async (data: {
 }
 export const printConfirmBookingPdf = async (data: {
   reservationId?: number
+  language?: string
 }): Promise<any> => {
   try {
     const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
@@ -881,6 +882,7 @@ export const printConfirmBookingPdf = async (data: {
 }
 export const printHotelPdf = async (data: {
   reservationId?: number
+  language?: string
 }): Promise<any> => {
   try {
     const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
