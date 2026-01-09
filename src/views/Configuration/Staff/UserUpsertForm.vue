@@ -15,6 +15,7 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
+import InputNationalities from '@/components/forms/FormElements/InputNationalities.vue'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import { getConfiguration } from '@/services/configrationApi'
 import { ChevronDown } from 'lucide-vue-next'
@@ -770,7 +771,7 @@ onMounted(async () => {
                             />
                           </div>
                           <div>
-                            <InputCountries v-model="form.nationality" :lb="t('nationality')" />
+                            <InputNationalities v-model="form.nationality" :lb="t('nationality')" />
                           </div>
                           <div>
                             <Input

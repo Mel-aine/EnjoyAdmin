@@ -355,7 +355,7 @@
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- Nationalité -->
                 <div>
-                  <InputCountries
+                  <InputNationalities
                     v-model="guestData.nationality"
                     :placeholder="$t('India')"
                     :lb="$t('nationality')"
@@ -612,6 +612,7 @@ import { getCompanies } from '@/services/companyApi'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 import { cities } from '@/assets/data/cities'
+import InputNationalities from '@/components/forms/FormElements/InputNationalities.vue'
 
 interface GuestData {
   title: string
@@ -1038,14 +1039,7 @@ const prepareGuestPayload = (): GuestPayload => {
     preferences: formatPreferencesForDB(guestData.preferences)
   }
 
-  // Optionnel: Nettoyer les valeurs vides
-  Object.keys(payload).forEach((key) => {
-    const value = payload[key as keyof GuestPayload]
-    if (value === '' || value === null || value === undefined) {
-      delete payload[key as keyof GuestPayload]
-    }
-  })
-
+  console.log('payload',payload)
   return payload
 }
 

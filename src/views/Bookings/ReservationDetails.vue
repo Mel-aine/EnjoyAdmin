@@ -554,6 +554,11 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     }
     isLoading.value = false;
   } else if (actionType === 'checkOutAll') {
+    if ((selectBooking.value?.remainingAmount ?? 0) > 0) {
+      showToast(t('Please settle the outstanding balance before checking out.'));
+      openPayment.value = true;
+      return;
+    }
     isLoading.value = true;
     const requestBody = {
       reservationServiceProducts: selectBooking.value?.reservationServiceProducts.map((e) => e.id)
@@ -584,6 +589,11 @@ const handleAction = async (actionType: string, roomId: number | null = null) =>
     }
     isLoading.value = false
   } else if (actionType === 'checkOutRoom' && roomId) {
+    if ((selectBooking.value?.remainingAmount ?? 0) > 0) {
+      showToast(t('Please settle the outstanding balance before checking out.'));
+      openPayment.value = true;
+      return;
+    }
     isLoading.value = true;
     const requestBody = {
       reservationServiceProducts: [roomId]

@@ -6,10 +6,10 @@ import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import CustomerSarch from './CustomerSarch.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { defineEmits } from 'vue'
 import { isEqual } from 'lodash'
 import { useI18n } from 'vue-i18n'
 import InputCountries from '../forms/FormElements/InputCountries.vue'
+import InputNationalities from '../forms/FormElements/InputNationalities.vue'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
 import { getIdentityTypesByHotelId } from '@/services/configrationApi'
 import ImageUploader from './ImageUploader.vue'
@@ -516,7 +516,7 @@ console.log('modalevalue', props.modelValue)
 
               <div :class="[
               'md:col-span-12 grid grid-cols-1  gap-4 items-end',
-              selectedCustomer.contactType ? ' md:grid-cols-5' : ' md:grid-cols-4'
+              selectedCustomer.contactType ? ' md:grid-cols-5' : ' md:grid-cols-3'
             ]"
               >
                 <ProfessionAutocomplete
@@ -541,7 +541,7 @@ console.log('modalevalue', props.modelValue)
                   custom-class="h-11"
                 />
 
-                <AutoCompleteSelect
+              <!--  <AutoCompleteSelect
                   v-model="selectedCustomer.contactType"
                   :options="TypesOfContact"
                   :defaultValue="$t('contact_type')"
@@ -550,7 +550,7 @@ console.log('modalevalue', props.modelValue)
                   :use-dropdown="useDropdownBooking"
                   @clear-error="emit('clear-error')"
                   custom-class="h-11"
-                />
+                />-->
 
                 <!-- Input conditionnel basé sur le type de contact -->
                 <div v-if="selectedCustomer.contactType">
@@ -629,7 +629,7 @@ console.log('modalevalue', props.modelValue)
           <div class="mt-3 pt-2">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
-                <InputCountries :lb="$t('nationality')" v-model="selectedCustomer.nationality" :placeholder="$t('search_nationality')" />
+                <InputNationalities :lb="$t('nationality')" v-model="selectedCustomer.nationality" :placeholder="$t('search_nationality')" />
               </div>
               <div>
                 <InputCountries :lb="$t('countryOfPermanentResidence')" v-model="selectedCustomer.country" />
@@ -738,7 +738,7 @@ console.log('modalevalue', props.modelValue)
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <InputDatePicker
-                    :title="$t('ExpiryDate')"
+                    :title="$t('Issue Date')"
                     v-model="selectedCustomer.idExpiryDate"
                     :placeholder="$t('select_date')"
                   />
