@@ -344,6 +344,12 @@ const handleOptionSelected = async (option: any) => {
       break
     }
     case 'check_out': {
+      const remaining = localRes.value.remainingAmount ?? localRes.value.balanceSummary?.remainingAmount ?? 0;
+      if (remaining > 0) {
+        toast.info(t('Please settle the outstanding balance before checking out.'));
+        openAddPaymentModal();
+        return;
+      }
       const rooms = localRes.value.reservationRooms || []
       if (rooms.length === 0) {
         toast.info(t('No rooms available for check-out'))
@@ -557,8 +563,9 @@ const handleExchangeSuccess = () => {
   emit('save', { action: 'exchangeRoom', reservationId: localRes.value?.id })
 }
 // Add Payment handler moved from parent
-const handleSavePayment = (data: any) => {
+const handleSavePayment = async (data: any) => {
   closeAddPaymentModal();
+  await refreshAvailableActions();
   // Emit a save event, letting the parent component handle the refresh.
   emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data, needsRefresh: true });
 }
