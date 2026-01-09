@@ -508,7 +508,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
                       <div>
                         <InputDatePicker
-                          :title="$t('ExpiryDate')"
+                          :title="$t('Issue Date')"
                           v-model="formData.idExpiryDate"
                           :placeholder="$t('select_date')"
                         />

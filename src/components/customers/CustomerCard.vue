@@ -6,7 +6,6 @@ import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import CustomerSarch from './CustomerSarch.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
 import { useServiceStore } from '@/composables/serviceStore'
-import { defineEmits } from 'vue'
 import { isEqual } from 'lodash'
 import { useI18n } from 'vue-i18n'
 import InputCountries from '../forms/FormElements/InputCountries.vue'
@@ -738,7 +737,7 @@ console.log('modalevalue', props.modelValue)
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <InputDatePicker
-                    :title="$t('ExpiryDate')"
+                    :title="$t('Issue Date')"
                     v-model="selectedCustomer.idExpiryDate"
                     :placeholder="$t('select_date')"
                   />
