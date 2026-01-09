@@ -366,7 +366,7 @@
                     />
 
                     <div>
-                      <InputCountries
+                      <InputNationalities
                         :lb="$t('nationality')"
                         v-model="formData.nationality"
                         :placeholder="$t('search_nationality')"
@@ -585,6 +585,7 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import Select from '@/components/forms/FormElements/Select.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
+import InputNationalities from '@/components/forms/FormElements/InputNationalities.vue'
 import CustomerSearch from '@/components/customers/CustomerSarch.vue'
 import InputPaymentMethodSelect from '@/components/reservations/foglio/InputPaymentMethodSelect.vue'
 import BasicButton from '../../components/buttons/BasicButton.vue'

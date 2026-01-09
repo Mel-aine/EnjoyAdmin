@@ -35,7 +35,7 @@
 
       <!-- Filtre par Nationalité -->
       <div>
-        <InputCountries
+        <InputNationalities
           :lb="$t('filtersGuest.nationality')"
           v-model="filters.nationality"
         />
@@ -61,6 +61,7 @@ import InputCountries from '@/components/forms/FormElements/InputCountries.vue';
 import BasicButton from '@/components/buttons/BasicButton.vue';
 import { vipStatusApi } from '@/services/configrationApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import InputNationalities from '@/components/forms/FormElements/InputNationalities.vue'
 
 const { t } = useI18n();
 

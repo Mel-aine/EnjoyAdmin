@@ -136,7 +136,7 @@
               <Input :lb="$t('postalCode')" v-model="form.postalCode" placeholder="Code Postal" />
             </div>
             <div>
-              <InputCountries v-model="form.nationality" :lb="$t('nationality')" />
+              <InputNationalities v-model="form.nationality" :lb="$t('nationality')" />
             </div>
             <div>
               <Input :lb="$t('Company Name')" v-model="form.companyName" placeholder="Société" />
@@ -298,6 +298,7 @@ import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
 import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import InputCountries from '@/components/forms/FormElements/InputCountries.vue'
+import InputNationalities from '@/components/forms/FormElements/InputNationalities.vue'
 import ImageUploader from '@/components/customers/ImageUploader.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import MultipleSelect from '@/components/forms/FormElements/MultipleSelect.vue'
