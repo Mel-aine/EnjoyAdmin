@@ -323,6 +323,7 @@
           :title="t('reports.frontOffice.guestCheckedOut')"
           :data="reservationData"
           :columns="selectedTableColumns"
+          :show-header="false"
            class="w-full mb-4 min-w-max"
         />
          </div>
@@ -395,16 +396,12 @@ interface Reservation {
   guest: string;
   room: string;
   rate: string;
-  arrival: string;
-  departure: string;
-  pax: string;
-  pickUp: string;
-  dropOff: string;
+  arrivalDate: string;
+  departureDate: string;
+  pax: string | null;
+  businessSource: string;
   resType: string;
-  company: string;
-  user: string;
-  BusiSour: string;
-  restyp: string;
+  checkoutUser: string;
 }
 
 interface Filters {
@@ -554,12 +551,12 @@ const selectedTableColumns = computed(() => {
     { key: 'guest', label: t('tableColumns.guest') },
     { key: 'room', label: t('tableColumns.room') },
     { key: 'rate', label: t('tableColumns.rate') },
-    { key: 'arrival', label: t('tableColumns.arrival') },
-    { key: 'departure', label: t('tableColumns.departure') },
+    { key: 'arrivalDate', label: t('tableColumns.arrival') },
+    { key: 'departureDate', label: t('tableColumns.departure') },
     { key: 'pax', label: t('tableColumns.pax') },
-    { key: 'BusiSour', label: t('tableColumns.businessSource') },
-    { key: 'restyp', label: t('tableColumns.resType') },
-    { key: 'user', label: t('tableColumns.user') }
+    { key: 'businessSource', label: t('tableColumns.businessSource') },
+    { key: 'resType', label: t('tableColumns.resType') },
+    { key: 'checkoutUser', label: t('tableColumns.user') }
   ]
   
   // Add selected columns
@@ -574,16 +571,8 @@ const selectedTableColumns = computed(() => {
   return baseColumns
 })
 
-const totalReservations = computed(() => {
-  return reservationData.value.length
-})
-
-const totalPax = computed(() => {
-  return reservationData.value.reduce((total, reservation) => {
-    const pax = reservation.pax.split('/')[0]
-    return total + parseInt(pax || '0')
-  }, 0)
-})
+const totalReservations = ref<number>(0)
+const totalPax = ref<number>(0)
 
 // Méthode pour générer le rapport des départs de clients
 const generateReport = async (): Promise<void> => {
@@ -615,9 +604,32 @@ const generateReport = async (): Promise<void> => {
     // Traiter la réponse
     if (response && response.success) {
       // Mettre à jour les données du rapport
-      reportData.value = response.data || []
-      // Mettre à jour les données de réservation pour l'affichage
-      reservationData.value = response.data?.reservations || []
+      reportData.value = response.data || {}
+      
+      // Formater les données des réservations pour l'affichage
+      if (response.data?.checkoutList && Array.isArray(response.data.checkoutList)) {
+        reservationData.value = response.data.checkoutList.map((item: any) => ({
+          resNo: item.resNo || '',
+          guest: item.guest || '',
+          room: item.room || '',
+          rate: item.rate || '0.00',
+          arrivalDate: item.arrivalDate ? formatDate(item.arrivalDate) : '',
+          departureDate: item.departureDate ? formatDate(item.departureDate) : '',
+          pax: item.pax?.toString() || '0',
+          businessSource: item.businessSource || '',
+          resType: item.resType || '',
+          checkoutUser: item.checkoutUser || ''
+        }))
+        
+        // Mettre à jour les totaux
+        if (response.data.summary) {
+          totalReservations.value = response.data.summary.totalReservations || 0
+          totalPax.value = response.data.summary.totalGuests || 0
+        }
+      } else {
+        reservationData.value = []
+      }
+      
       // Afficher les résultats
       showResults.value = true
     } else {
@@ -630,6 +642,20 @@ const generateReport = async (): Promise<void> => {
     console.error('Erreur détaillée:', err)
   } finally {
     loading.value = false
+  }
+}
+
+// Fonction utilitaire pour formater les dates
+const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
+  } catch (error) {
+    return dateString
   }
 }
 

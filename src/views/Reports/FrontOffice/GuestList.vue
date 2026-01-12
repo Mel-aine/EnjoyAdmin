@@ -99,6 +99,7 @@
             :actions="tableActions"
             :searchable="true"
             :loading="loading"
+            :show-header="false"
             :empty-message="guests.length === 0 && !loading ? $t('reports.noDataAvailable') : ''"
             class="w-full mb-4 min-w-max"
           />
