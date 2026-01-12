@@ -21,10 +21,7 @@
           </div>
           <div v-for="(re, ind) in reservation.reservationRooms" :key="ind" :title="re.room?.roomNumber">
             <div class="text-sm text-gray-600 dark:text-gray-300 mb-2 px-2">♦ {{ re.room?.roomNumber }}</div>
-              <div
-                  v-for="fo in folioList.filter(f => f.reservationRoomId === re.id)"
-                  :key="`folio-${fo.id}`"
-              >
+            <div v-for="fo in folioList.filter(f => f.reservationRoomId === re.id)" :key="`folio-${fo.id}`">
               <div
                 class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
                 :class="selectedFolio?.id === fo.id
@@ -102,7 +99,8 @@
                 {{ selectedFolio ? `${$t('transactionsFor')}: ${selectedFolio.folioName}` : $t('allTransactions') }}
               </h3>
               <span class="text-xs text-gray-500 dark:text-gray-400">
-                {{ $t('total') }}: {{ foglioData.length }} {{ foglioData.length > 1 ? $t('transactions') : $t('transaction') }}
+                {{ $t('total') }}: {{ foglioData.length }} {{ foglioData.length > 1 ? $t('transactions') :
+                  $t('transaction') }}
               </span>
             </div>
           </div>
@@ -215,7 +213,7 @@
         </template>
 
         <template v-if="isPickupAndDropoffModal">
-          <PickupAndDropModal :isOpen="isPickupAndDropoffModal"  @close="isPickupAndDropoffModal = false"/>
+          <PickupAndDropModal :isOpen="isPickupAndDropoffModal" @close="isPickupAndDropoffModal = false" />
 
         </template>
       </div>
@@ -368,7 +366,7 @@ const moreActionOptions = computed(() => {
   } else if (authStore.hasPermission('change_room_rate_before_check_in')) {
     menus.push({ label: t('roomCharges'), id: 'roomCharges' })
   }
-   if (authStore.hasPermission('transfer_item_from_folio')) {
+  if (authStore.hasPermission('transfer_item_from_folio')) {
     menus.push({ label: t('split_folio'), id: 'split' })
   }
   if (authStore.hasPermission('transfer_item_from_folio')) {
@@ -402,7 +400,7 @@ interface FoglioItem {
   amount: number
   status: 'unposted' | 'posted'
   postingDate?: string
-  transactionDate?:string
+  transactionDate?: string
   folioId?: number // Add folioId to link transactions to folios
 }
 
@@ -435,6 +433,7 @@ const columns = computed<Column[]>(() => [
   { key: 'transactionNumber', label: t('Ref No.'), type: 'text' },
   { key: 'particular', label: t('Particulars'), type: 'text', translatable: true },
   { key: 'description', label: t('Description'), type: 'text' },
+  { key: "notes", label: t('Comment'), type: 'text' },
   { key: 'creator.fullName', label: t('User'), type: 'custom' },
   { key: 'amount', label: t('Amount'), type: 'custom' },
   { key: 'actions', label: '', type: 'custom' }
@@ -514,7 +513,7 @@ const EditTransaction = (item: any) => {
     isAddChargeModalOpen.value = true
   } else if (item.transactionType === 'payment') {
     isAddPaymentModalOpen.value = true
-  }else if (item.category === 'service_charge') {
+  } else if (item.category === 'service_charge') {
     isPickupAndDropoffModal.value = true
   }
 }
@@ -610,7 +609,7 @@ const refreshFolio = async () => {
   try {
     emit('refresh')
     const resp = await getReservationFolios(props.reservationId)
-    console.log('getReservationFolios',resp)
+    console.log('getReservationFolios', resp)
 
     // Handle the case where folios contain their transactions
     if (resp.data && Array.isArray(resp.data)) {
@@ -666,7 +665,7 @@ const getFolosReservations = async () => {
   loading.value = true
   try {
     const resp = await getReservationFolios(props.reservationId)
-    console.log('getReservationFolios',resp)
+    console.log('getReservationFolios', resp)
 
     // Handle the case where folios contain their transactions
     if (resp.data && Array.isArray(resp.data)) {
