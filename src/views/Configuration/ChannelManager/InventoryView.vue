@@ -228,7 +228,6 @@ const fetchData = async () => {
     const propertyId = currentService.channexPropertyId
     const response = await getRoomTypesAndRatePlans(propertyId)
 
-    console.log('API Response:', response.data?.data?.roomTypes)
 
     if (response.data?.data?.roomTypes) {
       const apiRoomTypes = response.data.data.roomTypes
