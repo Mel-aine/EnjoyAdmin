@@ -344,7 +344,8 @@ const handleOptionSelected = async (option: any) => {
       break
     }
     case 'check_out': {
-      const remaining = localRes.value.remainingAmount ?? localRes.value.balanceSummary?.remainingAmount ?? 0;
+      console.log('balance', localRes.value.balanceSummary?.outstandingBalance)
+      const remaining =  localRes.value.balanceSummary?.outstandingBalance ?? 0;
       if (remaining > 0) {
         toast.info(t('Please settle the outstanding balance before checking out.'));
         openAddPaymentModal();
