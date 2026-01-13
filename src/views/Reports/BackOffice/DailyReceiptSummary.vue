@@ -425,10 +425,12 @@ const fetchUsers = async () => {
 const fetchPaymentMethods = async () => {
   try {
     const resp = await getPaymentMethods(idHotel!)
-    paymentMethodOptions.value = resp.data.data.map((pm: any) => ({
-      label: pm.methodName,
-      value: pm.id
-    }))
+    paymentMethodOptions.value = resp.data.data
+      .filter((pm: any) => pm.methodType !== 'city_ledger') // Exclure city_ledger
+      .map((pm: any) => ({
+        label: pm.methodName,
+        value: pm.id
+      }))
   } catch (error) {
     console.error('Error fetching payment methods:', error)
   }
