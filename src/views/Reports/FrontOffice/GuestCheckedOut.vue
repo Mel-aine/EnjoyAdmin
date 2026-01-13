@@ -634,14 +634,16 @@ const toggleExportMenu = (): void => {
   exportMenuOpen.value = !exportMenuOpen.value
 }
 
-const exportCSV = async (): Promise<void> => {
+/* const exportCSV = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export CSV avec filtres:', filters.value)
     const result = await exportData('csv', 'guestCheckedOut', 'guest-checked-out', {
       ...filters.value,
-      hotelId: idHotel.value
+      hotelId: idHotel.value,
+      rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
+      rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined
     })
     console.log('Résultat export CSV:', result)
   } catch (error) {
@@ -649,7 +651,7 @@ const exportCSV = async (): Promise<void> => {
   } finally {
     exportLoading.value = false
   }
-}
+} */
 
 const exportPDF = async (): Promise<void> => {
   try {
@@ -664,7 +666,9 @@ const exportPDF = async (): Promise<void> => {
     console.log('Export PDF avec filtres:', filters.value)
     const result = await exportData('pdf', 'guestCheckedOut', 'guest-checked-out', {
       ...filters.value,
-      hotelId: idHotel.value
+      hotelId: idHotel.value,
+      rateFrom: filters.value.rateFrom ? Number(filters.value.rateFrom) : undefined,
+      rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined
     })
     pdfUrl.value = result?.fileUrl || ''
     openPDFInNewPage()
@@ -676,7 +680,7 @@ const exportPDF = async (): Promise<void> => {
   }
 }
 
-const exportExcel = async (): Promise<void> => {
+/* const exportExcel = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
@@ -691,7 +695,7 @@ const exportExcel = async (): Promise<void> => {
   } finally {
     exportLoading.value = false
   }
-}
+} */
 
 const openPDFInNewPage = (): void => {
   if (pdfUrl.value) {
