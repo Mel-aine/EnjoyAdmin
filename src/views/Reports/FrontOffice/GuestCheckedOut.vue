@@ -347,7 +347,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { GuestCheckoutFilters } from '@/services/reportsApi'
-import { generateGuestCheckedOut,  } from '@/services/reportsApi'
+import { generateGuestCheckedOut, exportData  } from '@/services/reportsApi'
 import { getNightAuditReportPdfUrl } from '@/services/occupancyReportsApi'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
@@ -360,32 +360,6 @@ const serviceStore = useServiceStore()
 // Récupérer l'ID de l'hôtel depuis le store
 const idHotel = computed(() => serviceStore.serviceId as number)
 
-// Export data function
-const exportData = async (
-  type: 'csv' | 'pdf' | 'excel',
-  reportType: string,
-  fileName: string,
-  params: any
-) => {
-  try {
-    // TODO: Implement the actual export logic here
-    // This is a placeholder that simulates an API call
-    console.log(`Exporting ${type} for ${reportType} with params:`, params)
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Return a mock response
-    return {
-      success: true,
-      message: 'Export completed successfully',
-      fileUrl: type === 'pdf' ? 'data:application/pdf;base64,...' : undefined
-    }
-  } catch (error) {
-    console.error('Error during export:', error)
-    throw error
-  }
-}
 
 interface FilterOptions {
   value: string;
