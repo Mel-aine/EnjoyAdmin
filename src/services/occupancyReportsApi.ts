@@ -288,6 +288,7 @@ export const getNightAuditReportPDF = async (data: {hotelId:number, asOnDate:str
   }
 }
 
+
 /**
  * Get Night Audit Report PDF URL
  * 

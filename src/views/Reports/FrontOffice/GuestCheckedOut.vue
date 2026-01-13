@@ -347,7 +347,8 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useServiceStore } from '@/composables/serviceStore'
 import type { GuestCheckoutFilters } from '@/services/reportsApi'
-import { generateGuestCheckedOut } from '@/services/reportsApi'
+import { generateGuestCheckedOut,  } from '@/services/reportsApi'
+import { getNightAuditReportPdfUrl } from '@/services/occupancyReportsApi'
 import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import ResultTable from '@/components/tables/ReusableTable.vue'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
@@ -530,16 +531,12 @@ onMounted(() => {
       guest: t('sampleData.guest'),
       room: `101 - ${t('roomTypes.suite')}`,
       rate: '100.00',
-      arrival: '28/04/2019 11:30:00 AM',
-      departure: '01/05/2019',
+      arrivalDate: '28/04/2019',
+      departureDate: '01/05/2019',
       pax: '1/0',
-      pickUp: '',
-      dropOff: '',
       resType: t('reservationTypes.confirmed'),
-      company: '',
-      user: t('users.helpdesk'),
-      BusiSour: t('businessSources.online'),
-      restyp: t('reservationTypes.confirmed')
+      checkoutUser: t('users.helpdesk'),
+      businessSource: t('businessSources.online'),
     }
   ]
 })

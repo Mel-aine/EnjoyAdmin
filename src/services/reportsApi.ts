@@ -640,12 +640,15 @@ export const generateSourceOfBusinessReport = async (filters: ReportFilters = {}
   }
 }
 // Export
+/**
+ * Export data and return blob URL
+ */
 export const exportData = async (
   format: 'csv' | 'pdf' | 'excel' = 'csv',
   reportTypes: string,
   URL_TYPE: string,
   filters: ReportFilters = {},
-): Promise<any> => {
+): Promise<{ fileUrl: string; filename: string }> => {
   try {
     const response: AxiosResponse = await apiClient.post(
       `${API_URL}/exports/${URL_TYPE}`,
@@ -665,19 +668,20 @@ export const exportData = async (
       throw new Error('Aucune donnée reçue du serveur');
     }
 
-    // Pour PDF, ne pas essayer de valider le blob immédiatement
     // Créer le blob avec le type MIME correct
     const blob = new Blob([response.data], {
       type: response.headers['content-type'] || getMimeType(format)
     });
 
-    // Télécharger le fichier sans validation préalable pour PDF
+    // Créer une URL temporaire pour le blob
+    const fileUrl = URL.createObjectURL(blob);
+
+    // Générer le nom de fichier
     const filename = `${reportTypes}_${new Date().toISOString().split('T')[0]}.${getFileExtension(format)}`;
-    downloadFile(blob, filename);
 
     return {
-      success: true,
-      message: `Fichier ${format.toUpperCase()} téléchargé avec succès`
+      fileUrl,       
+      filename    // Nom du fichier
     };
   } catch (error) {
     console.error('Erreur détaillée lors de l\'export:', error);
