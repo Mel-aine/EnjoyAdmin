@@ -87,8 +87,8 @@
 
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            <div><strong>{{ $t('common.dateFrom') }}:</strong> {{ filters.from }}</div>
-            <div><strong>{{ $t('common.to') }}:</strong> {{ filters.to }}</div>
+            <div><strong>{{ $t('common.dateFrom') }}:</strong> {{ filters.from }} <strong>{{ $t('common.to') }}:</strong> {{ filters.to }}</div>
+            <div></div>
             <div><strong>{{ $t('reports.audit.operation') }}:</strong> {{ getOperationLabel(filters.operation) }}</div>
           </div>
         </div>
