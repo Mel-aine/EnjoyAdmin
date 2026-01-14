@@ -539,7 +539,7 @@ const saveBlock = async () => {
             block_from_date: range.start,
             block_to_date: range.end,
             reason: formData.reason,
-            status: formData.status,
+            status: formData.status || 'pending',
             description:formData.description
           }
 

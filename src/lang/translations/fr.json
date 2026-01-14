@@ -8939,5 +8939,12 @@
   "add_custom" : "Ajouter",
   "Print Guest Registration": "Imprimer la fiche d'enregistrement",
   "Issue Date": "Date de délivrance",
-  "SelectMarketCode": "Sélectionner le code marché"
+  "SelectMarketCode": "Sélectionner le code marché",
+  "Edit Check-in Time": "Modifier l'heure d'arrivée",
+  "Check-in Time": "Heure d'arrivée",
+  "Edit Check-out Time": "Modifier l'heure de départ",
+  "Check-out Time": "Heure de départ",
+  "Check-in time updated successfully": "Heure d'arrivée mise à jour avec succès",
+  "Check-out time updated successfully": "Heure de départ mise à jour avec succès",
+  "Error updating time": "Erreur lors de la mise à jour de l'heure"
 }

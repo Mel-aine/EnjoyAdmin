@@ -8781,5 +8781,12 @@
   "add_custom" : "Add",
   "Print Guest Registration": "Print Guest Registration",
   "Issue Date": "Issue Date",
-  "SelectMarketCode": "Select Market Code"
+  "SelectMarketCode": "Select Market Code",
+  "Edit Check-in Time": "Edit Check-in Time",
+  "Check-in Time": "Check-in Time",
+  "Edit Check-out Time": "Edit Check-out Time",
+  "Check-out Time": "Check-out Time",
+  "Check-in time updated successfully": "Check-in time updated successfully",
+  "Check-out time updated successfully": "Check-out time updated successfully",
+  "Error updating time": "Error updating time"
 }

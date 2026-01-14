@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ArrowLeft, Building2Icon, Users } from 'lucide-vue-next'
+import { ArrowLeft, Building2Icon, Users ,Pencil  } from 'lucide-vue-next'
 import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
+import EditTimeModal from '@/components/reservations/foglio/EditTimeModal.vue';
 
 const props = defineProps<{
   id: string
@@ -48,7 +49,8 @@ import getOtaIconSrc from '@/utils/otaIcons'
 // États des modals
 const showPrintModal = ref(false)
 const isPending = ref(false)
-
+const showEditArrivalTimeModal = ref(false)
+const showEditDepartureTimeModal = ref(false)
 const { t } = useI18n()
 const toast = useToast()
 
@@ -148,9 +150,7 @@ const refreshAvailableActions = async () => {
   }
 }
 
-// ====== CHECK-IN ======
 
-// ====== CHECK-OUT ======
 
 // ====== ROOM ASSIGNMENT ======
 const handleRoomAssignmentRefresh = async () => {
@@ -227,7 +227,7 @@ const nightsSummary = computed(() => {
   }
 
   const nightsArray = rooms.map((room: any) => room.nights)
-  const minNights = Math.min(...nightsArray)
+  // const minNights = Math.min(...nightsArray)
   const maxNights = Math.max(...nightsArray)
 
   return `${maxNights}`
@@ -355,6 +355,29 @@ const ReservationConfirm = async () => {
   }
 }
 
+const handleEditArrivalTime = () => {
+  showEditArrivalTimeModal.value = true
+}
+
+const handleEditDepartureTime = () => {
+  showEditDepartureTimeModal.value = true
+}
+
+const handleTimeUpdated = async (data: any) => {
+
+  // Update local reservation with new time
+  if (data.timeType === 'arrival') {
+    updateLocalReservation({
+      checkInTime: data.time
+    })
+  } else {
+    updateLocalReservation({
+      checkOutTime: data.time
+    })
+  }
+
+}
+
 onMounted(() => {
   // Ensure URL carries the current tab on initial mount
   if (!route.query.tab || !VALID_TAB_IDS.has(String(route.query.tab))) {
@@ -405,6 +428,7 @@ onMounted(() => {
                   >{{ formatDate(localReservation.arrivedDate) }},
                   {{ formatTimeFromTimeString(localReservation.checkInTime) }}</span
                 >
+                <Pencil  class="w-3 h-3 cursor-pointer" @click="handleEditArrivalTime"  />
               </span>
             </div>
             <div class="flex flex-col">
@@ -414,6 +438,7 @@ onMounted(() => {
                   >{{ formatDate(localReservation.departDate) }},
                   {{ formatTimeFromTimeString(localReservation.checkOutTime) }}</span
                 >
+                <Pencil  class="w-3 h-3 cursor-pointer"  @click="handleEditDepartureTime"  />
               </span>
             </div>
             <div class="flex flex-col">
@@ -585,6 +610,30 @@ onMounted(() => {
       :templates="templates"
     />
   </template>
+
+  <!-- Edit Arrival Time Modal -->
+  <EditTimeModal
+    v-if="showEditArrivalTimeModal"
+    :is-open="showEditArrivalTimeModal"
+    :reservation-id="localReservation.id"
+    :reservation="localReservation"
+    time-type="arrival"
+    :current-time="localReservation.checkInTime"
+    @close="showEditArrivalTimeModal = false"
+    @time-updated="handleTimeUpdated"
+  />
+
+  <!-- Edit Departure Time Modal -->
+  <EditTimeModal
+    v-if="showEditDepartureTimeModal"
+    :is-open="showEditDepartureTimeModal"
+    :reservation-id="localReservation.id"
+    :reservation="localReservation"
+    time-type="departure"
+    :current-time="localReservation.checkOutTime"
+    @close="showEditDepartureTimeModal = false"
+    @time-updated="handleTimeUpdated"
+  />
 </template>
 
 <style scoped>
