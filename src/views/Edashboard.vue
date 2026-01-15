@@ -42,7 +42,7 @@
 
       <!-- Typologie des clients -->
       <div class="col-span-12 xl:col-span-5">
-        <guest-demographics :stay-duration="stayDuration" :originData="Demographic" :customerTypes="customerTypes" />
+        <guest-demographics :stay-duration="stayDuration" :originData="Demographic" :customerTypeData="customerTypes" />
       </div>
 
       <!-- Réservations récentes -->
@@ -118,9 +118,10 @@ const fetchGeneralStat = async () => {
     averageLengthOfStay.value = result1.data
      stayDuration.value = result2.data
      reservations.value = reservation
-     Demographic.value = demographic.data
+     Demographic.value = demographic.data.nationalities
+     customerTypes.value = demographic.data.customerTypes
      Reservations.value = ReservationType.data
-    console.log(" reservations.value ",  reservations.value )
+    console.log(" demographic.data ",  demographic.data)
   } catch (error) {
     console.error('error fetching fetchGeneralStat', error)
   }
@@ -259,19 +260,5 @@ const fetchRevenuData = async () => {
   }
 }
 
-// const fetchCustomerTypes = async() => {
-//     try {
-//       const serviceId = serviceStore.serviceId
-//       const response = await getCustomerType(serviceId)
-//       console.log('Customer Types:', response.data)
-//       customerTypes.value = response.data
-//     } catch (error) {
-//       console.error('Erreur lors de la récupération des types de clients:', error)
-//     }
-// }
-
-// onMounted(() => {
-//   fetchCustomerTypes()
-// })
 
 </script>

@@ -7557,7 +7557,8 @@
     "VOID_RESERVATION": "Reservation Voided",
     "ROOM_CHARGE_UPDATE" : "Update Room Charge",
     "FOLIO_ADJUSTMENT_UPDATED" : "Update Folio Adjustment",
-    "TRANSACTION_UPDATED" : "Update Transaction"
+    "TRANSACTION_UPDATED" : "Update Transaction",
+    "NOTIFICATION_SENT" : "Notification Sent"
     
   },
   "auditDescriptions": {

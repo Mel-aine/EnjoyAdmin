@@ -7517,7 +7517,8 @@
     "CHANNEX_ACKNOWLEDGE_SENT": "Accusé envoyé à Channex",
     "ROOM_CHARGE_UPDATE": "Mise à jour des frais de chambre",
     "FOLIO_ADJUSTMENT_UPDATED": "Ajustement du folio mis à jour",
-    "TRANSACTION_UPDATED": "Transaction mise à jour"
+    "TRANSACTION_UPDATED": "Transaction mise à jour",
+    "NOTIFICATION_SENT": "Notification envoyée"
 
 
 

@@ -129,7 +129,7 @@ const fetchAuditTrail = async () => {
     filters.value.perPage = itemsPerPage.value
 
     const result = await getAuditTrail(filters.value)
-    console.log('result',result)
+    console.log('result',props.entityIds)
     if (result) {
       auditData.value = result.data
       totalItems.value = result.meta.total
