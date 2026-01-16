@@ -4,7 +4,7 @@ import { useAuthStore } from '@/composables/user'
 const axios = apiClient
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/reports`
-
+const url = import.meta.env.VITE_API_URL as string
 const getHeaders  = () => {
   const authStore = useAuthStore()
   return {
@@ -574,10 +574,12 @@ export const getFolioListReport = async (data: any) => {
  */
 export const getAuditReport = async (data: any) => {
   try {
-    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.post(
-      `${API_URL}/statistics/audit`,
-      data,
-      getHeaders()
+    const response: AxiosResponse<ApiResponse | undefined> = await apiClient.get(
+      `${url}/audit-trail`,
+      {
+        ...getHeaders(),
+        params: data
+      }
     )
     return response.data
   } catch (error) {
