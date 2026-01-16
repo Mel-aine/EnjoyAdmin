@@ -49,14 +49,14 @@
                       customClass="rounded-r-none"
                     />
                   </div>
-                  <div class="flex-1">
+                  <div class="flex-1 mt-1.5">
                     <Input
                       v-model="form.firstName"
                       :placeholder="$t('FirstName')"
                       custom-class="rounded-none"
                     />
                   </div>
-                  <div class="flex-1">
+                  <div class="flex-1 mt-1.5">
                     <Input
                       v-model="form.lastName"
                       :placeholder="$t('LastName')"

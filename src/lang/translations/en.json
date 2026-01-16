@@ -7558,7 +7558,14 @@
     "ROOM_CHARGE_UPDATE" : "Update Room Charge",
     "FOLIO_ADJUSTMENT_UPDATED" : "Update Folio Adjustment",
     "TRANSACTION_UPDATED" : "Update Transaction",
-    "NOTIFICATION_SENT" : "Notification Sent"
+    "NOTIFICATION_SENT" : "Notification Sent",
+    "VOID" : "Void Transaction",
+    "EMAIL_FAILED" : "Email Failed",
+    "MAILJET_CONTACT_SYNC" : "Mailjet Contact Sync",
+    "MAILJET_SENDER_REGISTERED" : "Mailjet Sender Registered",
+    "MAILJET_SENDER_DELETED" : "Mailjet Sender Deleted",
+    "EMAIL_SKIPPED" : "Email Skipped",
+    "NOTIFICATION_FAILED" : "Notification Failed"
     
   },
   "auditDescriptions": {
@@ -8789,5 +8796,8 @@
   "Check-out Time": "Check-out Time",
   "Check-in time updated successfully": "Check-in time updated successfully",
   "Check-out time updated successfully": "Check-out time updated successfully",
-  "Error updating time": "Error updating time"
+  "Error updating time": "Error updating time",
+  "invoice_voided_successfully": "Invoice voided successfully",
+  "noResultsFound": "No results found",
+  "error_voiding_invoice": "Error voiding invoice"
 }
