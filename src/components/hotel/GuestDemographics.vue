@@ -9,24 +9,25 @@
         <div class="flex items-center mb-4">
           <div class="w-full bg-gray-200 rounded-full h-4">
             <div class="flex h-4 rounded-full overflow-hidden">
-              <div class="bg-blue-500 h-full" style="width: 45%"></div>
-              <div class="bg-amber-500 h-full" style="width: 30%"></div>
-              <div class="bg-green-500 h-full" style="width: 25%"></div>
+              <div
+                v-for="(type, index) in customerTypes"
+                :key="type.type"
+                class="h-full"
+                :class="getBarColor(index)"
+                :style="{ width: type.percentage + '%' }"
+              ></div>
             </div>
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-2 text-sm">
-          <div class="flex items-center">
-            <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-            <span class="text-gray-600 dark:text-white">{{ $t('hobbies') }} (45%)</span>
-          </div>
-          <div class="flex items-center">
-            <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
-            <span class="text-gray-600 dark:text-white">{{ $t('business') }} (30%)</span>
-          </div>
-          <div class="flex items-center">
-            <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-            <span class="text-gray-600 dark:text-white">{{ $t('groups') }} (25%)</span>
+        <div
+          class="grid gap-2 text-sm"
+          :class="customerTypes.length <= 6 ? 'grid-cols-4' : 'grid-cols-2'"
+        >
+          <div v-for="(type, index) in customerTypes" :key="type.type" class="flex items-center">
+            <div class="w-3 h-3 rounded-full mr-2" :class="getDotColor(index)"></div>
+            <span class="text-gray-600 dark:text-white">
+              {{ getCustomerTypeLabel(type.type) }} ({{ type.percentage }}%)
+            </span>
           </div>
         </div>
       </div>
@@ -34,20 +35,23 @@
       <!-- Origine des clients -->
       <div>
         <div class="flex justify-between items-center mb-3">
-          <h3 class="text-sm font-medium text-gray-600 dark:text-white">{{ $t('origin_customer') }}</h3>
-          <!-- <button class="text-xs text-blue-600 hover:text-blue-700">{{ $t('see_details') }}</button> -->
+          <h3 class="text-sm font-medium text-gray-600 dark:text-white">
+            {{ $t('origin_customer') }}
+          </h3>
         </div>
 
-        <div  ref="originChart" style="width: 100%; height: 250px"></div>
-
-
+        <div ref="originChart" style="width: 100%; height: 250px"></div>
       </div>
 
       <!-- Durée de séjour -->
       <div>
         <h3 class="text-sm font-medium text-gray-600 mb-3 dark:text-white">{{ $t('duration') }}</h3>
         <div class="grid grid-cols-2 gap-2">
-          <div v-for="(value, key) in stayDuration" :key="key" class="bg-gray-50 rounded-lg p-3 dark:bg-gray-300">
+          <div
+            v-for="(value, key) in stayDuration"
+            :key="key"
+            class="bg-gray-50 rounded-lg p-3 dark:bg-gray-300"
+          >
             <div class="text-sm text-gray-500">
               {{ $t(key.includes('nuits') ? key : key + ' nights') }}
             </div>
@@ -63,9 +67,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted,nextTick,watch } from 'vue'
+import { ref, onMounted, nextTick, watch, computed } from 'vue'
 import * as echarts from 'echarts'
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
 import { defineProps } from 'vue'
 
@@ -75,21 +79,16 @@ const props = defineProps<{
     nationality: string
     count: number
   }>
+  customerTypeData: Array<{
+    type: string
+    count: number
+  }>
 }>()
 const isLoading = ref(true)
-const {t} = useI18n()
-
-
+const { t } = useI18n()
 
 // Référence DOM
 const originChart = ref<HTMLDivElement | null>(null)
-
-// const originData = {
-//   labels: ['France', 'Royaume-Uni', 'Allemagne', 'États-Unis', 'Italie', 'Espagne', 'Autres'],
-//   data: [35, 18, 15, 12, 8, 7, 5],
-// }
-
-
 
 let chartInstance: any = null
 
@@ -100,7 +99,6 @@ const initChart = async () => {
     console.warn('Élément DOM du graphique non trouvé')
     return
   }
-
 
   destroyChart()
 
@@ -147,24 +145,26 @@ const initChart = async () => {
           data: props.originData.map((entry, index) => {
             const countryKey = entry.nationality.toLowerCase()
             const translatedName = t(`countries_lists.${countryKey}`)
-            const displayName = translatedName && translatedName !== `countries_lists.${countryKey}` 
-              ? translatedName 
-              : entry.nationality
+            const displayName =
+              translatedName && translatedName !== `countries_lists.${countryKey}`
+                ? translatedName
+                : entry.nationality
             return {
-            name: displayName,
-            value: entry.count,
-            itemStyle: {
-              color: [
-                'rgba(59, 130, 246, 0.7)',
-                'rgba(245, 158, 11, 0.7)',
-                'rgba(16, 185, 129, 0.7)',
-                'rgba(139, 92, 246, 0.7)',
-                'rgba(239, 68, 68, 0.7)',
-                'rgba(236, 72, 153, 0.7)',
-                'rgba(209, 213, 219, 0.7)',
-              ][index % 7],
-            },
-          }}),
+              name: displayName,
+              value: entry.count,
+              itemStyle: {
+                color: [
+                  'rgba(59, 130, 246, 0.7)',
+                  'rgba(245, 158, 11, 0.7)',
+                  'rgba(16, 185, 129, 0.7)',
+                  'rgba(139, 92, 246, 0.7)',
+                  'rgba(239, 68, 68, 0.7)',
+                  'rgba(236, 72, 153, 0.7)',
+                  'rgba(209, 213, 219, 0.7)',
+                ][index % 7],
+              },
+            }
+          }),
         },
       ],
     })
@@ -177,7 +177,6 @@ const initChart = async () => {
   }
 }
 
-
 onMounted(() => {
   // Si les données sont déjà prêtes au montage
   if (props.originData && props.originData.length > 0) {
@@ -187,16 +186,15 @@ onMounted(() => {
 
 watch(
   () => props.originData,
-  async (newData:any) => {
+  async (newData: any) => {
     if (newData && newData.length > 0) {
       isLoading.value = true
       await initChart()
       isLoading.value = false
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
-
 
 // Détruire l'instance précédente si besoin
 const destroyChart = () => {
@@ -205,5 +203,56 @@ const destroyChart = () => {
     chartInstance = null
   }
 }
+const getBarColor = (index: number) => {
+  const colors = [
+    'bg-pink-500',
+    'bg-amber-500',
+    'bg-green-500',
+    'bg-purple-500',
+    'bg-red-500'
+  ]
+  return colors[index % colors.length]
+}
 
+const getDotColor = (index: number) => {
+  const colors = [
+    'bg-pink-500',
+    'bg-amber-500',
+    'bg-green-500',
+    'bg-purple-500',
+    'bg-red-500'
+  ]
+  return colors[index % colors.length]
+}
+
+// Calculer les pourcentages pour les types de clients
+const customerTypes = computed(() => {
+  if (!props.customerTypeData || props.customerTypeData.length === 0) {
+    return []
+  }
+
+  const total = props.customerTypeData.reduce((sum, type) => sum + type.count, 0)
+
+  return props.customerTypeData
+    .map((type) => ({
+      type: type.type,
+      count: type.count,
+      percentage: total > 0 ? Math.round((type.count / total) * 100) : 0,
+    }))
+    .filter((type) => type.count > 0) // Ne garder que les types avec des réservations
+    .sort((a, b) => b.count - a.count)
+})
+
+// Obtenir le label traduit selon le type de client
+const getCustomerTypeLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    individual: t('Individual'),
+    group: t('Group'),
+    company: t('Company'),
+    inconnu: t('unknown'),
+    family: t('family'),
+  }
+
+  return labels[type?.toLowerCase()] || type || t('other')
+}
 </script>

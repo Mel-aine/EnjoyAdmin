@@ -109,12 +109,22 @@ function changePage(page: number) {
 }
 
 const getInitials = (name: string): string => {
+  if (!name) return ''
+
   return name
+    .replace(/[^a-zA-Z\s]/g, '')
     .split(' ')
-    .map(n => n[0])
+    .filter(
+      part =>
+        part.length > 1 &&
+        !['mr', 'mrs', 'ms', 'dr','miss'].includes(part.toLowerCase())
+    )
+    .slice(0, 2)
+    .map(part => part.charAt(0))
     .join('')
     .toUpperCase()
 }
+
 
 const getStatusClass = (status: string): string => {
   switch (status.toLowerCase()) {
