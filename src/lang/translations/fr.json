@@ -1730,6 +1730,7 @@
     "actions": "Actions",
     "mealPlan": "Plan de repas",
     "country": "Pays",
+    "reservationTYpe": "Type de réservation",
     "commonCurrency": "Devise commune",
     "roomType": "Type de chambre",
     "guestName": "Nom du client",

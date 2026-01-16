@@ -87,8 +87,8 @@
 
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            <div><strong>{{ $t('common.dateFrom') }}:</strong> {{ filters.from }}</div>
-            <div><strong>{{ $t('common.to') }}:</strong> {{ filters.to }}</div>
+            <div><strong>{{ $t('common.dateFrom') }}:</strong> {{ filters.from }} <strong>{{ $t('common.to') }}:</strong> {{ filters.to }}</div>
+            <div></div>
             <div><strong>{{ $t('reports.audit.operation') }}:</strong> {{ getOperationLabel(filters.operation) }}</div>
           </div>
         </div>
@@ -167,6 +167,7 @@ interface FilterOptions {
 }
 
 interface AuditTrailData {
+  id: number;
   resNo: string;
   folioNo: string;
   guest: string;
@@ -175,6 +176,7 @@ interface AuditTrailData {
   time: string;
   particulars: string;
 }
+
 const serviceStore: any = useServiceStore()
 
 interface Filters {
@@ -189,6 +191,7 @@ const today = new Date().toISOString().split('T')[0]
 const hotelName = computed(() => {
   return useServiceStore().getCurrentService?.hotelName
 })
+
 const filters = ref<Filters>({
   from: today,
   to: today,
@@ -207,10 +210,13 @@ const userOptionsRaw = ref<FilterOptions[]>([])
 const operationOptions = computed<FilterOptions[]>(() => [
   { value: '', label: t('common.all') },
   { value: 'roomrate_change', label: t('reports.audit.roomrateChange') },
-  { value: 'check_in', label: t('common.checkIn') },
-  { value: 'check_out', label: t('common.checkOut') },
-  { value: 'room_assignment', label: t('reports.audit.roomAssignment') },
-  { value: 'payment', label: t('common.payment') }
+  { value: 'UPDATE', label: t('common.update') },
+  { value: 'CREATE', label: t('common.create') },
+  { value: 'DELETE', label: t('common.delete') },
+  { value: 'LOGIN', label: t('common.login') },
+  { value: 'LOGOUT', label: t('common.logout') },
+  { value: 'CHECK_IN', label: t('common.checkIn') },
+  { value: 'CHECK_OUT', label: t('common.checkOut') }
 ])
 
 const getOperationLabel = (operation: string): string => {
@@ -219,30 +225,176 @@ const getOperationLabel = (operation: string): string => {
   return option ? option.label : operation
 }
 
-// Sample audit trail data exactly as shown in the image
-const auditTrailsData = ref<AuditTrailData[]>([
-])
-const isLoading = ref(false);
+const auditTrailsData = ref<AuditTrailData[]>([])
+const isLoading = ref(false)
+
+// Helper functions to format data
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-GB', { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric' 
+  })
+}
+
+const formatTime = (dateString: string): string => {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return date.toLocaleTimeString('en-GB', { 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit',
+    hour12: false
+  })
+}
+
+// Helper function to extract folio number from description or meta
+const extractFolioNumber = (description: string, meta: any): string => {
+  if (!description) return '-'
+  
+  // Try to extract folio number from description
+  const folioMatch = description.match(/folio[:\s#]*(\d+)/i)
+  if (folioMatch) return folioMatch[1]
+  
+  // Check in meta if available
+  if (meta && meta.folioNumber) return meta.folioNumber
+  
+  return '-'
+}
+
+// Helper function to extract guest name from description
+const extractGuestName = (description: string): string => {
+  if (!description) return '-'
+  
+  // Try to extract name from quotes "NAME"
+  const nameMatch = description.match(/"([^"]+)"/g)
+  if (nameMatch && nameMatch.length > 0) {
+    // Get the first quoted text which is usually the guest name
+    return nameMatch[0].replace(/"/g, '')
+  }
+  
+  // Try to extract from "for guest" pattern
+  const forGuestMatch = description.match(/for guest\s+(.+?)(?:\s+has|\s*$)/i)
+  if (forGuestMatch) return forGuestMatch[1]
+  
+  return '-'
+}
+
+// Helper function to build particulars from action and changes
+const buildParticulars = (item: any): string => {
+  const parts: string[] = []
+  
+  // Add description if available
+  if (item.description) {
+    parts.push(item.description)
+  }
+  
+  // Add changes if available
+  if (item.changes && typeof item.changes === 'object' && Object.keys(item.changes).length > 0) {
+    const changesList: string[] = []
+    for (const [field, change] of Object.entries(item.changes)) {
+      const changeObj = change as any
+      if (changeObj.old !== undefined && changeObj.new !== undefined) {
+        const oldVal = changeObj.old === null || changeObj.old === '' ? 'empty' : changeObj.old
+        const newVal = changeObj.new === null || changeObj.new === '' ? 'empty' : changeObj.new
+        changesList.push(`${field}: "${oldVal}" → "${newVal}"`)
+      }
+    }
+    if (changesList.length > 0) {
+      parts.push('Changes: ' + changesList.join(', '))
+    }
+  }
+  
+  // Add IP and User Agent if available
+  const metadata: string[] = []
+  if (item.ipAddress) {
+    metadata.push(`IP: ${item.ipAddress}`)
+  }
+  if (item.userAgent) {
+    // Shorten user agent for readability
+    const shortAgent = item.userAgent.length > 50 
+      ? item.userAgent.substring(0, 50) + '...' 
+      : item.userAgent
+    metadata.push(`User Agent: ${shortAgent}`)
+  }
+  
+  if (metadata.length > 0) {
+    parts.push(metadata.join(' | '))
+  }
+  
+  return parts.join(' | ')
+}
+
 // Methods
 const generateReport = async() => {
   isLoading.value = true
-  console.log('Generating void charge report with filters:', filters.value)
-  const data = {
-    from: filters.value.from,
-    to: filters.value.to,
-    user: filters.value.user,
-    operation:filters.value.operation,
-    hotelId: serviceStore.serviceId
-  }
-  const response = await getAuditReport(data);
-  console.log('response', response)
- // voidChargeDataRaw.value = response?.data?.voidCharges || [];
-  //totalRecords.value = response?.data?.totalRecords || 0;
-  //totalAmount.value = response?.data?.totalAmount || 0;
-  showResults.value = true
-  isLoading.value = false
+  console.log('Generating audit report with filters:', filters.value)
   
+  try {
+    const data = {
+      startDate: filters.value.from,
+      endDate: filters.value.to,
+      userId: filters.value.user || undefined,
+      action: filters.value.operation || undefined,
+      hotelId: serviceStore.serviceId
+    }
+    
+    const response = await getAuditReport(data)
+    console.log('Response:', response)
+    
+    // Map the API response to the table format
+    if (response?.data && Array.isArray(response.data)) {
+      auditTrailsData.value = response.data.map((item: any) => {
+        // Extract reservation number from entityId if entityType is Reservation
+        const resNo = item.entityType === 'Reservation' || item.entityType === 'Booking'
+          ? item.entityId 
+          : '-'
+        
+        // Extract folio number if available in description or meta
+        const folioNo = extractFolioNumber(item.description, item.meta)
+        
+        // Extract guest name from description
+        const guest = extractGuestName(item.description)
+        
+        // Get user name
+        const user = item.username || 
+                    (item.user ? `${item.user.firstName} ${item.user.lastName}` : '-')
+        
+        // Format date and time
+        const date = formatDate(item.createdAt)
+        const time = formatTime(item.createdAt)
+        
+        // Build particulars from action and changes
+        const particulars = buildParticulars(item)
+        
+        return {
+          id: item.id,
+          resNo,
+          folioNo,
+          guest,
+          user,
+          date,
+          time,
+          particulars
+        }
+      })
+      
+      showResults.value = true
+    } else {
+      auditTrailsData.value = []
+      showResults.value = true
+    }
+  } catch (error) {
+    console.error('Error generating report:', error)
+    auditTrailsData.value = []
+    showResults.value = true
+  } finally {
+    isLoading.value = false
+  }
 }
+
 const fetchUser = async () => {
   try {
     const hotelId = serviceStore.serviceId
@@ -250,33 +402,30 @@ const fetchUser = async () => {
     const response = await getEmployeesForService(hotelId)
     console.log('response', response)
 
-    const assignmentsWithNames = await Promise.all(
-      response.data.data.map(async (user: any) => {
-        return {
-          value: user.id,
-          label: user.lastName
-        }
-      }),
-    )
-    userOptionsRaw.value.push(...assignmentsWithNames)
+    const assignmentsWithNames = response.data.data.map((user: any) => {
+      return {
+        value: String(user.id),
+        label: `${user.firstName} ${user.lastName}`
+      }
+    })
+    userOptionsRaw.value = assignmentsWithNames
   } catch (error) {
     console.error('fetch failed:', error)
-
-  } finally {
   }
 }
-fetchUser();
+
+fetchUser()
+
 const resetForm = (): void => {
   filters.value = {
-    from: '',
-    to: '',
+    from: today,
+    to: today,
     user: '',
-    operation: ''
+    operation: 'roomrate_change'
   }
+  auditTrailsData.value = []
   showResults.value = false
 }
-
-
 </script>
 
 <style scoped>
