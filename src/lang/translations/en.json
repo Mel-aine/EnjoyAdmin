@@ -1739,6 +1739,8 @@
     "actions": "Actions",
     "country": "Country",
     "commonCurrency": "Common Currency",
+    "user": "User",
+    "reservationType": "Reservation Type",
     "roomType": "Room Type",
     "roomNumber": "Room Number",
     "guestName": "Guest Name",
@@ -1761,6 +1763,7 @@
     "deluxe": "Deluxe",
     "suite": "Suite",
     "presidential": "Presidential",
+    "voucherNumber": "Voucher Number",
     "rooms": "Rooms",
     "roomsSold": "Rooms Sold",
     "totalRevenue": "Total Revenue",
@@ -7557,7 +7560,15 @@
     "VOID_RESERVATION": "Reservation Voided",
     "ROOM_CHARGE_UPDATE" : "Update Room Charge",
     "FOLIO_ADJUSTMENT_UPDATED" : "Update Folio Adjustment",
-    "TRANSACTION_UPDATED" : "Update Transaction"
+    "TRANSACTION_UPDATED" : "Update Transaction",
+    "NOTIFICATION_SENT" : "Notification Sent",
+    "VOID" : "Void Transaction",
+    "EMAIL_FAILED" : "Email Failed",
+    "MAILJET_CONTACT_SYNC" : "Mailjet Contact Sync",
+    "MAILJET_SENDER_REGISTERED" : "Mailjet Sender Registered",
+    "MAILJET_SENDER_DELETED" : "Mailjet Sender Deleted",
+    "EMAIL_SKIPPED" : "Email Skipped",
+    "NOTIFICATION_FAILED" : "Notification Failed"
     
   },
   "auditDescriptions": {
@@ -8781,5 +8792,15 @@
   "add_custom" : "Add",
   "Print Guest Registration": "Print Guest Registration",
   "Issue Date": "Issue Date",
-  "SelectMarketCode": "Select Market Code"
+  "SelectMarketCode": "Select Market Code",
+  "Edit Check-in Time": "Edit Check-in Time",
+  "Check-in Time": "Check-in Time",
+  "Edit Check-out Time": "Edit Check-out Time",
+  "Check-out Time": "Check-out Time",
+  "Check-in time updated successfully": "Check-in time updated successfully",
+  "Check-out time updated successfully": "Check-out time updated successfully",
+  "Error updating time": "Error updating time",
+  "invoice_voided_successfully": "Invoice voided successfully",
+  "noResultsFound": "No results found",
+  "error_voiding_invoice": "Error voiding invoice"
 }

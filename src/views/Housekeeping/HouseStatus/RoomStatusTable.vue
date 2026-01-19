@@ -620,9 +620,16 @@ const transformRoomData = (apiRoom: any): Room => {
   let status = apiRoom.status || 'available'
   let housekeepingStatus = apiRoom.housekeepingStatus || ''
 
-  // Vérifie si la chambre a un bloc actif
+  const now = new Date()
+
+  // Vérifie si la chambre a un bloc actif qui couvre la date actuelle
   const hasActiveBlock =
-    apiRoom.blocks && apiRoom.blocks.some((block: any) => block.status !== 'completed')
+    apiRoom.blocks && apiRoom.blocks.some((block: any) => {
+      const blockStart = new Date(block.blockFromDate)
+      const blockEnd = new Date(block.blockToDate)
+      // Vérifie que le statut n'est pas "completed" ET que la date actuelle est dans la plage
+      return block.status !== 'completed' && now >= blockStart && now <= blockEnd
+    })
 
   if (hasActiveBlock) {
     status = 'out_of_order'

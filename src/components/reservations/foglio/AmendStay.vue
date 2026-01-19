@@ -313,7 +313,7 @@ watch([() => formData.value.newArrivalDate, () => formData.value.newDepartureDat
         const timeDiff = departureDate.getTime() - arrivalDate.getTime()
         const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
 
-        if (daysDiff > 0) {
+        if (daysDiff >= 0) {
             formData.value.nights = daysDiff
         }
     }

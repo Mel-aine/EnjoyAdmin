@@ -1730,6 +1730,7 @@
     "actions": "Actions",
     "mealPlan": "Plan de repas",
     "country": "Pays",
+    "reservationTYpe": "Type de réservation",
     "commonCurrency": "Devise commune",
     "roomType": "Type de chambre",
     "guestName": "Nom du client",
@@ -7517,7 +7518,15 @@
     "CHANNEX_ACKNOWLEDGE_SENT": "Accusé envoyé à Channex",
     "ROOM_CHARGE_UPDATE": "Mise à jour des frais de chambre",
     "FOLIO_ADJUSTMENT_UPDATED": "Ajustement du folio mis à jour",
-    "TRANSACTION_UPDATED": "Transaction mise à jour"
+    "TRANSACTION_UPDATED": "Transaction mise à jour",
+    "NOTIFICATION_SENT": "Notification envoyée",
+    "VOID": "Transaction annulée",
+    "EMAIL_FAILED": "Échec de l'envoi de l'e-mail",
+    "MAILJET_CONTACT_SYNC": "Synchronisation du contact Mailjet",
+    "MAILJET_SENDER_REGISTERED": "Expéditeur Mailjet enregistré",
+    "MAILJET_SENDER_DELETED": "Expéditeur Mailjet supprimé",
+    "EMAIL_SKIPPED": "E-mail ignoré",
+    "NOTIFICATION_FAILED": "Échec de la notification"
 
 
 
@@ -8939,5 +8948,15 @@
   "add_custom" : "Ajouter",
   "Print Guest Registration": "Imprimer la fiche d'enregistrement",
   "Issue Date": "Date de délivrance",
-  "SelectMarketCode": "Sélectionner le code marché"
+  "SelectMarketCode": "Sélectionner le code marché",
+  "Edit Check-in Time": "Modifier l'heure d'arrivée",
+  "Check-in Time": "Heure d'arrivée",
+  "Edit Check-out Time": "Modifier l'heure de départ",
+  "Check-out Time": "Heure de départ",
+  "Check-in time updated successfully": "Heure d'arrivée mise à jour avec succès",
+  "Check-out time updated successfully": "Heure de départ mise à jour avec succès",
+  "Error updating time": "Erreur lors de la mise à jour de l'heure",
+  "invoice_voided_successfully": "Facture annulée avec succès",
+  "noResultsFound": "Aucun résultat trouvé",
+  "error_voiding_invoice": "Erreur lors de l'annulation de la facture"
 }

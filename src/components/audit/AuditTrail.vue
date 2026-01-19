@@ -43,6 +43,7 @@ import { useAuthStore } from '@/composables/user'
 import type { Column } from '../../utils/models'
 import { formatDateT } from '../utilities/UtilitiesFunction'
 import { useI18n } from 'vue-i18n'
+import { useServiceStore } from '@/composables/serviceStore'
 
 // State
 const loading = ref(false)
@@ -50,8 +51,10 @@ const error = ref('')
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const auditData = ref<AuditTrailEntry[]>([])
+const auditMeta = ref<any>({})
 const totalItems = ref(0)
 const totalPages = ref(0)
+const serviceStore = useServiceStore()
 // keep itemsPerPage in sync with API meta.per_page when available
 const users = ref([])
 const authStore = useAuthStore()
@@ -61,12 +64,12 @@ const {t} = useI18n()
 
 // Filters
 const filters = ref<AuditTrailQueryParams>({
-  hotelId: authStore.user?.hotelId || 1,
-  entityIds:props.entityIds,
+  hotelId: serviceStore.serviceId || 1,
+  entityIds: props.entityIds,
   startDate: '',
   endDate: '',
   page: 1,
-  perPage: 200,
+  perPage: 20,
   sortBy: 'createdAt',
   order: 'desc'
 })
@@ -85,12 +88,12 @@ const paginatedData = computed(() => {
   return auditData.value
 })
 
-const auditMeta = computed(() => ({
-  total: totalItems.value,
-  perPage: itemsPerPage.value,
-  currentPage: currentPage.value,
-  lastPage: totalPages.value
-}))
+// const auditMeta = computed(() => ({
+//   total: totalItems.value,
+//   perPage: itemsPerPage.value,
+//   currentPage: currentPage.value,
+//   lastPage: totalPages.value
+// }))
 
 
 
@@ -132,6 +135,7 @@ const fetchAuditTrail = async () => {
     console.log('result',result)
     if (result) {
       auditData.value = result.data
+      auditMeta.value = result.meta
       totalItems.value = result.meta.total
       totalPages.value = result.meta.last_page
       if (typeof result.meta.per_page === 'number') {

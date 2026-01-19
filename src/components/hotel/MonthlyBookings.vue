@@ -95,7 +95,7 @@ const processedMonths = computed(() => {
   }
   return props.reservations.map((reservation:any) => ({
     value: reservation.month,
-    label: t(reservation.month.toLowerCase()) + ' 2025',
+    label: t(reservation.month.toLowerCase()) + ' 2026',
   }))
 })
 

@@ -375,59 +375,6 @@ const dateRange = computed(() => {
 
 
 
-const notificationItems = computed(() => {
-  const notifications = dashboardData.value?.notifications || {}
-  return [
-    {
-      key: 'workOrder',
-      icon: FileText,
-      count: notifications.workOrder || 0,
-      label: 'frontOffice.dashboard.workOrders',
-    },
-    {
-      key: 'bookingInquiry',
-      icon: Calendar,
-      count: notifications.bookingInquiry || 0,
-      label: 'frontOffice.dashboard.bookingInquiries',
-    },
-    {
-      key: 'paymentFailed',
-      icon: AlertTriangle,
-      count: notifications.paymentFailed || 0,
-      label: 'frontOffice.dashboard.paymentFailed',
-    },
-    {
-      key: 'overbooking',
-      icon: AlertTriangle,
-      count: notifications.overbooking || 0,
-      label: 'frontOffice.dashboard.overbooking',
-    },
-    {
-      key: 'guestMessage',
-      icon: MessageSquare,
-      count: notifications.guestMessage || 0,
-      label: 'frontOffice.dashboard.guestMessages',
-    },
-    {
-      key: 'unpaidFolios',
-      icon: FileText,
-      count: notifications.unpaidFolios || 0,
-      label: 'frontOffice.dashboard.unpaidFolios',
-    },
-    {
-      key: 'tasks',
-      icon: CheckCircle,
-      count: notifications.tasks || 0,
-      label: 'frontOffice.dashboard.tasks',
-    },
-    {
-      key: 'review',
-      icon: Star,
-      count: notifications.review || 0,
-      label: 'frontOffice.dashboard.reviews',
-    },
-  ]
-})
 
 const loadDashboardData = async () => {
   try {
@@ -444,10 +391,6 @@ const loadDashboardData = async () => {
       startDate: dateRange.value.startDate,
       endDate: dateRange.value.endDate,
     }
-
-    console.log('Loading dashboard with params:', params)
-    console.log('Selected range:', selectedRange.value)
-    console.log('Date range computed:', dateRange.value)
 
     const response = await getFrontOfficeDashboard(hotelId, params)
     console.log('Dashboard response:', response)
@@ -470,32 +413,6 @@ const loadDashboardData = async () => {
 }
 
 // Enhanced styling methods
-
-const getActivityTypeClass = (type: string) => {
-  const classes: any = {
-    arrival:
-      'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700',
-    departure:
-      'bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/40 dark:to-red-900/40 text-orange-800 dark:text-orange-200 border border-orange-200 dark:border-orange-700',
-    booking:
-      'bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/40 dark:to-cyan-900/40 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700',
-    modification:
-      'bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/40 dark:to-amber-900/40 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-700',
-    cancellation:
-      'bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900/40 dark:to-pink-900/40 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700',
-    payment:
-      'bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-700',
-    maintenance:
-      'bg-gradient-to-r from-slate-100 to-gray-100 dark:from-slate-900/40 dark:to-gray-900/40 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700',
-    housekeeping:
-      'bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-700',
-    communication:
-      'bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/40 dark:to-rose-900/40 text-pink-800 dark:text-pink-200 border border-pink-200 dark:border-pink-700',
-    system:
-      'bg-gradient-to-r from-slate-100 to-gray-100 dark:from-slate-900/40 dark:to-gray-900/40 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700',
-  }
-  return classes[type] || classes['system']
-}
 
 const housekeepingStatsArray = computed(() => [
   { key: 'clean', value: housekeepingStats.value.clean, color: 'bg-green-500' },

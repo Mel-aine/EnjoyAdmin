@@ -229,7 +229,7 @@ const generatePDF = async () => {
 
     // Construire les paramètres avec tous les filtres appliqués
     const params : any = {
-      hotelId: serviceStore.serviceId,
+      hotelId: serviceStore.serviceId!,
       dateFrom: filters.value.dateFrom,
       dateTo: filters.value.dateTo,
       ...(filters.value.roomTypeId && { roomTypeId: filters.value.roomTypeId }),
