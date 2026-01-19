@@ -486,6 +486,11 @@ export const updateBookingDetail = async (reservationId: any, data: any) => {
   }
 }
 
+// get reservation details for update
+export async function getReservationDetailsForUpdate(reservationId: number) {
+  return apiClient.get(`/reservation/${reservationId}/details-for-update`, getHeaders())
+}
+
 
 export const postRoomMoveReservation = async (reservationId: number, datas: any): Promise<any | undefined> => {
   try {

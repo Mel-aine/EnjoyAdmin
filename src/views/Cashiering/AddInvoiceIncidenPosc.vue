@@ -68,7 +68,7 @@
                 <tr>
                   <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('sr_no') }}</th>
-                  <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{  
+                  <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('Particulars') }}</th>
                   <th class="px-2 py-3 text-left text-sm font-medium text-gray-500 capitalize tracking-wider">{{
                     $t('Qty') }}</th>
@@ -85,7 +85,7 @@
               <tbody class="bg-white divide-y divide-gray-200 dark:bg-black">
                 <tr v-for="(charge, index) in form.charges" :key="index">
                   <td class="px-2 py-4 whitespace-nowrap text-sm ">{{ index + 1 }}</td>
-                 
+
                   <td class=" w-50 px-2 py-4 whitespace-nowrap">
                     <InputExtractChargeSelect v-model="charge.particular" :hide-label="true" @select="(selectedCharge) => handleChargeChange(selectedCharge, index)" />
                   </td>
@@ -104,8 +104,8 @@
                   </td>
                   <td class="px-2 py-4 whitespace-nowrap text-center">
                     <BasicButton :label="$t('add')" variant="primary" size="sm" @click="addCharge"
-                      v-if="index === form.charges.length - 1" />
-                    <button v-else @click="removeCharge(index)" class="text-red-600 hover:text-red-800">
+                       v-if="index === 0"  />
+                    <button   v-if="index > 0"  @click="removeCharge(index)" class="text-red-600 hover:text-red-800">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -165,11 +165,11 @@ const isLoading = ref(false)
 // Form data
 const form = ref({
   contactType: 'guest',
-  guestId: '',
+  guestId: '' as string | number, // MODIFIÉ: Type explicite
   customerName: '',
   customerPhone: '',
   customerEmail: '',
-  selectedCustomer: null,
+  selectedCustomer: null as any, // MODIFIÉ: Type explicite
   paymentType: 'cash',
   paymentMethod: 0,
   voucherNumber: '',
@@ -193,12 +193,10 @@ const contactTypeOptions = ref([
   { label: t('Company'), value: 'company' }
 ])
 
-
 // Computed
 const totalCharges = computed(() => {
   return form.value.charges.reduce((sum, charge) => sum + (parseFloat(`${charge.amount}`) || 0), 0)
 })
-
 
 const balance = computed(() => {
   return (totalCharges.value).toFixed(2)
@@ -211,23 +209,32 @@ const isFormValid = computed(() => {
 // Methods
 function searchGuest() {
   console.log('Searching for guest...')
-  // Implement guest search functionality
 }
 
 function handleCustomerSelected(customer: any) {
+  console.log('🎯 handleCustomerSelected appelé avec:', customer); // AJOUTÉ: Debug log
+
   if (customer) {
     // Update form data with selected customer information
     form.value.customerName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
     form.value.customerPhone = customer.phoneNumber || customer.phonePrimary || '';
     form.value.customerEmail = customer.email || '';
-    form.value.guestId = customer.id
+    form.value.guestId = customer.id; // Stocker l'ID directement (nombre)
 
     // Store full customer data for invoice creation
     form.value.selectedCustomer = customer;
 
-    console.log('Customer selected:', customer);
+    console.log('✅ Customer data updated:');
+    console.log('   - guestId:', form.value.guestId, 'type:', typeof form.value.guestId);
+    console.log('   - customerName:', form.value.customerName);
+    console.log('   - selectedCustomer:', form.value.selectedCustomer);
   } else {
     // Clear customer data if no customer selected
+    console.log('❌ No customer provided - clearing data');
+    form.value.guestId = '';
+    form.value.customerName = '';
+    form.value.customerPhone = '';
+    form.value.customerEmail = '';
     form.value.selectedCustomer = null;
   }
 }
@@ -286,26 +293,40 @@ watch(
 )
 
 async function saveInvoice() {
+  console.log('💾 saveInvoice appelé'); // AJOUTÉ: Debug log
+  console.log('   - isLoading:', isLoading.value);
+  console.log('   - guestId:', form.value.guestId, 'type:', typeof form.value.guestId);
+  console.log('   - paymentMethod:', form.value.paymentMethod);
+
   if (isLoading.value) return
+
   if (!form.value.paymentMethod) {
+    console.log('❌ Pas de méthode de paiement');
     toast.error(t('Please select a payment method'))
     return
   }
-  if(!form.value.guestId) {
+
+  // MODIFIÉ: Vérification améliorée qui accepte 0 ou nombre
+  if (!form.value.guestId && form.value.guestId !== 0) {
+    console.log('❌ Pas de guestId valide');
     toast.error(t('Please select a guest'))
     return
   }
+
   if (!form.value.charges.some(c => c.particular && c.amount > 0)) {
+    console.log('❌ Pas de charges valides');
     toast.error(t('Please add at least one charge with a valid amount'))
     return
   }
+
   try {
     isLoading.value = true
+    console.log('✅ Toutes les validations passées, création de la facture...');
 
     // Map form data to API structure
     const invoiceData = {
       hotelId: useServiceStore().serviceId,
-      guestId: parseInt(form.value.guestId),
+      guestId: parseInt(String(form.value.guestId)), // MODIFIÉ: Conversion sûre
       date: new Date(form.value.voucherDate).toISOString(),
       charges: form.value.charges.filter(c => c.particular && c.amount > 0).map(charge => ({
         transactionType: 'charge',
@@ -317,15 +338,17 @@ async function saveInvoice() {
         taxAmount: safeParseFloat(charge?.taxAmount, 0),
         departmentId: '',
         reference: '',
-        extraChargeId:charge?.particular,
+        extraChargeId: charge?.particular,
         notes: charge.comments || '',
         discountId: Number(charge.discount),
       })),
-      paymentType:  form.value.paymentType,
+      paymentType: form.value.paymentType,
       paymentMethodId: form.value.paymentMethod,
       description: `Voice Incidence - ${form.value.contactType} Services`,
       notes: form.value.charges.map(c => c.comments).filter(Boolean).join('; ') || 'Invoice created from POS system'
     }
+
+    console.log('📤 Envoi des données:', invoiceData);
 
     // Call the API
     const response = await postIncidentalInvoices(invoiceData)
@@ -339,7 +362,7 @@ async function saveInvoice() {
     } else {
       toast.error(t('Failed to create invoice. Please try again.'))
     }
-  } catch (error:any) {
+  } catch (error: any) {
     console.error('Error creating invoice:', error)
     const errorMessage = error?.response?.data?.message || error?.message || t('An error occurred while creating the invoice.')
     toast.error(errorMessage)

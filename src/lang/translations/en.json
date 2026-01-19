@@ -558,6 +558,7 @@
       "roomNumberRequired": "Room {index}: Please select a Room Number.",
       "roomNumberInvalid": "Room {index}: Room number \"{value}\" is not available for {roomTypeName}."
     },
+    "required_fields": "Please fill in all required fields.",
     "error_save_extra_charge": "Error saving extra charge",
     "ROOM_NOT_ASSIGNED" : "Cannot check in without an assigned room.",
     "duplicateRoomNumber": "This Room is selected {count} times. Please choose different rooms.",
