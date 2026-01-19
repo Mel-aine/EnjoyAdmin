@@ -689,8 +689,10 @@ const closeUpdateReservationDetailsModal = () => {
 const handleUpdateDetailsApplied = async (_response: any) => {
   // Refresh data after details update (discount applied)
   // await getTransactionFolio()
-  emit('refresh')
   closeUpdateReservationDetailsModal()
+  await loadRoomCharges()
+  emit('refresh')
+
 }
 
 const canVoidGroup = computed(() => {

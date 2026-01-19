@@ -77,8 +77,10 @@
 
                     <!-- Date and Nights Fields -->
                     <div class="mb-7 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- <InputDatePicker :title="$t('arrivalDate')" v-model="formData.newArrivalDate"
+                            :is-required="true" :disabled="isCheckedIn" /> -->
                         <InputDatePicker :title="$t('arrivalDate')" v-model="formData.newArrivalDate"
-                            :is-required="true" :disabled="isCheckedIn" />
+                            :is-required="true" />
                         <InputDatePicker :title="$t('departureDate')" v-model="formData.newDepartureDate"
                             :is-required="true" />
                         <Input input-type="number" :lb="$t('nights')" :title="$t('nights')" v-model="formData.nights"
