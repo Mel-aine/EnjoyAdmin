@@ -388,7 +388,7 @@ import { formatCurrency } from '../utilities/UtilitiesFunction'
 import ReservationStatus from '../common/ReservationStatus.vue'
 
 // Components and utilities for Reservation modal
-import { getReservationDetailsById, printGuestReservationCard } from '../../services/reservation'
+import { getReservationDetailsById, printGuestReservationCard, printGuestReservationPolice } from '../../services/reservation'
 import Adult from '../../icons/Adult.vue'
 import Child from '../../icons/Child.vue'
 const GroupReservationRoomList = defineAsyncComponent(() => import('./GroupReservationRoomList.vue'))
@@ -517,6 +517,7 @@ const handleRoomAssigned = (data: any) => {
 // Print options
 const printOptions = computed(() => [
     { id: 'guestCard', label: t('Print Guest Registration'), icon: Printer },
+    { id: 'guest', label: t('Print Police'), icon: Printer },
     { id: 'printResVourcher', label: t('printResVourcher'), icon: FileCheck },
     { id: 'invoice', label: t('printInvoice'), icon: CreditCard },
     // { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
@@ -575,6 +576,17 @@ const handlePrint = async (templateType: string) => {
                 window.URL.revokeObjectURL(pdfUrl.value)
             }
             pdfUrl.value = window.URL.createObjectURL(pdfBlob)
+        }else if (templateType === 'guest') {
+            pdfBlob = await printGuestReservationPolice({
+                reservationId: reservation.value?.id,
+                guestId: reservation.value?.guestId,
+            })
+            console.log('PDF Blob for police:', pdfBlob)
+            // Libérer l'ancienne URL si elle existe
+            if (pdfUrl.value) {
+                window.URL.revokeObjectURL(pdfUrl.value)
+            }
+            pdfUrl.value = window.URL.createObjectURL(pdfBlob)
         }
     } catch (error) {
 
@@ -591,6 +603,10 @@ const handlePrintOptionSelected = (option: any) => {
     if (option.id === 'guestCard') {
         documentTitle.value = t('Print Guest Registration')
         handlePrint('guestCard')
+    }
+    else if (option.id === 'guest') {
+        documentTitle.value = t('Print Police')
+        handlePrint('guest')
     }
     else if (option.id === 'printResVourcher') {
         documentTitle.value = t('printResVourcher')
