@@ -1,9 +1,10 @@
 <template>
   <!-- <AdminLayout> -->
   <FullScreenLayout>
-    <OverLoading v-if="isRefreshing" />
-    <AppHeader :show-sidebar="true" />
-    <div class="reservation-calendar font-sans h-screen flex flex-col">
+    <div class="flex flex-col overflow-hidden" style="height: calc(100vh / 0.93)">
+      <OverLoading v-if="isRefreshing" />
+      <AppHeader :show-sidebar="true" />
+      <div class="reservation-calendar font-sans flex-1 flex flex-col min-h-0">
       <div
         class="bg-white dark:bg-gray-900 px-6 py-1 flex items-center justify-between rounded-b-lg border-b dark:border-gray-700"
       >
@@ -482,6 +483,7 @@
           </table>
         </div>
       </div>
+    </div>
     </div>
     <!-- Date Selection Tooltip -->
     <div
