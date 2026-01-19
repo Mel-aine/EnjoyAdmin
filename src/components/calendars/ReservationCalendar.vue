@@ -1,9 +1,10 @@
 <template>
   <!-- <AdminLayout> -->
   <FullScreenLayout>
-    <OverLoading v-if="isRefreshing" />
-    <AppHeader :show-sidebar="true" />
-    <div class="reservation-calendar font-sans h-screen flex flex-col">
+    <div class="flex flex-col overflow-hidden" style="height: calc(100vh / 0.93)">
+      <OverLoading v-if="isRefreshing" />
+      <AppHeader :show-sidebar="true" />
+      <div class="reservation-calendar font-sans flex-1 flex flex-col min-h-0">
       <div
         class="bg-white dark:bg-gray-900 px-6 py-1 flex items-center justify-between rounded-b-lg border-b dark:border-gray-700"
       >
@@ -44,7 +45,7 @@
       </div>
       <div class="flex-1 flex flex-col min-h-0">
         <!-- Fixed Header -->
-        <div class="border border-gray-400 dark:border-gray-700 border-b-0">
+        <div class="border border-gray-400 dark:border-gray-700 border-b-0 pr-[11px]">
           <table class="w-full text-sm table-fixed">
             <thead>
               <tr>
@@ -418,7 +419,7 @@
           </table>
         </div>
         <div
-          class="sticky bottom-0 bg-white dark:bg-gray-900 shadow-lg z-40 border-t border-gray-400 dark:border-gray-700"
+          class="sticky bottom-0 bg-white dark:bg-gray-900 shadow-lg z-40 border-t border-gray-400 dark:border-gray-700 pr-[11px]"
         >
           <table class="w-full border-t border border-gray-400 text-sm table-fixed">
             <tfoot>
@@ -482,6 +483,7 @@
           </table>
         </div>
       </div>
+    </div>
     </div>
     <!-- Date Selection Tooltip -->
     <div
@@ -2782,6 +2784,38 @@ onUnmounted(() => {
 </script>
 <style scoped>
 @reference "tailwindcss";
+
+/* Custom thin scrollbar */
+.scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 transparent;
+  scrollbar-gutter: stable;
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 3px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+.dark .scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+}
+
+.dark .scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280;
+}
 
 /* Effet de survol uniquement sur les cellules libres */
 .cell-hoverable:hover {

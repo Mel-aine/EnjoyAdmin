@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onBeforeMount } from 'vue';
+import { ref, watch, onBeforeMount, nextTick } from 'vue';
 import { SearchIcon, UserIcon } from 'lucide-vue-next';
 import { getCustomer } from '@/services/reservation';
 import { useServiceStore } from '@/composables/serviceStore';
@@ -50,13 +50,29 @@ const filteredCustomers = ref<any[]>([]);
 const selectedCustomer = ref<any>({});
 const serviceStore = useServiceStore();
 const showCreateModal = ref(false);
+const isManualInput = ref(false);
 
 // Handle input changes
 const handleInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
+    isFocused.value = true;
+    isManualInput.value = true;
+
     emit('clear-error');
     emit('update:modelValue', target.value);
-    filterCustomers();
+
+    // Forcer le filtrage immédiat
+    const query = target.value.toLowerCase().trim();
+    if (query) {
+        filteredCustomers.value = customers.value.filter(c => {
+            const firstNameMatch = c.firstName?.toLowerCase().startsWith(query);
+            const lastNameMatch = c.lastName?.toLowerCase().startsWith(query);
+            const fullNameMatch = c.userFullName?.toLowerCase().startsWith(query);
+            return firstNameMatch || lastNameMatch || fullNameMatch;
+        });
+    } else {
+        filteredCustomers.value = [];
+    }
 };
 
 // Filter customers based on search query
@@ -65,6 +81,7 @@ const filterCustomers = () => {
 
     if (!query) {
         filteredCustomers.value = [];
+        console.log('❌ Query vide - liste vidée');
         return;
     }
 
@@ -75,12 +92,21 @@ const filterCustomers = () => {
 
         return firstNameMatch || lastNameMatch || fullNameMatch;
     });
+
 };
 
 // Select a customer from dropdown
-const selectCustomer = (customer: any) => {
+const selectCustomer = async (customer: any) => {
+    isManualInput.value = false;
+
+    // Attendre que Vue mette à jour le DOM
+    await nextTick();
+
     selectedCustomer.value = { ...customer };
-    value.value = `${customer.firstName} ${customer.lastName}`.trim();
+    const newValue = `${customer.firstName} ${customer.lastName}`.trim();
+
+    value.value = newValue;
+
     emit('update:modelValue', value.value);
     emit('customerSelected', selectedCustomer.value);
     filteredCustomers.value = [];
@@ -96,14 +122,19 @@ const handleSearch = () => {
 // Handle focus states
 const handleFocus = () => {
     isFocused.value = true;
+
+    // Si on a déjà un texte, afficher les résultats
+    if (value.value && value.value.trim()) {
+        isManualInput.value = true;
+        filterCustomers();
+    }
 };
 
 const handleBlur = () => {
-    // Delay hiding dropdown to allow click on dropdown items
     setTimeout(() => {
         isFocused.value = false;
         filteredCustomers.value = [];
-    }, 200);
+    }, 300);
 };
 
 // Fetch customers from API
@@ -131,25 +162,35 @@ watch(() => props.modelValue, (newValue) => {
 }, { immediate: true });
 
 // Watch for search query changes
-watch(value, (newValue) => {
+watch(value, (newValue, oldValue) => {
+
+
+    // Ne rien faire si ce n'est pas une saisie manuelle
+    if (!isManualInput.value) {
+        return;
+    }
+
+
     const query = newValue.toLowerCase().trim();
 
     if (!query) {
         filteredCustomers.value = [];
         selectedCustomer.value = {};
         emit('customerSelected', null);
+        isManualInput.value = false;
         return;
     }
 
-    filterCustomers();
 
+    // Auto-sélection seulement pour une correspondance exacte complète
     const exactMatch = filteredCustomers.value.find(c =>
-        `${c.firstName?.toLowerCase()} ${c.lastName?.toLowerCase()}`.trim() === query ||
-        c.firstName?.toLowerCase() === query
+        `${c.firstName?.toLowerCase()} ${c.lastName?.toLowerCase()}`.trim() === query
     );
 
     if (exactMatch) {
         selectCustomer(exactMatch);
+    } else {
+        console.log(' Aucune correspondance exacte');
     }
 });
 
@@ -160,13 +201,8 @@ const handleCreateCustomer = () => {
 
 // Handle when new customer is created
 const handleCustomerCreated = (newCustomer: any) => {
-    // Add the new customer to the list
     customers.value.unshift(newCustomer);
-
-    // Select the newly created customer
     selectCustomer(newCustomer);
-
-    // Close the modal
     showCreateModal.value = false;
 };
 
@@ -256,7 +292,7 @@ onBeforeMount(() => {
                 v-for="customer in filteredCustomers"
                 :key="customer.id"
                 class="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors duration-200"
-                @click="selectCustomer(customer)"
+                @mousedown.prevent="selectCustomer(customer)"
             >
                 <div class="flex justify-between items-center">
                     <div>

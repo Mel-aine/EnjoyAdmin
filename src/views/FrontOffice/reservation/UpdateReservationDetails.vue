@@ -188,18 +188,15 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import { getReservationDetailsById, updateReservationDetails } from '../../../services/reservation'
-import { useServiceStore } from '../../../composables/serviceStore'
+import { updateReservationDetails,getReservationDetailsForUpdate } from '../../../services/reservation'
 import { formatCurrency, safeParseInt } from '../../../utils/numericUtils'
 import RightSideModal from '../../../components/modal/RightSideModal.vue'
 import InputDatePicker from '../../../components/forms/FormElements/InputDatePicker.vue'
 import InputCurrency from '../../../components/forms/FormElements/InputCurrency.vue'
 import Input from '../../../components/forms/FormElements/Input.vue'
 import BasicButton from '../../../components/buttons/BasicButton.vue'
-import { getRatesByHotelIdAndRoomType } from '../../../services/configrationApi'
 import Select from '../../../components/forms/FormElements/Select.vue'
 import { formatDate } from '../../../components/utilities/UtilitiesFunction'
-import router from '@/router'
 
 interface Props {
     isOpen: boolean
@@ -227,7 +224,7 @@ const toast = useToast()
 const loading = ref(false)
 const isLoading = ref(false)
 const reservation = ref<any>()
-const serviceStore = useServiceStore();
+const isLoadingData = ref(false)
 const loadingRates = ref(false);
 const availableTransactions = ref<any[]>([])
 const loadingTransactions = ref(false)
@@ -344,35 +341,29 @@ watch(() => props.reservationId, (newVal) => {
 
 
 // Watch for rate type changes
+
 watch(() => formData.value.rateType, (newRateTypeId) => {
-    console.log('Rate Type Changed to:', newRateTypeId)
-    console.log('Available Rate Types:', rateTypesData.value)
+  //  Ignorer si on est en train de charger les données
+  if (isLoadingData.value) return
 
-    const selectedRate = rateTypesData.value.find(rt => rt.rateTypeId === newRateTypeId)
-    console.log('Selected Rate Full Data:', selectedRate)
+  console.log('Rate Type Changed to:', newRateTypeId)
 
-    if (selectedRate) {
-        // Update tax include based on rate settings
-        formData.value.taxInclude = selectedRate.taxInclude || false
-        console.log('Tax Include:', formData.value.taxInclude)
+  const selectedRate = rateTypesData.value.find(rt => rt.rateTypeId === newRateTypeId)
 
-        // Auto-check meal plan if rate includes it
-        if (selectedRate.mealPlanId) {
-            formData.value.mealPlanRateInclude = selectedRate.mealPlanRateInclude || false
-            console.log('Meal Plan ID:', selectedRate.mealPlanId, 'Include:', formData.value.mealPlanRateInclude)
-            console.log('Meal Plan Details:', selectedRate.mealPlan)
-        } else {
-            formData.value.mealPlanRateInclude = false
-            console.log('No Meal Plan for this rate')
-        }
+  if (selectedRate) {
+    formData.value.taxInclude = selectedRate.taxInclude || false
 
-        // Update amount with calculated value
-        formData.value.amount = calculatedAmount.value
-        console.log('Updated Amount:', formData.value.amount)
+    if (selectedRate.mealPlanId) {
+      formData.value.mealPlanRateInclude = selectedRate.mealPlanRateInclude || false
     } else {
-        console.warn('No rate found for ID:', newRateTypeId)
+      formData.value.mealPlanRateInclude = false
     }
+
+    //  Recalculer seulement si l'utilisateur change manuellement
+    formData.value.amount = calculatedAmount.value
+  }
 })
+
 
 // Watch for tax include changes
 watch(() => formData.value.taxInclude, () => {
@@ -386,78 +377,51 @@ watch(() => formData.value.mealPlanRateInclude, () => {
     console.log('Meal Plan Include Changed - Updated Amount:', formData.value.amount)
 })
 
+// Fetch reservation details for update
 const getReservationDetails = async () => {
-  if (!props.reservationId) return;
+  if (!props.reservationId) return
 
-  isLoading.value = true;
+  isLoading.value = true
+  isLoadingData.value = true
   try {
-    console.log(' getReservationDetails() → fetching reservation', props.reservationId);
+    const response = await getReservationDetailsForUpdate(props.reservationId)
+    const data = response.data
+    console.log('Fetched reservation details for update:', data.currentDetails.roomRate,)
 
-    const response = await getReservationDetailsById(Number(props.reservationId));
-    reservation.value = response;
+    reservation.value = data.reservation
 
-    const reservationRoom = response?.reservationRooms?.[0];
-    if (!reservationRoom) {
-      console.warn(' Aucun room trouvé dans reservationRooms');
-      toast.warning(t('noRoomFoundInReservation'));
-      return;
+    //  Remplir le formulaire avec les données actuelles
+    formData.value = {
+      rateType: data.currentDetails.rateTypeId,
+      adults: data.currentDetails.adults,
+      children: data.currentDetails.children,
+      isComplementary: data.currentDetails.isComplementary,
+      taxInclude: data.currentDetails.taxIncludes,
+      mealPlanRateInclude: data.currentDetails.mealPlanRateInclude,
+      amount: data.currentDetails.roomRate,
+      applyOn: 'stay',
+      date: new Date().toISOString().split('T')[0],
+      notes: '',
+      transactionIds: []
     }
 
-    // Remplissage du formulaire
-    formData.value.amount = calculatedAmount.value || reservationRoom.roomRate
-    formData.value.rateType = reservationRoom.rateTypeId || 0;
-    formData.value.adults = reservationRoom.adults;
-    formData.value.children = reservationRoom.children;
-    formData.value.isComplementary = reservationRoom.isComplementary;
-    formData.value.taxInclude = reservationRoom.taxIncludes;
-    formData.value.mealPlanRateInclude = reservationRoom.mealPlanRateInclude;
-    taxeAmount.value = reservationRoom.taxAmount
+    taxeAmount.value = data.currentDetails.taxAmount
 
-    console.log(' Reservation data fetched:', reservation.value);
-
-    //  Maintenant qu'on a le roomTypeId, on peut appeler fectRateTypes
-    const roomTypeId = reservationRoom.roomTypeId;
-    if (roomTypeId) {
-      console.log(' Chargement des rate types pour roomTypeId:', roomTypeId);
-      await fectRateTypes(roomTypeId);
-    } else {
-      console.warn(' roomTypeId introuvable dans reservationRoom');
-    }
+    // Rate types déjà formatés depuis room_rates
+    rateTypesData.value = data.availableRateTypes
+    rateTypes.value = data.availableRateTypes.map((rt:any) => ({
+      label: rt.rateTypeName,
+      value: rt.rateTypeId
+    }))
 
   } catch (error) {
-    console.error(' Erreur lors du chargement des détails de réservation:', error);
-    toast.error(t('errorFetchingReservationDetails'));
+    console.error('Error:', error)
+    toast.error(t('errorFetchingReservationDetails'))
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
-
-const fectRateTypes = async (roomTypeId?: number) => {
-  loadingRates.value = true;
-  try {
-    if (!roomTypeId) {
-      console.error(' roomTypeId manquant');
-      toast.error(t('errorFetchingRateTypes'));
-      return;
-    }
-
-    const response = await getRatesByHotelIdAndRoomType(roomTypeId);
-    rateTypesData.value = response.data?.data || [];
-
-    console.log(' Rate types chargés:', rateTypesData.value);
-
-    rateTypes.value = rateTypesData.value.map((item: any) => ({
-      label: item.rateTypeName,
-      value: item.rateTypeId
-    }));
-  } catch (error) {
-    console.error(' Erreur fetching rate types:', error);
-    toast.error(t('errorFetchingRateTypes'));
-  } finally {
-    loadingRates.value = false;
-  }
-};
 
 const closeModal = () => {
     emit('close')

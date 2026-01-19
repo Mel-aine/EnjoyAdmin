@@ -302,6 +302,8 @@ import InputNationalities from '@/components/forms/FormElements/InputNationaliti
 import ImageUploader from '@/components/customers/ImageUploader.vue'
 import BasicButton from '@/components/buttons/BasicButton.vue'
 import MultipleSelect from '@/components/forms/FormElements/MultipleSelect.vue'
+import { createGuest } from '@/services/guestApi'
+import { vipStatusApi } from '@/services/configrationApi'
 
 const Select = defineAsyncComponent(() => import('@/components/forms/FormElements/Select.vue'))
 const Input = defineAsyncComponent(() => import('@/components/forms/FormElements/Input.vue'))
@@ -402,7 +404,7 @@ const getEmptyForm = (): CustomerForm => ({
   mobileNumber: '',
   email: '',
   gender: '',
-  guestType: 'Individual',
+  guestType: 'individual',
   vipStatus: '',
   addressLine: '',
   country: 'CM',
@@ -444,14 +446,7 @@ const genderOptions = computed(() => [
   { label: t('Other'), value: 'other' },
 ])
 
-const vipStatusOptions = computed(() => [
-  { label: t('vipStatus.bronze'), value: 'bronze' },
-  { label: t('vipStatus.silver'), value: 'silver' },
-  { label: t('vipStatus.gold'), value: 'gold' },
-  { label: t('vipStatus.platinum'), value: 'platinum' },
-  { label: t('vipStatus.diamond'), value: 'diamond' },
-  { label: t('vipStatus.none'), value: 'none' },
-])
+const vipStatusOptions = ref<any[]>([])
 
 const guestTypeOptions: SelectOption[] = [
   { value: 'travel_agent', label: t('GuestTypes.travel_agent') },
@@ -591,7 +586,7 @@ const loadPreferences = async () => {
 
 // Handle form submission
 const handleSubmit = async () => {
-  if (!form.firstName.trim() || !form.lastName.trim()) {
+  if (!form.firstName.trim()) {
     toast.error(t('toast.required_fields'))
     return
   }
@@ -635,29 +630,44 @@ const handleSubmit = async () => {
     const finalFormData = {
       ...baseFormData,
       ...identityData,
-      profilePhoto: profilePhotoUrl,
-      idPhoto: idPhotoUrl,
+      profilePhoto: profilePhotoUrl || undefined,
+      idPhoto: idPhotoUrl || undefined,
       preferences: JSON.stringify(form.preferences),
       hotelId: serviceStore.serviceId!,
     }
 
-    console.log('Soumission du formulaire avec les données finales transformées:', finalFormData)
+    const response = await createGuest(finalFormData)
 
-    // const response = await createGuest(finalFormData)
+    if (response.data) {
+      const guestId = response.data.data?.id || response.data.id
 
-    // if (response.data) {
-    //   const createdCustomer = {
-    //     ...response.data,
-    //     firstName: form.firstName,
-    //     lastName: form.lastName,
-    //     phoneNumber: form.phonePrimary,
-    //     email: form.email,
-    //   }
+      if (!guestId) {
+        console.error('Aucun ID trouvé dans la réponse:', response.data)
+        return
+      }
 
-    //   toast.success(t('toast.SuccessCreated'))
-    //   emit('customerCreated', createdCustomer)
-    //   emit('close')
-    // }
+      const createdCustomer = {
+        id: guestId,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phoneNumber: form.phonePrimary || form.mobileNumber || '',
+        phonePrimary: form.phonePrimary,
+        mobileNumber: form.mobileNumber,
+        email: form.email,
+        userFullName: `${form.firstName} ${form.lastName}`.trim(),
+        title: form.title,
+        gender: form.gender,
+        guestType: form.guestType,
+        vipStatus: form.vipStatus,
+        country: form.country,
+        nationality: form.nationality,
+        profilePhoto: profilePhotoUrl,
+      }
+
+      toast.success(t('toast.SuccessCreated'))
+      emit('customerCreated', createdCustomer)
+      emit('close')
+    }
   } catch (error: any) {
     console.error('Error creating customer:', error)
     globalError.value = error.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.'
@@ -668,9 +678,30 @@ const handleSubmit = async () => {
   }
 }
 
+const fetchVipStatuses = async () => {
+  try {
+    loading.value = true
+    const response = await vipStatusApi.getVipStatuses(serviceStore.serviceId!)
+    console.log('respinse', response)
+    vipStatusOptions.value =
+      response.data?.data.map((s: any) => {
+        return {
+          label: s.name,
+          value: s.id,
+        }
+      }) || []
+    console.log('vipStatusOptions', vipStatusOptions.value)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
+
 // Lifecycle hooks
 onMounted(() => {
   fetchIdentityTypes()
+  fetchVipStatuses()
   loadPreferences()
 })
 </script>
