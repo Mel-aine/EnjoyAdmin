@@ -2,7 +2,7 @@
   <SpeedInsights />   
   <ThemeProvider>    
     <SidebarProvider>      
-      <TopProgressBar />    
+      <TopProgressBar />     
       <OverLoading v-if="isCheckoutOverlay" />       
       <RouterView />          
       <ReAuthModal        
