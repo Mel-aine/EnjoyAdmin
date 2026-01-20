@@ -14,6 +14,7 @@
             :title="`${fo.room?.roomNumber || 'No Room Number'}`"
             class="mb-2"
           >
+            <!-- Guest assigned to this room -->
             <div v-if="fo.guest">
               <div
                 class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
@@ -27,8 +28,31 @@
                 <span class="capitalize dark:text-gray-200">{{
                   fo.guest.displayName || fo.guest.firstName + ' ' + fo.guest.lastName
                 }}</span>
-                <ChevronRight class="w-4 h-4" />
+                <div class="flex items-center gap-2">
+                  <!-- Remove guest button -->
+                  <button
+                    @click.stop="openDeleteModal(fo)"
+                    class="text-red-500 hover:text-red-700 transition-colors"
+                    :title="$t('Remove Guest')"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                  <ChevronRight class="w-4 h-4" />
+                </div>
               </div>
+            </div>
+
+            <!-- No guest assigned - show assign button -->
+            <div v-else class="px-2 py-2">
+              <button
+                @click="createNewGuest"
+                class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-dashed border-blue-300 dark:border-blue-700 transition-colors"
+              >
+                <PlusCircle class="w-4 h-4" />
+                <span>{{ $t('Assign Guest') }}</span>
+              </button>
             </div>
           </Accordion>
         </div>
@@ -261,7 +285,7 @@
 
                 <!-- Ligne Email, Genre, Type de client, Statut VIP -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 
+
                   <!-- Genre -->
                   <div>
                     <Select
@@ -520,7 +544,7 @@
             <BasicButton variant="secondary" :label="$t('Cancel')" @click="cancelEdit" />
             <BasicButton
               variant="primary"
-              :label="isCreatingNewGuest ? $t('Create Guest') : $t('Save Changes')"
+              :label="isCreatingNewGuest ? $t('Saveandassign') : $t('Save Changes')"
               @click="saveGuest"
               :loading="isSaving"
             />
@@ -579,6 +603,18 @@
       @close="closeBlacklistModal"
       @confirm="confirmBlacklistCustomer"
     />
+
+     <ConfirmationModal
+        v-model:show="showDeleteModal"
+        :title="$t('removeGuest')"
+        :message=" $t('remove_confirm_message')"
+        :confirm-text="$t('Remove')"
+        :cancel-text="$t('Cancel')"
+        variant="danger"
+        :loading="deleting"
+        @confirm="removeGuestFromRoom"
+        @cancel="closeDeleteModal"
+      />
   </div>
 </template>
 
@@ -613,6 +649,8 @@ import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete
 import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 import { cities } from '@/assets/data/cities'
 import InputNationalities from '@/components/forms/FormElements/InputNationalities.vue'
+import { removeGuestFromReservationRoom ,createAndAssignGuest } from '@/services/configrationApi'
+import ConfirmationModal from '../Housekeeping/ConfirmationModal.vue'
 
 interface GuestData {
   title: string
@@ -673,6 +711,9 @@ const Preferences = ref<SelectOption[]>([])
 const companyOptions = ref<Array<{ label: string; value: string }>>([])
 const stateOptions = ref<Array<{ label: string; value: string }>>([])
 const useDropdownBooking = ref(true)
+const showDeleteModal = ref(false)
+const deleting = ref(false)
+const roomToRemove = ref<any>(null)
 
 // State
 const isSaving = ref(false)
@@ -783,7 +824,7 @@ const initializeGuestData = (guest: any = null): GuestData => {
     mobile: '',
     email: '',
     gender: 'male',
-    guestType: '',
+    guestType: 'individual',
     vipStatusId: 0,
     address: '',
     country: '',
@@ -862,6 +903,8 @@ watch(
   { immediate: true },
 )
 
+
+
 // Options pour les 'Select'
 const titleOptions = computed(() => [
   { label: t('Mr'), value: 'Mr' },
@@ -885,7 +928,17 @@ const guestTypeOptions: SelectOption[] = [
 
 
 // --- Méthodes ---
+const openDeleteModal = (room: any) => {
+  roomToRemove.value = room
+  console.log('openDeleteModal',room)
+  showDeleteModal.value = true
+}
 
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+  roomToRemove.value = null
+
+}
 
 
 const selectGuest = (guest: any) => {
@@ -1046,11 +1099,10 @@ const prepareGuestPayload = (): GuestPayload => {
 const saveGuest = async () => {
   isSaving.value = true
   try {
-    // Upload des images si nécessaire
+    // Upload des images
     if (profilePhotoUploader.value?.hasSelectedFile()) {
       guestData.profilePhoto = await profilePhotoUploader.value.uploadToCloudinary()
     }
-
     if (idPhotoUploader.value?.hasSelectedFile()) {
       guestData.idPhoto = await idPhotoUploader.value.uploadToCloudinary()
     }
@@ -1058,40 +1110,45 @@ const saveGuest = async () => {
     const payload = prepareGuestPayload()
 
     if (isCreatingNewGuest.value) {
-      const response = await createGuest(payload)
-      toast.success(t('Guest created successfully'))
+      const roomWithoutGuest = props.reservation.reservationRooms?.find(
+        (room: any) => !room.guest && !room.guestId
+      )
 
-      // Mettre à jour la liste des invités si possible
-      if (response.data && props.reservation) {
-        // Ajouter le nouvel invité à la liste
-        props.reservation.guests = props.reservation.guests || []
-        props.reservation.guests.push(response.data)
+      if (roomWithoutGuest) {
+        const response = await createAndAssignGuest(roomWithoutGuest.id, payload)
+        toast.success(t('Guest created and assigned successfully'))
 
-        // Sélectionner le nouvel invité
+        selectedGuest.value = response.data.guest
+        Object.assign(guestData, initializeGuestData(response.data.guest))
+      } else {
+        // Pas de chambre disponible, créer seulement le guest
+        const response = await createGuest(payload)
+        toast.success(t('Guest created successfully'))
+        toast.warning(t('No available room to assign'))
+
         selectedGuest.value = response.data
         Object.assign(guestData, initializeGuestData(response.data))
       }
 
       isCreatingNewGuest.value = false
+
     } else {
+      // Mise à jour d'un guest existant
       const guestId = selectedGuest.value?.id
       if (!guestId) throw new Error('Guest ID is required for update')
+
       await updateGuest(guestId, payload)
       toast.success(t('Guest updated successfully'))
 
-
-     //  Mettre à jour l'invité dans la liste avec une NOUVELLE référence
-      const guestIndex = guestList.value.findIndex((g:any) => g.id === guestId)
+      const guestIndex = guestList.value.findIndex((g: any) => g.id === guestId)
       if (guestIndex !== -1) {
-        // Créer un NOUVEL objet pour forcer la réactivité
         guestList.value[guestIndex] = {
           ...guestList.value[guestIndex],
           ...guestData,
-          id: guestId // S'assurer que l'ID reste correct
+          id: guestId
         }
       }
 
-      //  Mettre à jour selectedGuest avec une nouvelle référence
       if (selectedGuest.value) {
         selectedGuest.value = {
           ...selectedGuest.value,
@@ -1261,8 +1318,6 @@ const closeBlacklistModal = () => {
   customerToBlacklist.value = null
 }
 
-
-
 // Fonction pour obtenir le label du bouton blacklist
 const getBlacklistButtonLabel = (): string => {
   if (props.reservation.guest?.blacklisted) {
@@ -1325,6 +1380,54 @@ const getCompaniesList = async () => {
     console.error('Error fetching companies:', error)
   }
 }
+
+
+
+// Remove guest from room
+const removeGuestFromRoom = async () => {
+  const room = roomToRemove.value
+  if (!room?.guest) return
+
+  deleting.value = true
+
+  try {
+    await removeGuestFromReservationRoom(room.id)
+
+    toast.success(t('Guest removed successfully'))
+
+    if (selectedGuest.value?.id === room.guest.id) {
+      const otherGuest = guestList.value.find(
+        (g: any) => g.id !== room.guest.id
+      )
+
+      if (otherGuest) {
+        selectGuest(otherGuest)
+      } else {
+        selectedGuest.value = null
+        isCreatingNewGuest.value = false
+
+        const emptyData = initializeGuestData(null)
+        Object.keys(guestData).forEach(key => {
+          delete guestData[key as keyof GuestData]
+        })
+        Object.assign(guestData, emptyData)
+
+        resetKey.value++
+      }
+    }
+
+    emit('refresh')
+    closeDeleteModal()
+  } catch (error) {
+    console.error('Error removing guest:', error)
+    toast.error(t('Failed to remove guest from room'))
+  } finally {
+    deleting.value = false
+  }
+}
+
+
+
 
 
 onMounted(() => {

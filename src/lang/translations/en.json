@@ -8803,5 +8803,10 @@
   "Error updating time": "Error updating time",
   "invoice_voided_successfully": "Invoice voided successfully",
   "noResultsFound": "No results found",
-  "error_voiding_invoice": "Error voiding invoice"
+  "error_voiding_invoice": "Error voiding invoice",
+  "Saveandassign" : "Save & Assign Guest",
+  "removeGuest" : "Remove Guest",
+  "remove_confirm_message": "Are you sure you want to remove from this room?",
+  "Guest removed successfully" : "Guest removed successfully",
+  "Guest created and assigned successfully" : "Guest created and assigned successfully"
 }
