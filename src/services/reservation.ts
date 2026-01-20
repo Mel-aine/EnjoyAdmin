@@ -454,10 +454,26 @@ export const printGuestReservationCard = async (data: {
     const response: AxiosResponse = await apiClient.post(`/reservation/print-guest-card`, data, headersWithBlob)
     return response.data
   } catch (error) {
-    console.error('Error printing confirmBooking:', error)
+    console.error('Error printing guest card:', error)
     throw error
   }
 }
+
+export const printGuestReservationPolice = async (data: {
+  reservationId: number
+  guestId:number
+}): Promise<any> => {
+  try {
+    const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
+
+    const response: AxiosResponse = await apiClient.post(`/reservation/print-guest-police`, data, headersWithBlob)
+    return response.data
+  } catch (error) {
+    console.error('Error printing guest police:', error)
+    throw error
+  }
+}
+
 
 
 export const updateBookingDetail = async (reservationId: any, data: any) => {
@@ -484,6 +500,11 @@ export const updateBookingDetail = async (reservationId: any, data: any) => {
     })
     throw error
   }
+}
+
+// get reservation details for update
+export async function getReservationDetailsForUpdate(reservationId: number) {
+  return apiClient.get(`/reservation/${reservationId}/details-for-update`, getHeaders())
 }
 
 

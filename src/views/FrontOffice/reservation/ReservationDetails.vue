@@ -99,6 +99,7 @@ watch(
   },
 )
 
+
 // ====== FONCTION CLÉ : Mise à jour locale ======
 const updateLocalReservation = (updates: any) => {
   console.log('Updating reservation with:', updates)

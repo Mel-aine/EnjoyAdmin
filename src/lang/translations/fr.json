@@ -535,6 +535,7 @@
       "roomNumberRequired": "Chambre {index} : Veuillez sélectionner un numéro de chambre.",
       "roomNumberInvalid": "Chambre {index} : Le numéro de chambre \"{value}\" n'est pas disponible pour {roomTypeName}."
     },
+    "required_fields": "Veuillez remplir tous les champs obligatoires.",
     "error_save_extra_charge": "Erreur lors de l'enregistrement des frais supplémentaires ❌",
     "duplicateRoomNumber": "Cette chambre est sélectionnée {count} fois. Veuillez choisir des chambres différentes.",
     "roomTypeExceeded": "Type de chambre '{roomType}' : {selected} chambre(s) sélectionnée(s) mais seulement {available} disponible(s)",
@@ -8958,5 +8959,10 @@
   "Error updating time": "Erreur lors de la mise à jour de l'heure",
   "invoice_voided_successfully": "Facture annulée avec succès",
   "noResultsFound": "Aucun résultat trouvé",
-  "error_voiding_invoice": "Erreur lors de l'annulation de la facture"
+  "error_voiding_invoice": "Erreur lors de l'annulation de la facture",
+  "Saveandassign" : "Enregistrer & Assigner un Client",
+  "removeGuest": "Supprimer le client",
+  "remove_confirm_message": "Êtes-vous sûr de vouloir retirer de cette chambre ?",
+  "Guest removed successfully": "Le client a été supprimé avec succès",
+  "Guest created and assigned successfully": "Le client a été créé et affecté avec succès"
 }
