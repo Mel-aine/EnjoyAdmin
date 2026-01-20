@@ -96,7 +96,7 @@
             </p>
           </div>
           <ReusableTable :columns="pendingReservationsColumns" :data="pendingReservationsData" :searchable="false"
-            :show-header="false" :loading="loading" :actions="pendingReservationsActions">
+            :show-header="false" :loading="loading" :actions="pendingReservationsActions" >
           </ReusableTable>
         </div>
 
@@ -537,6 +537,14 @@ const pendingReservationsActions: Action[] = [
       handlerPendingReservation(item, 'check_in')
     }
   },
+   {
+    label: t('amen_stay'),
+    variant: 'primary',
+    icon: 'amend-stay',
+    handler: (item) => {
+      handlerPendingReservation(item, 'amend_stay')
+    },
+  },
   {
     label: t('mark_as_no_show'),
     variant: 'primary',
@@ -742,6 +750,9 @@ const handlerPendingReservation = (item: any, action: string) => {
     case 'check_in':
       selectedReservationForCheckIn.value = item;
       showCheckInModal.value = true;
+      break;
+    case 'amend_stay':
+      showAmendStayModal.value = true;
       break;
     default:
       console.log(`Action ${action} not handled`);
