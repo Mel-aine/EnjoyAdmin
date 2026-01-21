@@ -1070,7 +1070,7 @@ const prepareGuestPayload = (): GuestPayload => {
     email: guestData.email,
     gender: guestData.gender,
     guestType: guestData.guestType,
-    vipStatusId: guestData.vipStatusId,
+    vipStatusId: guestData.vipStatusId || null,
     addressLine: guestData.address,
     country: guestData.country,
     stateProvince: guestData.stateProvince,
