@@ -306,22 +306,20 @@ export const updateReservationRoomById = (id: number, data: any): Promise<AxiosR
 }
 
 
-
-/**
- * Assigner un client à une chambre de réservation
- * @param reservationRoomId - ID de la chambre de réservation
- * @param guestId - ID du client à assigner
- */
-
 // Créer et assigner un nouveau guest
 export const createAndAssignGuest = async (
   reservationRoomId: number,
-  guestData: any
+  guestData: any,
+  replaceMode: boolean = true
 ): Promise<any> => {
   try {
     const response = await axios.post(
       `${URL}/reservation-rooms/${reservationRoomId}/create-and-assign-guest`,
-      guestData,getHeaders()
+      {
+        ...guestData,
+        replaceMode
+      },
+      getHeaders()
     )
     return response.data
   } catch (error) {
@@ -350,6 +348,27 @@ export const removeGuestFromReservationRoom = async (
   }
 }
 
+// Assigner un guest existant à une chambre
+export const assignExistingGuestToRoom = async (
+  reservationRoomId: number,
+  guestId: number,
+  replaceMode: boolean = true
+): Promise<any> => {
+  try {
+    const response = await axios.put(
+      `${URL}/reservation-rooms/${reservationRoomId}/assign-existing-guest`,
+      {
+        guestId,
+        replaceMode
+      },
+      getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error assigning guest to room:', error)
+    throw error
+  }
+}
 
 
 /**

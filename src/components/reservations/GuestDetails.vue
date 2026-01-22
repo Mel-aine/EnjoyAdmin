@@ -8,32 +8,37 @@
 
           </div>
 
-        <Accordion
+          <Accordion
             v-for="(room, index) in reservation.reservationRooms"
             :key="index"
             :title="getRoomTitle(room)"
-            @create="createNewGuestForRoom(room)"
-            @assign="openAssignModal(room)"
+            @add-new="addNewGuestToRoom(room)"
+            @add-existing="openAddExistingModal(room)"
             class="mb-2"
           >
-            <!-- Guest assigned to this room -->
-            <div v-if="room.guest">
+            <!-- Liste de tous les guests assignés à cette chambre -->
+            <div v-if="getRoomGuests(room).length > 0">
               <div
+                v-for="guest in getRoomGuests(room)"
+                :key="guest.id"
                 class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1 rounded"
                 :class="
-                  selectedGuest?.id === room.guest.id
+                  selectedGuest?.id === guest.id
                     ? 'bg-blue-100 border-l-4 border-blue-500 dark:bg-blue-900 dark:border-blue-400'
                     : 'bg-gray-100 dark:bg-gray-800'
                 "
-                @click="selectGuest(room.guest)"
+                @click="selectGuest(guest)"
               >
-                <span class="capitalize dark:text-gray-200">{{
-                  room.guest.displayName || room.guest.firstName + ' ' + room.guest.lastName
-                }}</span>
                 <div class="flex items-center gap-2">
-                  <!-- Remove guest button -->
+                  <span class="capitalize dark:text-gray-200">
+                    {{ guest.displayName || guest.firstName + ' ' + guest.lastName }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <!-- Remove guest button - Ne pas afficher pour le guest principal -->
                   <button
-                    @click.stop="openDeleteModal(room)"
+                    v-if="!guest.isPrimary"
+                    @click.stop="openDeleteModal(room, guest)"
                     class="text-red-500 hover:text-red-700 transition-colors"
                     :title="$t('Remove Guest')"
                   >
@@ -48,15 +53,12 @@
 
             <!-- No guest assigned - show assign button -->
             <div v-else class="px-2 py-2">
-              <button
-                @click="openAssignModal(room)"
-                class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-dashed border-blue-300 dark:border-blue-700 transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                 </svg>
-                <span>{{ $t('Assign Existing Guest') }}</span>
-              </button>
+                {{ $t('No guest assigned to this room.') }}
+              </span>
             </div>
           </Accordion>
 
@@ -105,6 +107,7 @@
               </div>
             </div>
             <div class="flex space-x-2">
+
               <button
                 v-if="!isCreatingNewGuest"
                 class="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -162,11 +165,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                   <!-- Nom -->
                   <div class="md:col-span-7">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
                       $t('Name')
                     }}</label>
                     <div class="flex">
-                      <div class="w-20 -translate-y-1/9 z-10">
+                      <div class="w-20 -translate-y-1/8 z-10">
                         <Select
                           v-model="guestData.title"
                           :options="titleOptions"
@@ -527,12 +530,34 @@
           <!-- Action Buttons -->
           <div v-if="isEditing || isCreatingNewGuest" class="flex justify-end space-x-3 mt-6 pt-6 border-t dark:border-gray-700">
             <BasicButton variant="secondary" :label="$t('Cancel')" @click="cancelEdit" />
+
+          <!-- Si on crée un nouveau guest, afficher 2 boutons -->
+          <template v-if="isCreatingNewGuest">
             <BasicButton
-              variant="primary"
-              :label="getSaveButtonLabel()"
-              @click="saveGuest"
-              :loading="isSaving"
+              variant="success"
+              :label="isSavingAdd ? t('Adding...') : t('Add to Room')"
+              @click="saveGuest(false)"
+              :loading="isSavingAdd"
+              :disabled="isSavingAdd || isSavingReplace"
             />
+            <BasicButton
+              variant="warning"
+              :label="isSavingReplace ? t('Replacing...') : t('Assign to Room (Replace)')"
+              @click="saveGuest(true)"
+              :loading="isSavingReplace"
+              :disabled="isSavingAdd || isSavingReplace"
+            />
+          </template>
+
+          <!-- Si on édite un guest existant, un seul bouton -->
+          <BasicButton
+            v-else
+            variant="primary"
+            :label="isSaving ? t('Saving...') : t('Save Changes')"
+            @click="saveGuest()"
+            :loading="isSaving"
+            :disabled="isSaving"
+          />
           </div>
         </div>
 
@@ -602,6 +627,7 @@
       :reservation="reservation"
       @close="closeAssignModal"
       @assigned="handleGuestAssigned"
+      :replaceMode="replaceMode"
     />
 
     <ConfirmationModal
@@ -716,9 +742,12 @@ const useDropdownBooking = ref(true)
 const showDeleteModal = ref(false)
 const deleting = ref(false)
 const roomToRemove = ref<any>(null)
+const replaceMode = ref(false)
 
 // State
 const isSaving = ref(false)
+const isSavingAdd = ref(false)
+const isSavingReplace = ref(false)
 const isEditing = ref(false)
 const resetKey = ref(0)
 const showPickupModal = ref(false)
@@ -728,6 +757,7 @@ const loading = ref(false)
 const vipStatusOptions = ref<any[]>([])
 const idTypeOptions = ref<SelectOption[]>([])
 const showPdfExporter = ref(false)
+const guestToRemove = ref<any>(null)
 
 // Modal state
 const showAssignModal = ref(false)
@@ -857,18 +887,86 @@ const initializeGuestData = (guest: any = null): GuestData => {
 const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
 
 // Computed properties
+
+
 const guestList = computed(() => {
   const rooms = props.reservation?.reservationRooms || []
+  console.log('Computing guest list from rooms:', rooms)
+
   const uniqueGuests = new Map()
 
+  // Parcourir toutes les chambres
   rooms.forEach((room: any) => {
+    // Ajouter le guest principal de la chambre
     if (room.guest && room.guest.id && !uniqueGuests.has(room.guest.id)) {
-      uniqueGuests.set(room.guest.id, room.guest)
+      uniqueGuests.set(room.guest.id, {
+        ...room.guest,
+        isPrimary: room.isOwner || false,
+        roomAssignment: room.id
+      })
+    }
+
+    // Ajouter tous les guests additionnels de la chambre
+    if (room.guests && Array.isArray(room.guests)) {
+      room.guests.forEach((guestAssignment: any) => {
+        // Récupérer les détails du guest depuis la réservation
+        const guestDetails = props.reservation?.guests?.find(
+          (g: any) => g.id === guestAssignment.guestId
+        )
+
+        if (guestDetails && !uniqueGuests.has(guestDetails.id)) {
+          uniqueGuests.set(guestDetails.id, {
+            ...guestDetails,
+            isPrimary: guestAssignment.isPrimary || false,
+            roomAssignment: guestAssignment.roomAssignment
+          })
+        }
+      })
     }
   })
 
-  return Array.from(uniqueGuests.values())
+  // Trier : guest principal en premier
+  const guestsArray = Array.from(uniqueGuests.values())
+  return guestsArray.sort((a, b) => {
+    if (a.isPrimary && !b.isPrimary) return -1
+    if (!a.isPrimary && b.isPrimary) return 1
+    return 0
+  })
 })
+
+// Computed pour obtenir tous les guests d'une chambre spécifique
+const getRoomGuests = (room: any) => {
+  const guests :any[] = []
+
+  // Ajouter le guest principal
+  if (room.guest) {
+    guests.push({
+      ...room.guest,
+      isPrimary: room.isOwner || false
+    })
+  }
+
+  // Ajouter les guests additionnels
+  if (room.guests && Array.isArray(room.guests)) {
+    room.guests.forEach((guestAssignment: any) => {
+      // Ne pas dupliquer le guest principal
+      if (guestAssignment.isPrimary) return
+
+      const guestDetails = props.reservation?.guests?.find(
+        (g: any) => g.id === guestAssignment.guestId
+      )
+
+      if (guestDetails) {
+        guests.push({
+          ...guestDetails,
+          isPrimary: false
+        })
+      }
+    })
+  }
+
+  return guests
+}
 
 const fullName = computed(() => (guestData.firstName + ' ' + guestData.lastName + ' ' + guestData.maidenName).trim() || '')
 
@@ -937,13 +1035,30 @@ const getRoomTitle = (room: any) => {
   return `${roomNumber}`
 }
 
+// Ajouter un nouveau guest à la chambre (sans remplacer les existants)
+const addNewGuestToRoom = (room: any) => {
+  console.log('Adding new guest to room (keeping existing guests):', room.room?.roomNumber)
+  selectedGuest.value = null
+  isCreatingNewGuest.value = true
+  targetRoom.value = room
+  replaceMode.value = false
 
+  Object.assign(guestData, initializeGuestData(null))
+  resetKey.value++
+  isEditing.value = true
+}
 
-const openAssignModal = (room: any) => {
-  console.log('Opening assign modal for room:', room)
+// Ouvrir la modal pour ajouter un guest existant (sans remplacer)
+const openAddExistingModal = (room: any) => {
+  console.log('Opening modal to ADD existing guest (keeping current guests)')
   selectedRoom.value = room
+  replaceMode.value = false
   showAssignModal.value = true
 }
+
+
+
+
 
 const closeAssignModal = () => {
   showAssignModal.value = false
@@ -956,16 +1071,7 @@ const handleGuestAssigned = () => {
   closeAssignModal()
 }
 
-const openDeleteModal = (room: any) => {
-  roomToRemove.value = room
-  console.log('openDeleteModal', room)
-  showDeleteModal.value = true
-}
 
-const closeDeleteModal = () => {
-  showDeleteModal.value = false
-  roomToRemove.value = null
-}
 
 const selectGuest = (guest: any) => {
   selectedGuest.value = JSON.parse(JSON.stringify(guest))
@@ -984,19 +1090,7 @@ const selectGuest = (guest: any) => {
   resetKey.value++
 }
 
-// MODIFIÉ: Créer un nouveau guest (général - pas de chambre spécifique)
-const createNewGuest = () => {
-  console.log('Creating new guest (no specific room)')
-  selectedGuest.value = null
-  isCreatingNewGuest.value = true
-  targetRoom.value = null // Pas de chambre spécifique
 
-  Object.assign(guestData, initializeGuestData(null))
-  resetKey.value++
-  isEditing.value = true
-
-  console.log('Guest data after reset:', guestData)
-}
 
 
 
@@ -1009,27 +1103,24 @@ const toggleOtherInfoSection = () => {
 }
 
 
-const createNewGuestForRoom = (room: any) => {
-  console.log('Creating new guest for room:', room.room?.roomNumber)
-  selectedGuest.value = null
-  isCreatingNewGuest.value = true
-  targetRoom.value = room // Toujours lié à une chambre
 
-  Object.assign(guestData, initializeGuestData(null))
-  resetKey.value++
-  isEditing.value = true
-}
 
-// handleAccordionCreate appelle directement createNewGuestForRoom
-const handleAccordionCreate = (room: any) => {
-  console.log('Accordion PlusCircle clicked for room:', room)
-  createNewGuestForRoom(room)
-}
 
-// MODIFIÉ: saveGuest - toujours assigner à targetRoom
-const saveGuest = async () => {
-  isSaving.value = true
+const saveGuest = async (shouldReplace: boolean = false) => {
+  // Activer le bon état de chargement selon le bouton cliqué
+  if (isCreatingNewGuest.value) {
+    if (shouldReplace) {
+      isSavingReplace.value = true
+    } else {
+      isSavingAdd.value = true
+    }
+    replaceMode.value = shouldReplace
+  } else {
+    isSaving.value = true
+  }
+
   try {
+    // Upload des images si nécessaire
     if (profilePhotoUploader.value?.hasSelectedFile()) {
       guestData.profilePhoto = await profilePhotoUploader.value.uploadToCloudinary()
     }
@@ -1039,29 +1130,42 @@ const saveGuest = async () => {
 
     const payload = prepareGuestPayload()
 
+    // Création d'un nouveau guest et assignation à une chambre
     if (isCreatingNewGuest.value) {
-      // On a TOUJOURS une targetRoom maintenant
       if (!targetRoom.value) {
         toast.error(t('No room selected for guest assignment'))
         return
       }
 
-      console.log('Creating and assigning to room:', targetRoom.value.room?.roomNumber)
-      const response = await createAndAssignGuest(targetRoom.value.id, payload)
-      toast.success(t('Guest created and assigned successfully'))
+
+      // Appeler l'API avec le paramètre replaceMode
+      const response = await createAndAssignGuest(
+        targetRoom.value.id,
+        payload,
+        replaceMode.value
+      )
+
+      const message = replaceMode.value
+        ? t('Guest created and assigned')
+        : t('Guest created and added to room')
+
+      toast.success(message)
 
       selectedGuest.value = response.data.guest
       Object.assign(guestData, initializeGuestData(response.data.guest))
       targetRoom.value = null
+      replaceMode.value = false
       isCreatingNewGuest.value = false
-    } else {
-      // Mise à jour d'un guest existant
+    }
+    // Mise à jour d'un guest existant
+    else {
       const guestId = selectedGuest.value?.id
       if (!guestId) throw new Error('Guest ID is required for update')
 
       await updateGuest(guestId, payload)
       toast.success(t('Guest updated successfully'))
 
+      // Mettre à jour la liste locale
       const guestIndex = guestList.value.findIndex((g: any) => g.id === guestId)
       if (guestIndex !== -1) {
         guestList.value[guestIndex] = {
@@ -1088,18 +1192,16 @@ const saveGuest = async () => {
     const errorMessage = error.response?.data?.message || error.message
     toast.error(`${t('Error saving guest')}: ${errorMessage}`)
   } finally {
+    // Désactiver tous les états de chargement
     isSaving.value = false
+    isSavingAdd.value = false
+    isSavingReplace.value = false
+    replaceMode.value = false
   }
 }
 
-// SIMPLIFIÉ: getSaveButtonLabel
-const getSaveButtonLabel = () => {
-  if (isSaving.value) {
-    return isCreatingNewGuest.value ? t('Creating...') : t('Saving...')
-  }
 
-  return isCreatingNewGuest.value ? t('Create and Assign to Room') : t('Save Changes')
-}
+
 const fetchVipStatuses = async () => {
   try {
     loading.value = true
@@ -1205,10 +1307,10 @@ const prepareGuestPayload = (): GuestPayload => {
 
 
 
-// MODIFIÉ: Fonction cancelEdit avec réinitialisation de targetRoom
+//  Fonction cancelEdit avec réinitialisation de targetRoom
 const cancelEdit = () => {
   isEditing.value = false
-  targetRoom.value = null // Réinitialiser la chambre cible
+  targetRoom.value = null
 
   if (isCreatingNewGuest.value) {
     isCreatingNewGuest.value = false
@@ -1401,22 +1503,54 @@ const getCompaniesList = async () => {
   }
 }
 
+/// Mettre à jour la fonction openDeleteModal
+const openDeleteModal = (room: any, guest: any) => {
+  roomToRemove.value = room
+  guestToRemove.value = guest
+  console.log('openDeleteModal', room, guest)
+  showDeleteModal.value = true
+}
+
+// Mettre à jour closeDeleteModal
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+  roomToRemove.value = null
+  guestToRemove.value = null
+}
+
+// Mettre à jour removeGuestFromRoom
 const removeGuestFromRoom = async () => {
   const room = roomToRemove.value
-  if (!room?.guest) return
+  const guest = guestToRemove.value
+
+  if (!room || !guest) return
 
   deleting.value = true
 
   try {
-    await removeGuestFromReservationRoom(room.id)
+    // Trouver l'assignment spécifique dans room.guests
+    const guestAssignment = room.guests?.find(
+      (g: any) => g.guestId === guest.id
+    )
+    console.log('Removing guest assignment:', guestAssignment)
+
+    if (guestAssignment) {
+      await removeGuestFromReservationRoom(guestAssignment.id)
+    } else if (guest.isPrimary) {
+      toast.error(t('Cannot remove principal guest'))
+      return
+    } else {
+      await removeGuestFromReservationRoom(room.id)
+    }
 
     toast.success(t('Guest removed successfully'))
 
-    if (selectedGuest.value?.id === room.guest.id) {
-      const otherGuest = guestList.value.find((g: any) => g.id !== room.guest.id)
+    // Si le guest supprimé est celui actuellement sélectionné
+    if (selectedGuest.value?.id === guest.id) {
+      const remainingGuests = guestList.value.filter((g: any) => g.id !== guest.id)
 
-      if (otherGuest) {
-        selectGuest(otherGuest)
+      if (remainingGuests.length > 0) {
+        selectGuest(remainingGuests[0])
       } else {
         selectedGuest.value = null
         isCreatingNewGuest.value = false
@@ -1441,6 +1575,8 @@ const removeGuestFromRoom = async () => {
     deleting.value = false
   }
 }
+
+
 
 onMounted(() => {
   loadPreferences()

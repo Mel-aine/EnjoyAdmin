@@ -17,29 +17,31 @@
             <PlusCircle class="text-primary w-5 h-5" />
           </button>
 
-          <!-- Dropdown Menu -->
+          <!-- Dropdown Menu - 2 OPTIONS SEULEMENT -->
           <div
             v-if="showDropdown"
-            class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+            class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
           >
+            <!-- OPTION 1: Ajouter un nouveau guest -->
             <button
-              @click.stop="handleCreateNew"
+              @click.stop="handleAddNew"
               class="w-full flex items-center gap-2 px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 rounded-t-lg transition-colors"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
               </svg>
-              <span>{{ $t('Create New Guest') }}</span>
+              <span>{{ $t('Add New Guest') }}</span>
             </button>
 
+            <!-- OPTION 2: Ajouter un guest existant -->
             <button
-              @click.stop="handleAssignExisting"
-              class="w-full flex items-center gap-2 px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 rounded-b-lg transition-colors border-t border-gray-200 dark:border-gray-700"
+              @click.stop="handleAddExisting"
+              class="w-full flex items-center gap-2 px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 rounded-b-lg transition-colors"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
               </svg>
-              <span>{{ $t('Assign Existing Guest') }}</span>
+              <span>{{ $t('Add Existing Guest') }}</span>
             </button>
           </div>
         </div>
@@ -67,8 +69,8 @@ interface Props {
 }
 
 const emit = defineEmits<{
-  (e: 'create'): void
-  (e: 'assign'): void
+  (e: 'add-new'): void           // Ajoute un nouveau guest
+  (e: 'add-existing'): void       // Ajoute un guest existant
 }>()
 
 const props = withDefaults(defineProps<Props>(), {
@@ -87,17 +89,16 @@ const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value
 }
 
-const handleCreateNew = () => {
+const handleAddNew = () => {
   showDropdown.value = false
-  emit('create')
+  emit('add-new')
 }
 
-const handleAssignExisting = () => {
+const handleAddExisting = () => {
   showDropdown.value = false
-  emit('assign')
+  emit('add-existing')
 }
 
-// Close dropdown when clicking outside
 const handleClickOutside = (event: MouseEvent) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     showDropdown.value = false

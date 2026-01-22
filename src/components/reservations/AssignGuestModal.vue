@@ -1,17 +1,18 @@
 <template>
   <RightSideModal
     :is-open="isOpen"
-    :title="$t('Assign Guest to Room')"
+    :title="modalTitle"
     @close="handleClose"
   >
     <template #header>
       <div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {{ $t('Assign Guest to Room') }}
+          {{ modalTitle }}
         </h3>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
           {{ getRoomTitle() }}
         </p>
+
       </div>
     </template>
 
@@ -25,9 +26,10 @@
         </div>
         <input
           v-model="searchQuery"
+          @input="handleSearchInput"
           type="text"
           :placeholder="$t('Search by name, email, or phone...')"
-          class="w-full pl-10 pr-4 py-2.5 border border-gray-300  focus:outline-hidden dark:border-gray-600 rounded-lg focus:ring-2  focus:ring-purple-500/10 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+          class="w-full pl-10 pr-4 py-2.5 border border-gray-300 focus:outline-hidden dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
         />
       </div>
 
@@ -37,7 +39,7 @@
       </div>
 
       <!-- Liste des guests -->
-      <div v-else class="max-h-[calc(100vh-350px)] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+      <div v-else-if="filteredGuests.length > 0" class="max-h-[calc(100vh-350px)] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
         <div
           v-for="guest in filteredGuests"
           :key="guest.id"
@@ -57,6 +59,12 @@
                 <span v-if="guest.blacklisted" class="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded-full">
                   {{ $t('Blacklisted') }}
                 </span>
+                   <span
+                    v-if="currentRoomGuestIds.includes(guest.id)"
+                    class="px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-full"
+                  >
+                    {{ $t('Already in room') }}
+                  </span>
               </div>
 
               <div class="mt-2 space-y-1">
@@ -80,10 +88,6 @@
                   </svg>
                   {{ guest.nationality }}
                 </div>
-
-                <div v-if="guest.guestCode || guest.registrationNo" class="text-xs text-gray-500 dark:text-gray-500">
-                  {{ $t('Registration') }}: {{ guest.guestCode || guest.registrationNo }}
-                </div>
               </div>
             </div>
 
@@ -97,36 +101,43 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Aucun résultat -->
-        <div v-if="filteredGuests.length === 0 && !loadingGuests" class="text-center py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-          <p class="mt-4 text-gray-500 dark:text-gray-400">{{ $t('No guests found') }}</p>
-          <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
-            {{ $t('Try adjusting your search criteria') }}
-          </p>
-        </div>
+      <!-- Aucun résultat -->
+      <div v-else class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p class="mt-4 text-gray-500 dark:text-gray-400">{{ $t('No guests found') }}</p>
+        <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+          {{ $t('Try adjusting your search criteria') }}
+        </p>
       </div>
     </div>
 
     <template #footer>
-      <div class="flex justify-end space-x-2">
-        <BasicButton
-          variant="secondary"
-          @click="handleClose"
-          :label="$t('Cancel')"
-        />
-        <BasicButton
-          variant="primary"
-          @click="handleAssign"
-          :label="assigning ? $t('Assigning...') : $t('Assign Guest')"
-          :loading="assigning"
-          :disabled="!selectedGuest || remainingCapacity <= 0"
-        />
-      </div>
-    </template>
+  <div class="flex justify-end space-x-2">
+    <BasicButton
+      variant="secondary"
+      @click="handleClose"
+      :label="$t('Cancel')"
+    />
+    <BasicButton
+      variant="success"
+      @click="handleAssign(false)"
+      :label="isAssigningAdd ? $t('Adding...') : $t('Add Guest')"
+      :loading="isAssigningAdd"
+      :disabled="!selectedGuest || isAssigningAdd || isAssigningReplace || isGuestAlreadyInRoom"
+    />
+    <BasicButton
+      variant="warning"
+      @click="handleAssign(true)"
+      :label="isAssigningReplace ? $t('Replacing...') : $t('Assign to Room (Replace)')"
+      :loading="isAssigningReplace"
+      :disabled="!selectedGuest || isAssigningAdd || isAssigningReplace || isGuestAlreadyInRoom"
+    />
+  </div>
+</template>
   </RightSideModal>
 </template>
 
@@ -136,8 +147,9 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import RightSideModal from '../modal/RightSideModal.vue'
 import BasicButton from '../buttons/BasicButton.vue'
-// import { assignExistingGuestToRoom, getAllGuests } from '@/services/guestApi'
+import { getGuests } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import { assignExistingGuestToRoom } from '@/services/configrationApi'
 
 interface Props {
   isOpen: boolean
@@ -152,41 +164,60 @@ const toast = useToast()
 const serviceStore = useServiceStore()
 
 // État
-const assigning = ref(false)
+
+const isAssigningAdd = ref(false)
+const isAssigningReplace = ref(false)
 const loadingGuests = ref(false)
 const searchQuery = ref('')
 const selectedGuest = ref<any>(null)
 const existingGuests = ref<any[]>([])
 
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+
+
 // Computed
-const currentGuestCount = computed(() => {
-  return props.room?.guest ? 1 : 0
+const filteredGuests = computed(() => existingGuests.value)
+
+// Nouveau: Obtenir les IDs des guests déjà dans la chambre
+const currentRoomGuestIds = computed(() => {
+  const ids: number[] = []
+
+  // Ajouter l'ID du guest principal
+  if (props.room?.guest?.id) {
+    ids.push(props.room.guest.id)
+  }
+
+  // Ajouter les IDs des guests additionnels
+  if (props.room?.guests && Array.isArray(props.room.guests)) {
+    props.room.guests.forEach((guestAssignment: any) => {
+      if (guestAssignment.guestId) {
+        ids.push(guestAssignment.guestId)
+      }
+    })
+  }
+
+  return ids
 })
 
-const roomCapacity = computed(() => {
-  return props.room?.room?.capacity || 2
+// Nouveau: Vérifier si le guest sélectionné est déjà dans la chambre
+const isGuestAlreadyInRoom = computed(() => {
+  if (!selectedGuest.value) return false
+  return currentRoomGuestIds.value.includes(selectedGuest.value.id)
 })
 
-const remainingCapacity = computed(() => {
-  return roomCapacity.value - currentGuestCount.value
+const modalTitle = computed(() => {
+  return t('Assign Guest to Room')
 })
 
-const filteredGuests = computed(() => {
-  if (!searchQuery.value) return existingGuests.value
-
-  const query = searchQuery.value.toLowerCase()
-  return existingGuests.value.filter(g =>
-    g.firstName?.toLowerCase().includes(query) ||
-    g.lastName?.toLowerCase().includes(query) ||
-    g.email?.toLowerCase().includes(query) ||
-    g.phone?.includes(query) ||
-    g.phonePrimary?.includes(query) ||
-    g.guestCode?.toLowerCase().includes(query) ||
-    g.registrationNo?.toLowerCase().includes(query)
-  )
-})
 
 const guestCardClass = (guest: any) => {
+  const isAlreadyInRoom = currentRoomGuestIds.value.includes(guest.id)
+
+  if (isAlreadyInRoom) {
+    return 'border-gray-300 bg-gray-100 dark:bg-gray-800 dark:border-gray-600 opacity-50 cursor-not-allowed'
+  }
+
   return selectedGuest.value?.id === guest.id
     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400'
     : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
@@ -208,7 +239,15 @@ const getGuestDisplayName = (guest: any) => {
   return parts.join(' ') || t('Unnamed Guest')
 }
 
+
+
 const selectGuest = (guest: any) => {
+  // Empêcher la sélection si le guest est déjà dans la chambre
+  if (currentRoomGuestIds.value.includes(guest.id)) {
+    toast.warning(t('This guest is already assigned to this room'))
+    return
+  }
+
   selectedGuest.value = guest
 }
 
@@ -218,21 +257,38 @@ const handleClose = () => {
   emit('close')
 }
 
-const handleAssign = async () => {
+const handleAssign = async (shouldReplace: boolean = false) => {
   if (!selectedGuest.value) {
     toast.error(t('Please select a guest'))
     return
   }
 
-  if (remainingCapacity.value <= 0) {
-    toast.error(t('Room is full'))
+  // Vérifier une dernière fois si le guest n'est pas déjà dans la chambre
+  if (currentRoomGuestIds.value.includes(selectedGuest.value.id)) {
+    toast.error(t('This guest is already assigned to this room'))
     return
   }
 
-  assigning.value = true
+  // Activer le bon état de chargement
+  if (shouldReplace) {
+    isAssigningReplace.value = true
+  } else {
+    isAssigningAdd.value = true
+  }
+
   try {
-    await assignExistingGuestToRoom(props.room.id, selectedGuest.value.id)
-    toast.success(t('Guest assigned successfully'))
+    // Passer le shouldReplace à l'API
+    await assignExistingGuestToRoom(
+      props.room.id,
+      selectedGuest.value.id,
+      shouldReplace
+    )
+
+    const successMessage = shouldReplace
+      ? t('Guest assigned successfully to room (replaced existing guest)')
+      : t('Guest added to room successfully')
+
+    toast.success(successMessage)
     emit('assigned')
     handleClose()
   } catch (error: any) {
@@ -240,15 +296,29 @@ const handleAssign = async () => {
     const errorMessage = error.response?.data?.message || t('Failed to assign guest')
     toast.error(errorMessage)
   } finally {
-    assigning.value = false
+    // Désactiver tous les états de chargement
+    isAssigningAdd.value = false
+    isAssigningReplace.value = false
   }
 }
 
 const loadExistingGuests = async () => {
   loadingGuests.value = true
   try {
-    const response = await getAllGuests(serviceStore.serviceId!)
-    existingGuests.value = response.data || []
+    const serviceId = serviceStore.serviceId
+    const allParams = {
+      search: searchQuery.value.trim() || undefined,
+      hotel_id: serviceId,
+      limit: 'all',
+    }
+
+    const response = await getGuests(allParams)
+
+    if (response.data?.data?.data) {
+      existingGuests.value = response.data.data.data
+    } else {
+      existingGuests.value = response.data || []
+    }
   } catch (error) {
     console.error('Error loading guests:', error)
     toast.error(t('Failed to load guests'))
@@ -257,12 +327,19 @@ const loadExistingGuests = async () => {
   }
 }
 
-// Watchers
+const handleSearchInput = () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+
+  searchTimeout = setTimeout(() => {
+    loadExistingGuests()
+  }, 500)
+}
+
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
-    if (existingGuests.value.length === 0) {
-      loadExistingGuests()
-    }
+    loadExistingGuests()
   } else {
     selectedGuest.value = null
     searchQuery.value = ''
