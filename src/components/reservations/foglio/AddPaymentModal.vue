@@ -202,8 +202,14 @@ watch(() => props.folioId, (newVal) => {
   }
 })
 
+// const folioSelected = (item: any) => {
+//   formData.amount = toIntegerAmount(item.balance);
+// }
+
 const folioSelected = (item: any) => {
-  formData.amount = toIntegerAmount(item.balance);
+  if (!props.isEditMode) {
+    formData.amount = toIntegerAmount(item.balance);
+  }
 }
 
 const methodeSelected = ref<any>(null)
