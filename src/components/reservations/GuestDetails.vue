@@ -2,36 +2,43 @@
   <div class="flex h-[calc(100vh-250px)] mx-4 mt-2 shadow-lg">
     <div class="w-2/12 border-r-2 border-s-1 border-gray-100 bg-gray-50">
       <div class="h-full flex flex-col justify-between">
-        <div class="bg-white dark:bg-gray-800 h-full">
+        <div class="bg-white dark:bg-gray-800 h-full overflow-y-auto">
           <div class="flex justify-between pt-2 px-2 pb-2">
             <span class="dark:text-gray-200">{{ $t('Room/Guest') }}</span>
-            <PlusCircle class="text-primary cursor-pointer" @click="createNewGuest" />
+
           </div>
 
-        <Accordion
-            v-for="(fo, index) in reservation.reservationRooms"
+          <Accordion
+            v-for="(room, index) in reservation.reservationRooms"
             :key="index"
-            :title="`${fo.room?.roomNumber || 'No Room Number'}`"
+            :title="getRoomTitle(room)"
+            @add-new="addNewGuestToRoom(room)"
+            @add-existing="openAddExistingModal(room)"
             class="mb-2"
           >
-            <!-- Guest assigned to this room -->
-            <div v-if="fo.guest">
+            <!-- Liste de tous les guests assignés à cette chambre -->
+            <div v-if="getRoomGuests(room).length > 0">
               <div
-                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1"
+                v-for="guest in getRoomGuests(room)"
+                :key="guest.id"
+                class="flex text-sm justify-between px-2 py-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 my-1 rounded"
                 :class="
-                  selectedGuest?.id === fo.guest.id
+                  selectedGuest?.id === guest.id
                     ? 'bg-blue-100 border-l-4 border-blue-500 dark:bg-blue-900 dark:border-blue-400'
                     : 'bg-gray-100 dark:bg-gray-800'
                 "
-                @click="selectGuest(fo.guest)"
+                @click="selectGuest(guest)"
               >
-                <span class="capitalize dark:text-gray-200">{{
-                  fo.guest.displayName || fo.guest.firstName + ' ' + fo.guest.lastName
-                }}</span>
                 <div class="flex items-center gap-2">
-                  <!-- Remove guest button -->
+                  <span class="capitalize dark:text-gray-200">
+                    {{ guest.displayName || guest.firstName + ' ' + guest.lastName }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <!-- Remove guest button - Ne pas afficher pour le guest principal -->
                   <button
-                    @click.stop="openDeleteModal(fo)"
+                    v-if="!guest.isPrimary"
+                    @click.stop="openDeleteModal(room, guest)"
                     class="text-red-500 hover:text-red-700 transition-colors"
                     :title="$t('Remove Guest')"
                   >
@@ -46,15 +53,16 @@
 
             <!-- No guest assigned - show assign button -->
             <div v-else class="px-2 py-2">
-              <button
-                @click="createNewGuest"
-                class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-dashed border-blue-300 dark:border-blue-700 transition-colors"
-              >
-                <PlusCircle class="w-4 h-4" />
-                <span>{{ $t('Assign Guest') }}</span>
-              </button>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                {{ $t('No guest assigned to this room.') }}
+              </span>
             </div>
           </Accordion>
+
+
         </div>
         <div class="px-4"></div>
       </div>
@@ -73,6 +81,12 @@
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                   {{ isCreatingNewGuest ? $t('New Guest') : $t('Guest') }}
                 </h2>
+
+                <!-- Afficher pour quelle chambre on crée le guest -->
+                <p v-if="isCreatingNewGuest && targetRoom" class="text-sm text-blue-600 dark:text-blue-400">
+                  {{ $t('For room') }}: {{ targetRoom.room?.roomNumber }}
+                </p>
+
                 <div
                   v-if="props.reservation.guest?.blacklisted && !isCreatingNewGuest"
                   class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200 dark:bg-red-900 dark:text-red-200 dark:border-red-400"
@@ -90,11 +104,12 @@
                       : $t('Guest information and details')
                   }}
                 </p>
-
               </div>
             </div>
             <div class="flex space-x-2">
+
               <button
+                v-if="!isCreatingNewGuest"
                 class="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 @click="editGuest"
               >
@@ -137,7 +152,7 @@
                 <ImageUploader
                   ref="profilePhotoUploader"
                   v-model="guestData.profilePhoto"
-                  :disabled="!isEditing"
+                  :disabled="!isEditing && !isCreatingNewGuest"
                   @upload-success="onProfilePhotoSuccess"
                   @upload-error="onUploadError"
                   :key="`profile-${resetKey}`"
@@ -150,22 +165,22 @@
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                   <!-- Nom -->
                   <div class="md:col-span-7">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{
                       $t('Name')
                     }}</label>
                     <div class="flex">
-                      <div class="w-20 -translate-y-1/9 z-10">
+                      <div class="w-20 -translate-y-1/8 z-10">
                         <Select
                           v-model="guestData.title"
                           :options="titleOptions"
                           customClass="rounded-r-none"
                           :placeholder="$t('Mr')"
-                          :disabled="!isEditing"
+                          :disabled="!isEditing && !isCreatingNewGuest"
                         />
                       </div>
 
                       <!-- Mode Affichage: Nom complet en lecture seule -->
-                      <div v-if="!isEditing" class="flex-1">
+                      <div v-if="!isEditing && !isCreatingNewGuest" class="flex-1">
                         <input
                           type="text"
                           :value="fullName"
@@ -176,14 +191,13 @@
                       </div>
 
                       <!-- Mode Édition: Prénom et Nom -->
-                      <div v-if="isEditing" class="flex-1 flex gap-0">
+                      <div v-if="isEditing || isCreatingNewGuest" class="flex-1 flex gap-0">
                         <div class="flex-1">
                           <input
                             v-model="guestData.firstName"
                             type="text"
                             :placeholder="$t('FirstName')"
                             class="h-11 w-full  rounded-l-none rounded-r-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                            :disabled="!isEditing"
                           />
                         </div>
                         <div class="flex-1">
@@ -192,7 +206,6 @@
                             type="text"
                             :placeholder="$t('LastName')"
                             class="h-11 w-full  rounded-l-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                            :disabled="!isEditing"
                           />
                         </div>
                          <div class="flex-1">
@@ -201,7 +214,6 @@
                             type="text"
                             :placeholder="$t('MaidenName')"
                             class="h-11 w-full  rounded-r-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                            :disabled="!isEditing"
                           />
                         </div>
                       </div>
@@ -214,7 +226,7 @@
                         :title="$t('DateOfBirth')"
                         v-model="guestData.dateOfBirth"
                         :placeholder="$t('select_date')"
-                        :disabled="!isEditing"
+                        :disabled="!isEditing && !isCreatingNewGuest"
                       />
                     </div>
                     <!-- Lieu de naissance -->
@@ -224,40 +236,30 @@
                         :id="'placeOfBirth'"
                         v-model="guestData.placeOfBirth"
                         :placeholder="$t('PlaceOfBirth')"
-                        :disabled="!isEditing"
+                        :disabled="!isEditing && !isCreatingNewGuest"
                       />
                     </div>
-
-
                     </div>
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
 
                        <div>
-                      <!-- <Input
-                        :lb="$t('profession')"
-                        :id="'profession'"
-                        v-model="guestData.profession"
-                        :placeholder="$t('profession')"
-                        :disabled="!isEditing"
-                      /> -->
                        <ProfessionAutocomplete
                           v-model="guestData.profession"
                           :lb="$t('profession')"
                           :placeholder="$t('profession')"
                           custom-class="w-20"
-                          :disabled="!isEditing"
+                          :disabled="!isEditing && !isCreatingNewGuest"
                         />
                     </div>
 
                   <!-- Téléphone -->
-
                   <div>
                     <InputPhone
                       :title="$t('Phone')"
                       v-model="guestData.phone"
                       :id="'phone'"
                       :is-required="false"
-                      :disabled="!isEditing"
+                      :disabled="!isEditing && !isCreatingNewGuest"
                     />
                   </div>
                    <!-- Email -->
@@ -266,26 +268,13 @@
                       :title="$t('Email')"
                       v-model="guestData.email"
                       :placeholder="$t('Email')"
-                      :disabled="!isEditing"
+                      :disabled="!isEditing && !isCreatingNewGuest"
                     />
                   </div>
-
-                  <!-- Mobile -->
-                  <!-- <div>
-                      <InputPhone
-                      :title="$t('mobile')"
-                      v-model="guestData.mobile"
-                      :id="'tel'"
-                      :is-required="false"
-                      :disabled="!isEditing"
-                    />
-
-                  </div> -->
                 </div>
 
                 <!-- Ligne Email, Genre, Type de client, Statut VIP -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
                   <!-- Genre -->
                   <div>
                     <Select
@@ -293,7 +282,7 @@
                       v-model="guestData.gender"
                       :options="genderOptions"
                       :placeholder="$t('Male')"
-                      :disabled="!isEditing"
+                      :disabled="!isEditing && !isCreatingNewGuest"
                     />
                   </div>
 
@@ -304,7 +293,7 @@
                       v-model="guestData.guestType"
                       :options="guestTypeOptions"
                       :placeholder="$t('selected_item')"
-                      :disabled="!isEditing"
+                      :disabled="!isEditing && !isCreatingNewGuest"
                     />
                   </div>
 
@@ -316,7 +305,7 @@
                       :options="vipStatusOptions"
                       :placeholder="$t('Select')"
                       :is-Loading="loading"
-                      :disabled="!isEditing"
+                      :disabled="!isEditing && !isCreatingNewGuest"
                     />
                   </div>
                 </div>
@@ -335,7 +324,7 @@
                   rows="2"
                   class="w-full px-3 py-2 border rounded-lg border-black/50 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 focus:border-purple-500 focus:outline-none focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:focus:border-purple-800 resize-none"
                   :placeholder="$t('Address')"
-                  :disabled="!isEditing"
+                  :disabled="!isEditing && !isCreatingNewGuest"
                 ></textarea>
               </div>
 
@@ -346,7 +335,7 @@
                   <InputCountries
                     v-model="guestData.country"
                     :placeholder="$t('Country')"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing && !isCreatingNewGuest"
                   />
                 </div>
 
@@ -357,7 +346,7 @@
                     v-model="guestData.stateProvince"
                     :options="stateOptions"
                     :defaultValue="$t('State/Province')"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing && !isCreatingNewGuest"
                   />
                 </div>
 
@@ -368,7 +357,7 @@
                     v-model="guestData.city"
                     type="text"
                     :placeholder="$t('City')"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing && !isCreatingNewGuest"
                   />
                 </div>
               </div>
@@ -383,7 +372,7 @@
                     v-model="guestData.nationality"
                     :placeholder="$t('India')"
                     :lb="$t('nationality')"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing && !isCreatingNewGuest"
                   />
                 </div>
                 <!-- Société -->
@@ -393,7 +382,7 @@
                     v-model="guestData.company"
                     :options="companyOptions"
                     :defaultValue="$t('-select-')"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing && !isCreatingNewGuest"
                   />
                 </div>
                 <!-- Fax -->
@@ -403,7 +392,7 @@
                     v-model="guestData.fax"
                     type="text"
                     :placeholder="$t('Fax')"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing && !isCreatingNewGuest"
                   />
                 </div>
                 <!-- Numéro d'enregistrement -->
@@ -446,7 +435,7 @@
                   <ImageUploader
                     ref="idPhotoUploader"
                     v-model="guestData.idPhoto"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing && !isCreatingNewGuest"
                     @upload-success="onIdPhotoSuccess"
                     @upload-error="onUploadError"
                     :key="`id-${resetKey}`"
@@ -462,7 +451,7 @@
                         v-model="guestData.idType"
                         :options="idTypeOptions"
                         :placeholder="$t('select_id_type')"
-                        :disabled="!isEditing"
+                        :disabled="!isEditing && !isCreatingNewGuest"
                       />
                     </div>
                     <!-- Numéro de Pièce d'Identité -->
@@ -472,7 +461,7 @@
                         v-model="guestData.idNumber"
                         type="text"
                         :placeholder="idNumberLabel"
-                        :disabled="!isEditing"
+                        :disabled="!isEditing && !isCreatingNewGuest"
                       />
                     </div>
                     <div>
@@ -480,8 +469,7 @@
                         :title="$t('Issue Date')"
                         v-model="guestData.idExpiryDate"
                         :placeholder="$t('select_date')"
-                        :disabled="!isEditing"
-
+                        :disabled="!isEditing && !isCreatingNewGuest"
                       />
                     </div>
                   </div>
@@ -492,7 +480,7 @@
                       <InputCountries
                         :lb="$t('Countryofissue')"
                         v-model="guestData.issuingCountry"
-                        :disabled="!isEditing"
+                        :disabled="!isEditing && !isCreatingNewGuest"
                       />
                     </div>
                     <!-- Ville d'Émission -->
@@ -501,7 +489,7 @@
                         :lb="$t('Cityofissue')"
                         v-model="guestData.issuingCity"
                         :placeholder="$t('Cityofissue')"
-                        :disabled="!isEditing"
+                        :disabled="!isEditing && !isCreatingNewGuest"
                       />
                     </div>
                   </div>
@@ -532,7 +520,7 @@
                     v-model="guestData.preferences"
                     :options="Preferences"
                     :placeholder="$t('SelectPreferences')"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing && !isCreatingNewGuest"
                   />
                 </div>
               </div>
@@ -540,63 +528,90 @@
           </div>
 
           <!-- Action Buttons -->
-          <div v-if="isEditing" class="flex justify-end space-x-3 mt-6 pt-6 border-t dark:border-gray-700">
+          <div v-if="isEditing || isCreatingNewGuest" class="flex justify-end space-x-3 mt-6 pt-6 border-t dark:border-gray-700">
             <BasicButton variant="secondary" :label="$t('Cancel')" @click="cancelEdit" />
+
+          <!-- Si on crée un nouveau guest, afficher 2 boutons -->
+          <template v-if="isCreatingNewGuest">
             <BasicButton
-              variant="primary"
-              :label="isCreatingNewGuest ? $t('Saveandassign') : $t('Save Changes')"
-              @click="saveGuest"
-              :loading="isSaving"
+              variant="success"
+              :label="isSavingAdd ? t('Adding...') : t('Add to Room')"
+              @click="saveGuest(false)"
+              :loading="isSavingAdd"
+              :disabled="isSavingAdd || isSavingReplace"
             />
+            <BasicButton
+              variant="warning"
+              :label="isSavingReplace ? t('Replacing...') : t('Assign to Room (Replace)')"
+              @click="saveGuest(true)"
+              :loading="isSavingReplace"
+              :disabled="isSavingAdd || isSavingReplace"
+            />
+          </template>
+
+          <!-- Si on édite un guest existant, un seul bouton -->
+          <BasicButton
+            v-else
+            variant="primary"
+            :label="isSaving ? t('Saving...') : t('Save Changes')"
+            @click="saveGuest()"
+            :loading="isSaving"
+            :disabled="isSaving"
+          />
           </div>
         </div>
-        <div class="px-4"></div>
-           <!-- Footer summary -->
-        <div class=" p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-          <div class="flex justify-between items-center ">
+
+        <!-- Footer modifié pour n'afficher que si pas en mode création -->
+        <div v-if="!isCreatingNewGuest" class="p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <div class="flex justify-between items-center">
             <div class="flex flex-row gap-4">
-                   <BasicButton
-                    :variant="props.reservation.guest?.blacklisted ? 'danger' : 'warning'"
-                    :label="getBlacklistButtonLabel()"
-                    @click="openBlackListModal()"
+              <BasicButton
+                :variant="props.reservation.guest?.blacklisted ? 'danger' : 'warning'"
+                :label="getBlacklistButtonLabel()"
+                @click="openBlackListModal()"
+              />
 
-                  />
-
-             <BasicButton
-               variant="primary"
-              :label="$t('Print Guest Registration')"
-              @click="handlePrint()"
-            />
+              <BasicButton
+                variant="primary"
+                :label="$t('Print Guest Registration')"
+                @click="handlePrint()"
+              />
             </div>
             <div>
-            <BasicButton
-               variant="primary"
-              :label="$t('common.pickup/dropoff')"
-              @click="handlePickupDropoff()"
-            />
+              <BasicButton
+                variant="primary"
+                :label="$t('common.pickup/dropoff')"
+                @click="handlePickupDropoff()"
+              />
             </div>
           </div>
         </div>
       </div>
-
     </div>
-      <!-- Pickup/Dropoff Modal -->
-      <template v-if="showPickupModal">
-        <PickupAndDropModal
-          :isOpen="showPickupModal"
-          :reservationId="reservationId"
-          :guestId="guest.id"
-          @close="showPickupModal = false"
-        />
-      </template>
 
-        <div v-if="showPdfExporter || laodingPrint">
-        <!-- Confirmation Template -->
-        <PdfExporterNode v-if="pdfUrl || laodingPrint" @close="closePrint" :is-modal-open="showPdfExporter"
-            :is-generating="laodingPrint" :pdf-url="pdfUrl" :title="documentTitle" />
-        </div>
+    <!-- Pickup/Dropoff Modal -->
+    <template v-if="showPickupModal">
+      <PickupAndDropModal
+        :isOpen="showPickupModal"
+        :reservationId="reservationId"
+        :guestId="guest.id"
+        @close="showPickupModal = false"
+      />
+    </template>
 
-      <BlackListGuestModal
+    <div v-if="showPdfExporter || laodingPrint">
+      <!-- Confirmation Template -->
+      <PdfExporterNode
+        v-if="pdfUrl || laodingPrint"
+        @close="closePrint"
+        :is-modal-open="showPdfExporter"
+        :is-generating="laodingPrint"
+        :pdf-url="pdfUrl"
+        :title="documentTitle"
+      />
+    </div>
+
+    <BlackListGuestModal
       :isOpen="showBlacklistModal"
       :isLoading="blacklisting"
       :guestData="props.reservation.guest"
@@ -604,17 +619,28 @@
       @confirm="confirmBlacklistCustomer"
     />
 
-     <ConfirmationModal
-        v-model:show="showDeleteModal"
-        :title="$t('removeGuest')"
-        :message=" $t('remove_confirm_message')"
-        :confirm-text="$t('Remove')"
-        :cancel-text="$t('Cancel')"
-        variant="danger"
-        :loading="deleting"
-        @confirm="removeGuestFromRoom"
-        @cancel="closeDeleteModal"
-      />
+    <!-- Assign Guest Modal -->
+    <AssignGuestModal
+      v-if="showAssignModal"
+      :isOpen="showAssignModal"
+      :room="selectedRoom"
+      :reservation="reservation"
+      @close="closeAssignModal"
+      @assigned="handleGuestAssigned"
+      :replaceMode="replaceMode"
+    />
+
+    <ConfirmationModal
+      v-model:show="showDeleteModal"
+      :title="$t('removeGuest')"
+      :message="$t('remove_confirm_message')"
+      :confirm-text="$t('Remove')"
+      :cancel-text="$t('Cancel')"
+      variant="danger"
+      :loading="deleting"
+      @confirm="removeGuestFromRoom"
+      @cancel="closeDeleteModal"
+    />
   </div>
 </template>
 
@@ -633,14 +659,14 @@ import InputEmail from '../forms/FormElements/InputEmail.vue'
 import ImageUploader from '@/components/customers/ImageUploader.vue'
 import { createGuest, updateGuest, type GuestPayload } from '@/services/guestApi'
 import { useServiceStore } from '@/composables/serviceStore'
-import { PlusCircle, ChevronRight}from 'lucide-vue-next'
+import { PlusCircle, ChevronRight } from 'lucide-vue-next'
 import UserCircleIcon from '@/icons/UserCircleIcon.vue'
 import MultipleSelect from '../forms/FormElements/MultipleSelect.vue'
-import { getPreferencesByHotelId ,getIdentityTypesByHotelId} from '@/services/configrationApi'
+import { getPreferencesByHotelId, getIdentityTypesByHotelId } from '@/services/configrationApi'
 import PickupAndDropModal from '../customers/PickupAndDropModal.vue'
 import { printGuestReservationCard } from '../../services/reservation'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
-import Accordion from '../common/Accordion.vue'
+import Accordion from '../common/AccordionAction.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
 import BlackListGuestModal from '../customers/BlackListGuestModal.vue'
 import { vipStatusApi } from '@/services/configrationApi'
@@ -649,8 +675,9 @@ import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete
 import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 import { cities } from '@/assets/data/cities'
 import InputNationalities from '@/components/forms/FormElements/InputNationalities.vue'
-import { removeGuestFromReservationRoom ,createAndAssignGuest } from '@/services/configrationApi'
+import { removeGuestFromReservationRoom, createAndAssignGuest } from '@/services/configrationApi'
 import ConfirmationModal from '../Housekeeping/ConfirmationModal.vue'
+import AssignGuestModal from './AssignGuestModal.vue'
 
 interface GuestData {
   title: string
@@ -680,8 +707,8 @@ interface GuestData {
   idExpiryDate: string
   issuingCountry: string
   issuingCity: string
-  preferences?: any;
-  maidenName?:string
+  preferences?: any
+  maidenName?: string
 }
 
 interface Props {
@@ -694,7 +721,7 @@ interface Props {
 interface SelectOption {
   value: string
   label: string
-  label_fr?:string
+  label_fr?: string
 }
 
 interface RichSelectOption extends SelectOption {
@@ -702,7 +729,8 @@ interface RichSelectOption extends SelectOption {
   dateField: string
   label_fr: string
 }
-const emit = defineEmits(['clear-error','refresh'])
+
+const emit = defineEmits(['clear-error', 'refresh'])
 const props = defineProps<Props>()
 const { t } = useI18n()
 const toast = useToast()
@@ -714,22 +742,32 @@ const useDropdownBooking = ref(true)
 const showDeleteModal = ref(false)
 const deleting = ref(false)
 const roomToRemove = ref<any>(null)
+const replaceMode = ref(false)
 
 // State
 const isSaving = ref(false)
+const isSavingAdd = ref(false)
+const isSavingReplace = ref(false)
 const isEditing = ref(false)
-const resetKey = ref(0) // Clé pour forcer la réinitialisation des composants
+const resetKey = ref(0)
 const showPickupModal = ref(false)
-// State pour les sections dépliantes
 const showIdentitySection = ref(false)
 const showOtherInfoSection = ref(false)
 const loading = ref(false)
 const vipStatusOptions = ref<any[]>([])
 const idTypeOptions = ref<SelectOption[]>([])
-const showPdfExporter = ref(false);
+const showPdfExporter = ref(false)
+const guestToRemove = ref<any>(null)
+
+// Modal state
+const showAssignModal = ref(false)
+const selectedRoom = ref<any>(null)
+
+// NOUVELLE REF pour la chambre cible lors de la création
+const targetRoom = ref<any>(null)
 
 const selectedGuest = ref(
-  props.guest || (props.reservation?.guests && props.reservation.guests[0]) || null,
+  props.guest || (props.reservation?.guests && props.reservation.guests[0]) || null
 )
 const isCreatingNewGuest = ref(false)
 
@@ -739,22 +777,21 @@ const idPhotoUploader = ref<InstanceType<typeof ImageUploader> | null>(null)
 
 const parsePreferencesFromDB = (preferencesFromDB: any[] = []): { label: string; value: string }[] => {
   if (!Array.isArray(preferencesFromDB)) return []
-  return preferencesFromDB.map(pref => ({
-    label: pref.label || pref.name || pref.value || '',
-    value: pref.value || pref.id || pref.label || ''
-  })).filter(pref => pref.label && pref.value)
+  return preferencesFromDB
+    .map(pref => ({
+      label: pref.label || pref.name || pref.value || '',
+      value: pref.value || pref.id || pref.label || ''
+    }))
+    .filter(pref => pref.label && pref.value)
 }
 
-// Fonction pour convertir les préférences vers le format BD
 const formatPreferencesForDB = (selectedPreferenceValues: string[] | undefined): string => {
   if (!selectedPreferenceValues || selectedPreferenceValues.length === 0) {
-
     return '[]'
   }
   return JSON.stringify(selectedPreferenceValues)
 }
 
-// Fonction d'initialisation mise à jour avec tous les nouveaux champs
 const mapApiCustomerToFormData = (customer: any): GuestData => {
   const baseData: GuestData = {
     title: customer?.title || 'Mr',
@@ -770,7 +807,7 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
     address: customer?.addressLine || customer?.address || '',
     country: customer?.country || '',
     stateProvince: customer?.stateProvince || '',
-    maidenName :customer?.maidenName || '',
+    maidenName: customer?.maidenName || '',
     city: customer?.city || '',
     nationality: customer?.nationality || '',
     company: customer?.companyName || customer?.company || '',
@@ -809,7 +846,6 @@ const mapApiCustomerToFormData = (customer: any): GuestData => {
   return baseData
 }
 
-// Fonction d'initialisation mise à jour
 const initializeGuestData = (guest: any = null): GuestData => {
   if (guest) {
     return mapApiCustomerToFormData(guest)
@@ -851,27 +887,93 @@ const initializeGuestData = (guest: any = null): GuestData => {
 const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
 
 // Computed properties
+
+
 const guestList = computed(() => {
   const rooms = props.reservation?.reservationRooms || []
+  console.log('Computing guest list from rooms:', rooms)
 
-  // Extraire les guests uniques de chaque chambre
   const uniqueGuests = new Map()
 
-  rooms.forEach((room:any) => {
+  // Parcourir toutes les chambres
+  rooms.forEach((room: any) => {
+    // Ajouter le guest principal de la chambre
     if (room.guest && room.guest.id && !uniqueGuests.has(room.guest.id)) {
-      uniqueGuests.set(room.guest.id, room.guest)
+      uniqueGuests.set(room.guest.id, {
+        ...room.guest,
+        isPrimary: room.isOwner || false,
+        roomAssignment: room.id
+      })
+    }
+
+    // Ajouter tous les guests additionnels de la chambre
+    if (room.guests && Array.isArray(room.guests)) {
+      room.guests.forEach((guestAssignment: any) => {
+        // Récupérer les détails du guest depuis la réservation
+        const guestDetails = props.reservation?.guests?.find(
+          (g: any) => g.id === guestAssignment.guestId
+        )
+
+        if (guestDetails && !uniqueGuests.has(guestDetails.id)) {
+          uniqueGuests.set(guestDetails.id, {
+            ...guestDetails,
+            isPrimary: guestAssignment.isPrimary || false,
+            roomAssignment: guestAssignment.roomAssignment
+          })
+        }
+      })
     }
   })
 
-  return Array.from(uniqueGuests.values())
+  // Trier : guest principal en premier
+  const guestsArray = Array.from(uniqueGuests.values())
+  return guestsArray.sort((a, b) => {
+    if (a.isPrimary && !b.isPrimary) return -1
+    if (!a.isPrimary && b.isPrimary) return 1
+    return 0
+  })
 })
+
+// Computed pour obtenir tous les guests d'une chambre spécifique
+const getRoomGuests = (room: any) => {
+  const guests :any[] = []
+
+  // Ajouter le guest principal
+  if (room.guest) {
+    guests.push({
+      ...room.guest,
+      isPrimary: room.isOwner || false
+    })
+  }
+
+  // Ajouter les guests additionnels
+  if (room.guests && Array.isArray(room.guests)) {
+    room.guests.forEach((guestAssignment: any) => {
+      // Ne pas dupliquer le guest principal
+      if (guestAssignment.isPrimary) return
+
+      const guestDetails = props.reservation?.guests?.find(
+        (g: any) => g.id === guestAssignment.guestId
+      )
+
+      if (guestDetails) {
+        guests.push({
+          ...guestDetails,
+          isPrimary: false
+        })
+      }
+    })
+  }
+
+  return guests
+}
+
 const fullName = computed(() => (guestData.firstName + ' ' + guestData.lastName + ' ' + guestData.maidenName).trim() || '')
 
 // Watch for changes in selected guest
 watch(
   selectedGuest,
   (newGuest) => {
-    //  Réinitialiser complètement guestData
     const newData = initializeGuestData(newGuest)
     Object.keys(guestData).forEach(key => {
       delete guestData[key as keyof GuestData]
@@ -879,7 +981,7 @@ watch(
     Object.assign(guestData, newData)
     resetKey.value++
   },
-  { deep: true },
+  { deep: true }
 )
 
 watch(
@@ -897,209 +999,128 @@ watch(
 
     stateOptions.value = uniqueSubcountries.map((sc) => ({
       label: sc,
-      value: sc,
+      value: sc
     }))
   },
-  { immediate: true },
+  { immediate: true }
 )
-
-
 
 // Options pour les 'Select'
 const titleOptions = computed(() => [
   { label: t('Mr'), value: 'Mr' },
   { label: t('Mrs'), value: 'Mrs' },
   { label: t('Miss'), value: 'Miss' },
-  { label: t('Dr'), value: 'Dr' },
+  { label: t('Dr'), value: 'Dr' }
 ])
+
 const genderOptions = computed(() => [
   { label: t('Male'), value: 'male' },
   { label: t('Female'), value: 'female' },
-  { label: t('Other'), value: 'other' },
+  { label: t('Other'), value: 'other' }
 ])
-// Nouvelles options pour le type de client
 
 const guestTypeOptions: SelectOption[] = [
   { value: 'travel_agent', label: t('GuestTypes.travel_agent') },
   { value: 'corporate', label: t('GuestTypes.corporate') },
-  { value: 'individual', label: t('GuestTypes.individual') },
+  { value: 'individual', label: t('GuestTypes.individual') }
 ]
 
-
-
 // --- Méthodes ---
-const openDeleteModal = (room: any) => {
-  roomToRemove.value = room
-  console.log('openDeleteModal',room)
-  showDeleteModal.value = true
+
+
+
+// Fonctions pour la modal d'assignation
+const getRoomTitle = (room: any) => {
+  const roomNumber = room.room?.roomNumber || 'N/A'
+  return `${roomNumber}`
 }
 
-const closeDeleteModal = () => {
-  showDeleteModal.value = false
-  roomToRemove.value = null
+// Ajouter un nouveau guest à la chambre (sans remplacer les existants)
+const addNewGuestToRoom = (room: any) => {
+  console.log('Adding new guest to room (keeping existing guests):', room.room?.roomNumber)
+  selectedGuest.value = null
+  isCreatingNewGuest.value = true
+  targetRoom.value = room
+  replaceMode.value = false
 
+  Object.assign(guestData, initializeGuestData(null))
+  resetKey.value++
+  isEditing.value = true
 }
+
+// Ouvrir la modal pour ajouter un guest existant (sans remplacer)
+const openAddExistingModal = (room: any) => {
+  console.log('Opening modal to ADD existing guest (keeping current guests)')
+  selectedRoom.value = room
+  replaceMode.value = false
+  showAssignModal.value = true
+}
+
+
+
+
+
+const closeAssignModal = () => {
+  showAssignModal.value = false
+  selectedRoom.value = null
+}
+
+const handleGuestAssigned = () => {
+  console.log('Guest assigned successfully')
+  emit('refresh')
+  closeAssignModal()
+}
+
 
 
 const selectGuest = (guest: any) => {
-  //  Créer une COPIE PROFONDE pour éviter les références partagées
   selectedGuest.value = JSON.parse(JSON.stringify(guest))
   isCreatingNewGuest.value = false
+  targetRoom.value = null // Réinitialiser la chambre cible
 
-  // Réinitialiser complètement guestData avec les nouvelles données
   const newGuestData = initializeGuestData(selectedGuest.value)
 
-  // Supprimer toutes les propriétés existantes
   Object.keys(guestData).forEach(key => {
     delete guestData[key as keyof GuestData]
   })
 
-  // Assigner les nouvelles données
   Object.assign(guestData, newGuestData)
 
   isEditing.value = false
   resetKey.value++
 }
 
-const createNewGuest = () => {
-  console.log('Creating new guest')
-  selectedGuest.value = null
-  isCreatingNewGuest.value = true
 
-  // Réinitialiser complètement les données
-  Object.assign(guestData, initializeGuestData(null))
 
-  // Forcer la réinitialisation des composants ImageUploader
-  resetKey.value++
 
-  // Passer en mode édition
-  isEditing.value = true
-
-  console.log('Guest data after reset:', guestData)
-}
 
 const toggleIdentitySection = () => {
   showIdentitySection.value = !showIdentitySection.value
 }
 
-// Nouvelle fonction pour la section "Autres informations"
 const toggleOtherInfoSection = () => {
   showOtherInfoSection.value = !showOtherInfoSection.value
 }
 
-const fetchVipStatuses = async () => {
-  try {
-    loading.value = true
-    const response = await vipStatusApi.getVipStatuses(serviceStore.serviceId!);
-    console.log("respinse",response)
-    vipStatusOptions.value = response.data?.data.map((s:any)=>{
-      return{
-        label:s.name,
-        value:s.id
-      }
-    }) || []
-  } catch (error) {
-    toast.error(t('vip_status.loadError'))
-    console.error(error)
-  } finally {
-    loading.value = false
-  }
-}
-const editGuest = () => {
-  if (isEditing.value && isCreatingNewGuest.value) {
 
-    cancelEdit()
+
+
+
+const saveGuest = async (shouldReplace: boolean = false) => {
+  // Activer le bon état de chargement selon le bouton cliqué
+  if (isCreatingNewGuest.value) {
+    if (shouldReplace) {
+      isSavingReplace.value = true
+    } else {
+      isSavingAdd.value = true
+    }
+    replaceMode.value = shouldReplace
   } else {
-    isEditing.value = !isEditing.value
+    isSaving.value = true
   }
-}
 
-// Fonctions pour gérer les uploads d'images
-const onProfilePhotoSuccess = async (result: any) => {
   try {
-
-    if (profilePhotoUploader.value?.hasSelectedFile()) {
-      const uploadedUrl = await profilePhotoUploader.value.uploadToCloudinary()
-      guestData.profilePhoto = uploadedUrl
-    } else {
-      guestData.profilePhoto = result.url || result.info?.secure_url || result
-    }
-
-  } catch (error) {
-    console.error('Error handling profile photo:', error)
-    toast.error(t('Profile photo upload failed'))
-  }
-}
-
-const onIdPhotoSuccess = async (result: any) => {
-  try {
-
-    if (idPhotoUploader.value?.hasSelectedFile()) {
-      const uploadedUrl = await idPhotoUploader.value.uploadToCloudinary()
-      guestData.idPhoto = uploadedUrl
-    } else {
-      guestData.idPhoto = result.url || result.info?.secure_url || result
-    }
-
-  } catch (error) {
-    console.error('Error handling ID photo:', error)
-    toast.error(t('ID photo upload failed'))
-  }
-}
-
-const onUploadError = (error: any) => {
-  console.error('Upload error:', error)
-  toast.error(t('Image upload failed'))
-}
-
-
-const handlePickupDropoff = () => {
-  showPickupModal.value = true
-}
-
-// Fonction de préparation de la charge utile (payload) mise à jour
-const prepareGuestPayload = (): GuestPayload => {
-  const payload: GuestPayload = {
-    hotelId: serviceStore.serviceId!,
-    title: guestData.title,
-    firstName: guestData.firstName,
-    lastName: guestData.lastName,
-    profilePhoto: guestData.profilePhoto?? undefined,
-    phonePrimary: guestData.phone,
-    mobileNumber: guestData.mobile,
-    email: guestData.email,
-    gender: guestData.gender,
-    guestType: guestData.guestType,
-    vipStatusId: guestData.vipStatusId,
-    addressLine: guestData.address,
-    country: guestData.country,
-    stateProvince: guestData.stateProvince,
-    city: guestData.city,
-    nationality: guestData.nationality,
-    companyName: guestData.company,
-    fax: guestData.fax,
-    registrationNumber: guestData.registrationNo,
-    idPhoto: guestData.idPhoto ?? undefined,
-    idType: guestData.idType,
-    idNumber: guestData.idNumber,
-    dateOfBirth: guestData.dateOfBirth,
-    profession: guestData.profession,
-    placeOfBirth: guestData.placeOfBirth,
-    idExpiryDate: guestData.idExpiryDate,
-    issuingCountry: guestData.issuingCountry,
-    issuingCity: guestData.issuingCity,
-    maidenName : guestData.maidenName,
-    preferences: formatPreferencesForDB(guestData.preferences)
-  }
-
-  console.log('payload',payload)
-  return payload
-}
-
-const saveGuest = async () => {
-  isSaving.value = true
-  try {
-    // Upload des images
+    // Upload des images si nécessaire
     if (profilePhotoUploader.value?.hasSelectedFile()) {
       guestData.profilePhoto = await profilePhotoUploader.value.uploadToCloudinary()
     }
@@ -1109,37 +1130,42 @@ const saveGuest = async () => {
 
     const payload = prepareGuestPayload()
 
+    // Création d'un nouveau guest et assignation à une chambre
     if (isCreatingNewGuest.value) {
-      const roomWithoutGuest = props.reservation.reservationRooms?.find(
-        (room: any) => !room.guest && !room.guestId
-      )
-
-      if (roomWithoutGuest) {
-        const response = await createAndAssignGuest(roomWithoutGuest.id, payload)
-        toast.success(t('Guest created and assigned successfully'))
-
-        selectedGuest.value = response.data.guest
-        Object.assign(guestData, initializeGuestData(response.data.guest))
-      } else {
-        // Pas de chambre disponible, créer seulement le guest
-        const response = await createGuest(payload)
-        toast.success(t('Guest created successfully'))
-        toast.warning(t('No available room to assign'))
-
-        selectedGuest.value = response.data
-        Object.assign(guestData, initializeGuestData(response.data))
+      if (!targetRoom.value) {
+        toast.error(t('No room selected for guest assignment'))
+        return
       }
 
-      isCreatingNewGuest.value = false
 
-    } else {
-      // Mise à jour d'un guest existant
+      // Appeler l'API avec le paramètre replaceMode
+      const response = await createAndAssignGuest(
+        targetRoom.value.id,
+        payload,
+        replaceMode.value
+      )
+
+      const message = replaceMode.value
+        ? t('Guest created and assigned')
+        : t('Guest created and added to room')
+
+      toast.success(message)
+
+      selectedGuest.value = response.data.guest
+      Object.assign(guestData, initializeGuestData(response.data.guest))
+      targetRoom.value = null
+      replaceMode.value = false
+      isCreatingNewGuest.value = false
+    }
+    // Mise à jour d'un guest existant
+    else {
       const guestId = selectedGuest.value?.id
       if (!guestId) throw new Error('Guest ID is required for update')
 
       await updateGuest(guestId, payload)
       toast.success(t('Guest updated successfully'))
 
+      // Mettre à jour la liste locale
       const guestIndex = guestList.value.findIndex((g: any) => g.id === guestId)
       if (guestIndex !== -1) {
         guestList.value[guestIndex] = {
@@ -1161,18 +1187,130 @@ const saveGuest = async () => {
     isEditing.value = false
     resetKey.value++
     emit('refresh')
-
   } catch (error: any) {
     console.error('Error saving guest:', error)
     const errorMessage = error.response?.data?.message || error.message
     toast.error(`${t('Error saving guest')}: ${errorMessage}`)
   } finally {
+    // Désactiver tous les états de chargement
     isSaving.value = false
+    isSavingAdd.value = false
+    isSavingReplace.value = false
+    replaceMode.value = false
   }
 }
 
+
+
+const fetchVipStatuses = async () => {
+  try {
+    loading.value = true
+    const response = await vipStatusApi.getVipStatuses(serviceStore.serviceId!)
+    console.log('response', response)
+    vipStatusOptions.value =
+      response.data?.data.map((s: any) => {
+        return {
+          label: s.name,
+          value: s.id
+        }
+      }) || []
+  } catch (error) {
+    toast.error(t('vip_status.loadError'))
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const editGuest = () => {
+  if (isEditing.value && isCreatingNewGuest.value) {
+    cancelEdit()
+  } else {
+    isEditing.value = !isEditing.value
+  }
+}
+
+const onProfilePhotoSuccess = async (result: any) => {
+  try {
+    if (profilePhotoUploader.value?.hasSelectedFile()) {
+      const uploadedUrl = await profilePhotoUploader.value.uploadToCloudinary()
+      guestData.profilePhoto = uploadedUrl
+    } else {
+      guestData.profilePhoto = result.url || result.info?.secure_url || result
+    }
+  } catch (error) {
+    console.error('Error handling profile photo:', error)
+    toast.error(t('Profile photo upload failed'))
+  }
+}
+
+const onIdPhotoSuccess = async (result: any) => {
+  try {
+    if (idPhotoUploader.value?.hasSelectedFile()) {
+      const uploadedUrl = await idPhotoUploader.value.uploadToCloudinary()
+      guestData.idPhoto = uploadedUrl
+    } else {
+      guestData.idPhoto = result.url || result.info?.secure_url || result
+    }
+  } catch (error) {
+    console.error('Error handling ID photo:', error)
+    toast.error(t('ID photo upload failed'))
+  }
+}
+
+const onUploadError = (error: any) => {
+  console.error('Upload error:', error)
+  toast.error(t('Image upload failed'))
+}
+
+const handlePickupDropoff = () => {
+  showPickupModal.value = true
+}
+
+const prepareGuestPayload = (): GuestPayload => {
+  const payload: GuestPayload = {
+    hotelId: serviceStore.serviceId!,
+    title: guestData.title,
+    firstName: guestData.firstName,
+    lastName: guestData.lastName,
+    profilePhoto: guestData.profilePhoto ?? undefined,
+    phonePrimary: guestData.phone,
+    mobileNumber: guestData.mobile,
+    email: guestData.email,
+    gender: guestData.gender,
+    guestType: guestData.guestType,
+    vipStatusId: guestData.vipStatusId || null,
+    addressLine: guestData.address,
+    country: guestData.country,
+    stateProvince: guestData.stateProvince,
+    city: guestData.city,
+    nationality: guestData.nationality,
+    companyName: guestData.company,
+    fax: guestData.fax,
+    registrationNumber: guestData.registrationNo,
+    idPhoto: guestData.idPhoto ?? undefined,
+    idType: guestData.idType,
+    idNumber: guestData.idNumber,
+    dateOfBirth: guestData.dateOfBirth,
+    profession: guestData.profession,
+    placeOfBirth: guestData.placeOfBirth,
+    idExpiryDate: guestData.idExpiryDate,
+    issuingCountry: guestData.issuingCountry,
+    issuingCity: guestData.issuingCity,
+    maidenName: guestData.maidenName,
+    preferences: formatPreferencesForDB(guestData.preferences)
+  }
+
+  console.log('payload', payload)
+  return payload
+}
+
+
+
+//  Fonction cancelEdit avec réinitialisation de targetRoom
 const cancelEdit = () => {
   isEditing.value = false
+  targetRoom.value = null
 
   if (isCreatingNewGuest.value) {
     isCreatingNewGuest.value = false
@@ -1188,7 +1326,6 @@ const cancelEdit = () => {
       Object.assign(guestData, emptyData)
     }
   } else {
-    //  Recharger les données originales de l'invité
     const originalData = initializeGuestData(selectedGuest.value)
     Object.keys(guestData).forEach(key => {
       delete guestData[key as keyof GuestData]
@@ -1207,7 +1344,6 @@ const loadPreferences = async () => {
       label: i.name,
       value: i.id
     }))
-
   } catch (error) {
     console.error('Error loading preferences:', error)
   }
@@ -1221,7 +1357,6 @@ const fetchIdentityTypes = async () => {
     const res = await getIdentityTypesByHotelId(hotelId)
 
     idTypeOptions.value = res.data.data.data.map((type: any): RichSelectOption => {
-
       const normalizedName = type.name.toLowerCase().replace(/ /g, '')
 
       switch (normalizedName) {
@@ -1232,7 +1367,7 @@ const fetchIdentityTypes = async () => {
             value: type.name,
             numberField: 'passportNumber',
             dateField: 'passportExpiry',
-            label_fr: t('identity.passport_number'),
+            label_fr: t('identity.passport_number')
           }
         case 'visa':
           return {
@@ -1240,7 +1375,7 @@ const fetchIdentityTypes = async () => {
             value: type.name,
             numberField: 'visaNumber',
             dateField: 'visaExpiry',
-            label_fr: t('identity.visa_number'),
+            label_fr: t('identity.visa_number')
           }
         default:
           return {
@@ -1248,7 +1383,7 @@ const fetchIdentityTypes = async () => {
             value: type.name,
             numberField: 'idNumber',
             dateField: 'idExpiryDate',
-            label_fr: t('identity.id_number'),
+            label_fr: t('identity.id_number')
           }
       }
     })
@@ -1262,55 +1397,47 @@ const selectedIdTypeInfo = computed(() => {
 })
 
 const idNumberLabel = computed(() => {
-  // Retourne le label personnalisé, ou un label par défaut
   return selectedIdTypeInfo.value?.label_fr || t('identity.id_number')
 })
 
-const laodingPrint = ref(false);
-const pdfUrl = ref<any>(null);
+const laodingPrint = ref(false)
+const pdfUrl = ref<any>(null)
 const documentTitle = ref<string>('')
 const showBlacklistModal = ref(false)
 const blacklisting = ref(false)
 const customerToBlacklist = ref<any>(null)
 
 const handlePrint = async () => {
-    try {
-        laodingPrint.value = true
+  try {
+    laodingPrint.value = true
+    showPdfExporter.value = true
 
-        // Show PDF exporter
-        showPdfExporter.value = true
+    let pdfBlob: Blob
+    pdfBlob = await printGuestReservationCard({
+      reservationId: props.reservation?.id,
+      guestId: props.reservation?.guestId
+    })
+    console.log('PDF Blob for confirmation:', pdfBlob)
 
-        // Generate PDF based on template type
-        let pdfBlob: Blob
-            pdfBlob = await printGuestReservationCard({
-                reservationId: props.reservation?.id,
-                guestId:props.reservation?.guestId
-            })
-            console.log('PDF Blob for confirmation:', pdfBlob)
-            // Libérer l'ancienne URL si elle existe
-            if (pdfUrl.value) {
-                window.URL.revokeObjectURL(pdfUrl.value)
-            }
-            pdfUrl.value = window.URL.createObjectURL(pdfBlob)
-
-    } catch (error) {
-
-        showPdfExporter.value = false
-    } finally {
-        laodingPrint.value = false
+    if (pdfUrl.value) {
+      window.URL.revokeObjectURL(pdfUrl.value)
     }
+    pdfUrl.value = window.URL.createObjectURL(pdfBlob)
+  } catch (error) {
+    showPdfExporter.value = false
+  } finally {
+    laodingPrint.value = false
+  }
 }
 
-
-
 const closePrint = () => {
-    showPdfExporter.value = false;
-    pdfUrl.value = null
+  showPdfExporter.value = false
+  pdfUrl.value = null
 }
 
 const openBlackListModal = () => {
-    console.log('Blacklisting guest:', props.reservation)
-   showBlacklistModal.value = true
+  console.log('Blacklisting guest:', props.reservation)
+  showBlacklistModal.value = true
 }
 
 const closeBlacklistModal = () => {
@@ -1318,7 +1445,6 @@ const closeBlacklistModal = () => {
   customerToBlacklist.value = null
 }
 
-// Fonction pour obtenir le label du bouton blacklist
 const getBlacklistButtonLabel = (): string => {
   if (props.reservation.guest?.blacklisted) {
     return t('actionsBlackList.removeFromBlacklist')
@@ -1327,7 +1453,6 @@ const getBlacklistButtonLabel = (): string => {
   }
 }
 
-// Améliorez aussi la fonction de confirmation du blacklist
 const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: boolean }) => {
   if (!props.reservation?.guestId) return
   try {
@@ -1342,18 +1467,15 @@ const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: bo
 
     toast.success(successMessage)
 
-    // Mettre à jour le statut blacklist localement pour refléter le changement immédiatement
     if (props.reservation.guest) {
       props.reservation.guest.blacklisted = data.blacklisted
 
-      // Mettre à jour les notes si nécessaire
       if (data.blacklisted && data.reason) {
         const timestamp = new Date().toISOString()
         const blacklistNote = `\n[${timestamp}] Blacklisted: ${data.reason}`
         props.reservation.guest.notes = (props.reservation.guest.notes || '') + blacklistNote
       }
     }
-
   } catch (error: any) {
     console.error('Erreur lors de la mise en liste noire du client:', error)
 
@@ -1381,30 +1503,58 @@ const getCompaniesList = async () => {
   }
 }
 
+/// Mettre à jour la fonction openDeleteModal
+const openDeleteModal = (room: any, guest: any) => {
+  roomToRemove.value = room
+  guestToRemove.value = guest
+  console.log('openDeleteModal', room, guest)
+  showDeleteModal.value = true
+}
 
+// Mettre à jour closeDeleteModal
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+  roomToRemove.value = null
+  guestToRemove.value = null
+}
 
-// Remove guest from room
+// Mettre à jour removeGuestFromRoom
 const removeGuestFromRoom = async () => {
   const room = roomToRemove.value
-  if (!room?.guest) return
+  const guest = guestToRemove.value
+
+  if (!room || !guest) return
 
   deleting.value = true
 
   try {
-    await removeGuestFromReservationRoom(room.id)
+    // Trouver l'assignment spécifique dans room.guests
+    const guestAssignment = room.guests?.find(
+      (g: any) => g.guestId === guest.id
+    )
+    console.log('Removing guest assignment:', guestAssignment)
+
+    if (guestAssignment) {
+      await removeGuestFromReservationRoom(guestAssignment.id)
+    } else if (guest.isPrimary) {
+      toast.error(t('Cannot remove principal guest'))
+      return
+    } else {
+      await removeGuestFromReservationRoom(room.id)
+    }
 
     toast.success(t('Guest removed successfully'))
 
-    if (selectedGuest.value?.id === room.guest.id) {
-      const otherGuest = guestList.value.find(
-        (g: any) => g.id !== room.guest.id
-      )
+    // Si le guest supprimé est celui actuellement sélectionné
+    if (selectedGuest.value?.id === guest.id) {
+      const remainingGuests = guestList.value.filter((g: any) => g.id !== guest.id)
 
-      if (otherGuest) {
-        selectGuest(otherGuest)
+      if (remainingGuests.length > 0) {
+        selectGuest(remainingGuests[0])
       } else {
         selectedGuest.value = null
         isCreatingNewGuest.value = false
+        targetRoom.value = null
 
         const emptyData = initializeGuestData(null)
         Object.keys(guestData).forEach(key => {
@@ -1428,17 +1578,15 @@ const removeGuestFromRoom = async () => {
 
 
 
-
-
 onMounted(() => {
   loadPreferences()
   fetchIdentityTypes()
   fetchVipStatuses()
   getCompaniesList()
   console.log('Mounted GuestDetails with reservation:', guestList.value)
-
 })
 </script>
+
 <style scoped>
 /* Scrollbar invisible mais toujours scrollable */
 .custom-scrollbar {
