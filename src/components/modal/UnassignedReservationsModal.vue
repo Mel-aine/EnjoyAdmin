@@ -7,15 +7,19 @@
   >
     <template #header>
       <div class="flex items-center justify-between">
+        <div class="">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {{ $t('UnassignedReservations') }} - {{ formatDate(props.date) }}
+          {{ $t('UnassignedReservations') }}
         </h3>
+         <span class="text-gray-500 dark:text-gray-400">{{ formatDate(props.date) }}</span>
+         </div>
         <span
-          class="px-1 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded-full text-sm font-medium"
+          class="px-2 py-1  bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 rounded-full text-sm font-medium"
         >
           {{ unassignedReservations.length }}
           {{ unassignedReservations.length === 1 ? $t('reservationLabel') : $t('reservations') }}
         </span>
+
       </div>
     </template>
 
@@ -93,7 +97,7 @@
             </div>
 
             <!-- Reservation Details Grid -->
-            <div class="grid grid-cols-2 gap-4 mb-1">
+            <div class="grid grid-cols-2 gap-8 mb-1">
               <div class="space-y-2">
                 <div class="flex items-center gap-2 text-sm text-gray-600">
                   <svg
@@ -110,8 +114,16 @@
                     />
                   </svg>
                   <span>{{
-                    formatDateRange(reservation.checkInDate, reservation.checkOutDate)
+                    formatDateRange(reservation.arrivedDate, reservation.departDate)
                   }}</span>
+                </div>
+               <!--Numero de reservation-->
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+
+                  <span>{{ $t('No') }}:</span>
+                  <span class="font-normal text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    {{ reservation.reservationNumber }}
+                  </span>
                 </div>
               </div>
 
@@ -134,7 +146,7 @@
                   <span class="font-medium text-gray-900 dark:text-gray-100">
                     {{
                       reservation.numberOfNights ||
-                      calculateNights(reservation.checkInDate, reservation.checkOutDate)
+                      calculateNights(reservation.arrivedDate, reservation.departDate)
                     }}
                   </span>
                 </div>
@@ -259,6 +271,7 @@ interface Props {
   date: string
   reservations: any[]
   roomTypeId?: number | null
+  roomTypeData?: any[]
 }
 
 interface Emits {
@@ -268,12 +281,13 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   reservations: () => [],
-  roomTypeId: null
+  roomTypeId: null,
+  roomTypeData: () => []
 })
 
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
-const roomTypes = ref<any[]>([])
+
 
 // State
 const showRoomSelection = ref(false)
@@ -318,23 +332,6 @@ const formatDate = (dateStr: string) => {
   })
 }
 
-const formatDateLocal = (dateStr: string) => {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-const formatCurrency = (amount: number | string) => {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'XAF',
-    minimumFractionDigits: 0,
-  }).format(num)
-}
 
 const formatDateRange = (checkIn: string, checkOut: string) => {
   const checkInDate = new Date(checkIn).toLocaleDateString('en-US', {
@@ -357,8 +354,8 @@ const calculateNights = (checkIn: string, checkOut: string) => {
 }
 
 const getRoomTypeName = (roomTypeId: number) => {
-  const roomType = roomTypes.value?.find((rt) => rt.id === roomTypeId)
-  return roomType?.roomTypeName || t('UnknownRoomType')
+  const roomType = props.roomTypeData?.find((rt) => rt.room_type_id === roomTypeId)
+  return roomType?.room_type_name || t('UnknownRoomType')
 }
 
 const getUnassignedRoomsCount = (reservation: any) => {
@@ -377,16 +374,7 @@ const getStatusClass = (status: string) => {
   return statusMap[status] || statusMap['inquiry']
 }
 
-const fetchRoomTypes = async () => {
-  const hotelId = useServiceStore().serviceId
-  try {
-    const rep = await getRoomTypes(hotelId!)
-    roomTypes.value = rep.data.data.data
-    console.log('Fetched room types:', roomTypes.value)
-  } catch (error) {
-    console.error(error)
-  }
-}
+
 const getFilteredRooms = (reservation: any) => {
   if (!reservation.reservationRooms) return []
 
@@ -403,7 +391,7 @@ const getFilteredRoomsCount = (reservation: any) => {
   return getFilteredRooms(reservation).length
 }
 onMounted(() => {
-  fetchRoomTypes()
+  console.log('Component mounted. Room types fetched.',props.reservations)
 })
 
 </script>
