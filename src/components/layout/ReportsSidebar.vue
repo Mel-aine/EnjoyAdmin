@@ -586,10 +586,10 @@ const filteredBackOfficeReports = computed(() => {
 
   const filtered = backOfficeReports.value.filter(report => {
     // Forcer l\'affichage du rapport Work Office pour le test
-    if (report.name === 'work-order-list') {
-      console.log('Forçage de l\'affichage du rapport Work Office pour le test');
-      return true;
-    }
+    // if (report.name === 'work-order-list') {
+    //   console.log('Forçage de l\'affichage du rapport Work Office pour le test');
+    //   return true;
+    // }
 
     const permission = reportPermissions[report.name as keyof typeof reportPermissions];
     const hasPermission = permission ? authStore.hasReportPermission(permission) : false;

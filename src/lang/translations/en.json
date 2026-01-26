@@ -977,7 +977,9 @@
       "registrationNo2": "Registration No. 2",
       "registrationNo3": "Registration No. 3",
       "cancellationPolicy": "Cancellation Policy",
-      "hotelPolicy": "Hotel Policy"
+      "hotelPolicy": "Hotel Policy",
+      "nightAuditStartTime": "Night Audit Start Time",
+      "nightAuditEndTime": "Night Audit End Time"
     },
     "placeholders": {
       "hotelName": "Enter hotel name",
@@ -996,7 +998,9 @@
       "registrationNo2": "Enter registration number 2",
       "registrationNo3": "Enter registration number 3",
       "cancellationPolicy": "Enter your hotel's cancellation policy...",
-      "hotelPolicy": "Enter your hotel's general policies..."
+      "hotelPolicy": "Enter your hotel's general policies...",
+      "nightAuditStartTime": "Enter night audit start time",
+      "nightAuditEndTime": "Enter night audit end time"
     },
     "buttons": {
       "chooseFile": "Choose File",
