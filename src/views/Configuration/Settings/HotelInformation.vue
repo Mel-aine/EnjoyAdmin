@@ -8,17 +8,17 @@
             {{ t('hotelInformation.subtitle') }}
           </p>
         </div>
-        <BasicButton 
-          variant="primary" 
-          :icon="Save" 
-          :label="isLoading ? t('Processing') + '...' : t('hotelInformation.saveChanges')" 
-          @click="saveHotelInfo" 
+        <BasicButton
+          variant="primary"
+          :icon="Save"
+          :label="isLoading ? t('Processing') + '...' : t('hotelInformation.saveChanges')"
+          @click="saveHotelInfo"
           :disabled="isLoading"
         />
       </div>
-      
+
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div class="p-6">
+        <div class="p-6" :class="{ 'pointer-events-none opacity-60': isLoading }">
           <form @submit.prevent="saveHotelInfo" class="space-y-8">
             <!-- General Information -->
             <div>
@@ -32,7 +32,7 @@
                     :is-required="true"
                   />
                 </div>
-                
+
                 <div>
                   <InputEmail
                     v-model="hotelInfo.email"
@@ -40,7 +40,7 @@
                     :placeholder="t('hotelInformation.placeholders.email')"
                   />
                 </div>
-                
+
                 <div>
                   <InputPhone
                     v-model="hotelInfo.phoneNumber"
@@ -49,7 +49,7 @@
                     :is-required="true"
                   />
                 </div>
-                
+
                 <div>
                   <Input
                     v-model="hotelInfo.fax"
@@ -57,7 +57,7 @@
                     :placeholder="t('hotelInformation.placeholders.fax')"
                   />
                 </div>
-                
+
                 <div>
                   <Input
                     v-model="hotelInfo.website"
@@ -65,7 +65,7 @@
                     :placeholder="t('hotelInformation.placeholders.website')"
                   />
                 </div>
-                
+
                 <div>
                   <InputCountries
                     v-model="hotelInfo.country"
@@ -73,7 +73,7 @@
                   />
                 </div>
               </div>
-              
+
               <div class="mt-6">
                 <Input
                   v-model="hotelInfo.address"
@@ -82,7 +82,7 @@
                   :is-required="true"
                 />
               </div>
-              
+
               <div class="mt-4">
                 <Input
                   v-model="hotelInfo.address2"
@@ -90,7 +90,7 @@
                   :placeholder="t('hotelInformation.placeholders.address2')"
                 />
               </div>
-              
+
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
                 <div>
                   <Input
@@ -100,7 +100,7 @@
                     :is-required="true"
                   />
                 </div>
-                
+
                 <div>
                   <Input
                     v-model="hotelInfo.stateProvince"
@@ -109,7 +109,7 @@
                     :is-required="true"
                   />
                 </div>
-                
+
                 <div>
                   <Input
                     v-model="hotelInfo.postalCode"
@@ -119,8 +119,28 @@
                   />
                 </div>
               </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 ">
+                 <div>
+                  <Input
+                    v-model="hotelInfo.nightAuditStartTime"
+                    :lb="t('hotelInformation.fields.nightAuditStartTime')"
+                    :placeholder="t('hotelInformation.placeholders.nightAuditStartTime')"
+                    :is-required="true"
+                    :input-type="'number'"
+                  />
+                 </div>
+                  <div>
+                    <Input
+                      v-model="hotelInfo.nightAuditEndTime"
+                      :lb="t('hotelInformation.fields.nightAuditEndTime')"
+                      :placeholder="t('hotelInformation.placeholders.nightAuditEndTime')"
+                      :is-required="true"
+                      :input-type="'number'"
+                    />
+                  </div>
+              </div>
             </div>
-            
+
             <!-- Property Information -->
             <div>
               <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ t('hotelInformation.propertyInformation') }}</h3>
@@ -134,7 +154,7 @@
                     :is-required="true"
                   />
                 </div>
-                
+
                 <div>
                   <Select
                     v-model="hotelInfo.grade"
@@ -144,7 +164,7 @@
                   />
                 </div>
               </div>
-              
+
               <div class="mt-6">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {{ t('hotelInformation.fields.hotelLogo') }}
@@ -173,7 +193,7 @@
                   {{ t('hotelInformation.messages.logoUploadInfo') }}
                 </p>
               </div>
-              
+
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 <div>
                   <Input
@@ -182,7 +202,7 @@
                     :placeholder="t('hotelInformation.placeholders.registrationNo1')"
                   />
                 </div>
-                
+
                 <div>
                   <Input
                     v-model="hotelInfo.registrationNo2"
@@ -190,7 +210,7 @@
                     :placeholder="t('hotelInformation.placeholders.registrationNo2')"
                   />
                 </div>
-                
+
                 <div>
                   <Input
                     v-model="hotelInfo.registrationNo3"
@@ -199,11 +219,11 @@
                   />
                 </div>
               </div>
-              
+
               <!-- Description Section -->
               <div class="mt-8">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-6">{{ t('hotelInformation.descriptionPolicies') }}</h3>
-                
+
                 <!-- Cancellation Policy -->
                  <div class="mb-6">
                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -216,7 +236,7 @@
                      class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                    ></textarea>
                  </div>
-                 
+
                  <!-- Hotel Policy -->
                  <div class="mb-6">
                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -230,8 +250,8 @@
                    ></textarea>
                  </div>
               </div>
-              
-        
+
+
             </div>
           </form>
         </div>
@@ -283,6 +303,8 @@ const hotelInfo = ref({
   "registrationNo3": "",
   "cancellationPolicy": "",
   "hotelPolicy": "",
+  "nightAuditStartTime": 1,
+  "nightAuditEndTime": 1,
   logoFile: null
 })
 
@@ -330,6 +352,7 @@ const removeLogo = () => {
 // Load hotel information from current service on component mount
 const loadHotelInfo = async () => {
   const currentService = JSON.parse(serviceStore.currentService)
+  console.log('Current Service:', currentService)
 
   if (currentService) {
     // Map service data to hotel info structure
@@ -353,6 +376,8 @@ const loadHotelInfo = async () => {
       registrationNo3:  currentService.registrationNo3 || '',
       cancellationPolicy: currentService.cancellationPolicy || '',
       hotelPolicy: currentService.hotelPolicy || '',
+      nightAuditStartTime: currentService.nightAuditStartTime || '',
+      nightAuditEndTime: currentService.nightAuditEndTime || '',
     }
   }
 }
@@ -380,7 +405,7 @@ const saveHotelInfo = async () => {
       toast.error(t('toast.logoUploadError'))
     }
     const response = await updateHotelInformation(serviceStore.serviceId, hotelInfo.value)
-    
+
     if (response.status === 200) {
       // Update the current service in the store with the new hotel information
       const currentService = serviceStore.getCurrentService
@@ -391,7 +416,7 @@ const saveHotelInfo = async () => {
         }
         serviceStore.setCurrentService(updatedService)
       }
-      
+
       toast.success(t('toast.hotelInfoUpdated'))
     } else {
       toast.error(t('toast.hotelInfoUpdateError'))

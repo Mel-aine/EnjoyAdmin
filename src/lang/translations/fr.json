@@ -958,7 +958,9 @@
       "registrationNo2": "Numéro d'enregistrement 2",
       "registrationNo3": "Numéro d'enregistrement 3",
       "cancellationPolicy": "Politique d'annulation",
-      "hotelPolicy": "Politique de l'hôtel"
+      "hotelPolicy": "Politique de l'hôtel",
+      "nightAuditStartTime": "Heure de début de l'audit de nuit",
+      "nightAuditEndTime": "Heure de fin de l'audit de nuit"
     },
     "placeholders": {
       "hotelName": "Saisissez le nom de l'hôtel",
@@ -977,7 +979,9 @@
       "registrationNo2": "Saisissez le numéro d'enregistrement 2",
       "registrationNo3": "Saisissez le numéro d'enregistrement 3",
       "cancellationPolicy": "Saisissez la politique d'annulation de votre hôtel...",
-      "hotelPolicy": "Saisissez les politiques générales de votre hôtel..."
+      "hotelPolicy": "Saisissez les politiques générales de votre hôtel...",
+      "nightAuditStartTime": "Saisissez l'heure de début de l'audit de nuit",
+      "nightAuditEndTime": "Saisissez l'heure de fin de l'audit de nuit"
     },
     "buttons": {
       "chooseFile": "Choisir un fichier",

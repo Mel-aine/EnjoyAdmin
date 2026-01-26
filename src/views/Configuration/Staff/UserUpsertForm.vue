@@ -548,15 +548,16 @@ onMounted(async () => {
               variant="outline"
               @click="goBack"
               :label="$t('cancel')"
+              :disabled="isLoading || isLoadingUser"
             />
 
               <button
                 @click="handleSubmit"
                 :disabled="isLoading || isLoadingUser"
-                class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center"
+                class="px-4 py-2 gap-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center"
               >
-                <Save class="w-4 h-4 mr-2" v-if="!isLoading" />
-                <Spinner class="w-4 h-4 mr-2" v-else />
+                <Save class="w-4 h-4 " v-if="!isLoading" />
+                <Spinner class="w-4 h-4 " v-else />
                 {{ isLoading ? t('Processing') : t('Save') }}
               </button>
             </div>
@@ -572,7 +573,7 @@ onMounted(async () => {
 
       <div class="max-w-full px-4 sm:px-6 lg:px-8 py-4">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-          <form @submit.prevent="handleSubmit">
+          <form @submit.prevent="handleSubmit" :class="{'pointer-events-none opacity-60': isLoading}">
             <div class="flex">
               <!-- Section des informations personnelles -->
               <div>

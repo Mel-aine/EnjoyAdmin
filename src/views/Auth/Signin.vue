@@ -90,7 +90,10 @@
                       autocomplete="username"
                       name="email"
                       placeholder="info@gmail.com"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                      :class="[
+                        isLoading ? 'cursor-not-allowed bg-gray-100 text-gray-400 border-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-700' : 'bg-transparent border-gray-300 text-gray-800 dark:bg-gray-900 dark:text-white/90 dark:border-gray-700',
+                      ]"
+                      class="dark:bg-dark-900 h-11 w-full rounded-lg border   px-4 py-2.5 text-sm  shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
                       required
                     />
                   </div>
@@ -128,7 +131,10 @@
                         id="password"
                         autocomplete="current-password"
                         :placeholder="$t('Enteryourpassword')"
-                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                        :class="[
+                          isLoading ? 'cursor-not-allowed bg-gray-100 text-gray-400 border-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-700' : 'bg-transparent border-gray-300 text-gray-800 dark:bg-gray-900 dark:text-white/90 dark:border-gray-700',
+                        ]"
+                        class="dark:bg-dark-900 h-11 w-full rounded-lg border py-2.5 pl-4 pr-11 text-sm  shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10  dark:placeholder:text-white/30 dark:focus:border-purple-800"
                         required
                       />
                       <span
@@ -184,12 +190,14 @@
                             id="keepLoggedIn"
                             class="sr-only"
                           />
+
                           <div
-                            :class="
+                            :class="[
                               keepLoggedIn
                                 ? 'border-brand-500 bg-brand-500'
-                                : 'bg-transparent border-gray-300 dark:border-gray-700'
-                            "
+                                : 'bg-transparent border-gray-300 dark:border-gray-700',
+                              isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                            ]"
                             class="mr-3 flex h-5 w-5 items-center justify-center rounded-md border-[1.25px]"
                           >
                             <span :class="keepLoggedIn ? '' : 'opacity-0'">
@@ -218,7 +226,10 @@
                     <button
                       type="button"
                       @click="toggleResetMode"
-                      class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 ml-3"
+                      class="text-sm  ml-3"
+                      :class="[
+                        isLoading ? 'text-gray-400 cursor-not-allowed' : 'text-brand-500 hover:text-brand-600 dark:text-brand-400'
+                      ]"
                     >
                       {{ t('resetPasswordTitle') }}
                     </button>
@@ -227,7 +238,10 @@
                   <div>
                     <button
                       type="submit"
-                      class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-purple-500 shadow-theme-xs hover:bg-purple-600"
+                      :class="[
+                        isLoading?'bg-purple-400 cursor-not-allowed' : 'bg-purple-500 hover:bg-purple-600'
+                        ]"
+                        class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg shadow-theme-xs "
                     >
                       <span v-if="!isLoading">{{ $t('SignIn') }}</span>
                       <span v-else class="flex items-center gap-2">
@@ -275,7 +289,10 @@
                       v-model="resetUsername"
                       type="text"
                       placeholder="user@example.com"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                      :class="[
+                        isVerifyingReset ? 'cursor-not-allowed bg-gray-100 text-gray-400 border-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-700' : 'bg-transparent border-gray-300 text-gray-800 dark:bg-gray-900 dark:text-white/90 dark:border-gray-700',
+                      ]"
+                      class=" h-11 w-full rounded-lg border  px-4 py-2.5 text-sm  shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10  dark:placeholder:text-white/30 dark:focus:border-purple-800"
                     />
                   </div>
                   <div>
@@ -287,7 +304,10 @@
                       v-model="resetHotelId"
                       type="text"
                       placeholder="123"
-                      class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                       :class="[
+                        isVerifyingReset ? 'cursor-not-allowed bg-gray-100 text-gray-400 border-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-700' : 'bg-transparent border-gray-300 text-gray-800 dark:bg-gray-900 dark:text-white/90 dark:border-gray-700',
+                      ]"
+                      class=" h-11 w-full rounded-lg border  px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-300 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10  dark:placeholder:text-white/30 dark:focus:border-purple-800"
                     />
                   </div>
                   <div class="flex items-center gap-3">
@@ -295,7 +315,7 @@
                       type="button"
                       @click="verifyReset"
                       :disabled="isVerifyingReset"
-                      class="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                      class="px-4 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
                     >
                       <span v-if="!isVerifyingReset">{{ t('verify') }}</span>
                       <span v-else class="flex items-center gap-2"

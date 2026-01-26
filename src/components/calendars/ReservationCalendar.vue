@@ -565,6 +565,7 @@
       >
 
         <button
+          v-if="canAddBooking"
           @click="navigateToAddReservationFromCells"
           class="bg-transparent text-blue-600 px-3 py-1 rounded text-smtransition"
         >
@@ -572,6 +573,7 @@
         </button>
 
         <button
+          v-if="BlockRoomPermission"
           @click="handleCreateRoomBlock"
           class="bg-transparent text-blue-600 px-3 py-1 rounded text-smtransition"
         >
@@ -714,7 +716,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-2 border-t border-gray-200 dark:border-gray-700">
+        <div v-if="BlockRoomPermission" class="flex gap-2 border-t border-gray-200 dark:border-gray-700">
           <button
             @click.stop="handleEditRoomBlock(tooltipRoomBlock)"
             class="flex-1 px-3 py-2 text-blue-600 bg-transparent text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5"
@@ -722,7 +724,7 @@
             {{ $t('EditBlockRoom') }}
           </button>
         </div>
-        <div class="flex gap-2 border-t border-gray-200 dark:border-gray-700">
+        <div v-if="UnblockRoomPermission" class="flex gap-2 border-t border-gray-200 dark:border-gray-700">
           <button
             @click.stop="handleUnblockRoom(tooltipRoomBlock)"
             class="flex-1 px-3 py-2 text-blue-600 bg-transparent text-sm font-medium rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5"
@@ -854,7 +856,7 @@ import { formatCurrency, formatDateLocal } from '../utilities/UtilitiesFunction'
 import SplitIcon from '@/icons/BookingStatus/splitIcon.vue'
 import { getHotelById } from '../../services/hotelApi'
 import { useAuthStore } from '../../composables/user'
-import { deleteBlock } from '@/services/roomBlockApi'
+
 
 const router = useRouter()
 const bookingStore = useBookingStore()
@@ -2812,6 +2814,20 @@ function getUnifiedCellClass(group: any, room: any, cell: any) {
   baseClasses.push(isWeekend(cell.date) ? 'dark:bg-black dark:text-white' : 'bg-white')
   return baseClasses.join(' ')
 }
+
+
+
+const BlockRoomPermission = computed(() => {
+  return useAuthStore().hasPermission('access_to_block')
+})
+
+const UnblockRoomPermission = computed(() => {
+  return useAuthStore().hasPermission('access_to_unblock')
+})
+
+const canAddBooking = computed(() => {
+  return useAuthStore().hasPermission("add_reservation")
+})
 
 // Cleanup des event listeners
 onUnmounted(() => {
