@@ -22,7 +22,7 @@
       <ul v-if="isDropdownOpen && displayOptions.length && !isLoading"
         class="custom-scrollbar absolute top-full left-0 right-0 z-[9999] mt-1 rounded-b-lg max-h-40 overflow-y-auto text-lg sm:text-base bg-white border-2 border-t-0 border-purple-100 dark:bg-gray-800 dark:border-gray-700"
         role="listbox" :aria-expanded="isDropdownOpen" aria-hidden="false">
-        <li v-for="(option, index) in displayOptions" :key="option.value" @mousedown.prevent="selectOption(option)"
+        <li v-for="(option, index) in displayOptions" :key="option.value ?? 'null'" @mousedown.prevent="selectOption(option)"
           :class="[
             'px-5 py-2 cursor-pointer flex items-center justify-between dark:text-gray-200',
             {
@@ -65,7 +65,7 @@ import { Search } from 'lucide-vue-next';
 
 interface Option {
   label: string
-  value: string | number
+  value: string | number | null
   count?: number
   status?: string
   disabled?: boolean
@@ -75,7 +75,7 @@ const props = defineProps<{
   lb?: string
   defaultValue?: string
   isRequired?: boolean
-  modelValue?: string | number
+  modelValue?: string | number | null
   options: Option[]
   disabled?: boolean
   isLoading?: boolean
