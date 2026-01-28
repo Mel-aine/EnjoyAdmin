@@ -1075,7 +1075,8 @@ const validateAllRoomsWithAvailability = () => {
   const getAdultOptions = (roomTypeId: any | null) => {
     if (!roomTypeId) return []
 
-    const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
+    const roomType = RoomTypesData.value.find(rt => rt.id == roomTypeId)
+
     if (!roomType) return []
 
     const maxAdults = roomType.maxAdult || 1
@@ -1087,7 +1088,7 @@ const validateAllRoomsWithAvailability = () => {
         value: i
       })
     }
-
+    console.log('options', options)
     return options
   }
 

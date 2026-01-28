@@ -632,6 +632,7 @@ const saveChanges = async () => {
 
     toast.success(t('Changes saved successfully'))
     editMode.value = false
+    emit('refresh-booking-data')
   } catch (error) {
     console.error('Error saving changes:', error)
     toast.error(t('Error saving changes'))
