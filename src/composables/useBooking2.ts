@@ -1071,49 +1071,92 @@ const validateAllRoomsWithAvailability = () => {
   return { isValid, errors }
 }
 
+const getAdultOptions = (roomTypeId: any | null) => {
+  if (!roomTypeId) return []
 
-  const getAdultOptions = (roomTypeId: any | null) => {
-    if (!roomTypeId) return []
+  const roomType = RoomTypesData.value.find(rt => rt.id === Number(roomTypeId))  // ✅ Ajout de Number()
+  if (!roomType) return []
 
-    const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
-    if (!roomType) return []
+  const maxAdults = roomType.maxAdult || 1
+  const options: any = []
 
-    const maxAdults = roomType.maxAdult || 1
-    const options: any = []
-
-    for (let i = 1; i <= maxAdults; i++) {
-      options.push({
-        label: i.toString(),
-        value: i
-      })
-    }
-
-    return options
-  }
-
-  const getChildOptions = (roomTypeId: any | null) => {
-    if (!roomTypeId) return []
-
-    const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
-    if (!roomType) return []
-
-    const maxChildren = roomType.maxChild || 0
-    const options: any = []
-
+  for (let i = 1; i <= maxAdults; i++) {
     options.push({
-      label: '0',
-      value: 0
+      label: i.toString(),
+      value: i
     })
-
-    for (let i = 1; i <= maxChildren; i++) {
-      options.push({
-        label: i.toString(),
-        value: i
-      })
-    }
-
-    return options
   }
+
+  return options
+}
+
+const getChildOptions = (roomTypeId: any | null) => {
+  if (!roomTypeId) return []
+
+  const roomType = RoomTypesData.value.find(rt => rt.id === Number(roomTypeId))  // ✅ Ajout de Number()
+  if (!roomType) return []
+
+  const maxChildren = roomType.maxChild || 0
+  const options: any = []
+
+  options.push({
+    label: '0',
+    value: 0
+  })
+
+  for (let i = 1; i <= maxChildren; i++) {
+    options.push({
+      label: i.toString(),
+      value: i
+    })
+  }
+
+  return options
+}
+
+
+  // const getAdultOptions = (roomTypeId: any | null) => {
+  //   if (!roomTypeId) return []
+
+  //   const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
+  //   if (!roomType) return []
+
+  //   const maxAdults = roomType.maxAdult || 1
+  //   const options: any = []
+
+  //   for (let i = 1; i <= maxAdults; i++) {
+  //     options.push({
+  //       label: i.toString(),
+  //       value: i
+  //     })
+  //   }
+
+  //   return options
+  // }
+
+  // const getChildOptions = (roomTypeId: any | null) => {
+  //   if (!roomTypeId) return []
+
+  //   const roomType = RoomTypesData.value.find(rt => rt.id === roomTypeId)
+  //   if (!roomType) return []
+
+  //   const maxChildren = roomType.maxChild || 0
+  //   const options: any = []
+
+  //   options.push({
+  //     label: '0',
+  //     value: 0
+  //   })
+
+  //   for (let i = 1; i <= maxChildren; i++) {
+  //     options.push({
+  //       label: i.toString(),
+  //       value: i
+  //     })
+  //   }
+
+  //   return options
+  // }
   //save reservation
   const saveReservation = async () => {
     isLoading.value = true

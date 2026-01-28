@@ -341,11 +341,12 @@ const confirmDeleteRoomType = async () => {
 
 
 
+
 const saveRoomType = async () => {
+  isLoading.value = true
+
   try {
-    isLoading.value = true
     if (showAddModal.value) {
-      // Add new room type
       const newRoomType = {
         hotelId: serviceStore.serviceId,
         shortCode: formData.value.shortCode,
@@ -359,50 +360,45 @@ const saveRoomType = async () => {
         roomAmenities: [...formData.value.roomAmenities],
         color: formData.value.color,
         defaultWebInventory: formData.value.defaultWebInventory,
-        //status: 'Available'
       }
-      const resp = await postRoomType(newRoomType);
-      if (resp.status === 200 || resp.status === 201) {
+
+      const resp = await postRoomType(newRoomType)
+
+      if (resp?.status === 200 || resp?.status === 201) {
         toast.success(t('roomTypeAddedSuccess'))
         closeModal()
-        loadData(1);
-
+        loadData(1)
       } else {
-        toast.error(t('toast.roomtypeerror'))
-        console.error('Error adding room type:', resp);
-        return;
+        throw new Error('Error adding room type')
       }
 
     } else {
-      // Update existing room type
-      const index = roomTypes.value.findIndex(roomType => roomType.id === editingRoomType.value.id)
-      if (index !== -1) {
-        const updatedRoomType = {
-          shortCode: formData.value.shortCode,
-          roomTypeName: formData.value.roomTypeName,
-          baseAdult: formData.value.baseAdult,
-          baseChild: formData.value.baseChild,
-          maxAdult: formData.value.maxAdult,
-          maxChild: formData.value.maxChild,
-          publishToWebsite: formData.value.publishToWebsite,
-          isPaymaster: formData.value.isPaymaster,
-          roomAmenities: [...formData.value.roomAmenities],
-          color: formData.value.color,
-        }
-        const resp = await updateRoomTypeById(editingRoomType.value.id, updatedRoomType);
-        if (resp.status === 200 || resp.status === 201) {
-          toast.success(t('roomTypeUpdatedSuccess'))
-           closeModal();
-          loadData(1);
+      const updatedRoomType = {
+        shortCode: formData.value.shortCode,
+        roomTypeName: formData.value.roomTypeName,
+        baseAdult: formData.value.baseAdult,
+        baseChild: formData.value.baseChild,
+        maxAdult: formData.value.maxAdult,
+        maxChild: formData.value.maxChild,
+        publishToWebsite: formData.value.publishToWebsite,
+        isPaymaster: formData.value.isPaymaster,
+        roomAmenities: [...formData.value.roomAmenities],
+        color: formData.value.color,
+      }
 
-        } else {
-          toast.error(t('toast.Error'))
-          console.error('Error updating room type:', resp);
-          return;
-        }
+      const resp = await updateRoomTypeById(
+        editingRoomType.value.id,
+        updatedRoomType
+      )
+
+      if (resp?.status === 200 || resp?.status === 201) {
+        toast.success(t('roomTypeUpdatedSuccess'))
+        closeModal()
+        loadData(1)
+      } else {
+        throw new Error('Error updating room type')
       }
     }
-    closeModal()
   } catch (error) {
     console.error('Error saving room type:', error)
     toast.error(t('toast.roomtypeerror'))
@@ -410,6 +406,7 @@ const saveRoomType = async () => {
     isLoading.value = false
   }
 }
+
 
 const closeModal = () => {
   showAddModal.value = false

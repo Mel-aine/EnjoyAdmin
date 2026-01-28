@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-lg shadow-md p-4 md:p-6 mx-2 md:mx-4 mt-4">
- 
+
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
       <!-- Left Section - Room Details -->
@@ -167,11 +167,12 @@
                   :lb="$t('Company')"
                   :is-required="false"
                   :use-dropdown="useDropdownBooking"
+                  :is-loading="isLoading"
                   :disabled="!editMode"
                   @clear-error="emit('clear-error')"
                 />
               </div>
-              
+
             <!-- Booking Source -->
             <div class="grid grid-cols-1 gap-4">
               <div>
@@ -204,7 +205,7 @@
               </div>
             </div>
 
-            
+
             </div>
           </div>
         </div>
@@ -303,7 +304,7 @@ import Select from '../../forms/FormElements/Select.vue'
 import { ChevronRight } from 'lucide-vue-next'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import { useBooking } from '@/composables/useBooking2'
-import { getCompanies } from '@/services/companyApi'
+import { getAllCompanies } from '@/services/companyApi'
 import InputPaymentMethodSelect from '../foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import { updateBookingDetail } from '@/services/reservation'
@@ -363,6 +364,7 @@ const companyOptions = ref<Array<{ label: string; value: string }>>([])
 const useDropdownBooking = ref(true)
 const bookingData = computed(() => props.booking || {})
 const guestData = computed(() => props.guest || {})
+const isLoading = ref(false)
 const {
   //Data
   billing,
@@ -410,14 +412,17 @@ const roomOptions = ref<RoomOptions>({
 // Computed properties for room data
 const getCompaniesList = async () => {
   try {
-    const resp: any = await getCompanies()
+    isLoading.value = true
+    const resp: any = await getAllCompanies()
     console.log('Companies response:', resp)
-    companyOptions.value = resp.data.map((c: any) => ({
+    companyOptions.value = resp.data.data.map((c: any) => ({
       label: c.companyName,
-      value: c.companyCode
+      value: c.companyName
     }))
   } catch (error) {
     console.error('Error fetching companies:', error)
+  }finally {
+    isLoading.value = false
   }
 }
 
@@ -689,7 +694,8 @@ const initSourceData = () => {
     if (bookingData.value.reservationNumber) {
       sourceData.voucherNo = bookingData.value.reservationNumber
     }
-    
+
+
     // Set company if available
     if (bookingData.value.companyName) {
       sourceData.company = bookingData.value.companyName

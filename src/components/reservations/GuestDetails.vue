@@ -381,6 +381,7 @@
                     :lb="$t('Company Name')"
                     v-model="guestData.company"
                     :options="companyOptions"
+                    :is-loading="isLoadingCompanies"
                     :defaultValue="$t('-select-')"
                     :disabled="!isEditing && !isCreatingNewGuest"
                   />
@@ -670,7 +671,7 @@ import Accordion from '../common/AccordionAction.vue'
 import { toggleGuestBlacklist } from '@/services/guestApi'
 import BlackListGuestModal from '../customers/BlackListGuestModal.vue'
 import { vipStatusApi } from '@/services/configrationApi'
-import { getCompanies } from '@/services/companyApi'
+import { getAllCompanies } from '@/services/companyApi'
 import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete.vue'
 import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 import { cities } from '@/assets/data/cities'
@@ -743,6 +744,7 @@ const showDeleteModal = ref(false)
 const deleting = ref(false)
 const roomToRemove = ref<any>(null)
 const replaceMode = ref(false)
+const isLoadingCompanies = ref(false)
 
 // State
 const isSaving = ref(false)
@@ -1492,14 +1494,17 @@ const confirmBlacklistCustomer = async (data: { reason?: string; blacklisted: bo
 
 const getCompaniesList = async () => {
   try {
-    const resp: any = await getCompanies()
+    isLoadingCompanies.value = true
+    const resp: any = await getAllCompanies()
     console.log('Companies response:', resp)
-    companyOptions.value = resp.data.map((c: any) => ({
+    companyOptions.value = resp.data.data.map((c: any) => ({
       label: c.companyName,
       value: c.companyName
     }))
   } catch (error) {
     console.error('Error fetching companies:', error)
+  }finally {
+    isLoadingCompanies.value = false
   }
 }
 
