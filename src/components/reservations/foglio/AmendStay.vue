@@ -36,8 +36,39 @@
                     </div>
                 </div>
 
+                <!-- Conflict Error Alert -->
+                <div v-if="conflictError" class="mb-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <div class="flex items-start">
+                        <AlertCircle class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 mr-3 flex-shrink-0" />
+                        <div class="flex-1">
+                            <h4 class="text-sm font-semibold text-red-800 dark:text-red-300 mb-2">
+                                {{ $t('Date Conflict') }}
+                            </h4>
+                            <p class="text-sm text-red-700 dark:text-red-400 mb-3">
+                                {{ conflictError.message }}
+                            </p>
+                            <div v-if="conflictError.conflicts && conflictError.conflicts.length > 0"
+                                class="space-y-2">
+                                <p class="text-xs font-medium text-gray-800 dark:text-gray-300 mb-1">
+                                    {{ $t('Conflicting Reservations:') }}
+                                </p>
+                                <div v-for="conflict in conflictError.conflicts" :key="conflict.reservationId"
+                                    class="text-xs text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 p-2 rounded border border-red-200 dark:border-red-700">
+                                    <div class="font-medium">{{ conflict.reservationNumber || conflict.reservationId }}</div>
+                                    <div>{{ $t('Room') }}: {{ conflict.roomNumber }}</div>
+                                    <div>{{ formatDate(conflict.checkIn) }} - {{ formatDate(conflict.checkOut) }}</div>
+                                </div>
+                            </div>
+                            <button @click="conflictError = null"
+                                class="mt-3 text-xs  border border-red-500 rounded-lg px-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium">
+                                {{ $t('Dismiss') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Modal Form -->
-                <form @submit.prevent="handleSubmit" v-else>
+                <form @submit.prevent="handleSubmit" v-else-if="!isLoading">
                     <!-- Amend Type Selection (only show if multiple rooms) -->
                     <div v-if="isGroupAmend" class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -102,7 +133,7 @@
 import { onMounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
-import { X } from 'lucide-vue-next'
+import { X, AlertCircle } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import { amendReservation, getReservationDetailsById } from '../../../services/reservation'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
@@ -113,7 +144,6 @@ interface Props {
     reservationId?: string | number
     reservationNumber?: string,
     reservation?: any
-
 }
 
 interface Emits {
@@ -132,18 +162,33 @@ interface AmendReservationData {
     updatedReservation?: {}
 }
 
+interface ConflictError {
+    message: string
+    details?: string
+    conflicts?: Array<{
+        reservationId: number
+        reservationNumber?: string
+        checkIn: string
+        checkOut: string
+        roomId: number
+        roomNumber: string
+        status?: string
+    }>
+}
+
 const props = withDefaults(defineProps<Props>(), {
     isOpen: false
 })
 
 const emit = defineEmits<Emits>()
-const { t } = useI18n()
 const toast = useToast()
 
 const loading = ref(false)
 const isLoading = ref(false)
 const reservation = ref<any>()
 const reservationRooms = ref<any>([])
+const conflictError = ref<ConflictError | null>(null)
+const { t, locale } = useI18n({ useScope: 'global' })
 
 const formData = ref<AmendReservationData>({
     newArrivalDate: '',
@@ -175,18 +220,29 @@ const canAmend = computed(() => {
     }
 })
 
-
 const closeModal = () => {
+    conflictError.value = null
     emit('close')
 }
 
+// Format date helper
 
+
+const formatDate = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }
+  return new Date(dateString).toLocaleDateString(locale.value, options)
+}
 
 // Fetch booking details using getReservationDetailsById
 const getBookingDetailsById = async () => {
     if (!props.reservationId) return
 
     isLoading.value = true
+    conflictError.value = null
     try {
         const response = await getReservationDetailsById(Number(props.reservationId))
         console.log('Reservation details:', response)
@@ -219,6 +275,7 @@ const getBookingDetailsById = async () => {
 const handleSubmit = async () => {
     try {
         loading.value = true
+        conflictError.value = null
 
         if (!formData.value.newArrivalDate) {
             toast.error(t('please_select_arrival_date'))
@@ -226,10 +283,8 @@ const handleSubmit = async () => {
         }
         if (!formData.value.newDepartureDate) {
             toast.error(t('please_select_departure_date'))
-
             return
         }
-
 
         // Prepare data for emission
         const amendData: AmendReservationData = {
@@ -243,9 +298,10 @@ const handleSubmit = async () => {
         }
         console.log('amendData', amendData)
 
-        const resp = await amendReservation(amendData);
+        const resp = await amendReservation(amendData)
         console.log("resp", resp)
-        // Emit the cancel confirmation event
+
+        // Emit the amend confirmation event
         emit('amend-confirmed', {
             ...amendData,
             updatedReservation: {
@@ -254,26 +310,45 @@ const handleSubmit = async () => {
                 nights: amendData.nights
             }
         })
-        // emit('amend-confirmed', amendData)
-
 
         // Show success message
         toast.success(t('reservation_amended_successfully'))
 
-
         // Close modal
         closeModal()
-    } catch (error) {
-        console.error('Error cancelling reservation:', error)
-        toast.error(t('error_amended_reservation'))
+    } catch (error: any) {
+        console.error('Error amending reservation:', error)
+
+        if (error.response?.status === 409) {
+            // Handle conflict error (409)
+            const errorData = error.response.data
+            conflictError.value = {
+                message: errorData?.message || t('cannot_amend_conflicting_dates'),
+                details: errorData?.details,
+                conflicts: errorData?.conflicts || []
+            }
+
+            // Scroll to top to show error
+            const modalContent = document.querySelector('.overflow-y-auto')
+            if (modalContent) {
+                modalContent.scrollTop = 0
+            }
+        } else {
+            // Handle other errors
+            toast.error(error.response?.data?.message || t('error_amended_reservation'))
+        }
     } finally {
         loading.value = false
     }
 }
+
 // Watch for modal open/close
 watch(() => props.isOpen, (newVal) => {
     if (newVal && props.reservationId) {
         getBookingDetailsById()
+    } else if (!newVal) {
+        // Reset conflict error when modal closes
+        conflictError.value = null
     }
 })
 
@@ -330,13 +405,11 @@ watch([() => formData.value.newArrivalDate, () => formData.value.nights], ([newA
     }
 })
 
-
-
 onMounted(() => {
     if (props.reservation && props.reservation.id) {
-        const response = props.reservation;
+        const response = props.reservation
         reservationRooms.value = response.reservationRooms || []
-         if (response) {
+        if (response) {
             formData.value.newArrivalDate = new Date(response.arrivedDate).toISOString().split('T')[0]
             formData.value.newDepartureDate = new Date(response.departDate).toISOString().split('T')[0]
             formData.value.nights = response.nights ?? response.numberOfNights
@@ -350,10 +423,9 @@ onMounted(() => {
                 formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room?.id)
             }
         }
-    } else
-        if (props.isOpen && props.reservationId) {
-            getBookingDetailsById()
-        }
+    } else if (props.isOpen && props.reservationId) {
+        getBookingDetailsById()
+    }
 })
 </script>
 

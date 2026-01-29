@@ -8833,5 +8833,8 @@
   "No room selected for guest assignment": "No room selected for guest assignment",
   "Guest created and added to room": "Guest created and added to room",
   "Guest updated successfully": "Guest updated successfully",
-  "Error saving guest": "Error saving guest"
+  "Error saving guest": "Error saving guest",
+  "Date Conflict": "Date Conflict",
+  "Conflicting Reservations:": "Conflicting Reservations:",
+  "Dismiss": "Dismiss"
 }

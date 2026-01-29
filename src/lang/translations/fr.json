@@ -8986,5 +8986,8 @@
   "No room selected for guest assignment": "Aucune chambre sélectionnée pour l’assignation du client",
   "Guest created and added to room": "Client créé et ajouté à la chambre",
   "Guest updated successfully": "Client mis à jour avec succès",
-  "Error saving guest": "Erreur lors de l’enregistrement du client"
+  "Error saving guest": "Erreur lors de l’enregistrement du client",
+  "Date Conflict": "Conflit de date",
+  "Conflicting Reservations:": "Réservations en conflit :",
+  "Dismiss": "Ignorer"
 }
