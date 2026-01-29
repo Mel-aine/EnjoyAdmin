@@ -293,7 +293,7 @@
                             v-for="(res, idx) in cell.singleDayReservations"
                             :key="`${res.reservation_id}-${idx}`"
                             class="group cursor-pointer absolute top-1/2 -translate-y-1/2 px-[1px] py-[1px] text-sm uppercase font-bold text-white flex items-center gap-1 min-w-0 z-20"
-                            :style="getSingleDaySegmentStyle(res, idx)"
+                            :style="getSingleDaySegmentStyle(res)"
                             @mousedown.stop
                             @mouseup.stop
                             @click.stop="showReservationModal(res)"
@@ -1755,7 +1755,7 @@ function parseTimeToFraction(timeStr: string | null | undefined): number {
   return Math.min(1, Math.max(0, totalHours / 24))
 }
 
-function getSingleDaySegmentStyle(reservation: any, idx: number) {
+function getSingleDaySegmentStyle(reservation: any) {
   const startFrac = parseTimeToFraction(
     reservation?.check_in_time || reservation?.checkInTime || '14:00:00',
   )

@@ -129,7 +129,7 @@
               <div>
                 <AutoCompleteSelect
                   v-model="sourceData.marketCode"
-                  :options="MarketCode"
+                  :options="marketCodeOptions"
                   :defaultValue="$t('SelectMarketCode')"
                   :lb="$t('MarketCode')"
                   :is-required="false"
@@ -142,7 +142,7 @@
               <div>
                 <AutoCompleteSelect
                   v-model="sourceData.sourceOfBusiness"
-                  :options="BusinessSource"
+                  :options="businessSourceOptions"
                   :defaultValue="$t('SelectBusinessSource')"
                   :lb="$t('BusinessSource')"
                   :is-required="false"
@@ -162,7 +162,7 @@
               <div>
                 <AutoCompleteSelect
                   v-model="sourceData.company"
-                  :options="companyOptions"
+                  :options="companySelectOptions"
                   :defaultValue="$t('-Select-')"
                   :lb="$t('Company')"
                   :is-required="false"
@@ -382,6 +382,27 @@ const {
   //customer methods
   canCityLedgerPay
 } = useBooking()
+
+const businessSourceOptions = computed(() => {
+  return [
+    { label: t('None'), value: null },
+    ...(BusinessSource.value || [])
+  ]
+})
+
+const marketCodeOptions = computed(() => {
+  return [
+    { label: t('None'), value: null },
+    ...(MarketCode.value || [])
+  ]
+})
+
+const companySelectOptions = computed(() => {
+  return [
+    { label: t('None'), value: null },
+    ...(companyOptions.value || [])
+  ]
+})
 
 const sourceData = reactive<any>({
   marketCode: '',
@@ -616,6 +637,7 @@ const saveChanges = async () => {
 
     toast.success(t('Changes saved successfully'))
     editMode.value = false
+    emit('refresh-booking-data')
   } catch (error) {
     console.error('Error saving changes:', error)
     toast.error(t('Error saving changes'))
@@ -623,35 +645,6 @@ const saveChanges = async () => {
     isSaving.value = false
   }
 }
-// Initialize billing data from booking
-// const initBillingData = () => {
-//   if (bookingData.value) {
-//     // Set billTo based on guest type
-//     console.log('initBillingData',bookingData.value)
-//     if (guestData.value.guestType === 'corporate') {
-//       billingData.billTo = 'company'
-//     } else if (guestData.value.guestType === 'travel_agent') {
-//       billingData.billTo = 'agent'
-//     } else {
-//       billingData.billTo = 'individual'
-//     }
-
-//     // Set payment type based on VIP status
-//     billingData.paymentType = guestData.value.vipStatus && guestData.value.vipStatus !== 'none' ? 'credit' : 'cash'
-
-//     // Set GSTIN from company registration if available
-//     if (guestData.value.company && guestData.value.registrationNo) {
-//       billingData.gstinNo = guestData.value.registrationNo
-//     }
-
-
-
-
-
-
-
-//   }
-// }
 
 // Initialize source data from booking
 const initSourceData = () => {
