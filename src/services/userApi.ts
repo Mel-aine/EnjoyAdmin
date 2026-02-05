@@ -76,6 +76,15 @@ export const getEmployeesForService = (
 }
 
 /**
+ * Get All Users
+ */
+export const getAllUsers = ( hotelId: number | null,all:boolean ): Promise<AxiosResponse<any>> => {
+  let qs = `?all=${all}`;
+  return axios.get(`${API_URL}/hotel/${hotelId}/employees${qs}`, getAuthHeaders())
+}
+
+
+/**
  * Update User
  */
 export const updateUser = (id: any, data: any): Promise<AxiosResponse<any>> => {

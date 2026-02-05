@@ -64,6 +64,11 @@ export const getHotelMenu = (t: (key: string) => string) => {
               path: '/front-office/unsettled_folios',
               permission: 'access_to_unsettled_folios',
             },
+            {
+              name: t('Access Control'),
+              path: '/front-office/access_control',
+              permission: 'access_to_access_controls',
+            }
           ]
         },
         //From Cashiering

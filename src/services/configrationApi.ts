@@ -2228,3 +2228,51 @@ export const checkHotelExists = (hotelId: any): Promise<AxiosResponse<any>> => {
     withCredentials: true,
   })
 }
+
+// this section is for Door connections
+
+/**
+ * Get all door connections
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getDoors = (params:any={}): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/access_control/doors`, {...getHeaders(),params})
+}
+
+
+/**
+ * Post a new door connection
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const createDoor = (data: any): Promise<AxiosResponse<any>> => {
+  return axios.post(`${API_URL()}/access_control/doors`, data, getHeaders())
+}
+
+/**
+ * Get a door connection by ID
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getDoorConnectionById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL()}/access_control/doors/${id}`, getHeaders())
+}
+
+/**
+ * Update a door connection
+ * @param id
+ * @param data
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateDoor = (id: number, data: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL()}/access_control/doors/${id}`, data, getHeaders())
+}
+
+/**
+ * Delete a door connection
+ * @param id
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const deleteDoor = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.delete(`${API_URL()}/access_control/doors/${id}`, getHeaders())
+}

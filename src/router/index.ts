@@ -55,6 +55,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/front-office/access_control',
+      name: 'AccessControl',
+      component: () => import('../views/FrontOffice/AccessControl.vue'),
+      meta: {
+        title: 'Access Control',
+        requiresAuth: true,
+      },
+
+    },
+    {
       path: '/front-office/night-audit',
       name: 'NightAudit_Office',
       component: () => import('../views/FrontOffice/NightAudit.vue'),
@@ -498,7 +508,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    
+
     {
       path: '/reports/audit/audit-trail',
       name: 'auditTrail',
@@ -893,6 +903,15 @@ const router = createRouter({
       component: () => import('../views/Configuration/Rooms/RoomOwner.vue'),
       meta: {
         title: 'Room Owner',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/configuration/rooms/door',
+      name: 'Doors',
+      component: () => import('../views/Configuration/Rooms/Doors.vue'),
+      meta: {
+        title: 'Doors',
         requiresAuth: true,
       },
     },
