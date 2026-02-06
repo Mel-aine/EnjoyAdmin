@@ -213,7 +213,7 @@ export function useBooking() {
   // Form data
   const reservation = ref<Reservation>({
     checkinDate: new Date().toISOString().split('T')[0],
-    checkinTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    checkinTime: '12:00',
     checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     checkoutTime: '12:00',
     rooms: 1,
