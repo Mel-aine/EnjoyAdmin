@@ -190,7 +190,7 @@ export const getFoglioById = async (id: number): Promise<any> => {
  */
 export const createFoglio = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(API_URL, data, getHeaders())
+    const response: AxiosResponse = await axios.post(`${API_URL}/reservation`, data, getHeaders())
     return response.data
   } catch (error) {
     console.error('Error creating foglio:', error)
