@@ -2713,11 +2713,11 @@ function navigateToAddReservationFromCells() {
    const isDayUse = checkinDate === checkoutDateStr
 
   // Obtenir l'heure actuelle pour le check-in
-  const now = new Date()
-  const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  // const now = new Date()
+  // const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
   // Gérer les heures selon le type de réservation
-  const finalCheckinTime = currentTime
+  const finalCheckinTime = '12:00'
   const finalCheckoutTime = isDayUse ? '20:00' : '12:00'
 
   const roomId = room?.id ?? room?.room_id ?? room?.roomId
