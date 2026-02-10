@@ -17,6 +17,7 @@ const isLoading = ref(false)
 const filteredCustomers = ref<any[]>([]);
 const searchQuery = ref('');
 const selectedCustomer = ref<any>({});
+  const isManualSelection = ref(false)
 const emit = defineEmits(['customerSelected']);
 // Debounce timer for API calls
 const debounceTimeout = ref<number | null>(null);
@@ -40,18 +41,27 @@ const filterCustomer = () => {
 };
 
 
-watch(searchQuery, (newValue) => {
+
+  watch(searchQuery, (newValue) => {
   const query = newValue.toLowerCase().trim();
 
   if (!query) {
     filteredCustomers.value = [];
     selectedCustomer.value = {};
-    emit('customerSelected', null);
-    // Clear any pending debounce when query is emptied
+
+    emit('customerSelected', {
+      firstName: '',
+      guestId: null,
+      id: 0
+    });
+
     if (debounceTimeout.value) {
       clearTimeout(debounceTimeout.value);
       debounceTimeout.value = null;
     }
+    return;
+  }
+   if (isManualSelection.value) {
     return;
   }
 
@@ -99,11 +109,15 @@ watch(() => props.modelValue, (newVal) => {
 
 
 const selectCustomer = (customer: any) => {
+    isManualSelection.value = true;
   selectedCustomer.value = { ...customer };
   emit('customerSelected', selectedCustomer.value);
   console.log("Selected customer:", selectedCustomer.value);
   searchQuery.value = `${customer.firstName}`;
   filteredCustomers.value = [];
+  setTimeout(() => {
+    isManualSelection.value = false;
+  }, 100);
 };
 
 

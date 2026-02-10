@@ -1539,9 +1539,78 @@ const handleNewBooking = async () => {
   pendingReservation.value = false
   reservationId.value = null
 
-  // Réinitialiser le formulaire avec les valeurs par défaut
-  await initializeForm()
+  Object.assign(formData.value, {
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    email: '',
+    roleId: null,
+    companyName: '',
+    groupName: '',
+    fax: '',
+    placeOfBirth: '',
+    dateOfBirth: '',
+    natonality: '',
+    profession: '',
+    title: '',
+    id: 0,
+    guestId: null,
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    zipcode: '',
+    idPhoto: '',
+    idType: '',
+    idNumber: '',
+    idExpiryDate: '',
+    issuingCountry: '',
+    issuingCity: '',
+    profilePhoto: '',
+    maidenName: '',
+    contactType: '',
+    contactValue: '',
+  })
 
+    Object.assign(reservation.value, {
+      checkinDate: new Date().toISOString().split('T')[0],
+      checkinTime: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      checkoutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      checkoutTime: '12:00',
+      rooms: 1,
+      businessSource: '',
+      isComplementary: false,
+      complimentaryRoom: false,
+      isHold: false,
+      reservationStatus: 'confirmed',
+      meansOfTransport: '',
+      goingTo: '',
+      arrivingTo: '',
+      customType: 'individual'
+    })
+
+    // Reset room configurations
+    roomConfigurations.value = [
+      {
+        id: 'room-1',
+        roomType: '',
+        rateType: '',
+        roomNumber: '',
+        adultCount: 1,
+        childCount: 0,
+        rate: 0,
+        isOpen: false,
+        taxes: [],
+        extraCharges: [],
+        isLoadingRooms: false,
+        isLoadingRate: false,
+        roomNumberLabel: '',
+      },
+    ]
+
+  formDataKey.value = Date.now()
+
+  await initializeForm()
 }
 
 const handleViewDetails = () => {
