@@ -3,10 +3,11 @@
     <template #header>
       <h3 class="text-lg font-semibold text-gray-900">{{ $t('AssignRoom') }}</h3>
     </template>
+
     <!-- Content -->
     <div class="space-y-6">
       <div v-if="loading">
-        <!-- Skeleton for Room Type Dropdown -->
+        <!-- Skeleton loaders -->
         <div class="mb-6">
           <div class="flex items-center justify-between mb-2">
             <div class="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
@@ -66,43 +67,41 @@
           <!-- Guest Card -->
           <div class="border border-blue-200 rounded-lg p-4 mb-6">
             <div class="flex items-center justify-between">
-              <div class="flex  gap-3 justify-start align-top items-start">
-                <div class="flex flex-col bg-gray-200 p-2">
+              <div class="flex gap-3 justify-start align-top items-start">
+                <div class="flex flex-col bg-gray-200 p-2 rounded">
                   <div class="gap-1 text-sm text-gray-600 flex flex-col align-middle items-center">
-                    <span>{{ formatDateDisplay(new Date(res?.checkInDate)).day }}</span>
-                    <span>{{ formatDateDisplay(new Date(res?.checkInDate)).month }}</span>
+                    <span class="font-semibold">{{ formatDateDisplay(new Date(res?.checkInDate)).day }}</span>
+                    <span class="text-xs">{{ formatDateDisplay(new Date(res?.checkInDate)).month }}</span>
                   </div>
                   <div class="h-1 bg-gray-300 w-full my-1"></div>
                   <div class="flex items-center justify-between">
                     <div class="text-xs flex flex-col align-middle items-center">
-                      <span class="text-gray-600">{{ formatDateDisplay(new Date(res?.checkOutDate)).day }}</span>
-                      <span class="text-gray-500 ml-1">{{ formatDateDisplay(new Date(res?.checkOutDate)).month }}</span>
+                      <span class="text-gray-600 font-semibold">{{ formatDateDisplay(new Date(res?.checkOutDate)).day }}</span>
+                      <span class="text-gray-500">{{ formatDateDisplay(new Date(res?.checkOutDate)).month }}</span>
                     </div>
                   </div>
                 </div>
                 <div class="text-md text-gray-500 flex flex-col justify-between h-full">
-                  <span class="text-blue-600 font-medium">{{ res?.guest?.displayName || reservation.guest?.displayName
-                  }}</span>
-                  <div class="">
-                    <div class="text-xs text-gray-500 mb-1 mt-8 ">{{ $t('Room Type') }}</div>
-                    <div class="text-sm font-medium">{{ res.roomType?.roomTypeName }}</div>
+                  <span class="text-blue-600 font-medium">
+                    {{ res?.guest?.displayName || reservation.guest?.displayName }}
+                  </span>
+                  <div class="mt-2">
+                    <div class="text-xs text-gray-500 mb-1">{{ $t('Original Room Type') }}</div>
+                    <div class="text-sm font-medium text-gray-400">{{ res.roomType?.roomTypeName }}</div>
                   </div>
                 </div>
-
               </div>
             </div>
 
-
-
-
-            <!-- Room Type Selection -->
+            <!-- Room Type Selection - MAINTENANT MODIFIABLE -->
             <div class="mb-4 mt-4">
               <Select
                 :lb="$t('Room Type')"
-                :options="[{ label: res.roomType?.roomTypeName || '', value: res.roomType?.id || '' }]"
-                :model-value="res.roomType?.id"
-                :disabled="true"
+                :options="roomTypeOptions"
+                v-model="selectedRoomTypes[ind]"
                 :placeholder="$t('Select Room Type')"
+                :isLoading="loadingRoomTypes"
+                @update:model-value="() => handleRoomTypeChange(ind)"
               />
             </div>
 
@@ -110,15 +109,11 @@
             <div class="mb-6">
               <Select
                 :lb="$t('Room')"
-                :options="[
-                  { label: $t('-- none --'), value: '' },
-                  ...(availableRoomsByReservation[ind] || []).map(rs => ({
-                    label: rs.roomNumber,
-                    value: rs.id
-                  }))
-                ]"
+                :options="getRoomOptionsForReservation(ind)"
                 v-model="res.roomId"
                 :placeholder="$t('Select Room')"
+                :isLoading="loadingRoomsByReservation[ind]"
+                :disabled="!selectedRoomTypes[ind]"
               />
             </div>
           </div>
@@ -155,8 +150,10 @@ import RightSideModal from './RightSideModal.vue'
 import Select from '../forms/FormElements/Select.vue'
 import BasicButton from '../buttons/BasicButton.vue'
 import { getReservationDetailsById, assignRoomReservation } from '../../services/reservation'
-import { getAvailableRoomsByTypeId } from '../../services/configrationApi'
+import { getAvailableRoomsByTypeId} from '../../services/configrationApi'
 import { formatDateDisplay } from '@/utils/dateUtils'
+import { getRoomTypes } from '@/services/roomTypeApi'
+import { useServiceStore } from '@/composables/serviceStore'
 
 interface Props {
   isOpen: boolean
@@ -176,130 +173,187 @@ const toast = useToast()
 
 const loading = ref(false)
 const isLoading = ref(false)
-const selectedRoom = ref<any>(null)
-const selectedRoomNumber = ref<string>('')
+const loadingRoomTypes = ref(false)
 const reservation = ref<any>(null)
-const currentWeekStart = ref<Date>(new Date())
-const selectedDate = ref<string>('')
-const availableRoomsByReservation = ref<{ [key: number]: any[] }>({}) // Store available rooms per reservation room
-const selectedRoomsByReservation = ref<{ [key: number]: any }>({}) // Store selected rooms per reservation room
-const selectedRoomNumbersByReservation = ref<{ [key: number]: string }>({}) // Store room numbers per reservation room
+const roomTypeOptions = ref<any[]>([])
+const selectedRoomTypes = ref<{ [key: number]: string }>({})
+const availableRoomsByReservation = ref<{ [key: number]: any[] }>({})
+const loadingRoomsByReservation = ref<{ [key: number]: boolean }>({})
+const serviceStore = useServiceStore()
 
-// Computed property to check if at least one room is selected
+
+// Computed: Vérifier si au moins une chambre est sélectionnée
 const isAssignButtonEnabled = computed(() => {
   if (!reservation.value?.reservationRooms) return false
   return reservation.value.reservationRooms.some((res: any) => res.roomId && res.roomId !== '')
 })
 
+// Fonction pour obtenir les options de chambres pour une réservation
+const getRoomOptionsForReservation = (index: number) => {
+  const rooms = availableRoomsByReservation.value[index] || []
 
+  return [
+    { label: t('-- none --'), value: '' },
+    ...rooms.map((room: any) => ({
+      label: `${room.roomNumber}${room.floorNumber ? ` (${t('Floor')} ${room.floorNumber})` : ''}`,
+      value: room.id
+    }))
+  ]
+}
 
+// Récupérer les types de chambres disponibles
+const fetchRoomTypes = async () => {
+  if (!serviceStore.serviceId) return
 
-const fetchAvailableRooms = async (reservationRoomIndex: number) => {
+  loadingRoomTypes.value = true
+  try {
+    const response = await getRoomTypes(serviceStore.serviceId)
+    console.log('Room types response:', response)
+
+    if (response.data && response.data.data && response.data.data.data) {
+      roomTypeOptions.value = response.data.data.data.map((roomType: any) => ({
+        value: roomType.id.toString(),
+        label: roomType.roomTypeName
+      }))
+    }
+  } catch (error) {
+    console.error('Error fetching room types:', error)
+    toast.error(t('Error loading room types'))
+  } finally {
+    loadingRoomTypes.value = false
+  }
+}
+
+// Gérer le changement de type de chambre
+const handleRoomTypeChange = async (reservationRoomIndex: number) => {
+  const roomTypeId = selectedRoomTypes.value[reservationRoomIndex]
+
+  if (!roomTypeId || !reservation.value) return
+
+  // Réinitialiser la sélection de chambre
+  reservation.value.reservationRooms[reservationRoomIndex].roomId = ''
+
+  // Récupérer les chambres disponibles pour ce type
+  await fetchAvailableRooms(reservationRoomIndex, roomTypeId)
+}
+
+// Récupérer les chambres disponibles pour un type de chambre spécifique
+const fetchAvailableRooms = async (reservationRoomIndex: number, roomTypeId: string) => {
   if (!reservation.value || !reservation.value.reservationRooms[reservationRoomIndex]) return
 
   const reservationRoom = reservation.value.reservationRooms[reservationRoomIndex]
 
   try {
-    loading.value = true
+    loadingRoomsByReservation.value[reservationRoomIndex] = true
     const response = await getAvailableRoomsByTypeId(
-      reservationRoom.roomType.id,
+      Number(roomTypeId),
       reservationRoom.checkInDate,
       reservationRoom.checkOutDate
     )
-    console.log('response available rooms', response)
+    console.log('Available rooms response:', response)
     availableRoomsByReservation.value[reservationRoomIndex] = response.data.data.rooms || []
   } catch (error) {
     console.error('Error fetching available rooms:', error)
     availableRoomsByReservation.value[reservationRoomIndex] = []
+    toast.error(t('Error loading available rooms'))
   } finally {
-    loading.value = false
+    loadingRoomsByReservation.value[reservationRoomIndex] = false
   }
 }
 
+// Charger les détails de la réservation
 const getBookingDetailsById = async () => {
   loading.value = true
   try {
     const id = props.reservationId
     const response = await getReservationDetailsById(Number(id))
-    console.log(response)
-    const baseResponse = response.reservationRooms.filter((res: any) => res.roomTypeId && !res.roomId);
+    console.log('Reservation details:', response)
+
+    // Filtrer seulement les chambres sans room assignée
+    const baseResponse = response.reservationRooms.filter((res: any) => res.roomTypeId && !res.roomId)
     response.reservationRooms = baseResponse
     reservation.value = response
 
-    // Fetch available rooms for each reservation room
+    // Initialiser les types de chambre sélectionnés avec les types originaux
     if (response.reservationRooms?.length > 0) {
       for (let i = 0; i < response.reservationRooms.length; i++) {
-        await fetchAvailableRooms(i)
+        const res = response.reservationRooms[i]
+        if (res.roomType?.id) {
+          selectedRoomTypes.value[i] = res.roomType.id.toString()
+          // Charger les chambres disponibles pour le type initial
+          await fetchAvailableRooms(i, res.roomType.id.toString())
+        }
       }
     }
   } catch (error) {
     console.error('Error fetching reservation details:', error)
+    toast.error(t('Error loading reservation details'))
   } finally {
     loading.value = false
   }
 }
 
+// Confirmer la sélection de chambres
 const confirmRoomSelection = async () => {
-  // Emit room selection for each reservation room that has a selected room
-  const roomSelections :any[] = []
+  const roomSelections: any[] = []
 
   if (reservation.value?.reservationRooms) {
     for (let i = 0; i < reservation.value.reservationRooms.length; i++) {
       const res = reservation.value.reservationRooms[i]
       if (res.roomId && res.roomId !== '' && res.roomId !== 0) {
+        const selectedRoom = availableRoomsByReservation.value[i]?.find((r: any) => r.id === res.roomId)
         roomSelections.push({
           reservationRoomId: res.id,
-          roomNumber: res.roomNumber,
+          roomNumber: selectedRoom?.roomNumber,
           roomId: res.roomId,
-          roomTypeId: res.roomTypeId,
+          roomTypeId: Number(selectedRoomTypes.value[i]),
           reservationId: props.reservationId
         })
       }
     }
   }
 
-  // Call assignRoomReservation if roomSelections is not empty
-  if (roomSelections.length > 0) {
-    isLoading.value = true
-    try {
-      await assignRoomReservation(props.reservationId, {reservationRooms:roomSelections})
-      toast.success(t('Room assignment completed successfully'))
-      emit('refresh')
-    } catch (error) {
-      console.error('Error assigning rooms:', error)
-      toast.error(t('Failed to assign rooms. Please try again.'))
-    } finally {
-      isLoading.value = false
-    }
+  if (roomSelections.length === 0) {
+    toast.warning(t('Please select at least one room'))
+    return
+  }
+
+  isLoading.value = true
+  try {
+    await assignRoomReservation(props.reservationId, { reservationRooms: roomSelections })
+    toast.success(t('Room assignment completed successfully'))
+    emit('refresh')
+    emit('close')
+  } catch (error) {
+    console.error('Error assigning rooms:', error)
+    toast.error(t('Failed to assign rooms. Please try again.'))
+  } finally {
+    isLoading.value = false
   }
 }
 
-// Watch for prop changes
-// watch(() => props.reservationId, async (newId) => {
-//   if (newId) {
-//     await getBookingDetailsById()
-//   }
-// }, { immediate: true })
-
+// Watcher pour l'ouverture du modal
 watch(() => props.isOpen, async (newValue) => {
   if (newValue && props.reservationId) {
-    // Réinitialiser les données
+
     reservation.value = null
     availableRoomsByReservation.value = {}
-    // Charger les données
+    loadingRoomsByReservation.value = {}
+    selectedRoomTypes.value = {}
+
+    await fetchRoomTypes()
+
     await getBookingDetailsById()
   }
 })
 
-// Initialize when component mounts
+// Initialisation au montage
 onMounted(() => {
-  if (props.reservationId) {
+  if (props.reservationId && props.isOpen) {
+    fetchRoomTypes()
     getBookingDetailsById()
   }
 })
-
-
-
 </script>
 
 <style scoped>
