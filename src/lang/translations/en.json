@@ -8836,5 +8836,10 @@
   "Error saving guest": "Error saving guest",
   "Date Conflict": "Date Conflict",
   "Conflicting Reservations:": "Conflicting Reservations:",
-  "Dismiss": "Dismiss"
+  "Dismiss": "Dismiss",
+  "All rooms will be voided. This action cannot be undone." : "All rooms will be voided. This action cannot be undone.",
+  "Selected rooms will be voided. This action cannot be undone." : "Selected rooms will be voided. This action cannot be undone.",
+  "Warning" : "Warning",
+  "Individual Reservation" : "Individual Reservation",
+  "Already voided" : "Already voided"
 }

@@ -11,7 +11,9 @@ export const useServiceStore = defineStore('service', {
     reservationType: [] as any[],
     businessSources: [] as any[],
     bookingSources: [] as any[],
-    rateTypes: [] as any[]
+    rateTypes: [] as any[],
+    calendarViewDate: null as string | null,
+    calendarDaysToShow: 15 as number,
   }),
 
   getters: {
@@ -60,6 +62,14 @@ export const useServiceStore = defineStore('service', {
         value: s.id,
         label: s.name
       }))
+    },
+    setCalendarViewDate(date: string | null) {
+      this.calendarViewDate = date
+    },
+
+
+    setCalendarDaysToShow(days: number) {
+      this.calendarDaysToShow = days
     },
 
     setReservationType(types: any[]) {
@@ -122,7 +132,11 @@ export const useServiceStore = defineStore('service', {
     },
     clearUserService() {
       this.userService = []
-    }
+    },
+    clearCalendarState() {
+      this.calendarViewDate = null
+      this.calendarDaysToShow = 15
+    },
   },
 
   persist:true,

@@ -603,6 +603,7 @@
       @close="closeUnassignedModal"
       @room-assigned="handleRoomAssigned"
       :room-type-data="currentRoomTypeData"
+      :from-calendar="true"
     />
 
     <!-- Assign Room Reservation Modal -->
@@ -612,6 +613,7 @@
         :reservation-id="selectedReservationForAssignment.id"
         @close="closeAssignRoomModal"
         @refresh="refresh"
+        :from-calendar="true"
       />
     </template>
   </FullScreenLayout>
@@ -1014,6 +1016,7 @@ function showReservationModal(reservation: any) {
   if (!useAuthStore().hasPermission('edit_reservation')) {
     return
   }
+
   // Clear any active cell selection to avoid opening the selection details panel
   clearCellSelection()
   showDetail.value = true
@@ -1897,6 +1900,7 @@ function setToday() {
 }
 function setDays(n: number) {
   daysToShow.value = n
+  serviceStore.setCalendarDaysToShow(n)
 }
 const roomTypeOptions = computed(() => {
   if (serviceResponse.value?.grouped_reservation_details) {
@@ -1926,7 +1930,15 @@ onMounted(async () => {
      hotel = res.data?.data ?? res.data
   }
 
-  selectedDate.value = hotel?.currentWorkingDate
+  //selectedDate.value = hotel?.currentWorkingDate
+  if (serviceStore.calendarViewDate) {
+    selectedDate.value = serviceStore.calendarViewDate
+    daysToShow.value = serviceStore.calendarDaysToShow
+    // serviceStore.setCalendarViewDate(null)
+  } else {
+    selectedDate.value = hotel?.currentWorkingDate
+    serviceStore.setCalendarViewDate(selectedDate.value)
+  }
   getLocaleDailyOccupancyAndReservations()
 })
 
@@ -1934,6 +1946,9 @@ watch([selectedDate, daysToShow], () => {
   getLocaleDailyOccupancyAndReservations()
 })
 
+watch(selectedDate,(newDate)=>{
+  serviceStore.setCalendarViewDate(newDate)
+})
 const tooltipReservation = ref<any | null>(null)
 const tooltipPosition = ref<{ x: number; y: number; placement?: 'above' | 'below' } | null>(null)
 

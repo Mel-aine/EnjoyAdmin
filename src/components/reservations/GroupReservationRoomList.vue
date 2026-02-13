@@ -82,7 +82,7 @@
 
         <!-- Room Rate -->
         <div class="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center space-x-1">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('roomRate') }}</span>
             <span class="font-semibold text-blue-900 dark:text-blue-100">
               {{ formatCurrency(room.roomRate || 0) }}

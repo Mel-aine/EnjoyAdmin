@@ -215,21 +215,33 @@
               </div>
             </div>
 
-            <div class="flex items-center justify-center">
+
+            <div class="flex items-center justify-center gap-2">
               <button
                 @click.stop="assignRoom(reservation)"
                 class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                  />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 {{ $t('AssignRoom') }}
               </button>
+
+              <template v-if="fromCalendar">
+                <button
+                  @click.stop="handleCancelReservation(reservation)"
+                  class="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  {{ $t('Cancel') }}
+                </button>
+
+                <button
+                  @click.stop="handleVoidReservation(reservation)"
+                  class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  {{ $t('Void') }}
+                </button>
+              </template>
             </div>
           </div>
         </div>
@@ -256,15 +268,39 @@
       </div>
     </template>
   </RightSideModal>
+
+  <!-- Modals -->
+  <CancelReservation
+    v-if="showCancelModal && selectedReservationForAction"
+    :is-open="showCancelModal"
+    :reservation-data="selectedReservationForAction"
+    :reservation-id="selectedReservationForAction.id"
+    :reservation-number="selectedReservationForAction.reservationNumber"
+    @close="showCancelModal = false"
+    @cancel-confirmed="handleCancelConfirmed"
+  />
+
+  <VoidReservation
+    v-if="showVoidModal && selectedReservationForAction"
+    :is-open="showVoidModal"
+    :reservation-data="selectedReservationForAction"
+    :reservation-id="selectedReservationForAction.id"
+    :reservation-number="selectedReservationForAction.reservationNumber"
+    @close="showVoidModal = false"
+    @void-confirmed="handleVoidConfirmed"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed,onMounted } from 'vue'
+import { ref, computed,onMounted,defineAsyncComponent } from 'vue'
 import RightSideModal from '../modal/RightSideModal.vue'
 import RoomSelectionModal from '../modal/RoomSelectionModal.vue'
 import { useServiceStore } from '@/composables/serviceStore'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { useI18n } from 'vue-i18n'
+
+const CancelReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/CancelReseravtion.vue'))
+const VoidReservation = defineAsyncComponent(() => import('@/components/reservations/foglio/VoidReservation.vue'))
 
 interface Props {
   isOpen: boolean
@@ -272,6 +308,7 @@ interface Props {
   reservations: any[]
   roomTypeId?: number | null
   roomTypeData?: any[]
+  fromCalendar?: boolean
 }
 
 interface Emits {
@@ -282,7 +319,8 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   reservations: () => [],
   roomTypeId: null,
-  roomTypeData: () => []
+  roomTypeData: () => [],
+  fromCalendar: false
 })
 
 const emit = defineEmits<Emits>()
@@ -292,7 +330,32 @@ const { t } = useI18n()
 // State
 const showRoomSelection = ref(false)
 const selectedReservation = ref<any>(null)
+const showCancelModal = ref(false)
+const showVoidModal = ref(false)
+const selectedReservationForAction = ref<any>(null)
 
+
+const handleCancelReservation = (reservation: any) => {
+  selectedReservationForAction.value = reservation
+  showCancelModal.value = true
+}
+
+const handleVoidReservation = (reservation: any) => {
+  selectedReservationForAction.value = reservation
+  showVoidModal.value = true
+}
+
+const handleCancelConfirmed = () => {
+  showCancelModal.value = false
+  selectedReservationForAction.value = null
+  emit('room-assigned', {})
+}
+
+const handleVoidConfirmed = () => {
+  showVoidModal.value = false
+  selectedReservationForAction.value = null
+  emit('room-assigned', {})
+}
 // Filter to get only unassigned reservations
 const unassignedReservations = computed(() => props.reservations)
 
