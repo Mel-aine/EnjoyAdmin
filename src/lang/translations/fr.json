@@ -7047,7 +7047,7 @@
   "departureDate": "Date de départ",
   "dueOut": "Départ prévu",
   "dirty": "Sale",
-  "void_reservation": "Annuler la réservation",
+  "void_reservation": "Void Reservation",
   "reservation_void_successfully": "Réservation annulée avec succès",
   "error_voiding_reservation": "Erreur lors de l'annulation de la réservation",
   "arrivalDate": "Date d'arrivée",
@@ -8989,5 +8989,11 @@
   "Error saving guest": "Erreur lors de l’enregistrement du client",
   "Date Conflict": "Conflit de date",
   "Conflicting Reservations:": "Réservations en conflit :",
-  "Dismiss": "Ignorer"
+  "Dismiss": "Ignorer",
+  "All rooms will be voided. This action cannot be undone." : "Toutes les chambres seront annulées. Cette action est irréversible.",
+  "Selected rooms will be voided. This action cannot be undone." : "Les chambres sélectionnées seront annulées. Cette action est irréversible.",
+  "Warning" : "Avertissement ",
+  "Individual Reservation" : "Réservation Individuelle",
+  "Already voided" : "Déjà annulé"
+
 }

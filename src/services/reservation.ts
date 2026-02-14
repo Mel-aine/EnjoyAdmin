@@ -315,9 +315,9 @@ export const cancelReservation = async (data: any) => {
  * @param data
  * @returns
  */
-export const voidReservation = async (data: any) => {
+export const voidReservation = async (reservationId:any,data: any) => {
   try {
-    const response = await apiClient.post(`/reservation/${data.reservationId}/void`, data, getHeaders())
+    const response = await apiClient.post(`/reservation/${reservationId}/void`, data, getHeaders())
     return response.data
   } catch (error: any) {
     console.error('API Error:', error)

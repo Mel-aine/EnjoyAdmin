@@ -150,6 +150,7 @@ export const signOut = async (): Promise<void> => {
     serviceStore.clearPermissions();
     serviceStore.clearUserService();
     statusColor.clearStatusColors();
+    serviceStore.clearCalendarState()
 
     languageStore.$reset();
     bookingStore.$reset();

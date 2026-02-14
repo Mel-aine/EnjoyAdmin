@@ -121,25 +121,65 @@
       </div>
     </div>
 
-    <template #footer>
-      <div class="flex justify-between gap-3">
-        <BasicButton
-          :label="$t('Cancel')"
-          variant="secondary"
-          @click="$emit('close')"
-        />
-        <div class="flex gap-3">
-          <BasicButton
-            :label="$t('AssignRoom')"
-            variant="primary"
-            :disabled="!isAssignButtonEnabled"
-            :loading="isLoading"
-            @click="confirmRoomSelection"
-          />
-        </div>
-      </div>
-    </template>
+<template #footer>
+  <div class="flex justify-between gap-3">
+    <BasicButton
+      :label="$t('Cancel')"
+      variant="secondary"
+      @click="$emit('close')"
+    />
+
+
+    <!-- <div class="flex gap-3"> -->
+      <template v-if="fromCalendar">
+        <button
+          @click.stop="handleCancelReservation"
+          class="px-4 py-2 whitespace-nowrap bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+        >
+          {{ $t('Cancel Reservation') }}
+        </button>
+
+        <button
+          @click.stop="handleVoidReservation"
+          class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+        >
+          {{ $t('Void') }}
+        </button>
+      </template>
+
+      <BasicButton
+        :label="$t('AssignRoom')"
+        variant="primary"
+        :disabled="!isAssignButtonEnabled"
+        :loading="isLoading"
+        @click="confirmRoomSelection"
+        class="w-80"
+      />
+    </div>
+  <!-- </div> -->
+</template>
   </RightSideModal>
+
+   <!-- Modals -->
+  <CancelReservation
+    v-if="showCancelModal && reservation"
+    :is-open="showCancelModal"
+    :reservation-data="reservation"
+    :reservation-id="reservation.id"
+    :reservation-number="reservation.reservationNumber"
+    @close="showCancelModal = false"
+    @cancel-confirmed="handleCancelConfirmed"
+  />
+
+  <VoidReservation
+    v-if="showVoidModal && reservation"
+    :is-open="showVoidModal"
+    :reservation-data="reservation"
+    :reservation-id="reservation.id"
+    :reservation-number="reservation.reservationNumber"
+    @close="showVoidModal = false"
+    @void-confirmed="handleVoidConfirmed"
+  />
 </template>
 
 <script setup lang="ts">
@@ -154,10 +194,14 @@ import { getAvailableRoomsByTypeId} from '../../services/configrationApi'
 import { formatDateDisplay } from '@/utils/dateUtils'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import CancelReservation from '@/components/reservations/foglio/CancelReseravtion.vue'
+import VoidReservation from '@/components/reservations/foglio/VoidReservation.vue'
 
 interface Props {
   isOpen: boolean
   reservationId: number
+  fromCalendar? : boolean
+
 }
 
 interface Emits {
@@ -165,7 +209,10 @@ interface Emits {
   (e: 'refresh'): void
 }
 
-const props = defineProps<Props>()
+const props = withDefaults( defineProps<Props>(),{
+  fromCalendar : false
+})
+
 const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
@@ -180,7 +227,8 @@ const selectedRoomTypes = ref<{ [key: number]: string }>({})
 const availableRoomsByReservation = ref<{ [key: number]: any[] }>({})
 const loadingRoomsByReservation = ref<{ [key: number]: boolean }>({})
 const serviceStore = useServiceStore()
-
+const showCancelModal = ref(false)
+const showVoidModal = ref(false)
 
 // Computed: Vérifier si au moins une chambre est sélectionnée
 const isAssignButtonEnabled = computed(() => {
@@ -346,6 +394,26 @@ watch(() => props.isOpen, async (newValue) => {
     await getBookingDetailsById()
   }
 })
+
+const handleCancelReservation = () => {
+  showCancelModal.value = true
+}
+
+const handleVoidReservation = () => {
+  showVoidModal.value = true
+}
+
+const handleCancelConfirmed = () => {
+  showCancelModal.value = false
+  emit('refresh')
+  emit('close')
+}
+
+const handleVoidConfirmed = () => {
+  showVoidModal.value = false
+  emit('refresh')
+  emit('close')
+}
 
 // Initialisation au montage
 onMounted(() => {
