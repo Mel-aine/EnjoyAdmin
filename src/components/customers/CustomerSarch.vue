@@ -17,7 +17,7 @@ const isLoading = ref(false)
 const filteredCustomers = ref<any[]>([]);
 const searchQuery = ref('');
 const selectedCustomer = ref<any>({});
-  const isManualSelection = ref(false)
+const isManualSelection = ref(false)
 const emit = defineEmits(['customerSelected']);
 // Debounce timer for API calls
 const debounceTimeout = ref<number | null>(null);
@@ -42,7 +42,12 @@ const filterCustomer = () => {
 
 
 
-  watch(searchQuery, (newValue) => {
+watch(searchQuery, (newValue) => {
+  // Si c'est une sélection manuelle, ignorer complètement ce watch
+  if (isManualSelection.value) {
+    return;
+  }
+
   const query = newValue.toLowerCase().trim();
 
   if (!query) {
@@ -59,9 +64,6 @@ const filterCustomer = () => {
       clearTimeout(debounceTimeout.value);
       debounceTimeout.value = null;
     }
-    return;
-  }
-   if (isManualSelection.value) {
     return;
   }
 
@@ -105,19 +107,25 @@ watch(() => props.modelValue, (newVal) => {
 });
 
 
-
-
-
 const selectCustomer = (customer: any) => {
-    isManualSelection.value = true;
+  // Activer le flag AVANT toute modification
+  isManualSelection.value = true;
+
+  // Fermer immédiatement la dropdown
+  filteredCustomers.value = [];
+
+  // Mettre à jour les valeurs
   selectedCustomer.value = { ...customer };
   emit('customerSelected', selectedCustomer.value);
   console.log("Selected customer:", selectedCustomer.value);
+
+  // Mettre à jour le champ de recherche
   searchQuery.value = `${customer.firstName}`;
-  filteredCustomers.value = [];
+
+  // Désactiver le flag après un délai suffisant pour que tous les watchers se soient exécutés
   setTimeout(() => {
     isManualSelection.value = false;
-  }, 100);
+  }, 300);
 };
 
 

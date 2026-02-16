@@ -10,7 +10,7 @@
       :default-value="defaultValue || $t('SelectReason')"
       :is-required="isRequired"
       :use-dropdown="useDropdown"
-      :is-loading="isLoading"
+      :is-loading="loading"
       @update:use-dropdown="onUseDropdownUpdate"
       @add-custom="handleAddCustomReason"
     />
@@ -25,6 +25,7 @@ import { useToast } from 'vue-toastification'
 import { getByCategory, postReason } from '@/services/configrationApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import CloneAutoCompleteSelect from '@/components/forms/FormElements/CloneAutoCompleteSelect.vue'
+import { isLoading } from '@/composables/spinner'
 
 interface Reason {
   value: string
@@ -38,6 +39,7 @@ interface ReasonSelectorProps {
   label?: string
   defaultValue?: string
   isRequired?: boolean
+  loading?:boolean
 }
 
 export default defineComponent({
@@ -67,7 +69,7 @@ export default defineComponent({
     isRequired: {
       type: Boolean,
       default: true
-    }
+    },
   },
 
   emits: ['update:modelValue', 'reason-added'],
@@ -77,8 +79,9 @@ export default defineComponent({
     const toast = useToast()
     const serviceStore = useServiceStore()
     const reasons = ref<Reason[]>([])
-    const isLoading = ref(false)
     const useDropdown = ref(true)
+    const isLoading = ref(false)
+    const loading = ref(false)
     const error = ref('')
 
     // Déclaration des méthodes avant leur utilisation
@@ -104,7 +107,7 @@ export default defineComponent({
           return
         }
 
-        isLoading.value = true
+        loading.value = true
         error.value = ''
 
         console.log('Calling getByCategory with:', {
@@ -154,7 +157,7 @@ export default defineComponent({
         error.value = t('Failed to load reasons')
         reasons.value = []
       } finally {
-        isLoading.value = false
+        loading.value = false
       }
     }
 
@@ -283,6 +286,7 @@ export default defineComponent({
       // Références réactives
       reasons: reasons as unknown as Reason[],
       isLoading: isLoading as unknown as boolean,
+      loading: loading as unknown as boolean,
       useDropdown: useDropdown as unknown as boolean,
       error: error as unknown as string,
 
