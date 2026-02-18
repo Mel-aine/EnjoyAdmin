@@ -12,9 +12,11 @@
     <div
       :class="['relative font-sans', (disabled || isLoading) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']"
     >
-      <div v-if="isLoading" class="absolute right-10 top-1/2 -translate-y-1/2">
+      <!-- <div v-if="isLoading" class="absolute right-10 top-1/2 -translate-y-1/2">
         <span class="loading loading-spinner loading-sm"></span>
-      </div>
+      </div> -->
+
+
       <input
         ref="mainInput"
         :disabled="disabled"
@@ -31,8 +33,14 @@
         @keydown.enter.prevent="onEnter"
       />
       <input type="hidden" :required="isRequired" :value="selectedOption?.value || ''" />
+       <div v-if="isLoading" class="absolute right-3 top-1/2 -translate-y-1/2 z-10">
+          <svg class="animate-spin h-5 w-5 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+      </div>
 
-      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs">▼</span>
+      <span v-else class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs">▼</span>
 
       <div v-if="isDropdownOpen" class="relative">
         <div
@@ -101,7 +109,7 @@
                   @keydown.esc="cancelCustomReason"
                   @click.stop
                   @mousedown.stop
-                  class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  class="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white outline-0 dark:placeholder-gray-500 rounded-md focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                   :placeholder="$t('Enter Custom Reason')"
                 />
                 <button
@@ -123,6 +131,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import DotSpinner from '@/components/spinner/DotSpinner.vue';
 
 interface Option {
   label: string

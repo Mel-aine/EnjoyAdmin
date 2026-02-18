@@ -104,9 +104,9 @@
                 @change="onRoomTypeChanged(ind)"
               />
             </div>
-            <div v-if="isRoomTypeDifferent(res)" class="mb-4">
+            <!-- <div v-if="isRoomTypeDifferent(res)" class="mb-4">
               <Toggle :title="$t('Overwrite room rate')" v-model="res.overwriteRoomRate" />
-            </div>
+            </div> -->
             <div class="mb-4 mt-4">
               <Input :lb="$t('From room')" :model-value="res.room.roomNumber" :disabled="true" />
             </div>
