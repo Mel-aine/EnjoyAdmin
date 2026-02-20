@@ -42,9 +42,10 @@ import RightSideModal from '../modal/RightSideModal.vue'
 import { getByCategory } from '../../services/configrationApi'
 import { useServiceStore } from '../../composables/serviceStore'
 import ReasonSelector from '../common/ReasonSelector.vue'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
-
+const toast = useToast()
 // Props
 interface Props {
   isOpen: boolean
@@ -128,8 +129,11 @@ const loadInitialData = async () => {
   }
 }
 
+
+
 const handleVoidTransaction = async () => {
   console.log('voidform', voidForm)
+
   if (!validateForm()) {
     return
   }
@@ -152,14 +156,29 @@ const handleVoidTransaction = async () => {
       ? await voidFolioPayTransaction(props.transactionDetails.id, reasonPayload)
       : await voidFolioTransaction(props.transactionDetails.id, voidData)
 
-    emit('success', {
-      message: t('transactionVoidedSuccessfully'),
-      data: response.data
-    })
+    if (response && response.success !== false) {
+      toast.success(
+        props.isCompanyPayment
+          ? t('transactionVoidedSuccessfully')
+          : t('transactionVoidedSuccessfully')
+      )
 
-    closeModal()
+      emit('success', {
+        message: t('transactionVoidedSuccessfully'),
+        data: response.data
+      })
+
+      closeModal()
+    } else {
+      const errorMessage = response?.message
+
+      toast.error(errorMessage)
+
+      emit('error', { message: errorMessage })
+    }
   } catch (error: any) {
     console.error('Error voiding transaction:', error)
+
     emit('error', {
       message: error.response?.data?.message || t('errorVoidingTransaction'),
       error
@@ -168,6 +187,7 @@ const handleVoidTransaction = async () => {
     isLoading.value = false
   }
 }
+
 
 
 // Watch for modal open/close to reset form
