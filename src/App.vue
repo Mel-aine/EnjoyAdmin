@@ -1,14 +1,14 @@
  <template>
-  <SpeedInsights />
-  <ThemeProvider>
-    <SidebarProvider>
-      <TopProgressBar />
-      <OverLoading v-if="isCheckoutOverlay" />
-      <RouterView />
-      <ReAuthModal
-        :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"
-        @close="handleClose"
-        @success="handleSuccess"
+  <SpeedInsights />     
+  <ThemeProvider>     
+    <SidebarProvider>       
+      <TopProgressBar />     
+      <OverLoading v-if="isCheckoutOverlay" />           
+      <RouterView />           
+      <ReAuthModal          
+        :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
+        @close="handleClose"     
+        @success="handleSuccess" 
       />
     </SidebarProvider>
   </ThemeProvider>
