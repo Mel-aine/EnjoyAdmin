@@ -1,19 +1,19 @@
  <template>
-  <SpeedInsights />     
-  <ThemeProvider>     
-    <SidebarProvider>       
-      <TopProgressBar />     
-      <OverLoading v-if="isCheckoutOverlay" />           
-      <RouterView />          
-      <ReAuthModal          
-        :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
-        @close="handleClose"     
-        @success="handleSuccess" 
+  <SpeedInsights />
+  <ThemeProvider>
+    <SidebarProvider>
+      <TopProgressBar />
+      <OverLoading v-if="isCheckoutOverlay" />
+      <RouterView />
+      <ReAuthModal
+        :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"
+        @close="handleClose"
+        @success="handleSuccess"
       />
-    </SidebarProvider>     
+    </SidebarProvider>
   </ThemeProvider>
-</template> 
-<script setup lang="ts"> 
+</template>
+<script setup lang="ts">
 import ThemeProvider from './components/layout/ThemeProvider.vue'
 import SidebarProvider from './components/layout/SidebarProvider.vue'
 import { useI18n } from "vue-i18n";
@@ -22,7 +22,7 @@ import { SpeedInsights } from "@vercel/speed-insights/vue"
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useRoute ,useRouter} from 'vue-router'
 import ReAuthModal from '@/components/auth/ReAuthModal.vue'
-import { useAuthStore } from '@/composables/user' 
+import { useAuthStore } from '@/composables/user'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import TopProgressBar from '@/components/spinner/TopProgressBar.vue'
 import { isCheckoutOverlay } from '@/composables/spinner'
@@ -37,7 +37,8 @@ if (useLanguage.language) {
 
 
 
-const IDLE_TIMEOUT_MS = 30 * 60 * 1000
+ const IDLE_TIMEOUT_MS = 30 * 60 * 1000
+
 
 
 const isReAuthOpen = ref(false)
@@ -185,6 +186,7 @@ const handleSuccess = () => {
   authStore.setReauthRequired(false)
   isReAuthOpen.value = false
   startIdleTimer()
+  router.go(0)
 }
 
 
