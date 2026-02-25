@@ -872,6 +872,7 @@ const finishNightAudit = async () => {
     })
     // Mark audit as completed
     auditCompleted.value = true
+    serviceStore.setCalendarViewDate(nextDate.value)
     // Success notification
     toast.success(t('frontOffice.nightAudit.success.completedAndClosed'))
     router.push({ name: 'SetupSpace' });
