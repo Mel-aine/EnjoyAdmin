@@ -83,6 +83,7 @@ import { postTransaction ,updateTransaction } from '@/services/foglioApi'
 import { prepareFolioAmount, safeParseFloat, isValidMonetaryAmount } from '@/utils/numericUtils'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import { toIntegerAmount } from '@/components/utilities/UtilitiesFunction'
 
 
 interface Props {
@@ -210,7 +211,7 @@ const loadTransactionData = () => {
     formData.folio = tx.folioId || props.folioId
     formData.recVouNumber = tx.transactionNumber || ''
     formData.quantity = tx.quantity || 1
-    formData.amount = tx.grossAmount || tx.amount || 0
+    formData.amount = toIntegerAmount(tx.grossAmount || tx.amount || 0)
     formData.discount = tx.discountId || ''
     formData.comment = tx.notes || tx.description || ''
     formData.charge = tx.extraChargeId || tx.chargeId || tx.particular_id || ''

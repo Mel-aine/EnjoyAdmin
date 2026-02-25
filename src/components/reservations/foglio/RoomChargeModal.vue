@@ -44,7 +44,7 @@
                                     <InputCurrency :lb="$t('amount')" v-model="formData.amount" :showCurrencySelector=false />
                                 </div>
 
-                                <Toggle :title="$t('taxInclusive')" v-model="formData.taxInclusive" />
+                                <Toggle :title="$t('taxInclusive')" :modelValue="true" />
 
                                 <InputDiscountSelect v-model="formData.discount" :lb="$t('discount')" />
                                 <div>
@@ -89,6 +89,7 @@ import InputFolioSelect from './InputFolioSelect.vue'
 import InputCurrency from '../../forms/FormElements/InputCurrency.vue'
 import InputDiscountSelect from './InputDiscountSelect.vue'
 import { addRoomChargeHandler ,updateRoomChargeHandler } from '../../../services/foglioApi'
+import { toIntegerAmount } from '@/components/utilities/UtilitiesFunction'
 
 interface Props {
     folioId?: number | string
@@ -118,7 +119,7 @@ const formData = reactive({
     amount: 0 as number,
     description: '',
     date: new Date().toISOString().split('T')[0], // Today's date
-    taxInclusive: false,
+    taxInclusive: true,
     folioId:0 as any,
     complementary:false,
     discount:0 as number,
@@ -129,7 +130,7 @@ const formData = reactive({
 const isFormValid = computed(() => {
     return formData.chargeSubtype &&
         formData.amount &&
-        formData.amount > 0 && formData.description
+        formData.amount > 0
 })
 
 const closeModal = () => {
@@ -138,7 +139,7 @@ const closeModal = () => {
     formData.amount = 0
     formData.description = ''
     formData.date = new Date().toISOString().split('T')[0]
-    formData.taxInclusive = false
+    formData.taxInclusive = true
 
     emit('close')
 }
@@ -225,7 +226,7 @@ const loadTransactionData = () => {
     formData.date = tx.postingDate || new Date().toISOString().split('T')[0]
     formData.chargeSubtype = tx.subcategory
     formData.folioId = tx.folioId || ''
-    formData.amount = tx.grossAmount || tx.amount || 0
+    formData.amount = toIntegerAmount(tx.grossAmount || tx.amount || 0)
     formData.description = tx.notes || tx.description || ''
     formData.discount = tx.discountId
     formData.complementary = tx.complementary
@@ -254,7 +255,7 @@ watch(() => props.isOpen, async(newVal) => {
       formData.description = ''
       formData.discount = 0
       formData.complementary = false
-      formData.taxInclusive = false
+      formData.taxInclusive = true
 
     }
 
