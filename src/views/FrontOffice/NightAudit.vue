@@ -237,6 +237,15 @@
       <AmendStay v-if="selectdReservationId" :is-open="showAmendStayModal" :reservation-id="selectdReservationId"
         @close="closeAmendStayModal" @amend-confirmed="handleAmendStaySuccess" />
     </template>
+    <template v-if="isAddPaymentModalOpen && selectdReservationId">
+      <AddPaymentModal
+        :reservation-id="selectdReservationId"
+        :is-open="isAddPaymentModalOpen"
+        :folio-id="selectedFolioId"
+        @close="closeAddPaymentModal"
+        @save="handleSavePayment"
+      />
+    </template>
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showNightAuditBlockedModal"
@@ -302,6 +311,7 @@ const CheckInReservation = defineAsyncComponent(() => import('../../components/r
 const CheckOutReservation = defineAsyncComponent(() => import('../../components/reservations/CheckOutReservation.vue'))
 const CancelReseravtion = defineAsyncComponent(() => import('../../components/reservations/foglio/CancelReseravtion.vue'))
 const AmendStay = defineAsyncComponent(() => import('../../components/reservations/foglio/AmendStay.vue'))
+const AddPaymentModal = defineAsyncComponent(() => import('@/components/reservations/foglio/AddPaymentModal.vue'))
 const serviceStore = useServiceStore();
 const router = useRouter()
 const { t } = useI18n()
@@ -471,6 +481,19 @@ const showCheckOutModal = ref(false)
 const showAmendStayModal = ref(false);
 const selectedReservationForCheckIn = ref(null)
 const selectedGuestForCheckOut = ref(null)
+
+const isAddPaymentModalOpen = ref(false)
+const selectedFolioId = ref<any>(null)
+
+const closeAddPaymentModal = () => {
+  isAddPaymentModalOpen.value = false
+  selectedFolioId.value = null
+}
+
+const handleSavePayment = async () => {
+  closeAddPaymentModal()
+  await fetchRoomStatus()
+}
 // Column definitions
 const pendingReservationsColumns: Column[] = [
   { key: 'confirmation_number', label: t('res.no'), type: 'text' },
@@ -725,9 +748,17 @@ const closeAmendStayModal = () => {
 }
 const handlerRoomStatus = (item: any, action: string) => {
   selectdReservationId.value = item.reservation_id
+
   switch (action) {
     case 'check_out':
-      showCheckOutModal.value = true;
+      const remaining = item.folio?.balance ?? item.folio?.outstandingBalance ?? 0
+      if (remaining > 0) {
+        toast.info(t('Please settle the outstanding balance before checking out.'))
+        selectedFolioId.value = item.folio?.id ?? item.folio_id ?? null
+        isAddPaymentModalOpen.value = true
+        return
+      }
+      showCheckOutModal.value = true
       break;
     case 'amend_stay':
       showAmendStayModal.value = true;

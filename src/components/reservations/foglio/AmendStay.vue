@@ -247,7 +247,14 @@ const getBookingDetailsById = async () => {
         const response = await getReservationDetailsById(Number(props.reservationId))
         console.log('Reservation details:', response)
         reservation.value = response
-        reservationRooms.value = response.reservationRooms || []
+        reservationRooms.value = (response.reservationRooms || []).filter((room: any) =>
+          !room.isSplitedOrigin &&
+          !['checked_out', 'checked-out'].includes(String(room.status ?? '').toLowerCase())
+        )
+        const activeRooms = reservationRooms.value.filter((room: any) =>
+          !room.isSplitedOrigin &&
+          !['checked_out', 'checked-out'].includes(String(room.status ?? '').toLowerCase())
+        )
 
         // Populate form data with reservation details
         if (response) {
@@ -258,10 +265,10 @@ const getBookingDetailsById = async () => {
             // Set amend type based on number of rooms
             if (reservationRooms.value.length > 1) {
                 formData.value.amendType = 'group'
-                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
+                formData.value.selectedRooms = activeRooms.map((room: any) => room.room.id)
             } else {
                 formData.value.amendType = 'individual'
-                formData.value.selectedRooms = reservationRooms.value.map((room: any) => room.room.id)
+                formData.value.selectedRooms = activeRooms.map((room: any) => room.room.id)
             }
         }
     } catch (error) {
@@ -271,6 +278,8 @@ const getBookingDetailsById = async () => {
         isLoading.value = false
     }
 }
+
+
 
 const handleSubmit = async () => {
     try {
@@ -369,13 +378,11 @@ watch(() => formData.value.amendType, (newType) => {
 // Watch for reservationRooms changes to handle single room auto-selection
 watch(() => reservationRooms.value, (newRooms) => {
     if (newRooms.length === 1) {
-        // Auto-select the single room and set to individual amend
         formData.value.amendType = 'individual'
         formData.value.selectedRooms = [newRooms[0].room.id]
     } else if (newRooms.length > 1) {
-        // Auto-select all rooms for group amend
         if (formData.value.amendType === 'group') {
-            formData.value.selectedRooms = newRooms.map((room: any) => room.room.id)
+            formData.value.selectedRooms = newRooms.map((room: any) => room.room?.id)
         }
     }
 }, { deep: true })
@@ -408,7 +415,10 @@ watch([() => formData.value.newArrivalDate, () => formData.value.nights], ([newA
 onMounted(() => {
     if (props.reservation && props.reservation.id) {
         const response = props.reservation
-        reservationRooms.value = response.reservationRooms || []
+          reservationRooms.value = (response.reservationRooms || []).filter((room: any) =>
+          !room.isSplitedOrigin &&
+          !['checked_out', 'checked-out'].includes(String(room.status ?? '').toLowerCase())
+        )
         if (response) {
             formData.value.newArrivalDate = new Date(response.arrivedDate).toISOString().split('T')[0]
             formData.value.newDepartureDate = new Date(response.departDate).toISOString().split('T')[0]

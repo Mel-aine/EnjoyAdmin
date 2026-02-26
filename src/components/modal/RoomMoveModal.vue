@@ -355,6 +355,13 @@ const getBookingDetailsById = async () => {
     const response: any = await getReservationDetailsById(props.reservationId)
     reservation.value = response
 
+    if (reservation.value?.reservationRooms) {
+      reservation.value.reservationRooms = reservation.value.reservationRooms.filter((room: any) =>
+        !room.isSplitedOrigin &&
+        !['checked_out', 'checked-out'].includes(String(room.status ?? '').toLowerCase())
+      )
+    }
+
     const rooms = reservation.value?.reservationRooms || []
     if (rooms.length > 0) {
       const range = getAvailabilityRangeForRoomMove(rooms)
@@ -371,7 +378,6 @@ const getBookingDetailsById = async () => {
       }
     }
 
-    // Fetch available rooms for each reservation room type
     if (reservation.value?.reservationRooms) {
       for (let i = 0; i < reservation.value.reservationRooms.length; i++) {
         await fetchAvailableRooms(i)

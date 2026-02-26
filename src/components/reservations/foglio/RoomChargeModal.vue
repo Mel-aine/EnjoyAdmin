@@ -130,7 +130,7 @@ const formData = reactive({
 const isFormValid = computed(() => {
     return formData.chargeSubtype &&
         formData.amount &&
-        formData.amount > 0
+        formData.amount > 0 && formData.description
 })
 
 const closeModal = () => {
