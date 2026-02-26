@@ -214,7 +214,8 @@ const nightsSummary = computed(() => {
     return 0
   }
 
-  const rooms = localReservation.value.reservationRooms
+  const rooms = localReservation.value.reservationRooms.filter((e:any)=>!e.isSplitedOrigin)
+  console.log('reservation',rooms );
 
   if (rooms.length === 1) {
     return rooms[0].nights
