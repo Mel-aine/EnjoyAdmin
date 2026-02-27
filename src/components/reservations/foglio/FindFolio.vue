@@ -88,7 +88,7 @@ const columnsFolios = computed<Column[]>(() => {
         { key: 'guest', label: t('Guest'), sortable: true },
         { key: 'arrivedDate', label: t('arrivalDate'), type: "date", sortable: true },
         { key: 'departureDate', label: t('departureDate'),type: "date", sortable: true },
-        { key: "balance", label: t("balance") },
+        { key: "balance", label: t("balance"), type: "currency" },
         { key: "action", label: "", type: "custom" }
     ]
 })
