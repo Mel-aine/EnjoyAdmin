@@ -17,7 +17,7 @@
         </template>
 
        <template #column-user="{item}">
-          <div>{{ item.user?.firstName }}</div>
+          <div>{{ item.username||item.user?.firstName }}</div>
         </template>
            <template #column-action="{item}">
           <div>{{ $t(`auditActions.${item.action}`) }}</div>
