@@ -6,7 +6,7 @@
       <OverLoading v-if="isCheckoutOverlay" />           
       <RouterView />            
       <ReAuthModal          
-        :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
+        :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"   
         @close="handleClose"     
         @success="handleSuccess" 
       />
