@@ -7,7 +7,7 @@
       <RouterView />            
       <ReAuthModal          
         :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"   
-        @close="handleClose"     
+        @close="handleClose"      
         @success="handleSuccess" 
       />
     </SidebarProvider>
