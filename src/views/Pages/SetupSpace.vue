@@ -76,7 +76,8 @@ const initializeSpace = async () => {
       const service = userServices[0];
       serviceStore.setServiceId(service.id);
       serviceStore.setCurrentService(service);
-      
+      serviceStore.setCalendarViewDate(service.currentWorkingDate)
+      serviceStore.setCalendarDaysToShow(15)
       serviceStore.setRateTypes(res.data.data.rateTypes || []);
 
       if (authStore.hasPermission('access_to_stay_view')) {
