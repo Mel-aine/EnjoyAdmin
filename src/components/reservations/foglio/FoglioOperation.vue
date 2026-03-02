@@ -63,9 +63,9 @@
               :disabled="!canAddItemInFolio || reservation.status === 'voided' || !selectedFolio" />
             <!-- <BasicButton :label="$t('folioOperations')" />-->
             <BasicButton :label="$t('printInvoice')" @click="printInvoiceDirect"
-              :disabled="!canAddItemInFolio || reservation.status === 'voided' || !selectedFolio" />
+              :disabled="reservation.status === 'voided' || !selectedFolio" />
             <!-- More Actions Dropdown -->
-            <div class="relative" v-if="(canAddItemInFolio || reservation.status !== 'voided') && selectedFolio">
+            <div class="relative" v-if="!isCheckedOut && (canAddItemInFolio || reservation.status !== 'voided') && selectedFolio">
               <ButtonDropdown v-model="selectedMoreAction" :options="moreActionOptions" :button-text="$t('more')"
                 :button-class="'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100'"
                 @option-selected="handleMoreAction" />
@@ -251,11 +251,15 @@ import PickupAndDropModal from '@/components/customers/PickupAndDropModal.vue'
 
 const authStore = useAuthStore()
 
+const isCheckedOut = computed(() => {
+  return props.reservation.status === 'checked_out' || props.reservation.status === 'checked-out';
+})
+
 const canCreateFolio = computed(() => {
-  return authStore.hasPermission('creating_new_folio')
+  return authStore.hasPermission('creating_new_folio') && !isCheckedOut.value
 })
 const canAddItemInFolio = computed(() => {
-  return authStore.hasPermission('add_item_to_open_folio')
+  return authStore.hasPermission('add_item_to_open_folio') && !isCheckedOut.value
 })
 const { t } = useI18n()
 // Modal state
@@ -344,13 +348,7 @@ const handleSaveAdjustment = (adjustmentData: any) => {
   console.log('Save adjustment:', adjustmentData)
   // Add save logic here
 }
-const closeSendFolioModal = () => {
-  isSendFolioModal.value = false
-}
-const handleSaveSendFolio = (sendFolioData: any) => {
-  console.log('Save send folio:', sendFolioData)
-  // Add save logic here
-}
+
 
 
 // More actions dropdown options
@@ -439,17 +437,24 @@ const columns = computed<Column[]>(() => [
   { key: 'actions', label: '', type: 'custom' }
 ])
 const actionTransactions = computed<Action[]>(() => {
-  return [
-    {
-      label: t('edit'),
-      handler: (item) => onAction('edit', item),
-      icon: Edit,
-    },
-    {
-      label: t('void'),
-      handler: (item) => onAction('void', item),
-      icon: Trash2
-    },
+  const actions: Action[] = []
+
+  if (!isCheckedOut.value) {
+    actions.push(
+      {
+        label: t('edit'),
+        handler: (item) => onAction('edit', item),
+        icon: Edit,
+      },
+      {
+        label: t('void'),
+        handler: (item) => onAction('void', item),
+        icon: Trash2
+      }
+    )
+  }
+
+  actions.push(
     {
       label: t('printVoucher'),
       handler: (item) => onAction('printVoucher', item),
@@ -467,7 +472,8 @@ const actionTransactions = computed<Action[]>(() => {
       condition: (item) => item.transactionType === 'room_posting',
       icon: Printer
     },
-  ]
+  )
+  return actions
 })
 
 
