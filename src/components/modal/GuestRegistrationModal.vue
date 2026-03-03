@@ -327,7 +327,7 @@
                     </div>
 
                     <div class="flex-1">
-                      <CustomerSearch @customer-selected="onCustomerSelected" v-model="formData" />
+                      <CustomerSearch @customer-selected="onCustomerSelected" v-model="formData.firstName" />
                     </div>
 
                     <div class="flex-1">
@@ -414,7 +414,7 @@
                   />
 
 
-<!-- 
+<!--
                   <InputEmail
                     v-else-if="contactInputComponent === 'InputEmail'"
                     v-model="contactValue"
@@ -763,10 +763,10 @@ const renderPrintHtml = () => {
         const span = doc.createElement('span')
         span.className = 'filled-value'
         span.textContent = valueToInsert
-        
+
         // Ajout de la classe pour le style bleu
         span.classList.add('user-filled')
-        
+
         span.style.marginLeft = '6px'
         span.style.maxWidth = '30ch'
         sibling.appendChild(span)
@@ -782,13 +782,13 @@ const renderPrintHtml = () => {
     style.textContent = `
     .filled-value{font-weight:normal;color:#111;font-size:9pt;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .line-dot,.line-empty{overflow:hidden;}
-    
+
     /*  Texte bleu */
     .user-filled {
       color: #1e40af;
       font-weight: 500 !important;
     }
-    
+
     /* Pour l'impression en noir et blanc, utiliser le bleu plus foncé */
     @media print {
       .user-filled {
