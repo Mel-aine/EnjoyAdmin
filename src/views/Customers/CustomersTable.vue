@@ -62,6 +62,7 @@
       :customerData="selectedCustomer"
       @close="handleCloseModal"
       @submit="handleSubmitCustomer"
+      :is-loading="loading"
     />
 
     <BlackListGuestModal
@@ -247,7 +248,7 @@ const fetchCustomers = async (page = 1) => {
     customers.value = response.data.data.data.map((c: any) => {
       return {
         ...c,
-        userFullName: `${c.firstName} ${c.lastName}`,
+       userFullName: [c.firstName, c.lastName].filter(Boolean).join(' '),
       }
     })
     paginationMeta.value = response.data.data.meta;

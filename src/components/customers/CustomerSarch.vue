@@ -1,237 +1,230 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, onUnmounted } from 'vue';
-import Input from '@/components/forms/FormElements/Input.vue';
-import { getGuests } from '@/services/guestApi'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
+import { getGuests } from '@/services/guestApi';
 import { useServiceStore } from '@/composables/serviceStore';
 
-const props = defineProps({
-  customer_id: String,
-  modelValue: Object
+interface Props {
+  modelValue: string | object | null;
+  placeholder?: string;
+  disabled?: boolean;
+}
+const props = withDefaults(defineProps<Props>(), {
+  placeholder: 'Search or create a guest...',
+  disabled: false,
 });
 
-const customers = ref<any[]>([]);
-const users = ref<any[]>([]);
+const emit = defineEmits(['update:modelValue', 'customerSelected', 'select']);
+
 const serviceStore = useServiceStore();
-const isLoading = ref(false)
-
+const searchQuery = ref(
+  typeof props.modelValue === 'object' && props.modelValue !== null
+    ? (props.modelValue as any).firstName || ''
+    : props.modelValue || ''
+);
+const customers = ref<any[]>([]);
 const filteredCustomers = ref<any[]>([]);
-const searchQuery = ref('');
-const selectedCustomer = ref<any>({});
-const isManualSelection = ref(false)
-const emit = defineEmits(['customerSelected']);
-// Debounce timer for API calls
+const isLoading = ref(false);
+const isManualSelection = ref(false);
 const debounceTimeout = ref<number | null>(null);
+const dropdownContainer = ref<HTMLElement | null>(null);
+const inputRef = ref<HTMLInputElement | null>(null);
 
+// Position de la dropdown
+const dropdownTop = ref(0);
+const dropdownLeft = ref(0);
+const dropdownWidth = ref(0);
 
-const filterCustomer = () => {
-  const query = searchQuery.value.toLowerCase().trim();
+// Sync modelValue → searchQuery
+watch(() => props.modelValue, (newVal) => {
+  const val = typeof newVal === 'object' && newVal !== null
+    ? (newVal as any).firstName || ''
+    : newVal || ''
 
-  if (!query) {
-    filteredCustomers.value = [];
-    return;
+  if (val !== searchQuery.value) {
+    searchQuery.value = val;
   }
+});
 
-  filteredCustomers.value = customers.value.filter(c => {
-    const firstNameMatch = c.firstName?.toLowerCase().startsWith(query);
-    const lastNameMatch = c.lastName?.toLowerCase().startsWith(query);
-    const fullNameMatch = c.userFullName?.toLowerCase().startsWith(query);
-
-    return firstNameMatch || lastNameMatch || fullNameMatch;
-  });
+// Recalculer la position quand la dropdown s'ouvre
+const updatePosition = () => {
+  if (!inputRef.value) return;
+  const rect = inputRef.value.getBoundingClientRect();
+  dropdownTop.value = rect.bottom + window.scrollY;
+  dropdownLeft.value = rect.left + window.scrollX;
+  dropdownWidth.value = rect.width;
 };
 
+watch(
+  () => filteredCustomers.value.length,
+  (newLen) => {
+    if (newLen > 0) {
+      nextTick(() => updatePosition());
+    }
+  }
+);
 
+const onInput = (e: Event) => {
+  const value = (e.target as HTMLInputElement).value;
+  searchQuery.value = value;
+  emit('update:modelValue', value);
 
-watch(searchQuery, (newValue) => {
-  // Si c'est une sélection manuelle, ignorer complètement ce watch
-  if (isManualSelection.value) {
+  if (isManualSelection.value) return;
+
+  if (!value.trim()) {
+    filteredCustomers.value = [];
     return;
   }
 
-  const query = newValue.toLowerCase().trim();
+  if (value.length < 3) {
+    filterLocal();
+    return;
+  }
 
+  if (debounceTimeout.value) clearTimeout(debounceTimeout.value);
+  debounceTimeout.value = window.setTimeout(async () => {
+    await fetchCustomers(value);
+    filterLocal();
+  }, 300);
+};
+
+const filterLocal = () => {
+  const query = searchQuery.value.toLowerCase().trim();
   if (!query) {
     filteredCustomers.value = [];
-    selectedCustomer.value = {};
-
-    emit('customerSelected', {
-      firstName: '',
-      guestId: null,
-      id: 0
-    });
-
-    if (debounceTimeout.value) {
-      clearTimeout(debounceTimeout.value);
-      debounceTimeout.value = null;
-    }
     return;
   }
-
-  // If fewer than 3 characters, do not call API; clear any pending debounce
-  if (query.length < 3) {
-    if (debounceTimeout.value) {
-      clearTimeout(debounceTimeout.value);
-      debounceTimeout.value = null;
-    }
-    filterCustomer();
-  } else {
-    // 300ms debounce before fetching customers
-    if (debounceTimeout.value) {
-      clearTimeout(debounceTimeout.value);
-    }
-    debounceTimeout.value = window.setTimeout(async () => {
-      await fetchCustomers();
-      filterCustomer();
-    }, 300);
-  }
-
-  const exactMatch = filteredCustomers.value.find(c =>
-    `${c.firstName?.toLowerCase()} ${c.lastName?.toLowerCase()}`.trim() === query ||
-    c.firstName?.toLowerCase() === query
+  filteredCustomers.value = customers.value.filter(c =>
+    c.firstName?.toLowerCase().startsWith(query) ||
+    c.lastName?.toLowerCase().startsWith(query)
   );
+};
 
-  if (exactMatch) {
-    selectCustomer(exactMatch);
-  } else {
-    const newCustomer = { firstName: newValue };
-    selectedCustomer.value.firstName = newValue;
-    console.log("newCustomer", newCustomer);
-    emit('customerSelected', newCustomer);
+const fetchCustomers = async (search: string) => {
+  try {
+    isLoading.value = true;
+    const response = await getGuests({
+      hotel_id: serviceStore.serviceId!,
+      search
+    });
+    customers.value = response.data?.data.data?.map((c: any) => ({
+      ...c,
+      phoneNumber: c.phonePrimary,
+    })) || [];
+  } catch (error) {
+    console.error('Failed to fetch guests:', error);
+  } finally {
+    isLoading.value = false;
   }
-});
-
-watch(() => props.modelValue, (newVal) => {
-  if (newVal?.firstName && !searchQuery.value) {
-    searchQuery.value = newVal.firstName;
-  }
-});
-
+};
 
 const selectCustomer = (customer: any) => {
-  // Activer le flag AVANT toute modification
   isManualSelection.value = true;
-
-  // Fermer immédiatement la dropdown
   filteredCustomers.value = [];
 
-  // Mettre à jour les valeurs
-  selectedCustomer.value = { ...customer };
-  emit('customerSelected', selectedCustomer.value);
-  console.log("Selected customer:", selectedCustomer.value);
+  searchQuery.value = customer.firstName || '';
 
-  // Mettre à jour le champ de recherche
-  searchQuery.value = `${customer.firstName}`;
+  emit('update:modelValue', customer.firstName || '');
 
-  // Désactiver le flag après un délai suffisant pour que tous les watchers se soient exécutés
+  emit('customerSelected', customer);
+
+  //  Pour GuestDetails - remplir tous les champs
+  emit('select', customer);
+
   setTimeout(() => {
     isManualSelection.value = false;
   }, 300);
 };
 
-
-const fetchCustomers = async () => {
-  try {
-    isLoading.value = true;
-    const serviceId = serviceStore.serviceId;
-    const response = await getGuests({ hotel_id: serviceId!,search: searchQuery.value});
-    console.log('Fetched customers:', response);
-    customers.value = response.data?.data.data?.map((c: any) => {
-      return {
-        ...c,
-        firstName: c.firstName,
-        lastName: c.lastName,
-        phoneNumber: c.phonePrimary,
-        email: c.email
-
-      }
-    })
-    console.log("customers", customers.value)
-
-  } catch (error) {
-    console.error('Failed to fetch reservations:', error);
-  } finally {
-    isLoading.value = false;
-  }
-
-};
-
-
-
-const dropdownContainer = ref<HTMLElement | null>(null);
-
-// Ajoutez cette fonction
 const handleClickOutside = (event: MouseEvent) => {
   if (dropdownContainer.value && !dropdownContainer.value.contains(event.target as Node)) {
     filteredCustomers.value = [];
   }
 };
 
+const handleScroll = () => {
+  if (filteredCustomers.value.length > 0) {
+    updatePosition();
+  }
+};
 
 onMounted(() => {
   document.addEventListener('mousedown', handleClickOutside);
+  window.addEventListener('scroll', handleScroll, true);
+  window.addEventListener('resize', handleScroll);
 });
 
 onUnmounted(() => {
   document.removeEventListener('mousedown', handleClickOutside);
+  window.removeEventListener('scroll', handleScroll, true);
+  window.removeEventListener('resize', handleScroll);
+  if (debounceTimeout.value) clearTimeout(debounceTimeout.value);
 });
-
-
-
 </script>
 
 <template>
-  <div class="relative" ref="dropdownContainer">
-    <form @submit.prevent>
-      <div class="relative">
-        <Input :lb="$t('FirstName')" v-model="searchQuery" @input="filterCustomer" :id="'customer-search'" :is-required="true"
-          custom-class="rounded-none" :placeholder="$t('FirstName')" :forLabel="'customer-search'" />
+  <div ref="dropdownContainer" class="relative w-full">
+
+    <!-- Input -->
+    <div class="relative">
+      <input
+        ref="inputRef"
+        :value="searchQuery"
+        @input="onInput"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        class="h-11 w-full border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800
+               placeholder:text-gray-400 focus:border-purple-500 focus:outline-none
+               focus:ring-3 focus:ring-purple-500/10
+               dark:border-gray-700 dark:bg-gray-900 dark:text-white/90
+               dark:placeholder:text-white/30 dark:focus:border-purple-800
+               disabled:opacity-50 disabled:cursor-not-allowed"
+      />
+      <!-- Spinner -->
+      <div v-if="isLoading" class="absolute right-3 top-1/2 -translate-y-1/2">
+        <svg class="animate-spin h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
       </div>
+    </div>
 
-      <!-- Search results dropdown -->
-      <ul v-if="filteredCustomers.length > 0"
-        class="absolute left-0 right-0 bg-white z-20 max-h-60 overflow-y-auto rounded-b-lg shadow-lg border-l border-r border-b border-gray-200 mt-1 dark:bg-gray-800 dark:border-gray-700 dark:shadow-lg">
+    <!-- Dropdown via Teleport pour échapper aux overflow parents -->
+    <Teleport to="body">
+      <ul
+        v-if="filteredCustomers.length > 0"
+        :style="{
+          position: 'absolute',
+          top: dropdownTop + 'px',
+          left: dropdownLeft + 'px',
+          width: dropdownWidth + 'px',
+          zIndex: 99999,
+        }"
+        class="bg-white dark:bg-gray-800 max-h-60 overflow-y-auto rounded-b-lg shadow-xl
+               border border-gray-200 dark:border-gray-700"
+      >
         <li
-          class="px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0 dark:hover:bg-gray-700 dark:border-gray-700"
-          v-for="customer in filteredCustomers" :key="customer.id" @click="selectCustomer(customer)">
-          <div class="flex flex-col">
-            <div class="font-medium text-gray-900 dark:text-gray-100">
-              {{ customer.firstName }} {{ customer.lastName }}
-            </div>
-            <div class="text-sm text-gray-500 flex items-center gap-4 dark:text-gray-400">
-              <span class="text-xs">
-                ID: {{ customer.id }}
-              </span>
-              <span v-if="customer.phoneNumber">{{ customer.phoneNumber }}</span>
-
-            </div>
+          v-for="customer in filteredCustomers"
+          :key="customer.id"
+          @mousedown.prevent="selectCustomer(customer)"
+          class="px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700
+                 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+        >
+          <div class="font-medium text-gray-900 dark:text-gray-100">
+            {{ customer.firstName }} {{ customer.lastName }}
+          </div>
+          <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3 mt-0.5">
+            <span>ID: {{ customer.id }}</span>
+            <span v-if="customer.phoneNumber">{{ customer.phoneNumber }}</span>
           </div>
         </li>
       </ul>
-    </form>
+    </Teleport>
 
   </div>
 </template>
 
 <style scoped>
-/* Additional styles for better UX */
-.relative {
-  position: relative;
-}
-
-/* Ensure dropdown appears above other elements */
-ul {
-  z-index: 1000;
-}
-
-/* Smooth transitions */
-ul,
-div {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Focus styles */
-li:focus {
-  outline: 2px solid #3B82F6;
-  outline-offset: -2px;
+input:disabled {
+  background-color: transparent;
 }
 </style>

@@ -50,6 +50,10 @@ const emit = defineEmits(['click'])
     background-color: #28a745;
     color: #fff;
 }
+.btn-purple {
+    background-color: #8352d3;
+    color: #fff;
+}
 
 .btn-print {
     background-color: #f97316;

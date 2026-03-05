@@ -468,7 +468,7 @@ console.log('modalevalue', props.modelValue)
 
                   <!-- First Name -->
                   <div class="flex-1">
-                      <CustomerSarch @customer-selected="selectCustomer" v-model="selectedCustomer" />
+                      <CustomerSarch @customer-selected="selectCustomer"   v-model="selectedCustomer.firstName" />
                   </div>
 
                   <!-- Last Name -->

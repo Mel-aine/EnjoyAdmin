@@ -169,7 +169,7 @@
                       $t('Name')
                     }}</label>
                     <div class="flex">
-                      <div class="w-20 -translate-y-1/8 z-10">
+                      <div class="w-20 -translate-y-1 z-10">
                         <Select
                           v-model="guestData.title"
                           :options="titleOptions"
@@ -180,7 +180,7 @@
                       </div>
 
                       <!-- Mode Affichage: Nom complet en lecture seule -->
-                      <div v-if="!isEditing && !isCreatingNewGuest" class="flex-1">
+                      <div v-if="!isEditing && !isCreatingNewGuest" class="flex-1 translate-y-0.5">
                         <input
                           type="text"
                           :value="fullName"
@@ -191,32 +191,38 @@
                       </div>
 
                       <!-- Mode Édition: Prénom et Nom -->
-                      <div v-if="isEditing || isCreatingNewGuest" class="flex-1 flex gap-0">
-                        <div class="flex-1">
-                          <input
-                            v-model="guestData.firstName"
-                            type="text"
-                            :placeholder="$t('FirstName')"
-                            class="h-11 w-full  rounded-l-none rounded-r-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                          />
-                        </div>
-                        <div class="flex-1">
-                          <input
-                            v-model="guestData.lastName"
-                            type="text"
-                            :placeholder="$t('LastName')"
-                            class="h-11 w-full  rounded-l-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                          />
-                        </div>
-                         <div class="flex-1">
-                          <input
-                            v-model="guestData.maidenName"
-                            type="text"
-                            :placeholder="$t('MaidenName')"
-                            class="h-11 w-full  rounded-r-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
-                          />
-                        </div>
+                    <div v-if="isEditing || isCreatingNewGuest" class="flex-1 -translate-y-1 flex gap-0 items-end">
+
+                      <!-- CustomerSearch - supprimer le label interne via CSS -->
+                      <div class="flex-1">
+                        <CustomerSarch
+                          v-model="guestData.firstName"
+                          :placeholder="$t('FirstName')"
+                          :disabled="!isEditing && !isCreatingNewGuest"
+                          @select="onCustomerSelect"
+                          class="[&_label]:hidden [&_input]:rounded-l-none [&_input]:rounded-r-none [&_input]:h-11  "
+                        />
                       </div>
+
+                      <div class="flex-1">
+                        <input
+                          v-model="guestData.lastName"
+                          type="text"
+                          :placeholder="$t('LastName')"
+                          class="h-11 w-full rounded-none border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                        />
+                      </div>
+
+                      <div class="flex-1">
+                        <input
+                          v-model="guestData.maidenName"
+                          type="text"
+                          :placeholder="$t('MaidenName')"
+                          class="h-11 w-full rounded-r-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800"
+                        />
+                      </div>
+
+                    </div>
                     </div>
                   </div>
 
@@ -526,6 +532,7 @@
                 </div>
               </div>
             </div>
+
           </div>
 
           <!-- Action Buttons -->
@@ -550,15 +557,25 @@
             />
           </template>
 
-          <!-- Si on édite un guest existant, un seul bouton -->
+          <div v-else class="flex flex-row gap-2">
+        <!-- Si on édite un guest existant, un seul bouton -->
           <BasicButton
-            v-else
             variant="primary"
-            :label="isSaving ? t('Saving...') : t('Save Changes')"
+            :label="isSaving ? t('Saving...') : t('Update Changes')"
             @click="saveGuest()"
             :loading="isSaving"
             :disabled="isSaving"
           />
+
+
+          <BasicButton
+            variant="purple"
+            :label="isSavingReplace ? t('Saving...') : t('Save New Guest')"
+            @click="saveGuest(true)"
+            :loading="isSavingReplace"
+            :disabled="isSavingAdd || isSavingReplace"
+          />
+          </div>
           </div>
         </div>
 
@@ -676,9 +693,10 @@ import ProfessionAutocomplete from '../forms/FormElements/ProfessionAutocomplete
 import AutoCompleteSelect from '../forms/FormElements/AutoCompleteSelect.vue'
 import { cities } from '@/assets/data/cities'
 import InputNationalities from '@/components/forms/FormElements/InputNationalities.vue'
-import { removeGuestFromReservationRoom, createAndAssignGuest } from '@/services/configrationApi'
+import { removeGuestFromReservationRoom, createAndAssignGuest ,assignExistingGuestToRoom } from '@/services/configrationApi'
 import ConfirmationModal from '../Housekeeping/ConfirmationModal.vue'
 import AssignGuestModal from './AssignGuestModal.vue'
+import CustomerSarch from '../customers/CustomerSarch.vue'
 
 interface GuestData {
   title: string
@@ -745,6 +763,7 @@ const deleting = ref(false)
 const roomToRemove = ref<any>(null)
 const replaceMode = ref(false)
 const isLoadingCompanies = ref(false)
+const selectedExistingGuest = ref<any>(null)
 
 // State
 const isSaving = ref(false)
@@ -760,7 +779,7 @@ const vipStatusOptions = ref<any[]>([])
 const idTypeOptions = ref<SelectOption[]>([])
 const showPdfExporter = ref(false)
 const guestToRemove = ref<any>(null)
-
+const originalGuestBeforeEdit = ref<any>(null)
 // Modal state
 const showAssignModal = ref(false)
 const selectedRoom = ref<any>(null)
@@ -890,7 +909,22 @@ const guestData = reactive<GuestData>(initializeGuestData(selectedGuest.value))
 
 // Computed properties
 
+const onCustomerSelect = (customer: any) => {
+  if (!customer || !customer.id) return
+  selectedExistingGuest.value = customer
 
+  if (!originalGuestBeforeEdit.value && selectedGuest.value) {
+    originalGuestBeforeEdit.value = { ...selectedGuest.value }
+  }
+  const mapped = mapApiCustomerToFormData(customer)
+
+  Object.keys(guestData).forEach(key => {
+    delete guestData[key as keyof GuestData]
+  })
+  Object.assign(guestData, mapped)
+
+  resetKey.value++
+}
 const guestList = computed(() => {
   const rooms = props.reservation?.reservationRooms || []
   console.log('Computing guest list from rooms:', rooms)
@@ -1078,7 +1112,9 @@ const handleGuestAssigned = () => {
 const selectGuest = (guest: any) => {
   selectedGuest.value = JSON.parse(JSON.stringify(guest))
   isCreatingNewGuest.value = false
-  targetRoom.value = null // Réinitialiser la chambre cible
+  targetRoom.value = null
+  selectedExistingGuest.value = null
+  originalGuestBeforeEdit.value = null
 
   const newGuestData = initializeGuestData(selectedGuest.value)
 
@@ -1109,7 +1145,6 @@ const toggleOtherInfoSection = () => {
 
 
 const saveGuest = async (shouldReplace: boolean = false) => {
-  // Activer le bon état de chargement selon le bouton cliqué
   if (isCreatingNewGuest.value) {
     if (shouldReplace) {
       isSavingReplace.value = true
@@ -1117,12 +1152,13 @@ const saveGuest = async (shouldReplace: boolean = false) => {
       isSavingAdd.value = true
     }
     replaceMode.value = shouldReplace
+  } else if (shouldReplace) {
+    isSavingReplace.value = true
   } else {
     isSaving.value = true
   }
 
   try {
-    // Upload des images si nécessaire
     if (profilePhotoUploader.value?.hasSelectedFile()) {
       guestData.profilePhoto = await profilePhotoUploader.value.uploadToCloudinary()
     }
@@ -1132,15 +1168,12 @@ const saveGuest = async (shouldReplace: boolean = false) => {
 
     const payload = prepareGuestPayload()
 
-    // Création d'un nouveau guest et assignation à une chambre
     if (isCreatingNewGuest.value) {
       if (!targetRoom.value) {
         toast.error(t('No room selected for guest assignment'))
         return
       }
 
-
-      // Appeler l'API avec le paramètre replaceMode
       const response = await createAndAssignGuest(
         targetRoom.value.id,
         payload,
@@ -1158,16 +1191,60 @@ const saveGuest = async (shouldReplace: boolean = false) => {
       targetRoom.value = null
       replaceMode.value = false
       isCreatingNewGuest.value = false
-    }
-    // Mise à jour d'un guest existant
-    else {
+
+    } else if (shouldReplace) {
+      // Trouver la chambre du guest actuellement sélectionné
+       const guestToFindRoom = originalGuestBeforeEdit.value || selectedGuest.value
+
+      const currentRoom = props.reservation?.reservationRooms?.find((room: any) =>
+        room.guest?.id === guestToFindRoom?.id ||
+        room.guests?.some((g: any) => g.guestId === guestToFindRoom?.id)
+      )
+
+      if (!currentRoom) {
+        toast.error(t('No room found for current guest'))
+        return
+      }
+
+      if (selectedExistingGuest.value?.id) {
+        console.log('Assigning existing guest:', selectedExistingGuest.value.id, 'to room:', currentRoom.id)
+
+        const response = await assignExistingGuestToRoom(
+          currentRoom.id,
+          selectedExistingGuest.value.id,
+          true // replaceMode
+        )
+
+        toast.success(t('Guest assigned to room'))
+        selectedGuest.value = response.data.guest
+        Object.assign(guestData, initializeGuestData(response.data.guest))
+
+      } else {
+        // Nouveau guest saisi manuellement → createAndAssignGuest
+        console.log('Creating new guest and assigning to room:', currentRoom.room?.roomNumber)
+
+        const response = await createAndAssignGuest(
+          currentRoom.id,
+          prepareGuestPayload(),
+          true
+        )
+
+        toast.success(t('New guest created and assigned to room'))
+        selectedGuest.value = response.data.guest
+        Object.assign(guestData, initializeGuestData(response.data.guest))
+      }
+
+      originalGuestBeforeEdit.value = null
+      selectedExistingGuest.value = null
+
+    } else {
+      // Update classique
       const guestId = selectedGuest.value?.id
       if (!guestId) throw new Error('Guest ID is required for update')
 
       await updateGuest(guestId, payload)
       toast.success(t('Guest updated successfully'))
 
-      // Mettre à jour la liste locale
       const guestIndex = guestList.value.findIndex((g: any) => g.id === guestId)
       if (guestIndex !== -1) {
         guestList.value[guestIndex] = {
@@ -1189,12 +1266,12 @@ const saveGuest = async (shouldReplace: boolean = false) => {
     isEditing.value = false
     resetKey.value++
     emit('refresh')
+
   } catch (error: any) {
     console.error('Error saving guest:', error)
     const errorMessage = error.response?.data?.message || error.message
     toast.error(`${t('Error saving guest')}: ${errorMessage}`)
   } finally {
-    // Désactiver tous les états de chargement
     isSaving.value = false
     isSavingAdd.value = false
     isSavingReplace.value = false
@@ -1228,6 +1305,9 @@ const editGuest = () => {
   if (isEditing.value && isCreatingNewGuest.value) {
     cancelEdit()
   } else {
+     if (!isEditing.value) {
+      originalGuestBeforeEdit.value = selectedGuest.value ? { ...selectedGuest.value } : null
+    }
     isEditing.value = !isEditing.value
   }
 }
@@ -1313,6 +1393,8 @@ const prepareGuestPayload = (): GuestPayload => {
 const cancelEdit = () => {
   isEditing.value = false
   targetRoom.value = null
+  originalGuestBeforeEdit.value = null
+  selectedExistingGuest.value = null
 
   if (isCreatingNewGuest.value) {
     isCreatingNewGuest.value = false
@@ -1595,9 +1677,24 @@ onMounted(() => {
 <style scoped>
 /* Scrollbar invisible mais toujours scrollable */
 .custom-scrollbar {
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #b654c7e2 #e5e7eb;
 }
+
 .custom-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #e5e7eb;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #3b82f6;
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #25ebe5;
 }
 </style>
