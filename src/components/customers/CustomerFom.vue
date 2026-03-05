@@ -301,7 +301,7 @@
       </h3>
       <div v-if="sections.otherInformation" class="mt-6 pt-4">
         <div>
-          <label class="mb-1.5 block text-sm font-medium dark:text-white text-gray-700 dark:text-gray-400">
+          <label class="mb-1.5 block text-sm font-medium  text-gray-700 dark:text-gray-400">
             {{ $t('Preference') }}
           </label>
           <MultipleSelect
@@ -325,8 +325,8 @@
       <BasicButton
         :label="saveButtonLabel"
         variant="secondary"
-        :loading="isLoading"
-        :disabled="isLoading"
+        :loading="props.isLoading"
+        :disabled="props.isLoading"
         type="submit"
       />
     </div>
@@ -370,7 +370,7 @@ interface CustomerForm {
   email: string
   gender: string
   guestType: string
-  vipStatusId: number
+  vipStatusId: number | null,
   addressLine: string
   country: string
   stateProvince: string
@@ -420,6 +420,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isLoading: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'submit', 'cancel','clear-error'])
@@ -443,7 +447,7 @@ const globalError = ref('')
 const pendingImages = ref<string[]>([])
 const Preferences = ref<SelectOption[]>([])
 const loading = ref(false)
-const isLoading = ref(false)
+const isSubmitting = ref(false)
 const vipStatusOptions = ref<any[]>([])
 const companyOptions = ref<Array<{ label: string; value: string }>>([])
 const TypesOfContact = computed(() => [
@@ -466,7 +470,7 @@ const getEmptyCustomerForm = (): CustomerForm => ({
   email: '',
   gender: '',
   guestType: '',
-  vipStatusId: 0,
+  vipStatusId: null,
   addressLine: '',
   country: 'CM',
   stateProvince: '',
@@ -653,7 +657,7 @@ const handleSubmit = async () => {
   try {
     globalError.value = ''
     isUploading.value = true
-    isLoading.value = true
+    isSubmitting.value = true
 
     //
     let profilePhotoPromise = Promise.resolve(form.profilePhoto)
@@ -730,7 +734,7 @@ const handleSubmit = async () => {
     globalError.value = error.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.'
   } finally {
     isUploading.value = false
-    isLoading.value = false
+    isSubmitting.value = false
   }
 }
 

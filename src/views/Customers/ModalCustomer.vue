@@ -29,7 +29,7 @@
 
           <CustomerForm
             v-model="customerFormData"
-            :loading="isLoading"
+            :is-loading="props.isLoading"
             :is-edit-mode="isEditMode"
             @submit="handleSubmit"
             @cancel="emit('close')"
@@ -97,12 +97,16 @@ const props = defineProps({
     type: Object as () => Partial<CustomerForm>,
     default: () => ({}),
   },
+  isLoading: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['close', 'submit'])
 
 const customerFormData = ref<Partial<CustomerForm>>({})
-const isLoading = ref(false)
+const loading = ref(false)
 
 // Watch pour mettre à jour les données du formulaire quand le modal s'ouvre
 watch(
@@ -120,10 +124,8 @@ watch(
 )
 
 const handleSubmit = async (formData: CustomerForm) => {
-  isLoading.value = true
+  loading.value = true
   try {
-    // Simulation d'une requête API
-    await new Promise((resolve) => setTimeout(resolve, 2000))
 
     emit('submit', {
       data: formData,
@@ -137,7 +139,7 @@ const handleSubmit = async (formData: CustomerForm) => {
   } catch (error) {
     console.error("Erreur lors de l'enregistrement du client:", error)
   } finally {
-    isLoading.value = false
+    loading.value = false
     emit('close')
   }
 }
