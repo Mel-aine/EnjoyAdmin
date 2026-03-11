@@ -824,6 +824,9 @@ const handleSubmit = async () => {
     }
 
     loginAttempts.value = 0
+    if (authStore.isPmsSubscriptionBlocked) {
+      return
+    }
     router.push({ path: '/setup' })
   } catch (err: any) {
 

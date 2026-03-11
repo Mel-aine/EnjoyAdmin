@@ -94,6 +94,23 @@
   "login": "Connexion",
   "french": "Français",
   "english": "Anglais",
+  "subscriptionBlocked": {
+    "title": "Abonnement suspendu",
+    "intro": "Nous avons remarqué que votre abonnement. Pour garantir la continuité de vos services et la sécurité de vos réservations, une mise à jour de vos informations de paiement est nécessaire.",
+    "goodToKnowTitle": "Bon à savoir :",
+    "dataSafe": "Vos données sont en sécurité : Rien n'a été supprimé, vos plannings et tarifs sont conservés.",
+    "accessRestricted": "Accès restreint : La prise de réservation et la facturation sont momentanément suspendues.",
+    "renewCta": "Renouveler mon abonnement",
+    "contactSupport": "Contacter l'assistance",
+    "supportSubject": "Abonnement PMS - Accès restreint"
+  },
+  "subscriptionExpiringSoon": {
+    "title": "Abonnement bientôt expiré",
+    "message": "Votre abonnement expire dans moins de {days} jours. Merci de mettre à jour vos informations de paiement.",
+    "countdownTitle": "Compte à rebours",
+    "daysAbbrev": "j",
+    "ok": "Okay"
+  },
   "emailAccounts": {
     "searchPlaceholder": "Rechercher des comptes e‑mail...",
     "addEmailAccount": "Ajouter un compte e‑mail",

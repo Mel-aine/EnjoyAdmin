@@ -94,6 +94,23 @@
   "login": "Login",
   "french": "French",
   "english": "English",
+  "subscriptionBlocked": {
+    "title": "Subscription suspended",
+    "intro": "We noticed an issue with your subscription. To ensure continuity of your services and the security of your reservations, an update to your payment information is required.",
+    "goodToKnowTitle": "Good to know:",
+    "dataSafe": "Your data is safe: Nothing has been deleted; your schedules and rates are preserved.",
+    "accessRestricted": "Restricted access: Reservation taking and billing are temporarily suspended.",
+    "renewCta": "Renew my subscription",
+    "contactSupport": "Contact support",
+    "supportSubject": "PMS subscription - Restricted access"
+  },
+  "subscriptionExpiringSoon": {
+    "title": "Subscription expiring soon",
+    "message": "Your subscription expires in less than {days} days. Please update your payment information.",
+    "countdownTitle": "Countdown",
+    "daysAbbrev": "d",
+    "ok": "Okay"
+  },
   "emailAccounts": {
     "searchPlaceholder": "Search email accounts...",
     "addEmailAccount": "Add Email Account",
