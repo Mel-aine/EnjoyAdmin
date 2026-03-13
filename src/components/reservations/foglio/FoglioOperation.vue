@@ -256,10 +256,10 @@ const isCheckedOut = computed(() => {
 })
 
 const canCreateFolio = computed(() => {
-  return authStore.hasPermission('creating_new_folio') && !isCheckedOut.value
+  return authStore.hasPermission('creating_new_folio')
 })
 const canAddItemInFolio = computed(() => {
-  return authStore.hasPermission('add_item_to_open_folio') && !isCheckedOut.value
+  return authStore.hasPermission('add_item_to_open_folio')
 })
 const { t } = useI18n()
 // Modal state
@@ -439,22 +439,32 @@ const columns = computed<Column[]>(() => [
 const actionTransactions = computed<Action[]>(() => {
   const actions: Action[] = []
 
-  if (!isCheckedOut.value) {
-    actions.push(
-      {
+  // if (!isCheckedOut.value) {
+  //   actions.push(
+  //     {
+  //       label: t('edit'),
+  //       handler: (item) => onAction('edit', item),
+  //       icon: Edit,
+  //     },
+  //     {
+  //       label: t('void'),
+  //       handler: (item) => onAction('void', item),
+  //       icon: Trash2
+  //     }
+  //   )
+  // }
+
+  actions.push(
+    {
         label: t('edit'),
         handler: (item) => onAction('edit', item),
         icon: Edit,
-      },
-      {
+    },
+    {
         label: t('void'),
         handler: (item) => onAction('void', item),
         icon: Trash2
-      }
-    )
-  }
-
-  actions.push(
+    },
     {
       label: t('printVoucher'),
       handler: (item) => onAction('printVoucher', item),
