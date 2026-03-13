@@ -255,12 +255,18 @@ const isCheckedOut = computed(() => {
   return props.reservation.status === 'checked_out' || props.reservation.status === 'checked-out';
 })
 
+const canUpdateAfterCheckout = computed(() => {
+  return authStore.hasPermission('update_reservation_after_checkout')
+})
+
 const canCreateFolio = computed(() => {
-  return authStore.hasPermission('creating_new_folio')
+  return authStore.hasPermission('creating_new_folio') && canUpdateAfterCheckout.value
 })
 const canAddItemInFolio = computed(() => {
-  return authStore.hasPermission('add_item_to_open_folio')
+  return authStore.hasPermission('add_item_to_open_folio') && canUpdateAfterCheckout.value
 })
+
+
 const { t } = useI18n()
 // Modal state
 const isAddChargeModalOpen = ref(false)
@@ -439,32 +445,22 @@ const columns = computed<Column[]>(() => [
 const actionTransactions = computed<Action[]>(() => {
   const actions: Action[] = []
 
-  // if (!isCheckedOut.value) {
-  //   actions.push(
-  //     {
-  //       label: t('edit'),
-  //       handler: (item) => onAction('edit', item),
-  //       icon: Edit,
-  //     },
-  //     {
-  //       label: t('void'),
-  //       handler: (item) => onAction('void', item),
-  //       icon: Trash2
-  //     }
-  //   )
-  // }
-
-  actions.push(
-    {
+  if (canUpdateAfterCheckout.value) {
+    actions.push(
+      {
         label: t('edit'),
         handler: (item) => onAction('edit', item),
         icon: Edit,
-    },
-    {
+      },
+      {
         label: t('void'),
         handler: (item) => onAction('void', item),
         icon: Trash2
-    },
+      }
+    )
+  }
+
+  actions.push(
     {
       label: t('printVoucher'),
       handler: (item) => onAction('printVoucher', item),
