@@ -260,10 +260,10 @@ const canUpdateAfterCheckout = computed(() => {
 })
 
 const canCreateFolio = computed(() => {
-  return authStore.hasPermission('creating_new_folio') && canUpdateAfterCheckout.value
+  return authStore.hasPermission('creating_new_folio') || canUpdateAfterCheckout.value
 })
 const canAddItemInFolio = computed(() => {
-  return authStore.hasPermission('add_item_to_open_folio') && canUpdateAfterCheckout.value
+  return authStore.hasPermission('add_item_to_open_folio') || canUpdateAfterCheckout.value
 })
 
 
