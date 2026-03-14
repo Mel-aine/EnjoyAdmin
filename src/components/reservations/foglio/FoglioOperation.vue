@@ -260,10 +260,14 @@ const canUpdateAfterCheckout = computed(() => {
 })
 
 const canCreateFolio = computed(() => {
-  return authStore.hasPermission('creating_new_folio') || canUpdateAfterCheckout.value
+  if (!authStore.hasPermission('creating_new_folio')) return false
+  if (isCheckedOut.value) return canUpdateAfterCheckout.value
+  return true
 })
 const canAddItemInFolio = computed(() => {
-  return authStore.hasPermission('add_item_to_open_folio') || canUpdateAfterCheckout.value
+  if (!authStore.hasPermission('add_item_to_open_folio')) return false
+  if (isCheckedOut.value) return canUpdateAfterCheckout.value
+  return true
 })
 
 
@@ -445,7 +449,7 @@ const columns = computed<Column[]>(() => [
 const actionTransactions = computed<Action[]>(() => {
   const actions: Action[] = []
 
-  if (canUpdateAfterCheckout.value) {
+  if (canAddItemInFolio.value) {
     actions.push(
       {
         label: t('edit'),
