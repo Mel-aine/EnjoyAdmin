@@ -163,7 +163,7 @@ const saveCharge = async () => {
       description: `${selectedCharge.value?.name || selectedCharge.value?.charge_name} Qt[${formData.quantity}]`,
       amount: prepareFolioAmount(formData.amount),
       quantity: safeParseFloat(formData.quantity, 1),
-      unitPrice: safeParseFloat(selectedCharge.value?.rateInclusiveTax, 0),
+      unitPrice: prepareFolioAmount(formData.amount),
       taxAmount: safeParseFloat(selectedCharge.value?.taxAmount, 0),
       departmentId: selectedCharge.value?.departmentId || '',
       reference: `${formData.recVouNumber}` || '',

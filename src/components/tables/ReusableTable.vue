@@ -133,7 +133,8 @@
                 <div class="flex items-center gap-2">
                   <!-- Dropdown Actions -->
                   <div class="relative" v-if="getItemActions(item).length > 0">
-                    <button @click="toggleDropdown(index, $event)"
+                    <button @click="toggleDropdown(index, $event, item)"
+                      data-dropdown-trigger
                       class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       :title="$t('More options')">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +144,7 @@
                     </button>
 
                     <!-- Dropdown Menu -->
-                    <div v-if="openDropdown === index" ref="dropdownMenu"
+                    <!-- <div v-if="openDropdown === index" ref="dropdownMenu"
                       :class="{ 'dropdown-up': dropdownDirection === 'up' }"
                       class="absolute right-0  w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-999999 border border-gray-200 dark:border-gray-600"
                       @click.stop>
@@ -161,7 +162,7 @@
                           </div>
                         </button>
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </td>
@@ -219,6 +220,39 @@
     @page-change="(page) => emit('page-change', page)"
   />
   </div>
+
+  <!-- Teleport -->
+<Teleport to="body">
+  <div
+    v-if="openDropdown !== null"
+    data-dropdown-menu
+    :style="{
+      position: 'fixed',
+      top: dropdownPosition.top + 'px',
+      left: dropdownPosition.left + 'px',
+      zIndex: 99999
+    }"
+    class="w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg border border-gray-200 dark:border-gray-600"
+    @click.stop>
+    <div class="py-1">
+      <button
+        v-for="action in currentItemActions"
+        :key="action.label"
+        @click="handleAction(action, currentDropdownItem)"
+        :class="[
+          'block w-full text-left px-4 py-2 text-sm transition-colors',
+          action.variant === 'danger'
+            ? 'text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
+            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+        ]">
+        <div class="flex items-center gap-2">
+          <component v-if="action.icon" :is="action.icon" class="w-4 h-4" />
+          {{ action.label }}
+        </div>
+      </button>
+    </div>
+  </div>
+</Teleport>
 
 </template>
 
@@ -443,38 +477,6 @@ const getItemActions = (item: any) => {
 
 
 
-const toggleDropdown = async (index: number, event: MouseEvent) => {
-  if (openDropdown.value === index) {
-    openDropdown.value = null
-    return
-  }
-
-  // Réinitialiser la direction avant d'ouvrir
-  dropdownDirection.value = 'down'
-  openDropdown.value = index
-
-  await nextTick()
-
-  const triggerButton = event.currentTarget as HTMLElement
-  const menu = triggerButton.nextElementSibling as HTMLElement
-
-  if (!menu) {
-    console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
-    return;
-  }
-
-  const menuRect = menu.getBoundingClientRect()
-  const viewportHeight = window.innerHeight
-
-  console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
-
-  // Vérification de la position
-  if (menuRect.bottom > viewportHeight - 150) {
-    console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
-    dropdownDirection.value = 'up'
-  }
-}
-
 // const toggleDropdown = async (index: number, event: MouseEvent) => {
 //   if (openDropdown.value === index) {
 //     openDropdown.value = null
@@ -487,36 +489,82 @@ const toggleDropdown = async (index: number, event: MouseEvent) => {
 
 //   await nextTick()
 
-//   // Prefer template ref over DOM sibling traversal for robustness in tests and runtime
-//   const menu = dropdownMenu.value as HTMLElement
+//   const triggerButton = event.currentTarget as HTMLElement
+//   const menu = triggerButton.nextElementSibling as HTMLElement
 
 //   if (!menu) {
 //     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
 //     return;
 //   }
 
-//   // Safely compute dropdown direction only if DOM API is available
-//   const getRect = (menu as any)?.getBoundingClientRect
-//   if (typeof getRect === 'function') {
-//     const menuRect = getRect.call(menu)
-//     const viewportHeight = window.innerHeight
-//     // Vérification de la position
-//     if (menuRect.bottom > viewportHeight - 150) {
-//       dropdownDirection.value = 'up'
-//     }
-//   } else {
-//     dropdownDirection.value = 'down'
+//   const menuRect = menu.getBoundingClientRect()
+//   const viewportHeight = window.innerHeight
+
+//   console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
+
+//   // Vérification de la position
+//   if (menuRect.bottom > viewportHeight - 150) {
+//     console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
+//     dropdownDirection.value = 'up'
 //   }
 // }
+
+// Ajouter cette ref pour stocker la position du dropdown
+const dropdownPosition = ref({ top: 0, left: 0 })
+const currentDropdownItem = ref<any>(null)
+const currentItemActions = ref<any[]>([])
+
+const toggleDropdown = async (index: number, event: MouseEvent, item: any) => {
+  if (openDropdown.value === index) {
+    openDropdown.value = null
+    currentDropdownItem.value = null
+    currentItemActions.value = []
+    return
+  }
+
+  const triggerButton = event.currentTarget as HTMLElement
+  const rect = triggerButton.getBoundingClientRect()
+
+  // Placer hors écran pour mesurer la hauteur réelle
+  dropdownPosition.value = { top: -9999, left: -9999 }
+  currentDropdownItem.value = item
+  currentItemActions.value = getItemActions(item)
+  openDropdown.value = index
+
+  await nextTick()
+
+  const dropdownEl = document.querySelector('[data-dropdown-menu]') as HTMLElement
+  const dropdownHeight = dropdownEl ? dropdownEl.offsetHeight : 150
+
+  //  Toujours utiliser window.innerHeight pour position:fixed
+  const spaceBelow = window.innerHeight - rect.bottom
+  const spaceAbove = rect.top
+
+  // Afficher en haut seulement si pas assez de place en bas ET assez de place en haut
+  const showAbove = spaceBelow < dropdownHeight && spaceAbove > dropdownHeight
+
+  dropdownPosition.value = {
+    top: showAbove ? rect.top - dropdownHeight : rect.bottom,
+    left: rect.right - 192,
+  }
+}
 const handleAction = (action: Action, item: any) => {
   action.handler(item)
   emit('action', action.label, item)
   openDropdown.value = null
 }
 
+// const closeDropdown = (event: Event) => {
+//   const target = event.target as HTMLElement
+//   if (!target.closest('.relative')) {
+//     openDropdown.value = null
+//   }
+// }
+
 const closeDropdown = (event: Event) => {
+  // Fermer si le clic n'est pas sur un bouton d'action
   const target = event.target as HTMLElement
-  if (!target.closest('.relative')) {
+  if (!target.closest('[data-dropdown-trigger]')) {
     openDropdown.value = null
   }
 }
