@@ -71,6 +71,12 @@
                 @option-selected="handleMoreAction" />
 
             </div>
+             <BasicButton
+              v-if="selectedFolio && selectedFolioHasNoTransactions"
+              :label="$t('deleteFolio')"
+              variant="danger"
+              :icon="Trash2"
+              @click="confirmDeleteFolio(selectedFolio)" />
             <!-- Status indicators
             <div class="ml-auto flex items-center gap-2">
               <span class="flex items-center gap-1 text-sm">
@@ -216,6 +222,21 @@
           <PickupAndDropModal :isOpen="isPickupAndDropoffModal" @close="isPickupAndDropoffModal = false" />
 
         </template>
+
+        <template  v-if="showDeleteFolioConfirm">
+          <ConfirmationModal
+            v-model:show="showDeleteFolioConfirm"
+            :title="$t('deleteFolio')"
+            :message="$t('remove_confirm_message_folio')"
+            :confirm-text="$t('Remove')"
+            :cancel-text="$t('Cancel')"
+            variant="danger"
+            :loading="isDeletingFolio"
+            @confirm="handleDeleteFolio"
+            @cancel="cancelDeleteFolio"
+          />
+
+        </template>
       </div>
     </div>
   </div>
@@ -231,7 +252,7 @@ import { PlusCircle, ChevronRight, Edit, Printer, Trash2 } from 'lucide-vue-next
 import ReusableTable from '../../tables/ReusableTable.vue'
 import BasicButton from '../../buttons/BasicButton.vue'
 import type { Action, Column } from '../../../utils/models'
-import { getReservationFolios } from '../../../services/foglioApi'
+import { getReservationFolios ,deleteFoglio } from '../../../services/foglioApi'
 import { formatCurrency } from '../../utilities/UtilitiesFunction'
 import PrintInvoice from '../../invoice/PrintInvoice.vue'
 import ButtonDropdown from '../../common/ButtonDropdown.vue'
@@ -248,9 +269,11 @@ import ApplyDiscountModal from './ApplyDiscountModal.vue'
 import TransfertFolioModal from './TransfertFolioModal.vue'
 import TransfertPostingModal from './TransfertPostingModal.vue'
 import PickupAndDropModal from '@/components/customers/PickupAndDropModal.vue'
+import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import { useToast } from 'vue-toastification'
 
 const authStore = useAuthStore()
-
+const toast = useToast()
 const isCheckedOut = computed(() => {
   return props.reservation.status === 'checked_out' || props.reservation.status === 'checked-out';
 })
@@ -270,6 +293,11 @@ const canAddItemInFolio = computed(() => {
   return true
 })
 
+const selectedFolioHasNoTransactions = computed(() => {
+  if (!selectedFolio.value) return false
+  const folio = folioList.value.find((f: any) => f.id === selectedFolio.value.id)
+  return (folio?.transactions?.length ?? 0) === 0
+})
 
 const { t } = useI18n()
 // Modal state
@@ -299,6 +327,42 @@ const selectedTransaction = ref<any>(null)
 const isTransfertFolioModalOpen = ref(false)
 const isTransfertPostingModalOpen = ref(false)
 const selectedDestinationFolio = ref<any>(null)
+  const folioToDelete = ref<any>(null)
+const isDeletingFolio = ref(false)
+const showDeleteFolioConfirm = ref(false)
+
+
+const confirmDeleteFolio = (folio: any) => {
+  folioToDelete.value = folio
+  showDeleteFolioConfirm.value = true
+  console.log('folioToDelete',folioToDelete.value)
+}
+
+const cancelDeleteFolio = () => {
+  folioToDelete.value = null
+  showDeleteFolioConfirm.value = false
+}
+
+const handleDeleteFolio = async () => {
+  if (!folioToDelete.value) return
+  try {
+    isDeletingFolio.value = true
+    await deleteFoglio(folioToDelete.value.id)
+
+    if (selectedFolio.value?.id === folioToDelete.value.id) {
+      selectedFolio.value = null
+    }
+    cancelDeleteFolio()
+    await refreshFolio()
+    toast.success(t('toast.DeletedSuccess'))
+
+  } catch (e) {
+    console.error('Error deleting folio:', e)
+    toast.error(t('toast.deleteErrors'))
+  } finally {
+    isDeletingFolio.value = false
+  }
+}
 
 const closeSplitFolioModal = () => {
   isSplitFolioModal.value = false
