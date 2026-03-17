@@ -197,14 +197,17 @@ const resetForm = () => {
 const validateForm = (): boolean => {
   Object.keys(validationErrors).forEach(key => { validationErrors[key as keyof typeof validationErrors] = '' })
   let isValid = true
+  console.log('formData',formData);
   if (!serviceStore.serviceId) { errorMessage.value = t('ServiceIdRequired'); isValid = false }
   if (!selectedRoomTypeId.value) { errorMessage.value = t('PleaseSelectRoomType'); isValid = false }
   if (formData.selectedRooms.length === 0) { validationErrors.selectedRooms = t('PleaseSelectAtLeastOneRoom'); isValid = false }
   const validDateRanges = formData.dateRanges.filter(range => range.start && range.end)
+  console.log('validDateRanges',validDateRanges);
   if (validDateRanges.length === 0) { validationErrors.dateRanges = t('PleaseSelectAtLeastOneDateRange'); isValid = false }
   else {
     const range = validDateRanges[0]; const startDate = new Date(range.start!); const endDate = new Date(range.end!)
-    if (startDate >= endDate) { validationErrors.dateRanges = t('EndDateMustBeAfterStartDate'); isValid = false }
+      console.log('validDateRanges',range);
+    if (startDate > endDate) { validationErrors.dateRanges = t('EndDateMustBeAfterStartDate'); isValid = false }
   }
   if (!formData.reason || formData.reason.trim() === '') { validationErrors.reason = t('ReasonIsRequired'); isValid = false }
   return isValid
@@ -267,9 +270,10 @@ const updateDateRange = (index: number, newRange: { start: string | null, end: s
     formData.dateRanges[index] = { ...newRange }
     if (newRange.start && newRange.end) {
       validationErrors.dateRanges = ''
-      if (new Date(newRange.start) >= new Date(newRange.end)) { validationErrors.dateRanges = t('EndDateMustBeAfterStartDate') }
+      if (new Date(newRange.start) > new Date(newRange.end)) { validationErrors.dateRanges = t('EndDateMustBeAfterStartDate') }
     }
   }
+  console.log('validationErrors',validationErrors)
 }
 </script>
 

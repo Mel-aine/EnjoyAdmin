@@ -17,7 +17,7 @@ TailAdmin provides essential UI components and layouts for building feature-rich
 
 - Vue 3 (Vite)
 - TypeScript
-- Tailwind CSS
+- Tailwind CS
 
 ### Quick Links
 

@@ -374,6 +374,15 @@
             :is-generating="laodingPrint" :pdf-url="pdfUrl" :title="documentTitle" />
     </div>
 
+    <FolioSelectModal
+      v-if="showFolioSelectModal"
+      :is-open="showFolioSelectModal"
+      :folios="reservationFolios"
+      :guest-name="reservation?.displayName"
+      @close="showFolioSelectModal = false"
+      @folio-selected="handleFolioSelected"
+    />
+
 </template>
 
 <script setup lang="ts">
@@ -398,12 +407,16 @@ import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../composables/serviceStore'
+const FolioSelectModal = defineAsyncComponent(() => import('../reservations/foglio/FolioSelectModal.vue'))
+
 
 const { t } = useI18n()
 const router = useRouter()
 const isLoading = ref(false);
 const reservation = ref<any>(null)
 const toast = useToast()
+const showFolioSelectModal = ref(false)
+const reservationFolios = ref<any[]>([])
 
 interface Props {
     isOpen: boolean
@@ -535,7 +548,7 @@ const getStoredLanguage = () => {
     }
     return 'en' // Langue par défaut
 }
-const handlePrint = async (templateType: string) => {
+const handlePrint = async (templateType: string ,folioId?: number | null) => {
     try {
         laodingPrint.value = true
 
@@ -547,7 +560,7 @@ const handlePrint = async (templateType: string) => {
         if (templateType === 'confirmation') {
             pdfBlob = await printConfirmBookingPdf({
                 reservationId: reservation.value?.id,
-                language: language 
+                language: language
             })
             console.log('PDF Blob for confirmation:', pdfBlob)
             // Libérer l'ancienne URL si elle existe
@@ -559,7 +572,8 @@ const handlePrint = async (templateType: string) => {
         else if (templateType === 'receipt') {
             pdfBlob = await printHotelPdf({
                 reservationId: reservation.value?.id,
-                language: language 
+                language: language,
+               ...(folioId ? { folioId } : {})
             })
             if (pdfUrl.value) {
                 window.URL.revokeObjectURL(pdfUrl.value)
@@ -595,6 +609,21 @@ const handlePrint = async (templateType: string) => {
         laodingPrint.value = false
     }
 }
+const handleInvoicePrint = () => {
+  const folios = reservation.value?.folios ?? reservation.value?.reservationFolios ?? []
+  if (folios.length > 1) {
+    reservationFolios.value = folios
+    showFolioSelectModal.value = true
+  } else {
+    documentTitle.value = t('printInvoice')
+    handlePrint('receipt', folios[0]?.id ?? null)
+  }
+}
+
+const handleFolioSelected = (folio: any) => {
+  documentTitle.value = `${t('printInvoice')} - ${t('folio')} #${folio.folioNumber || folio.id}`
+  handlePrint('receipt', folio.id)
+}
 
 // Print handlers
 const handlePrintOptionSelected = (option: any) => {
@@ -613,8 +642,7 @@ const handlePrintOptionSelected = (option: any) => {
         handlePrint('confirmation')
     }
     else if (option.id === 'invoice') {
-        documentTitle.value = t('printInvoice')
-        handlePrint('receipt')
+         handleInvoicePrint()
     }
 }
 const roomRateTypeSummary = computed(() => {

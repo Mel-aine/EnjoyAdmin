@@ -1,6 +1,6 @@
- <template>
+ <template> 
   <SpeedInsights />     
-  <ThemeProvider>      
+  <ThemeProvider>         
     <SidebarProvider>       
       <template v-if="authStore.isFullyAuthenticated && authStore.isPmsSubscriptionBlocked">
         <PopupModal

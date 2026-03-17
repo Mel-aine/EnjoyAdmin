@@ -75,8 +75,8 @@
       </div>
 
       <!-- Room Charges Table -->
-      <div class="flex-grow overflow-y-auto custom-scrollbar">
-        <ReusableTable :columns="columns" :data="filteredRoomChargeData" :loading="loading" :show-header="true"
+      <div class="flex-grow ">
+        <ReusableTable :columns="columns" :data="filteredRoomChargeData" :loading="loading" :show-header="true" max-height="calc(97vh - 416px)" :scrollableBody="true"
           :selectable="false" :searchable="false" :title="getTableTitle()"
           @selection-change="handleTableSelectionChange">
           <!-- Custom Stay Column -->

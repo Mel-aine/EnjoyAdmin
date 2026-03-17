@@ -687,7 +687,8 @@
     "undoCheckInError": "Failed to undo check-in. Please try again.",
     "undoCheckOutSuccess": "Check-out undone successfully!",
     "undoCheckOutError": "Failed to undo check-out. Please try again.",
-    "errorInitializing": "Error Initializing"
+    "errorInitializing": "Error Initializing",
+    "errorFetchingUser" : "Error Fetching User"
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",
@@ -8858,5 +8859,9 @@
   "Selected rooms will be voided. This action cannot be undone." : "Selected rooms will be voided. This action cannot be undone.",
   "Warning" : "Warning",
   "Individual Reservation" : "Individual Reservation",
-  "Already voided" : "Already voided"
+  "Already voided" : "Already voided",
+  "noFoliosFound" : "No Folios Found",
+  "noFoliosFoundDescription" : "No Description",
+  "deleteFolio" : "Delete Folio",
+  "remove_confirm_message_folio" : "Are you sure you want to remove this Foglio ?"
 }

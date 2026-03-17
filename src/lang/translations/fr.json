@@ -663,7 +663,8 @@
     "undoCheckInError": "Échec de l'annulation de l'arrivée. Veuillez réessayer.",
     "undoCheckOutSuccess": "Départ annulée avec succès !",
     "undoCheckOutError": "Échec de l'annulation du départ. Veuillez réessayer.",
-    "errorInitializing": "Erreur d'initialisation"
+    "errorInitializing": "Erreur d'initialisation",
+    "errorFetchingUser" : "Erreur lors de la récupération de l'utilisateur"
   },
   "EditRoomType": "Modifier le type de chambre",
   "detailsCustomers": "Détails du client",
@@ -9011,6 +9012,10 @@
   "Selected rooms will be voided. This action cannot be undone." : "Les chambres sélectionnées seront annulées. Cette action est irréversible.",
   "Warning" : "Avertissement ",
   "Individual Reservation" : "Réservation Individuelle",
-  "Already voided" : "Déjà annulé"
+  "Already voided" : "Déjà annulé",
+  "noFoliosFound" : "Aucun folios trouvé",
+  "noFoliosFoundDescription" : "Aucune description",
+  "deleteFolio" : "Supprimer Folio",
+  "remove_confirm_message_folio" : "Êtes-vous sûr de vouloir supprimer ce Foglio ?"
 
 }
