@@ -111,6 +111,10 @@
     "daysAbbrev": "j",
     "ok": "Okay"
   },
+  "announcements": {
+    "updateTitle": "Mise à jour",
+    "ok": "Okay"
+  },
   "emailAccounts": {
     "searchPlaceholder": "Rechercher des comptes e‑mail...",
     "addEmailAccount": "Ajouter un compte e‑mail",

@@ -111,6 +111,10 @@
     "daysAbbrev": "d",
     "ok": "Okay"
   },
+  "announcements": {
+    "updateTitle": "Update",
+    "ok": "Okay"
+  },
   "emailAccounts": {
     "searchPlaceholder": "Search email accounts...",
     "addEmailAccount": "Add Email Account",

@@ -44,6 +44,18 @@ const getHeaders = () => {
     withCredentials: true,
   }
 }
+
+const getOptionalAuthHeaders = () => {
+  const authStore = useAuthStore()
+  const headers: Record<string, string> = {}
+  if (authStore.token) {
+    headers.Authorization = `Bearer ${authStore.token}`
+  }
+  return {
+    headers,
+    withCredentials: true,
+  }
+}
 const getRefreshHeaders = () => {
   const authStore = useAuthStore()
   return {
@@ -124,6 +136,10 @@ export const finAvailableHome = (
 }
 export const getPermission = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/permission`, getHeaders())
+}
+
+export const getActiveAnnouncements = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/announcements/active`, getOptionalAuthHeaders())
 }
 
 export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {

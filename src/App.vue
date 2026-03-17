@@ -3,44 +3,17 @@
   <ThemeProvider>         
     <SidebarProvider>       
       <template v-if="authStore.isFullyAuthenticated && authStore.isPmsSubscriptionBlocked">
-        <PopupModal
-          :isOpen="true"
-          :closable="false"
-          :title="$t('subscriptionBlocked.title')"
-        >
-          <div class="space-y-4">
-            <p class="text-sm text-slate-500 dark:text-white whitespace-pre-line">
-              {{ $t('subscriptionBlocked.intro') }}
-            </p>
-
-            <div class="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-yellow-900 dark:border-yellow-900/40 dark:bg-yellow-900/20 dark:text-yellow-100">
-              <div class="text-sm font-semibold">{{ $t('subscriptionBlocked.goodToKnowTitle') }}</div>
-              <ul class="mt-2 list-disc pl-5 text-sm space-y-1">
-                <li>{{ $t('subscriptionBlocked.dataSafe') }}</li>
-                <li>{{ $t('subscriptionBlocked.accessRestricted') }}</li>
-              </ul>
-            </div>
-          </div>
-          <template #footer>
-            <div class="w-full px-6 pb-4 flex flex-col gap-2">
-              <button
-                type="button"
-                @click="openSubscriptionRenewal"
-                class="w-full px-4 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition"
-              >
-                {{ $t('subscriptionBlocked.renewCta') }}
-              </button>
-              <a
-                :href="supportMailtoUrl"
-                class="w-full text-center px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 dark:text-white dark:hover:text-black transition"
-              >
-                {{ $t('subscriptionBlocked.contactSupport') }}
-              </a>
-            </div>
-          </template>
-        </PopupModal>
+        <SubscriptionBlockedModal :isOpen="true" :supportMailtoUrl="supportMailtoUrl" @renew="openSubscriptionRenewal" />
       </template>
       <template v-else>
+        <MaintenanceBanner
+          :visible="authStore.isFullyAuthenticated && !isLoginRoute && !!maintenanceAnnouncement"
+          :typeLabel="maintenanceTypeLabel"
+          :windowText="maintenanceAnnouncementWindowText"
+          :title="maintenanceAnnouncementTitle"
+          :content="maintenanceAnnouncementContent"
+          @dismiss="dismissMaintenanceAnnouncement"
+        />
         <TopProgressBar />     
         <OverLoading v-if="isCheckoutOverlay" />           
         <RouterView />           
@@ -49,33 +22,19 @@
           @close="handleClose"     
           @success="handleSuccess" 
         />
-        <PopupModal
+        <UpdateAnnouncementModal
+          :isOpen="isUpdateModalOpen"
+          :title="currentUpdateTitle"
+          :content="currentUpdateContent"
+          :okText="$t('announcements.ok')"
+          @ack="ackUpdate"
+        />
+        <SubscriptionExpiringSoonModal
           :isOpen="isExpiringSoonModalOpen"
-          :closable="false"
-          :title="$t('subscriptionExpiringSoon.title')"
-        >
-          <div class="space-y-4">
-            <p class="text-sm text-slate-500 dark:text-white whitespace-pre-line">
-              {{ $t('subscriptionExpiringSoon.message', { days: daysUntilExpiry }) }}
-            </p>
-
-            <div class="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-yellow-900 dark:border-yellow-900/40 dark:bg-yellow-900/20 dark:text-yellow-100">
-              <div class="text-sm font-semibold">{{ $t('subscriptionExpiringSoon.countdownTitle') }}</div>
-              <div class="mt-2 font-mono text-base">{{ countdownText }}</div>
-            </div>
-          </div>
-          <template #footer>
-            <div class="w-full px-6 pb-4 flex justify-end">
-              <button
-                type="button"
-                @click="ackExpiringSoon"
-                class="px-4 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition"
-              >
-                {{ $t('subscriptionExpiringSoon.ok') }}
-              </button>
-            </div>
-          </template>
-        </PopupModal>
+          :days="daysUntilExpiry"
+          :countdownText="countdownText"
+          @ack="ackExpiringSoon"
+        />
       </template>
     </SidebarProvider>
   </ThemeProvider>
@@ -89,12 +48,15 @@ import { SpeedInsights } from "@vercel/speed-insights/vue"
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useRoute ,useRouter} from 'vue-router'
 import ReAuthModal from '@/components/auth/ReAuthModal.vue'
-import PopupModal from '@/components/modal/PopupModal.vue'
+import MaintenanceBanner from '@/components/announcements/MaintenanceBanner.vue'
+import UpdateAnnouncementModal from '@/components/announcements/UpdateAnnouncementModal.vue'
+import SubscriptionBlockedModal from '@/components/subscription/SubscriptionBlockedModal.vue'
+import SubscriptionExpiringSoonModal from '@/components/subscription/SubscriptionExpiringSoonModal.vue'
 import { useAuthStore } from '@/composables/user'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import TopProgressBar from '@/components/spinner/TopProgressBar.vue'
 import { isCheckoutOverlay } from '@/composables/spinner'
-import {stopAuthAutoRefresh,startAuthAutoRefresh}  from '@/services/api'
+import {stopAuthAutoRefresh,startAuthAutoRefresh, getActiveAnnouncements}  from '@/services/api'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
 if (useLanguage.language) {
@@ -125,15 +87,222 @@ const isLoginRoute = computed(() => {
 const isInitialLoad = ref(true)
 
 watch(
-  () => [authStore.isPmsSubscriptionBlocked, isLoginRoute.value] as const,
-  ([isBlocked, login]) => {
+  () => authStore.isPmsSubscriptionBlocked,
+  (isBlocked) => {
     if (!isInitialLoad.value) return
-    if (isBlocked && login) {
+    if (isBlocked) {
       authStore.forceLogout()
       if (route.path !== '/') {
         router.replace('/')
       }
     }
+  },
+  { immediate: true },
+)
+
+type Announcement = {
+  id?: number | string
+  type?: string
+  content?: string
+  title?: string
+  isActive?: boolean
+  [key: string]: unknown
+}
+
+const announcements = ref<Announcement[]>([])
+const announcementsLoaded = ref(false)
+
+const announcementsNowMs = ref(Date.now())
+let announcementsIntervalId: number | null = null
+const stopAnnouncementsTicker = () => {
+  if (announcementsIntervalId) {
+    clearInterval(announcementsIntervalId)
+    announcementsIntervalId = null
+  }
+}
+const startAnnouncementsTicker = () => {
+  stopAnnouncementsTicker()
+  announcementsNowMs.value = Date.now()
+  announcementsIntervalId = window.setInterval(() => {
+    announcementsNowMs.value = Date.now()
+  }, 60_000)
+}
+
+const parseMs = (value: unknown): number | null => {
+  if (!value) return null
+  const date = value instanceof Date ? value : new Date(String(value))
+  const ms = date.getTime()
+  return Number.isNaN(ms) ? null : ms
+}
+
+const isAnnouncementActiveNow = (a: Announcement, nowMs = announcementsNowMs.value): boolean => {
+  if ((a?.isActive ?? true) !== true) return false
+  const anyA = a as any
+  const startsMs = parseMs(anyA?.startsAt ?? anyA?.starts_at ?? null)
+  const endsMs = parseMs(anyA?.endsAt ?? anyA?.ends_at ?? null)
+  if (startsMs !== null && nowMs < startsMs) return false
+  if (endsMs !== null && nowMs > endsMs) return false
+  return true
+}
+
+const MAINTENANCE_LEAD_MS = 5 * 24 * 60 * 60 * 1000
+const isMaintenanceVisibleNow = (a: Announcement, nowMs = announcementsNowMs.value): boolean => {
+  if ((a?.isActive ?? true) !== true) return false
+  const anyA = a as any
+  const startsMs = parseMs(anyA?.startsAt ?? anyA?.starts_at ?? null)
+  const endsMs = parseMs(anyA?.endsAt ?? anyA?.ends_at ?? null)
+  if (startsMs === null) {
+    return isAnnouncementActiveNow(a, nowMs)
+  }
+  const visibleFromMs = startsMs - MAINTENANCE_LEAD_MS
+  if (nowMs < visibleFromMs) return false
+  if (endsMs !== null && nowMs > endsMs) return false
+  return true
+}
+
+const loadAnnouncements = async () => {
+  try {
+    const res = await getActiveAnnouncements()
+    const raw = (res as any)?.data?.data ?? (res as any)?.data
+    const list = raw?.data ?? raw?.announcements ?? raw
+    announcements.value = Array.isArray(list) ? list : []
+    announcementsLoaded.value = true
+  } catch {
+    announcements.value = []
+  }
+}
+
+watch(
+  () => authStore.isAuthenticated,
+  () => {
+    if (announcementsLoaded.value) return
+    loadAnnouncements()
+  },
+  { immediate: true },
+)
+
+watch(
+  () => [authStore.isFullyAuthenticated, isLoginRoute.value, authStore.isPmsSubscriptionBlocked] as const,
+  ([isAuth, login, blocked]) => {
+    if (!isAuth || login || blocked) {
+      stopAnnouncementsTicker()
+      return
+    }
+    startAnnouncementsTicker()
+  },
+  { immediate: true },
+)
+
+const DISMISSED_MAINTENANCE_SESSION_KEY = 'dismissedMaintenanceAnnouncementId'
+const dismissedMaintenanceAnnouncementId = ref<string | null>(sessionStorage.getItem(DISMISSED_MAINTENANCE_SESSION_KEY))
+
+const maintenanceAnnouncement = computed<Announcement | null>(() => {
+  const found = announcements.value.find((a) => {
+    if (a?.type !== 'maintenance') return false
+    const id = (a as any)?.id
+    if (id !== undefined && id !== null && dismissedMaintenanceAnnouncementId.value === String(id).trim()) return false
+    return isMaintenanceVisibleNow(a)
+  })
+  return found ?? null
+})
+
+const maintenanceAnnouncementContent = computed(() => {
+  const a = maintenanceAnnouncement.value as any
+  return String(a?.content ?? a?.message ?? a?.title ?? '')
+})
+
+const maintenanceAnnouncementTitle = computed(() => {
+  const a = maintenanceAnnouncement.value as any
+  const title = String(a?.title ?? '').trim()
+  if (title) return title
+  return 'Maintenance'
+})
+
+const maintenanceTypeLabel = computed(() => {
+  return 'Maintenance'
+})
+
+const maintenanceAnnouncementWindowText = computed(() => {
+  const a = maintenanceAnnouncement.value as any
+  const startsMs = parseMs(a?.startsAt ?? a?.starts_at ?? null)
+  const endsMs = parseMs(a?.endsAt ?? a?.ends_at ?? null)
+  if (startsMs === null && endsMs === null) return ''
+
+  const locale = (t.locale.value as string) || undefined
+  const fmt = new Intl.DateTimeFormat(locale, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  const startText = startsMs !== null ? fmt.format(new Date(startsMs)) : ''
+  const endText = endsMs !== null ? fmt.format(new Date(endsMs)) : ''
+
+  if (startText && endText) return `${startText} → ${endText}`
+  return startText || endText
+})
+
+const dismissMaintenanceAnnouncement = () => {
+  const id = (maintenanceAnnouncement.value as any)?.id
+  if (id === undefined || id === null) return
+  const key = String(id).trim()
+  dismissedMaintenanceAnnouncementId.value = key
+  sessionStorage.setItem(DISMISSED_MAINTENANCE_SESSION_KEY, key)
+}
+
+const updateAnnouncements = computed<Announcement[]>(() => {
+  return announcements.value.filter((a) => a?.type === 'update' && isAnnouncementActiveNow(a))
+})
+
+const isUpdateModalOpen = ref(false)
+const currentUpdate = ref<Announcement | null>(null)
+
+const currentUpdateContent = computed(() => {
+  const a = currentUpdate.value as any
+  return String(a?.content ?? a?.message ?? '')
+})
+
+const currentUpdateTitle = computed(() => {
+  const a = currentUpdate.value as any
+  const title = String(a?.title ?? '').trim()
+  if (title) return title
+  return t.t('announcements.updateTitle')
+})
+
+const pickNextUpdate = () => {
+  const next = updateAnnouncements.value.find((u) => {
+    const id = (u as any)?.id
+    if (id === undefined || id === null) return false
+    const key = String(id).trim()
+    return !localStorage.getItem(`seen_update_${key}`)
+  })
+  if (!next) return
+  currentUpdate.value = next
+  isUpdateModalOpen.value = true
+}
+
+const ackUpdate = () => {
+  const id = (currentUpdate.value as any)?.id
+  if (id !== undefined && id !== null) {
+    localStorage.setItem(`seen_update_${String(id).trim()}`, 'true')
+  }
+  isUpdateModalOpen.value = false
+  currentUpdate.value = null
+  setTimeout(() => {
+    pickNextUpdate()
+  }, 0)
+}
+
+watch(
+  () => [updateAnnouncements.value.length, authStore.isFullyAuthenticated, isLoginRoute.value, authStore.isPmsSubscriptionBlocked] as const,
+  ([len, isAuth, login, blocked]) => {
+    if (blocked) return
+    if (!isAuth || login) return
+    if (isUpdateModalOpen.value) return
+    if (len <= 0) return
+    pickNextUpdate()
   },
   { immediate: true },
 )
@@ -234,6 +403,7 @@ const shouldShowExpiringSoonModal = computed(() => {
   if (isLoginRoute.value) return false
   if (!authStore.isFullyAuthenticated) return false
   if (authStore.isPmsSubscriptionBlocked) return false
+  if (isUpdateModalOpen.value) return false
   if (authStore.hasPmsSubscription !== true) return false
   if (!remainingMs.value || remainingMs.value <= 0) return false
   if (remainingMs.value > 5 * MS_PER_DAY) return false
