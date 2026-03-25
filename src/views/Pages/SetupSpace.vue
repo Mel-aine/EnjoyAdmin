@@ -25,7 +25,7 @@ import { initSpace } from '../../services/api'
 import router from '../../router'
 
 
-const { locale } = useI18n()
+const { locale } = useI18n({ useScope: 'global' })
 const languageStore = useLanguageStore()
 const isLoading = ref(false);
 const authStore = useAuthStore()
@@ -78,8 +78,27 @@ const initializeSpace = async () => {
       const service = userServices[0];
       serviceStore.setServiceId(service.id);
       serviceStore.setCurrentService(service);
-      const propertyType = String(service?.propertyType ?? service?.property_type ?? '').trim().toLowerCase()
-      const domain = propertyType.includes('apartment') || propertyType.includes('aparthotel') ? 'apartment' : 'hotel'
+      const propertyTypeRaw = String(service?.propertyType ?? service?.property_type ?? '').trim()
+      const propertyType = propertyTypeRaw.toLowerCase()
+      const apartmentMarkers = [
+        'apartment',
+        'apart_hotel',
+        'aparthotel',
+        'serviced apartment',
+        'residence',
+        'résidence',
+        'furnished',
+        'meuble',
+        'meublé',
+        'extended stay',
+        'extended-stay',
+        'rental',
+        'lease',
+        'corporate housing',
+      ]
+      const domain = propertyType
+        ? (apartmentMarkers.some(marker => propertyType.includes(marker)) ? 'apartment' : 'hotel')
+        : languageStore.domain
       languageStore.setDomain(domain)
       const baseLocale = languageStore.language === 'fr' ? 'fr' : 'en'
       languageStore.set(baseLocale)

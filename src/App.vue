@@ -59,11 +59,6 @@ import { isCheckoutOverlay } from '@/composables/spinner'
 import {stopAuthAutoRefresh,startAuthAutoRefresh, getActiveAnnouncements}  from '@/services/api'
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
-if (useLanguage.language) {
-  t.locale.value = useLanguage.language;
-} else {
-  useLanguage.set(t.locale.value)
-}
 
 
 
