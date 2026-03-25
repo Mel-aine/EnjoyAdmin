@@ -68,14 +68,22 @@ const initializeSpace = async () => {
 
     if (user) {
       if (user.language) {
-        locale.value = user.language;
-        languageStore.set(user.language);
+        const baseLanguage = String(user.language).split('_')[0]
+        const normalizedLanguage = baseLanguage === 'fr' ? 'fr' : 'en'
+        locale.value = normalizedLanguage;
+        languageStore.set(normalizedLanguage);
       }
       const userServices = res.data.data.userServices || [];
 
       const service = userServices[0];
       serviceStore.setServiceId(service.id);
       serviceStore.setCurrentService(service);
+      const propertyType = String(service?.propertyType ?? service?.property_type ?? '').trim().toLowerCase()
+      const domain = propertyType.includes('apartment') || propertyType.includes('aparthotel') ? 'apartment' : 'hotel'
+      languageStore.setDomain(domain)
+      const baseLocale = languageStore.language === 'fr' ? 'fr' : 'en'
+      languageStore.set(baseLocale)
+      locale.value = domain === 'apartment' ? `${baseLocale}_apartment` : baseLocale
       serviceStore.setCalendarViewDate(service.currentWorkingDate)
       serviceStore.setCalendarDaysToShow(15)
       serviceStore.setRateTypes(res.data.data.rateTypes || []);
@@ -87,7 +95,7 @@ const initializeSpace = async () => {
           router.push({ path: '/front-office/dashboard' });
         }
     }
-  } catch (err: any) {
+  } catch (err) {
     console.error("Erreur handleSubmit:", err);
   } finally {
     isLoading.value = false;
