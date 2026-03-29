@@ -20,6 +20,7 @@ export interface RoomAvailabilityParams {
   includeCharts?: boolean
   includeDetails?: boolean
   groupByFloor?: boolean
+  roomTypeName? : string
 }
 
 export interface RoomData {
@@ -227,7 +228,8 @@ class RoomAvailabilityReportsService {
       includeSummary: params.includeSummary ?? true,
       includeCharts: params.includeCharts ?? true,
       includeDetails: params.includeDetails ?? true,
-      groupByFloor: params.groupByFloor ?? false
+      groupByFloor: params.groupByFloor ?? false,
+      roomTypeName: params.roomTypeName ?? '',
     }
   }
 

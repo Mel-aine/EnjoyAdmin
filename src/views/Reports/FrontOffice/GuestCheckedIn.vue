@@ -15,15 +15,15 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ t('common.filters') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Check-in Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.dateFrom') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.arrivalFrom" 
+            <InputDatepicker
+              v-model="filters.arrivalFrom"
               :placeholder="t('common.from')"
               class="w-full"
             />
@@ -32,19 +32,19 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.dateTo') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.arrivalTo" 
+            <InputDatepicker
+              v-model="filters.arrivalTo"
               :placeholder="t('common.to')"
               class="w-full"
             />
           </div>
-          
+
           <!-- Room Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.roomType') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.roomType"
               :options="roomTypeOptions"
               :placeholder="t('common.select')"
@@ -60,7 +60,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.show') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.showAmount"
               :options="showAmountOptions"
               :placeholder="t('common.select')"
@@ -68,13 +68,13 @@
               class="w-full"
             />
           </div>
-          
+
           <!-- Rate Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.rateType') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.rateType"
               :options="rateTypeOptions"
               :placeholder="t('common.select')"
@@ -82,13 +82,13 @@
               class="w-full"
             />
           </div>
-          
+
           <!-- Business Source -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.businessSource') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.businessSource"
               :options="BusinessSource"
               :placeholder="t('common.select')"
@@ -116,11 +116,11 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
               </button>
-              
+
               <!-- Menu déroulant Export -->
               <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-                <!--     <button 
-                  @click="exportCSV" 
+                <!--     <button
+                  @click="exportCSV"
                   class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                   :disabled="exportLoading"
                 >
@@ -129,8 +129,8 @@
                   </svg>
                   {{ t('common.csv') }}
                 </button> -->
-                <button 
-                  @click="exportPDF" 
+                <button
+                  @click="exportPDF"
                   class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                   :disabled="exportLoading"
                 >
@@ -139,8 +139,8 @@
                   </svg>
                   {{ t('common.pdf') }}
                 </button>
-     <!--            <button 
-                  @click="exportExcel" 
+     <!--            <button
+                  @click="exportExcel"
                   class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                   :disabled="exportLoading"
                 >
@@ -151,9 +151,9 @@
                 </button> -->
               </div>
             </div>
-            
+
             <!-- Bouton Report -->
-            <button 
+            <button
               @click="generateReport"
               :disabled="loading"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
@@ -164,9 +164,9 @@
               </svg>
               {{ t('common.report') }}
             </button>
-            
+
             <!-- Bouton Reset -->
-            <button 
+            <button
               @click="resetForm"
               class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
             >
@@ -190,23 +190,23 @@
             <span>{{ t('reports.generatedAt') }}: {{ formatDate(new Date()) }}</span>
           </div>
         </div>
-        
+
         <!-- Contenu HTML du rapport -->
         <div v-if="reportHtml" v-html="translatedHtml" class="report-html-container p-6"></div>
-        
+
         <!-- Fallback si pas de HTML (affichage normal du tableau) -->
         <div v-else>
           <div class="overflow-x-auto">
-            <ResultTable 
+            <ResultTable
               :title="t('reports.frontOffice.guestCheckedIn')"
               :data="reservationData"
               :columns="selectedTableColumns"
               class="w-full"
             />
           </div>
-          
+
           <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <span>{{ t('reports.reservation.totalReservations') }}: #{{ totalReservations }}</span> • 
+            <span>{{ t('reports.reservation.totalReservations') }}: #{{ totalReservations }}</span> •
             <span>{{ t('reports.reservation.totalPax') }}: {{ totalPax }}</span>
           </div>
         </div>
@@ -256,8 +256,8 @@ interface Reservation {
 interface Filters {
   arrivalFrom: string;
   arrivalTo: string;
-  roomType: string;
-  rateType: string;
+  roomType: number | null;
+  rateType: number | null;
   showAmount: string;
   rateFrom: string;
   rateTo: string;
@@ -322,7 +322,7 @@ const getToday = (): Date => {
 const initializeDefaultDates = () => {
   const yesterday = getYesterday()
   const today = getToday()
-  
+
   return {
     arrivalFrom: formatDateForAPI(yesterday),
     arrivalTo: formatDateForAPI(today)
@@ -334,8 +334,8 @@ const defaultDates = initializeDefaultDates()
 const filters = ref<Filters>({
   arrivalFrom: defaultDates.arrivalFrom,
   arrivalTo: defaultDates.arrivalTo,
-  roomType: '',
-  rateType: '',
+  roomType: null,
+  rateType: null,
   showAmount: 'rent_per_night',
   rateFrom: '',
   rateTo: '',
@@ -406,7 +406,7 @@ const selectedTableColumns = computed(() => {
     { key: 'restyp', label: t('tableColumns.resType') },
     { key: 'user', label: t('tableColumns.user') }
   ]
-  
+
   // Add selected columns
   filters.value.selectedColumns.forEach(col => {
     const columnKey = col.toLowerCase().replace(/\s+/g, '').replace('.', '')
@@ -415,7 +415,7 @@ const selectedTableColumns = computed(() => {
       label: col
     })
   })
-  
+
   return baseColumns
 })
 
@@ -434,10 +434,10 @@ const totalPax = computed(() => {
 const generateReport = async (): Promise<void> => {
   loading.value = true
   showResults.value = false
-  
+
   try {
     console.log('Generating guest checked-in report with filters:', filters.value)
-    
+
     // Préparer les données pour l'API avec les dates formatées
     const apiData = {
       ...filters.value,
@@ -447,13 +447,13 @@ const generateReport = async (): Promise<void> => {
       rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined,
     }
-    
+
     console.log('API data with formatted dates:', apiData)
-    
+
     // Appel API pour générer le rapport
     const response = await generateGuestCheckedIn(apiData)
     console.log('Report generation response:', response)
-    
+
     if (response && response.success && response.data) {
       // Si l'API retourne du HTML, l'utiliser
       if (response.data.html) {
@@ -476,7 +476,7 @@ const exportCSV = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export CSV avec filtres:', filters.value)
-    
+
     const exportDataParams = {
       ...filters.value,
       arrivalFrom: filters.value.arrivalFrom, // Déjà au format YYYY-MM-DD
@@ -485,7 +485,7 @@ const exportCSV = async (): Promise<void> => {
       rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
     }
-    
+
     const result = await exportData('csv', 'guestCheckedIn', 'guest-checked-in', exportDataParams)
     console.log('Résultat export CSV:', result)
   } catch (error) {
@@ -506,7 +506,7 @@ const exportPDF = async (): Promise<void> => {
     }
 
     console.log('Export PDF avec filtres:', filters.value)
-    
+
     const exportDataParams = {
       ...filters.value,
       arrivalFrom: filters.value.arrivalFrom, // Déjà au format YYYY-MM-DD
@@ -515,13 +515,13 @@ const exportPDF = async (): Promise<void> => {
       rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
     }
-    
+
     const result = await exportData('pdf', 'guestCheckedIn', 'guest-checked-in', exportDataParams)
     pdfUrl.value = result?.fileUrl || ''
     openPDFInNewPage()
     console.log('Résultat export PDF:', result)
   } catch (error) {
-    console.error('Erreur détaillée PDF:', error) 
+    console.error('Erreur détaillée PDF:', error)
   } finally {
     exportLoading.value = false
   }
@@ -532,7 +532,7 @@ const exportExcel = async (): Promise<void> => {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export Excel avec filtres:', filters.value)
-    
+
     const exportDataParams = {
       ...filters.value,
       arrivalFrom: filters.value.arrivalFrom, // Déjà au format YYYY-MM-DD
@@ -541,7 +541,7 @@ const exportExcel = async (): Promise<void> => {
       rateTo: filters.value.rateTo ? Number(filters.value.rateTo) : undefined,
       hotelId: idHotel !== null ? idHotel : undefined
     }
-    
+
     const result = await exportData('excel', 'guestCheckedIn', 'guest-checked-in', exportDataParams)
     console.log('Résultat export Excel:', result)
   } catch (error) {
@@ -568,10 +568,10 @@ const openPDFInNewPage = () => {
 // Traduit des fragments HTML renvoyés par l'API (fallback côté client)
 const translateReportHtml = (html: string): string => {
   if (!html) return html
-  
+
   // Normaliser les espaces insécables
   let out = html.replace(/&nbsp;/g, ' ')
-  
+
   // Traduire la ligne de synthèse "Generated on ... | ... records" ou "Generated on ... | ... records | ... columns displayed"
   const summaryPattern = /Generated\s+on\s+([^|]+)\|\s*(\d+)\s+records(\s*\|\s*(\d+)\s+columns\s+displayed)?/gi
   out = out.replace(summaryPattern, (_match, datePart, recordCount, _columnsPart, columnCount) => {
@@ -581,7 +581,7 @@ const translateReportHtml = (html: string): string => {
     }
     return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')}`
   })
-  
+
   const replacements: Record<string, string> = {
     // Titres et descriptions
     'Guest Checked In Report': t('reports.frontOffice.guestCheckedIn') + ' ' + t('common.report'),
@@ -653,7 +653,7 @@ const translateReportHtml = (html: string): string => {
     'Generated at': t('reports.generatedAt'),
     'Generated': t('reports.generatedAt')
   }
-  
+
   // Traiter d'abord les remplacements avec balises HTML
   for (const [en, fr] of Object.entries(replacements)) {
     if (en.startsWith('>') && en.endsWith('<')) {
@@ -671,7 +671,7 @@ const translateReportHtml = (html: string): string => {
       out = out.replace(regex, fr)
     }
   }
-  
+
   return out
 }
 
@@ -696,12 +696,12 @@ const formatDate = (date: Date): string => {
 
 const resetForm = (): void => {
   const defaultDates = initializeDefaultDates()
-  
+
   filters.value = {
     arrivalFrom: defaultDates.arrivalFrom,
     arrivalTo: defaultDates.arrivalTo,
-    roomType: '',
-    rateType: '',
+    roomType: null,
+    rateType: null,
     showAmount: 'rent_per_night',
     rateFrom: '',
     rateTo: '',
@@ -731,15 +731,15 @@ const editTemplate = (): void => {
 // Récupérer les room types
 const fetchRoomTypes = async () => {
   if (!idHotel) return;
-  
+
   loadingRoomTypes.value = true;
   try {
     const response = await getRoomTypes(idHotel);
     console.log('Room types response:', response);
-    
+
     if (response.data && response.data.data && response.data.data.data) {
       roomTypeOptions.value = response.data.data.data.map((roomType: any) => ({
-        value: roomType.id.toString(),
+        value: roomType.id,
         label: roomType.roomTypeName
       }));
     }
@@ -753,15 +753,15 @@ const fetchRoomTypes = async () => {
 // Récupérer les rate types
 const fetchRateTypes = async () => {
   if (!idHotel) return;
-  
+
   loadingRateTypes.value = true;
   try {
     const response = await getRateTypes(idHotel);
     console.log('Rate types response:', response);
-    
+
     if (response.data && response.data.data) {
       rateTypeOptions.value = response.data.data.map((rateType: any) => ({
-        value: rateType.id.toString(),
+        value: rateType.id,
         label: rateType.rateTypeName
       }));
     }
@@ -797,11 +797,11 @@ onUnmounted(() => {
   .flex-col > div {
     width: 100%;
   }
-  
+
   .flex-col > div + div {
     margin-top: 1rem;
   }
-  
+
   .items-end {
     align-items: stretch;
   }

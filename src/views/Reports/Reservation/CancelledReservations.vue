@@ -167,7 +167,7 @@
           <div class="relative">
             <button
               @click="toggleExportMenu"
-              :disabled="exportLoading || !showResults"
+              :disabled="exportLoading"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
               <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -306,7 +306,6 @@
             <div>{{ $t('reports.reservation.totalCancelledReservations') }}: {{ totalReservations }}</div>
             <div class="flex gap-4">
               <div>{{ $t('reports.reservation.columns.adr') }}: {{ totalADR }}</div>
-              <div>{{ $t('reports.reservation.columns.carRevenue') }}: {{ totalCarRevenue }}</div>
               <div>{{ $t('reports.reservation.columns.charges') }}: {{ totalCharges }}</div>
               <div>{{ $t('reports.reservation.columns.paid') }}: {{ totalPaid }}</div>
               <div>{{ $t('reports.reservation.columns.balance') }}: {{ totalBalance }}</div>
@@ -331,6 +330,7 @@ import { getCompanies } from '@/services/companyApi'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { getEmployeesForService } from '@/services/userApi'
+import router from '@/router'
 
 const { t } = useI18n()
 
@@ -415,6 +415,11 @@ const roomTypeOptions = ref<FilterOptions[]>([])
 const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
+const pdfUrl = ref('')
+
+const reportTitle = computed(() => {
+  return reportData.value?.title || t('reports.reservation.cancelledReservations')
+})
 
 // Données des réservations annulées (maintenant dynamiques)
 const reservationData = ref<CancelledReservationData[]>([])
@@ -547,7 +552,7 @@ const tableColumns = computed<TableColumn[]>(() => [
   { key: 'departure', label: t('reports.reservation.columns.departure'), type: 'custom' },
   { key: 'folioNo', label: t('reports.reservation.columns.folioNo'), type: 'custom' },
   { key: 'adr', label: t('reports.reservation.columns.adr'), type: 'custom' },
-  { key: 'carRevenue', label: t('reports.reservation.columns.carRevenue'), type: 'custom' },
+  // { key: 'carRevenue', label: t('reports.reservation.columns.carRevenue'), type: 'custom' },
   { key: 'charges', label: t('reports.reservation.columns.charges'), type: 'custom' },
   { key: 'paid', label: t('reports.reservation.columns.paid'), type: 'custom' },
   { key: 'balance', label: t('reports.reservation.columns.balance'), type: 'custom' },
@@ -767,7 +772,6 @@ const exportToCSV = () => {
       `"${row.departure}"`,
       `"${row.folioNo}"`,
       `"${row.adr}"`,
-      `"${row.carRevenue}"`,
       `"${row.charges}"`,
       `"${row.paid}"`,
       `"${row.balance}"`,
@@ -885,13 +889,33 @@ const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
+    if (pdfUrl.value) {
+      URL.revokeObjectURL(pdfUrl.value)
+      pdfUrl.value = ''
+    }
     console.log('Export PDF avec filtres:', apiFilters.value)
     const result = await exportData('pdf', 'cancelledReservations','cancelled', apiFilters.value)
+     pdfUrl.value = result?.fileUrl || ''
+     openPDFInNewPage()
     console.log('Résultat export PDF:', result)
   } catch (error) {
     console.error('Erreur détaillée PDF:', error)
   } finally {
     exportLoading.value = false
+  }
+}
+
+const openPDFInNewPage = () => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer',
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
   }
 }
 

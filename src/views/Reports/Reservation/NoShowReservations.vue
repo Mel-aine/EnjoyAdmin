@@ -15,15 +15,15 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ $t('common.filters') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Arrival Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.arrivalFrom') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.arrivalFrom" 
+            <InputDatepicker
+              v-model="filters.arrivalFrom"
               :placeholder="$t('common.from')"
               class="w-full"
             />
@@ -32,19 +32,19 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.arrivalTo') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.arrivalTo" 
+            <InputDatepicker
+              v-model="filters.arrivalTo"
               :placeholder="$t('common.to')"
               class="w-full"
             />
           </div>
-          
+
           <!-- Room Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.roomType') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.roomType"
               :options="roomTypeOptions"
               :placeholder="$t('common.selectRoomType')"
@@ -59,7 +59,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.rateType') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.rateType"
               :options="rateTypeOptions"
               :placeholder="$t('common.selectRateType')"
@@ -72,20 +72,20 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.businessSource') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.businessSource"
               :options="BusinessSource"
               :placeholder="$t('common.selectBusinessSource')"
               class="w-full"
             />
           </div>
-          
+
           <!-- Market -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.market') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.market"
               :options="MarketCode"
               :placeholder="$t('common.selectMarket')"
@@ -100,7 +100,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.user') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.user"
               :options="userOptions"
               :placeholder="$t('common.selectUser')"
@@ -113,21 +113,21 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.rateFrom') }}
             </label>
-            <input 
-              v-model="filters.rateFrom" 
-              type="number" 
+            <input
+              v-model="filters.rateFrom"
+              type="number"
               class="w-full px-3 py-2 border rounded-lg border-black/50 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               :placeholder="$t('common.from')"
             />
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.rateTo') }}
             </label>
-            <input 
-              v-model="filters.rateTo" 
-              type="number" 
+            <input
+              v-model="filters.rateTo"
+              type="number"
               class="w-full px-3 rounded-lg py-2 border border-black/50 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
               :placeholder="$t('common.to')"
             />
@@ -140,7 +140,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.reservationType') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.reservationType"
               :options="bookingTypeOptions"
               :placeholder="$t('common.selectReservationType')"
@@ -153,7 +153,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.company') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.company"
               :options="companyOptions"
               :placeholder="$t('common.selectCompany')"
@@ -164,8 +164,8 @@
           <!-- Tax Inclusive -->
           <div class="mt-12">
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-              <input 
-                v-model="filters.taxInclusive" 
+              <input
+                v-model="filters.taxInclusive"
                 type="checkbox"
                 class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
               />
@@ -188,7 +188,7 @@
           <div class="relative">
             <button
               @click="toggleExportMenu"
-              :disabled="exportLoading || !showResults"
+              :disabled="exportLoading"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
               <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -202,7 +202,7 @@
             </button>
 
             <!-- Menu déroulant Export -->
-            <div v-if="exportMenuOpen && showResults" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+            <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
 <!--               <button
                 @click="exportCSV"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
@@ -578,34 +578,15 @@ const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    
-    // Clear previous PDF URL
     if (pdfUrl.value) {
       URL.revokeObjectURL(pdfUrl.value)
       pdfUrl.value = ''
     }
-
     console.log('Export PDF avec filtres:', apiFilters.value)
-    
-    // Utiliser la même route que generateNoShowReport
-    const response = await generateNoShowList(apiFilters.value)
-    console.log('PDF Report Data:', response)
-
-    // Vérifier la structure: response.data.html
-    if (response && response.data && response.data.html) {
-      // Créer un Blob à partir du HTML
-      const htmlBlob = new Blob([response.data.html], { type: 'text/html' })
-      
-      // Créer une URL pour le blob
-      pdfUrl.value = URL.createObjectURL(htmlBlob)
-      
-      // Ouvrir dans une nouvelle page
-      openPDFInNewPage()
-      
-      console.log('PDF généré avec succès')
-    } else {
-      console.error('Pas de HTML dans la réponse:', response)
-    }
+    const result = await exportData('pdf', 'noShowReservations','no-show', apiFilters.value)
+     pdfUrl.value = result?.fileUrl || ''
+     openPDFInNewPage()
+    console.log('Résultat export PDF:', result)
   } catch (error) {
     console.error('Erreur détaillée PDF:', error)
   } finally {
@@ -615,32 +596,17 @@ const exportPDF = async (): Promise<void> => {
 
 const openPDFInNewPage = () => {
   if (pdfUrl.value) {
-    // Ouvrir une nouvelle fenêtre vide
-    const newWindow = window.open('', '_blank')
-    
-    if (newWindow) {
-      // Écrire le HTML directement dans la nouvelle fenêtre
-      fetch(pdfUrl.value)
-        .then(response => response.text())
-        .then(htmlContent => {
-          newWindow.document.write(htmlContent)
-          newWindow.document.close()
-          
-          // Attendre que le contenu soit chargé pour déclencher l'impression
-          setTimeout(() => {
-            newWindow.print()
-          }, 500)
-        })
-        .catch(error => {
-          console.error('Erreur lors du chargement du HTML:', error)
-          newWindow.close()
-        })
-    } else {
-      console.error('Impossible d\'ouvrir la nouvelle fenêtre')
-    }
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer',
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
   }
 }
-
 
 const exportExcel = async (): Promise<void> => {
   try {
