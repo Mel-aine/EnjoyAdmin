@@ -331,6 +331,7 @@ import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { getEmployeesForService } from '@/services/userApi'
 import router from '@/router'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
 
@@ -416,6 +417,7 @@ const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
 const pdfUrl = ref('')
+const toast = useToast()
 
 const reportTitle = computed(() => {
   return reportData.value?.title || t('reports.reservation.cancelledReservations')
@@ -727,6 +729,7 @@ const generateCancelledReport = async () => {
     }
   } catch (error) {
     console.error('Erreur:', error)
+    toast.error(t('errors.generatingReport'))
     reservationData.value = []
   } finally {
     loading.value = false
@@ -900,6 +903,7 @@ const exportPDF = async (): Promise<void> => {
     console.log('Résultat export PDF:', result)
   } catch (error) {
     console.error('Erreur détaillée PDF:', error)
+      toast.error(t('errors.generatingReport'))
   } finally {
     exportLoading.value = false
   }

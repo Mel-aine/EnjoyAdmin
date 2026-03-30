@@ -197,11 +197,13 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { generateVoidList, type ReportFilters, exportData } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
 const router = useRouter()
 const idHotel = serviceStore.serviceId
+const toast = useToast()
 
 interface FilterOptions {
   value: string;
@@ -653,6 +655,7 @@ const generateVoidReport = async () => {
     }
   } catch (error) {
     console.error('Error generating void report:', error)
+    toast.error(t('errors.generatingReport'))
   } finally {
     loading.value = false
   }
@@ -690,6 +693,7 @@ const exportPDF = async (): Promise<void> => {
     console.log('PDF export result:', result)
   } catch (error) {
     console.error('PDF export error:', error)
+    toast.error(t('errors.generatingReport'))
   } finally {
     exportLoading.value = false
   }

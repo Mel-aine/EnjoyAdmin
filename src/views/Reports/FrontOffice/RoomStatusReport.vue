@@ -15,15 +15,15 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ $t('common.filters') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.date') }}
             </label>
-            <InputDatePicker 
-              v-model="selectedDate" 
+            <InputDatePicker
+              v-model="selectedDate"
               :placeholder="$t('common.date')"
               class="w-full"
             />
@@ -47,11 +47,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
-            
+
             <!-- Menu déroulant Export -->
             <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-<!--               <button 
-                @click="exportCSV" 
+<!--               <button
+                @click="exportCSV"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -60,8 +60,8 @@
                 </svg>
                 {{ $t('common.csv') }}
               </button> -->
-              <button 
-                @click="exportPDF" 
+              <button
+                @click="exportPDF"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -70,10 +70,10 @@
                 </svg>
                 {{ $t('common.pdf') }}
               </button>
-              <button 
+              <button
                 @click="generateReport"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                :disabled="isLoading"              
+                :disabled="isLoading"
                 >
                 <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-2"></path>
@@ -98,7 +98,7 @@
       <!-- Report Status (hidden from UI but data available for export) -->
       <div v-if="reportData" class="hidden">
         <!-- Composant d'export Word avec les données transformées -->
-        <WordExportButton 
+        <WordExportButton
           ref="wordExportRef"
           :api-data="reportData.data"
           :title="`STATUT DES CHAMBRES - ${reportData.data.hotelDetails.hotelName}`"
@@ -119,13 +119,13 @@ import { useServiceStore } from '@/composables/serviceStore'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import WordExportButton from '@/components/common/WordExportButton.vue'
-import { 
+import {
   fetchRoomStatusReport,
   getRoomStatusPdfUrl,
   type RoomStatusReportResponse,
-  type RoomStatusWordExportParams 
+  type RoomStatusWordExportParams
 } from '@/services/roomstatusApi'
-
+import { useToast } from 'vue-toastification'
 // Reactive data
 const isLoading = ref(false)
 const exportLoading = ref(false)
@@ -135,7 +135,7 @@ const successMessage = ref('')
 const reportData = ref<RoomStatusReportResponse | null>(null)
 const pdfUrl = ref('')
 const wordExportRef = ref<InstanceType<typeof WordExportButton> | null>(null)
-
+const toast = useToast()
 // Filtres
 const selectedDate = ref(new Date().toISOString().split('T')[0])
 const currentParams = computed((): any => ({
@@ -192,7 +192,8 @@ const generateReport = async () => {
     console.log('✅ Rapport généré avec succès:', response)
   } catch (error) {
     console.error('❌ Erreur lors de la génération du rapport:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
+    toast.error(t('errors.generatingReport'))
+    // errorMessage.value = error instanceof Error ? error.message : 'Failed to generate report'
   } finally {
     isLoading.value = false
     exportLoading.value = false
@@ -221,10 +222,10 @@ const exportCSV = async (): Promise<void> => {
     console.log('Export CSV avec les données:', reportData.value)
     // Implémentez ici la logique d'export CSV avec reportData.value
     successMessage.value = 'Export CSV en cours...'
-    
+
     // Simuler un délai d'export
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     successMessage.value = 'Export CSV terminé avec succès'
   } catch (error) {
     console.error('Erreur lors de l\'export CSV:', error)
@@ -238,7 +239,7 @@ const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    
+
     // Clear previous PDF URL
     if (pdfUrl.value) {
       URL.revokeObjectURL(pdfUrl.value)
@@ -249,10 +250,11 @@ const exportPDF = async (): Promise<void> => {
     const newPdfUrl = await getRoomStatusPdfUrl(currentParams.value)
     pdfUrl.value = newPdfUrl
     openPDFInNewPage()
-    
+
   } catch (error) {
     console.error('Erreur lors de l\'export PDF:', error)
-    errorMessage.value = error instanceof Error ? error.message : 'Failed to export PDF'
+      toast.error(t('errors.generatingReport'))
+    // errorMessage.value = error instanceof Error ? error.message : 'Failed to export PDF'
   } finally {
     exportLoading.value = false
   }
@@ -262,14 +264,14 @@ const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    
+
     if (!reportData.value) {
       throw new Error('Aucune donnée de rapport disponible')
     }
 
     // Attendre que le composant soit rendu
     await nextTick()
-    
+
     if (wordExportRef.value) {
       successMessage.value = 'Export Word en cours...'
       // Déclencher l'export via le composant WordExportButton

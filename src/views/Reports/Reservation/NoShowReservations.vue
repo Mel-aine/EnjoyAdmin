@@ -312,6 +312,7 @@ import { getRateTypes } from '@/services/rateTypeApi'
 import { useRouter } from 'vue-router'
 import { getEmployeesForService } from '@/services/userApi'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 
 interface FilterOptions {
   value: string;
@@ -356,6 +357,7 @@ const roomTypeOptions = ref<FilterOptions[]>([])
 const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
 const idHotel = serviceStore.serviceId
+const toast = useToast()
 
 const { t } = useI18n()
 const router = useRouter()
@@ -554,6 +556,7 @@ const generateNoShowReport = async () => {
     }
   } catch (error) {
     console.error('Erreur:', error)
+    toast.error(t('errors.generatingReport'))
   } finally {
     loading.value = false
   }
@@ -589,6 +592,7 @@ const exportPDF = async (): Promise<void> => {
     console.log('Résultat export PDF:', result)
   } catch (error) {
     console.error('Erreur détaillée PDF:', error)
+    toast.error(t('errors.generatingReport'))
   } finally {
     exportLoading.value = false
   }

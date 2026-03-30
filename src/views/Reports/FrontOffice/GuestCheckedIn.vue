@@ -228,6 +228,7 @@ import { useRouter } from 'vue-router'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { useBooking } from '@/composables/useBooking2'
+import { useToast } from 'vue-toastification'
 
 const { t, locale } = useI18n()
 
@@ -286,6 +287,7 @@ const pdfUrl = ref('')
 const router = useRouter()
 const reportHtml = ref<string>('')
 const reportTitle = ref<string>(t('reports.frontOffice.guestCheckedIn'))
+const toast = useToast()
 
 const {
   // Options
@@ -466,6 +468,7 @@ const generateReport = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('Error generating report:', error)
+    toast.error(t('errors.generatingReport'))
   } finally {
     loading.value = false
   }
@@ -522,6 +525,7 @@ const exportPDF = async (): Promise<void> => {
     console.log('Résultat export PDF:', result)
   } catch (error) {
     console.error('Erreur détaillée PDF:', error)
+    toast.error(t('errors.generatingReport'))
   } finally {
     exportLoading.value = false
   }

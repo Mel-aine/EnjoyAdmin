@@ -646,6 +646,7 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { generatePickupDropoff, exportData, type PickupDropoffFilters } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -698,7 +699,7 @@ yesterday.setDate(yesterday.getDate() - 1)
 
 const todayFormatted = today.toISOString().split('T')[0]
 const yesterdayFormatted = yesterday.toISOString().split('T')[0]
-
+const toast = useToast()
 // Reactive data
 const showResults = ref<boolean>(false)
 const loading = ref<boolean>(false)
@@ -786,7 +787,8 @@ const generateReport = async () => {
       showResults.value = true
     }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : t('errors.generatingReport')
+    // error.value = err instanceof Error ? err.message : t('errors.generatingReport')
+    toast.error(t('errors.generatingReport'))
     console.error('Report generation error:', err)
   } finally {
     loading.value = false
@@ -823,6 +825,7 @@ const exportPDF = async (): Promise<void> => {
     openPDFInNewPage()
     console.log('Résultat export PDF:', result)
   } catch (error) {
+    toast.error(t('errors.generatingReport'))
     console.error('Erreur détaillée PDF:', error)
   } finally {
     exportLoading.value = false
