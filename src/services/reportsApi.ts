@@ -682,7 +682,7 @@ export const exportData = async (
     const filename = `${reportTypes}_${new Date().toISOString().split('T')[0]}.${getFileExtension(format)}`;
 
     return {
-      fileUrl,       
+      fileUrl,
       filename    // Nom du fichier
     };
   } catch (error) {

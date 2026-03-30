@@ -311,6 +311,7 @@ import { getCompanies } from '@/services/companyApi'
 import { getRoomTypes } from '@/services/roomTypeApi'
 import { getRateTypes } from '@/services/rateTypeApi'
 import { getEmployeesForService } from '@/services/userApi'
+import router from '@/router'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
@@ -381,6 +382,8 @@ const companyOptions = ref<FilterOptions[]>([])
 const roomTypeOptions = ref<FilterOptions[]>([])
 const rateTypeOptions = ref<FilterOptions[]>([])
 const userOptions = ref<FilterOptions[]>([])
+const reportDatas = ref<any>(null)
+const pdfUrl = ref('')
 
 const showAmountOptions = ref<FilterOptions[]>([
   { value: 'rent_per_night', label: t('common.ratePerNight') },
@@ -407,7 +410,9 @@ const normalizeKey = (name: string): string => {
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
 }
-
+const reportTitle = computed(() => {
+  return reportData.value?.title || t('reports.reservation.departureList')
+})
 const bookingTypeOptions = computed<FilterOptions[]>(() => {
   const list: any[] = (BookingType as any).value || []
   return list.map((opt: any) => {
@@ -559,6 +564,7 @@ const generateDepartureReport = async () => {
 
     if (response && response.success && response.data) {
       reportData.value = response.data
+      reportDatas.value = response.data.datas
       showResults.value = true
     } else {
       // For testing purposes, show sample data
@@ -587,12 +593,19 @@ const exportCSV = async (): Promise<void> => {
   }
 }
 
+
 const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
     console.log('Export PDF with filters:', apiFilters.value)
+     if (pdfUrl.value) {
+      URL.revokeObjectURL(pdfUrl.value)
+      pdfUrl.value = ''
+    }
     const result = await exportData('pdf', 'departureList', 'departure-list', apiFilters.value)
+    pdfUrl.value = result?.fileUrl || ''
+    openPDFInNewPage()
     console.log('PDF export result:', result)
   } catch (error) {
     console.error('PDF export error:', error)
@@ -600,6 +613,21 @@ const exportPDF = async (): Promise<void> => {
     exportLoading.value = false
   }
 }
+
+const openPDFInNewPage = () => {
+  if (pdfUrl.value) {
+    const encodedUrl = btoa(encodeURIComponent(pdfUrl.value))
+    const routeData = router.resolve({
+      name: 'PDFViewer',
+      query: {
+        url: encodedUrl,
+        title: reportTitle.value
+      }
+    })
+    window.open(routeData.href, '_blank')
+  }
+}
+
 
 const exportExcel = async (): Promise<void> => {
   try {
@@ -618,10 +646,10 @@ const exportExcel = async (): Promise<void> => {
 // Traduit des fragments HTML renvoyés par l'API (fallback côté client)
 const translateReportHtml = (html: string): string => {
   if (!html) return html
-  
+
   // Normaliser les espaces insécables
   let out = html.replace(/&nbsp;/g, ' ')
-  
+
   const replacements: Record<string, string> = {
     // Titres et descriptions
     'Departure List Report': t('reports.reservation.departureResults'),

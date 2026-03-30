@@ -12,15 +12,15 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ t('common.filters') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Cancellation Dates -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('reports.reservation.voidFrom') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.arrivalFrom" 
+            <InputDatepicker
+              v-model="filters.arrivalFrom"
               :placeholder="t('common.from')"
               class="w-full"
               @update:modelValue="updateDateFilter('startDate', $event)"
@@ -30,8 +30,8 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('reports.reservation.voidTo') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.arrivalTo" 
+            <InputDatepicker
+              v-model="filters.arrivalTo"
               :placeholder="t('common.to')"
               class="w-full"
               @update:modelValue="updateDateFilter('endDate', $event)"
@@ -57,11 +57,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
-            
+
             <!-- Export Dropdown Menu -->
             <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-<!--               <button 
-                @click="exportCSV" 
+<!--               <button
+                @click="exportCSV"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -70,8 +70,8 @@
                 </svg>
                 {{ t('common.csv') }}
               </button> -->
-              <button 
-                @click="exportPDF" 
+              <button
+                @click="exportPDF"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -80,8 +80,8 @@
                 </svg>
                 {{ t('common.pdf') }}
               </button>
-<!--               <button 
-                @click="exportExcel" 
+<!--               <button
+                @click="exportExcel"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -92,9 +92,9 @@
               </button> -->
             </div>
           </div>
-          
+
           <!-- Report Button -->
-          <button 
+          <button
             @click="generateVoidReport"
             :disabled="loading"
             class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
@@ -105,9 +105,9 @@
             </svg>
             {{ t('common.report') }}
           </button>
-          
+
           <!-- Reset Button -->
-          <button 
+          <button
             @click="resetForm"
             class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
           >
@@ -130,10 +130,10 @@
             <span>{{ t('common.generated') }}: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}</span>
           </div>
         </div>
-        
+
         <!-- HTML Report Content -->
         <div v-if="reportData?.html" v-html="translatedHtml" class="report-html-container"></div>
-        
+
         <!-- Fallback if no HTML (normal table display) -->
         <div v-else>
           <div class="overflow-x-auto">
@@ -169,7 +169,7 @@
               </tbody>
             </table>
           </div>
-          
+
           <!-- Total Row -->
           <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
             <div class="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -197,11 +197,13 @@ import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { generateVoidList, type ReportFilters, exportData } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
 const serviceStore = useServiceStore()
 const router = useRouter()
 const idHotel = serviceStore.serviceId
+const toast = useToast()
 
 interface FilterOptions {
   value: string;
@@ -294,13 +296,13 @@ const tableColumns = computed<TableColumn[]>(() => [
   { key: 'departure', label: t('reports.reservation.columns.departure'), type: 'custom' },
   { key: 'folioNo', label: t('reports.reservation.columns.folioNo'), type: 'custom' },
   { key: 'adr', label: t('reports.reservation.columns.adr'), type: 'custom' },
-  { key: 'carRevenue', label: t('reports.reservation.columns.carRevenue'), type: 'custom' },
+  // { key: 'carRevenue', label: t('reports.reservation.columns.carRevenue'), type: 'custom' },
   { key: 'charges', label: t('reports.reservation.columns.charges'), type: 'custom' },
   { key: 'paid', label: t('reports.reservation.columns.paid'), type: 'custom' },
   { key: 'balance', label: t('reports.reservation.columns.balance'), type: 'custom' },
   { key: 'source', label: t('reports.reservation.columns.source'), type: 'custom' },
-  { key: 'cancelledBy', label: t('reports.reservation.columns.cancelledBy'), type: 'custom' },
-  { key: 'cancelledDate', label: t('reports.reservation.columns.cancelledDate'), type: 'custom' }
+  { key: 'voidBy', label: t('reports.reservation.columns.voidedBy'), type: 'custom' },
+  { key: 'voidDate', label: t('reports.reservation.columns.voidedDate'), type: 'custom' }
 ])
 
 // Sample data for the table
@@ -381,7 +383,7 @@ const reservationData = ref<Reservation[]>([
 // Table data with integrated remarks rows
 const tableDataWithRemarks = computed(() => {
   const result: TableRow[] = []
-  
+
   reservationData.value.forEach((reservation, index) => {
     // Add main reservation row
     result.push({
@@ -403,7 +405,7 @@ const tableDataWithRemarks = computed(() => {
       cancelledDate: reservation.cancelledDate,
       isRemarkRow: false
     })
-    
+
     // Add remarks row if exists
     if (reservation.remarks) {
       result.push({
@@ -427,7 +429,7 @@ const tableDataWithRemarks = computed(() => {
       })
     }
   })
-  
+
   return result
 })
 
@@ -567,7 +569,7 @@ const translateReportHtml = (html: string): string => {
       out = out.replace(regex, fr)
     }
   }
-  
+
   // Traiter ensuite N/A avec différentes variantes (ordre important : les plus spécifiques d'abord)
   const naValue = t('common.na')
   const naReplacements = [
@@ -579,11 +581,11 @@ const translateReportHtml = (html: string): string => {
     // Cas général
     { pattern: /N\/A/gi, replacement: naValue }
   ]
-  
+
   for (const { pattern, replacement } of naReplacements) {
     out = out.replace(pattern, replacement)
   }
-  
+
   // Ensuite les remplacements simples (sans balises, sauf N/A déjà traité)
   // Traiter d'abord les variantes avec deux-points pour éviter les remplacements partiels
   const colonReplacements = [
@@ -594,11 +596,11 @@ const translateReportHtml = (html: string): string => {
     { pattern: /\bTo:\s*/gi, replacement: t('common.to') + ': ' },
     { pattern: /\bTax Inclusive:\s*/gi, replacement: t('reports.reservation.taxInclusive') + ': ' }
   ]
-  
+
   for (const { pattern, replacement } of colonReplacements) {
     out = out.replace(pattern, replacement)
   }
- 
+
   // Traduire la ligne de synthèse "Generated on ... | ... records | ... columns displayed"
   const summaryPattern = /Generated\s+on\s+([^|]+)\|\s*(\d+)\s+records\s*\|\s*(\d+)\s+columns\s+displayed/gi
   out = out.replace(summaryPattern, (_match, datePart, recordCount, columnCount) => {
@@ -615,7 +617,7 @@ const translateReportHtml = (html: string): string => {
       out = out.replace(regex, fr)
     }
   }
-  
+
   return out
 }
 
@@ -641,18 +643,19 @@ watch(filters, (newFilters) => {
 const generateVoidReport = async () => {
   loading.value = true
   showResults.value = false
-  
+
   try {
     console.log('Generating void report with filters:', apiFilters.value)
     const response = await generateVoidList(apiFilters.value)
     console.log('Report Data:', response)
-    
+
     if (response && response.success && response.data) {
       reportData.value = response.data
       showResults.value = true
     }
   } catch (error) {
     console.error('Error generating void report:', error)
+    toast.error(t('errors.generatingReport'))
   } finally {
     loading.value = false
   }
@@ -676,7 +679,7 @@ const exportPDF = async (): Promise<void> => {
   try {
     exportLoading.value = true
     exportMenuOpen.value = false
-    
+
     // Clear previous PDF URL
     if (pdfUrl.value) {
       URL.revokeObjectURL(pdfUrl.value)
@@ -689,7 +692,8 @@ const exportPDF = async (): Promise<void> => {
     openPDFInNewPage()
     console.log('PDF export result:', result)
   } catch (error) {
-    console.error('PDF export error:', error) 
+    console.error('PDF export error:', error)
+    toast.error(t('errors.generatingReport'))
   } finally {
     exportLoading.value = false
   }
@@ -734,7 +738,7 @@ const openPDFInNewPage = () => {
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
-  
+
   try {
     const date = new Date(dateString)
     return date.toLocaleString('fr-FR', {
@@ -779,56 +783,18 @@ onUnmounted(() => {
 })
 </script>
 
+
+
 <style scoped>
-/* Custom styling for remark rows */
-:deep(.bg-white.dark\:bg-gray-800.divide-y.divide-gray-200.dark\:divide-gray-600 tr:has([data-remark-row])) {
-  background-color: #f9fafb;
-}
-
-:deep(.dark .bg-white.dark\:bg-gray-800.divide-y.divide-gray-200.dark\:divide-gray-600 tr:has([data-remark-row])) {
-  background-color: #374151;
-}
-
-/* Styles for HTML report content */
+/* ── Container du rapport HTML injecté via v-html ── */
 :deep(.report-html-container) {
   width: 100%;
+
+  background: transparent;
+  /* Un peu de padding pour aérer le fragment dans la card */
+  padding: 16px;
 }
 
-:deep(.report-html-container table) {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-:deep(.report-html-container th),
-:deep(.report-html-container td) {
-  padding: 8px 12px;
-  border: 1px solid #e5e7eb;
-}
-
-:deep(.report-html-container .report-container) {
-  margin: 0;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-:deep(.report-html-container .results-table) {
-  font-size: 12px;
-}
-
-/* Dark mode adaptation */
-.dark :deep(.report-html-container) {
-  color: #e5e7eb;
-}
-
-.dark :deep(.report-html-container .report-container) {
-  background-color: transparent;
-}
-
-.dark :deep(.report-html-container th),
-.dark :deep(.report-html-container td) {
-  border-color: #4b5563;
-  color: #e5e7eb;
-}
 
 /* Export button styles */
 .export-button {

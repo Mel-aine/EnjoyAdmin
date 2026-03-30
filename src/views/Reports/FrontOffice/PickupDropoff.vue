@@ -15,28 +15,28 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ t('common.filters') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Pick/Drop From -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('reports.frontOffice.pickupDropoffDetails.pickDropFrom') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.dateFrom" 
+            <InputDatepicker
+              v-model="filters.dateFrom"
               :placeholder="t('common.from')"
               class="w-full"
               @update:modelValue="updateDateFilter('startDate', $event)"
             />
           </div>
-          
+
           <!-- To -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.dateTo') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.dateTo" 
+            <InputDatepicker
+              v-model="filters.dateTo"
               :placeholder="t('common.to')"
               class="w-full"
               @update:modelValue="updateDateFilter('endDate', $event)"
@@ -48,7 +48,7 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ t('common.type') }}
             </label>
-            <SelectComponent 
+            <SelectComponent
               v-model="filters.type"
               :options="typeOptions"
               :placeholder="t('common.select')"
@@ -66,20 +66,52 @@
               :disabled="exportLoading"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
-              <svg v-if="exportLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                v-if="exportLoading"
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               <span v-if="!exportLoading">{{ t('common.export') }}</span>
-              <svg v-if="!exportLoading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              <svg
+                v-if="!exportLoading"
+                class="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
               </svg>
             </button>
-            
+
             <!-- Menu déroulant Export -->
-            <div v-if="exportMenuOpen" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
-    <!--           <button 
-                @click="exportCSV" 
+            <div
+              v-if="exportMenuOpen"
+              class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700"
+            >
+              <!--           <button
+                @click="exportCSV"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -88,18 +120,28 @@
                 </svg>
                 {{ t('common.csv') }}
               </button> -->
-              <button 
-                @click="exportPDF" 
+              <button
+                @click="exportPDF"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
-                <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                <svg
+                  class="w-4 h-4 mr-2 text-red-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  />
                 </svg>
                 {{ t('common.pdf') }}
               </button>
-<!--               <button 
-                @click="exportExcel" 
+              <!--               <button
+                @click="exportExcel"
                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 :disabled="exportLoading"
               >
@@ -112,25 +154,47 @@
           </div>
 
           <!-- Bouton Report -->
-          <button 
+          <button
             @click="generateReport"
             :disabled="loading"
             class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
           >
-            <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+              v-if="loading"
+              class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             {{ t('common.report') }}
           </button>
 
           <!-- Bouton Reset -->
-          <button 
+          <button
             @click="resetForm"
             class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
           >
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
             {{ t('common.reset') }}
           </button>
@@ -138,125 +202,433 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="text-center py-8">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-600 dark:text-gray-400">{{ t('reports.generatingReport') }}</p>
+      <div v-if="loading" class="space-y-6">
+        <!-- Skeleton En-tête -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 animate-pulse">
+          <div class="flex justify-between items-start">
+            <div class="space-y-2">
+              <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+            </div>
+            <div class="space-y-2 text-right">
+              <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
+              <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+            </div>
+          </div>
+          <div class="flex gap-4 mt-4">
+            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded-full w-40"></div>
+            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded-full w-40"></div>
+          </div>
+        </div>
+
+        <!-- Skeleton Tableau Pickup -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden animate-pulse">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-6 py-4 bg-blue-50 dark:bg-blue-900/20">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-800"></div>
+              <div class="h-4 bg-blue-200 dark:bg-blue-800 rounded w-24"></div>
+            </div>
+            <div class="h-6 bg-blue-200 dark:bg-blue-800 rounded-full w-20"></div>
+          </div>
+          <!-- Thead -->
+          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 flex gap-4">
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-6"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-32"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-28"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-16"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-20"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-16"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-24"></div>
+          </div>
+          <!-- Rows -->
+          <div
+            v-for="i in 4"
+            :key="i"
+            class="px-4 py-3 flex gap-4 border-b border-gray-100 dark:border-gray-700"
+          >
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-6"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+          </div>
+        </div>
+
+        <!-- Skeleton Tableau Dropoff -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden animate-pulse">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-6 py-4 bg-red-50 dark:bg-red-900/20">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-red-200 dark:bg-red-800"></div>
+              <div class="h-4 bg-red-200 dark:bg-red-800 rounded w-24"></div>
+            </div>
+            <div class="h-6 bg-red-200 dark:bg-red-800 rounded-full w-20"></div>
+          </div>
+          <!-- Thead -->
+          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 flex gap-4">
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-6"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-32"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-28"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-16"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-20"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-16"></div>
+            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-24"></div>
+          </div>
+          <!-- Rows -->
+          <div
+            v-for="i in 4"
+            :key="i"
+            class="px-4 py-3 flex gap-4 border-b border-gray-100 dark:border-gray-700"
+          >
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-6"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Error State -->
-      <div v-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+      <div
+        v-if="error"
+        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6"
+      >
         <p class="text-red-800 dark:text-red-200">{{ error }}</p>
       </div>
 
       <!-- Results Section -->
-      <div v-if="showResults" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+      <div v-if="showResults" class="space-y-6 mb-6">
         <!-- En-tête du rapport -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div class="flex justify-between items-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-start">
             <div>
               <h2 class="text-xl font-bold text-blue-600 dark:text-blue-400">
                 {{ reportData?.title || t('reports.frontOffice.pickupDropoffDetails.title') }}
               </h2>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {{ t('reports.frontOffice.pickupDropoffDetails.pickDropDateRange', { from: filters.dateFrom, to: filters.dateTo }) }}
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {{
+                  t('reports.frontOffice.pickupDropoffDetails.pickDropDateRange', {
+                    from: filters.dateFrom,
+                    to: filters.dateTo,
+                  })
+                }}
               </p>
             </div>
-            <div class="text-right">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                {{ t('reports.frontOffice.pickupDropoffDetails.title') }}
-              </h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ t('reports.generatedAt') }}: {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}
+            <div class="text-right text-xs text-gray-500 dark:text-gray-400 space-y-1">
+              <p>
+                {{ t('reports.generatedAt') }}:
+                {{ reportData?.generatedAt ? formatDate(reportData.generatedAt) : '' }}
               </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ t('reports.frontOffice.pickupDropoffDetails.by') }}: {{ reportData?.generatedBy || '' }}
+              <p>
+                {{ t('reports.frontOffice.pickupDropoffDetails.by') }}:
+                {{ reportData?.generatedBy || '' }}
               </p>
+            </div>
+          </div>
+
+          <!-- Badges résumé -->
+          <div class="flex gap-4 mt-4">
+            <div
+              v-if="reportData?.data?.pickup"
+              class="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-full"
+            >
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span class="text-sm font-medium text-blue-700 dark:text-blue-300">
+                {{ t('reports.frontOffice.pickupDropoffDetails.pickup') }} :
+                {{ reportData.data.pickup.totalGuests }}
+                {{ t('reports.frontOffice.pickupDropoffDetails.totalGuests') }}
+              </span>
+            </div>
+            <div
+              v-if="reportData?.data?.dropoff"
+              class="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-full"
+            >
+              <span class="w-2 h-2 rounded-full bg-red-500"></span>
+              <span class="text-sm font-medium text-red-700 dark:text-red-300">
+                {{ t('reports.frontOffice.pickupDropoffDetails.dropoff') }} :
+                {{ reportData.data.dropoff.totalGuests }}
+                {{ t('reports.frontOffice.pickupDropoffDetails.totalGuests') }}
+              </span>
             </div>
           </div>
         </div>
-        
-        <!-- Contenu HTML du rapport -->
-        <div v-if="reportData?.html" v-html="translatedHtml" class="report-html-container"></div>
-        
-        <!-- Fallback si pas de HTML (affichage normal) -->
-        <div v-else class="px-6 py-4">
-          <div class="mb-4">
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">
-              {{ t('reports.frontOffice.pickupDropoffDetails.fallbackHeader') }}
-            </h3>
-          </div>
 
+
+        <!-- Fallback si pas de HTML -->
+        <div  class=" space-y-6">
           <!-- Pickup Section -->
-          <div v-if="reportData?.data?.pickup" class="mb-6">
-            <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 mb-2">
-              <h4 class="font-medium text-blue-800 dark:text-blue-200">{{ t('reports.frontOffice.pickupDropoffDetails.pickup') }}</h4>
+          <div
+            v-if="reportData?.data?.pickup"
+            class="bg-white dark:bg-gray-800 rounded-lg  overflow-hidden shadow-sm"
+          >
+            <!-- Header -->
+            <div
+              class="flex items-center justify-between px-6 py-4 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-4 h-4 text-blue-600 dark:text-blue-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 10l7-7m0 0l7 7m-7-7v18"
+                    />
+                  </svg>
+                </div>
+                <h4 class="font-semibold text-blue-800 dark:text-blue-200 text-base">
+                  {{ t('reports.frontOffice.pickupDropoffDetails.pickup') }}
+                </h4>
+              </div>
+              <span
+                class="text-xs font-medium bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-3 py-1 rounded-full"
+              >
+                {{ reportData.data.pickup.totalGuests }}
+                {{ t('reports.frontOffice.pickupDropoffDetails.totalGuests') }}
+              </span>
             </div>
-            <div v-if="reportData.data.pickup.list.length === 0" class="text-gray-500 dark:text-gray-400 text-center py-4">
+
+            <!-- Tableau Pickup -->
+            <div
+              v-if="reportData.data.pickup.list.length === 0"
+              class="text-gray-500 dark:text-gray-400 text-center py-10"
+            >
+              <svg
+                class="w-10 h-10 mx-auto mb-2 text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
               {{ t('reports.frontOffice.pickupDropoffDetails.noPickupData') }}
             </div>
-            <div v-else>
-              <div v-for="(item, index) in reportData.data.pickup.list" :key="'pickup-' + index" class="border-b border-gray-100 dark:border-gray-700 py-2">
-                <div class="flex flex-wrap items-center gap-8 text-sm">
-                  <div class="min-w-[150px] text-gray-900 dark:text-white">
-                    {{ item.pickDropDateTime }}
-                  </div>
-                  <div class="min-w-[120px] text-gray-900 dark:text-white">
-                    {{ item.guestName }}
-                  </div>
-                  <div class="min-w-[80px] text-gray-900 dark:text-white">
-                    {{ item.roomNo }}
-                  </div>
-                  <div class="min-w-[100px] text-gray-900 dark:text-white">
-                    {{ item.mode }}
-                  </div>
-                  <div class="min-w-[80px] text-gray-900 dark:text-white">
-                    {{ item.vehicle }}
-                  </div>
-                  <div class="flex-1 text-gray-900 dark:text-white">
-                    {{ item.description }}
-                  </div>
-                </div>
-              </div>
-              <div class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('reports.frontOffice.pickupDropoffDetails.totalGuests') }} #{{ reportData.data.pickup.totalGuests }}
-              </div>
+            <div v-else class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-gray-50 dark:bg-gray-700 text-left">
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      #
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.date') }}/{{ t('common.time') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.guestName') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.roomNumber') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.mode') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.vehicle') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.description') }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                  <tr
+                    v-for="(item, index) in reportData.data.pickup.list"
+                    :key="'pickup-' + index"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <td class="px-4 py-3 text-gray-400 dark:text-gray-500 font-mono text-xs">
+                      {{ Number(index) + 1 }}
+                    </td>
+                    <td
+                      class="px-4 py-3 text-gray-900 dark:text-white whitespace-nowrap font-medium"
+                    >
+                      {{ item.pickDropDateTime }}
+                    </td>
+                    <td class="px-4 py-3 text-gray-900 dark:text-white">{{ item.guestName }}</td>
+                    <td class="px-4 py-3">
+                      <span
+                        class="bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded text-xs font-mono"
+                      >
+                        {{ item.roomNo }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ item.mode }}</td>
+                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                      {{ item.vehicle || '—' }}
+                    </td>
+                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                      {{ item.description || '—' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
           <!-- Dropoff Section -->
-          <div v-if="reportData?.data?.dropoff" class="mb-6">
-            <div class="bg-red-50 dark:bg-red-900/20 px-4 py-2 mb-2">
-              <h4 class="font-medium text-red-800 dark:text-red-200">{{ t('reports.frontOffice.pickupDropoffDetails.dropoff') }}</h4>
+          <div
+            v-if="reportData?.data?.dropoff"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden"
+          >
+            <!-- Header -->
+            <div
+              class="flex items-center justify-between px-6 py-4 bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-800"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-800 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-4 h-4 text-red-600 dark:text-red-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
+                  </svg>
+                </div>
+                <h4 class="font-semibold text-red-800 dark:text-red-200 text-base">
+                  {{ t('reports.frontOffice.pickupDropoffDetails.dropoff') }}
+                </h4>
+              </div>
+              <span
+                class="text-xs font-medium bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200 px-3 py-1 rounded-full"
+              >
+                {{ reportData.data.dropoff.totalGuests }}
+                {{ t('reports.frontOffice.pickupDropoffDetails.totalGuests') }}
+              </span>
             </div>
-            <div v-if="reportData.data.dropoff.list.length === 0" class="text-gray-500 dark:text-gray-400 text-center py-4">
+
+            <!-- Tableau Dropoff -->
+            <div
+              v-if="reportData.data.dropoff.list.length === 0"
+              class="text-gray-500 dark:text-gray-400 text-center py-10"
+            >
+              <svg
+                class="w-10 h-10 mx-auto mb-2 text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
               {{ t('reports.frontOffice.pickupDropoffDetails.noDropoffData') }}
             </div>
-            <div v-else>
-              <div v-for="(item, index) in reportData.data.dropoff.list" :key="'dropoff-' + index" class="border-b border-gray-100 dark:border-gray-700 py-2">
-                <div class="flex flex-wrap items-center gap-8 text-sm">
-                  <div class="min-w-[150px] text-gray-900 dark:text-white">
-                    {{ item.pickDropDateTime }}
-                  </div>
-                  <div class="min-w-[120px] text-gray-900 dark:text-white">
-                    {{ item.guestName }}
-                  </div>
-                  <div class="min-w-[80px] text-gray-900 dark:text-white">
-                    {{ item.roomNo }}
-                  </div>
-                  <div class="min-w-[100px] text-gray-900 dark:text-white">
-                    {{ item.mode }}
-                  </div>
-                  <div class="min-w-[80px] text-gray-900 dark:text-white">
-                    {{ item.vehicle }}
-                  </div>
-                  <div class="flex-1 text-gray-900 dark:text-white">
-                    {{ item.description }}
-                  </div>
-                </div>
-              </div>
-              <div class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {{ t('reports.frontOffice.pickupDropoffDetails.totalGuests') }} #{{ reportData.data.dropoff.totalGuests }}
-              </div>
+            <div v-else class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-gray-50 dark:bg-gray-700 text-left">
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      #
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.date') }}/{{ t('common.time') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.guestName') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.roomNumber') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.mode') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.vehicle') }}
+                    </th>
+                    <th
+                      class="px-4 py-3 font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ t('common.description') }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                  <tr
+                    v-for="(item, index) in reportData.data.dropoff.list"
+                    :key="'dropoff-' + index"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <td class="px-4 py-3 text-gray-400 dark:text-gray-500 font-mono text-xs">
+                      {{ Number(index) + 1 }}
+                    </td>
+                    <td
+                      class="px-4 py-3 text-gray-900 dark:text-white whitespace-nowrap font-medium"
+                    >
+                      {{ item.pickDropDateTime }}
+                    </td>
+                    <td class="px-4 py-3 text-gray-900 dark:text-white">{{ item.guestName }}</td>
+                    <td class="px-4 py-3">
+                      <span
+                        class="bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-0.5 rounded text-xs font-mono"
+                      >
+                        {{ item.roomNo }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ item.mode }}</td>
+                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                      {{ item.vehicle || '—' }}
+                    </td>
+                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                      {{ item.description || '—' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -274,49 +646,50 @@ import InputDatepicker from '@/components/forms/FormElements/InputDatePicker.vue
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { generatePickupDropoff, exportData, type PickupDropoffFilters } from '@/services/reportsApi'
 import { useServiceStore } from '@/composables/serviceStore'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
 const router = useRouter()
 const serviceStore = useServiceStore()
 
 interface FilterOptions {
-  value: string;
-  label: string;
+  value: string
+  label: string
 }
 
 interface Filters {
-  dateFrom: string;
-  dateTo: string;
-  type: string;
+  dateFrom: string
+  dateTo: string
+  type: string
 }
 
 interface PickupDropoffItem {
-  hotelName: string;
-  startDate: string;
-  endDate: string;
-  pickDropDateTime: string;
-  guestName: string;
-  roomNo: string;
-  mode: string;
-  vehicle: string;
-  description: string;
+  hotelName: string
+  startDate: string
+  endDate: string
+  pickDropDateTime: string
+  guestName: string
+  roomNo: string
+  mode: string
+  vehicle: string
+  description: string
 }
 
 interface ReportData {
-  title: string;
-  html: string;
-  generatedAt: string;
-  generatedBy: string;
+  title: string
+  html: string
+  generatedAt: string
+  generatedBy: string
   data?: {
     pickup?: {
-      list: PickupDropoffItem[];
-      totalGuests: number;
-    };
+      list: PickupDropoffItem[]
+      totalGuests: number
+    }
     dropoff?: {
-      list: PickupDropoffItem[];
-      totalGuests: number;
-    };
-  };
+      list: PickupDropoffItem[]
+      totalGuests: number
+    }
+  }
 }
 
 // Définition des dates par défaut
@@ -326,37 +699,38 @@ yesterday.setDate(yesterday.getDate() - 1)
 
 const todayFormatted = today.toISOString().split('T')[0]
 const yesterdayFormatted = yesterday.toISOString().split('T')[0]
-
+const toast = useToast()
 // Reactive data
 const showResults = ref<boolean>(false)
 const loading = ref<boolean>(false)
 const exportLoading = ref<boolean>(false)
 const exportMenuOpen = ref<boolean>(false)
 const error = ref<string>('')
-const reportData = ref<ReportData | null>(null)
+const reportData = ref<any | null>(null)
+const Data = ref<any[]>([])
 const pdfUrl = ref('')
 const idHotel = serviceStore.serviceId
 
 // Filtres pour l'interface utilisateur avec les valeurs par défaut
 const filters = ref<Filters>({
-  dateFrom: yesterdayFormatted,  // Date de la veille
-  dateTo: todayFormatted,         // Date du jour
-  type: 'Both'                    // Both par défaut
+  dateFrom: yesterdayFormatted, // Date de la veille
+  dateTo: todayFormatted, // Date du jour
+  type: 'Both', // Both par défaut
 })
 
 // Filtres pour l'API - correspond aux données attendues par le backend
 const apiFilters = ref<PickupDropoffFilters>({
-  startDate: yesterdayFormatted,  // Date de la veille
-  endDate: todayFormatted,         // Date du jour
-  type: 'Both',                    // Both par défaut
-  hotelId: idHotel !== null ? idHotel : 0
+  startDate: yesterdayFormatted, // Date de la veille
+  endDate: todayFormatted, // Date du jour
+  type: 'Both', // Both par défaut
+  hotelId: idHotel !== null ? idHotel : 0,
 })
 
 // Options pour les sélecteurs - correspondent aux valeurs attendues par le backend
 const typeOptions = computed<FilterOptions[]>(() => [
   { value: 'Pickup', label: t('reports.frontOffice.pickupDropoffDetails.pickup') },
   { value: 'Dropoff', label: t('reports.frontOffice.pickupDropoffDetails.dropoff') },
-  { value: 'Both', label: t('reports.frontOffice.pickupDropoffDetails.both') }
+  { value: 'Both', label: t('reports.frontOffice.pickupDropoffDetails.both') },
 ])
 
 // Computed
@@ -365,15 +739,19 @@ const reportTitle = computed(() => {
 })
 
 // Watchers
-watch(filters, (newFilters) => {
-  // Mapper les filtres UI vers les filtres API
-  apiFilters.value = {
-    ...apiFilters.value,
-    startDate: newFilters.dateFrom || '',
-    endDate: newFilters.dateTo || '',
-    type: newFilters.type,
-  }
-}, { deep: true })
+watch(
+  filters,
+  (newFilters) => {
+    // Mapper les filtres UI vers les filtres API
+    apiFilters.value = {
+      ...apiFilters.value,
+      startDate: newFilters.dateFrom || '',
+      endDate: newFilters.dateTo || '',
+      type: newFilters.type,
+    }
+  },
+  { deep: true },
+)
 
 // Methods
 const updateDateFilter = (field: 'startDate' | 'endDate', value: string) => {
@@ -401,11 +779,16 @@ const generateReport = async () => {
     console.log('Report Data:', response)
 
     if (response && response.success && response.data) {
-      reportData.value = response.data
+      reportData.value = {
+        ...response,
+        data: response.data,
+      }
+
       showResults.value = true
     }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : t('errors.generatingReport')
+    // error.value = err instanceof Error ? err.message : t('errors.generatingReport')
+    toast.error(t('errors.generatingReport'))
     console.error('Report generation error:', err)
   } finally {
     loading.value = false
@@ -442,7 +825,8 @@ const exportPDF = async (): Promise<void> => {
     openPDFInNewPage()
     console.log('Résultat export PDF:', result)
   } catch (error) {
-    console.error('Erreur détaillée PDF:', error) 
+    toast.error(t('errors.generatingReport'))
+    console.error('Erreur détaillée PDF:', error)
   } finally {
     exportLoading.value = false
   }
@@ -469,88 +853,18 @@ const openPDFInNewPage = () => {
       name: 'PDFViewer',
       query: {
         url: encodedUrl,
-        title: reportTitle.value
-      }
+        title: reportTitle.value,
+      },
     })
     window.open(routeData.href, '_blank')
   }
 }
 
-// Traduit des fragments HTML renvoyés par l'API (fallback côté client)
-const translateReportHtml = (html: string): string => {
-  if (!html) return html
-  
-  // Normaliser les espaces insécables
-  let out = html.replace(/&nbsp;/g, ' ')
-  
-  // Traduire la ligne de synthèse "Generated on ... | ... records" ou "Generated on ... | ... records | ... columns displayed"
-  const summaryPattern = /Generated\s+on\s+([^|]+)\|\s*(\d+)\s+records(\s*\|\s*(\d+)\s+columns\s+displayed)?/gi
-  out = out.replace(summaryPattern, (_match, datePart, recordCount, _columnsPart, columnCount) => {
-    const dateText = datePart.trim()
-    if (columnCount) {
-      return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')} | ${columnCount} ${t('reports.columnsDisplayed')}`
-    }
-    return `${t('reports.generatedOn')} ${dateText} | ${recordCount} ${t('reports.records')}`
-  })
-  
-  const replacements: Record<string, string> = {
-    // Titres et descriptions
-    'Pickup/Dropoff Report': t('reports.frontOffice.pickupDropoffDetails.title'),
-    'PICKUP/DROPOFF REPORT': t('reports.frontOffice.pickupDropoffDetails.title').toUpperCase(),
-    'Pickup Dropoff Report': t('reports.frontOffice.pickupDropoffDetails.title'),
-    // Entêtes
-    'Hotel:': t('reports.reservation.hotel') + ':',
-    'From:': t('common.from') + ':',
-    'To:': t('common.to') + ':',
-    'Type:': t('common.type') + ':',
-    'Pickup': t('reports.frontOffice.pickupDropoffDetails.pickup'),
-    'Dropoff': t('reports.frontOffice.pickupDropoffDetails.dropoff'),
-    'Both': t('reports.frontOffice.pickupDropoffDetails.both'),
-    // Ligne de synthèse
-    'Generated on': t('reports.generatedOn'),
-    'records': t('reports.records'),
-    'columns displayed': t('reports.columnsDisplayed'),
-    // Colonnes du tableau
-    'Date/Time': t('common.date') + '/' + t('common.time'),
-    'Guest Name': t('common.guestName'),
-    'Room No': t('common.roomNumber'),
-    'Mode': t('common.mode'),
-    'Vehicle': t('common.vehicle'),
-    'Description': t('common.description'),
-    'Total Guests': t('reports.frontOffice.pickupDropoffDetails.totalGuests'),
-    // Autres
-    'Generated At': t('reports.generatedAt'),
-    'Generated at': t('reports.generatedAt'),
-    'Generated': t('reports.generatedAt'),
-    'By': t('reports.frontOffice.pickupDropoffDetails.by')
-  }
-  
-  // Traiter d'abord les remplacements avec balises HTML
-  for (const [en, fr] of Object.entries(replacements)) {
-    if (en.startsWith('>') && en.endsWith('<')) {
-      // Remplacement avec contexte HTML
-      const regex = new RegExp(en, 'gi')
-      out = out.replace(regex, fr)
-    }
-  }
-  // Ensuite les remplacements simples (sans balises)
-  for (const [en, fr] of Object.entries(replacements)) {
-    if (!en.startsWith('>') || !en.endsWith('<')) {
-      // Remplacement insensible à la casse pour couvrir les variantes
-      const escaped = en.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-      const regex = new RegExp('\\b' + escaped + '\\b', 'gi')
-      out = out.replace(regex, fr)
-    }
-  }
-  
-  return out
-}
 
-const translatedHtml = computed(() => translateReportHtml(reportData.value?.html || ''))
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return ''
-  
+
   try {
     const date = new Date(dateString)
     return date.toLocaleString('fr-FR', {
@@ -558,7 +872,7 @@ const formatDate = (dateString: string): string => {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     })
   } catch (error) {
     return dateString
@@ -567,9 +881,9 @@ const formatDate = (dateString: string): string => {
 
 const resetForm = (): void => {
   filters.value = {
-    dateFrom: yesterdayFormatted,  // Réinitialiser à la veille
-    dateTo: todayFormatted,         // Réinitialiser au jour actuel
-    type: 'Both'                    // Réinitialiser à Both
+    dateFrom: yesterdayFormatted, // Réinitialiser à la veille
+    dateTo: todayFormatted, // Réinitialiser au jour actuel
+    type: 'Both', // Réinitialiser à Both
   }
   showResults.value = false
   reportData.value = null
@@ -609,12 +923,12 @@ onUnmounted(() => {
   .grid-cols-3 {
     grid-template-columns: 1fr;
   }
-  
+
   .flex-wrap {
     flex-direction: column;
     align-items: flex-start !important;
   }
-  
+
   .min-width-150,
   .min-width-120,
   .min-width-80,
@@ -622,11 +936,11 @@ onUnmounted(() => {
     min-width: auto;
     width: 100%;
   }
-  
+
   .flex-col > div {
     width: 100%;
   }
-  
+
   .flex-col > div + div {
     margin-top: 1rem;
   }
@@ -680,7 +994,9 @@ onUnmounted(() => {
 
 .export-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .export-button:active {
@@ -688,11 +1004,15 @@ onUnmounted(() => {
 }
 
 /* Animation pour le menu déroulant */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s, transform 0.2s;
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
 }

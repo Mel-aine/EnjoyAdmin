@@ -18,8 +18,8 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.reportDate') }}
             </label>
-            <InputDatepicker 
-              v-model="filters.reportDate" 
+            <InputDatepicker
+              v-model="filters.reportDate"
               :placeholder="$t('common.selectDate')"
               class="w-full"
             />
@@ -30,22 +30,23 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t('common.mealPlan') }}
             </label>
-            <Select 
+            <Select
               v-model="filters.currency"
               :options="mealPlans.map(plan => ({ value: plan.code, label: plan.name }))"
               :placeholder="'-- Select --'"
               class="w-full"
+              :is-loading = "loading"
             />
           </div>
-          
+
         </div>
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-2 mt-6">
           <!-- Bouton Export -->
           <div class="relative">
-            <button 
-              @click="generateReport" 
+            <button
+              @click="generateReport"
               :disabled="isLoading || !filters.reportDate"
               class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
             >
@@ -56,7 +57,7 @@
               </svg>
             </button>
           </div>
-          
+
           <!-- Bouton Reset -->
           <div class="relative">
             <button
@@ -113,6 +114,7 @@ const { t } = useI18n()
 const router = useRouter()
 const serviceStore = useServiceStore()
 const currencyStore = useCurrencyStore()
+const loading = ref(false)
 
 interface FilterOptions {
   value: string;
@@ -210,14 +212,14 @@ const resetForm = (): void => {
 
 const fetchMealPlans = async () => {
   try {
-    isLoading.value = true
+    loading.value = true
     const res = await getMealPlans()
     console.log('res',res)
     mealPlans.value = (res.data?.data?.data || res.data?.data || res.data || [])
   } catch (e) {
     console.error('Failed to load meal plans', e)
   } finally {
-    isLoading.value = false
+    loading.value = false
   }
 }
 

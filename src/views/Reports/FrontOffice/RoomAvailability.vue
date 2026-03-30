@@ -55,7 +55,7 @@
 
         <div class="mt-4 flex justify-end">
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <button 
+            <button
               @click="generatePDF"
                 :disabled="isGeneratingPDF || !isDateRangeValid"
                 class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-24"
@@ -69,7 +69,7 @@
                 </span>
             </button>
                       <!-- Bouton Reset -->
-              <button 
+              <button
                 @click="resetForm"
                 class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
               >
@@ -196,6 +196,11 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
+
+const selectedRoomtypeLabel = computed(()=>{
+  const found = roomTypeOptions.value.find(option => option.value === filters.value.roomTypeId)
+  return found ? found.label : ''
+})
 // Nouvelle méthode pour gérer les changements de date
 const updateDateFilter = (type: 'startDate' | 'endDate', value: any) => {
   console.log('updateDateFilter called with:', type, value)
@@ -232,6 +237,7 @@ const generatePDF = async () => {
       hotelId: serviceStore.serviceId!,
       dateFrom: filters.value.dateFrom,
       dateTo: filters.value.dateTo,
+      roomTypeName: selectedRoomtypeLabel.value,
       ...(filters.value.roomTypeId && { roomTypeId: filters.value.roomTypeId }),
       ...(filters.value.floor && { floor: filters.value.floor })
     }
@@ -240,7 +246,7 @@ const generatePDF = async () => {
     const newPdfUrl = await roomAvailabilityService.generatePDFUrl(params)
     pdfUrl.value = newPdfUrl
 
-    console.log('PDF généré avec succès, URL:', pdfUrl.value)
+    console.log('Parametres:',params)
     openPDFInNewPage()
 
     successMessage.value = 'PDF généré avec succès'
