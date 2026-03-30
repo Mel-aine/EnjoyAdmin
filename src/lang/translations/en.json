@@ -3476,7 +3476,8 @@
     "VOID_REASON_REQUIRED": "A reason is required for voiding a transaction.",
     "VOID_REASON_ALREADY_EXISTS": "This reason already exists in this category.",
     "deleteGuestConflict": "Cannot delete this guest as they have active reservations.",
-    "guestAlreadyBlacklisted": "This guest is already blacklisted"
+    "guestAlreadyBlacklisted": "This guest is already blacklisted",
+    "generatingReport" : "Error during report generation "
   },
   "system_update": "System up to date",
   "now": "Today",

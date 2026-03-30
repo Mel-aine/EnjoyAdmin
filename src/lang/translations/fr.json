@@ -3474,7 +3474,8 @@
     "ROOMS_ASSOCIATED": "Impossible de supprimer ce type : des chambres associées existent.",
     "UNKNOWN": "Une erreur inconnue est survenue.",
     "deleteGuestConflict": "Impossible de supprimer ce client car il a des réservations actives.",
-    "guestAlreadyBlacklisted": "Ce client est déjà sur liste noire"
+    "guestAlreadyBlacklisted": "Ce client est déjà sur liste noire",
+    "generatingReport" : "Erreur lors de la génération du rapport "
   },
   "system_update": "Système à jour",
   "now": "Aujourd'hui",

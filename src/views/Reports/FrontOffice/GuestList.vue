@@ -5,9 +5,9 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ $t('reports.frontOffice.guestList') }}
         </h1>
-        <p class="text-gray-600 dark:text-gray-400"> 
+        <p class="text-gray-600 dark:text-gray-400">
           {{ $t('reports.frontOffice.guestListDescription') }}
-        </p> 
+        </p>
       </div>
 
       <!-- Filters -->
@@ -41,21 +41,21 @@
         <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
           <!-- Action Buttons -->
           <div class="flex justify-end gap-2 items-end">
-            <button 
+            <button
               @click="generateReport"
               :disabled="!filters.startDate || !filters.endDate || loading"
-              class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="inline-flex justify-center gap-1.5 items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Spinner v-if="loading" class="w-4 h-4 mr-1" />
               <span class="flex items-center">
                 {{ loading ? $t('common.report') : $t('common.report') }}
-                <svg v-if="!loading" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- <svg v-if="!loading" class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+                </svg> -->
               </span>
             </button>
 
-            <button 
+            <button
               @click="resetForm"
               class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-24"
             >
@@ -96,7 +96,6 @@
             :title="$t('reports.frontOffice.guestList')"
             :columns="tableColumns"
             :data="displayGuests"
-            :actions="tableActions"
             :searchable="true"
             :loading="loading"
             :show-header="false"
@@ -142,9 +141,11 @@ import Spinner from '../../../components/spinner/Spinner.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { getGuestListReport } from '@/services/reportsApi'
 import type { Action, Column } from '../../../utils/models'
+import { useToast } from 'vue-toastification'
 
 const { t } = useI18n()
 const router = useRouter()
+const toast = useToast()
 
 interface FilterOptions {
   value: string;
@@ -179,10 +180,10 @@ const guests = ref<Guest[]>([])
 // Fonction pour normaliser et traduire le statut
 const translateStatus = (status: string): string => {
   if (!status) return status
-  
+
   // Normaliser le statut (supprimer espaces, uniformiser la casse)
   const normalized = status.trim().replace(/\s+/g, '-')
-  
+
   // Mapper les différentes variantes vers les clés de traduction
   const statusMap: Record<string, string> = {
     'checked-in': 'reservationStatus.Checked-in',
@@ -208,13 +209,13 @@ const translateStatus = (status: string): string => {
     'voided': 'reservationStatus.Voided',
     'Voided': 'reservationStatus.Voided',
   }
-  
+
   // Chercher une correspondance exacte
   if (statusMap[normalized]) {
     const translated = t(statusMap[normalized])
     return translated !== statusMap[normalized] ? translated : status
   }
-  
+
   // Chercher une correspondance insensible à la casse
   const lowerNormalized = normalized.toLowerCase()
   for (const [key, translationKey] of Object.entries(statusMap)) {
@@ -223,14 +224,14 @@ const translateStatus = (status: string): string => {
       return translated !== translationKey ? translated : status
     }
   }
-  
+
   // Si aucune correspondance, essayer directement avec le statut normalisé
   const directKey = `reservationStatus.${normalized}`
   const directTranslation = t(directKey)
   if (directTranslation !== directKey) {
     return directTranslation
   }
-  
+
   // Fallback : retourner le statut original
   return status
 }
@@ -258,8 +259,12 @@ const showResults = ref<boolean>(false)
 // Options for selects
 const statusOptions = computed<FilterOptions[]>(() => [
   { value: '', label: t('common.all') },
-  { value: 'check_in', label: t('reservationStatus.Checked-in') },
-  { value: 'check_out', label: t('reservationStatus.Checked-out') }
+  { value: 'checked_in', label: t('reservationStatus.Checked-in') },
+  { value: 'checked_out', label: t('reservationStatus.Checked-out') },
+  { value: 'cancelled', label: t('reservationStatus.Cancelled') },
+  { value: 'voided', label: t('reservationStatus.Voided') },
+  { value: 'confirmed', label: t('reservationStatus.Confirmed') },
+  { value: 'no_show', label: t('reservationStatus.no_show') }
 ])
 
 // Computed properties
@@ -269,14 +274,14 @@ const hotelName = computed(() => {
 
 const totalGuests = computed(() => guests.value.length)
 
-const checkedInGuests = computed(() => 
+const checkedInGuests = computed(() =>
   guests.value.filter(guest => {
     const status = guest.status?.toLowerCase().replace(/[_\s-]/g, '')
     return status === 'checkedin' || status === 'checked-in' || status === 'checked_in'
   }).length
 )
 
-const checkedOutGuests = computed(() => 
+const checkedOutGuests = computed(() =>
   guests.value.filter(guest => {
     const status = guest.status?.toLowerCase().replace(/[_\s-]/g, '')
     return status === 'checkedout' || status === 'checked-out' || status === 'checked_out'
@@ -293,7 +298,7 @@ const generateReport = async () => {
   loading.value = true
   error.value = ''
   showResults.value = false
-  
+
   try {
     console.log('Generating guest list report with filters:', filters.value)
     const response = await getGuestListReport(filters.value)
@@ -305,7 +310,7 @@ const generateReport = async () => {
     showResults.value = true
   } catch (err) {
     console.error('Error fetching guest list:', err)
-    error.value = t('anErrorOcurr')
+    toast.error(t('anErrorOcurr'))
     guests.value = []
     showResults.value = false
   } finally {
@@ -317,7 +322,7 @@ const resetForm = (): void => {
   const todayDate = new Date()
   const weekAgo = new Date(todayDate)
   weekAgo.setDate(weekAgo.getDate() - 7)
-  
+
   filters.value = {
     startDate: weekAgo.toISOString().split('T')[0],
     endDate: todayDate.toISOString().split('T')[0],
@@ -339,29 +344,29 @@ const tableColumns = computed<Column[]>(() => [
   { key: 'roomNumber', label: t('common.roomNumber'), type: 'text' },
   { key: 'checkInDate', label: t('common.checkInDate'), type: 'text' },
   { key: 'checkOutDate', label: t('common.checkOutDate'), type: 'text' },
-  { 
-    key: 'statusLabel', 
-    label: t('common.status'), 
+  {
+    key: 'statusLabel',
+    label: t('common.status'),
     type: 'badge',
     translatable: true,
     badgeColors: statusBadgeColors.value,
   }
 ])
 
-const tableActions = computed<Action[]>(() => [
-  {
-    label: t('common.view'),
-    handler: (item: Guest) => viewDetails(item),
-    variant: 'primary'
-  }
-])
+// const tableActions = computed<Action[]>(() => [
+//   {
+//     label: t('common.view'),
+//     handler: (item: Guest) => viewDetails(item),
+//     variant: 'primary'
+//   }
+// ])
 
 // Initialize default dates (7 days ago to today)
 onMounted(() => {
   const todayDate = new Date()
   const weekAgo = new Date(todayDate)
   weekAgo.setDate(weekAgo.getDate() - 7)
-  
+
   filters.value.endDate = todayDate.toISOString().split('T')[0]
   filters.value.startDate = weekAgo.toISOString().split('T')[0]
 })
