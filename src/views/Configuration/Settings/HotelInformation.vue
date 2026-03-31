@@ -283,7 +283,7 @@ const toast = useToast()
 const { t } = useI18n({ useScope: 'global' })
 const isLoading = ref(false)
 
-export const HOTEL_PROPERTY_TYPES = [
+const HOTEL_PROPERTY_TYPES = [
   'apart_hotel',
   'apartment',
   'boat',
