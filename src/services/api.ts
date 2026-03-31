@@ -23,6 +23,17 @@ const REFRESH_ADVANCE_MS = 2 * 60 * 1000 // Refresh 2 minutes avant expiration
 
 let isRefreshing = false
 
+const syncPmsSubscriptionFromPayload = (payload: any) => {
+  if (!payload || typeof payload !== 'object') return
+
+  const has = (payload as any)?.hasPmsSubscription ?? (payload as any)?.has_pms_subscription
+  if (typeof has !== 'boolean') return
+
+  const sub = (payload as any)?.pmsSubscription ?? (payload as any)?.pms_subscription ?? null
+  const authStore = useAuthStore()
+  authStore.setPmsSubscriptionInfo(has, sub)
+}
+
 const getHeaders = () => {
   const authStore = useAuthStore()
   return {
@@ -30,6 +41,18 @@ const getHeaders = () => {
       Authorization: `Bearer ${authStore.token}`,
     },
     // Send cookies with API requests
+    withCredentials: true,
+  }
+}
+
+const getOptionalAuthHeaders = () => {
+  const authStore = useAuthStore()
+  const headers: Record<string, string> = {}
+  if (authStore.token) {
+    headers.Authorization = `Bearer ${authStore.token}`
+  }
+  return {
+    headers,
     withCredentials: true,
   }
 }
@@ -113,6 +136,10 @@ export const finAvailableHome = (
 }
 export const getPermission = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/permission`, getHeaders())
+}
+
+export const getActiveAnnouncements = (): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/announcements/active`, getOptionalAuthHeaders())
 }
 
 export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {
@@ -325,10 +352,17 @@ export const startAuthAutoRefresh = () => {
 
 // --- Intercepteur axios amélioré ---
 axios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const payload = response?.data?.data ?? response?.data
+    syncPmsSubscriptionFromPayload(payload)
+    return response
+  },
   async (error) => {
     const originalRequest = error.config
     const authStore = useAuthStore()
+
+    const errorPayload = error?.response?.data?.data ?? error?.response?.data
+    syncPmsSubscriptionFromPayload(errorPayload)
 
     const isAuthenticated = authStore.token && authStore.token !== 'null'
 
@@ -388,7 +422,8 @@ export function auth(credentials: { email: string; password: string; keepLoggedI
     .post(`${API_URL}/authLogin`, credentials, { withCredentials: true })
     .then((resp) => {
       const authStore = useAuthStore()
-
+      console.log('response', resp)
+      syncPmsSubscriptionFromPayload(resp?.data?.data ?? resp?.data)
       const token = resp.data.data?.access_token?.token
       const tokenData = resp.data.data?.access_token
       if (token && tokenData) {
@@ -418,6 +453,7 @@ export const refreshToken = async (): Promise<AxiosResponse<any>> => {
   const payload = currentRefresh ? { refresh_token: currentRefresh } : {}
 
   const resp = await axios.post(`${API_URL}/refresh-token`, payload, getRefreshHeaders())
+  syncPmsSubscriptionFromPayload(resp?.data?.data ?? resp?.data)
 
   const newToken = resp.data?.data?.access_token?.token
   const newTokenData = resp.data?.data?.access_token

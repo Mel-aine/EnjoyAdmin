@@ -25,7 +25,7 @@ import { initSpace } from '../../services/api'
 import router from '../../router'
 
 
-const { locale } = useI18n()
+const { locale } = useI18n({ useScope: 'global' })
 const languageStore = useLanguageStore()
 const isLoading = ref(false);
 const authStore = useAuthStore()
@@ -68,14 +68,41 @@ const initializeSpace = async () => {
 
     if (user) {
       if (user.language) {
-        locale.value = user.language;
-        languageStore.set(user.language);
+        const baseLanguage = String(user.language).split('_')[0]
+        const normalizedLanguage = baseLanguage === 'fr' ? 'fr' : 'en'
+        locale.value = normalizedLanguage;
+        languageStore.set(normalizedLanguage);
       }
       const userServices = res.data.data.userServices || [];
 
       const service = userServices[0];
       serviceStore.setServiceId(service.id);
       serviceStore.setCurrentService(service);
+      const propertyTypeRaw = String(service?.propertyType ?? service?.property_type ?? '').trim()
+      const propertyType = propertyTypeRaw.toLowerCase()
+      const apartmentMarkers = [
+        'apartment',
+        'apart_hotel',
+        'aparthotel',
+        'serviced apartment',
+        'residence',
+        'résidence',
+        'furnished',
+        'meuble',
+        'meublé',
+        'extended stay',
+        'extended-stay',
+        'rental',
+        'lease',
+        'corporate housing',
+      ]
+      const domain = propertyType
+        ? (apartmentMarkers.some(marker => propertyType.includes(marker)) ? 'apartment' : 'hotel')
+        : languageStore.domain
+      languageStore.setDomain(domain)
+      const baseLocale = languageStore.language === 'fr' ? 'fr' : 'en'
+      languageStore.set(baseLocale)
+      locale.value = domain === 'apartment' ? `${baseLocale}_apartment` : baseLocale
       serviceStore.setCalendarViewDate(service.currentWorkingDate)
       serviceStore.setCalendarDaysToShow(15)
       serviceStore.setRateTypes(res.data.data.rateTypes || []);
@@ -87,7 +114,7 @@ const initializeSpace = async () => {
           router.push({ path: '/front-office/dashboard' });
         }
     }
-  } catch (err: any) {
+  } catch (err) {
     console.error("Erreur handleSubmit:", err);
   } finally {
     isLoading.value = false;

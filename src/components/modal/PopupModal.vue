@@ -13,10 +13,15 @@ const props = defineProps({
     isOpen: {
         type: Boolean,
         default: false,
-    }
+    },
+    closable: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 const close = () => {
+    if (!props.closable) return
     console.log('emit close')
     emits('close');
 }
@@ -27,13 +32,13 @@ const close = () => {
 
         <div class="absolute w-full h-full inset-0 bg-black bg-opacity-75 transition-opacity" @click="close" aria-hidden="true"></div> -->
     <div class="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999" v-if="isOpen">
-        <div class="fixed inset-0 h-full w-full bg-gray-400/50 " aria-hidden="true" @click="close"></div>
+        <div class="fixed inset-0 h-full w-full bg-gray-400/50 " aria-hidden="true" @click="props.closable ? close() : undefined"></div>
 
 
         <div
             class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
             <div class="bg-white dark:bg-gray-800 dark:text-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                <button @click="close"
+                <button v-if="props.closable" @click="close"
                     class="transition-color absolute right-5 top-5 z-999 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600  dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
                     <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
@@ -54,7 +59,9 @@ const close = () => {
                     <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                         <h3 class="text-base font-semibold text-slate-900 dark:text-white" id="modal-title">{{ title }}</h3>
                         <div class="mt-2">
-                            <p class="text-sm text-slate-500 dark:text-white">{{ props.message }}</p>
+                            <slot>
+                                <p class="text-sm text-slate-500 dark:text-white whitespace-pre-line">{{ props.message }}</p>
+                            </slot>
                         </div>
                     </div>
                 </div>

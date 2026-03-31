@@ -50,17 +50,35 @@ app.use(router)
 app.use(i18n)
 app.use(Toast, options)
 
-// Sync i18n locale from Pinia language store after Pinia is ready
 const languageStore = useLanguageStore()
-if (languageStore.language) {
-  const supportedLocales = ['en', 'fr'] as const
-  type SupportedLocale = (typeof supportedLocales)[number]
-  const storeLocale = languageStore.language as string
+const supportedLocales = ['en', 'fr'] as const
+type SupportedLocale = (typeof supportedLocales)[number]
+
+const applyLocaleFromStore = () => {
+  const storeLocale = String(languageStore.language || 'en').split('_')[0]
   const resolvedLocale: SupportedLocale = supportedLocales.includes(storeLocale as SupportedLocale)
     ? (storeLocale as SupportedLocale)
     : 'en'
-  i18n.global.locale.value = resolvedLocale
+
+  const targetLocale =
+    languageStore.domain === 'apartment' ? `${resolvedLocale}_apartment` : resolvedLocale
+
+  if (
+    targetLocale === 'en' ||
+    targetLocale === 'fr' ||
+    targetLocale === 'en_apartment' ||
+    targetLocale === 'fr_apartment'
+  ) {
+    i18n.global.locale.value = targetLocale
+  } else {
+    i18n.global.locale.value = resolvedLocale
+  }
 }
+
+applyLocaleFromStore()
+languageStore.$subscribe(() => {
+  applyLocaleFromStore()
+})
 
 
 app.mount('#app')

@@ -1643,6 +1643,10 @@ router.beforeEach((to, from, next) => {
   const isLoginRoute =
     to.path === '/' || (to.name && String(to.name).toLowerCase() === 'login') || to.path.includes('/login')
 
+  if (authStore.isPmsSubscriptionBlocked && !isLoginRoute) {
+    return next('/')
+  }
+
   // Si une réauthentification est requise, ne pas bloquer la navigation
   if (!authStore.reauthRequired && !isLoginRoute) {
     // Autoriser la navigation si un token est encore présent (la modale gère la réauth)

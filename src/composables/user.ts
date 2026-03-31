@@ -11,6 +11,8 @@ export const useAuthStore = defineStore('auth', {
     UserId: null as number | null,
     reportsPermissions:[] as { id: string; name: string; description: string }[],
     reauthRequired: false as boolean,
+    hasPmsSubscription: null as boolean | null,
+    pmsSubscription: null as any,
   }),
 
   getters: {
@@ -18,6 +20,7 @@ export const useAuthStore = defineStore('auth', {
     isFullyAuthenticated: (state) => !!(state.token && state.user && state.UserId),// && state.roleId
     getUser: (state) => state.user,
     isAuthenticated: (state) => !!state.token,
+    isPmsSubscriptionBlocked: (state) => state.hasPmsSubscription === false,
   },
 
   actions: {
@@ -33,6 +36,11 @@ export const useAuthStore = defineStore('auth', {
       this.reauthRequired = flag
     },
 
+    setPmsSubscriptionInfo(hasPmsSubscription: boolean | null, pmsSubscription: any | null) {
+      this.hasPmsSubscription = hasPmsSubscription
+      this.pmsSubscription = pmsSubscription
+    },
+
     logout() {
       this.token = null;
       this.refreshToken = null;
@@ -44,6 +52,8 @@ export const useAuthStore = defineStore('auth', {
       this.tokenData = null
       this.refreshTokenData = null
       this.reauthRequired = false
+      this.hasPmsSubscription = null
+      this.pmsSubscription = null
     },
 
     forceLogout() {
@@ -55,6 +65,8 @@ export const useAuthStore = defineStore('auth', {
       this.roleId = null;
       this.UserId = null;
       this.reauthRequired = false;
+      this.hasPmsSubscription = null
+      this.pmsSubscription = null
 
     },
 

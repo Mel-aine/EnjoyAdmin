@@ -283,6 +283,67 @@ const toast = useToast()
 const { t } = useI18n({ useScope: 'global' })
 const isLoading = ref(false)
 
+const HOTEL_PROPERTY_TYPES = [
+  'apart_hotel',
+  'apartment',
+  'boat',
+  'camping',
+  'capsule_hotel',
+  'chalet',
+  'country_house',
+  'farm_stay',
+  'guest_house',
+  'holiday_home',
+  'holiday_park',
+  'homestay',
+  'hostel',
+  'hotel',
+  'inn',
+  'lodge',
+  'motel',
+  'resort',
+  'riad',
+  'ryokan',
+  'tent',
+  'villa',
+]
+
+const formatPropertyTypeLabel = (propertyType) => {
+  const normalized = String(propertyType || '').trim().toLowerCase()
+  if (!normalized) return ''
+  if (normalized === 'apart_hotel') return "Apart'hotel"
+
+  return normalized
+    .split('_')
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+}
+
+const normalizePropertyType = (value) => {
+  const raw = String(value || '').trim()
+  if (!raw) return ''
+
+  const lower = raw.toLowerCase()
+  const normalized = lower
+    .replace(/[’']/g, '')
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+
+  if (HOTEL_PROPERTY_TYPES.includes(normalized)) return normalized
+
+  const legacyMap = {
+    hotel_and_resort: 'hotel',
+    boutique_hotel: 'hotel',
+    business_hotel: 'hotel',
+    extended_stay: 'apartment',
+    bed_and_breakfast: 'guest_house',
+  }
+
+  return legacyMap[normalized] || raw
+}
+
 const hotelInfo = ref({
   "hotelName": "",
   "email": "",
@@ -309,18 +370,10 @@ const hotelInfo = ref({
 })
 
 
-const propertyTypeOptions = [
-  { label: t('hotelInformation.propertyTypes.hotelAndResort'), value: 'Hotel and Resort' },
-  { label: t('hotelInformation.propertyTypes.hotel'), value: 'Hotel' },
-  { label: t('hotelInformation.propertyTypes.resort'), value: 'Resort' },
-  { label: t('hotelInformation.propertyTypes.motel'), value: 'Motel' },
-  { label: t('hotelInformation.propertyTypes.inn'), value: 'Inn' },
-  { label: t('hotelInformation.propertyTypes.lodge'), value: 'Lodge' },
-  { label: t('hotelInformation.propertyTypes.boutiqueHotel'), value: 'Boutique Hotel' },
-  { label: t('hotelInformation.propertyTypes.businessHotel'), value: 'Business Hotel' },
-  { label: t('hotelInformation.propertyTypes.extendedStay'), value: 'Extended Stay' },
-  { label: t('hotelInformation.propertyTypes.bedAndBreakfast'), value: 'Bed & Breakfast' }
-]
+const propertyTypeOptions = HOTEL_PROPERTY_TYPES.map((propertyType) => ({
+  label: formatPropertyTypeLabel(propertyType),
+  value: propertyType,
+}))
 
 const gradeOptions = [
   { label: t('hotelInformation.grades.fiveStarsAndAbove'), value: 5 },
@@ -368,7 +421,7 @@ const loadHotelInfo = async () => {
       city: currentService.city,
       stateProvince:   currentService.stateProvince,
       postalCode: currentService.postalCode,
-      propertyType: currentService.propertyType,
+      propertyType: normalizePropertyType(currentService.propertyType),
       grade: currentService.grade,
       logoUrl:   currentService.logoUrl || '',
       registrationNo1:   currentService.registrationNo1 || '',
