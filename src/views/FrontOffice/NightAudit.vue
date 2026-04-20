@@ -242,6 +242,8 @@
         :reservation-id="selectdReservationId"
         :is-open="isAddPaymentModalOpen"
         :folio-id="selectedFolioId"
+        :reservation-data="selectedReservation"
+        :guest-id="selectedReservation?.guestId"
         @close="closeAddPaymentModal"
         @save="handleSavePayment"
       />
@@ -473,6 +475,7 @@ const fetchNightlyCharges = async () => {
   }
 }
 const selectdReservationId = ref(null)
+const selectedReservation = ref<any>(null)
 const showVoidModal = ref(false)
 const showNoShowModal = ref(false)
 const showCancelModal = ref(false)
@@ -748,6 +751,7 @@ const closeAmendStayModal = () => {
 }
 const handlerRoomStatus = (item: any, action: string) => {
   selectdReservationId.value = item.reservation_id
+  selectedReservation.value = item.reservation || item
 
   switch (action) {
     case 'check_out':
@@ -767,6 +771,7 @@ const handlerRoomStatus = (item: any, action: string) => {
 }
 const handlerPendingReservation = (item: any, action: string) => {
   selectdReservationId.value = item.reservation_id
+  selectedReservation.value = item.reservation || item
   // Handle specific actions using the composable
   switch (action) {
     case 'cancel_reservation':

@@ -1461,3 +1461,13 @@ export const getHotelHistory = async (filters: {
     throw error
   }
 }
+
+export const getCreditLedgerPaymentsReport = async (params: { hotelId: number; startDate: string; endDate: string }) => {
+  const response = await apiClient.get('/reports/statistics/credit-ledger-payments', { params ,...getHeaders() })
+  return response.data
+}
+
+export const getCreditLedgerPaymentsPdf = async (params: { hotelId: number; startDate: string; endDate: string }) => {
+  const response = await apiClient.post('/reports/statistics/credit-ledger-payments/pdf', params, { responseType: 'blob' ,...getHeaders() })
+  return response.data
+}

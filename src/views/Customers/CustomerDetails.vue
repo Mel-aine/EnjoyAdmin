@@ -51,26 +51,41 @@
           </div>
 
           <!-- Guest Stats -->
+          <div class="flex gap-6 items-center">
 
+            <!-- Outstanding Balance existant -->
             <div class="flex flex-col text-center">
               <span class="text-sm font-bold mb-1">{{ $t('OutstandingBalance') }}</span>
               <div class="relative">
-                <span
-                  :class="[
-                    'text-lg font-bold px-3 py-1 rounded-lg',
-                    outstandingBalance < 0
-                      ? 'text-red-700 bg-red-100 border border-red-300 shadow-md'
-                      : 'text-green-700 bg-green-100 border border-green-300'
-                  ]"
-                >
+                <span :class="[
+                  'text-lg font-bold px-3 py-1 rounded-lg',
+                  outstandingBalance < 0
+                    ? 'text-red-700 bg-red-100 border border-red-300 shadow-md'
+                    : 'text-green-700 bg-green-100 border border-green-300'
+                ]">
                   {{ formatCurrency(outstandingBalance) }}
                 </span>
-                <div
-                  v-if="outstandingBalance > 0"
-                  class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"
-                ></div>
+                <div v-if="outstandingBalance > 0"
+                  class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse">
+                </div>
               </div>
+            </div>
+
+            <!--  Crédit disponible -->
+            <div v-if="outstandingCredit > 0" class="flex flex-col text-center">
+              <span class="text-sm font-bold mb-1 text-green-700">{{ $t('credit_available') }}</span>
+              <div class="flex items-center gap-2 px-3 py-1 rounded-lg bg-green-50 border border-green-300">
+                <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-lg font-bold text-green-700">
+                  {{ formatCurrency(outstandingCredit) }}
+                </span>
               </div>
+            </div>
+
+          </div>
 
 
 
@@ -544,6 +559,10 @@ const getCustomerFolioDetails = async (pageNumber=1) => {
 const handlePageChange = (newPage:number)=>{
   getCustomerFolioDetails(newPage)
 }
+
+const outstandingCredit = computed(() => {
+  return parseFloat(customer.value?.outstandingCredit || '0')
+})
 
 const toggleBlacklistStatus = () => {
   if (!customer.value) return

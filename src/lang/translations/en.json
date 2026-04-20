@@ -75,7 +75,8 @@
         "unassignedRoom": "Unassigned Room",
         "inventory": "Inventory",
         "unconfirmedBookings": "Unconfirmed Bookings",
-        "selectAll": "Select All"
+        "selectAll": "Select All",
+        "transferredBalance" : "Balance transferred  (Customer credit)"
       }
     },
     "sources": {
@@ -4470,7 +4471,8 @@
     "vn": "Vietnamese",
     "ye": "Yemeni",
     "zm": "Zambian",
-    "zw": "Zimbabwean"
+    "zw": "Zimbabwean",
+    "undefined" : "N/A"
   },
   "payLater": "Pay later",
   "search_country": "Search for a country...",
@@ -4886,6 +4888,8 @@
       "payMethodWiseSummary": "Pay Method Wise Summary",
       "chargeWiseSummary": "Charge wise Summary",
       "chargeType": "Charge Type",
+      "creditLedgerPayments" : "Credit Ledger Payments",
+      "creditLedgerPaymentsDescription" : "View and manage payments made with Credit Ledger",
       "chargeTypes": {
         "newsPaper": "News Paper",
         "electricityBill": "Electricity Bill",
@@ -8868,5 +8872,21 @@
   "noFoliosFound" : "No Folios Found",
   "noFoliosFoundDescription" : "No Description",
   "deleteFolio" : "Delete Folio",
-  "remove_confirm_message_folio" : "Are you sure you want to remove this Foglio ?"
+  "remove_confirm_message_folio" : "Are you sure you want to remove this Foglio ?",
+  "credit_ledger" : "Credit Ledger",
+  "credit_available" : "Credit Available",
+  "exceeds_credit_available" : "Exceeds available credit",
+  "this_customer_has" : "This customer has a credit of",
+  "loading_credit" : "Loading credit...",
+  "credit_balance" : "Credit Balance",
+  "Transferred" : "Transferred",
+  "Transferred_balance" : "Balance transferred to customer account",
+  "customer_credit_balance" : "This customer has a credit of",
+  "Apply" : "Apply",
+  "Apply Credit to Reservation" : "Apply Credit to Reservation",
+  "Amount to apply" : "Amount to apply",
+  "Credit applied successfully" : "Credit applied successfully",
+  "Failed to apply credit" : "Failed to apply credit",
+  "transactionNumber" : "Transaction Number"
+
 }

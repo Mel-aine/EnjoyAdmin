@@ -332,6 +332,15 @@
                                 :title="$t('Female Guest')"
                               />
                             </div>
+                            <span
+                              v-if="hasCredirLedgerTransfer(res)"
+                              class="absolute -top-2 right-0 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-purple-500 text-white"
+                              :title="$t('Transferred_balance')"
+                            >
+                              <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                              </svg>
+                            </span>
                           </div>
 
                           <!-- Middle-day reservation segment (full width) -->
@@ -402,6 +411,16 @@
                                 :title="$t('Female Guest')"
                               />
                             </div>
+
+                            <span
+                              v-if="hasCredirLedgerTransfer(cell.reservationStart || cell.reservationCarryOver)"
+                              class="absolute -top-2 right-0 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-purple-500 text-white"
+                              :title="$t('Transferred_balance')"
+                            >
+                              <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                              </svg>
+                            </span>
                           </div>
 
                           <div
@@ -680,6 +699,18 @@
               formatCurrency(tooltipReservation?.balance_summary?.outstandingBalance)
             }}</span>
           </div>
+         
+          <div v-if="hasCredirLedgerTransfer(tooltipReservation)" class="flex justify-between text-purple-400">
+            <span class="font-medium flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+              {{ $t('Transferred') }} :
+            </span>
+            <span class="font-bold">
+              {{ formatCurrency(tooltipReservation?.balance_summary?.creditLedgerTransferred || 0) }}
+            </span>
+          </div>
         </div>
       </div>
       <!-- Flèche -->
@@ -801,6 +832,8 @@ import DollarsIcons from '@/icons/BookingStatus/dollarsIcone.vue'
 import CrownIcons from '@/icons/BookingStatus/CrownIcon.vue'
 import UsersIcons from '@/icons/BookingStatus/UserGroupIcon.vue'
 import HandIcons from '@/icons/BookingStatus/HandIcon.vue'
+import ArrowRightIcon from '@/icons/BookingStatus/ArrowRightIcon.vue'
+
 import StarIcons from '@/icons/BookingStatus/starIcon.vue'
 import SplitIcons from '@/icons/BookingStatus/splitIcon.vue'
 import LadyIcons from '@/icons/BookingStatus/ladyIcon.vue'
@@ -2175,6 +2208,7 @@ const legendSections = computed(() => {
         { label: t('bookings.calendar.labels.singleLady'), icon: LadyIcons },
         { label: t('bookings.calendar.labels.vipGuest'), icon: StarIcons },
         { label: t('bookings.calendar.labels.splitReservation'), icon: SplitIcons },
+        { label: t('bookings.calendar.labels.transferredBalance'), icon: ArrowRightIcon },
       ],
     },
     {
@@ -2843,6 +2877,15 @@ const UnblockRoomPermission = computed(() => {
 const canAddBooking = computed(() => {
   return useAuthStore().hasPermission("add_reservation")
 })
+
+
+function hasCredirLedgerTransfer(reservation: any): boolean {
+  return Boolean(
+    reservation?.has_credit_transfer ||
+    reservation?.balance_summary?.hasCreditLedgerTransfer ||
+    reservation?.credit_ledger_transferred
+  )
+}
 
 // Cleanup des event listeners
 onUnmounted(() => {
