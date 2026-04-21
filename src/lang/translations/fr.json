@@ -983,7 +983,12 @@
       "cancellationPolicy": "Politique d'annulation",
       "hotelPolicy": "Politique de l'hôtel",
       "nightAuditStartTime": "Heure de début de l'audit de nuit",
-      "nightAuditEndTime": "Heure de fin de l'audit de nuit"
+      "nightAuditEndTime": "Heure de fin de l'audit de nuit",
+      "hasCreditLedger" : "Avec compte de crédit"
+    },
+    "creditLedger": {
+      "enabled": "Activé",
+      "disabled": "Désactivé"
     },
     "placeholders": {
       "hotelName": "Saisissez le nom de l'hôtel",

@@ -351,7 +351,11 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { useSidebar } from '@/composables/useSidebar'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
+import { useServiceStore } from '@/composables/serviceStore'
 
+
+
+const serviceStore = useServiceStore()
 const route = useRoute()
 const { isExpanded } = useSidebar()
 const authStore = useAuthStore()
@@ -368,6 +372,12 @@ const openSections = ref<any>({
   custom: false,
   oldTransaction: false,
 })
+
+
+const hasCreditLedger = computed(() => {
+  return serviceStore.getCurrentService?.hasCreditLedger ?? false
+})
+
 
 // Mapping des noms de rapports vers les permissions
 const reportPermissions = {
@@ -595,6 +605,10 @@ const filteredBackOfficeReports = computed(() => {
 
     const permission = reportPermissions[report.name as keyof typeof reportPermissions];
     const hasPermission = permission ? authStore.hasReportPermission(permission) : false;
+      if (report.name === 'credit-ledger-payments') {
+      return hasPermission && hasCreditLedger.value
+    }
+
     console.log(`Rapport: ${report.name}, Permission: ${permission}, Accès: ${hasPermission}`);
     return hasPermission;
   });

@@ -174,7 +174,10 @@ const serviceStore = useServiceStore()
 const toast = useToast()
 const { t } = useI18n()
 const { creditBalance: fetchedCreditBalance, isLoading: isLoadingCredit, fetchBalance } = useGuestCreditBalance()
-
+const hasCreditLedger = computed(() => {
+  const service = serviceStore.getCurrentService
+  return service?.hasCreditLedger ?? false
+})
 
 const hasCreditBalance = computed(() => fetchedCreditBalance.value > 0)
 const availableCreditAmount = computed(() => fetchedCreditBalance.value)
@@ -185,7 +188,7 @@ const creditBalanceFormatted = computed(() =>
 
 const typeOptions = computed(() => {
   const canCityLedger = useAuthStore().hasPermission('access_to_transfer_charges_to_city_ledger')
-  const canUseCreditLedger = formData.amount < 0
+  const canUseCreditLedger = formData.amount < 0 && hasCreditLedger.value 
 
   const options = [
     { value: 'cash', label: t('cash') },

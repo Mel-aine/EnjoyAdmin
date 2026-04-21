@@ -1002,7 +1002,12 @@
       "cancellationPolicy": "Cancellation Policy",
       "hotelPolicy": "Hotel Policy",
       "nightAuditStartTime": "Night Audit Start Time",
-      "nightAuditEndTime": "Night Audit End Time"
+      "nightAuditEndTime": "Night Audit End Time",
+      "hasCreditLedger" : "Has Credit Ledger"
+    },
+    "creditLedger": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
     },
     "placeholders": {
       "hotelName": "Enter hotel name",
