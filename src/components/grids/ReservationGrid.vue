@@ -247,7 +247,9 @@
   <!-- Add Payment Modal -->
   <template v-if="isAddPaymentModalOpen && selectedReservation">
     <AddPaymentModal :reservation-id="selectedReservation.id" :is-open="isAddPaymentModalOpen"
-      @close="closeAddPaymentModal" @save="handleSavePayment" />
+      @close="closeAddPaymentModal" @save="handleSavePayment"
+      :reservation-data="selectedReservation" :guest-id="selectedReservation?.guestId"
+     />
   </template>
 
   <!-- Check Out Modal -->

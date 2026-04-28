@@ -103,9 +103,34 @@ watch(
 )
 
 const selectCustomer = (customer: any) => {
-  if (!customer) {
+ if (!customer) {
+    Object.assign(selectedCustomer.value, {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      guestId: null,
+      address: '',
+      country: '',
+      city: '',
+      idType: '',
+      idNumber: '',
+      idExpiryDate: '',
+      profilePhoto: null,
+      idPhoto: null,
+      nationality: '',
+      title: '',
+      maidenName: '',
+      placeOfBirth: '',
+      dateOfBirth: '',
+      profession: '',
+      issuingCountry: '',
+      issuingCity: '',
+    })
+    emit('customerSelected', null)
     return
   }
+
   selectedCustomer.value.firstName = customer.firstName ?? selectedCustomer.value.firstName
   selectedCustomer.value.guestId = customer.id ?? selectedCustomer.value.guestId
   selectedCustomer.value.lastName = customer.lastName ?? selectedCustomer.value.lastName

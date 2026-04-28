@@ -139,6 +139,35 @@
                     />
                   </div>
               </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div class="flex items-center gap-3">
+                  <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('hotelInformation.fields.hasCreditLedger') }}
+                  </label>
+                  <button
+                    type="button"
+                    @click="hotelInfo.hasCreditLedger = !hotelInfo.hasCreditLedger"
+                    :class="[
+                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none',
+                      hotelInfo.hasCreditLedger
+                        ? 'bg-orange-600'
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    ]"
+                  >
+                    <span
+                      :class="[
+                        'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+                        hotelInfo.hasCreditLedger ? 'translate-x-6' : 'translate-x-1'
+                      ]"
+                    />
+                  </button>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ hotelInfo.hasCreditLedger
+                        ? t('hotelInformation.creditLedger.enabled')
+                        : t('hotelInformation.creditLedger.disabled') }}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <!-- Property Information -->
@@ -366,6 +395,7 @@ const hotelInfo = ref({
   "hotelPolicy": "",
   "nightAuditStartTime": 1,
   "nightAuditEndTime": 1,
+  hasCreditLedger: false,
   logoFile: null
 })
 
@@ -431,6 +461,7 @@ const loadHotelInfo = async () => {
       hotelPolicy: currentService.hotelPolicy || '',
       nightAuditStartTime: currentService.nightAuditStartTime || '',
       nightAuditEndTime: currentService.nightAuditEndTime || '',
+      hasCreditLedger: currentService.hasCreditLedger || false,
     }
   }
 }

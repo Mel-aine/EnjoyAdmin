@@ -41,6 +41,8 @@
     <template v-if="isAddPaymentModalOpen && selectedFolio">
       <AddPaymentModal :reservation-id="selectedFolio.reservationId" :is-open="isAddPaymentModalOpen"
         :folio-id="selectedFolio.id"
+        :reservation-data="selectedFolio"
+        :guest-id="selectedFolio.guestId"
         @close="closeAddPaymentModal" @save="handleSavePayment" />
     </template>
 
@@ -78,6 +80,8 @@ interface UnsettledFolio {
   id: string
   folioNumber: string
   guestName: string
+  guestId?: number
+  creditBalance?: number
   reservationNumber: string
   roomNumber: string
   roomType: string
