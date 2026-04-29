@@ -55,6 +55,7 @@ interface Props {
     reference: string
     description: string
     amount: number
+    transactionType?: string
   } | null
   // When true, void through company payment API
   isCompanyPayment?: boolean
@@ -165,7 +166,8 @@ const handleVoidTransaction = async () => {
 
       emit('success', {
         message: t('transactionVoidedSuccessfully'),
-        data: response.data
+        data: response.data,
+        isCreditLedgerVoid: props.transactionDetails?.transactionType === 'credit_ledger_payment'
       })
 
       closeModal()

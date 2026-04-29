@@ -44,7 +44,8 @@
     <!-- Add Payment -->
     <template v-if="isAddPaymentModalOpen">
       <AddPaymentModal :reservation-id="localRes.id" :is-open="isAddPaymentModalOpen" @close="closeAddPaymentModal"
-        @save="handleSavePayment" :folio-id="primaryFolioId" />
+        @save="handleSavePayment" :folio-id="primaryFolioId" :reservation-data="localRes" :guest-id="localRes?.guestId"
+       />
     </template>
 
     <!-- Check Out -->
@@ -566,11 +567,20 @@ const handleExchangeSuccess = () => {
 // Add Payment handler moved from parent
 const handleSavePayment = async (data: any) => {
   closeAddPaymentModal();
+  
+  if (localRes.value?.id) {
+    try {
+      const updatedReservation = await getReservationById(localRes.value.id)
+      localRes.value = { ...localRes.value, ...updatedReservation }
+      emit('reservation-updated', localRes.value)
+    } catch (error) {
+      console.error('Error refreshing reservation after payment:', error)
+    }
+  }
+
   await refreshAvailableActions();
-  // Emit a save event, letting the parent component handle the refresh.
   emit('save', { action: 'addPayment', reservationId: localRes.value?.id, data, needsRefresh: true });
 }
-
 const primaryFolioId = computed(() => {
   if (!localRes.value) return null
 
