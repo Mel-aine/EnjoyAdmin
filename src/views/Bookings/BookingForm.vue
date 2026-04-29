@@ -564,9 +564,19 @@
                 <h2 class="text-sm font-semibold text-gray-800 dark:text-white uppercase">
                   {{ $t('guest_info') }}
                 </h2>
-                <div>
-                  <CustomerCard @customerSelected="onCustomerSelected" v-model="formData" :key="formDataKey"/>
+                 <div v-if="hasCreditBalance" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 text-xs font-medium text-green-700 dark:text-green-300">
+                  <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <span v-if="isLoadingCredit">Chargement...</span>
+                  <span v-else>{{ $t('customer_credit_balance') }} {{ creditBalanceFormatted }}</span>
                 </div>
+                
+                <div>
+                  <CustomerCard @customerSelected="onCustomerSelectedWithCredit" v-model="formData" :key="formDataKey"/>
+                </div>
+              
+               
               </section>
 
               <!-- Other Information -->
@@ -1031,6 +1041,7 @@
       :is-open="isAddPaymentModalOpen"
       @close="closeAddPaymentModal"
       :reservation-data="reservationDetails"
+      :guest-id="reservationDetails?.guestId"
       @save="handleSavePayment"
     />
   </template>
@@ -1077,6 +1088,8 @@ import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSele
 import { useReservation } from '@/composables/useReservation'
 import { getReservationDetailsById, confirmBooking } from '../../services/reservation'
 import { useToast } from 'vue-toastification'
+import {useGuestCreditBalance} from '@/composables/useCreditLedger'
+import { useServiceStore} from '@/composables/serviceStore'
 const CheckInReservation = defineAsyncComponent(
   () => import('@/components/reservations/CheckInReservation.vue'),
 )
@@ -1097,7 +1110,7 @@ const hideCheckInButton = computed(() => props.hideCheckInButton === true)
 
 const route = useRoute()
 const isCkeckInModalOpen = ref(false)
-const reservationDetails = ref<{ payment_method?: number; payment_type?: string }>({})
+const reservationDetails = ref<{ payment_method?: number; payment_type?: string; guestId?: number }>({})
 const { performCheckIn } = useReservation()
 const { loadBooking, clearBooking } = useBookingStorage()
 const isAddPaymentModalOpen = ref(false)
@@ -1108,7 +1121,13 @@ const toast = useToast()
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
 }
+const serviceStore = useServiceStore()
+const { creditBalance: fetchedCreditBalance, isLoading: isLoadingCredit, fetchBalance } = useGuestCreditBalance()
 
+const hasCreditBalance = computed(() => fetchedCreditBalance.value > 0)
+const creditBalanceFormatted = computed(() =>
+  `${Math.round(fetchedCreditBalance.value).toLocaleString('fr-FR')} FCFA`
+)
 const showTaxDetails = ref<Record<string, boolean>>({})
 const showChargesDetails = ref<Record<string, boolean>>({})
 
@@ -1125,7 +1144,15 @@ const handleSavePayment = (payment: any) => {
     params: { id: reservationId.value },
   })
 }
+const onCustomerSelectedWithCredit = async (customer: any) => {
+  onCustomerSelected(customer)
+  fetchedCreditBalance.value = 0
 
+  const guestId = customer?.id || customer?.guestId
+  if (guestId) {
+    await fetchBalance(guestId, serviceStore.serviceId!)
+  }
+}
 const openAddPaymentModal = async () => {
   try {
     if (!reservationDetails.value && reservationId.value) {
@@ -1656,6 +1683,15 @@ watch(
       : null
     if (ci && co && co < ci) {
       reservation.value.checkoutDate = newCheckin
+    }
+  }
+)
+
+watch(
+  () => formData.value?.firstName,
+  (newName) => {
+    if (!newName || newName.trim() === '') {
+      fetchedCreditBalance.value = 0
     }
   }
 )

@@ -75,7 +75,8 @@
         "unassignedRoom": "Chambre non assignée",
         "inventory": "Inventaire",
         "unconfirmedBookings": "Réservations non confirmées",
-        "selectAll": "Tout sélectionner"
+        "selectAll": "Tout sélectionner",
+        "transferredBalance" : "Solde transféré (crédit client)"
       }
     },
     "sources": {
@@ -982,7 +983,12 @@
       "cancellationPolicy": "Politique d'annulation",
       "hotelPolicy": "Politique de l'hôtel",
       "nightAuditStartTime": "Heure de début de l'audit de nuit",
-      "nightAuditEndTime": "Heure de fin de l'audit de nuit"
+      "nightAuditEndTime": "Heure de fin de l'audit de nuit",
+      "hasCreditLedger" : "Avec compte de crédit"
+    },
+    "creditLedger": {
+      "enabled": "Activé",
+      "disabled": "Désactivé"
     },
     "placeholders": {
       "hotelName": "Saisissez le nom de l'hôtel",
@@ -4460,7 +4466,8 @@
     "vn": "Vietnamien",
     "ye": "Yéménite",
     "zm": "Zambien",
-    "zw": "Zimbabwéen"
+    "zw": "Zimbabwéen",
+    "undefined" : "N/A"
   },
   "payLater": "Payer plus tard",
   "search_country": "Rechercher un pays...",
@@ -4891,6 +4898,8 @@
       "payMethodWiseSummary": "Résumé par méthode de paiement",
       "chargeWiseSummary": "Résumé par charge",
       "chargeType": "Type de charge",
+      "creditLedgerPayments" : "Paiements par Credit Ledger",
+      "creditLedgerPaymentsDescription" : "Voir et gérer les paiements par Credit Ledger",
       "chargeTypes": {
         "newsPaper": "Journal",
         "electricityBill": "Facture d'électricité",
@@ -9021,6 +9030,21 @@
   "noFoliosFound" : "Aucun folios trouvé",
   "noFoliosFoundDescription" : "Aucune description",
   "deleteFolio" : "Supprimer Folio",
-  "remove_confirm_message_folio" : "Êtes-vous sûr de vouloir supprimer ce Foglio ?"
+  "remove_confirm_message_folio" : "Êtes-vous sûr de vouloir supprimer ce Foglio ?",
+  "credit_ledger" : "Registre des crédits",
+  "credit_available" : "Crédit disponible",
+  "exceeds_credit_available" : "Dépasse le crédit disponible",
+  "this_customer_has" : "Ce client dispose d'un crédit de",
+  "loading_credit" : "Chargement du crédit...",
+  "credit_balance" : "Solde Créditeur",
+  "Transferred" : "Transféré",
+  "Transferred_balance" : "Solde transféré vers compte client",
+  "customer_credit_balance" : "Ce client dispose d'un crédit de",
+  "Apply" : "Appliquer",
+  "Apply Credit to Reservation" : "Appliquer le crédit à la réservation",
+  "Amount to apply" : "Montant à appliquer",
+  "Credit applied successfully" : "Crédit appliqué avec succès",
+  "Failed to apply credit" : "Échec de l'application du crédit",
+  "transactionNumber" : "Numéro de transaction"
 
 }

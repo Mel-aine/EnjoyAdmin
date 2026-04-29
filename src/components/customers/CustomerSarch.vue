@@ -68,6 +68,12 @@ const onInput = (e: Event) => {
   searchQuery.value = value;
   emit('update:modelValue', value);
 
+  if (!value.trim()) {
+    filteredCustomers.value = []
+    emit('customerSelected', null) 
+    return
+  }
+
   if (isManualSelection.value) return;
 
   if (!value.trim()) {
@@ -132,7 +138,7 @@ const selectCustomer = (customer: any) => {
 
   setTimeout(() => {
     isManualSelection.value = false;
-  }, 300);
+  }, 600);
 };
 
 const handleClickOutside = (event: MouseEvent) => {

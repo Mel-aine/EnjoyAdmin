@@ -351,7 +351,11 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { useSidebar } from '@/composables/useSidebar'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
+import { useServiceStore } from '@/composables/serviceStore'
 
+
+
+const serviceStore = useServiceStore()
 const route = useRoute()
 const { isExpanded } = useSidebar()
 const authStore = useAuthStore()
@@ -368,6 +372,12 @@ const openSections = ref<any>({
   custom: false,
   oldTransaction: false,
 })
+
+
+const hasCreditLedger = computed(() => {
+  return serviceStore.getCurrentService?.hasCreditLedger ?? false
+})
+
 
 // Mapping des noms de rapports vers les permissions
 const reportPermissions = {
@@ -416,6 +426,7 @@ const reportPermissions = {
   'travel-agent-commission-detail': 'travel_agent_commission_detail',
   'travel-agent-commission-summary': 'travel_agent_commission_summary',
   'meal-plan': 'meal_plan',
+  'credit-ledger-payments': 'credit_ledger_payments',
   // Audit Reports
   'audit-trail': 'audit_trail',
   'ip-report': 'ip_report',
@@ -502,6 +513,7 @@ const backOfficeReports = ref([
   { name: 'revenue-by-rate-type', path: '/reports/back-office/revenue-by-rate-type', label: 'reports.backOffice.revenueByRateType' },
   { name: 'revenue-by-room-type', path: '/reports/back-office/revenue-by-room-type', label: 'reports.backOffice.revenueByRoomType' },
   { name: 'meal-plan', path: '/reports/back-office/meal-plan', label: 'reports.backOffice.mealPlan' },
+  { name: 'credit-ledger-payments', path: '/reports/back-office/credit-ledger-payments', label: 'reports.backOffice.creditLedgerPayments' },
   //TODO  { name: 'travel-agent-commission-detail', path: '/reports/back-office/travel-agent-commission-detail', label: 'reports.backOffice.travelAgentCommissionDetail' },
   //TODO  { name: 'travel-agent-commission-summary', path: '/reports/back-office/travel-agent-commission-summary', label: 'reports.backOffice.travelAgentCommissionSummary' }
 ])
@@ -593,6 +605,10 @@ const filteredBackOfficeReports = computed(() => {
 
     const permission = reportPermissions[report.name as keyof typeof reportPermissions];
     const hasPermission = permission ? authStore.hasReportPermission(permission) : false;
+      if (report.name === 'credit-ledger-payments') {
+      return hasPermission && hasCreditLedger.value
+    }
+
     console.log(`Rapport: ${report.name}, Permission: ${permission}, Accès: ${hasPermission}`);
     return hasPermission;
   });

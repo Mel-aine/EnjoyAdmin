@@ -497,6 +497,17 @@ const router = createRouter({
         title: 'Meal Plan Report',
         requiresAuth: true,
       },
+      
+    },
+
+     {
+        path : '/reports/back-office/credit-ledger-payments',
+        name : 'creditLedgerPayments',
+        component : () => import('../views/Reports/BackOffice/CreditLedger.vue'),
+        meta : {
+          title : 'Credit Ledger Payments',
+          requiresAuth : true,
+        },
     },
     
     {

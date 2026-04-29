@@ -2,6 +2,14 @@
 import { ArrowLeft, Building2Icon, Users ,Pencil  } from 'lucide-vue-next'
 import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
 import EditTimeModal from '@/components/reservations/foglio/EditTimeModal.vue';
+import { useGuestCreditBalance } from '@/composables/useCreditLedger'
+import { useServiceStore } from '@/composables/serviceStore'
+import { applyCredit } from '@/services/creditLedger'
+import ConfirmModal from '@/components/Housekeeping/ConfirmationModal.vue';
+
+const serviceStore = useServiceStore()
+const { creditBalance: fetchedCreditBalance, isLoading: isLoadingCredit, fetchBalance } = useGuestCreditBalance()
+
 
 const props = defineProps<{
   id: string
@@ -45,6 +53,7 @@ import { useToast } from 'vue-toastification'
 import { confirmBooking } from '@/services/reservation'
 import OverLoading from '../../../components/spinner/OverLoading.vue'
 import getOtaIconSrc from '@/utils/otaIcons'
+import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue';
 
 // États des modals
 const showPrintModal = ref(false)
@@ -98,6 +107,73 @@ watch(
     }
   },
 )
+
+const hasCreditBalance = computed(() => {
+  const reservationBalance = localReservation.value?.balanceSummary?.outstandingBalance ?? 0
+  return fetchedCreditBalance.value > 0 && reservationBalance > 0
+})
+const creditBalanceFormatted = computed(() =>
+  `${Math.round(fetchedCreditBalance.value).toLocaleString('fr-FR')} FCFA`
+)
+
+// Modal crédit
+const showCreditModal = ref(false)
+const isApplyingCredit = ref(false)
+const creditAmountToApply = ref(0)
+
+const openCreditModal = () => {
+  creditAmountToApply.value = fetchedCreditBalance.value
+  showCreditModal.value = true
+}
+
+const handleApplyCredit = async () => {
+  if (!creditAmountToApply.value || creditAmountToApply.value <= 0) {
+    toast.error(t('Invalid amount'))
+    return
+  }
+
+  // Récupérer le folio ouvert de la réservation
+  const openFolio = localReservation.value?.folios?.find(
+    (f: any) => f.status === 'open'
+  ) || localReservation.value?.folios?.[0]
+
+  if (!openFolio?.id) {
+    toast.error(t('No folio found for this reservation'))
+    return
+  }
+
+  try {
+    isApplyingCredit.value = true
+    await applyCredit({
+      hotelId: serviceStore.serviceId,
+      guestId: localReservation.value.guestId,
+      reservationId: localReservation.value.id,
+      folioId: openFolio.id,          
+      amount: creditAmountToApply.value, 
+    })
+    toast.success(t('Credit applied successfully'))
+    showCreditModal.value = false
+    await getBookingDetailsById(false)
+    await fetchBalance(localReservation.value.guestId, serviceStore.serviceId!)
+     foglioRef.value?.refreshFolio?.()
+  } catch (error: any) {
+    toast.error(error?.response?.data?.message || t('Failed to apply credit'))
+  } finally {
+    isApplyingCredit.value = false
+  }
+}
+
+// Charger le crédit quand la réservation est chargée
+watch(
+  () => localReservation.value?.guestId,
+  (guestId) => {
+    if (guestId && serviceStore.serviceId) {
+      fetchBalance(guestId, serviceStore.serviceId)
+    }
+  },
+  { immediate: true }
+)
+
 
 
 // ====== FONCTION CLÉ : Mise à jour locale ======
@@ -317,6 +393,10 @@ const templates = ref([
 // Fonction pour rafraîchir une réservation spécifique (appelée depuis les composants enfants)
 const refresReservation = async () => {
   await refreshAvailableActions()
+  if (localReservation.value?.guestId && serviceStore.serviceId) {
+    await fetchBalance(localReservation.value.guestId, serviceStore.serviceId)
+  }
+
 }
 
 //fonction to confirm reservation
@@ -477,6 +557,26 @@ onMounted(() => {
                 <span>{{ localReservation.reservationNumber }}</span>
               </span>
             </div>
+               <!-- Crédit client -->
+            <div
+              v-if="hasCreditBalance"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 text-sm"
+            >
+              <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="text-green-700 dark:text-green-300 font-medium">
+                {{  creditBalanceFormatted }}
+              </span>
+              <button
+                @click="openCreditModal"
+                type="button"
+                class="ml-1 px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded transition-colors"
+              >
+                {{ $t('Apply') }}
+              </button>
+            </div>
           </div>
         </div>
         <div
@@ -515,6 +615,7 @@ onMounted(() => {
             }}</span>
           </button>
         </div>
+     
         <div
           v-else
           class="flex gap-x-2 h-full align-middle self-center items-center justify-center"
@@ -638,6 +739,36 @@ onMounted(() => {
     @close="showEditDepartureTimeModal = false"
     @time-updated="handleTimeUpdated"
   />
+  <ConfirmModal
+  :show="showCreditModal"
+  :title="$t('Apply Credit to Reservation')"
+  :message="`${$t('credit_available')} : ${creditBalanceFormatted}`"
+  :confirm-text="isApplyingCredit ? $t('Processing...') : $t('Confirm')"
+  :cancel-text="$t('Cancel')"
+  :loading="isApplyingCredit"
+  variant="warning"
+  @confirm="handleApplyCredit"
+  @cancel="showCreditModal = false"
+  @update:show="showCreditModal = $event"
+>
+  <template #content>
+    <div class="px-6 pb-4 space-y-3">
+
+      <div>
+      
+        <InputCurrency
+          :lb="$t('Amount to apply')"
+          v-model.number="creditAmountToApply"
+          type="number"
+          :max="fetchedCreditBalance"
+        />
+        <p v-if="creditAmountToApply > fetchedCreditBalance" class="mt-1 text-xs text-red-500">
+          {{ $t('exceeds_credit_available') }}
+        </p>
+      </div>
+    </div>
+  </template>
+</ConfirmModal>
 </template>
 
 <style scoped>

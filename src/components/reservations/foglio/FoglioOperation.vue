@@ -159,7 +159,9 @@
         <template v-if="isAddPaymentModalOpen">
           <AddPaymentModal :reservation-id="reservationId" :is-open="isAddPaymentModalOpen"
             :folio-id="selectedFolio?.id" @close="closeAddPaymentModal" @save="handleSavePayment"
-            :isEditMode="isEditMode" :transactionData="transactionToEdit" />
+            :isEditMode="isEditMode" :transactionData="transactionToEdit"
+            :reservation-data="reservation" :guest-id="reservation?.guestId"
+         />
         </template>
         <!-- Create Folio Modal -->
         <template v-if="isCreateFolioModalOpen">
@@ -204,7 +206,7 @@
         </template>
         <template v-if="isVoidTrasaction">
           <VoidTransactionModal :is-open="isVoidTrasaction" :transaction-details="selectedTransaction"
-            @close="closeVoidTransactionModal" @success="refreshFolio" />
+            @close="closeVoidTransactionModal" @success="handleVoidSuccess" />
         </template>
         <!-- Transfer: select destination folio -->
         <template v-if="isTransfertFolioModalOpen">
@@ -423,7 +425,11 @@ const handleSaveAdjustment = (adjustmentData: any) => {
   // Add save logic here
 }
 
-
+const handleVoidSuccess = async (data: any) => {
+  closeVoidTransactionModal()
+  await refreshFolio()
+  emit('refresh')
+}
 
 // More actions dropdown options
 const moreActionOptions = computed(() => {
@@ -519,6 +525,7 @@ const actionTransactions = computed<Action[]>(() => {
         label: t('edit'),
         handler: (item) => onAction('edit', item),
         icon: Edit,
+        condition: (item) => item.transactionType !== 'credit_ledger_payment' && item.transactionType !== 'credit_ledger_transfer',
       },
       {
         label: t('void'),
@@ -702,11 +709,12 @@ const refreshFolio = async () => {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
             transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null);
-            if (transaction.transactionType === 'payment') {
+              const isCreditLedgerPayment = transaction.transactionType === 'credit_ledger_payment'
+            if (transaction.transactionType === 'payment' || isCreditLedgerPayment) {
               const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
               allTransactions.value.push({
                 ...transaction,
-                totalAmount: (transaction.transactionType === 'payment' || transaction.transactionType === 'discount') ? -Math.abs(baseAmount) : Math.abs(baseAmount),
+                totalAmount: (transaction.transactionType === 'payment' || transaction.transactionType === 'discount' || transaction.transactionType === 'credit_ledger_payment') ? -Math.abs(baseAmount) : Math.abs(baseAmount),
                 // totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
                 //   totalAmount,
                 category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
@@ -758,11 +766,12 @@ const getFolosReservations = async () => {
           // Add folioId to each transaction and add to allTransactions
           folio.transactions.forEach((transaction: any) => {
             transaction.noaction = (transaction.isVoided || transaction.status === "voided") || (transaction.category === "room" && transaction.transactionType === "charge" && transaction.subcategory === null);
-            if (transaction.transactionType === 'payment') {
+              const isCreditLedgerPayment = transaction.transactionType === 'credit_ledger_payment'
+            if (transaction.transactionType === 'payment' || isCreditLedgerPayment) {
               const baseAmount = transaction.grossAmount || transaction.totalAmount || transaction.amount || 0
               allTransactions.value.push({
                 ...transaction,
-                totalAmount: (transaction.transactionType === 'payment' || transaction.transactionType === 'discount') ? -Math.abs(baseAmount) : Math.abs(baseAmount),
+                totalAmount: (transaction.transactionType === 'payment' || transaction.transactionType === 'discount' || transaction.transactionType === 'credit_ledger_payment') ? -Math.abs(baseAmount) : Math.abs(baseAmount),
                 // totalAmount: (transaction.transactionType === 'payment' ? -1 : 1) * transaction.
                 //   totalAmount,
                 category: transaction.category === 'room' ? 'Room Charges' : transaction.category,
