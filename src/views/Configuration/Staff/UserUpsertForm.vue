@@ -375,7 +375,7 @@ const fetchUserData = async (id: string) => {
 }
 
 const validateForm = (): boolean => {
-  if (!form.value.gender || !form.value.lastName || !form.value.email || !form.value.roleId || !form.value.password) {
+  if (!form.value.gender || !form.value.lastName || !form.value.email || !form.value.roleId || !form.value.password || !form.value.department ) {
     toast.error(t('toast.fillRequiredFields'))
     return false
   }
@@ -716,7 +716,7 @@ onMounted(async () => {
                           />
 
                           <Select
-                            :is-required="false"
+                            :is-required="true"
                             :lb="t('staffManager.department')"
                             :placeholder="$t('selectDepartment')"
                             v-model="form.department"
