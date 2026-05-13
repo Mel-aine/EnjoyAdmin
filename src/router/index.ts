@@ -1636,6 +1636,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/marketplace',
+      name : 'MarketPlace',
+      component: () => import('../views/MarketPlace/MarketPlaceView.vue'),
+      meta: { 
+        title: 'Market Place',
+        requiresAuth: true,
+      }
+    }
   ],
 })
 

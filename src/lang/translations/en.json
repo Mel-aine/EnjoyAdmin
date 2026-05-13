@@ -8892,6 +8892,32 @@
   "Amount to apply" : "Amount to apply",
   "Credit applied successfully" : "Credit applied successfully",
   "Failed to apply credit" : "Failed to apply credit",
-  "transactionNumber" : "Transaction Number"
+  "transactionNumber" : "Transaction Number",
+  "Marketplace" : "Market Place",
+  "marketplace": {
+    "subtitle": "Enable modules to extend your property's features.",
+    "search": "Search a module…",
+    "installed": "Actived",
+    "official": "OFFICIAL",
+    "onRequest": "On request",
+    "startingFrom": "Starting from",
+    "month": "month",
+    "year": "year",
+    "units": "units",
+    "monthlyRate": "Monthly rate",
+    "dependsOnAddon": "Depends on selected add-on",
+    "activate": "Activate module",
+    "deactivate": "Deactivate",
+    "installing": "Installing…",
+    "uninstalling": "Deactivating…",
+    "installSuccess": "Module activated successfully",
+    "installError": "Failed to activate module",
+    "uninstallSuccess": "Module deactivated",
+    "uninstallError": "Failed to deactivate module",
+    "fetchError": "Failed to load modules",
+    "noResults": "No modules found for",
+    "whatsappDescription": "Enable WhatsApp notifications and communications for your guests."
+}
+
 
 }

@@ -9045,6 +9045,32 @@
   "Amount to apply" : "Montant à appliquer",
   "Credit applied successfully" : "Crédit appliqué avec succès",
   "Failed to apply credit" : "Échec de l'application du crédit",
-  "transactionNumber" : "Numéro de transaction"
+  "transactionNumber" : "Numéro de transaction",
+  "Marketplace" : "Market Place",
+ "marketplace": {
+    "subtitle": "Activez des modules pour étendre les fonctionnalités de votre établissement.",
+    "search": "Rechercher un module…",
+    "installed": "Activé",
+    "official": "OFFICIEL",
+    "onRequest": "Sur demande",
+    "startingFrom": "À partir de",
+    "month": "mois",
+    "year": "an",
+    "units": "unités",
+    "monthlyRate": "Tarif mensuel",
+    "dependsOnAddon": "Selon l'add-on choisi",
+    "activate": "Activer le module",
+    "deactivate": "Désactiver",
+    "installing": "Installation…",
+    "uninstalling": "Désactivation…",
+    "installSuccess": "Module activé avec succès",
+    "installError": "Échec de l'activation",
+    "uninstallSuccess": "Module désactivé",
+    "uninstallError": "Échec de la désactivation",
+    "fetchError": "Impossible de charger les modules",
+    "noResults": "Aucun module trouvé pour",
+    "whatsappDescription": "Activez les notifications et communications WhatsApp pour vos clients."
+}
+
 
 }
