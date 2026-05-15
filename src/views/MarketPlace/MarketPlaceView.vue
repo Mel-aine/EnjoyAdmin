@@ -30,10 +30,13 @@
     <template v-else>
       <!-- Modules grid -->
       <div v-if="filteredModules.length" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div
+      <div
           v-for="mod in filteredModules"
           :key="mod.id"
-          class="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 cursor-pointer hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md hover:shadow-purple-500/5 transition-all duration-200 group"
+          class="relative bg-white dark:bg-gray-900 border rounded-xl p-4 cursor-pointer transition-all duration-200 group"
+          :class="mod.slug === 'pms'
+            ? 'border-amber-200 dark:border-amber-800/60 hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-md hover:shadow-amber-500/5'
+            : 'border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md hover:shadow-purple-500/5'"
           @click="openModule(mod)"
         >
           
@@ -56,9 +59,15 @@
               />
             </div>
 
-            <!-- Installed badge -->
+            <!-- Installed badge / PMS core badge -->
+            <div v-if="mod.slug === 'pms'" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800">
+              <svg class="w-2.5 h-2.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m0-6v2m-6.364 4.364A9 9 0 1118.364 5.636 9 9 0 015.636 18.364z"/>
+              </svg>
+              <span class="text-[10px] text-amber-600 dark:text-amber-400 font-medium">{{ $t('marketplace.core') }}</span>
+            </div>
             <div
-              v-if="mod.isInstalled"
+              v-else-if="mod.isInstalled"
               class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800"
             >
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
@@ -208,33 +217,139 @@
                 <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
                   Add-ons
                 </p>
-                <div class="space-y-2">
-                  <div
-                    v-for="addon in selectedModule.addOns"
-                    :key="addon.id"
-                    class="flex items-center justify-between rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/40 px-4 py-3"
-                  >
-                    <div>
-                      <p class="text-sm font-semibold text-gray-800 dark:text-white">{{ addon.name }}</p>
-                      <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
-                        {{ addon.min }}–{{ addon.max }} {{ $t('marketplace.units') }}
-                      </p>
+
+               
+                <template v-if="selectedModule.slug === 'pms'">
+                  <div v-if="activePmsSubscription" class="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 px-4 py-3">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
+                        <p class="text-sm font-semibold text-gray-800 dark:text-white">
+                          {{ activePmsSubscription.addOn?.name }}
+                        </p>
+                      </div>
+                      <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400">
+                        {{ $t('marketplace.active') }}
+                      </span>
                     </div>
-                    <div class="text-right">
-                      <p class="text-sm font-bold text-gray-900 dark:text-white">
-                        {{ Number(addon.priceMonth).toLocaleString() }}
-                        <span class="text-xs font-normal text-gray-400">/ {{ $t('marketplace.month') }}</span>
-                      </p>
-                      <p class="text-[11px] text-gray-400 dark:text-gray-500">
-                        {{ Number(addon.priceYear).toLocaleString() }} / {{ $t('marketplace.year') }}
-                      </p>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                      <div class="rounded-lg bg-white dark:bg-gray-800 border border-amber-100 dark:border-amber-800/30 px-3 py-2">
+                        <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-0.5">{{ $t('marketplace.units') }}</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">
+                          {{ activePmsSubscription.limitCount }}
+                          <span class="text-xs font-normal text-gray-400">/ {{ activePmsSubscription.addOn?.max }}</span>
+                        </p>
+                      </div>
+                      <div class="rounded-lg bg-white dark:bg-gray-800 border border-amber-100 dark:border-amber-800/30 px-3 py-2">
+                        <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-0.5">{{ $t('marketplace.monthlyRate') }}</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">
+                          {{ Number(activePmsSubscription.price).toLocaleString() }}
+                          <span class="text-xs font-normal text-gray-400"> {{ hotelCurrency }}</span>
+                        </p>
+                      </div>
                     </div>
+                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-2">
+                      {{ $t('marketplace.renewsOn') }}
+                      {{ new Date(activePmsSubscription.endsAt).toLocaleDateString() }}
+                    </p>
                   </div>
-                </div>
+
+                  <!-- Aucune souscription add-on active pour le PMS -->
+                  <div v-else class="rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/50 px-4 py-3 text-center">
+                    <p class="text-xs text-gray-400 dark:text-gray-500 italic">{{ $t('marketplace.noActiveAddon') }}</p>
+                  </div>
+                </template>
+
+                
+          
+                <template v-else>
+                  <!-- Si installé : afficher uniquement l'add-on souscrit en lecture seule -->
+                  <template v-if="selectedModule.isInstalled">
+                    <div v-if="activeAddonForModule(selectedModule.id)" class="rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/40 px-4 py-3">
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                          <span class="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block" />
+                          <p class="text-sm font-semibold text-gray-800 dark:text-white">
+                            {{ activeAddonForModule(selectedModule.id).addOn?.name }}
+                          </p>
+                        </div>
+                        <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400">
+                          {{ $t('marketplace.active') }}
+                        </span>
+                      </div>
+                      <div class="grid grid-cols-2 gap-2 mt-2">
+                        <div class="rounded-lg bg-white dark:bg-gray-800 border border-purple-100 dark:border-purple-800/30 px-3 py-2">
+                          <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-0.5">{{ $t('marketplace.units') }}</p>
+                          <p class="text-sm font-bold text-gray-900 dark:text-white">
+                            {{ activeAddonForModule(selectedModule.id).addOn?.min }}–{{ activeAddonForModule(selectedModule.id).addOn?.max }}
+                          </p>
+                        </div>
+                        <div class="rounded-lg bg-white dark:bg-gray-800 border border-purple-100 dark:border-purple-800/30 px-3 py-2">
+                          <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-0.5">{{ $t('marketplace.monthlyRate') }}</p>
+                          <p class="text-sm font-bold text-gray-900 dark:text-white">
+                            {{ Number(activeAddonForModule(selectedModule.id).price).toLocaleString() }}
+                            <span class="text-xs font-normal text-gray-400"> {{ hotelCurrency }}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-2">
+                        {{ $t('marketplace.renewsOn') }}
+                        {{ new Date(activeAddonForModule(selectedModule.id).endsAt).toLocaleDateString() }}
+                      </p>
+                    </div>
+
+                    <div v-else class="rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/50 px-4 py-3 text-center">
+                      <p class="text-xs text-gray-400 dark:text-gray-500 italic">{{ $t('marketplace.noActiveAddon') }}</p>
+                    </div>
+                  </template>
+
+                  <!-- Si non installé : liste avec radio -->
+                  <template v-else>
+                    <div class="space-y-2">
+                      <label
+                        v-for="addon in selectedModule.addOns"
+                        :key="addon.id"
+                        class="flex items-center justify-between rounded-xl border px-4 py-3 cursor-pointer transition-all duration-150"
+                        :class="selectedAddonId === addon.id
+                          ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-400 dark:border-purple-600 shadow-sm shadow-purple-500/10'
+                          : 'bg-gray-50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-800'"
+                        @click="selectedAddonId = addon.id"
+                      >
+                        <div class="flex items-center gap-3">
+                          <!-- Radio custom -->
+                          <div
+                            class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                            :class="selectedAddonId === addon.id
+                              ? 'border-purple-500 bg-purple-500'
+                              : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900'"
+                          >
+                            <div v-if="selectedAddonId === addon.id" class="w-1.5 h-1.5 rounded-full bg-white" />
+                          </div>
+                          <div>
+                            <p class="text-sm font-semibold text-gray-800 dark:text-white">{{ addon.name }}</p>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+                              {{ addon.min }}–{{ addon.max }} {{ $t('marketplace.units') }}
+                            </p>
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <p class="text-sm font-bold" :class="selectedAddonId === addon.id ? 'text-purple-600 dark:text-purple-400' : 'text-gray-900 dark:text-white'">
+                            {{ Number(addon.priceMonth).toLocaleString() }}
+                            <span class="text-xs font-normal text-gray-400">/ {{ $t('marketplace.month') }}</span>
+                          </p>
+                          <p class="text-[11px] text-gray-400 dark:text-gray-500">
+                            {{ Number(addon.priceYear).toLocaleString() }} / {{ $t('marketplace.year') }}
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  </template>
+                </template>
               </div>
 
               <!-- Actions -->
               <div class="flex gap-2.5">
+               
                 <button
                   v-if="!selectedModule.isInstalled"
                   @click="handleInstall(selectedModule)"
@@ -248,26 +363,40 @@
                   <span>{{ actionLoading ? $t('marketplace.installing') : $t('marketplace.activate') }}</span>
                 </button>
 
-                <button
-                  v-else-if="selectedModule.isStatic && selectedModule.slug === 'whatsapp'"
-                  @click="handleUninstall(selectedModule)"
-                  :disabled="actionLoading"
-                  class="flex-1 flex items-center justify-center gap-2 border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-semibold text-sm py-2.5 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+              
+                <div
+                  v-else-if="selectedModule.slug === 'pms'"
+                  class="flex-1 flex items-center gap-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 px-4 py-2.5"
                 >
-                  <svg v-if="actionLoading" class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                  <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
                   </svg>
-                  <span>{{ actionLoading ? $t('marketplace.uninstalling') : $t('marketplace.deactivate') }}</span>
-                </button>
+                  <span class="text-xs text-amber-700 dark:text-amber-400 font-medium leading-snug">
+                    {{ $t('marketplace.coreModule') }}
+                  </span>
+                </div>
 
-                <button
-                  v-if="selectedModule.slug === 'whatsapp'"
-                  @click="closeModal"
-                  class="px-4 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm rounded-xl transition"
-                >
-                  {{ $t('Cancel') }}
-                </button>
+               
+                <template v-else>
+                  <button
+                    @click="handleUninstall(selectedModule)"
+                    :disabled="actionLoading"
+                    class="flex-1 flex items-center justify-center gap-2 border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-semibold text-sm py-2.5 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg v-if="actionLoading" class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                    </svg>
+                    <span>{{ actionLoading ? $t('marketplace.uninstalling') : $t('marketplace.deactivate') }}</span>
+                  </button>
+
+                  <button
+                    @click="closeModal"
+                    class="px-4 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm rounded-xl transition"
+                  >
+                    {{ $t('Cancel') }}
+                  </button>
+                </template>
               </div>
             </div>
           </div>
@@ -299,6 +428,7 @@ import {
   updateHotelInformation,
   getHotelById,
   buildInstallPayload,
+  uninstallModule
 } from '@/services/marketPlaceApi'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -317,6 +447,7 @@ const selectedModule = ref<any>(null)
 const actionLoading = ref(false)
 const whatsappEnabled = ref(false)
 const hotelCurrency = ref('XAF')
+const selectedAddonId = ref<number | null>(null)
 
 
 const whatsappModule = computed(() => ({
@@ -402,7 +533,7 @@ const fetchHotelInfo = async () => {
   try {
     const response = await getHotelById(serviceStore.serviceId!)
     const data = response?.data?.data
-    
+    console.log(data)
     whatsappEnabled.value = data?.whatsappEnabled ?? false
     subscriptions.value = data?.subscriptions  || []
     hotelCurrency.value = data?.currencyCode ?? 'XAF'
@@ -448,6 +579,7 @@ const badgeClass = (badge: string) => {
 }
 
 const openModule = (mod: any) => {
+  selectedAddonId.value = null
   if (mod.isStatic && mod.slug === 'whatsapp') {
     selectedModule.value = { ...whatsappModule.value }
   } else {
@@ -460,9 +592,13 @@ const closeModal = () => {
 }
 
 const handleInstall = async (mod: any) => {
+  if (mod.addOns?.length && !selectedAddonId.value) {
+    toast.warning(t('marketplace.selectAddon'))
+    return
+  }
+
   actionLoading.value = true
   try {
-   
     if (mod.isStatic && mod.slug === 'whatsapp') {
       const resp = await updateHotelInformation(serviceStore.serviceId!, {
         whatsappEnabled: true,
@@ -477,17 +613,18 @@ const handleInstall = async (mod: any) => {
       return
     }
 
-  
     const payload = buildInstallPayload(mod, {
       currency: hotelCurrency.value,
+      addOnId: selectedAddonId.value,  
     })
 
+   
     const resp = await installModule(serviceStore.serviceId!, mod.id, payload)
 
     if (resp.status === 200 || resp.status === 201) {
-    
       const idx = modules.value.findIndex((m) => m.id === mod.id)
       if (idx !== -1) modules.value[idx].isInstalled = true
+      await fetchHotelInfo() 
       toast.success(t('marketplace.installSuccess'))
       closeModal()
     } else {
@@ -502,19 +639,40 @@ const handleInstall = async (mod: any) => {
   }
 }
 
-
 const handleUninstall = async (mod: any) => {
-  if (!(mod.isStatic && mod.slug === 'whatsapp')) {
-    return
-  }
-
   actionLoading.value = true
   try {
-    const resp = await updateHotelInformation(serviceStore.serviceId!, {
-      whatsappEnabled: false,
+    // WhatsApp 
+    if (mod.isStatic && mod.slug === 'whatsapp') {
+      const resp = await updateHotelInformation(serviceStore.serviceId!, {
+        whatsappEnabled: false,
+      })
+      if (resp.status === 200) {
+        whatsappEnabled.value = false
+        toast.success(t('marketplace.uninstallSuccess'))
+        closeModal()
+      } else {
+        toast.error(t('marketplace.uninstallError'))
+      }
+      return
+    }
+
+    // Trouver la subscription active du module
+    const activeSub = subscriptions.value.find((sub) => {
+      const subModuleId = normalizeModuleId(sub.moduleId ?? sub.module?.id)
+      const status = String(sub.status ?? '').toLowerCase()
+      return subModuleId === normalizeModuleId(mod.id) && (status === 'active' || status === 'paid')
     })
-    if (resp.status === 200) {
-      whatsappEnabled.value = false
+
+    if (!activeSub) {
+      toast.error(t('marketplace.uninstallError'))
+      return
+    }
+
+    const resp = await uninstallModule(activeSub.id, { status: 'canceled' })
+
+    if (resp.status === 200 || resp.status === 204) {
+      await fetchHotelInfo() 
       toast.success(t('marketplace.uninstallSuccess'))
       closeModal()
     } else {
@@ -527,6 +685,34 @@ const handleUninstall = async (mod: any) => {
   } finally {
     actionLoading.value = false
   }
+}
+
+const activePmsSubscription = computed(() => {
+  return subscriptions.value.find((sub) => {
+    const status = String(sub.status ?? '').toLowerCase()
+    return (
+      String(sub.moduleId ?? sub.module?.id) === '1' &&
+      (status === 'active' || status === 'paid') &&
+      sub.addOnId !== null
+    )
+  }) ?? null
+})
+
+const activeAddonForModule = (moduleId: unknown) => {
+  const normalizedId = normalizeModuleId(moduleId)
+  const currentDate = new Date()
+  return subscriptions.value.find((sub) => {
+    const subModuleId = normalizeModuleId(sub.moduleId ?? sub.module?.id)
+    const endDate = sub.endsAt ? new Date(sub.endsAt) : null
+    const hasValidEndDate = endDate instanceof Date && !Number.isNaN(endDate.getTime())
+    const status = String(sub.status ?? '').toLowerCase()
+    return (
+      subModuleId === normalizedId &&
+      (status === 'active' || status === 'paid') &&
+      sub.addOnId !== null &&
+      (!hasValidEndDate || endDate >= currentDate)
+    )
+  }) ?? null
 }
 
 

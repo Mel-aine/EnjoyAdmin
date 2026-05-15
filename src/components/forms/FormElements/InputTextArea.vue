@@ -22,12 +22,13 @@
         :readonly="readonly"
         :maxlength="maxlength"
         :class="[
-          'w-full rounded-lg border bg-transparent px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 resize-none',
+          'w-full rounded-lg border bg-transparent border-black/50 px-4 py-2.5 text-sm  placeholder:text-gray-400 focus:outline-hidden focus:ring-3 focus:border-purple-300 resize-none',
           textareaClasses
         ]"
         @input="handleInput"
         @blur="handleBlur"
         @focus="handleFocus"
+        
       ></textarea>
       
       <!-- Character count -->

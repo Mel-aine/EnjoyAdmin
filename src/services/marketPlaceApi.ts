@@ -155,8 +155,8 @@ export const installModule = (
 
 
 
- export const uninstallModule = (id: number, payload: any) : Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}`, { payload }, getHeaders())
+export const uninstallModule = (id: number, payload: any): Promise<AxiosResponse<any>> => {
+  return axios.put(`${API_URL}/${id}/subscriptions`, payload, getHeaders())
 }
 
 

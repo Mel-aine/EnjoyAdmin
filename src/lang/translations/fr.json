@@ -990,6 +990,37 @@
       "enabled": "Activé",
       "disabled": "Désactivé"
     },
+    "whatsappProviders": {
+      "meta": "Meta (WhatsApp Business API)",
+      "platform": "Plateforme"
+    },
+     "whatsapp": {
+      "help": "Configurez votre intégration WhatsApp pour envoyer des notifications et messages automatisés à vos clients directement depuis le PMS.",
+      "testHelp": "Testez votre configuration en envoyant un message de test.",
+      "testRecipient": "Numéro destinataire",
+      "testMessage": "Message de test",
+      "testMessagePlaceholder": "Entrez votre message de test...",
+      "test": "Tester la configuration",
+      "testing": "Envoi en cours...",
+      "testSuccess": "Message envoyé avec succès !",
+      "testError": "Échec de l'envoi. Vérifiez votre configuration.",
+      "testRequiredFields": "Veuillez renseigner le numéro et le message.",
+      "title": "Configuration WhatsApp",
+      "enabled": "Activer WhatsApp",
+      "active": "Activé",
+      "inactive": "Désactivé",
+      "provider": "Fournisseur",
+      "senderName": "Nom de l'expéditeur",
+      "senderNamePlaceholder": "Ex: Hotel",
+      "apiBaseUrl": "URL de base API",
+      "apiVersion": "Version API",
+      "phoneNumberId" : "Identifiant du numéro de téléphone",
+      "businessAccountId" : "Identifiant du compte professionnel",
+      "endpointUrl" : "Point de terminaison URL", 
+      "accessToken" : "Jeton d'accès",
+      "providerPlaceholder" : "Sélectionnez le fournisseur de WhatsApp",
+      "saveRequiresTest": "Veuillez tester avant de sauregistrer votre configuration."
+    },
     "placeholders": {
       "hotelName": "Saisissez le nom de l'hôtel",
       "email": "Saisissez l'e-mail de l'hôtel",
@@ -9069,7 +9100,13 @@
     "uninstallError": "Échec de la désactivation",
     "fetchError": "Impossible de charger les modules",
     "noResults": "Aucun module trouvé pour",
-    "whatsappDescription": "Activez les notifications et communications WhatsApp pour vos clients."
+    "whatsappDescription": "Activez les notifications et communications WhatsApp pour vos clients.",
+    "core": "Central",
+    "coreModule": "Module central — ne peut pas être désactivé",
+    "active" : "Actif",
+    "renewsOn" : "Renouvelé le",
+    "noActiveAddon" : "Aucun add-on actif",
+    "selectAddon": "Veuillez sélectionner un add-on"
 }
 
 
