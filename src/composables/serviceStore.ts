@@ -14,6 +14,8 @@ export const useServiceStore = defineStore('service', {
     rateTypes: [] as any[],
     calendarViewDate: null as string | null,
     calendarDaysToShow: 15 as number,
+    whatsappEnabled: false as boolean,
+    whatsappLoaded: false as boolean,
   }),
 
   getters: {
@@ -34,6 +36,10 @@ export const useServiceStore = defineStore('service', {
 
       const found = this.getService.find((s) => s.id === serviceId)
       if (found) this.setCurrentService(found)
+    },
+
+    setWhatsappEnabled(value: boolean) {
+      this.whatsappEnabled = value
     },
 
     setRateTypes(types: any[]) {

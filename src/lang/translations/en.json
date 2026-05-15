@@ -1009,6 +1009,39 @@
       "enabled": "Enabled",
       "disabled": "Disabled"
     },
+   "whatsapp": {
+    "enabled": "Enabled",
+    "active": "Active",
+    "inactive": "Inactive",
+    "provider": "Provider",
+    "senderName": "Sender Name",
+    "senderNamePlaceholder": "Ex: Hotel",
+    "apiBaseUrl": "API Base URL",
+    "apiVersion": "API Version",
+    "phoneNumberId": "Phone Number ID",
+    "businessAccountId": "Business Account ID",
+    "endpointUrl": "Endpoint URL",
+    "accessToken": "Access Token",
+    "help": "Configure your WhatsApp integration to send automated notifications and messages to your guests directly from the PMS.",
+    "testHelp": "Test your configuration by viewing a test message.",
+    "testRecipient": "Recipient's number",
+    "testMessage": "Test message",
+    "testMessagePlaceholder": "Enter your test message...",
+    "test": "Test the configuration",
+    "testing": "Sending...",
+    "testSuccess": "Message sent successfully!",
+    "testError": "Sending failed. Check your configuration.",
+    "testRequiredFields": "Please enter the number and message.",
+    "title": "WhatsApp Configuration",
+    "providerPlaceholder" : "Select provider",
+    "saveRequiresTest": "Please test before saving your configuration."
+    
+   },
+
+    "whatsappProviders": {
+      "meta": "Meta (WhatsApp Business API)",
+      "platform" : "Platform"
+    },
     "placeholders": {
       "hotelName": "Enter hotel name",
       "email": "Enter hotel email",
@@ -8892,6 +8925,39 @@
   "Amount to apply" : "Amount to apply",
   "Credit applied successfully" : "Credit applied successfully",
   "Failed to apply credit" : "Failed to apply credit",
-  "transactionNumber" : "Transaction Number"
+  "transactionNumber" : "Transaction Number",
+  "Marketplace" : "Market Place",
+  "marketplace": {
+    "subtitle": "Enable modules to extend your property's features.",
+    "search": "Search a module…",
+    "installed": "Actived",
+    "official": "OFFICIAL",
+    "onRequest": "On request",
+    "startingFrom": "Starting from",
+    "month": "month",
+    "year": "year",
+    "units": "units",
+    "monthlyRate": "Monthly rate",
+    "dependsOnAddon": "Depends on selected add-on",
+    "activate": "Activate module",
+    "deactivate": "Deactivate",
+    "installing": "Installing…",
+    "uninstalling": "Deactivating…",
+    "installSuccess": "Module activated successfully",
+    "installError": "Failed to activate module",
+    "uninstallSuccess": "Module deactivated",
+    "uninstallError": "Failed to deactivate module",
+    "fetchError": "Failed to load modules",
+    "noResults": "No modules found for",
+    "whatsappDescription": "Enable WhatsApp notifications and communications for your guests.",
+    "core": "Core",
+    "coreModule": "Core module — cannot be deactivated",
+    "active" : "Active",
+    "renewsOn" : "Renews on",
+    "noActiveAddon" : "No active add-on",
+    "selectAddon": "Please select an add-on"
+  }
+
+
 
 }

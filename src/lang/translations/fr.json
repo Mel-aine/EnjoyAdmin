@@ -990,6 +990,37 @@
       "enabled": "Activé",
       "disabled": "Désactivé"
     },
+    "whatsappProviders": {
+      "meta": "Meta (WhatsApp Business API)",
+      "platform": "Plateforme"
+    },
+     "whatsapp": {
+      "help": "Configurez votre intégration WhatsApp pour envoyer des notifications et messages automatisés à vos clients directement depuis le PMS.",
+      "testHelp": "Testez votre configuration en envoyant un message de test.",
+      "testRecipient": "Numéro destinataire",
+      "testMessage": "Message de test",
+      "testMessagePlaceholder": "Entrez votre message de test...",
+      "test": "Tester la configuration",
+      "testing": "Envoi en cours...",
+      "testSuccess": "Message envoyé avec succès !",
+      "testError": "Échec de l'envoi. Vérifiez votre configuration.",
+      "testRequiredFields": "Veuillez renseigner le numéro et le message.",
+      "title": "Configuration WhatsApp",
+      "enabled": "Activer WhatsApp",
+      "active": "Activé",
+      "inactive": "Désactivé",
+      "provider": "Fournisseur",
+      "senderName": "Nom de l'expéditeur",
+      "senderNamePlaceholder": "Ex: Hotel",
+      "apiBaseUrl": "URL de base API",
+      "apiVersion": "Version API",
+      "phoneNumberId" : "Identifiant du numéro de téléphone",
+      "businessAccountId" : "Identifiant du compte professionnel",
+      "endpointUrl" : "Point de terminaison URL", 
+      "accessToken" : "Jeton d'accès",
+      "providerPlaceholder" : "Sélectionnez le fournisseur de WhatsApp",
+      "saveRequiresTest": "Veuillez tester avant de sauregistrer votre configuration."
+    },
     "placeholders": {
       "hotelName": "Saisissez le nom de l'hôtel",
       "email": "Saisissez l'e-mail de l'hôtel",
@@ -9045,6 +9076,38 @@
   "Amount to apply" : "Montant à appliquer",
   "Credit applied successfully" : "Crédit appliqué avec succès",
   "Failed to apply credit" : "Échec de l'application du crédit",
-  "transactionNumber" : "Numéro de transaction"
+  "transactionNumber" : "Numéro de transaction",
+  "Marketplace" : "Market Place",
+ "marketplace": {
+    "subtitle": "Activez des modules pour étendre les fonctionnalités de votre établissement.",
+    "search": "Rechercher un module…",
+    "installed": "Activé",
+    "official": "OFFICIEL",
+    "onRequest": "Sur demande",
+    "startingFrom": "À partir de",
+    "month": "mois",
+    "year": "an",
+    "units": "unités",
+    "monthlyRate": "Tarif mensuel",
+    "dependsOnAddon": "Selon l'add-on choisi",
+    "activate": "Activer le module",
+    "deactivate": "Désactiver",
+    "installing": "Installation…",
+    "uninstalling": "Désactivation…",
+    "installSuccess": "Module activé avec succès",
+    "installError": "Échec de l'activation",
+    "uninstallSuccess": "Module désactivé",
+    "uninstallError": "Échec de la désactivation",
+    "fetchError": "Impossible de charger les modules",
+    "noResults": "Aucun module trouvé pour",
+    "whatsappDescription": "Activez les notifications et communications WhatsApp pour vos clients.",
+    "core": "Central",
+    "coreModule": "Module central — ne peut pas être désactivé",
+    "active" : "Actif",
+    "renewsOn" : "Renouvelé le",
+    "noActiveAddon" : "Aucun add-on actif",
+    "selectAddon": "Veuillez sélectionner un add-on"
+}
+
 
 }

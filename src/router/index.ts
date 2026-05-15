@@ -1245,6 +1245,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/configuration/settings/whatsapp',
+      name: 'WhatsApp',
+      component: () => import('../views/Configuration/Settings/WhatsApp.vue'),
+      meta: {
+        title: 'WhatsApp',
+        requiresAuth: true,
+      },
+    },
     //configuration staff
     {
       path: '/configuration/staff/department',
@@ -1636,6 +1645,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/marketplace',
+      name : 'MarketPlace',
+      component: () => import('../views/MarketPlace/MarketPlaceView.vue'),
+      meta: { 
+        title: 'Market Place',
+        requiresAuth: true,
+      }
+    }
   ],
 })
 
