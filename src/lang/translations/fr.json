@@ -1021,6 +1021,30 @@
       "providerPlaceholder" : "Sélectionnez le fournisseur de WhatsApp",
       "saveRequiresTest": "Veuillez tester avant de sauregistrer votre configuration."
     },
+    "notificationSettings": {
+      "title": "Paramètres de notification",
+      "subtitle": "Informations envoyées aux clients via WhatsApp lors du check-in.",
+      "sections": {
+        "wifi": "Paramètres de la connexion Wi-Fi",
+        "breakfast": "Paramètres du petit-déjeuner",
+        "smartLock": "Serrure connectée"
+      },
+      "fields": {
+        "wifiCode": "Mot de passe Wi-Fi",
+        "breakfastStart": "Début petit-déjeuner",
+        "breakfastEnd": "Fin petit-déjeuner",
+        "hasSmartLock": "Serrure connectée",
+        "digitalKeyBaseUrl": "URL de base de la clé numérique"
+      },
+      "placeholders": {
+        "wifiCode": "EnjoyGuest2025"
+      },
+      "smartLock": {
+        "enabled": "Activée",
+        "disabled": "Désactivée"
+      }
+    },
+
     "placeholders": {
       "hotelName": "Saisissez le nom de l'hôtel",
       "email": "Saisissez l'e-mail de l'hôtel",
@@ -9107,7 +9131,40 @@
     "renewsOn" : "Renouvelé le",
     "noActiveAddon" : "Aucun add-on actif",
     "selectAddon": "Veuillez sélectionner un add-on"
-}
+},
+"WhatsApp History": "Historique WhatsApp",
+"whatsapp": {
+    "history": {
+      "title": "Historique WhatsApp",
+      "message_count": "{count} message | {count} messages",
+      "refresh": "Actualiser",
+      "empty": "Aucun message WhatsApp envoyé pour cette réservation",
+      "via": "via {provider}"
+    },
+    "status": {
+      "sent": "Envoyé",
+      "delivered": "Livré",
+      "read": "Lu",
+      "failed": "Échec",
+      "received": "Reçu",
+      "unknown": "Inconnu"
+    },
+    "error": {
+      "load_failed": "Impossible de charger les logs WhatsApp",
+      "unknown": "Erreur inconnue",
+      "show_trace": "Voir trace",
+      "hide_trace": "Masquer"
+    },
+    "templates": {
+      "htl_booking_confirm": "Confirmation réservation",
+      "htl_checkin_remind": "Rappel check-in",
+      "htl_checkout_feedback": "Feedback checkout",
+      "htl_special_offer": "Offre spéciale",
+      "room_posting": "Posting chambre",
+      "check_in_free": "Check-in"
+    }
+  }
+
 
 
 }

@@ -30,3 +30,16 @@ export const testWhatsappConfiguration = (
 ): Promise<AxiosResponse<any>> => {
   return axios.post(`${API_URL}/${hotelId}/whatsapp/test`, payload, getAuthHeaders())
 }
+
+/**
+ * WhatsApp Log
+ */
+export const getWhatsappLogs = (
+  reservationId : number,
+  hotelId: number
+): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${hotelId}/whatsapp-logs`, {
+    params: { reservationId },
+    ...getAuthHeaders()
+  })
+}

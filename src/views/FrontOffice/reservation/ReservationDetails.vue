@@ -49,6 +49,10 @@ const ReservationStatus = defineAsyncComponent(
 const AssignRoomReservation = defineAsyncComponent(
   () => import('../../../components/reservations/AssignRoomReservation.vue'),
 )
+// Import du composant :
+const WhatsappHistory = defineAsyncComponent(
+  () => import('../../../components/reservations/whatsapp/WhatsappHistory.vue')
+)
 import { useToast } from 'vue-toastification'
 import { confirmBooking } from '@/services/reservation'
 import OverLoading from '../../../components/spinner/OverLoading.vue'
@@ -74,6 +78,7 @@ const tabs = computed(() => [
   { id: 'guest_details', label: t('Guest Details') },
   { id: 'room_charges', label: t('Room Charges') },
   { id: 'audit_trial', label: t('Audit Trail') },
+  { id: 'whatsapp_history', label: t('WhatsApp History') },
 ])
 const VALID_TAB_IDS = new Set<string>([
   'folio_operations',
@@ -81,6 +86,7 @@ const VALID_TAB_IDS = new Set<string>([
   'guest_details',
   'room_charges',
   'audit_trial',
+  'whatsapp_history',
 ])
 
 const route = useRoute()
@@ -693,6 +699,9 @@ onMounted(() => {
       </div>
       <div v-if="activeTab === 'audit_trial'">
         <AuditTrail :entity-ids="[localReservation.id]" />
+      </div>
+      <div v-if="activeTab === 'whatsapp_history'">
+        <WhatsappHistory :reservation-id="localReservation.id" />
       </div>
     </div>
 
