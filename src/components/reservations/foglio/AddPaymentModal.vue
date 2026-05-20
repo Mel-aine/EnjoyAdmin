@@ -247,6 +247,7 @@ const resetForm = () => {
 const loadEditData = () => {
   if (!props.transactionData) return
   const payment = props.transactionData
+ 
 
   formData.date = new Date(payment.postingDate).toISOString().split('T')[0]
   formData.folio = payment.folioId
@@ -279,8 +280,17 @@ const applyAmountLogic = () => {
   }
 }
 
+const isInitializing = ref(false)
+
 const folioSelected = (item: any) => {
+   console.log('folioSelected triggered', {
+    rawBalance: item.balance,
+    converted: toIntegerAmount(item.balance || 0),
+    isInitializing: isInitializing.value
+  })
   if (props.isEditMode) return
+  if (isInitializing.value) return  
+
   const balance = toIntegerAmount(item.balance || 0)
   selectedFolioBalance.value = balance
   applyAmountLogic()
@@ -403,6 +413,8 @@ const closeModal = () => {
 
 
 const initModal = async () => {
+  isInitializing.value = true  
+
   if (props.guestId) {
     await fetchBalance(props.guestId, serviceStore.serviceId!)
   }
@@ -420,6 +432,9 @@ const initModal = async () => {
       }
     }
   }
+
+  await nextTick()
+  isInitializing.value = false  
 }
 
 
@@ -428,6 +443,7 @@ onMounted(async () => {
   if (props.isOpen) {
     await initModal()
   }
+  console.log(props.reservationData)
 })
 
 watch(() => props.isOpen, async (isOpen) => {
