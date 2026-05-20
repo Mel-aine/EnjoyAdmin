@@ -833,6 +833,16 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Satisfaction Stats route
+    {
+      path: '/reports/satisfaction',
+      name: 'SatisfactionStats',
+      component: () => import('../views/Reports/StatisfactionStats.vue'),
+      meta: {
+        title: 'Satisfaction Statistics',
+        requiresAuth: true,
+      },
+    },
     // Configuration Routes
     {
       path: '/configuration',

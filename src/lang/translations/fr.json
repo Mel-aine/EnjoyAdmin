@@ -984,7 +984,8 @@
       "hotelPolicy": "Politique de l'hôtel",
       "nightAuditStartTime": "Heure de début de l'audit de nuit",
       "nightAuditEndTime": "Heure de fin de l'audit de nuit",
-      "hasCreditLedger" : "Avec compte de crédit"
+      "hasCreditLedger" : "Avec compte de crédit",
+      "googlePlaceId": "Identifiant Google de Place ID"
     },
     "creditLedger": {
       "enabled": "Activé",
@@ -1064,7 +1065,8 @@
       "cancellationPolicy": "Saisissez la politique d'annulation de votre hôtel...",
       "hotelPolicy": "Saisissez les politiques générales de votre hôtel...",
       "nightAuditStartTime": "Saisissez l'heure de début de l'audit de nuit",
-      "nightAuditEndTime": "Saisissez l'heure de fin de l'audit de nuit"
+      "nightAuditEndTime": "Saisissez l'heure de fin de l'audit de nuit",
+      "googlePlaceId": "Saisissez l'identifiant Google de Place ID"
     },
     "buttons": {
       "chooseFile": "Choisir un fichier",
@@ -4668,6 +4670,31 @@
     "expensesByCategory": "Dépenses par catégorie",
     "monthlyTrend": "Tendance mensuelle",
     "expensesList": "Liste des dépenses",
+    "satisfaction": {
+      "title": "Satisfaction clients",
+      "nps": "Score NPS simplifié",
+      "responseRate": "Taux de réponse",
+      "googleRedirects": "Avis Google",
+      "surveysSent": "Enquêtes envoyées",
+      "ratingDistribution": "Répartition des notes",
+      "funnel": "Entonnoir feedback",
+      "trend": "Évolution hebdomadaire",
+      "excellent": "Excellent / Très bien",
+      "satisfaisant": "Satisfaisant",
+      "aAmeliorer": "À améliorer",
+      "sent": "Envoyées",
+      "responses": "Réponses reçues",
+      "positiveGoogle": "Positifs → Google",
+      "negativeComment": "Négatifs avec commentaire",
+      "vsLastMonth": "vs mois dernier",
+      "lastUpdate": "Dernière mise à jour",
+      "analyzeNegative": "Analyser les retours négatifs",
+      "period7": "7 jours",
+      "period30": "30 jours",
+      "period90": "90 jours",
+      "npsScore": "Score NPS",
+      "responseRatePct": "Taux de réponse %"
+    },
     "expenseDescriptions": {
       "electricityBill": "Facture d'électricité",
       "cleaningSupplies": "Fournitures de nettoyage",
@@ -9161,8 +9188,19 @@
       "htl_checkout_feedback": "Feedback checkout",
       "htl_special_offer": "Offre spéciale",
       "room_posting": "Posting chambre",
-      "check_in_free": "Check-in"
+      "check_in_free": "Check-in",
+      "feedback_survey": "Enquête de satisfaction",
+      "feedback_surveys": "Enquête de satisfaction",
+      "feedback_negative_reply": "Réponse négative à l'enquête de satisfaction",
+      "feedback_positive_reply": "Réponse positive à l'enquête de satisfaction"
     }
+  },
+  "columns" : {
+    "status": "Statut",
+    "template": "Modèle",
+    "message": "Message",
+    "dates": "Dates",
+    "phone": "Téléphone client"
   }
 
 

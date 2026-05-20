@@ -464,6 +464,7 @@ const reportPermissions = {
 }
 const dashbordReport = ref([
   { name: 'dashbord', path: '/reports/dashboard', label: 'Dashboard' },
+  { name: 'SatisfactionStats', path: '/reports/satisfaction', label: 'reports.satisfaction.title' }
 ]);
 // Reservation Reports
 const reservationReports = ref([

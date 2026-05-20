@@ -1,5 +1,158 @@
+<template>
+  <div class="p-4 space-y-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-2">
+        <MessageCircle class="w-5 h-5 text-green-500" />
+        <h3 class="font-medium text-[15px] text-gray-800 dark:text-gray-100">
+          {{ t('whatsapp.history.title') }}
+        </h3>
+        <span class="text-[11px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-600">
+          {{ t('whatsapp.history.message_count', { count: logs.length }) }}
+        </span>
+      </div>
+      <button
+        @click="fetchLogs(1)"
+        :disabled="isLoading"
+        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+      >
+        <RefreshCw class="w-4 h-4 text-gray-500" :class="{ 'animate-spin': isLoading }" />
+      </button>
+    </div>
+
+ 
+
+    <ReusableTable
+    
+      :columns="columns"
+      :data="mappedLogs"
+      :loading="isLoading"
+      :searchable="false"
+      :show-header="false"
+      :expandable="true"
+      :meta="meta"
+      @page-change="handlePageChange"
+      item-key="id"
+      empty-state-title="whatsapp.history.empty"
+    >
+      <!-- Statut -->
+      <template #column-status="{ item }">
+        <div class="flex items-center gap-2">
+          <div
+            class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+            :class="getStatusConfig(item.status).wrapClass"
+          >
+            <component :is="getStatusConfig(item.status).component" class="w-3.5 h-3.5" />
+          </div>
+          <span
+            class="text-[11px] font-medium px-2 py-0.5 rounded-full border"
+            :class="getStatusConfig(item.status).badgeClass"
+          >
+            {{ t(getStatusConfig(item.status).labelKey) }}
+          </span>
+        </div>
+      </template>
+
+      <!-- Template -->
+      <template #column-templateName="{ item }">
+        <span
+          v-if="item.templateName"
+          class="text-[11px] font-medium px-2 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full border border-green-200 dark:border-green-800"
+        >
+          {{ templateLabel(item.templateName) }}
+        </span>
+        <span v-else class="text-gray-400">—</span>
+      </template>
+
+      <!-- Téléphone -->
+      <template #column-recipientPhone="{ item }">
+        <div class="flex items-center gap-1 font-mono text-[12px] text-gray-600 dark:text-gray-300">
+          <Smartphone class="w-3.5 h-3.5 text-gray-400" />
+          {{ item.recipientPhone || '—' }}
+        </div>
+      </template>
+
+      <!-- Corps message -->
+      <template #column-messageBody="{ item }">
+        <p
+          v-if="item.messageBody"
+          class="text-[12px] text-gray-600 dark:text-gray-300 line-clamp-1 max-w-xs"
+          :title="item.messageBody"
+        >
+          {{ item.messageBody }}
+        </p>
+        <span v-else class="text-gray-400">—</span>
+      </template>
+
+      <!-- Date envoi -->
+      <template #column-sentAt="{ item }">
+        <div class="flex flex-col gap-0.5">
+          <span v-if="item.sentAt" class="flex items-center gap-1 text-[11px] text-gray-400">
+            <Send class="w-3 h-3" /> {{ formatDate(item.sentAt) }}
+          </span>
+          <span v-if="item.deliveredAt" class="flex items-center gap-1 text-[11px] text-gray-400">
+            <Mailbox class="w-3 h-3" /> {{ formatDate(item.deliveredAt) }}
+          </span>
+          <span v-if="item.readAt" class="flex items-center gap-1 text-[11px] text-blue-400">
+            <Eye class="w-3 h-3" /> {{ formatDate(item.readAt) }}
+          </span>
+          <span v-if="item.failedAt && item.status === 'failed'" class="flex items-center gap-1 text-[11px] text-red-400">
+            <X class="w-3 h-3" /> {{ formatDate(item.failedAt) }}
+          </span>
+        </div>
+      </template>
+
+      <!-- Expanded : erreur provider -->
+      <template #expanded-content="{ item }">
+        <div class="px-6 py-3 bg-gray-50 dark:bg-gray-800/50">
+          <!-- Erreur provider -->
+          <template v-if="item.status === 'failed'">
+            <div
+              v-if="parseProviderError(item)"
+              class="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 overflow-hidden"
+            >
+              <div class="flex items-start gap-2 px-3 py-2">
+                <AlertTriangle class="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12px] font-medium text-red-700 dark:text-red-400">
+                    {{ parseProviderError(item)!.message }}
+                  </p>
+                  <p v-if="parseProviderError(item)!.detail" class="text-[11px] text-red-500 mt-0.5 font-mono">
+                    {{ parseProviderError(item)!.detail }}
+                  </p>
+                  <p v-if="parseProviderError(item)!.traceId" class="text-[10px] text-red-400 font-mono mt-1">
+                    fbtrace_id: {{ parseProviderError(item)!.traceId }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              v-else-if="item.failureReason"
+              class="flex items-center gap-1.5 text-[12px] text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg px-2.5 py-1.5 border border-red-100 dark:border-red-900"
+            >
+              <AlertCircle class="w-3.5 h-3.5 flex-shrink-0" />
+              {{ item.failureReason }}
+            </div>
+            <p v-else class="text-[12px] text-gray-400">{{ t('whatsapp.error.unknown') }}</p>
+          </template>
+
+          <!-- Corps complet si pas d'erreur -->
+          <p
+            v-else-if="item.messageBody"
+            class="text-[12px] text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700/40 rounded-lg px-2.5 py-1.5 leading-relaxed"
+          >
+            {{ item.messageBody }}
+          </p>
+
+          <p v-else class="text-[12px] text-gray-400">—</p>
+        </div>
+      </template>
+    </ReusableTable>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getWhatsappLogs } from '@/services/whatsapp'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
@@ -7,6 +160,8 @@ import {
   RefreshCw, Smartphone, Send, Mailbox, Eye, X, AlertTriangle
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import ReusableTable from '@/components/tables/ReusableTable.vue'
+import type { Column } from '@/utils/models'
 
 const props = defineProps<{ reservationId: number }>()
 
@@ -15,24 +170,32 @@ const serviceStore = useServiceStore()
 const logs = ref<any[]>([])
 const isLoading = ref(false)
 const error = ref<string | null>(null)
-const expandedErrors = ref<Set<number>>(new Set())
+const meta = ref<any>({})
 
-const fetchLogs = async () => {
+const columns: Column[] = [
+  { key: 'status',         label: t('whatsapp.columns.status'),    type: 'custom' },
+  { key: 'templateName',   label: t('whatsapp.columns.template'),  type: 'custom' },
+  { key: 'recipientPhone', label: t('whatsapp.columns.phone'),     type: 'custom' },
+  { key: 'messageBody',    label: t('whatsapp.columns.message'),   type: 'custom' },
+  { key: 'sentAt',         label: t('whatsapp.columns.dates'),     type: 'custom' },
+]
+
+// Les logs sont utilisés tels quels — la table accepte any[]
+const mappedLogs = computed(() => logs.value)
+
+const fetchLogs = async (page: number = 1) => {
   isLoading.value = true
   error.value = null
   try {
-    const res = await getWhatsappLogs(props.reservationId, serviceStore.serviceId!)
+    const res = await getWhatsappLogs(props.reservationId, serviceStore.serviceId!, page) 
     logs.value = res.data?.data || res.data || []
+    meta.value = res.data?.meta || res.data?.meta || {}
+    
   } catch (err: any) {
     error.value = err?.response?.data?.message || t('whatsapp.error.load_failed')
   } finally {
     isLoading.value = false
   }
-}
-
-const toggleError = (id: number) => {
-  if (expandedErrors.value.has(id)) expandedErrors.value.delete(id)
-  else expandedErrors.value.add(id)
 }
 
 const formatDate = (dateString: string | null) => {
@@ -97,7 +260,7 @@ const templateLabel = (name: string | null) => {
   return translated !== key ? translated : name
 }
 
-const parseProviderError = (log: any): { message: string; detail: string | null; traceId: string | null } | null => {
+const parseProviderError = (log: any) => {
   const err = log.providerResponse?.error
   if (!err) return null
   return {
@@ -107,204 +270,9 @@ const parseProviderError = (log: any): { message: string; detail: string | null;
   }
 }
 
-const stats = computed(() => ({
-  total:     logs.value.length,
-  sent:      logs.value.filter(l => l.status === 'sent').length,
-  delivered: logs.value.filter(l => l.status === 'delivered').length,
-  read:      logs.value.filter(l => l.status === 'read').length,
-  failed:    logs.value.filter(l => l.status === 'failed').length,
-}))
+const handlePageChange = (page: number) => {
+  fetchLogs(page)
+}
 
-onMounted(fetchLogs)
+onMounted(() => fetchLogs(1))
 </script>
-
-<template>
-  <div class="p-4 space-y-4">
-
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <MessageCircle class="w-5 h-5 text-green-500" />
-        <h3 class="font-medium text-[15px] text-gray-800 dark:text-gray-100">
-          {{ t('whatsapp.history.title') }}
-        </h3>
-        <span class="text-[11px] bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-600">
-          {{ t('whatsapp.history.message_count', { count: stats.total }) }}
-        </span>
-      </div>
-      <button
-        @click="fetchLogs"
-        :disabled="isLoading"
-        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-        :aria-label="t('whatsapp.history.refresh')"
-      >
-        <RefreshCw class="w-4 h-4 text-gray-500" :class="{ 'animate-spin': isLoading }" />
-      </button>
-    </div>
-
-    <!-- Stats -->
-    <div v-if="stats.total > 0" class="grid grid-cols-4 gap-2">
-      <div class="text-center p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
-        <div class="text-xl font-medium text-gray-500 dark:text-gray-400">{{ stats.sent }}</div>
-        <div class="text-[11px] text-gray-400 mt-0.5">{{ t('whatsapp.status.sent') }}</div>
-      </div>
-      <div class="text-center p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/40">
-        <div class="text-xl font-medium text-blue-500">{{ stats.delivered }}</div>
-        <div class="text-[11px] text-gray-400 mt-0.5">{{ t('whatsapp.status.delivered') }}</div>
-      </div>
-      <div class="text-center p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/40">
-        <div class="text-xl font-medium text-blue-600">{{ stats.read }}</div>
-        <div class="text-[11px] text-gray-400 mt-0.5">{{ t('whatsapp.status.read') }}</div>
-      </div>
-      <div class="text-center p-2.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/40">
-        <div class="text-xl font-medium text-red-500">{{ stats.failed }}</div>
-        <div class="text-[11px] text-gray-400 mt-0.5">{{ t('whatsapp.status.failed') }}</div>
-      </div>
-    </div>
-
-    <!-- Loading skeleton -->
-    <div v-if="isLoading" class="space-y-2">
-      <div v-for="i in 3" :key="i" class="animate-pulse flex gap-3 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
-        <div class="w-7 h-7 bg-gray-200 dark:bg-gray-600 rounded-full flex-shrink-0" />
-        <div class="flex-1 space-y-2">
-          <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-2/5" />
-          <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-full" />
-          <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-1/3" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Error global -->
-    <div v-else-if="error" class="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/40">
-      <AlertCircle class="w-5 h-5 flex-shrink-0" />
-      <span class="text-sm">{{ error }}</span>
-    </div>
-
-    <!-- Empty -->
-    <div v-else-if="logs.length === 0" class="text-center py-12 text-gray-400">
-      <MessageCircle class="w-12 h-12 mx-auto mb-3 opacity-20" />
-      <p class="text-sm">{{ t('whatsapp.history.empty') }}</p>
-    </div>
-
-    <!-- Liste -->
-    <div v-else class="space-y-2">
-      <div
-        v-for="log in logs"
-        :key="log.id"
-        class="flex gap-3 p-3 rounded-xl border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
-      >
-        <!-- Icône statut -->
-        <div
-          class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-0.5"
-          :class="getStatusConfig(log.status).wrapClass"
-        >
-          <component :is="getStatusConfig(log.status).component" class="w-4 h-4" />
-        </div>
-
-        <!-- Contenu -->
-        <div class="flex-1 min-w-0">
-
-          <!-- Badges -->
-          <div class="flex items-center gap-1.5 flex-wrap mb-1.5">
-            <span
-              v-if="log.templateName"
-              class="text-[11px] font-medium px-2 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full border border-green-200 dark:border-green-800"
-            >
-              {{ templateLabel(log.templateName) }}
-            </span>
-            <span
-              class="text-[11px] font-medium px-2 py-0.5 rounded-full border"
-              :class="getStatusConfig(log.status).badgeClass"
-            >
-              {{ t(getStatusConfig(log.status).labelKey) }}
-            </span>
-            <span class="text-[11px] text-gray-400 dark:text-gray-500">
-              {{ t('whatsapp.history.via', { provider: log.provider || 'meta' }) }}
-            </span>
-          </div>
-
-          <!-- Téléphone -->
-          <div class="flex items-center gap-1 text-[12px] text-gray-500 dark:text-gray-400 mb-1.5 font-mono">
-            <Smartphone class="w-3.5 h-3.5" />
-            {{ log.recipientPhone || '—' }}
-          </div>
-
-          <!-- Corps message -->
-          <p
-            v-if="log.messageBody"
-            class="text-[12px] text-gray-600 dark:text-gray-300 line-clamp-2 bg-gray-50 dark:bg-gray-700/40 rounded-lg px-2.5 py-1.5 mb-1.5 leading-relaxed"
-          >
-            {{ log.messageBody }}
-          </p>
-
-          <!-- Bloc erreur provider -->
-          <template v-if="log.status === 'failed'">
-            <div
-              v-if="parseProviderError(log)"
-              class="mb-1.5 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 overflow-hidden"
-            >
-              <div class="flex items-start gap-2 px-3 py-2">
-                <AlertTriangle class="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
-                <div class="flex-1 min-w-0">
-                  <p class="text-[12px] font-medium text-red-700 dark:text-red-400">
-                    {{ parseProviderError(log)!.message }}
-                  </p>
-                  <p
-                    v-if="parseProviderError(log)!.detail"
-                    class="text-[11px] text-red-500 dark:text-red-400 mt-0.5 font-mono"
-                  >
-                    {{ parseProviderError(log)!.detail }}
-                  </p>
-                </div>
-                <button
-                  v-if="parseProviderError(log)!.traceId"
-                  class="text-[10px] text-red-400 hover:text-red-600 flex-shrink-0 underline underline-offset-2 transition-colors"
-                  @click="toggleError(log.id)"
-                >
-                  {{ expandedErrors.has(log.id) ? t('whatsapp.error.hide_trace') : t('whatsapp.error.show_trace') }}
-                </button>
-              </div>
-              <div
-                v-if="expandedErrors.has(log.id) && parseProviderError(log)!.traceId"
-                class="border-t border-red-200 dark:border-red-800 px-3 py-1.5"
-              >
-                <span class="text-[10px] text-red-400 font-mono">
-                  fbtrace_id: {{ parseProviderError(log)!.traceId }}
-                </span>
-              </div>
-            </div>
-            <!-- Fallback si pas de providerResponse -->
-            <div
-              v-else-if="log.failureReason"
-              class="mb-1.5 flex items-center gap-1.5 text-[12px] text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg px-2.5 py-1.5 border border-red-100 dark:border-red-900"
-            >
-              <AlertCircle class="w-3.5 h-3.5 flex-shrink-0" />
-              {{ log.failureReason }}
-            </div>
-          </template>
-
-          <!-- Dates -->
-          <div class="flex gap-3 flex-wrap">
-            <span v-if="log.sentAt" class="flex items-center gap-1 text-[11px] text-gray-400 dark:text-gray-500">
-              <Send class="w-3 h-3" /> {{ formatDate(log.sentAt) }}
-            </span>
-            <span v-if="log.deliveredAt" class="flex items-center gap-1 text-[11px] text-gray-400 dark:text-gray-500">
-              <Mailbox class="w-3 h-3" /> {{ formatDate(log.deliveredAt) }}
-            </span>
-            <span v-if="log.readAt" class="flex items-center gap-1 text-[11px] text-blue-400">
-              <Eye class="w-3 h-3" /> {{ formatDate(log.readAt) }}
-            </span>
-            <span v-if="log.failedAt && log.status === 'failed'" class="flex items-center gap-1 text-[11px] text-red-400">
-              <X class="w-3 h-3" /> {{ formatDate(log.failedAt) }}
-            </span>
-            <span v-if="!log.sentAt && !log.failedAt" class="flex items-center gap-1 text-[11px] text-gray-400">
-              <Clock class="w-3 h-3" /> {{ formatDate(log.createdAt) }}
-            </span>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-  </div>
-</template>
