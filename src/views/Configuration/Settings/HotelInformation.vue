@@ -57,7 +57,8 @@
                     :placeholder="t('hotelInformation.placeholders.fax')"
                   />
                 </div>
-
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 <div>
                   <Input
                     v-model="hotelInfo.website"
@@ -65,6 +66,13 @@
                     :placeholder="t('hotelInformation.placeholders.website')"
                   />
                 </div>
+                <div>
+                  <Input
+                    v-model="hotelInfo.googlePlaceId"
+                    :lb="t('hotelInformation.fields.googlePlaceId')"
+                    :placeholder="t('hotelInformation.placeholders.googlePlaceId')"
+                  />
+                </div> 
 
                 <div>
                   <InputCountries
@@ -72,7 +80,8 @@
                     :is-required="true"
                   />
                 </div>
-              </div>
+
+            </div>
 
               <div class="mt-6">
                 <Input
@@ -481,6 +490,7 @@ const hotelInfo = ref({
   "nightAuditStartTime": 1,
   "nightAuditEndTime": 1,
   hasCreditLedger: false,
+  googlePlaceId: '',
   notificationSettings: {
     wifiCode: '',
     breakfastStart: '',
@@ -554,6 +564,7 @@ const loadHotelInfo = async () => {
       nightAuditStartTime: currentService.nightAuditStartTime || '',
       nightAuditEndTime: currentService.nightAuditEndTime || '',
       hasCreditLedger: currentService.hasCreditLedger || false,
+      googlePlaceId: currentService.googlePlaceId || '',
       notificationSettings: {
         wifiCode:  currentService.notificationSettings?.wifiCode          ?? '',
         breakfastStart:  currentService.notificationSettings?.breakfastStart    ?? '',

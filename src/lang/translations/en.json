@@ -1003,7 +1003,8 @@
       "hotelPolicy": "Hotel Policy",
       "nightAuditStartTime": "Night Audit Start Time",
       "nightAuditEndTime": "Night Audit End Time",
-      "hasCreditLedger": "Has Credit Ledger"
+      "hasCreditLedger": "Has Credit Ledger",
+      "googlePlaceId": "Google Place ID"
     },
     "creditLedger": {
       "enabled": "Enabled",
@@ -1082,7 +1083,8 @@
       "cancellationPolicy": "Enter your hotel's cancellation policy...",
       "hotelPolicy": "Enter your hotel's general policies...",
       "nightAuditStartTime": "Enter night audit start time",
-      "nightAuditEndTime": "Enter night audit end time"
+      "nightAuditEndTime": "Enter night audit end time",
+      "googlePlaceId": "Enter Google Place ID"
     },
     "buttons": {
       "chooseFile": "Choose File",
@@ -4677,6 +4679,32 @@
     "expensesByCategory": "Expenses by Category",
     "monthlyTrend": "Monthly Trend",
     "expensesList": "Expenses List",
+   
+    "satisfaction": {
+      "title": "Guest Satisfaction",
+      "nps": "Simplified NPS Score",
+      "responseRate": "Response Rate",
+      "googleRedirects": "Google Reviews",
+      "surveysSent": "Surveys Sent",
+      "ratingDistribution": "Rating Distribution",
+      "funnel": "Feedback Funnel",
+      "trend": "Weekly Trend",
+      "excellent": "Excellent / Very Good",
+      "satisfaisant": "Satisfactory",
+      "aAmeliorer": "Needs Improvement",
+      "sent": "Sent",
+      "responses": "Responses Received",
+      "positiveGoogle": "Positive → Google",
+      "negativeComment": "Negative with Comment",
+      "vsLastMonth": "vs last month",
+      "lastUpdate": "Last updated",
+      "analyzeNegative": "Analyze negative feedback",
+      "period7": "7 days",
+      "period30": "30 days",
+      "period90": "90 days",
+      "npsScore": "NPS Score",
+      "responseRatePct": "Response rate %"
+    },
     "expenseDescriptions": {
       "electricityBill": "Electricity Bill",
       "cleaningSupplies": "Cleaning Supplies",
@@ -9001,7 +9029,22 @@
       "htl_checkout_feedback": "Checkout feedback",
       "htl_special_offer": "Special offer",
       "room_posting": "Room posting",
-      "check_in_free": "Check-in"
-    }
+      "check_in_free": "Check-in",
+      "feedback_survey": "Feedback survey",
+      "feedback_surveys": "Feedback survey",
+      "feedback_negative_reply": "Feedback negative reply",
+      "feedback_positive_reply": "Feedback positive reply"
+
+    },
+      "columns" : {
+        "status": "Status",
+        "template": "Template",
+        "message": "Message",
+        "dates": "Dates",
+        "phone": "Guest phone"
+      }
   }
+
+
+
 }
