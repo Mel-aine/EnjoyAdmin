@@ -2259,7 +2259,9 @@ const formDataKey = ref(Date.now())
     }
   })
 
-
+watch(whatsappEnabled, (val) => {
+  console.log('whatsappEnabled changed:', val)
+})
 
   // Fonction pour charger les données asynchrones après le chargement du draft
   const loadDraftData = (draftData: any) => {
