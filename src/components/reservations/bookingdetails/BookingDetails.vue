@@ -125,16 +125,14 @@
                 <!-- Champ numéro — visible uniquement si activé -->
                 <transition name="slide-down">
                   <div v-if="billingData.whatsappNotificationEnable">
-                    <Input
-                      :lb="$t('WhatsApp Number')"
+                    <InputPhone
+                      :title="$t('WhatsApp Number')"
                       v-model="billingData.whatsappNumber"
                       type="text"
                       placeholder="+237 6XX XXX XXX"
                       :disabled="!editMode"
                     />
-                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                      {{ $t('whatsapp_number_hint') }}
-                    </p>
+                   
                   </div>
                 </transition>
               </div>
@@ -357,6 +355,7 @@ import { getAllCompanies } from '@/services/companyApi'
 import InputPaymentMethodSelect from '../foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import { updateBookingDetail } from '@/services/reservation'
+import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 
 
 interface Props {
