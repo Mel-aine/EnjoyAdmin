@@ -1258,7 +1258,7 @@ const router = createRouter({
     {
       path: '/configuration/settings/whatsapp',
       name: 'WhatsApp',
-      component: () => import('../views/Configuration/Settings/WhatsApp.vue'),
+      component: () => import('../views/Configuration/Settings/Whatsapp.vue'),
       meta: {
         title: 'WhatsApp',
         requiresAuth: true,
