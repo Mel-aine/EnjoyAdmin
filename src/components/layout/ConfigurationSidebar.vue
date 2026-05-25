@@ -301,8 +301,10 @@ import {
   UserCircle,
   Shield,
 } from 'lucide-vue-next'
+import { useServiceStore } from '@/composables/serviceStore'
+import { getById } from '@/services/hotelApi'
 
-// Types
+//// Types
 interface MenuItem {
   path: string
   label: string
@@ -325,7 +327,10 @@ const { t } = useI18n()
 const searchQuery = ref('')
 const route = useRoute()
 const navElement = ref<HTMLElement | null>(null)
+const serviceStore = useServiceStore()
 
+
+const whatsappEnabled = computed(() => serviceStore.whatsappEnabled)
 const expandedSections = ref<ExpandedSections>({
   rooms: true,
   rates: true,
@@ -381,13 +386,17 @@ const handleGlobalClick = (event: MouseEvent): void => {
 }
 
 // Component lifecycle
-onMounted(() => {
-  
-  // Restore scroll position on initial load
+onMounted(async () => {
   restoreScrollPosition()
-  
-  // Add global click listener
   document.addEventListener('click', handleGlobalClick)
+
+  try {
+    const response = await getById(serviceStore.serviceId!)
+    console.log('response:', response)
+    serviceStore.setWhatsappEnabled(response.data?.data?.whatsappEnabled ?? false)
+  } catch (error) {
+    console.error('Error fetching hotel data:', error)
+  }
 })
 
 // Cleanup event listeners
@@ -508,15 +517,21 @@ const filteredMasterItems = computed<MenuItem[]>(() => {
   })
 })
 
+
 const filteredSettingsItems = computed<MenuItem[]>(() => {
-  if (!searchQuery.value) return settingsItems
+  let items = [...settingsItems]
+
+  if (whatsappEnabled.value) {
+    items.splice(1, 0, { path: '/configuration/settings/whatsapp', label: 'WhatsApp' })
+  }
+
+  if (!searchQuery.value) return items
   const query = searchQuery.value.toLowerCase()
-  return settingsItems.filter(item => {
+  return items.filter(item => {
     const translatedLabel = t(item.label).toLowerCase()
     return translatedLabel.includes(query) || item.label.toLowerCase().includes(query)
   })
 })
-
 const filteredSecurityItems = computed<MenuItem[]>(() => {
   if (!searchQuery.value) return securityItems
   const query = searchQuery.value.toLowerCase()

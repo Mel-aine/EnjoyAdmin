@@ -112,8 +112,12 @@
                             :is-required="true" :disabled="isCheckedIn" />
                         <InputDatePicker :title="$t('departureDate')" v-model="formData.newDepartureDate"
                             :is-required="true" />
-                        <Input input-type="number" :lb="$t('nights')" :title="$t('nights')" v-model="formData.nights"
-                            :is-required="true" />
+                        <div class="">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('nights') }}</label>
+                            <input type="number"  v-model="formData.nights" min="0"
+                            :is-required="true" class="dark:bg-dark-900 h-11 w-full rounded-lg border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-hidden focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-800" />
+                    
+                        </div>
                     </div>
 
                     <!-- Action Buttons -->
@@ -130,14 +134,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, computed } from 'vue'
+import { onMounted, ref, watch, computed,nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { X, AlertCircle } from 'lucide-vue-next'
 import BasicButton from '../../buttons/BasicButton.vue'
 import { amendReservation, getReservationDetailsById } from '../../../services/reservation'
 import InputDatePicker from '../../forms/FormElements/InputDatePicker.vue'
-import Input from '../../forms/FormElements/Input.vue'
+
 
 interface Props {
     isOpen: boolean
@@ -387,28 +391,23 @@ watch(() => reservationRooms.value, (newRooms) => {
     }
 }, { deep: true })
 
-// Watch for changes in arrival and departure dates to calculate nights
-watch([() => formData.value.newArrivalDate, () => formData.value.newDepartureDate], ([newArrival, newDeparture]) => {
-    if (newArrival && newDeparture) {
-        const arrivalDate = new Date(newArrival)
-        const departureDate = new Date(newDeparture)
-        const timeDiff = departureDate.getTime() - arrivalDate.getTime()
-        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
+const isUpdatingFromNights = ref(false)
 
-        if (daysDiff >= 0) {
-            formData.value.nights = daysDiff
-        }
+watch([() => formData.value.newArrivalDate, () => formData.value.newDepartureDate], ([newArrival, newDeparture]) => {
+    if (isUpdatingFromNights.value) return  
+    if (newArrival && newDeparture) {
+        const diff = Math.ceil((new Date(newDeparture).getTime() - new Date(newArrival).getTime()) / 86400000)
+        if (diff >= 0) formData.value.nights = diff
     }
 })
 
-// Watch for changes in arrival date and nights to calculate departure date
 watch([() => formData.value.newArrivalDate, () => formData.value.nights], ([newArrival, nights]) => {
-    if (newArrival && nights && nights > 0) {
-        const arrivalDate = new Date(newArrival)
-        const departureDate = new Date(arrivalDate)
-        departureDate.setDate(arrivalDate.getDate() + nights)
-
-        formData.value.newDepartureDate = departureDate.toISOString().split('T')[0]
+    if (newArrival && nights >= 0) {
+        isUpdatingFromNights.value = true
+        const d = new Date(newArrival)
+        d.setDate(d.getDate() + Number(nights))
+        formData.value.newDepartureDate = d.toISOString().split('T')[0]
+        nextTick(() => { isUpdatingFromNights.value = false })
     }
 })
 

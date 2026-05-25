@@ -57,7 +57,8 @@
                     :placeholder="t('hotelInformation.placeholders.fax')"
                   />
                 </div>
-
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 <div>
                   <Input
                     v-model="hotelInfo.website"
@@ -65,6 +66,13 @@
                     :placeholder="t('hotelInformation.placeholders.website')"
                   />
                 </div>
+                <div>
+                  <Input
+                    v-model="hotelInfo.googlePlaceId"
+                    :lb="t('hotelInformation.fields.googlePlaceId')"
+                    :placeholder="t('hotelInformation.placeholders.googlePlaceId')"
+                  />
+                </div> 
 
                 <div>
                   <InputCountries
@@ -72,7 +80,8 @@
                     :is-required="true"
                   />
                 </div>
-              </div>
+
+            </div>
 
               <div class="mt-6">
                 <Input
@@ -282,6 +291,91 @@
 
 
             </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                {{ t('hotelInformation.notificationSettings.title') }}
+              </h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                {{ t('hotelInformation.notificationSettings.subtitle') }}
+              </p>
+ 
+              <!-- Wi-Fi -->
+              <div class="mb-6">
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                  {{ t('hotelInformation.notificationSettings.sections.wifi') }}
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    v-model="hotelInfo.notificationSettings.wifiCode"
+                    :lb="t('hotelInformation.notificationSettings.fields.wifiCode')"
+                    :placeholder="t('hotelInformation.notificationSettings.placeholders.wifiCode')"
+                  />
+                </div>
+              </div>
+ 
+              <!-- Breakfast -->
+              <div class="mb-6">
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                  {{ t('hotelInformation.notificationSettings.sections.breakfast') }}
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    v-model="hotelInfo.notificationSettings.breakfastStart"
+                    :lb="t('hotelInformation.notificationSettings.fields.breakfastStart')"
+                    placeholder="07:00"
+                    input-type="time"
+                  />
+                  <Input
+                    v-model="hotelInfo.notificationSettings.breakfastEnd"
+                    :lb="t('hotelInformation.notificationSettings.fields.breakfastEnd')"
+                    placeholder="10:00"
+                    input-type="time"
+                  />
+                </div>
+              </div>
+ 
+              <!-- Smart lock -->
+              <div>
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                  {{ t('hotelInformation.notificationSettings.sections.smartLock') }}
+                </h4>
+                <div class="flex items-center gap-3 mb-4">
+                  <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('hotelInformation.notificationSettings.fields.hasSmartLock') }}
+                  </label>
+                  <button
+                    type="button"
+                    @click="hotelInfo.notificationSettings.hasSmartLock = !hotelInfo.notificationSettings.hasSmartLock"
+                    :class="[
+                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none',
+                      hotelInfo.notificationSettings.hasSmartLock
+                        ? 'bg-orange-600'
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    ]"
+                  >
+                    <span
+                      :class="[
+                        'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+                        hotelInfo.notificationSettings.hasSmartLock ? 'translate-x-6' : 'translate-x-1'
+                      ]"
+                    />
+                  </button>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ hotelInfo.notificationSettings.hasSmartLock
+                        ? t('hotelInformation.notificationSettings.smartLock.enabled')
+                        : t('hotelInformation.notificationSettings.smartLock.disabled') }}
+                  </span>
+                </div>
+ 
+                <div v-if="hotelInfo.notificationSettings.hasSmartLock" class="grid grid-cols-1 gap-6">
+                  <Input
+                    v-model="hotelInfo.notificationSettings.digitalKeyBaseUrl"
+                    :lb="t('hotelInformation.notificationSettings.fields.digitalKeyBaseUrl')"
+                    placeholder="https://live.enjoy-stay.com/key"
+                  />
+                </div>
+              </div>
+            </div>
           </form>
         </div>
       </div>
@@ -396,6 +490,14 @@ const hotelInfo = ref({
   "nightAuditStartTime": 1,
   "nightAuditEndTime": 1,
   hasCreditLedger: false,
+  googlePlaceId: '',
+  notificationSettings: {
+    wifiCode: '',
+    breakfastStart: '',
+    breakfastEnd: '',
+    hasSmartLock: false,
+    digitalKeyBaseUrl: '',
+  },
   logoFile: null
 })
 
@@ -462,6 +564,14 @@ const loadHotelInfo = async () => {
       nightAuditStartTime: currentService.nightAuditStartTime || '',
       nightAuditEndTime: currentService.nightAuditEndTime || '',
       hasCreditLedger: currentService.hasCreditLedger || false,
+      googlePlaceId: currentService.googlePlaceId || '',
+      notificationSettings: {
+        wifiCode:  currentService.notificationSettings?.wifiCode          ?? '',
+        breakfastStart:  currentService.notificationSettings?.breakfastStart    ?? '',
+        breakfastEnd:  currentService.notificationSettings?.breakfastEnd      ?? '',
+        hasSmartLock:   currentService.notificationSettings?.hasSmartLock      ?? false,
+        digitalKeyBaseUrl:  currentService.notificationSettings?.digitalKeyBaseUrl ?? '',
+      },
     }
   }
 }

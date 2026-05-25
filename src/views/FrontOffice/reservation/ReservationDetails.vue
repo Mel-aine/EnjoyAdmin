@@ -6,6 +6,12 @@ import { useGuestCreditBalance } from '@/composables/useCreditLedger'
 import { useServiceStore } from '@/composables/serviceStore'
 import { applyCredit } from '@/services/creditLedger'
 import ConfirmModal from '@/components/Housekeeping/ConfirmationModal.vue';
+import ButtonDropdown from '@/components/common/ButtonDropdown.vue'
+import { CreditCard, FileCheck, Printer, MessageCircle, Mail } from 'lucide-vue-next'
+import { printConfirmBookingPdf, printHotelPdf, sendInvoiceByEmail, sendVoucherByEmail, sendInvoiceByWhatsapp, sendVoucherByWhatsapp } from '@/services/foglioApi'
+import { printGuestReservationCard, printGuestReservationPolice } from '@/services/reservation'
+import PdfExporterNode from '@/components/common/PdfExporterNode.vue'
+import FolioSelectModal from '@/components/reservations/foglio/FolioSelectModal.vue'
 
 const serviceStore = useServiceStore()
 const { creditBalance: fetchedCreditBalance, isLoading: isLoadingCredit, fetchBalance } = useGuestCreditBalance()
@@ -49,11 +55,17 @@ const ReservationStatus = defineAsyncComponent(
 const AssignRoomReservation = defineAsyncComponent(
   () => import('../../../components/reservations/AssignRoomReservation.vue'),
 )
+// Import du composant :
+const WhatsappHistory = defineAsyncComponent(
+  () => import('../../../components/reservations/whatsapp/WhatsappHistory.vue')
+)
 import { useToast } from 'vue-toastification'
 import { confirmBooking } from '@/services/reservation'
 import OverLoading from '../../../components/spinner/OverLoading.vue'
 import getOtaIconSrc from '@/utils/otaIcons'
 import InputCurrency from '@/components/forms/FormElements/InputCurrency.vue';
+
+
 
 // États des modals
 const showPrintModal = ref(false)
@@ -62,11 +74,20 @@ const showEditArrivalTimeModal = ref(false)
 const showEditDepartureTimeModal = ref(false)
 const { t } = useI18n()
 const toast = useToast()
+const whatsappEnabled = computed(() => serviceStore.whatsappEnabled)
 
 // ====== NOUVELLE APPROCHE : État local réactif ======
 const localReservation = ref<any>({})
 const isLoading = ref(false)
 const isRefreshing = ref(false)
+const laodingPrint = ref(false)
+const pdfUrl = ref<any>(null)
+const documentTitle = ref<string>('')
+const showPdfExporter = ref(false)
+const showFolioSelectModal = ref(false)
+const reservationFolios = ref<any[]>([])
+const pendingEmailType = ref<'invoice' | 'voucher' | null>(null)
+const pendingWhatsappType = ref<'invoice' | 'voucher' | null>(null)
 
 const tabs = computed(() => [
   { id: 'folio_operations', label: t('Folio Operations') },
@@ -74,6 +95,22 @@ const tabs = computed(() => [
   { id: 'guest_details', label: t('Guest Details') },
   { id: 'room_charges', label: t('Room Charges') },
   { id: 'audit_trial', label: t('Audit Trail') },
+ ...(whatsappEnabled.value ? [
+   { id: 'whatsapp_history', label: t('WhatsApp History') },
+ ] : [])
+])
+
+const printOptions = computed(() => [
+  { id: 'guestCard',      label: t('Print Guest Registration'), icon: Printer },
+  { id: 'guest',          label: t('Print Police'),     icon: Printer },
+  { id: 'printResVourcher', label: t('printResVourcher'),   icon: FileCheck },
+  { id: 'invoice',        label: t('printInvoice'),  icon: CreditCard },
+    ...(whatsappEnabled.value ? [
+    { id: 'wa_invoice', label: t('sendInvoice'), icon: MessageCircle, group: 'whatsapp' },
+    { id: 'wa_voucher', label: t('sendVoucher'), icon: MessageCircle, group: 'whatsapp' },
+  ] : []),
+  { id: 'email_invoice',  label: t('sendInvoice'),   icon: Mail,   group: 'email' },
+  { id: 'email_voucher',  label: t('sendVoucher'),   icon: Mail,   group: 'email' },
 ])
 const VALID_TAB_IDS = new Set<string>([
   'folio_operations',
@@ -81,6 +118,7 @@ const VALID_TAB_IDS = new Set<string>([
   'guest_details',
   'room_charges',
   'audit_trial',
+  'whatsapp_history',
 ])
 
 const route = useRoute()
@@ -462,6 +500,141 @@ const handleTimeUpdated = async (data: any) => {
 
 }
 
+const getStoredLanguage = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem('language') || '{}')
+    return parsed.language || 'en'
+  } catch { return 'en' }
+}
+
+const closePrint = () => {
+  showPdfExporter.value = false
+  pdfUrl.value = null
+}
+
+const handlePrint = async (templateType: string, folioId?: number | null) => {
+  try {
+    laodingPrint.value = true
+    showPdfExporter.value = true
+    const language = getStoredLanguage()
+    let pdfBlob: Blob
+
+    if (templateType === 'confirmation') {
+      pdfBlob = await printConfirmBookingPdf({ reservationId: localReservation.value?.id, language })
+    } else if (templateType === 'receipt') {
+      pdfBlob = await printHotelPdf({ reservationId: localReservation.value?.id, language, ...(folioId ? { folioId } : {}) })
+    } else if (templateType === 'guestCard') {
+      pdfBlob = await printGuestReservationCard({ reservationId: localReservation.value?.id, guestId: localReservation.value?.guestId })
+    } else {
+      pdfBlob = await printGuestReservationPolice({ reservationId: localReservation.value?.id, guestId: localReservation.value?.guestId })
+    }
+
+    if (pdfUrl.value) window.URL.revokeObjectURL(pdfUrl.value)
+    pdfUrl.value = window.URL.createObjectURL(pdfBlob!)
+  } catch (error) {
+    showPdfExporter.value = false
+  } finally {
+    laodingPrint.value = false
+  }
+}
+
+const handleInvoicePrint = () => {
+  pendingEmailType.value = null
+  pendingWhatsappType.value = null
+  const folios = localReservation.value?.folios ?? localReservation.value?.reservationFolios ?? []
+  if (folios.length > 1) {
+    reservationFolios.value = folios
+    showFolioSelectModal.value = true
+  } else {
+    documentTitle.value = t('printInvoice')
+    handlePrint('receipt', folios[0]?.id ?? null)
+  }
+}
+
+const handleWhatsappSend = async (type: 'invoice' | 'voucher') => {
+  if (!localReservation.value?.whatsappNotificationEnable) {
+    toast.warning(t('whatsapp_notifications_disabled'))
+    pendingWhatsappType.value = null
+    return
+  }
+  const phone = localReservation.value?.whatsappNumber ?? null
+  if (!phone) { toast.warning(t('noGuestPhone')); return }
+  try {
+    const language = getStoredLanguage() as 'fr' | 'en'
+    if (type === 'invoice') {
+      const folios = localReservation.value?.folios ?? localReservation.value?.reservationFolios ?? []
+      if (folios.length > 1) {
+        pendingWhatsappType.value = 'invoice'
+        reservationFolios.value = folios
+        showFolioSelectModal.value = true
+        return
+      }
+      await sendInvoiceByWhatsapp({ reservationId: localReservation.value.id, recipientPhone: phone, folioId: folios[0]?.id ?? null, language })
+    } else {
+      await sendVoucherByWhatsapp({ reservationId: localReservation.value.id, recipientPhone: phone, language })
+    }
+    toast.success(t('whatsappSentSuccess'))
+  } catch { toast.error(t('whatsappSentError')) }
+}
+
+const handleEmailSend = async (type: 'invoice' | 'voucher') => {
+  const email = localReservation.value?.guest?.email ?? localReservation.value?.guest?.emailSecondary ?? null
+  if (!email) { toast.warning(t('noGuestEmail')); return }
+  try {
+    const language = getStoredLanguage() as 'fr' | 'en'
+    if (type === 'invoice') {
+      const folios = localReservation.value?.folios ?? localReservation.value?.reservationFolios ?? []
+      if (folios.length > 1) {
+        pendingEmailType.value = 'invoice'
+        reservationFolios.value = folios
+        showFolioSelectModal.value = true
+        return
+      }
+      await sendInvoiceByEmail({ reservationId: localReservation.value.id, recipientEmail: email, folioId: folios[0]?.id ?? null, language })
+    } else {
+      await sendVoucherByEmail({ reservationId: localReservation.value.id, recipientEmail: email, language })
+    }
+    toast.success(t('emailSentSuccess'))
+  } catch { toast.error(t('emailSentError')) }
+}
+
+const handleFolioSelected = async (folio: any) => {
+  showFolioSelectModal.value = false
+  if (pendingWhatsappType.value) {
+    const phone = localReservation.value?.whatsappNumber ?? localReservation.value?.guest?.phonePrimary ?? null
+    if (phone) {
+      try {
+        await sendInvoiceByWhatsapp({ reservationId: localReservation.value.id, recipientPhone: phone, folioId: folio.id, language: getStoredLanguage() as 'fr' | 'en' })
+        toast.success(t('whatsappSentSuccess'))
+      } catch { toast.error(t('whatsappSentError')) }
+    }
+    pendingWhatsappType.value = null; return
+  }
+  if (pendingEmailType.value) {
+    const email = localReservation.value?.guest?.email ?? null
+    if (email) {
+      try {
+        await sendInvoiceByEmail({ reservationId: localReservation.value.id, recipientEmail: email, folioId: folio.id, language: getStoredLanguage() as 'fr' | 'en' })
+        toast.success(t('emailSentSuccess'))
+      } catch { toast.error(t('emailSentError')) }
+    }
+    pendingEmailType.value = null; return
+  }
+  documentTitle.value = `${t('printInvoice')} - ${t('folio')} #${folio.folioNumber || folio.id}`
+  handlePrint('receipt', folio.id)
+}
+
+const handlePrintOptionSelected = (option: any) => {
+  if      (option.id === 'guestCard')        { documentTitle.value = t('Print Guest Registration'); handlePrint('guestCard') }
+  else if (option.id === 'guest')            { documentTitle.value = t('Print Police'); handlePrint('guest') }
+  else if (option.id === 'printResVourcher') { documentTitle.value = t('printResVourcher'); handlePrint('confirmation') }
+  else if (option.id === 'invoice')          { handleInvoicePrint() }
+  else if (option.id === 'wa_invoice')       { handleWhatsappSend('invoice') }
+  else if (option.id === 'wa_voucher')       { handleWhatsappSend('voucher') }
+  else if (option.id === 'email_invoice')    { handleEmailSend('invoice') }
+  else if (option.id === 'email_voucher')    { handleEmailSend('voucher') }
+}
+
 onMounted(() => {
   // Ensure URL carries the current tab on initial mount
   if (!route.query.tab || !VALID_TAB_IDS.has(String(route.query.tab))) {
@@ -648,14 +821,22 @@ onMounted(() => {
               </button>
             </nav>
           </div>
-          <div class="align-middle self-center items-center">
+          <div class="align-middle self-center items-center flex gap-2">
             <ReservationAction
               :reservation="localReservation"
               :local-reservation="localReservation"
               @reservation-updated="handleChildReservationUpdated"
               @save="handleChildSave"
             />
+            <!-- Print/Send -->
+            <ButtonDropdown
+              :options="printOptions"
+              :button-text="t('printSend')"
+              :button-class="'bg-white text-sm border border-primary text-primary'"
+              @option-selected="handlePrintOptionSelected"
+            />
           </div>
+         
         </div>
       </div>
 
@@ -693,6 +874,9 @@ onMounted(() => {
       </div>
       <div v-if="activeTab === 'audit_trial'">
         <AuditTrail :entity-ids="[localReservation.id]" />
+      </div>
+      <div v-if="activeTab === 'whatsapp_history'">
+        <WhatsappHistory :reservation-id="localReservation.id" />
       </div>
     </div>
 
@@ -769,6 +953,27 @@ onMounted(() => {
     </div>
   </template>
 </ConfirmModal>
+
+<!-- PDF Exporter -->
+<div v-if="showPdfExporter || laodingPrint">
+  <PdfExporterNode
+    @close="closePrint"
+    :is-modal-open="showPdfExporter"
+    :is-generating="laodingPrint"
+    :pdf-url="pdfUrl"
+    :title="documentTitle"
+  />
+</div>
+
+<!-- Folio Select Modal -->
+<FolioSelectModal
+  v-if="showFolioSelectModal"
+  :is-open="showFolioSelectModal"
+  :folios="reservationFolios"
+  :guest-name="localReservation?.displayName"
+  @close="showFolioSelectModal = false"
+  @folio-selected="handleFolioSelected"
+/>
 </template>
 
 <style scoped>
