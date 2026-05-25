@@ -403,7 +403,7 @@ import Child from '../../icons/Child.vue'
 const GroupReservationRoomList = defineAsyncComponent(() => import('./GroupReservationRoomList.vue'))
 const AssignRoomReservation = defineAsyncComponent(() => import('./AssignRoomReservation.vue'))
 import ReservationAction from './ReservationAction.vue'
-import { printConfirmBookingPdf, printHotelPdf } from '../../services/foglioApi'
+import { printConfirmBookingPdf, printHotelPdf, sendInvoiceByEmail, sendVoucherByEmail,sendInvoiceByWhatsapp, sendVoucherByWhatsapp } from '../../services/foglioApi'
 import PdfExporterNode from '../common/PdfExporterNode.vue'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../composables/serviceStore'
@@ -417,7 +417,8 @@ const reservation = ref<any>(null)
 const toast = useToast()
 const showFolioSelectModal = ref(false)
 const reservationFolios = ref<any[]>([])
-
+const serviceStore = useServiceStore()
+const whatsappEnabled = computed(() => serviceStore.whatsappEnabled)
 interface Props {
     isOpen: boolean
     title?: string
@@ -438,12 +439,14 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+const pendingEmailType = ref<'invoice' | 'voucher' | null>(null)
 
 // Print/export state
 const laodingPrint = ref(false);
 const pdfUrl = ref<any>(null);
 const documentTitle = ref<string>('')
 const showPdfExporter = ref(false);
+const pendingWhatsappType = ref<'invoice' | 'voucher' | null>(null)
 const reservationId = ref(props.reservationData?.reservation_id || 0)
 console.log('current service', JSON.parse(useServiceStore().currentService))
 
@@ -533,7 +536,13 @@ const printOptions = computed(() => [
     { id: 'guest', label: t('Print Police'), icon: Printer },
     { id: 'printResVourcher', label: t('printResVourcher'), icon: FileCheck },
     { id: 'invoice', label: t('printInvoice'), icon: CreditCard },
-    // { id: 'sendInvoice', label: t('sendInvoice'), icon: SendHorizonal },
+      ...(whatsappEnabled.value ? [
+    { id: 'wa_invoice', label: t('sendInvoice'), icon: MessageCircle, group: 'whatsapp' },
+    { id: 'wa_voucher', label: t('sendVoucher'), icon: MessageCircle, group: 'whatsapp' },
+  ] : []),
+
+    { id: 'email_invoice', label: t('sendInvoice'),  icon: Mail, group: 'email' },
+    { id: 'email_voucher',   label: t('sendVoucher'),  icon: Mail, group: 'email' },
 ])
 
 const getStoredLanguage = () => {
@@ -609,7 +618,10 @@ const handlePrint = async (templateType: string ,folioId?: number | null) => {
         laodingPrint.value = false
     }
 }
+
 const handleInvoicePrint = () => {
+  pendingEmailType.value = null
+  pendingWhatsappType.value = null
   const folios = reservation.value?.folios ?? reservation.value?.reservationFolios ?? []
   if (folios.length > 1) {
     reservationFolios.value = folios
@@ -620,11 +632,57 @@ const handleInvoicePrint = () => {
   }
 }
 
-const handleFolioSelected = (folio: any) => {
+const handleFolioSelected = async (folio: any) => {
+  showFolioSelectModal.value = false
+
+  // Cas WhatsApp
+  if (pendingWhatsappType.value) {
+    const phone = reservation.value?.guest?.phoneSecondary
+      ?? reservation.value?.guest?.phonePrimary
+      ?? null
+
+    if (phone) {
+      try {
+        await sendInvoiceByWhatsapp({
+          reservationId: reservation.value.id,
+          recipientPhone: phone,
+          folioId: folio.id,
+          language: getStoredLanguage() as 'fr' | 'en',
+        })
+        toast.success(t('whatsappSentSuccess'))
+      } catch {
+        toast.error(t('whatsappSentError'))
+      }
+    }
+    pendingWhatsappType.value = null
+    return
+  }
+
+
+  // Cas email
+  if (pendingEmailType.value) {
+    const email = reservation.value?.guest?.email ?? reservation.value?.guest?.emailSecondary ?? null
+    if (email) {
+      try {
+        await sendInvoiceByEmail({
+          reservationId: reservation.value.id,
+          recipientEmail: email,
+          folioId: folio.id,
+          language: getStoredLanguage() as 'fr' | 'en',
+        })
+        toast.success(t('emailSentSuccess'))
+      } catch {
+        toast.error(t('emailSentError'))
+      }
+    }
+    pendingEmailType.value = null
+    return
+  }
+
+  // Cas print (comportement original)
   documentTitle.value = `${t('printInvoice')} - ${t('folio')} #${folio.folioNumber || folio.id}`
   handlePrint('receipt', folio.id)
 }
-
 // Print handlers
 const handlePrintOptionSelected = (option: any) => {
     console.log('Print option selected:', option)
@@ -644,6 +702,99 @@ const handlePrintOptionSelected = (option: any) => {
     else if (option.id === 'invoice') {
          handleInvoicePrint()
     }
+    else if (option.id === 'wa_invoice') {
+        handleWhatsappSend('invoice')
+    } else if (option.id === 'wa_voucher') {
+        handleWhatsappSend('voucher')
+
+    // — Email —
+    } else if (option.id === 'email_invoice') {
+        handleEmailSend('invoice')
+    } else if (option.id === 'email_voucher') {
+        handleEmailSend('voucher')
+    }
+}
+
+const handleWhatsappSend = async (type: 'invoice' | 'voucher') => {
+ if (!localReservation.value?.whatsappNotificationEnable) {
+  toast.warning(t('whatsapp_notifications_disabled'))
+  pendingWhatsappType.value = null
+  return
+}
+const phone = localReservation.value?.whatsappNumber ?? null
+if (!phone) { toast.warning(t('noGuestPhone')); return }
+
+  try {
+    const language = getStoredLanguage() as 'fr' | 'en'
+
+    if (type === 'invoice') {
+      const folios = reservation.value?.folios ?? reservation.value?.reservationFolios ?? []
+
+      if (folios.length > 1) {
+        pendingWhatsappType.value = 'invoice'
+        reservationFolios.value = folios
+        showFolioSelectModal.value = true
+        return
+      }
+
+      await sendInvoiceByWhatsapp({
+        reservationId: reservation.value.id,
+        recipientPhone: phone,
+        folioId: folios[0]?.id ?? null,
+        language,
+      })
+    } else {
+      await sendVoucherByWhatsapp({
+        reservationId: reservation.value.id,
+        recipientPhone: phone,
+        language,
+      })
+    }
+
+    toast.success(t('whatsappSentSuccess'))
+  } catch {
+    toast.error(t('whatsappSentError'))
+  }
+}
+
+const handleEmailSend = async (type: 'invoice' | 'voucher') => {
+  const email = reservation.value?.guest?.email ?? reservation.value?.guest?.emailSecondary ?? null
+
+  if (!email) {
+    toast.warning(t('noGuestEmail'))
+    return
+  }
+
+  try {
+    const language = getStoredLanguage() as 'fr' | 'en'
+
+    if (type === 'invoice') {
+      const folios = reservation.value?.folios ?? reservation.value?.reservationFolios ?? []
+      if (folios.length > 1) {
+       
+        pendingEmailType.value = 'invoice'
+        reservationFolios.value = folios
+        showFolioSelectModal.value = true
+        return
+      }
+      await sendInvoiceByEmail({
+        reservationId: reservation.value.id,
+        recipientEmail: email,
+        folioId: folios[0]?.id ?? null,
+        language,
+      })
+    } else {
+      await sendVoucherByEmail({
+        reservationId: reservation.value.id,
+        recipientEmail: email,
+        language,
+      })
+    }
+
+    toast.success(t('emailSentSuccess'))
+  } catch {
+    toast.error(t('emailSentError'))
+  }
 }
 const roomRateTypeSummary = computed(() => {
     if (!reservation.value?.reservationRooms || reservation.value.reservationRooms.length === 0) {

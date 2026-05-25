@@ -610,6 +610,30 @@
                     </div>
                   </div>
                 </div>
+                 <div v-if="whatsappEnabled" class="space-y-3">
+                  <div>
+                    <label class="inline-flex items-center space-x-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        v-model="otherInfo.whatsappNumberEnable"
+                        class="form-checkbox"
+                      />
+                      <span>{{ $t('otherInfo.whatsappNumberEnable') }}</span>
+                    </label>
+
+                    <div v-if="otherInfo.whatsappNumberEnable" class="flex space-x-2 pl-6">
+                      <div class="w-[900px]">
+                        <InputPhone
+                          v-model="otherInfo.whatsappNumber"
+                          @blur="validateWhatsAppNumber"
+                        />
+                        <p v-if="whatsappNumberError" class="text-sm text-red-600 mt-1">
+                          {{ whatsappNumberError }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </section>
             </div>
           </form>
@@ -1063,6 +1087,7 @@ import { onMounted, onUnmounted, computed, ref, defineAsyncComponent, nextTick, 
 import InputDatePicker from '@/components/forms/FormElements/InputDatePicker.vue'
 import InputTimePicker from '@/components/forms/FormElements/InputTimePicker.vue'
 import InputEmail from '@/components/forms/FormElements/InputEmail.vue'
+import InputPhone from '@/components/forms/FormElements/InputPhone.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import { useI18n } from 'vue-i18n'
 import Select from '@/components/forms/FormElements/Select.vue'
@@ -1099,7 +1124,7 @@ interface ReservationDetails {
   payment_method: any
   payment_type: any
 }
-
+const serviceStore = useServiceStore()
 // Props to control BookingForm behavior
 const props = defineProps<{ allowPastDates?: boolean; useInsertReservation?: boolean; formTitleKey?: string; breadcrumbKey?: string ;hideCheckInButton?: boolean}>()
 const allowPastDates = computed(() => props.allowPastDates === true)
@@ -1107,6 +1132,7 @@ const useInsertReservation = computed(() => props.useInsertReservation === true)
 const formTitleKey = computed(() => props.formTitleKey ?? 'AddBooking')
 const breadcrumbKey = computed(() => props.breadcrumbKey ?? 'Booking')
 const hideCheckInButton = computed(() => props.hideCheckInButton === true)
+
 
 const route = useRoute()
 const isCkeckInModalOpen = ref(false)
@@ -1121,7 +1147,7 @@ const toast = useToast()
 const closeAddPaymentModal = () => {
   isAddPaymentModalOpen.value = false
 }
-const serviceStore = useServiceStore()
+
 const { creditBalance: fetchedCreditBalance, isLoading: isLoadingCredit, fetchBalance } = useGuestCreditBalance()
 
 const hasCreditBalance = computed(() => fetchedCreditBalance.value > 0)
@@ -1239,12 +1265,15 @@ const {
   resetForm,
   validateVoucherEmail,
   quickGroupBooking,
+  whatsappNumberError,
+  validateWhatsAppNumber,
 
   // Computed
   numberOfNights,
   totalRoomCharges,
   totalAmount,
   showCheckinButton,
+  whatsappEnabled,
 
   // Options
   BookingSource,
@@ -1650,6 +1679,7 @@ const handleViewDetails = () => {
 }
 onMounted(async () => {
   // Switch reservation creator if requested
+  console.log("whatsappEnabled",whatsappEnabled.value)
   if (useInsertReservation.value) {
     setReservationCreator(insertReservation)
   }

@@ -178,7 +178,7 @@
 
     <!-- Garde-fou -->
     <div v-else class="flex items-center justify-center h-64">
-      <p class="text-sm text-gray-400">Aucune donnée disponible.</p>
+      <p class="text-sm text-gray-400">{{ $t('noData') }}</p>
     </div>
     </div>
   </ReportsLayout>
@@ -192,6 +192,9 @@ import { getSatisfactionStats } from '@/services/satisfactionService'
 import { useServiceStore } from '@/composables/serviceStore'
 import ReportsLayout from '@/components/layout/ReportsLayout.vue'
 import { Star , MessageCircle , MapPin} from 'lucide-vue-next'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
 
 const { t }        = useI18n()
 const serviceStore = useServiceStore()
@@ -312,7 +315,9 @@ async function fetchStats() {
     await nextTick()
     waitForChartRef()
   } catch (err: any) {
-    error.value = err?.response?.data?.message ?? 'Erreur lors du chargement des statistiques'
+    console.error(err)
+    toast.error(t('reports.satisfaction.error.load_failed'))
+    error.value = err?.response?.data?.message ?? t('reports.satisfaction.error.load_failed')
   } finally {
     loading.value = false
   }

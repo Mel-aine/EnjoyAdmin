@@ -11,8 +11,8 @@ interface Country {
 // Define props for v-model support
 const props = defineProps<{
     modelValue: string |undefined; // The full phone number string (e.g., "+237671234567"),
-    title: string,
-    isRequired: boolean
+    title?: string,
+    isRequired?: boolean
     disabled?:boolean
     customClass?: string;
     customSelectClass?: string;
