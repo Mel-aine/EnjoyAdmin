@@ -9035,7 +9035,7 @@
       "hide_trace": "Hide"
     },
     "templates": {
-      "htl_booking_confirm": "Booking confirmation",
+      "htl_booking_confirms": "Booking confirmation",
       "htl_checkin_remind": "Check-in reminder",
       "htl_checkout_feedback": "Checkout feedback",
       "htl_special_offer": "Special offer",
@@ -9044,7 +9044,11 @@
       "feedback_survey": "Feedback survey",
       "feedback_surveys": "Feedback survey",
       "feedback_negative_reply": "Feedback negative reply",
-      "feedback_positive_reply": "Feedback positive reply"
+      "feedback_positive_reply": "Feedback positive reply",
+      "invoice_ready" : "Invoice ready",
+      "voucher_ready": "Reservation voucher ready",
+      "checkin_welcome": "Check-in welcome",
+      "expense_alerts": "Expense alerts"
 
     },
       "columns" : {

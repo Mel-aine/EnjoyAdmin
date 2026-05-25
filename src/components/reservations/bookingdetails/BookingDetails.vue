@@ -757,6 +757,7 @@ const initSourceData = () => {
       sourceData.company = bookingData.value.companyName
     }
 
+
     // Set plan value from selected room or first room
     if (selectedRoom.value && selectedRoom.value.roomRate) {
       sourceData.planValue = selectedRoom.value.roomRate
