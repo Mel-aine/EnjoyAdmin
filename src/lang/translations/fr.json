@@ -4693,7 +4693,10 @@
       "period30": "30 jours",
       "period90": "90 jours",
       "npsScore": "Score NPS",
-      "responseRatePct": "Taux de réponse %"
+      "responseRatePct": "Taux de réponse %",
+      "error" : {
+        "load_failed": "Échec de chargement des statistiques de satisfaction"
+      }
     },
     "expenseDescriptions": {
       "electricityBill": "Facture d'électricité",
@@ -5312,7 +5315,8 @@
     "previewVoucher": "Aperçu du bon",
     "sendEmailAtCheckout": "Envoyer un e-mail au départ",
     "accessToGuestPortal": "Accès au portail client",
-    "successRateOnRegistrationCard": "Taux de réussite sur la fiche d'enregistrement"
+    "successRateOnRegistrationCard": "Taux de réussite sur la fiche d'enregistrement",
+    "whatsappNumberEnable" : "Notification WhatsApp"
   },
   "RateOffered": "Tarif proposé",
   "Contract": "Contrat",
@@ -5662,6 +5666,11 @@
         "select_email_template": "Sélectionner un modèle d'e-mail",
         "subject_line": "Ligne d'objet",
         "enter_email_subject": "Entrer l'objet de l'e-mail",
+        "whatsappRecipients": "Destinataires WhatsApp",
+        "whatsappRecipientsHint": "Activez d'abord WhatsApp dans les paramètres Marketing, ensuite ajoutez ici les numéros qui recevront les rapports chaque matin après l'audit de nuit.",
+        "whatsappRecipientsPlaceholder": "Entrer les destinataires WhatsApp séparés par des virgules",
+        "whatsappHelperText": "Entrer les destinataires WhatsApp ici, vous pouvez entrer plusieurs destinataires séparés par des virgules",
+        "whatsappNoRecipients" : "Aucun destinataire. Cliquez sur « Ajouter » pour en créer un.",
         "templates": {
           "thankYouGuest": "E-mail de remerciement au client",
           "folioDetailTemplateT": "Modèle de détail du folio - T"
@@ -9201,7 +9210,15 @@
     "message": "Message",
     "dates": "Dates",
     "phone": "Téléphone client"
-  }
+  },
+  "sendVoucher": "Envoyer le voucher de réservation",
+  "noGuestEmail": "Le client n'a pas d'adresse email",
+  "emailSentSuccess": "Email envoyé avec succès",
+  "emailSentError": "Échec d'envoi d'email",
+  "noGuestPhone": "Le client n'a pas de numéro de téléphone WhatsApp",
+  "whatsappSentSuccess": "WhatsApp envoyé avec succès",
+  "whatsappSentError": "Échec d'envoi de WhatsApp",
+  "whatsapp_notifications_disabled": "Les notifications WhatsApp sont désactivées pour ce client"
 
 
 

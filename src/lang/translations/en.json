@@ -4703,7 +4703,10 @@
       "period30": "30 days",
       "period90": "90 days",
       "npsScore": "NPS Score",
-      "responseRatePct": "Response rate %"
+      "responseRatePct": "Response rate %",
+      "error" : {
+        "load_failed": "Failed to load satisfaction stats"
+      }
     },
     "expenseDescriptions": {
       "electricityBill": "Electricity Bill",
@@ -5315,7 +5318,8 @@
     "previewVoucher": "Preview Voucher",
     "sendEmailAtCheckout": "Send email at Check-out",
     "accessToGuestPortal": "Access To Guest Portal",
-    "successRateOnRegistrationCard": "Success Rate on Registration Card"
+    "successRateOnRegistrationCard": "Success Rate on Registration Card",
+    "whatsappNumberEnable" : "WhatsApp Notification"
   },
   "RateOffered": "Rate Offered",
   "Contract": "Contract",
@@ -5673,6 +5677,13 @@
         "select_email_template": "Select email template",
         "subject_line": "Subject Line",
         "enter_email_subject": "Enter email subject",
+        "whatsappRecipients": "WhatsApp Recipients",
+        "whatsappRecipientsHint": "First enable WhatsApp in the Marketing settings, then add here the numbers that will receive the reports every morning after the night audit.",
+        "whatsappRecipientsPlaceholder": "Enter WhatsApp-separated recipients",
+        "whatsappHelperText": "Enter the WhatsApp recipients here, you can enter multiple recipients with comma separated values",
+        "whatsappNoRecipients" : "No recipients yet. Click 'Add' to create one.",
+        
+
         "templates": {
           "thankYouGuest": "Thank You email to Guest",
           "folioDetailTemplateT": "Folio Detail Template - T"
@@ -9043,7 +9054,15 @@
         "dates": "Dates",
         "phone": "Guest phone"
       }
-  }
+  },
+  "sendVoucher": "Send Reservation Voucher",
+  "noGuestEmail": "Guest has no email address",
+  "emailSentSuccess": "Email sent successfully",
+  "emailSentError": "Failed to send email",
+  "noGuestPhone": "Guest has no whatsapp phone number",
+  "whatsappSentSuccess": "WhatsApp sent successfully",
+  "whatsappSentError": "Failed to send WhatsApp",
+  "whatsapp_notifications_disabled": "WhatsApp notifications are disabled for this guest"
 
 
 

@@ -90,6 +90,55 @@
                   :disabled="!editMode" />
               </div>
             </div>
+            <!-- WhatsApp Notifications -->
+            <div v-if="whatsappEnabled" class="grid grid-cols-1 gap-4">
+              <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <!-- Icône WhatsApp -->
+                    <svg class="w-5 h-5 text-green-500" viewBox="0 0 32 32" fill="currentColor">
+                      <path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.655 4.83 1.8 6.856L2 30l7.344-1.776A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 0 1-5.888-1.608l-.42-.252-4.356 1.056 1.1-4.236-.276-.436A11.52 11.52 0 0 1 4.4 16C4.4 9.592 9.592 4.4 16 4.4S27.6 9.592 27.6 16 22.408 27.6 16 27.6zm6.344-8.62c-.348-.174-2.06-1.016-2.38-1.132-.32-.116-.552-.174-.784.174-.232.348-.9 1.132-1.104 1.364-.204.232-.406.26-.754.086-.348-.174-1.47-.542-2.8-1.726-1.034-.922-1.732-2.06-1.936-2.408-.204-.348-.022-.536.152-.708.158-.156.348-.406.522-.61.174-.204.232-.348.348-.58.116-.232.058-.436-.028-.61-.088-.174-.784-1.89-1.074-2.59-.282-.68-.57-.588-.784-.598l-.668-.012c-.232 0-.61.086-.928.434-.32.348-1.22 1.19-1.22 2.902s1.248 3.366 1.422 3.598c.174.232 2.456 3.748 5.952 5.256.832.36 1.482.574 1.988.734.836.266 1.596.228 2.198.138.67-.1 2.06-.842 2.35-1.656.29-.814.29-1.512.204-1.658-.086-.146-.32-.232-.668-.406z"/>
+                    </svg>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ $t('WhatsApp Notifications') }}
+                    </span>
+                  </div>
+
+                  <!-- Toggle -->
+                  <button
+                    type="button"
+                    :disabled="!editMode"
+                    @click="editMode && (billingData.whatsappNotificationEnable = !billingData.whatsappNotificationEnable)"
+                    :class="[
+                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                      billingData.whatsappNotificationEnable ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600',
+                      !editMode ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                    ]"
+                  >
+                    <span :class="[
+                      'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+                      billingData.whatsappNotificationEnable ? 'translate-x-6' : 'translate-x-1'
+                    ]" />
+                  </button>
+                </div>
+
+                <!-- Champ numéro — visible uniquement si activé -->
+                <transition name="slide-down">
+                  <div v-if="billingData.whatsappNotificationEnable">
+                    <Input
+                      :lb="$t('WhatsApp Number')"
+                      v-model="billingData.whatsappNumber"
+                      type="text"
+                      placeholder="+237 6XX XXX XXX"
+                      :disabled="!editMode"
+                    />
+                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                      {{ $t('whatsapp_number_hint') }}
+                    </p>
+                  </div>
+                </transition>
+              </div>
+            </div>
 
             <!-- Reservation Type -->
             <div class="grid grid-cols-1 gap-4">
@@ -309,6 +358,7 @@ import InputPaymentMethodSelect from '../foglio/InputPaymentMethodSelect.vue'
 import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 import { updateBookingDetail } from '@/services/reservation'
 
+
 interface Props {
   booking?: any
   guest?: any
@@ -365,6 +415,10 @@ const useDropdownBooking = ref(true)
 const bookingData = computed(() => props.booking || {})
 const guestData = computed(() => props.guest || {})
 const isLoading = ref(false)
+import { useServiceStore } from '@/composables/serviceStore'
+
+const serviceStore = useServiceStore()
+const whatsappEnabled = computed(() => serviceStore.whatsappEnabled )
 const {
   //Data
   billing,
@@ -471,7 +525,10 @@ const UpdateReservationRoom = async () => {
       meansOfTransport: sourceData.meansOfTransport,
       marketCodeId: sourceData.marketCode,
       businessSourceId: sourceData.sourceOfBusiness,
-      companyName: sourceData.company
+      companyName: sourceData.company,
+      whatsappNotificationEnable: billingData.whatsappNotificationEnable,
+      whatsappNumber: billingData.whatsappNumber,
+
     }
 
     console.log('Updating reservation with ID:', props.booking.id)
@@ -545,7 +602,9 @@ const billingData = reactive<any>({
   paymentMode: null,
   paymentType: '',
   gstinNo: '',
-  reservationType: null
+  reservationType: null,
+  whatsappNotificationEnable: false,
+   whatsappNumber: '',
 })
 
 
@@ -650,6 +709,8 @@ const saveChanges = async () => {
 const initSourceData = () => {
   if (bookingData.value) {
     console.log(bookingData.value)
+    billingData.whatsappNotificationEnable = bookingData.value.whatsappNotificationEnable ?? false
+    billingData.whatsappNumber = bookingData.value.whatsappNumber ?? ''
     // Set market code and business source if available in booking data
     if (bookingData.value.businessSourceId) {
       sourceData.sourceOfBusiness = bookingData.value.businessSourceId
@@ -683,6 +744,9 @@ const initSourceData = () => {
      if (bookingData.value.reservationTypeId) {
        billingData.reservationType = bookingData.value.reservationTypeId
     }
+    
+
+    
     // Set voucher number from booking data
     if (bookingData.value.reservationNumber) {
       sourceData.voucherNo = bookingData.value.reservationNumber

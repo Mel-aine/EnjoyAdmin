@@ -418,10 +418,11 @@ import {
   Shield as ShieldIcon,
   Bell as BellIcon,
   BarChart2 as ChartBarIcon,
-  MessageCircle as WhatsAppIcon,
+ 
 } from 'lucide-vue-next'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import WhatsAppIcon from '@/icons/WhatsAppIcon.vue'
 import {
   getModules,
   installModule,
@@ -537,6 +538,7 @@ const fetchHotelInfo = async () => {
     whatsappEnabled.value = data?.whatsappEnabled ?? false
     subscriptions.value = data?.subscriptions  || []
     hotelCurrency.value = data?.currencyCode ?? 'XAF'
+     serviceStore.setWhatsappEnabled(data?.whatsappEnabled ?? false)
     syncInstalledModules()
   } catch (err) {
     console.error('Failed to fetch hotel info:', err)
@@ -605,6 +607,7 @@ const handleInstall = async (mod: any) => {
       })
       if (resp.status === 200) {
         whatsappEnabled.value = true
+        serviceStore.setWhatsappEnabled(true)
         toast.success(t('marketplace.installSuccess'))
         closeModal()
       } else {
@@ -649,6 +652,7 @@ const handleUninstall = async (mod: any) => {
       })
       if (resp.status === 200) {
         whatsappEnabled.value = false
+        serviceStore.setWhatsappEnabled(false)
         toast.success(t('marketplace.uninstallSuccess'))
         closeModal()
       } else {

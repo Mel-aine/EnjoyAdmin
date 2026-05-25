@@ -392,6 +392,7 @@ onMounted(async () => {
 
   try {
     const response = await getById(serviceStore.serviceId!)
+    console.log('response:', response)
     serviceStore.setWhatsappEnabled(response.data?.data?.whatsappEnabled ?? false)
   } catch (error) {
     console.error('Error fetching hotel data:', error)

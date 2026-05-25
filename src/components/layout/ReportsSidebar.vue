@@ -346,7 +346,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed  } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { useSidebar } from '@/composables/useSidebar'
@@ -377,6 +377,8 @@ const openSections = ref<any>({
 const hasCreditLedger = computed(() => {
   return serviceStore.getCurrentService?.hasCreditLedger ?? false
 })
+
+const whatsappEnabled = computed(() => serviceStore.whatsappEnabled)
 
 
 // Mapping des noms de rapports vers les permissions
@@ -462,10 +464,16 @@ const reportPermissions = {
   // Old Transaction
   'old-transaction-report': 'old_transactions_report',
 }
-const dashbordReport = ref([
-  { name: 'dashbord', path: '/reports/dashboard', label: 'Dashboard' },
-  { name: 'SatisfactionStats', path: '/reports/satisfaction', label: 'reports.satisfaction.title' }
-]);
+
+const dashbordReport = computed(() => {
+  const items = [
+    { name: 'dashbord', path: '/reports/dashboard', label: 'Dashboard' },
+  ]
+  if (whatsappEnabled.value) {
+    items.push({ name: 'SatisfactionStats', path: '/reports/satisfaction', label: 'reports.satisfaction.title' })
+  }
+  return items
+})
 // Reservation Reports
 const reservationReports = ref([
   { name: 'arrival-list', path: '/reports/reservation/arrival-list', label: 'reports.reservation.arrivalList' },
@@ -647,6 +655,9 @@ const toggleSection = (section: string) => {
 const isActive = (path: string) => {
   return route.path === path
 }
+
+
+
 </script>
 
 <style scoped>

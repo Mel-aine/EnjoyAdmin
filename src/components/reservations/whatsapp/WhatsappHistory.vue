@@ -3,7 +3,9 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center gap-2">
-        <MessageCircle class="w-5 h-5 text-green-500" />
+           <svg class="w-5 h-5 text-green-500" viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.655 4.83 1.8 6.856L2 30l7.344-1.776A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 0 1-5.888-1.608l-.42-.252-4.356 1.056 1.1-4.236-.276-.436A11.52 11.52 0 0 1 4.4 16C4.4 9.592 9.592 4.4 16 4.4S27.6 9.592 27.6 16 22.408 27.6 16 27.6zm6.344-8.62c-.348-.174-2.06-1.016-2.38-1.132-.32-.116-.552-.174-.784.174-.232.348-.9 1.132-1.104 1.364-.204.232-.406.26-.754.086-.348-.174-1.47-.542-2.8-1.726-1.034-.922-1.732-2.06-1.936-2.408-.204-.348-.022-.536.152-.708.158-.156.348-.406.522-.61.174-.204.232-.348.348-.58.116-.232.058-.436-.028-.61-.088-.174-.784-1.89-1.074-2.59-.282-.68-.57-.588-.784-.598l-.668-.012c-.232 0-.61.086-.928.434-.32.348-1.22 1.19-1.22 2.902s1.248 3.366 1.422 3.598c.174.232 2.456 3.748 5.952 5.256.832.36 1.482.574 1.988.734.836.266 1.596.228 2.198.138.67-.1 2.06-.842 2.35-1.656.29-.814.29-1.512.204-1.658-.086-.146-.32-.232-.668-.406z"/>
+            </svg>
         <h3 class="font-medium text-[15px] text-gray-800 dark:text-gray-100">
           {{ t('whatsapp.history.title') }}
         </h3>
@@ -156,12 +158,15 @@ import { ref, computed, onMounted } from 'vue'
 import { getWhatsappLogs } from '@/services/whatsapp'
 import { useServiceStore } from '@/composables/serviceStore'
 import {
-  MessageCircle, Check, CheckCheck, AlertCircle, Clock,
+  Check, CheckCheck, AlertCircle, Clock,
   RefreshCw, Smartphone, Send, Mailbox, Eye, X, AlertTriangle
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import type { Column } from '@/utils/models'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
 
 const props = defineProps<{ reservationId: number }>()
 
@@ -192,6 +197,8 @@ const fetchLogs = async (page: number = 1) => {
     meta.value = res.data?.meta || res.data?.meta || {}
     
   } catch (err: any) {
+    console.error(err)
+    toast.error(t('whatsapp.error.load_failed'))
     error.value = err?.response?.data?.message || t('whatsapp.error.load_failed')
   } finally {
     isLoading.value = false

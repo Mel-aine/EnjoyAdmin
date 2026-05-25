@@ -145,5 +145,7 @@ export const useServiceStore = defineStore('service', {
     },
   },
 
-  persist:true,
+  persist:{
+    omit: ['whatsappEnabled', 'whatsappLoaded'],
+  },
 })

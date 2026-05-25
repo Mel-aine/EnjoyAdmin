@@ -42,12 +42,14 @@ const initializeSpace = async () => {
     });
     const { user } = res.data.data;
     // Stocker les services et permissions
+    console.log("res",res.data.data)
     serviceStore.setService(res.data.data.userServices);
     serviceStore.setPermissions(res.data.data.permissions);
     serviceStore.setBookingSources(res.data.data.bookingSources)
     serviceStore.setBusinessSources(res.data.data.businessSources)
     serviceStore.setReservationType(res.data.data.reservationTypes)
     statusColor.setStatusColors(res.data.data.userServices[0]?.statusColors || []);
+     serviceStore.setWhatsappEnabled(res.data.data.userServices[0]?.whatsappEnabled ?? false)
     if (user.permisReports) {
       try {
         const reportsPermissions = JSON.parse(user.permisReports);
