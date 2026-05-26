@@ -418,7 +418,10 @@ const toast = useToast()
 const showFolioSelectModal = ref(false)
 const reservationFolios = ref<any[]>([])
 const serviceStore = useServiceStore()
-const whatsappEnabled = computed(() => serviceStore.whatsappEnabled)
+const whatsappEnabled = computed(() => 
+    serviceStore.whatsappEnabled
+    && reservation.value?.whatsappNotificationEnable)
+const emailEnabled = computed(() => reservation.value?.guest?.email)
 interface Props {
     isOpen: boolean
     title?: string
@@ -448,7 +451,7 @@ const documentTitle = ref<string>('')
 const showPdfExporter = ref(false);
 const pendingWhatsappType = ref<'invoice' | 'voucher' | null>(null)
 const reservationId = ref(props.reservationData?.reservation_id || 0)
-console.log('current service', JSON.parse(useServiceStore().currentService))
+
 
 const closeModal = () => {
     emit('close')
@@ -540,9 +543,10 @@ const printOptions = computed(() => [
     { id: 'wa_invoice', label: t('sendInvoice'), icon: MessageCircle, group: 'whatsapp' },
     { id: 'wa_voucher', label: t('sendVoucher'), icon: MessageCircle, group: 'whatsapp' },
   ] : []),
-
+    ...(emailEnabled.value ? [
     { id: 'email_invoice', label: t('sendInvoice'),  icon: Mail, group: 'email' },
-    { id: 'email_voucher',   label: t('sendVoucher'),  icon: Mail, group: 'email' },
+     { id: 'email_voucher',   label: t('sendVoucher'),  icon: Mail, group: 'email' },
+    ] : []),
 ])
 
 const getStoredLanguage = () => {
@@ -919,5 +923,6 @@ onMounted(() => {
     if (props.isOpen && props.reservationData?.reservation_id) {
         getBookingDetailsById();
     }
+    console.log(whatsappEnabled.value)
 });
 </script>

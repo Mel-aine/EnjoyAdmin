@@ -41,31 +41,31 @@
 
         <!-- Groupe WhatsApp -->
         <div v-if="whatsappItems.length" class="border-t border-gray-100 dark:border-gray-700 py-1">
-          <p class="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-green-500 flex items-center gap-1">
+          <p class="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1">
             <MessageCircle class="w-3 h-3" /> WhatsApp
           </p>
           <button
             v-for="option in whatsappItems" :key="option.id"
             @click="handleOptionClick(option)"
-            class="w-full flex items-center gap-3 px-4 py-1.5 text-left hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-150"
+            class="w-full flex items-center gap-3 px-4 py-1.5 text-left hover:bg-gray-50 dark:hover:bg-green-900/20 transition-colors duration-150"
           >
-            <component v-if="option.icon" :is="option.icon" class="w-4 h-4 text-green-500" />
-            <span class="text-green-700 dark:text-green-400 font-medium text-sm">{{ option.label }}</span>
+            <component v-if="option.icon" :is="option.icon" class="w-4 h-4 text-gray-400" />
+            <span class="text-gray-700 dark:text-gray-400 font-medium text-sm">{{ option.label }}</span>
           </button>
         </div>
 
         <!-- Groupe Email -->
         <div v-if="emailItems.length" class="border-t border-gray-100 dark:border-gray-700 py-1">
-          <p class="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-blue-500 flex items-center gap-1">
+          <p class="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1">
             <Mail class="w-3 h-3" /> Email
           </p>
           <button
             v-for="option in emailItems" :key="option.id"
             @click="handleOptionClick(option)"
-            class="w-full flex items-center gap-3 px-4 py-1.5 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-150"
+            class="w-full flex items-center gap-3 px-4 py-1.5 text-left hover:bg-gray-50 dark:hover:bg-blue-900/20 transition-colors duration-150"
           >
-            <component v-if="option.icon" :is="option.icon" class="w-4 h-4 text-blue-500" />
-            <span class="text-blue-700 dark:text-blue-400 font-medium text-sm">{{ option.label }}</span>
+            <component v-if="option.icon" :is="option.icon" class="w-4 h-4 text-gray-400" />
+            <span class="text-gray-700 dark:text-gray-400 font-medium text-sm">{{ option.label }}</span>
           </button>
         </div>
       </template>
