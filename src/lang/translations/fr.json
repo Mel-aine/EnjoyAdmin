@@ -9192,16 +9192,20 @@
       "hide_trace": "Masquer"
     },
     "templates": {
-      "htl_booking_confirm": "Confirmation réservation",
+      "htl_booking_confirms": "Confirmation réservation",
       "htl_checkin_remind": "Rappel check-in",
       "htl_checkout_feedback": "Feedback checkout",
       "htl_special_offer": "Offre spéciale",
+      "invoice_ready" : "Facture prête",
+      "voucher_ready": "Voucher de réservation prête",
       "room_posting": "Posting chambre",
       "check_in_free": "Check-in",
       "feedback_survey": "Enquête de satisfaction",
       "feedback_surveys": "Enquête de satisfaction",
       "feedback_negative_reply": "Réponse négative à l'enquête de satisfaction",
-      "feedback_positive_reply": "Réponse positive à l'enquête de satisfaction"
+      "feedback_positive_reply": "Réponse positive à l'enquête de satisfaction",
+      "checkin_welcome": "Bienvenue au check-in",
+      "expense_alerts": "Alerte dépenses"
     }
   },
   "columns" : {

@@ -61,7 +61,7 @@
           v-if="item.templateName"
           class="text-[11px] font-medium px-2 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full border border-green-200 dark:border-green-800"
         >
-          {{ templateLabel(item.templateName) }}
+         {{ $t(`whatsapp.templates.${item.templateName}`) }}
         </span>
         <span v-else class="text-gray-400">—</span>
       </template>

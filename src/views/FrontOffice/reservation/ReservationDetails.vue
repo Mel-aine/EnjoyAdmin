@@ -74,7 +74,7 @@ const showEditArrivalTimeModal = ref(false)
 const showEditDepartureTimeModal = ref(false)
 const { t } = useI18n()
 const toast = useToast()
-const whatsappEnabled = computed(() => serviceStore.whatsappEnabled)
+
 
 // ====== NOUVELLE APPROCHE : État local réactif ======
 const localReservation = ref<any>({})
@@ -88,6 +88,8 @@ const showFolioSelectModal = ref(false)
 const reservationFolios = ref<any[]>([])
 const pendingEmailType = ref<'invoice' | 'voucher' | null>(null)
 const pendingWhatsappType = ref<'invoice' | 'voucher' | null>(null)
+const whatsappEnabled = computed(() => serviceStore.whatsappEnabled && localReservation.value?.whatsappNotificationEnable)
+const emailEnabled = computed(() => localReservation.value?.guest?.email)
 
 const tabs = computed(() => [
   { id: 'folio_operations', label: t('Folio Operations') },
@@ -109,8 +111,10 @@ const printOptions = computed(() => [
     { id: 'wa_invoice', label: t('sendInvoice'), icon: MessageCircle, group: 'whatsapp' },
     { id: 'wa_voucher', label: t('sendVoucher'), icon: MessageCircle, group: 'whatsapp' },
   ] : []),
-  { id: 'email_invoice',  label: t('sendInvoice'),   icon: Mail,   group: 'email' },
-  { id: 'email_voucher',  label: t('sendVoucher'),   icon: Mail,   group: 'email' },
+  ...(emailEnabled.value ? [
+    { id: 'email_invoice',  label: t('sendInvoice'),   icon: Mail,   group: 'email' },
+    { id: 'email_voucher',  label: t('sendVoucher'),   icon: Mail,   group: 'email' },
+  ] : []),
 ])
 const VALID_TAB_IDS = new Set<string>([
   'folio_operations',
