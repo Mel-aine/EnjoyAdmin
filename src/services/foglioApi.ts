@@ -895,6 +895,8 @@ export const printHotelPdf = async (data: {
   }
 }
 
+
+
 export const getUnsetteledFolio = async (hotelId: number,params:any={}): Promise<any> => {
 
   try {
@@ -1056,6 +1058,92 @@ export const updateDiscountHandler = async (transactionId:any,data: any): Promis
     return response.data
   } catch (error) {
     console.error('Error updating discount:', error)
+    throw error
+  }
+}
+
+/**
+ * Send invoice by email
+ */
+export const sendInvoiceByEmail = async (data: {
+  reservationId: number
+  recipientEmail: string
+  folioId?: number | null
+  language?: 'fr' | 'en'
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${import.meta.env.VITE_API_URL as string}/folio-print/send-invoice-email`,
+      data,
+      getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error sending invoice by email:', error)
+    throw error
+  }
+}
+
+/**
+ * Send voucher by email
+ */
+export const sendVoucherByEmail = async (data: {
+  reservationId: number
+  recipientEmail: string
+  language?: 'fr' | 'en'
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${import.meta.env.VITE_API_URL as string}/folio-print/send-voucher-email`,
+      data,
+      getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error sending voucher by email:', error)
+    throw error
+  }
+}
+
+/**
+ * Send invoice by WhatsApp
+ */
+export const sendInvoiceByWhatsapp = async (data: {
+  reservationId: number
+  recipientPhone?: string | null
+  folioId?: number | null
+  language?: 'fr' | 'en'
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${import.meta.env.VITE_API_URL as string}/folio-print/send-invoice-whatsapp`,
+      data,
+      getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error sending invoice by WhatsApp:', error)
+    throw error
+  }
+}
+
+/**
+ * Send voucher by WhatsApp
+ */
+export const sendVoucherByWhatsapp = async (data: {
+  reservationId: number
+  recipientPhone?: string | null
+  language?: 'fr' | 'en'
+}): Promise<any> => {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${import.meta.env.VITE_API_URL as string}/folio-print/send-voucher-whatsapp`,
+      data,
+      getHeaders()
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error sending voucher by WhatsApp:', error)
     throw error
   }
 }

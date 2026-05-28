@@ -62,6 +62,8 @@ interface OtherInfo {
   emailTemplate: string
   accessToGuestPortal: boolean
   successRateOnRegistrationCard: boolean
+  whatsappNumberEnable: boolean
+  whatsappNumber: string
 }
 
 interface Billing {
@@ -277,6 +279,8 @@ export function useBooking() {
     emailTemplate: '',
     accessToGuestPortal: false,
     successRateOnRegistrationCard: false,
+    whatsappNumberEnable: false,
+    whatsappNumber: '',
   })
 
   const billing = ref<Billing>({
@@ -318,6 +322,7 @@ export function useBooking() {
     { label: t('family'), value: 'family' },
   ])
 
+  const whatsappEnabled = computed(()=>serviceStore.whatsappEnabled)
   const businessSourcesLo = ref<any>([...serviceStore.businessSources])
   const bookingTypeLo = ref<any>([...serviceStore.reservationType])
   const marketCodesLo = ref<any>([])
@@ -361,6 +366,33 @@ export function useBooking() {
   }
   getMarketCode()
   // Watchers
+
+  const whatsappNumberError = ref('')
+
+const validateWhatsAppNumber = () => {
+  const phoneRegex = /^\+?[0-9]{8,15}$/
+
+  if (otherInfo.value.whatsappNumberEnable && otherInfo.value.whatsappNumber) {
+    if (!phoneRegex.test(otherInfo.value.whatsappNumber)) {
+      whatsappNumberError.value = t('validation.invalidPhone')
+      return false
+    } else {
+      whatsappNumberError.value = ''
+      return true
+    }
+  }
+
+  whatsappNumberError.value = ''
+  return true
+}
+
+// Watcher pour valider en temps réel
+watch(() => otherInfo.value.whatsappNumberEnable, (enabled) => {
+  if (!enabled) {
+    otherInfo.value.whatsappNumber = ''
+    whatsappNumberError.value = ''
+  }
+})
 
 
   const validateCheckInCheckOut = (): { isValid: boolean; error: string | null } => {
@@ -1205,6 +1237,17 @@ const getChildOptions = (roomTypeId: any | null) => {
           throw new Error(t('Invalid voucher email address'))
         }
       }
+      // Validation de WhatsApp
+      if (otherInfo.value.whatsappNumberEnable) {
+        if(!otherInfo.value.whatsappNumber) {
+          throw new Error(t('WhatsApp number is required when WhatsApp number is enabled'))
+        }
+        if(!validateWhatsAppNumber()) {
+          throw new Error(t('Invalid WhatsApp number'))
+        }
+      }
+      
+
       await waitForPendingUploads()
 
       uploadErrors.value = []
@@ -1372,6 +1415,8 @@ const getChildOptions = (roomTypeId: any | null) => {
         send_email_at_checkout: Boolean(otherInfo.value.sendEmailAtCheckout),
         email_template: otherInfo.value.emailTemplate || undefined,
         access_to_guest_portal: Boolean(otherInfo.value.accessToGuestPortal),
+        whatsapp_notification_enable: Boolean(otherInfo.value.whatsappNumberEnable),
+        whatsapp_number: otherInfo.value.whatsappNumberEnable ? otherInfo.value.whatsappNumber : undefined,
 
         created_by: Number(authStore.UserId),
       }
@@ -2214,7 +2259,9 @@ const formDataKey = ref(Date.now())
     }
   })
 
-
+watch(whatsappEnabled, (val) => {
+  console.log('whatsappEnabled changed:', val)
+})
 
   // Fonction pour charger les données asynchrones après le chargement du draft
   const loadDraftData = (draftData: any) => {
@@ -2419,6 +2466,7 @@ const formDataKey = ref(Date.now())
     guestFullName,
     roomExtraDetails,
     showCheckinButton,
+    whatsappEnabled,
 
     // Options
     BookingSource,
@@ -2466,6 +2514,8 @@ const formDataKey = ref(Date.now())
     validateAllRoomsWithAvailability,
     onRoomTypeChangeWithValidation,
      validateNoDuplicateRoomNumbers,
+    whatsappNumberError,
+    validateWhatsAppNumber,
   }
 }
 // Allow switching the reservation creation function

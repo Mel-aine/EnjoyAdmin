@@ -1,8 +1,14 @@
 <template>
   <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-    <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">
-      {{ pageTitle }}
-    </h2>
+    <div>
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+        {{ pageTitle }}
+      </h2>
+      <p v-if="subtitle" class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        {{ subtitle }}
+      </p>
+    </div>
+
     <nav>
       <ol class="flex items-center gap-1.5">
         <li v-for="(item, index) in computedBreadcrumbs" :key="index" class="flex items-center gap-1.5">
@@ -50,6 +56,7 @@ interface Breadcrumb {
 interface BreadcrumbProps {
   pageTitle: string
   breadcrumb?: Breadcrumb[]
+  subtitle?:string
 }
 
 const props = defineProps<BreadcrumbProps>()

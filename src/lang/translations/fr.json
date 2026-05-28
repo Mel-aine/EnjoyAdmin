@@ -984,12 +984,68 @@
       "hotelPolicy": "Politique de l'hôtel",
       "nightAuditStartTime": "Heure de début de l'audit de nuit",
       "nightAuditEndTime": "Heure de fin de l'audit de nuit",
-      "hasCreditLedger" : "Avec compte de crédit"
+      "hasCreditLedger" : "Avec compte de crédit",
+      "googlePlaceId": "Identifiant Google de Place ID"
     },
     "creditLedger": {
       "enabled": "Activé",
       "disabled": "Désactivé"
     },
+    "whatsappProviders": {
+      "meta": "Meta (WhatsApp Business API)",
+      "platform": "Plateforme"
+    },
+     "whatsapp": {
+      "help": "Configurez votre intégration WhatsApp pour envoyer des notifications et messages automatisés à vos clients directement depuis le PMS.",
+      "testHelp": "Testez votre configuration en envoyant un message de test.",
+      "testRecipient": "Numéro destinataire",
+      "testMessage": "Message de test",
+      "testMessagePlaceholder": "Entrez votre message de test...",
+      "test": "Tester la configuration",
+      "testing": "Envoi en cours...",
+      "testSuccess": "Message envoyé avec succès !",
+      "testError": "Échec de l'envoi. Vérifiez votre configuration.",
+      "testRequiredFields": "Veuillez renseigner le numéro et le message.",
+      "title": "Configuration WhatsApp",
+      "enabled": "Activer WhatsApp",
+      "active": "Activé",
+      "inactive": "Désactivé",
+      "provider": "Fournisseur",
+      "senderName": "Nom de l'expéditeur",
+      "senderNamePlaceholder": "Ex: Hotel",
+      "apiBaseUrl": "URL de base API",
+      "apiVersion": "Version API",
+      "phoneNumberId" : "Identifiant du numéro de téléphone",
+      "businessAccountId" : "Identifiant du compte professionnel",
+      "endpointUrl" : "Point de terminaison URL", 
+      "accessToken" : "Jeton d'accès",
+      "providerPlaceholder" : "Sélectionnez le fournisseur de WhatsApp",
+      "saveRequiresTest": "Veuillez tester avant de sauregistrer votre configuration."
+    },
+    "notificationSettings": {
+      "title": "Paramètres de notification",
+      "subtitle": "Informations envoyées aux clients via WhatsApp lors du check-in.",
+      "sections": {
+        "wifi": "Paramètres de la connexion Wi-Fi",
+        "breakfast": "Paramètres du petit-déjeuner",
+        "smartLock": "Serrure connectée"
+      },
+      "fields": {
+        "wifiCode": "Mot de passe Wi-Fi",
+        "breakfastStart": "Début petit-déjeuner",
+        "breakfastEnd": "Fin petit-déjeuner",
+        "hasSmartLock": "Serrure connectée",
+        "digitalKeyBaseUrl": "URL de base de la clé numérique"
+      },
+      "placeholders": {
+        "wifiCode": "EnjoyGuest2025"
+      },
+      "smartLock": {
+        "enabled": "Activée",
+        "disabled": "Désactivée"
+      }
+    },
+
     "placeholders": {
       "hotelName": "Saisissez le nom de l'hôtel",
       "email": "Saisissez l'e-mail de l'hôtel",
@@ -1009,7 +1065,8 @@
       "cancellationPolicy": "Saisissez la politique d'annulation de votre hôtel...",
       "hotelPolicy": "Saisissez les politiques générales de votre hôtel...",
       "nightAuditStartTime": "Saisissez l'heure de début de l'audit de nuit",
-      "nightAuditEndTime": "Saisissez l'heure de fin de l'audit de nuit"
+      "nightAuditEndTime": "Saisissez l'heure de fin de l'audit de nuit",
+      "googlePlaceId": "Saisissez l'identifiant Google de Place ID"
     },
     "buttons": {
       "chooseFile": "Choisir un fichier",
@@ -2270,11 +2327,11 @@
   "staffManager": {
     "title": "Gestion du Personnel",
     "subtitle": "Gérer les informations et les rôles du personnel de l'hôtel",
-    "department": "Département :",
-    "email": "Email :",
-    "phone": "Téléphone :",
-    "hireDate": "Date d'embauche :",
-    "status": "Statut :",
+    "department": "Département ",
+    "email": "Email ",
+    "phone": "Téléphone ",
+    "hireDate": "Date d'embauche ",
+    "status": "Statut ",
     "active": "Actif",
     "inactive": "Inactif",
     "noStaff": "Aucun membre du personnel trouvé",
@@ -4613,6 +4670,34 @@
     "expensesByCategory": "Dépenses par catégorie",
     "monthlyTrend": "Tendance mensuelle",
     "expensesList": "Liste des dépenses",
+    "satisfaction": {
+      "title": "Satisfaction clients",
+      "nps": "Score NPS simplifié",
+      "responseRate": "Taux de réponse",
+      "googleRedirects": "Avis Google",
+      "surveysSent": "Enquêtes envoyées",
+      "ratingDistribution": "Répartition des notes",
+      "funnel": "Entonnoir feedback",
+      "trend": "Évolution hebdomadaire",
+      "excellent": "Excellent / Très bien",
+      "satisfaisant": "Satisfaisant",
+      "aAmeliorer": "À améliorer",
+      "sent": "Envoyées",
+      "responses": "Réponses reçues",
+      "positiveGoogle": "Positifs → Google",
+      "negativeComment": "Négatifs avec commentaire",
+      "vsLastMonth": "vs mois dernier",
+      "lastUpdate": "Dernière mise à jour",
+      "analyzeNegative": "Analyser les retours négatifs",
+      "period7": "7 jours",
+      "period30": "30 jours",
+      "period90": "90 jours",
+      "npsScore": "Score NPS",
+      "responseRatePct": "Taux de réponse %",
+      "error" : {
+        "load_failed": "Échec de chargement des statistiques de satisfaction"
+      }
+    },
     "expenseDescriptions": {
       "electricityBill": "Facture d'électricité",
       "cleaningSupplies": "Fournitures de nettoyage",
@@ -5230,7 +5315,8 @@
     "previewVoucher": "Aperçu du bon",
     "sendEmailAtCheckout": "Envoyer un e-mail au départ",
     "accessToGuestPortal": "Accès au portail client",
-    "successRateOnRegistrationCard": "Taux de réussite sur la fiche d'enregistrement"
+    "successRateOnRegistrationCard": "Taux de réussite sur la fiche d'enregistrement",
+    "whatsappNumberEnable" : "Notification WhatsApp"
   },
   "RateOffered": "Tarif proposé",
   "Contract": "Contrat",
@@ -5580,6 +5666,11 @@
         "select_email_template": "Sélectionner un modèle d'e-mail",
         "subject_line": "Ligne d'objet",
         "enter_email_subject": "Entrer l'objet de l'e-mail",
+        "whatsappRecipients": "Destinataires WhatsApp",
+        "whatsappRecipientsHint": "Activez d'abord WhatsApp dans les paramètres Marketing, ensuite ajoutez ici les numéros qui recevront les rapports chaque matin après l'audit de nuit.",
+        "whatsappRecipientsPlaceholder": "Entrer les destinataires WhatsApp séparés par des virgules",
+        "whatsappHelperText": "Entrer les destinataires WhatsApp ici, vous pouvez entrer plusieurs destinataires séparés par des virgules",
+        "whatsappNoRecipients" : "Aucun destinataire. Cliquez sur « Ajouter » pour en créer un.",
         "templates": {
           "thankYouGuest": "E-mail de remerciement au client",
           "folioDetailTemplateT": "Modèle de détail du folio - T"
@@ -9045,6 +9136,94 @@
   "Amount to apply" : "Montant à appliquer",
   "Credit applied successfully" : "Crédit appliqué avec succès",
   "Failed to apply credit" : "Échec de l'application du crédit",
-  "transactionNumber" : "Numéro de transaction"
+  "transactionNumber" : "Numéro de transaction",
+  "Marketplace" : "Market Place",
+ "marketplace": {
+    "subtitle": "Activez des modules pour étendre les fonctionnalités de votre établissement.",
+    "search": "Rechercher un module…",
+    "installed": "Activé",
+    "official": "OFFICIEL",
+    "onRequest": "Sur demande",
+    "startingFrom": "À partir de",
+    "month": "mois",
+    "year": "an",
+    "units": "unités",
+    "monthlyRate": "Tarif mensuel",
+    "dependsOnAddon": "Selon l'add-on choisi",
+    "activate": "Activer le module",
+    "deactivate": "Désactiver",
+    "installing": "Installation…",
+    "uninstalling": "Désactivation…",
+    "installSuccess": "Module activé avec succès",
+    "installError": "Échec de l'activation",
+    "uninstallSuccess": "Module désactivé",
+    "uninstallError": "Échec de la désactivation",
+    "fetchError": "Impossible de charger les modules",
+    "noResults": "Aucun module trouvé pour",
+    "whatsappDescription": "Activez les notifications et communications WhatsApp pour vos clients.",
+    "core": "Central",
+    "coreModule": "Module central — ne peut pas être désactivé",
+    "active" : "Actif",
+    "renewsOn" : "Renouvelé le",
+    "noActiveAddon" : "Aucun add-on actif",
+    "selectAddon": "Veuillez sélectionner un add-on"
+},
+"WhatsApp History": "Historique WhatsApp",
+"whatsapp": {
+    "history": {
+      "title": "Historique WhatsApp",
+      "message_count": "{count} message | {count} messages",
+      "refresh": "Actualiser",
+      "empty": "Aucun message WhatsApp envoyé pour cette réservation",
+      "via": "via {provider}"
+    },
+    "status": {
+      "sent": "Envoyé",
+      "delivered": "Livré",
+      "read": "Lu",
+      "failed": "Échec",
+      "received": "Reçu",
+      "unknown": "Inconnu"
+    },
+    "error": {
+      "load_failed": "Impossible de charger les logs WhatsApp",
+      "unknown": "Erreur inconnue",
+      "show_trace": "Voir trace",
+      "hide_trace": "Masquer"
+    },
+    "templates": {
+      "htl_booking_confirms": "Confirmation réservation",
+      "htl_checkin_remind": "Rappel check-in",
+      "htl_checkout_feedback": "Feedback checkout",
+      "htl_special_offer": "Offre spéciale",
+      "invoice_ready" : "Facture prête",
+      "voucher_ready": "Voucher de réservation prête",
+      "room_posting": "Posting chambre",
+      "check_in_free": "Check-in",
+      "feedback_survey": "Enquête de satisfaction",
+      "feedback_surveys": "Enquête de satisfaction",
+      "feedback_negative_reply": "Réponse négative à l'enquête de satisfaction",
+      "feedback_positive_reply": "Réponse positive à l'enquête de satisfaction",
+      "checkin_welcome": "Bienvenue au check-in",
+      "expense_alerts": "Alerte dépenses"
+    }
+  },
+  "columns" : {
+    "status": "Statut",
+    "template": "Modèle",
+    "message": "Message",
+    "dates": "Dates",
+    "phone": "Téléphone client"
+  },
+  "sendVoucher": "Envoyer le voucher de réservation",
+  "noGuestEmail": "Le client n'a pas d'adresse email",
+  "emailSentSuccess": "Email envoyé avec succès",
+  "emailSentError": "Échec d'envoi d'email",
+  "noGuestPhone": "Le client n'a pas de numéro de téléphone WhatsApp",
+  "whatsappSentSuccess": "WhatsApp envoyé avec succès",
+  "whatsappSentError": "Échec d'envoi de WhatsApp",
+  "whatsapp_notifications_disabled": "Les notifications WhatsApp sont désactivées pour ce client"
+
+
 
 }

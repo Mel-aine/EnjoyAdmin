@@ -25,6 +25,11 @@ export const getHotelById = (id: number): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/${id}/details`, getHeaders())
 }
 
+export const getById = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${id}`, getHeaders())
+}
+
+
 
 ///// this is the amenities sections
 /**
