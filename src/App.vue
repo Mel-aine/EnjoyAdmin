@@ -1,6 +1,6 @@
  <template> 
   <SpeedInsights />     
-  <ThemeProvider>         
+  <ThemeProvider>          
     <SidebarProvider>       
       <template v-if="authStore.isFullyAuthenticated && authStore.isPmsSubscriptionBlocked">
         <SubscriptionBlockedModal :isOpen="true" :supportMailtoUrl="supportMailtoUrl" @renew="openSubscriptionRenewal" />
