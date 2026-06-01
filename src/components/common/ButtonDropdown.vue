@@ -2,13 +2,18 @@
   <div ref="dropdownContainer" class="relative dropdown-container" @mouseenter="onHoverOpen">
     <button 
       @click="handleButtonClick"
+      :disabled="loading"
       :class="[
         'flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-200',
-        buttonClass
+        buttonClass,
+        { 'opacity-50 cursor-not-allowed': loading }
       ]"
     >
+      <div v-if="loading" class="w-4 h-4 flex-shrink-0 border-2 border-gray-300 border-t-primary rounded-full animate-spin">
+      </div>
       <span>{{ buttonText }}</span>
       <ChevronDown 
+        v-if="!loading"
         class="w-4 h-4 transition-transform duration-200"
         :class="{ 'rotate-180': isOpen }"
       />
@@ -108,6 +113,7 @@ interface Props {
   buttonClass?: string
   dropdownClass?: string
   openOnHover?: boolean
+  loading?: boolean
 }
 
 interface Emits {
@@ -118,7 +124,8 @@ const props = withDefaults(defineProps<Props>(), {
   buttonText: 'Options',
   buttonClass: 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600',
   dropdownClass: 'w-64',
-  openOnHover: true
+  openOnHover: true,
+  loading: false
 })
 
 const emit = defineEmits<Emits>()
@@ -134,13 +141,14 @@ const whatsappItems = computed(() => props.options.filter(o => o.group === 'what
 const emailItems   = computed(() => props.options.filter(o => o.group === 'email'))
 
 const onHoverOpen = () => {
-  if (props.openOnHover) {
+  if (props.openOnHover && !props.loading) {
     isOpen.value = true
     window.dispatchEvent(new CustomEvent('button-dropdown-open', { detail: { id: instanceId } }))
   }
 }
 
 const toggleDropdown = () => {
+  if (props.loading) return
   const willOpen = !isOpen.value
   isOpen.value = !isOpen.value
   if (willOpen && isOpen.value) {
