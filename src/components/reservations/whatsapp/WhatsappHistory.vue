@@ -35,7 +35,6 @@
       :meta="meta"
       @page-change="handlePageChange"
       item-key="id"
-      empty-state-title="whatsapp.history.empty"
     >
       <!-- Statut -->
       <template #column-status="{ item }">

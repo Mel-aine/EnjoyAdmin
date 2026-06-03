@@ -423,55 +423,44 @@ const roundToTwo = (num: number) => {
 // Compute discount amount based on selected folio balance and discount type
 const recomputeDiscountAmount = () => {
     const discount = selectedDiscount.value
-    const rawBalance = selectedFolio.value?.balance
 
-
-    if (!discount) {
+    if (!discount || !selectedFolio.value) {
         formData.value.discountAmount = 0
         return
     }
-      if (!discount || !selectedFolio.value) {
-        formData.value.discountAmount = 0
-        return
-      }
 
-
-    // Normalize values (force number)
     const discountValue = Number(discount.value ?? 0)
     const discountType = discount.type
+
+    // Neutraliser l'ancien discount en mode edit
+    let rawBalance = selectedFolio.value?.balance
     let balanceNum = 0
 
-    if (rawBalance == null) {
-        balanceNum = 0
-    } else {
-        // remove spaces, replace commas if they are thousand separators (basic)
-        const cleaned = String(rawBalance).trim().replace(/\s+/g, '').replace(/,/g, '.')
-        balanceNum = Number(cleaned)
-        if (!Number.isFinite(balanceNum)) balanceNum = 0
+    const cleaned = String(rawBalance ?? 0).trim().replace(/\s+/g, '').replace(/,/g, '.')
+    balanceNum = Number(cleaned)
+    if (!Number.isFinite(balanceNum)) balanceNum = 0
+
+    // Si mode edit, rajouter l'ancien discount pour retrouver la vraie base
+    if (props.isEditMode && props.transactionData) {
+        const ancienDiscount = Math.abs(parseFloat(props.transactionData.discountAmount ?? 0))
+        balanceNum = balanceNum + ancienDiscount
     }
+
 
     let amount = 0
     if (discountType === 'percentage') {
-        // Percentage of folio balance (assume percentage is e.g. 10 for 10%)
-        const base = balanceNum
-        amount = roundToTwo(base * (discountValue / 100))
+        amount = roundToTwo(balanceNum * (discountValue / 100))
     } else if (discountType === 'flat') {
-        amount = roundToTwo(discountValue)
+        amount = roundToTwo(Math.min(discountValue, balanceNum))
     } else {
-        // fallback
         amount = roundToTwo(discountValue)
     }
 
-    // If balance is positive (guest owes money), do not exceed balance.
-    // If balance is negative or zero, keep computed amount (or clamp to 0 if you want)
     if (Number.isFinite(balanceNum) && balanceNum > 0) {
         amount = Math.min(amount, roundToTwo(balanceNum))
     }
 
-    // Guard against negative discount amount
     if (!Number.isFinite(amount) || amount < 0) amount = 0
-
-    console.log('[recompute] computed amount:', amount, 'balanceNum:', balanceNum, 'discountValue:', discountValue)
 
     formData.value.discountAmount = amount
 }

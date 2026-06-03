@@ -204,6 +204,7 @@
                                             :options="dropdownOptions" :button-text="t('Options')"
                                             @option-selected="handleOptionSelected" /> -->
                                         <ButtonDropdown :options="printOptions" :button-text="t('printSend')"
+                                            :loading="isSending"
                                             :button-class="'bg-white text-sm border border-primary text-primary'"
                                             @option-selected="handlePrintOptionSelected" />
                                     </div>
@@ -413,6 +414,7 @@ const FolioSelectModal = defineAsyncComponent(() => import('../reservations/fogl
 const { t } = useI18n()
 const router = useRouter()
 const isLoading = ref(false);
+const isSending = ref(false);
 const reservation = ref<any>(null)
 const toast = useToast()
 const showFolioSelectModal = ref(false)
@@ -647,6 +649,7 @@ const handleFolioSelected = async (folio: any) => {
 
     if (phone) {
       try {
+        isSending.value = true
         await sendInvoiceByWhatsapp({
           reservationId: reservation.value.id,
           recipientPhone: phone,
@@ -656,6 +659,8 @@ const handleFolioSelected = async (folio: any) => {
         toast.success(t('whatsappSentSuccess'))
       } catch {
         toast.error(t('whatsappSentError'))
+      } finally {
+        isSending.value = false
       }
     }
     pendingWhatsappType.value = null
@@ -668,6 +673,7 @@ const handleFolioSelected = async (folio: any) => {
     const email = reservation.value?.guest?.email ?? reservation.value?.guest?.emailSecondary ?? null
     if (email) {
       try {
+        isSending.value = true
         await sendInvoiceByEmail({
           reservationId: reservation.value.id,
           recipientEmail: email,
@@ -677,6 +683,8 @@ const handleFolioSelected = async (folio: any) => {
         toast.success(t('emailSentSuccess'))
       } catch {
         toast.error(t('emailSentError'))
+      } finally {
+        isSending.value = false
       }
     }
     pendingEmailType.value = null
@@ -729,12 +737,14 @@ const phone = localReservation.value?.whatsappNumber ?? null
 if (!phone) { toast.warning(t('noGuestPhone')); return }
 
   try {
+    isSending.value = true
     const language = getStoredLanguage() as 'fr' | 'en'
 
     if (type === 'invoice') {
       const folios = reservation.value?.folios ?? reservation.value?.reservationFolios ?? []
 
       if (folios.length > 1) {
+        isSending.value = false
         pendingWhatsappType.value = 'invoice'
         reservationFolios.value = folios
         showFolioSelectModal.value = true
@@ -758,6 +768,8 @@ if (!phone) { toast.warning(t('noGuestPhone')); return }
     toast.success(t('whatsappSentSuccess'))
   } catch {
     toast.error(t('whatsappSentError'))
+  } finally {
+    isSending.value = false
   }
 }
 
@@ -770,12 +782,13 @@ const handleEmailSend = async (type: 'invoice' | 'voucher') => {
   }
 
   try {
+    isSending.value = true
     const language = getStoredLanguage() as 'fr' | 'en'
 
     if (type === 'invoice') {
       const folios = reservation.value?.folios ?? reservation.value?.reservationFolios ?? []
       if (folios.length > 1) {
-       
+        isSending.value = false
         pendingEmailType.value = 'invoice'
         reservationFolios.value = folios
         showFolioSelectModal.value = true
@@ -798,6 +811,8 @@ const handleEmailSend = async (type: 'invoice' | 'voucher') => {
     toast.success(t('emailSentSuccess'))
   } catch {
     toast.error(t('emailSentError'))
+  } finally {
+    isSending.value = false
   }
 }
 const roomRateTypeSummary = computed(() => {
