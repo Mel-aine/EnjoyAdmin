@@ -1726,6 +1726,18 @@ watch(
   }
 )
 
+watch(
+  () => roomConfigurations.value.length,
+  (newLength) => {
+    if (newLength < 2 && quickGroupBooking.value) {
+      quickGroupBooking.value = false
+    }
+    if (newLength >= 2 && !quickGroupBooking.value) {
+      quickGroupBooking.value = true
+    }
+  }
+)
+
 </script>
 
 <style scoped>

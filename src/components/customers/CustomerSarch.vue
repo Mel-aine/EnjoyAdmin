@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, watch, onMounted, onUnmounted, nextTick ,computed} from 'vue';
 import { getGuests } from '@/services/guestApi';
 import { useServiceStore } from '@/composables/serviceStore';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 interface Props {
   modelValue: string | object | null;
@@ -9,9 +12,11 @@ interface Props {
   disabled?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: 'Search or create a guest...',
   disabled: false,
 });
+
+const placeHolder = computed(() => props.placeholder || t('bookings.customerSearch.placeholder'));
+
 
 const emit = defineEmits(['update:modelValue', 'customerSelected', 'select']);
 
@@ -176,7 +181,7 @@ onUnmounted(() => {
         ref="inputRef"
         :value="searchQuery"
         @input="onInput"
-        :placeholder="placeholder"
+        :placeholder="placeHolder"
         :disabled="disabled"
         class="h-11 w-full border border-black/50 bg-transparent px-4 py-2.5 text-sm text-gray-800
                placeholder:text-gray-400 focus:border-purple-500 focus:outline-none

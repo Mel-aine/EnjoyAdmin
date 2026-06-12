@@ -1,7 +1,7 @@
 <template>
-  <RightSideModal :is-open="isOpen" :title="$t('Transfer Posting')" @close="closeModal">
+  <RightSideModal :is-open="isOpen" :title="$t('transfer_posting')" @close="closeModal">
     <template #header>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('Transfer Posting') }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $t('transfer_posting') }}</h3>
     </template>
 
     <!-- Form -->
@@ -19,7 +19,7 @@
 
       <!-- Rec/Vou # -->
       <div>
-        <Input v-model="form.recVouNumber" type="text" :lb="$t('Rec/Vou #')" :disabled="true" placeholder="Enter receipt/voucher number" />
+        <Input v-model="form.recVouNumber" type="text" :lb="$t('Rec/Vou #')" :disabled="true" :placeholder="$t('Enter receipt/voucher number')" />
       </div>
 
       <div class="grid grid-cols-2 gap-4">
@@ -44,7 +44,7 @@
       <!-- Comment -->
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ $t('Comment') }}</label>
-        <textarea v-model="form.comment" rows="3" class="w-full px-3 py-2 border rounded-lg border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" placeholder="Enter any additional comments..."></textarea>
+        <textarea v-model="form.comment" rows="3" class="w-full px-3 py-2 border rounded-lg border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" :placeholder="$t('Enter any additional comments...')"></textarea>
       </div>
     </div>
 

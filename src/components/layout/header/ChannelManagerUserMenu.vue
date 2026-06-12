@@ -64,7 +64,7 @@ const authStore = useAuthStore()
 // Menu tailored for Channel Manager header: link to general configuration
 const menuItems = computed(() => {
   const menus = [
-    { href: '/', icon: HomeIcon, text: t('Go to Front') },
+    { href: '/front-office/dashboard', icon: HomeIcon, text: t('Go to Front') },
     { href: '/profile', icon: UserCircleIcon, text: t('Viewprofile') },
   ]
 

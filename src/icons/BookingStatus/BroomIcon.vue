@@ -3,7 +3,7 @@
         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
         <g id="SVGRepo_iconCarrier">
-            <title>clean</title>
+            <title>{{ title }}</title>
             <rect x="20" y="18" width="6" height="2" transform="translate(46 38) rotate(-180)"></rect>
             <rect x="24" y="26" width="6" height="2" transform="translate(54 54) rotate(-180)"></rect>
             <rect x="22" y="22" width="6" height="2" transform="translate(50 46) rotate(-180)"></rect>
@@ -14,6 +14,13 @@
 </template>
 
 <script setup lang="ts">
+
+const props = defineProps({
+    title: {
+        type: String,
+        default: 'clean'
+    }
+})
 
 </script>
 

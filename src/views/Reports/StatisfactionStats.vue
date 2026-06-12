@@ -212,6 +212,14 @@ const periods = [
   { value: 30, label: 'reports.satisfaction.period30' },
 ]
 
+const DAY_MAP: Record<string, string> = {
+  Mon: t('mon'), Tue: t('tue'), Wed: t('wed'),
+  Thu: t('thur'), Fri: t('fri'), Sat: t('sat'), Sun: t('sun'),
+}
+const translatedWeeks = computed(() =>
+  (stats.value?.weeks ?? []).map((w: string) => DAY_MAP[w] ?? w)
+)
+
 const ratings = computed(() => {
   if (!stats.value) return []
   const total = stats.value.excellent + stats.value.satisfaisant + stats.value.aAmeliorer
@@ -248,7 +256,7 @@ function buildChart() {
     },
     xAxis: {
       type: 'category',
-      data: stats.value.weeks,
+      data: translatedWeeks.value,
       axisLine:  { lineStyle: { color: '#e5e7eb' } },
       axisTick:  { show: false },
       axisLabel: { color: '#9ca3af', fontSize: 11 },
