@@ -361,7 +361,7 @@ const saveRequest = async () => {
     !formData.dropoffPoint ||
     !formData.scheduledTime
   ) {
-    toast.error('Please fill in all required fields')
+    toast.error(t('fillInAllRequiredFields'))
     return
   }
 
@@ -372,14 +372,14 @@ const saveRequest = async () => {
       !formData.externalDriverName ||
       !formData.externalVehicleColor
     ) {
-      toast.error('Please fill in all external service details')
+      toast.error(t('fillInAllExternalServiceDetails'))
       return
     }
   }
 
   // Validate service fee and folio
   if (formData.serviceFee > 0 && !formData.folioId) {
-    toast.error('Please select a folio for the service fee')
+    toast.error(t('fillInServiceFee'))
     return
   }
 

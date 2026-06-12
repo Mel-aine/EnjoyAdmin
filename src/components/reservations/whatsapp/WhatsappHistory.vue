@@ -176,13 +176,15 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 const meta = ref<any>({})
 
-const columns: Column[] = [
+const columns = computed<Column[]>(() => [
   { key: 'status',         label: t('whatsapp.columns.status'),    type: 'custom' },
   { key: 'templateName',   label: t('whatsapp.columns.template'),  type: 'custom' },
   { key: 'recipientPhone', label: t('whatsapp.columns.phone'),     type: 'custom' },
   { key: 'messageBody',    label: t('whatsapp.columns.message'),   type: 'custom' },
   { key: 'sentAt',         label: t('whatsapp.columns.dates'),     type: 'custom' },
-]
+])
+
+
 
 // Les logs sont utilisés tels quels — la table accepte any[]
 const mappedLogs = computed(() => logs.value)

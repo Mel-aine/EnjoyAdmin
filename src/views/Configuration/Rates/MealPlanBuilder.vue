@@ -161,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted,computed } from 'vue'
 import { useToast } from 'vue-toastification'
 import ConfigurationLayout from '../ConfigurationLayout.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
@@ -187,12 +187,13 @@ const paginationMeta = ref<any>(null)
 const deleteItem = ref<any>(null)
 const {t} = useI18n()
 
-const columns :Column[] = [
+const columns = computed<Column[]>(() => 
+ [
   { key: 'name', label: t('Name'), type: 'text' },
   { key: 'shortCode', label: t('Short Code'), type: 'text' },
   { key: 'status', label: t('Status'), type: 'badge', translatable:true },
   { key: 'assignMealPlanOn', label: t('Assign meal plan on'), type: 'custom' },
-]
+])
 
 const actions = [
   { name: 'edit', label: t('Edit'), variant: 'primary', icon: Edit, handler: (item:any) => onAction('edit', item) },

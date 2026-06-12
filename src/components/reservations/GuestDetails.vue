@@ -1624,13 +1624,13 @@ const removeGuestFromRoom = async () => {
     if (guestAssignment) {
       await removeGuestFromReservationRoom(guestAssignment.id)
     } else if (guest.isPrimary) {
-      toast.error(t('Cannot remove principal guest'))
+      toast.error(t('errorsRemovePrincipalGuestError'))
       return
     } else {
       await removeGuestFromReservationRoom(room.id)
     }
 
-    toast.success(t('Guest removed successfully'))
+    toast.success(t('guest_removed_successfully'))
 
     // Si le guest supprimé est celui actuellement sélectionné
     if (selectedGuest.value?.id === guest.id) {

@@ -210,16 +210,16 @@
                           <span>{{ room.room_number || '-' }}</span>
                           <div class="flex gap-1 text-gray-500 dark:text-gray-400">
                             <span class="text-xs" v-if="room.room_housekeeping_status === 'clean'">
-                              <Bed class="w-4 h-4" />
+                              <Bed class="w-4 h-4" :title="$t('Clean')" />  
                             </span>
                             <span v-else>
-                              <BroomIcons class="w-4 h-4 text-gray-500" />
+                              <BroomIcons class="w-4 h-4 text-gray-500" :title="$t('Dirty')" />
                             </span>
                             <span class="text-xs" v-if="room.is_smoking">
-                              <Cigarette class="w-4 h-4" />
+                              <Cigarette class="w-4 h-4" :title="$t('bookings.calendar.labels.smoking')" />
                             </span>
                             <span v-else>
-                              <CigaretteOff class="w-4 h-4" />
+                              <CigaretteOff class="w-4 h-4" :title="$t('bookings.calendar.labels.noSmoking')" />
                             </span>
                           </div>
                         </div>
@@ -1590,10 +1590,10 @@ function getUnassignedRoomsByType(date: Date, roomTypeId: number) {
 
 // --- UTILS ---
 function formatDate(date: Date) {
-  return date.toLocaleDateString('en', { day: '2-digit', month: 'short' })
+  return date.toLocaleDateString(locale.value, { day: '2-digit', month: 'short' })
 }
 function formatDay(date: Date) {
-  return date.toLocaleDateString('en', { weekday: 'short' })
+  return date.toLocaleDateString(locale.value, { weekday: 'short' })
 }
 
 function isWeekend(date: Date): boolean {

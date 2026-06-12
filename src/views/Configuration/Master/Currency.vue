@@ -75,7 +75,7 @@
 
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {{ $t('prefixSuffix') }} *
+                {{ $t('prefixSuffix') }}
               </label>
               <div class="flex space-x-2">
                 <label class="flex items-center">
@@ -102,7 +102,7 @@
             <div class="mb-4">
               <Input
                 v-model="formData.currencyCode"
-                :lb="$t('Currency Code') + ' *'"
+                :lb="$t('Currency Code')"
                 inputType="text"
                 :isRequired="true"
                 :placeholder="$t('Ex: USD (For United States)')"

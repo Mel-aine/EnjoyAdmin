@@ -72,7 +72,7 @@ const showPrintModal = ref(false)
 const isPending = ref(false)
 const showEditArrivalTimeModal = ref(false)
 const showEditDepartureTimeModal = ref(false)
-const { t } = useI18n()
+const { t ,locale } = useI18n()
 const toast = useToast()
 
 
@@ -397,7 +397,7 @@ const formatDate = (dateString: string) => {
     month: 'short',
     day: 'numeric',
   }
-  return new Date(dateString).toLocaleDateString('en', options)
+  return new Date(dateString).toLocaleDateString(locale.value, options)
 }
 
 const otaName = computed(

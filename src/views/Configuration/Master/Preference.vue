@@ -64,14 +64,13 @@
 
             <!-- Preference Type ID -->
             <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {{ $t('configuration.preference.preference_type') }} *
-              </label>
+           
               <Select
+                :lb="$t('configuration.preference.preference_type')"
                 v-model="formData.preferenceTypeId"
                 :options="preferenceTypeOptions"
                 :placeholder="$t('configuration.preference.preference_type_placeholder')"
-                required
+                :is-required="true"
                 :disabled="saving || loadingPreferenceTypes"
               />
             </div>
