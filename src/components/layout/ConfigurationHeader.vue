@@ -19,13 +19,10 @@
         <div class="flex items-center gap-2" >
 
           <img
-            class="rounded-full w-10"
+            class="w-10"
            src="/src/assets/images/header/logo2.png"
             alt="Logo" />
-          <span
-            class="inline-flex text-xl text-gray-900 dark:text-white font-bold flex-wrap">
-            Enjoy
-          </span>
+        
         </div>
       </div>
       </div>

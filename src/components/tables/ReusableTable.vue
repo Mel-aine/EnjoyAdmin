@@ -128,11 +128,19 @@
                   {{ getColumnValue(item, column) || '-' }}
                 </div>
               </td>
-
               <td v-if="hasActions" class="px-3 py-2 sm:px-6 sm:py-4 relative">
                 <div class="flex items-center gap-2">
-                  <!-- Dropdown Actions -->
-                  <div class="relative" v-if="getItemActions(item).length > 0">
+                  <!-- Spinner si action en cours sur cette ligne -->
+                  <svg
+                    v-if="loadingItemKey === getItemKey(item, index)"
+                    class="w-5 h-5 animate-spin text-purple-500"
+                    fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+
+                  <!-- Bouton dropdown normal -->
+                  <div class="relative" v-else-if="getItemActions(item).length > 0">
                     <button @click="toggleDropdown(index, $event, item)"
                       data-dropdown-trigger
                       class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
@@ -142,30 +150,11 @@
                           d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                       </svg>
                     </button>
-
-                    <!-- Dropdown Menu -->
-                    <!-- <div v-if="openDropdown === index" ref="dropdownMenu"
-                      :class="{ 'dropdown-up': dropdownDirection === 'up' }"
-                      class="absolute right-0  w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-999999 border border-gray-200 dark:border-gray-600"
-                      @click.stop>
-                      <div class="py-1">
-                        <button v-for="action in getItemActions(item)" :key="action.label"
-                          @click="handleAction(action, item)" :class="[
-                            'block w-full text-left px-4 py-2 text-sm transition-colors',
-                            action.variant === 'danger'
-                              ? 'text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-                          ]">
-                          <div class="flex items-center gap-2">
-                            <component v-if="action.icon" :is="action.icon" class="w-4 h-4" />
-                            {{ action.label }}
-                          </div>
-                        </button>
-                      </div>
-                    </div> -->
                   </div>
                 </div>
               </td>
+
+             
               <td v-if="expandable" class="px-3 py-2 sm:px-6 sm:py-4">
                 <button @click.stop="toggleExpand(index)" class="text-gray-400 hover:text-gray-600">
                   <ChevronDown
@@ -319,6 +308,7 @@ const { t } = useI18n()
 
 // Bind incoming non-prop attributes (e.g., class, style) to the root element
 const attrs = useAttrs()
+const loadingItemKey = ref<string | number | null>(null)
 
 const emptyStateTitleText = computed(() => {
   const title = typeof props.emptyStateTitle === 'function' ? props.emptyStateTitle() : props.emptyStateTitle
@@ -395,16 +385,7 @@ const getItemKey = (item: any, index: number) => {
   return getNestedValue(item, props.itemKey) || index
 }
 
-// const getItemActions = (item: any) => {
-//   // Don't show actions if the row has noaction set to true
-//   if (item.noaction === true) {
-//     return []
-//   }
 
-//   return props.actions.filter((action: any) =>
-//     !action.condition || action.condition(item)
-//   )
-// }
 
 const getBadgeClass = (value: string, colorMap?: Record<string, string>) => {
   if (colorMap && colorMap[value.toLowerCase()]) {
@@ -451,9 +432,7 @@ const toggleSelectAll = () => {
   }
 }
 
-// const toggleDropdown = (index: number) => {
-//   openDropdown.value = openDropdown.value === index ? null : index
-// }
+
 
 const getItemActions = (item: any) => {
 
@@ -476,38 +455,6 @@ const getItemActions = (item: any) => {
 }
 
 
-
-// const toggleDropdown = async (index: number, event: MouseEvent) => {
-//   if (openDropdown.value === index) {
-//     openDropdown.value = null
-//     return
-//   }
-
-//   // Réinitialiser la direction avant d'ouvrir
-//   dropdownDirection.value = 'down'
-//   openDropdown.value = index
-
-//   await nextTick()
-
-//   const triggerButton = event.currentTarget as HTMLElement
-//   const menu = triggerButton.nextElementSibling as HTMLElement
-
-//   if (!menu) {
-//     console.error("Le menu déroulant n'a pas été trouvé. Vérifiez la structure HTML.");
-//     return;
-//   }
-
-//   const menuRect = menu.getBoundingClientRect()
-//   const viewportHeight = window.innerHeight
-
-//   console.log(`Position bas du menu: ${menuRect.bottom}, Hauteur Viewport: ${viewportHeight}`); // LIGNE DE DÉBOGAGE
-
-//   // Vérification de la position
-//   if (menuRect.bottom > viewportHeight - 150) {
-//     console.log("Pas assez de place en bas. On passe en mode 'up'."); // LIGNE DE DÉBOGAGE
-//     dropdownDirection.value = 'up'
-//   }
-// }
 
 // Ajouter cette ref pour stocker la position du dropdown
 const dropdownPosition = ref({ top: 0, left: 0 })
@@ -548,18 +495,19 @@ const toggleDropdown = async (index: number, event: MouseEvent, item: any) => {
     left: rect.right - 192,
   }
 }
-const handleAction = (action: Action, item: any) => {
-  action.handler(item)
-  emit('action', action.label, item)
+const handleAction = async (action: Action, item: any) => {
   openDropdown.value = null
+  currentDropdownItem.value = null
+  loadingItemKey.value = getItemKey(item, 0)
+
+  try {
+    await action.handler(item)
+    emit('action', action.label, item)
+  } finally {
+    loadingItemKey.value = null
+  }
 }
 
-// const closeDropdown = (event: Event) => {
-//   const target = event.target as HTMLElement
-//   if (!target.closest('.relative')) {
-//     openDropdown.value = null
-//   }
-// }
 
 const closeDropdown = (event: Event) => {
   // Fermer si le clic n'est pas sur un bouton d'action
@@ -593,39 +541,6 @@ const handleScroll = () => {
     }
   }, 100);
 };
-
-// const handleScroll = () => {
-//   // Cette fonction ne sera appelée que si props.isInfiniteScroll est vrai
-//   const container = tableContainer.value
-
-//   // S'assurer qu'il y a un conteneur, que ce n'est pas le chargement initial, et que la page suivante n'est pas déjà en cours de chargement.
-//   if (!container || props.loading || loadingNextPage.value) return
-
-//   // Marge de 100px pour déclencher avant d'atteindre le bas
-//   const scrollTolerance = 100
-//   const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + scrollTolerance
-
-//   if (isNearBottom) {
-//     checkAndLoadNextPage()
-//   }
-// }
-
-// FONCTION POUR VÉRIFIER ET CHARGER LA PAGE SUIVANTE
-// const checkAndLoadNextPage = () => {
-//   const meta = props.meta
-
-//   if (!meta) return
-
-//   const hasNextPage = meta.currentPage < meta.lastPage
-
-//   if (hasNextPage) {
-//     loadingNextPage.value = true
-//     const nextPage = meta.currentPage + 1
-//     emit('page-change', nextPage)
-//   }
-// }
-
-
 
 
 

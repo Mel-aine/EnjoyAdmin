@@ -2090,6 +2090,9 @@
     "csv": "CSV",
     "pdf": "PDF",
     "word": "Word",
+    "newVersionAvailable": "A new version of the application is available.",
+    "appUpdated": "The application has been updated.",
+    "appReadyForOfflineUse": "The application is ready for offline use.",
     "businessSources": {
       "online": "Online",
       "phone": "Phone",
@@ -9096,7 +9099,8 @@
   "fillInAllRequiredFields": "Please fill in all required fields",
   "fillInAllExternalServiceDetails" : "Please fill in all external service details",
   "fillInServiceFee" : "Please select a folio for the service fee",
-  "Assign meal plan on" : "Assign meal plan on"
+  "Assign meal plan on" : "Assign meal plan on",
+  "Signing in...": "Signing in..."
 
 
 
