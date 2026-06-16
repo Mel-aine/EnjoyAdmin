@@ -45,11 +45,10 @@
           <form @submit.prevent="savePreferenceType">
             <!-- Name -->
             <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ $t('configuration.preference_type.name') }} *
-              </label>
-              <Input v-model="formData.name" :placeholder="$t('configuration.preference_type.name_placeholder')"
-                required />
+             
+              <Input v-model="formData.name" :placeholder="$t('configuration.preference_type.name_placeholder')" 
+                :lb="$t('configuration.preference_type.name')"
+                :is-required="true" />
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">

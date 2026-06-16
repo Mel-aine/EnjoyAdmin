@@ -22,7 +22,7 @@ import ReservationStatus from '../common/ReservationStatus.vue';
 
 
 
-const { t } = useI18n({ useScope: 'global' })
+const { t ,locale } = useI18n({ useScope: 'global' })
 import { getReservationById } from '@/services/reservation';
 
 
@@ -223,16 +223,16 @@ const handleActionSave = (event: any) => {
 }
 
 
+
+
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   }
-  return new Date(dateString).toLocaleDateString('en', options)
+  return new Date(dateString).toLocaleDateString(locale.value, options)
 }
-
-
 
 
 

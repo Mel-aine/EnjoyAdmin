@@ -57,6 +57,9 @@ import OverLoading from '@/components/spinner/OverLoading.vue'
 import TopProgressBar from '@/components/spinner/TopProgressBar.vue'
 import { isCheckoutOverlay } from '@/composables/spinner'
 import {stopAuthAutoRefresh,startAuthAutoRefresh, getActiveAnnouncements}  from '@/services/api'
+import { usePwaUpdate } from '@/composables/usePwaUpdate'
+import { useToast } from 'vue-toastification'
+const toast = useToast()
 const useLanguage = useLanguageStore();
 const t = useI18n({ useScope: "global" });
 
@@ -94,6 +97,8 @@ watch(
   },
   { immediate: true },
 )
+
+usePwaUpdate()
 
 type Announcement = {
   id?: number | string
@@ -487,6 +492,12 @@ onMounted(() => {
   setTimeout(() => {
     isInitialLoad.value = false
   }, 0)
+
+   if (localStorage.getItem('pwa-updated') === 'true') {
+    localStorage.removeItem('pwa-updated')
+    toast.success(t.t('common.appUpdated'))
+  }
+
 })
 
 onBeforeUnmount(() => {

@@ -260,6 +260,7 @@ const confirmMessage = ref('')
 const confirmTitle = ref('')
 const confirmLoading = ref(false)
 const paginationMeta = ref<any>(null)
+const loadingTaxes = ref(false)
 
 // Form data
 const formData = ref({
@@ -376,7 +377,7 @@ const editingTaxId = ref(null)
 // Methods
 const loadTaxes = async (pageNumber=1) => {
   try {
-    loading.value = true
+    loadingTaxes.value = true
     const response = await getTaxes({page:pageNumber,limit:10})
     taxes.value = response.data.data.data || []
     paginationMeta.value = response.data.data.meta
@@ -385,7 +386,7 @@ const loadTaxes = async (pageNumber=1) => {
     console.error('Error loading taxes:', error)
     toast.error(t('configuration.taxes.fetch_error'))
   } finally {
-    loading.value = false
+    loadingTaxes.value = false
   }
 }
 

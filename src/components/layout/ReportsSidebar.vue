@@ -17,9 +17,9 @@
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]">
         <router-link to="/front-office/dashboard" class="flex items-center gap-2">
-          <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden rounded-full w-10"
+          <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden  w-10"
             src="/src/assets/images/header/logo2.png" alt="Logo" />
-          <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block rounded-full w-10"
+          <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block  w-10"
             src="/src/assets/images/header/logo2.png" alt="Logo" />
           <img v-else class="rounded-full w-10" src="/src/assets/images/header/logo2.png" alt="Logo" />
           <span v-if="isExpanded || isHovered || isMobileOpen"
@@ -346,15 +346,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed  } from 'vue'
+import { ref, computed ,watch  } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/composables/user'
 import { useSidebar } from '@/composables/useSidebar'
 import ChevronDownIcon from '@/icons/ChevronDownIcon.vue'
 import { useServiceStore } from '@/composables/serviceStore'
+import { useI18n } from 'vue-i18n'
 
 
-
+const { t } = useI18n()
 const serviceStore = useServiceStore()
 const route = useRoute()
 const { isExpanded } = useSidebar()
@@ -363,15 +364,48 @@ const isHovered = ref(false)
 const isMobileOpen = ref(true)
 const searchQuery = ref('')
 
-const openSections = ref<any>({
-  reservation: false,
-  frontOffice: true,
-  backOffice: true, // Ouvrir la section Back Office par défaut
-  audit: false,
-  statistical: false,
-  custom: false,
-  oldTransaction: false,
-})
+// const openSections = ref<any>({
+//   reservation: false,
+//   frontOffice: true,
+//   backOffice: true, // Ouvrir la section Back Office par défaut
+//   audit: false,
+//   statistical: false,
+//   custom: false,
+//   oldTransaction: false,
+// })
+
+const searchLower = computed(() => searchQuery.value.toLowerCase().trim())
+
+function filterBySearch<T extends { label: string }>(items: T[]): T[] {
+  if (!searchLower.value) return items
+  return items.filter(item =>
+    t(item.label).toLowerCase().includes(searchLower.value)
+  )
+}
+
+
+function loadSections() {
+  try {
+    const saved = sessionStorage.getItem('sidebar-sections')
+    if (saved) return JSON.parse(saved)
+  } catch {}
+  return {
+    reservation: false,
+    frontOffice: true,
+    backOffice: true,
+    audit: false,
+    statistical: false,
+    custom: false,
+    oldTransaction: false,
+  }
+}
+
+const openSections = ref(loadSections())
+
+const toggleSection = (section: string) => {
+  openSections.value[section] = !openSections.value[section]
+  sessionStorage.setItem('sidebar-sections', JSON.stringify(openSections.value))
+}
 
 
 const hasCreditLedger = computed(() => {
@@ -570,92 +604,89 @@ const oldTransactionReports = ref([
   { name: 'old-transaction-report', path: '/reports/oldTransaction/historical', label: 'reports.oldTransaction.history' },
 ])
 // Computed properties pour filtrer les rapports selon les permissions
+
 const filteredReservationReports = computed(() => {
-  return reservationReports.value.filter(report => {
+  const byPermission = reservationReports.value.filter(report => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })
+  return filterBySearch(byPermission)  
 })
 
 const filteredFrontOfficeReports = computed(() => {
-  return frontOfficeReports.value.filter(report => {
+  const byPermission = frontOfficeReports.value.filter(report => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })
+  return filterBySearch(byPermission)  
 })
 
+
 const filteredOldTransaction = computed(() => {
-  return oldTransactionReports.value.filter(report => {
+  const byPermission = oldTransactionReports.value.filter(report => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })
+  return filterBySearch(byPermission)  
 })
 
 const filteredBackOfficeReports = computed(() => {
+  const byPermission = backOfficeReports.value.filter(report => {
+    const permission = reportPermissions[report.name as keyof typeof reportPermissions]
+    const hasPermission = permission ? authStore.hasReportPermission(permission) : false
 
-  // Afficher les permissions brutes et parsées
-  const rawPermissions = authStore.user?.permisReports;
-
-
-  try {
-    const parsedPermissions = rawPermissions ? JSON.parse(rawPermissions) : [];
-    console.log('Permissions parsées:', parsedPermissions);
-    console.log('La permission work_office_report existe-t-elle ?', parsedPermissions.includes('work_office_report'));
-  } catch (e) {
-    console.error('Erreur lors du parsing des permissions:', e);
-  }
-
-  const filtered = backOfficeReports.value.filter(report => {
-    // Forcer l\'affichage du rapport Work Office pour le test
-    // if (report.name === 'work-order-list') {
-    //   console.log('Forçage de l\'affichage du rapport Work Office pour le test');
-    //   return true;
-    // }
-
-    const permission = reportPermissions[report.name as keyof typeof reportPermissions];
-    const hasPermission = permission ? authStore.hasReportPermission(permission) : false;
-      if (report.name === 'credit-ledger-payments') {
+    if (report.name === 'credit-ledger-payments') {
       return hasPermission && hasCreditLedger.value
     }
 
-    console.log(`Rapport: ${report.name}, Permission: ${permission}, Accès: ${hasPermission}`);
-    return hasPermission;
-  });
+    return hasPermission
+  })
 
-  console.log('Rapports Back Office filtrés:', filtered);
-  console.log('=== FIN FILTRAGE RAPPORTS BACK OFFICE ===');
-  return filtered;
+  return filterBySearch(byPermission)
 })
 
 const filteredAuditReports = computed(() => {
-  return auditReports.value.filter(report => {
+  const byPermission = auditReports.value.filter(report => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })
+  return filterBySearch(byPermission)  
 })
 
 const filteredStatisticalReports = computed<any[]>(() => {
-  return statisticalReports.value.filter((report:any) => {
+  const byPermission = statisticalReports.value.filter((report:any) => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })
+  return filterBySearch(byPermission)  
 })
 
 const filteredCustomReports = computed(() => {
-  return customReports.value.filter(report => {
+  const byPermission = customReports.value.filter(report => {
     const permission = reportPermissions[report.name as keyof typeof reportPermissions]
     return permission ? authStore.hasReportPermission(permission) : false
   })
+  return filterBySearch(byPermission)  
 })
 
-const toggleSection = (section: string) => {
-  openSections.value[section] = !openSections.value[section]
-}
+// const toggleSection = (section: string) => {
+//   openSections.value[section] = !openSections.value[section]
+// }
 
 const isActive = (path: string) => {
   return route.path === path
 }
 
+
+watch(searchLower, (val) => {
+  if (!val) return
+  openSections.value.reservation  = filteredReservationReports.value.length > 0
+  openSections.value.frontOffice  = filteredFrontOfficeReports.value.length > 0
+  openSections.value.backOffice   = filteredBackOfficeReports.value.length > 0
+  openSections.value.audit        = filteredAuditReports.value.length > 0
+  openSections.value.statistical  = filteredStatisticalReports.value.length > 0
+  openSections.value.custom       = filteredCustomReports.value.length > 0
+})
 
 
 </script>

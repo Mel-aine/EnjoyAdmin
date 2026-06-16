@@ -1231,19 +1231,19 @@ const getChildOptions = (roomTypeId: any | null) => {
       // l'email booking voucher si activé
       if (otherInfo.value.emailBookingVouchers) {
         if (!otherInfo.value.voucherEmail) {
-          throw new Error(t('Voucher email is required when email booking vouchers is enabled'))
+          throw new Error(t('voucher_email_required'))
         }
         if (!validateVoucherEmail()) {
-          throw new Error(t('Invalid voucher email address'))
+          throw new Error(t('invalid_voucher_email'))
         }
       }
       // Validation de WhatsApp
       if (otherInfo.value.whatsappNumberEnable) {
         if(!otherInfo.value.whatsappNumber) {
-          throw new Error(t('WhatsApp number is required when WhatsApp number is enabled'))
+          throw new Error(t('whatsapp_number_required'))
         }
         if(!validateWhatsAppNumber()) {
-          throw new Error(t('Invalid WhatsApp number'))
+          throw new Error(t('invalid_whatsapp_number'))
         }
       }
       
@@ -1253,11 +1253,11 @@ const getChildOptions = (roomTypeId: any | null) => {
       uploadErrors.value = []
 
       if (formData.value.profilePhoto && !formData.value.profilePhoto.startsWith('http')) {
-        throw new Error(t('Profile photo upload incomplete'))
+        throw new Error(t('profile_photo_upload_incomplete'))
       }
 
       if (formData.value.idPhoto && !formData.value.idPhoto.startsWith('http')) {
-        throw new Error(t('ID photo upload incomplete'))
+        throw new Error(t('id_photo_upload_incomplete'))
       }
 
       const identityPayload = {

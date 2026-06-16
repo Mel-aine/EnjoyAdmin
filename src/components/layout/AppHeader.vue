@@ -33,13 +33,11 @@
           </svg>
         </button>
         <!-- Header avec logo - position fixe -->
-        <div>
-          <div class="flex items-center gap-2 flex-shrink-0 min-w-[120px]">
+        <div v-if="showSidebar">
+          <div class="flex items-center flex-shrink-0 ">
 
-            <img class="rounded-full w-10" src="/src/assets/images/header/logo2.png" alt="Logo" />
-            <span class="inline-flex text-xl text-gray-900 font-bold flex-wrap dark:text-white">
-              Enjoy
-            </span>
+            <img class=" w-10" src="/src/assets/images/header/logo2.png" alt="Logo" />
+          
           </div>
         </div>
         <SearchBar @select="handleReservationSelect" />

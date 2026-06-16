@@ -84,6 +84,7 @@ export function useReservation() {
   const isExchangingRoom = ref(false)
   const isUndoingCheckIn = ref(false)
   const isUndoingCheckOut = ref(false)
+  
 
   // Check-in reservation
   const performCheckIn = async (reservationId: number, payload: CheckInReservationPayload, refreshCallback?: () => Promise<void>) => {
@@ -120,9 +121,9 @@ export function useReservation() {
   }
 
   // Check-out reservation
-  const performCheckOut = async (reservationId: number, payload: CheckOutReservationPayload, refreshCallback?: () => Promise<void>) => {
+  const performCheckOut = async (reservationId: number, payload: CheckOutReservationPayload,isCheckout: boolean = true, refreshCallback?: () => Promise<void>) => {
     isCheckingOut.value = true
-    isCheckoutOverlay.value = true
+    isCheckoutOverlay.value = isCheckout
 
     try {
       const response = await checkOutReservation(reservationId, payload)
