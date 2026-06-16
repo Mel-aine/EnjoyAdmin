@@ -2114,6 +2114,7 @@
     "transaction": "Transaction",
     "noDataFound": "Aucune donnée trouvée",
     "getStartedByAddingData": "Commencez par ajouter des données.",
+    "appUpdated": "L'application a été mise à jour.",
     "action": "Action",
     "user": "Utilisateur",
     "details": "Détails",
@@ -2181,6 +2182,8 @@
     "month": "Mois",
     "summer": "Été",
     "winter": "Hiver",
+    "newVersionAvailable" : "Une nouvelle version de l'application est disponible.",
+    "appReadyForOfflineUse" : "Application prête pour une utilisation hors-ligne.",
     "months": {
       "january": "Janvier",
       "february": "Février",
@@ -9270,7 +9273,8 @@
   "fillInServiceFee": "Veuillez sélectionner un compte (folio) pour les frais de service",
   "lostFoundExportedSuccessfully": "Données des objets trouvés exportées avec succès",
   "errorExportingLostFound": "Erreur lors de l'exportation des données des objets trouvés",
-  "Assign meal plan on": "Assigner une formule repas sur"
+  "Assign meal plan on": "Assigner une formule repas sur",
+  "Signing in...": "Connexion en cours..."
 
 
 

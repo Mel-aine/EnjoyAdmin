@@ -108,41 +108,120 @@
       </span>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    </div>
+    <div v-if="viewMode === 'grid'">
+      <!-- Loading State -->
+      <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div v-for="n in 8" :key="n"
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
+          
+          <!-- Card Header -->
+          <div class="p-4 border-b border-gray-100 dark:border-gray-700">
+            <div class="flex justify-between items-start">
+              <div class="flex items-center gap-2 flex-1">
+                <div class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                <div class="space-y-1">
+                  <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                  <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                </div>
+              </div>
+              <div class="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+          </div>
 
-    <!-- Grid View -->
-    <div v-else-if="viewMode === 'grid'" >
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div v-for="reservation in paginatedReservations" :key="reservation.id">
-        <ReservationCardItem :reservation="reservation" @reservation-updated="handleReservationUpdate"
-          @save="handleSave" />
+          <!-- Dates bar -->
+          <div class="grid grid-cols-8">
+            <div class="col-span-3 p-2 bg-gray-100 dark:bg-black flex flex-col items-center gap-1">
+              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+              <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-10"></div>
+            </div>
+            <div class="col-span-2 p-2 bg-gray-300 dark:bg-black/80 flex flex-col items-center gap-1">
+              <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded w-6"></div>
+              <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded w-10"></div>
+            </div>
+            <div class="col-span-3 p-2 bg-gray-100 dark:bg-black flex flex-col items-center gap-1">
+              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+              <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-10"></div>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="p-4 space-y-3">
+            <!-- Booking date + adults/children -->
+            <div class="flex justify-between items-center">
+              <div class="space-y-1">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+              </div>
+              <div class="flex gap-2">
+                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
+                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
+              </div>
+            </div>
+
+            <!-- Room + status -->
+            <div class="flex justify-between items-center">
+              <div class="space-y-1">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+              </div>
+              <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+            </div>
+
+            <!-- Totals -->
+            <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
+              <div class="flex justify-between">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+              </div>
+              <div class="flex justify-between">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+              </div>
+              <div class="flex justify-between">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-    </div>
-      <!-- Empty State -->
-    <div v-if="!loading && filteredReservations.length === 0" class="text-center py-12">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-        {{ getEmptyStateTitle() }}
-      </h3>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-        {{ getEmptyStateMessage() }}
-      </p>
-    </div>
+      <!-- Grid View -->
+      <div v-else>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div v-for="reservation in paginatedReservations" :key="reservation.id">
+            <ReservationCardItem :reservation="reservation" @reservation-updated="handleReservationUpdate"
+              @save="handleSave" />
+          </div>
+
+        </div>
+      </div>
+        <!-- Empty State -->
+      <div v-if="!loading && filteredReservations.length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+          {{ getEmptyStateTitle() }}
+        </h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {{ getEmptyStateMessage() }}
+        </p>
+      </div>
     </div>
 
     <!-- List View (ReusableTable) -->
     <div v-else-if="viewMode === 'list'" >
-      <ReusableTable :showHeader="false" :columns="tableColumns" :data="paginatedReservations"
+      <ReusableTable :showHeader="false" :columns="tableColumns" :data="paginatedReservations" :loading="loading"
         :get-actions="getTableActionsForReservation" :searchable="false" :empty-state-title="$t('No reservations')"
         :empty-state-message="$t('Get started by creating a new reservation.')" @action="onTableAction"
-        :title="$t('Reservations')">
+        :title="$t('Reservations')"
+        :is-infinite-scroll="true"
+        :scrollable-body="true"
+        max-height="70vh"
+        :meta="listMeta"
+        @page-change="handleListPageChange">
         <!-- Custom column for reservation number -->
         <template #column-reservationNumber="{ item }">
           <div class="text-sm font-medium text-gray-900 dark:text-white">
@@ -189,7 +268,7 @@
 
 
     <!-- Pagination -->
-    <div v-if="!loading && filteredReservations.length > 0 && totalPages > 1"
+    <div v-if="!loading && filteredReservations.length > 0 && totalPages > 1 && viewMode === 'grid'"
       class="mt-6 flex items-center justify-between">
       <div class="text-sm text-gray-700 dark:text-gray-300">
         {{ $t('Showing') }} {{ (currentPage - 1) * pageSize + 1 }} {{ $t('to') }}
@@ -270,6 +349,18 @@
       @close="closeUnAssignReservationModal" @success="handleUnassignSuccess" />
   </template>
 
+   <!-- Undo Check In -->
+    <template v-if="isUndoCheckInModalOpen">
+      <UndoCheckInReservation :reservation-id="selectedReservation.id" :isOpen ="isUndoCheckInModalOpen"
+        @close="closeUndoCheckInReservationModal" />
+    </template>
+
+    <!-- Undo Check Out -->
+    <template v-if="isUndoCheckOutModalOpen">
+      <UndoCheckOutReservation :reservation-id="selectedReservation.id" :isOpen ="isUndoCheckOutModalOpen"
+        @close="closeUndoCheckOutReservationModal" />
+    </template>
+
   <!-- Print Modal -->
   <template v-if="showPrintModal && selectedReservation">
     <PrintModal :is-open="showPrintModal" :document-data="printDocumentData" @close="showPrintModal = false"
@@ -325,6 +416,8 @@ const UnAssignRoomReservation = defineAsyncComponent(() => import('@/components/
 const PrintModal = defineAsyncComponent(() => import('../common/PrintModal.vue'))
 const ExchangeRoomModal = defineAsyncComponent(() => import('@/components/reservations/ExchangeRoomModal.vue'))
 const RoomMoveModal = defineAsyncComponent(() => import('../modal/RoomMoveModal.vue'))
+const UndoCheckInReservation = defineAsyncComponent(() => import('@/components/reservations/UndoCheckInReservation.vue'))
+const UndoCheckOutReservation = defineAsyncComponent(() => import('@/components/reservations/UndoCheckOutReservation.vue'))
 
 const showBookingModal = ref(false)
 const router = useRouter()
@@ -349,6 +442,8 @@ const {
   performCheckOut,
   showNoShowModal,
   handleNoShowConfirmed,
+  performUndoCheckIn,
+  performUndoCheckOut,
   performAvhe: avheReservation
 } = useReservation()
 
@@ -363,7 +458,7 @@ const viewMode = ref<'grid' | 'list'>('grid')
 const reservationMode = ref<'all' | 'single' | 'group'>('all')
 const sortBy = ref('date')
 const currentPage = ref(1)
-const pageSize = ref(12)
+const pageSize = computed(() => viewMode.value === 'list' ? 50 : 12)
 const filter = ref<FitlterItem>()
 const allReservations = ref<ReservationType[]>([])
 const showCancelModal = ref(false)
@@ -377,7 +472,33 @@ const isExchangeRoomModalOpen = ref(false)
 const isRoomMoveModalOpen = ref(false)
 const isUnAssignModalOpen = ref(false)
 const currentAction = ref<string | null>(null)
+const isUndoCheckInModalOpen = ref(false)
+const isUndoCheckOutModalOpen = ref(false)
+const listPage = ref(1)
+const listPageSize = 20
+const activeFilter = ref<string>('totalReservations')
 
+const listMeta = computed(() => ({
+  total: filteredReservations.value.length,
+  perPage: listPageSize,
+  currentPage: listPage.value,
+  lastPage: Math.ceil(filteredReservations.value.length / listPageSize),
+}))
+
+
+
+const handleListPageChange = (page: number) => {
+  listPage.value = page
+}
+
+watch(viewMode, () => {
+  listPage.value = 1
+})
+
+watch(activeFilter, () => {
+  listPage.value = 1
+  currentPage.value = 1
+})
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -531,6 +652,8 @@ const printDocumentData = computed(() => {
   }
 })
 
+
+
 // Helper functions
 const getEmptyStateTitle = () => {
   if (reservationMode.value === 'single') {
@@ -644,7 +767,7 @@ const performAutoCheckOut = async (reservation: any, availableRoom: any) => {
     notes: '',
   }
 
-  await performCheckOut(reservation.id, checkOutPayload)
+  await performCheckOut(reservation.id, checkOutPayload, false)
   await refreshReservationData(reservation.id)
 }
 
@@ -705,6 +828,9 @@ const closeExchangeRoomModal = () => {
 const closeRoomMoveModal = () => {
   isRoomMoveModalOpen.value = false
 }
+
+const closeUndoCheckInReservationModal = () => { isUndoCheckInModalOpen.value = false }
+const closeUndoCheckOutReservationModal = () => { isUndoCheckOutModalOpen.value = false }
 
 // Success handlers for modals
 const handleCancelConfirmed = async (cancelData: any) => {
@@ -778,7 +904,35 @@ const handleRoomMoveSuccess = async () => {
     await refresh()
   }
 
+}
 
+const openUndoCheckInReservationModal = () => {
+  isUndoCheckInModalOpen.value = true
+}
+const openUndoCheckOutReservationModal = () => { isUndoCheckOutModalOpen.value = true }
+
+const performAutoUndoCheckIn = async (reservation: any, roomToUndo: any) => {
+  const payload = { reservationRooms: [roomToUndo.id], notes: '' }
+  await performUndoCheckIn(reservation.id, payload)
+  const updatedRooms = reservation.reservationRooms.map((room: any) => room.id === roomToUndo.id
+    ? { ...room, status: 'pending', actualCheckInTime: null, checkedIn: false }
+    : room
+  )
+  const anyRoomCheckedIn = updatedRooms.some((room: any) => room.status === 'checked_in' || room.checkedIn)
+  const reservationStatus = anyRoomCheckedIn ? 'checked_in' : 'confirmed'
+  await refreshReservationData(reservation.id)
+}
+
+const performAutoUndoCheckOut = async (reservation: any, roomToUndo: any) => {
+  const payload = { reservationRooms: [roomToUndo.id], notes: '' }
+  await performUndoCheckOut(reservation.id, payload)
+  const updatedRooms = reservation.reservationRooms.map((room: any) => room.id === roomToUndo.id    
+    ? { ...room, status: 'checked_in', actualCheckOutTime: null, checkedOut: false }
+    : room
+  )
+  const allRoomsCheckedOut = updatedRooms.every((room: any) => room.status === 'checked_out' || room.checkedOut)
+  const reservationStatus = allRoomsCheckedOut ? 'checked_out' : 'checked_in'
+  await refreshReservationData(reservation.id)
 }
 
 const handlePrintSuccess = (data: any) => {
@@ -891,6 +1045,36 @@ const handleReservationAction = async (actionId: string, reservation: any) => {
     case 'exchange_room':
       isExchangeRoomModalOpen.value = true
       break
+
+     case 'undo_check_in': {
+      const rooms = reservation.reservationRooms?.filter((room: any) =>
+        room.status === 'checked_in' || room.checkedIn || !!room.actualCheckInTime
+      ) || []
+      if (rooms.length === 0) {
+        toast.info(t('No rooms eligible for undo check-in'))
+        return
+      } else if (rooms.length === 1) {
+        await executeAction('undo_check_in', () => performAutoUndoCheckIn(reservation, rooms[0]))
+      } else {
+        console.log('Opening Undo Check-In Modal')
+        openUndoCheckInReservationModal()
+      }
+      break
+    }
+    case 'undo_check_out': {
+      const rooms = reservation.reservationRooms?.filter((room: any) =>
+        room.status === 'checked_out' || room.checkedOut || !!room.actualCheckOutTime
+      ) || []
+      if (rooms.length === 0) {
+        toast.info(t('No rooms eligible for undo check-out'))
+        return
+      } else if (rooms.length === 1) {
+        await executeAction('undo_check_out', () => performAutoUndoCheckOut(reservation,rooms[0]))
+      } else {
+        openUndoCheckOutReservationModal()
+      }
+      break
+    }
 
     default:
       console.log(`Action ${actionId} not handled`)
@@ -1018,7 +1202,7 @@ watch(
   }
 )
 
-const activeFilter = ref<string>('totalReservations')
+
 
 const getActiveFilterLabel = () => {
   switch (activeFilter.value) {

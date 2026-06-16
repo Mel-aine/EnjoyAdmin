@@ -17,9 +17,9 @@
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]">
         <router-link to="/front-office/dashboard" class="flex items-center gap-2">
-          <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden rounded-full w-10"
+          <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden  w-10"
             src="/src/assets/images/header/logo2.png" alt="Logo" />
-          <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block rounded-full w-10"
+          <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block  w-10"
             src="/src/assets/images/header/logo2.png" alt="Logo" />
           <img v-else class="rounded-full w-10" src="/src/assets/images/header/logo2.png" alt="Logo" />
           <span v-if="isExpanded || isHovered || isMobileOpen"

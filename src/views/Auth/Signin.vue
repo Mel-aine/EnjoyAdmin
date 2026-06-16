@@ -246,7 +246,7 @@
                       <span v-if="!isLoading">{{ $t('SignIn') }}</span>
                       <span v-else class="flex items-center gap-2">
                         <Spinner class="w-4 h-4" />
-                        {{ $t('Processing') }}...
+                        {{ $t('Signing in...') }}
                       </span>
                     </button>
                   </div>
