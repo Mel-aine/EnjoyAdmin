@@ -360,7 +360,12 @@ const handleLostFoundAction = async (action: string, item: any) => {
 const fetchLostFoundItems = async (pageNumber = 1) => {
   try {
     loading.value = true
-    const response = await getLostFound({page: pageNumber,limit: 10});
+    const params = {
+      hotel_id: serviceStore.serviceId!,
+      page: pageNumber,
+      limit: 10,
+    }
+    const response = await getLostFound(params);
     console.log('response',response)
     paginationMeta.value = response.meta;
     lostFoundItems.value = response.data.map((item: any) => {
@@ -400,9 +405,8 @@ const handleSubmitLostFound = async (payload: any) => {
   try {
     loading.value = true
 
-    const { data, isEdit, isFound } = payload
+    const { data, isEdit, isFound, onSuccess } = payload
 
-    // Normaliser les dates en format YYYY-MM-DD et nettoyer les champs vides
     const normalizeDateToYMD = (value: any) => {
       if (!value) return undefined
       if (typeof value === 'string') {
@@ -414,19 +418,20 @@ const handleSubmitLostFound = async (payload: any) => {
     }
 
     const payloadData: any = { ...data }
-    payloadData.service_id = serviceStore.serviceId
+    payloadData.hotelId = serviceStore.serviceId!
 
-    // foundOn: convertir en YYYY-MM-DD ou supprimer si vide
+    if (!payloadData.address) {
+      payloadData.address = ''
+    }
+
     const normalizedFoundOn = normalizeDateToYMD(payloadData.foundOn)
     if (normalizedFoundOn) payloadData.foundOn = normalizedFoundOn
     else delete payloadData.foundOn
 
-    // lostOn: convertir en YYYY-MM-DD ou supprimer si vide
     const normalizedLostOn = normalizeDateToYMD(payloadData.lostOn)
     if (normalizedLostOn) payloadData.lostOn = normalizedLostOn
     else delete payloadData.lostOn
 
-    // Ajouter le type d'item selon le mode
     if (!isEdit) {
       payloadData.type = isFound ? 'found' : 'lost'
     }
@@ -434,46 +439,40 @@ const handleSubmitLostFound = async (payload: any) => {
     console.log('Submit lost found:', payloadData)
 
     if (isEdit) {
-      // Appel API pour modifier
       const id = selectedItem.value?.id
       if (!id) {
-        throw new Error('ID de l\'item non trouvé pour la mise à jour')
+        throw new Error("ID de l'item non trouvé pour la mise à jour")
       }
 
-      // Mise à jour locale pour la démo
       await updateLostFoundItem(id, payloadData)
-      fetchLostFoundItems()
-      const index = lostFoundItems.value.findIndex(item => item.id === selectedItem.value?.id)
-      if (index !== -1) {
-        lostFoundItems.value[index] = { ...lostFoundItems.value[index], ...payloadData }
-      }
+      await fetchLostFoundItems()
 
       toast.success(t('toast.SucessUpdate'))
     } else {
-      // Appel API pour créer
-      console.log("data.send", payloadData)
-
-      const response = await addLostFound(payloadData)
-      fetchLostFoundItems()
-      console.log("data.receive", response)
-
+       await addLostFound(payloadData)
+   
+      await fetchLostFoundItems()
       toast.success(t('toast.SuccessCreated'))
     }
 
     showModal.value = false
+    onSuccess?.()
 
   } catch (error: any) {
-    if (error.response && error.response.status === 409) {
-      const serverMessage = error.response.data?.message
-      toast.error(serverMessage || t('toast.error'))
+    console.error('Erreur capturée:', error)
+
+    payload.onError?.()
+
+    if (error.response?.status === 409) {
+      toast.error(error.response.data?.message || t('toast.error'))
     } else {
-      toast.error(t('toast.error'))
+      const serverMessage = error.response?.data?.message
+      toast.error(serverMessage || t('toast.error'))
     }
   } finally {
     loading.value = false
   }
 }
-
 const confirmDelete = async () => {
   deleteLoading.value = true
 

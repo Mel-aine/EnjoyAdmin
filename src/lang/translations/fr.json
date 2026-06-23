@@ -7375,7 +7375,10 @@
     "completed": "Terminé",
     "assigned": "Assigné",
     "returned": "Retourné",
-    "discarded": "Écarté"
+    "discarded": "Écarté",
+    "disposed": "Disposé",
+    "lost": "Perdu",
+    "found": "Trouvé"
   },
   "types": {
     "found": "Trouvé",
@@ -9265,7 +9268,8 @@
   "lostFoundExportedSuccessfully": "Données des objets trouvés exportées avec succès",
   "errorExportingLostFound": "Erreur lors de l'exportation des données des objets trouvés",
   "Assign meal plan on": "Assigner une formule repas sur",
-  "Signing in...": "Connexion en cours..."
+  "Signing in...": "Connexion en cours...",
+  "Loading next page...": "Chargement de la page suivante..."
 
 
 

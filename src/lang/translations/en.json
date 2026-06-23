@@ -7383,7 +7383,10 @@
     "completed": "Completed",
     "assigned": "Assigned",
     "returned": "Returned",
-    "discarded": "Discarded"
+    "discarded": "Discarded",
+    "disposed": "Disposed",
+    "lost": "Lost",
+    "found": "Found"
   },
   "types": {
     "found": "Found",
@@ -9100,7 +9103,8 @@
   "fillInAllExternalServiceDetails" : "Please fill in all external service details",
   "fillInServiceFee" : "Please select a folio for the service fee",
   "Assign meal plan on" : "Assign meal plan on",
-  "Signing in...": "Signing in..."
+  "Signing in...": "Signing in...",
+  "Loading next page...": "Loading next page..."
 
 
 
