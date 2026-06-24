@@ -185,8 +185,8 @@
           <tr v-if="loadingNextPage">
               <td :colspan="columns.length + (selectable ? 1 : 0) + (hasActions ? 1 : 0)"
                   class="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                  Chargement de la page suivante...
-              </td>
+                  {{ $t('Loading next page...') }}
+                </td>
           </tr>
         </tbody>
       </table>

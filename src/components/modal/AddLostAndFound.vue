@@ -95,6 +95,9 @@
                       :options="rooms"
                       :placeholder="$t('select_item')"
                     />
+                      <p v-if="formErrors.roomId" class="mt-1 text-xs text-red-500">
+                        {{ formErrors.roomId }}
+                      </p>  
                   </div>
 
                   <div>
@@ -143,10 +146,12 @@
                   <div>
                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                      {{ $t('Address') }}
+                     <span class="text-red-500">*</span>
                     </label>
                     <textarea
                       v-model="lostFoundForm.address"
                       rows="1"
+                      required
                       :placeholder="$t('Address')"
                       class="w-full  border border-black/50 rounded-lg bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-400"
                     ></textarea>
@@ -368,12 +373,14 @@
 
                   <div>
                     <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                     {{ $t('Address') }}
+                     {{ $t('Address') }} 
+                     <span class="text-red-500">*</span>
                     </label>
                     <textarea
                       v-model="lostFoundForm.address"
                       rows="1"
                       :placeholder="$t('Address')"
+                      required
                       class="w-full  border border-black/50 rounded-lg bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-3 focus:ring-purple-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-purple-400"
                     ></textarea>
                   </div>
@@ -658,19 +665,32 @@ watch(
   { immediate: true }
 )
 
+// Erreurs de validation
+const formErrors = reactive<Record<string, string>>({})
+
+const validateForm = (): boolean => {
+  Object.keys(formErrors).forEach(key => delete formErrors[key])
+
+  if (!lostFoundForm.roomId) formErrors.roomId = t('validation.required')
+
+  return Object.keys(formErrors).length === 0
+}
+
 const handleSubmit = async () => {
+  if (!validateForm()) return
+
   loading.value = true
   try {
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Émettre les données avec un flag pour indiquer le mode
-    emit('submit', {
-      data: { ...lostFoundForm },
-      isEdit: props.isEditMode,
-      isFound: props.isFoundMode
+    await new Promise<void>((resolve, reject) => {
+      emit('submit', {
+        data: { ...lostFoundForm },
+        isEdit: props.isEditMode,
+        isFound: props.isFoundMode,
+        onSuccess: () => resolve(),
+        onError: () => reject()
+      })
     })
 
-    // Ne réinitialiser le formulaire qu'en mode ajout
     if (!props.isEditMode) {
       resetForm()
     }
@@ -678,9 +698,32 @@ const handleSubmit = async () => {
     console.error("Erreur lors de l'enregistrement:", error)
   } finally {
     loading.value = false
-    emit('close')
   }
 }
+
+// const handleSubmit = async () => {
+//   loading.value = true
+//   try {
+//     await new Promise<void>((resolve, reject) => {
+//       emit('submit', {
+//         data: { ...lostFoundForm },
+//         isEdit: props.isEditMode,
+//         isFound: props.isFoundMode,
+//         onSuccess: () => resolve(),
+//         onError: () => reject()
+//       })
+//     })
+
+//     // Ne réinitialiser le formulaire qu'en mode ajout
+//     if (!props.isEditMode) {
+//       resetForm()
+//     }
+//   } catch (error) {
+//     console.error("Erreur lors de l'enregistrement:", error)
+//   } finally {
+//     loading.value = false
+//   }
+// }
 
 onMounted(async () => {
   await getAllRoomsData()
