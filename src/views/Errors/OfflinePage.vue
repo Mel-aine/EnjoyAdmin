@@ -27,34 +27,32 @@
 
       <!-- Titre -->
       <h1 class="mb-3 text-2xl font-bold text-gray-900 dark:text-white">
-        Vous êtes hors ligne
+        {{ t('offlinePage.title') }}
       </h1>
 
       <!-- Description -->
       <p class="mb-2 text-gray-600 dark:text-gray-300">
-        La connexion Internet a été perdue. Vous pouvez continuer à utiliser
-        l'application avec les données déjà chargées.
+        {{ t('offlinePage.description') }}
       </p>
       <p class="mb-8 text-sm text-gray-500 dark:text-gray-400">
-        Les modifications que vous apportez seront synchronisées automatiquement
-        lorsque la connexion sera rétablie.
+        {{ t('offlinePage.subDescription') }}
       </p>
 
       <!-- Statut -->
       <div class="mb-8 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
         <div class="flex items-center justify-between text-sm">
-          <span class="text-gray-500 dark:text-gray-400">Statut</span>
+          <span class="text-gray-500 dark:text-gray-400">{{ t('offlinePage.status') }}</span>
           <span class="flex items-center gap-2 font-medium text-red-600 dark:text-red-400">
             <span class="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            Hors ligne
+            {{ t('offlinePage.offline') }}
           </span>
         </div>
         <div class="mt-3 flex items-center justify-between text-sm">
-          <span class="text-gray-500 dark:text-gray-400">Opérations en attente</span>
+          <span class="text-gray-500 dark:text-gray-400">{{ t('offlinePage.pendingOperations') }}</span>
           <span class="font-medium text-gray-900 dark:text-white">{{ pendingCount }}</span>
         </div>
         <div class="mt-3 flex items-center justify-between text-sm">
-          <span class="text-gray-500 dark:text-gray-400">Dernière synchronisation</span>
+          <span class="text-gray-500 dark:text-gray-400">{{ t('offlinePage.lastSync') }}</span>
           <span class="font-medium text-gray-900 dark:text-white">{{ lastSyncLabel }}</span>
         </div>
       </div>
@@ -75,7 +73,7 @@
         >
           <path d="M21 12a9 9 0 11-6.219-8.56" />
         </svg>
-        {{ checking ? 'Vérification...' : 'Vérifier la connexion' }}
+        {{ checking ? t('offlinePage.checking') : t('offlinePage.checkConnection') }}
       </button>
 
       <!-- Message d'erreur -->
@@ -86,7 +84,7 @@
       <!-- Lien vers le dashboard -->
       <p class="mt-6 text-sm text-gray-400 dark:text-gray-500">
         <router-link to="/reports/dashboard" class="underline hover:text-gray-600 dark:hover:text-gray-300">
-          Retourner au tableau de bord
+          {{ t('offlinePage.backToDashboard') }}
         </router-link>
       </p>
     </div>
@@ -101,7 +99,7 @@
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
           </svg>
-          <span class="font-medium">Connexion rétablie ! Redirection...</span>
+          <span class="font-medium">{{ t('offlinePage.reconnected') }}</span>
         </div>
       </div>
     </Transition>
@@ -112,7 +110,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOfflineStore } from '@/services/offline/offlineStore'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 const offlineStore = useOfflineStore()
 const checking = ref(false)
@@ -122,7 +122,7 @@ const showReconnected = ref(false)
 const pendingCount = computed(() => offlineStore.pendingCount)
 
 const lastSyncLabel = computed(() => {
-  if (!offlineStore.lastSyncAt) return 'Jamais'
+  if (!offlineStore.lastSyncAt) return t('offlinePage.never')
   try {
     const date = new Date(offlineStore.lastSyncAt)
     return date.toLocaleString()
@@ -149,10 +149,10 @@ async function retryConnection() {
         router.push('/reports/dashboard')
       }, 1500)
     } else {
-      errorMessage.value = 'Le serveur ne répond pas. Réessayez plus tard.'
+      errorMessage.value = t('offlinePage.serverNotResponding')
     }
   } catch {
-    errorMessage.value = 'Toujours hors ligne. La synchronisation se fera automatiquement.'
+    errorMessage.value = t('offlinePage.stillOffline')
   } finally {
     checking.value = false
   }

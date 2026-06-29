@@ -149,6 +149,7 @@
                   </div>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <!-- Credit Ledger Toggle -->
                 <div class="flex items-center gap-3">
                   <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {{ t('hotelInformation.fields.hasCreditLedger') }}
@@ -174,6 +175,37 @@
                     {{ hotelInfo.hasCreditLedger
                         ? t('hotelInformation.creditLedger.enabled')
                         : t('hotelInformation.creditLedger.disabled') }}
+                  </span>
+                </div>
+
+                <!-- Offline Mode Toggle -->
+                <div class="flex items-center gap-3">
+                  <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('hotelInformation.offlineMode.label') }}
+                  </label>
+                  <button
+                    type="button"
+                    @click="toggleOffline"
+                    :disabled="togglingOffline"
+                    :class="[
+                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none',
+                      togglingOffline ? 'opacity-50 cursor-wait' : '',
+                      hotelInfo.offlineModeEnabled
+                        ? 'bg-blue-600'
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    ]"
+                  >
+                    <span
+                      :class="[
+                        'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+                        hotelInfo.offlineModeEnabled ? 'translate-x-6' : 'translate-x-1'
+                      ]"
+                    />
+                  </button>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">
+                    <template v-if="togglingOffline">{{ t('hotelInformation.offlineMode.updating') }}</template>
+                    <template v-else-if="hotelInfo.offlineModeEnabled">{{ t('hotelInformation.offlineMode.enabled') }}</template>
+                    <template v-else>{{ t('hotelInformation.offlineMode.disabled') }}</template>
                   </span>
                 </div>
               </div>
@@ -393,10 +425,12 @@ import InputEmail from '../../../components/forms/FormElements/InputEmail.vue'
 import InputPhone from '../../../components/forms/FormElements/InputPhone.vue'
 import InputCountries from '../../../components/forms/FormElements/InputCountries.vue'
 import { useServiceStore } from '../../../composables/serviceStore'
-import { updateHotelInformation } from '../../../services/hotelApi'
+import { updateHotelInformation, toggleOfflineMode, getOfflineModeStatus } from '../../../services/hotelApi'
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { uploadToCloudinary } from '../../../utils'
+import { syncManager } from '@/services/offline/syncManager'
+import { useOfflineStore } from '@/services/offline/offlineStore'
 
 // Import Save icon (you may need to adjust the path based on your icon structure)
 const Save = null // Replace with actual Save icon import
@@ -405,6 +439,39 @@ const serviceStore = useServiceStore()
 const toast = useToast()
 const { t } = useI18n({ useScope: 'global' })
 const isLoading = ref(false)
+const togglingOffline = ref(false)
+const offlineStore = useOfflineStore()
+
+async function toggleOffline() {
+  const hotelId = serviceStore.serviceId
+  if (!hotelId) return
+
+  togglingOffline.value = true
+  const newEnabled = !hotelInfo.value.offlineModeEnabled
+
+  try {
+    await toggleOfflineMode(hotelId, newEnabled)
+    hotelInfo.value.offlineModeEnabled = newEnabled
+
+    if (newEnabled) {
+      // Activer le mode offline : charger les données + démarrer la sync périodique
+      syncManager.init(hotelId)
+      await syncManager.initialLoad()
+      syncManager.startPeriodicSync()
+      toast.success(t('toast.offlineModeEnabled'))
+    } else {
+      // Désactiver le mode offline : arrêter la sync + nettoyer
+      syncManager.stopPeriodicSync()
+      offlineStore.setOnline(true)
+      toast.success(t('toast.offlineModeDisabled'))
+    }
+  } catch (error) {
+    console.error('Erreur lors du basculement du mode hors ligne:', error)
+    toast.error(t('toast.offlineModeToggleError'))
+  } finally {
+    togglingOffline.value = false
+  }
+}
 
 const HOTEL_PROPERTY_TYPES = [
   'apart_hotel',
@@ -490,6 +557,7 @@ const hotelInfo = ref({
   "nightAuditStartTime": 1,
   "nightAuditEndTime": 1,
   hasCreditLedger: false,
+  offlineModeEnabled: false,
   googlePlaceId: '',
   notificationSettings: {
     wifiCode: '',
@@ -576,8 +644,19 @@ const loadHotelInfo = async () => {
   }
 }
 
-onMounted(() => {
-  loadHotelInfo()
+onMounted(async () => {
+  await loadHotelInfo()
+
+  // Charger le statut actuel du mode hors ligne
+  const hotelId = serviceStore.serviceId
+  if (hotelId) {
+    try {
+      const res = await getOfflineModeStatus(hotelId)
+      hotelInfo.value.offlineModeEnabled = res.data?.offlineModeEnabled ?? false
+    } catch {
+      // Silently fail — le champ reste à false
+    }
+  }
 })
 
 const saveHotelInfo = async () => {

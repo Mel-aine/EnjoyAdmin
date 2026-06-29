@@ -13,13 +13,12 @@
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-          Conflit de synchronisation
+          {{ t('offlineConflict.title') }}
         </h3>
       </div>
 
       <p class="mb-4 text-sm text-gray-600 dark:text-gray-300">
-        La donnée a été modifiée à la fois localement et sur le serveur.
-        Choisissez quelle version conserver :
+        {{ t('offlineConflict.description') }}
       </p>
 
       <div class="mb-1 rounded-lg bg-gray-50 p-2 text-sm font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
@@ -31,14 +30,14 @@
         <div class="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
           <div class="mb-2 flex items-center gap-1.5 text-sm font-semibold text-blue-700 dark:text-blue-300">
             <span>📱</span>
-            <span>Version locale</span>
+            <span>{{ t('offlineConflict.localVersion') }}</span>
           </div>
           <pre class="max-h-32 overflow-auto rounded bg-white/80 p-2 text-xs dark:bg-gray-900/50">{{ formatJSON(conflict.clientData) }}</pre>
           <button
             @click="resolve('client_wins')"
             class="mt-2 w-full rounded-lg bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
           >
-            Garder la locale
+            {{ t('offlineConflict.keepLocal') }}
           </button>
         </div>
 
@@ -46,14 +45,14 @@
         <div class="rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-900/20">
           <div class="mb-2 flex items-center gap-1.5 text-sm font-semibold text-green-700 dark:text-green-300">
             <span>☁️</span>
-            <span>Version serveur</span>
+            <span>{{ t('offlineConflict.serverVersion') }}</span>
           </div>
           <pre class="max-h-32 overflow-auto rounded bg-white/80 p-2 text-xs dark:bg-gray-900/50">{{ formatJSON(conflict.serverData) }}</pre>
           <button
             @click="resolve('server_wins')"
             class="mt-2 w-full rounded-lg bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700"
           >
-            Garder la serveur
+            {{ t('offlineConflict.keepServer') }}
           </button>
         </div>
       </div>
@@ -64,7 +63,7 @@
           @click="$emit('close')"
           class="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
         >
-          Annuler
+          {{ t('offlineConflict.cancel') }}
         </button>
       </div>
     </div>
@@ -75,6 +74,7 @@
 import { computed } from 'vue'
 import apiClient from '@/services/apiClient'
 import { useOfflineStore } from '@/services/offline/offlineStore'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   visible: boolean
@@ -93,19 +93,16 @@ const emit = defineEmits<{
   resolved: []
 }>()
 
+const { t } = useI18n()
 const store = useOfflineStore()
 
 const conflictLabel = computed(() => {
   if (!props.conflict) return ''
-  const labels: Record<string, string> = {
-    reservation: 'Réservation',
-    guest: 'Client',
-    folio: 'Folio',
-    folio_transaction: 'Transaction',
-    room: 'Chambre',
-  }
   const type = props.conflict.resourceType
-  return type ? (labels[type] || type) + ' #' + props.conflict.resourceId : ''
+  const key = 'offlineConflict.resourceLabels.' + type
+  const translated = t(key)
+  const label = translated !== key ? translated : type
+  return label + ' #' + props.conflict.resourceId
 })
 
 function formatJSON(data: any): string {

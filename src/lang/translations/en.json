@@ -697,7 +697,10 @@
     "undoCheckOutError": "Failed to undo check-out. Please try again.",
     "errorInitializing": "Error Initializing",
     "errorFetchingUser": "Error Fetching User",
-     "splitFolioSuccess": "Folio split successfully"
+     "splitFolioSuccess": "Folio split successfully",
+    "offlineModeEnabled": "Offline mode enabled",
+    "offlineModeDisabled": "Offline mode disabled",
+    "offlineModeToggleError": "Failed to toggle offline mode"
   },
   "EditRoomType": "Edit Room Type",
   "detailsCustomers": "Customer Details",
@@ -1008,11 +1011,18 @@
       "nightAuditStartTime": "Night Audit Start Time",
       "nightAuditEndTime": "Night Audit End Time",
       "hasCreditLedger": "Has Credit Ledger",
-      "googlePlaceId": "Google Place ID"
+      "googlePlaceId": "Google Place ID",
+      "hasOfflineMode": "Offline Mode"
     },
     "creditLedger": {
       "enabled": "Enabled",
       "disabled": "Disabled"
+    },
+    "offlineMode": {
+      "label": "Offline Mode",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "updating": "Updating..."
     },
     "whatsapp": {
       "enabled": "Enabled",
@@ -2238,6 +2248,38 @@
     "noDataAvailable": "No data available",
     "records": "records",
     "columnsDisplayed": "columns displayed"
+  },
+  "offlinePage": {
+    "title": "You are offline",
+    "description": "Internet connection was lost. You can continue using the application with already loaded data.",
+    "subDescription": "Changes you make will be automatically synchronized when the connection is restored.",
+    "status": "Status",
+    "offline": "Offline",
+    "pendingOperations": "Pending operations",
+    "lastSync": "Last synchronization",
+    "never": "Never",
+    "checkConnection": "Check connection",
+    "checking": "Checking...",
+    "serverNotResponding": "The server is not responding. Try again later.",
+    "stillOffline": "Still offline. Synchronization will happen automatically.",
+    "reconnected": "Connection restored! Redirecting...",
+    "backToDashboard": "Back to dashboard"
+  },
+  "offlineConflict": {
+    "title": "Synchronization conflict",
+    "description": "The data was modified both locally and on the server. Choose which version to keep:",
+    "localVersion": "Local version",
+    "serverVersion": "Server version",
+    "keepLocal": "Keep local",
+    "keepServer": "Keep server",
+    "cancel": "Cancel",
+    "resourceLabels": {
+      "reservation": "Reservation",
+      "guest": "Guest",
+      "folio": "Folio",
+      "folio_transaction": "Transaction",
+      "room": "Room"
+    }
   },
   "reservation": {
     "types": {

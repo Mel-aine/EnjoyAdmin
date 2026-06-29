@@ -1626,6 +1626,17 @@ const router = createRouter({
       },
     },
 
+    // Offline mode toggle for a hotel
+    {
+      path: '/configuration/hotels/toggle-offline',
+      name: 'ToggleOfflineMode',
+      component: () => import('../views/Configuration/Settings/HotelInformation.vue'),
+      meta: {
+        title: 'Mode hors ligne',
+        requiresAuth: true,
+      },
+    },
+
     // Catch-all route for 404 pages - must be last
     {
       path: '/:pathMatch(.*)*',

@@ -673,7 +673,10 @@
     "undoCheckOutError": "Échec de l'annulation du départ. Veuillez réessayer.",
     "errorInitializing": "Erreur d'initialisation",
     "errorFetchingUser" : "Erreur lors de la récupération de l'utilisateur",
-     "splitFolioSuccess": "Folio fractionné avec succès"
+     "splitFolioSuccess": "Folio fractionné avec succès",
+    "offlineModeEnabled": "Mode hors ligne activé",
+    "offlineModeDisabled": "Mode hors ligne désactivé",
+    "offlineModeToggleError": "Erreur lors du basculement du mode hors ligne"
   },
   "EditRoomType": "Modifier le type de chambre",
   "detailsCustomers": "Détails du client",
@@ -989,11 +992,18 @@
       "nightAuditStartTime": "Heure de début de l'audit de nuit",
       "nightAuditEndTime": "Heure de fin de l'audit de nuit",
       "hasCreditLedger" : "Avec compte de crédit",
-      "googlePlaceId": "Identifiant Google de Place ID"
+      "googlePlaceId": "Identifiant Google de Place ID",
+      "hasOfflineMode": "Mode hors ligne"
     },
     "creditLedger": {
       "enabled": "Activé",
       "disabled": "Désactivé"
+    },
+    "offlineMode": {
+      "label": "Mode hors ligne",
+      "enabled": "Activé",
+      "disabled": "Désactivé",
+      "updating": "Mise à jour..."
     },
     "whatsappProviders": {
       "meta": "Meta (WhatsApp Business API)",
@@ -2229,6 +2239,38 @@
       "custom": "Personnalisé"
     },
     "editTemplate": "Modifier le modèle"
+  },
+  "offlinePage": {
+    "title": "Vous êtes hors ligne",
+    "description": "La connexion Internet a été perdue. Vous pouvez continuer à utiliser l'application avec les données déjà chargées.",
+    "subDescription": "Les modifications que vous apportez seront synchronisées automatiquement lorsque la connexion sera rétablie.",
+    "status": "Statut",
+    "offline": "Hors ligne",
+    "pendingOperations": "Opérations en attente",
+    "lastSync": "Dernière synchronisation",
+    "never": "Jamais",
+    "checkConnection": "Vérifier la connexion",
+    "checking": "Vérification...",
+    "serverNotResponding": "Le serveur ne répond pas. Réessayez plus tard.",
+    "stillOffline": "Toujours hors ligne. La synchronisation se fera automatiquement.",
+    "reconnected": "Connexion rétablie ! Redirection...",
+    "backToDashboard": "Retourner au tableau de bord"
+  },
+  "offlineConflict": {
+    "title": "Conflit de synchronisation",
+    "description": "La donnée a été modifiée à la fois localement et sur le serveur. Choisissez quelle version conserver :",
+    "localVersion": "Version locale",
+    "serverVersion": "Version serveur",
+    "keepLocal": "Garder la locale",
+    "keepServer": "Garder la serveur",
+    "cancel": "Annuler",
+    "resourceLabels": {
+      "reservation": "Réservation",
+      "guest": "Client",
+      "folio": "Folio",
+      "folio_transaction": "Transaction",
+      "room": "Chambre"
+    }
   },
   "reservation": {
     "types": {

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useServiceStore } from '../composables/serviceStore'
+import { useAuthStore } from '../composables/user'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 
@@ -10,13 +11,22 @@ const apiClient = axios.create({
   },
 })
 
-// Inject X-Hotel-Code on every request originating from services
+// Inject auth token + X-Hotel-Code on every apiClient request
 apiClient.interceptors.request.use((config) => {
   try {
+    const authStore = useAuthStore()
     const serviceStore = useServiceStore()
+
+    config.headers = config.headers ?? {}
+
+    // Bearer token for authentication
+    if (authStore.token) {
+      ;(config.headers as any)['Authorization'] = `Bearer ${authStore.token}`
+    }
+
+    // Hotel context header
     const hotelId = serviceStore?.serviceId
     if (hotelId) {
-      config.headers = config.headers ?? {}
       ;(config.headers as any)['X-Hotel-Code'] = String(hotelId)
     }
   } catch (e) {
@@ -25,13 +35,22 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
-// Also inject X-Hotel-Code for direct axios calls (not using apiClient)
+// Inject auth token + X-Hotel-Code for direct axios calls (not using apiClient)
 axios.interceptors.request.use((config) => {
   try {
+    const authStore = useAuthStore()
     const serviceStore = useServiceStore()
+
+    config.headers = config.headers ?? {}
+
+    // Bearer token for authentication
+    if (authStore.token) {
+      ;(config.headers as any)['Authorization'] = `Bearer ${authStore.token}`
+    }
+
+    // Hotel context header
     const hotelId = serviceStore?.serviceId
     if (hotelId) {
-      config.headers = config.headers ?? {}
       ;(config.headers as any)['X-Hotel-Code'] = String(hotelId)
     }
   } catch (e) {

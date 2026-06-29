@@ -144,33 +144,30 @@ export const updateHotelTaxRates = (id:number,data:any): Promise<AxiosResponse<a
 
 
 
+/**
+ * Toggle offline mode for a hotel
+ * @param id - Hotel ID
+ * @param enabled - Whether to enable (true) or disable (false) offline mode
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const toggleOfflineMode = (id: number, enabled: boolean): Promise<AxiosResponse<any>> => {
+  return axios.patch(`${API_URL}/${id}/toggle-offline-mode`, { enabled }, getHeaders())
+}
+
+/**
+ * Get offline mode status for a hotel
+ * @param id - Hotel ID
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getOfflineModeStatus = (id: number): Promise<AxiosResponse<any>> => {
+  return axios.get(`${API_URL}/${id}/offline-mode-status`, getHeaders())
+}
+
 // Find reservation
 // export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
 //   let qs = ``
-//   if (filter.checkInDate) {
-//     if (qs) qs += `&checkInDate=${filter.checkInDate}`
-//     else qs += `?checkInDate=${filter.checkInDate}`
-//   }
-//   if (filter.checkOutDate) {
-//     if (qs) qs += `&checkOutDate=${filter.checkOutDate}`
-//     else qs += `?checkOutDate=${filter.checkOutDate}`
-//   }
-//   if (filter.roomType) {
-//     if (qs) qs += `&roomType=${filter.roomType}`
-//     else qs += `?roomType=${filter.roomType}`
-//   }
-//   if (filter.searchText) {
-//     if (qs) qs += `&searchText=${filter.searchText}`
-//     else qs += `?searchText=${filter.searchText}`
-//   }
-//   if (filter.status) {
-//     if (qs) qs += `&status=${filter.status}`
-//     else qs += `?status=${filter.status}`
-//   }
-//   return axios.get(`${API_URL}/${id}/reservation/search${qs}`, getHeaders())
-// }
 export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
-  const params = new URLSearchParams()
+const params = new URLSearchParams()
 
   if (filter.checkInDate) params.append('checkInDate', filter.checkInDate)
   if (filter.checkOutDate) params.append('checkOutDate', filter.checkOutDate)

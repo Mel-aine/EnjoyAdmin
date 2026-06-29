@@ -24,7 +24,7 @@ import type { SyncOperation } from './db.js'
 
 // ── Configuration ──────────────────────────────────────────────────────
 
-const SYNC_API_BASE = '/api'
+const SYNC_API_BASE = ''
 const PULL_INTERVAL_MS = 5 * 60 * 1000
 const INITIAL_LOAD_DAYS_BACK = 15
 
