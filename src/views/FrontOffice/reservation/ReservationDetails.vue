@@ -12,6 +12,9 @@ import { printConfirmBookingPdf, printHotelPdf, sendInvoiceByEmail, sendVoucherB
 import { printGuestReservationCard, printGuestReservationPolice } from '@/services/reservation'
 import PdfExporterNode from '@/components/common/PdfExporterNode.vue'
 import FolioSelectModal from '@/components/reservations/foglio/FolioSelectModal.vue'
+import { useAuthStore } from '@/composables/user'
+
+
 
 const serviceStore = useServiceStore()
 const { creditBalance: fetchedCreditBalance, isLoading: isLoadingCredit, fetchBalance } = useGuestCreditBalance()
@@ -74,6 +77,7 @@ const showEditArrivalTimeModal = ref(false)
 const showEditDepartureTimeModal = ref(false)
 const { t ,locale } = useI18n()
 const toast = useToast()
+const authStore = useAuthStore()
 
 
 // ====== NOUVELLE APPROCHE : État local réactif ======
@@ -658,6 +662,17 @@ const handlePrintOptionSelected = (option: any) => {
   else if (option.id === 'email_voucher')    { handleEmailSend('voucher') }
 }
 
+
+
+const isEditBlocked = computed(() => {
+  const blockedStatuses = ['checked_out', 'voided', 'no_show', 'cancelled']
+  const isBlocked = blockedStatuses.includes(localReservation.value?.status)
+  if (!isBlocked) return false
+  return !authStore.hasPermission('update_reservation_after_checkout')
+})
+
+
+
 onMounted(() => {
   // Ensure URL carries the current tab on initial mount
   if (!route.query.tab || !VALID_TAB_IDS.has(String(route.query.tab))) {
@@ -708,7 +723,7 @@ onMounted(() => {
                   >{{ formatDate(localReservation.arrivedDate) }},
                   {{ formatTimeFromTimeString(localReservation.checkInTime) }}</span
                 >
-                <Pencil  class="w-3 h-3 cursor-pointer" @click="handleEditArrivalTime"  />
+                <Pencil v-if="!isEditBlocked"  class="w-3 h-3 cursor-pointer" @click="handleEditArrivalTime"  />
               </span>
             </div>
             <div class="flex flex-col">
@@ -718,7 +733,7 @@ onMounted(() => {
                   >{{ formatDate(localReservation.departDate) }},
                   {{ formatTimeFromTimeString(localReservation.checkOutTime) }}</span
                 >
-                <Pencil  class="w-3 h-3 cursor-pointer"  @click="handleEditDepartureTime"  />
+                <Pencil v-if="!isEditBlocked" class="w-3 h-3 cursor-pointer"  @click="handleEditDepartureTime"  />
               </span>
             </div>
             <div class="flex flex-col">
