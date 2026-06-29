@@ -78,40 +78,76 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2,ttf,eot}'],
         runtimeCaching: [
+          // ===== DONNÉES DE CONFIGURATION (lecture seule, longue durée) =====
           {
-            urlPattern: /^\/api\/.*/i,
-            handler: "StaleWhileRevalidate",
+            urlPattern: /\/api\/(configuration|hotels\/\d+\/(room_types|rooms|rate_types|extra_charges|payment_methods|taxes|seasons|discounts)).*/i,
+            handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: "api-cache",
+              cacheName: 'pms-config',
               expiration: {
                 maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 7,
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 jours
               },
-              cacheableResponse: {
-                statuses: [0, 200],
+              backgroundSync: {
+                name: 'pms-sync',
               },
             },
           },
+
+          // ===== DONNÉES MÉTIER (lecture/écriture) =====
+          {
+            urlPattern: /\/api\/(reservation|guests|folios)(?!.*(checkin|checkout|payment|transaction)).*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pms-data',
+              expiration: {
+                maxEntries: 500,
+                maxAgeSeconds: 60 * 60 * 24, // 1 jour
+              },
+              networkTimeoutSeconds: 5,
+              backgroundSync: {
+                name: 'pms-sync',
+              },
+            },
+          },
+
+          // ===== API GÉNÉRIQUE (fallback) =====
           {
             urlPattern: /^\/api\/.*/i,
-            handler: "CacheFirst",
+            handler: 'NetworkFirst',
             options: {
-              cacheName: "google-fonts-cache",
+              cacheName: 'api-cache',
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 30,
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24, // 1 jour
+              },
+              networkTimeoutSeconds: 5,
+            },
+          },
+
+          // ===== POLICES =====
+          {
+            urlPattern: /\.(woff2?|ttf|eot)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pms-fonts',
+              expiration: {
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 jours
               },
             },
           },
+
+          // ===== IMAGES =====
           {
-            urlPattern: /.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
-            handler: "CacheFirst",
+            urlPattern: /\.(png|jpg|jpeg|svg|gif|webp|ico)$/i,
+            handler: 'CacheFirst',
             options: {
-              cacheName: "image-cache",
+              cacheName: 'pms-images',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30,
+                maxAgeSeconds: 60 * 60 * 24 * 14, // 14 jours
               },
             },
           },

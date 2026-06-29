@@ -2184,6 +2184,10 @@
     "winter": "Hiver",
     "newVersionAvailable" : "Une nouvelle version de l'application est disponible.",
     "appReadyForOfflineUse" : "Application prête pour une utilisation hors-ligne.",
+    "syncing": "Synchronisation en cours...",
+    "syncComplete": "Synchronisation terminée",
+    "syncError": "Échec de la synchronisation",
+    "offlineMode": "Vous êtes hors ligne. Les modifications seront sauvegardées localement.",
     "months": {
       "january": "Janvier",
       "february": "Février",

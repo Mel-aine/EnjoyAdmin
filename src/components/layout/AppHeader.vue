@@ -41,6 +41,16 @@
           </div>
         </div>
         <SearchBar @select="handleReservationSelect" />
+
+        <!-- Indicateur connexion en ligne/hors ligne -->
+        <div
+          class="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-300"
+          :class="offlineStore.syncStatusColor"
+          :title="offlineStore.syncStatusLabel"
+        >
+          <span class="h-2 w-2 rounded-full" :class="offlineStore.dotColor" />
+          <span class="hidden sm:inline">{{ offlineStore.syncStatusLabel }}</span>
+        </div>
       </div>
       <div class="lg:flex self-center justify-center align-middle hidden">
 
@@ -113,10 +123,6 @@
             </span>
           </button>
         </div>
-                  <div class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium" :class="offlineStore.syncStatusColor" :title="offlineStore.syncStatusLabel">
-            <span class="h-1.5 w-1.5 rounded-full" :class="offlineStore.dotColor"></span>
-            <span v-if="offlineStore.needsAttention" class="hidden sm:inline">{{ offlineStore.syncStatusLabel }}</span>
-          </div>
           <UserMenu />
       </div>
     </div>

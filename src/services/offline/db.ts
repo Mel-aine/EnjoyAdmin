@@ -111,12 +111,13 @@ export async function clearExpiredCache(): Promise<number> {
 export async function queueOperation(
   op: Omit<SyncOperation, 'id' | 'createdAt' | 'status' | 'retryCount'>
 ): Promise<number> {
-  return db.syncQueue.add({
+  const id = await db.syncQueue.add({
     ...op,
     status: 'pending',
     retryCount: 0,
     createdAt: Date.now(),
   })
+  return id ?? 0
 }
 
 export async function getPendingOperations(): Promise<SyncOperation[]> {

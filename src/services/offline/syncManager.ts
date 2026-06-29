@@ -295,12 +295,12 @@ class SyncManager {
         hotelId: this.hotelId,
         deviceId: this.deviceId,
         lastSyncVersion,
-        operations: pending.map((op: any) => ({
+        operations: pending.map((op: SyncOperation) => ({
           id: op.id!,
-          type: op.type,
+          operationType: op.operationType,
           resourceType: op.resourceType,
           resourceId: op.resourceId,
-          data: op.data,
+          payload: op.payload,
           priority: op.priority,
         })),
       })
@@ -308,7 +308,7 @@ class SyncManager {
       const result = response.data as SyncPushResponse
 
       for (const opId of result.processed) {
-        await offlineQueue.markCompleted(opId)
+        await offlineQueue.markCompleted(opId.operationId)
       }
 
       for (const conflict of result.conflicts) {
@@ -321,7 +321,7 @@ class SyncManager {
           )
           await cacheApiResponse(cacheKey, merged, getTtl(conflict.resourceType))
         }
-        await offlineQueue.markCompleted(conflict.operationId.operationId)
+        await offlineQueue.markCompleted(conflict.operationId)
       }
 
       for (const err of result.errors) {

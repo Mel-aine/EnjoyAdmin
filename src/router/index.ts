@@ -1615,6 +1615,17 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    // Offline page
+    {
+      path: '/offline',
+      name: 'OfflinePage',
+      component: () => import('../views/Errors/OfflinePage.vue'),
+      meta: {
+        title: 'Hors ligne',
+        requiresAuth: false,
+      },
+    },
+
     // Catch-all route for 404 pages - must be last
     {
       path: '/:pathMatch(.*)*',

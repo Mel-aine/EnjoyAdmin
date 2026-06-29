@@ -7,7 +7,6 @@
           @renew="openSubscriptionRenewal" />
       </template>
       <template v-else>
-        <ConnectionStatus v-if="authStore.isFullyAuthenticated && !isLoginRoute" />
         <InitialLoadProgress />
         <MaintenanceBanner :visible="authStore.isFullyAuthenticated && !isLoginRoute && !!maintenanceAnnouncement"
           :typeLabel="maintenanceTypeLabel" :windowText="maintenanceAnnouncementWindowText"
@@ -39,7 +38,6 @@ import MaintenanceBanner from '@/components/announcements/MaintenanceBanner.vue'
 import UpdateAnnouncementModal from '@/components/announcements/UpdateAnnouncementModal.vue'
 import SubscriptionBlockedModal from '@/components/subscription/SubscriptionBlockedModal.vue'
 import SubscriptionExpiringSoonModal from '@/components/subscription/SubscriptionExpiringSoonModal.vue'
-import ConnectionStatus from '@/components/common/ConnectionStatus.vue'
 import InitialLoadProgress from '@/components/offline/InitialLoadProgress.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
@@ -50,6 +48,7 @@ import { stopAuthAutoRefresh, startAuthAutoRefresh, getActiveAnnouncements } fro
 import { usePwaUpdate } from '@/composables/usePwaUpdate'
 import { syncManager } from '@/services/offline/syncManager'
 import { useConnection } from '@/composables/useConnection'
+import { useOfflineStore } from '@/services/offline/offlineStore'
 import { useToast } from 'vue-toastification'
 const toast = useToast()
 const useLanguage = useLanguageStore();
@@ -91,6 +90,9 @@ watch(
 )
 
 usePwaUpdate()
+
+// Initialiser la détection de connexion avec synchronisation automatique
+const { manualSync } = useConnection()
 
 type Announcement = {
   id?: number | string
@@ -490,6 +492,25 @@ onMounted(() => {
     toast.success(t.t('common.appUpdated'))
   }
 
+  // Écouteur de reconnexion toast
+  window.addEventListener('app:online', async () => {
+    const hotelId = useServiceStore()?.getCurrentService?.id
+    if (hotelId) {
+      toast.info(t.t('common.syncing'), { timeout: 3000 })
+      try {
+        await syncManager.sync()
+        toast.success(t.t('common.syncComplete'))
+      } catch {
+        toast.error(t.t('common.syncError'))
+      }
+    }
+  })
+
+  // Écouteur de perte de connexion
+  window.addEventListener('app:offline', () => {
+    toast.warning(t.t('common.offlineMode'), { timeout: 4000 })
+  })
+
 })
 
 onBeforeUnmount(() => {
@@ -509,13 +530,14 @@ watch(
       // Démarrer le refresh automatique
       // Initialiser le mode offline
       try {
-        const serviceStore = useServiceStore()
-        const hotelId = serviceStore.currentService?.id
+        const hotelId = useServiceStore()?.getCurrentService?.id
         if (hotelId) {
           syncManager.init(hotelId)
           syncManager.checkOfflineModeStatus().then((enabled) => {
             if (enabled) {
               syncManager.startPeriodicSync()
+              // Rafraîchir le compteur d'opérations en attente
+              useOfflineStore().refreshPendingCount()
             }
           })
         }

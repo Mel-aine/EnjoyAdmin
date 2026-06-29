@@ -2093,6 +2093,10 @@
     "newVersionAvailable": "A new version of the application is available.",
     "appUpdated": "The application has been updated.",
     "appReadyForOfflineUse": "The application is ready for offline use.",
+    "syncing": "Synchronization in progress...",
+    "syncComplete": "Synchronization complete",
+    "syncError": "Synchronization failed",
+    "offlineMode": "You are now offline. Changes will be saved locally.",
     "businessSources": {
       "online": "Online",
       "phone": "Phone",
