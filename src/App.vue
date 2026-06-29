@@ -1,41 +1,27 @@
- <template> 
-  <SpeedInsights />     
-  <ThemeProvider>          
-    <SidebarProvider>       
+<template>
+  <SpeedInsights />
+  <ThemeProvider>
+    <SidebarProvider>
       <template v-if="authStore.isFullyAuthenticated && authStore.isPmsSubscriptionBlocked">
-        <SubscriptionBlockedModal :isOpen="true" :supportMailtoUrl="supportMailtoUrl" @renew="openSubscriptionRenewal" />
+        <SubscriptionBlockedModal :isOpen="true" :supportMailtoUrl="supportMailtoUrl"
+          @renew="openSubscriptionRenewal" />
       </template>
       <template v-else>
         <ConnectionStatus v-if="authStore.isFullyAuthenticated && !isLoginRoute" />
-        <MaintenanceBanner
-          :visible="authStore.isFullyAuthenticated && !isLoginRoute && !!maintenanceAnnouncement"
-          :typeLabel="maintenanceTypeLabel"
-          :windowText="maintenanceAnnouncementWindowText"
-          :title="maintenanceAnnouncementTitle"
-          :content="maintenanceAnnouncementContent"
-          @dismiss="dismissMaintenanceAnnouncement"
-        />
-        <TopProgressBar />     
-        <OverLoading v-if="isCheckoutOverlay" />           
-        <RouterView />           
-        <ReAuthModal          
-          :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute"  
-          @close="handleClose"     
-          @success="handleSuccess" 
-        />
-        <UpdateAnnouncementModal
-          :isOpen="isUpdateModalOpen"
-          :title="currentUpdateTitle"
-          :content="currentUpdateContent"
-          :okText="$t('announcements.ok')"
-          @ack="ackUpdate"
-        />
-        <SubscriptionExpiringSoonModal
-          :isOpen="isExpiringSoonModalOpen"
-          :days="daysUntilExpiry"
-          :countdownText="countdownText"
-          @ack="ackExpiringSoon"
-        />
+        <InitialLoadProgress />
+        <MaintenanceBanner :visible="authStore.isFullyAuthenticated && !isLoginRoute && !!maintenanceAnnouncement"
+          :typeLabel="maintenanceTypeLabel" :windowText="maintenanceAnnouncementWindowText"
+          :title="maintenanceAnnouncementTitle" :content="maintenanceAnnouncementContent"
+          @dismiss="dismissMaintenanceAnnouncement" />
+        <TopProgressBar />
+        <OverLoading v-if="isCheckoutOverlay" />
+        <RouterView />
+        <ReAuthModal :is-open="isReAuthOpen && authStore.isFullyAuthenticated && !isLoginRoute" @close="handleClose"
+          @success="handleSuccess" />
+        <UpdateAnnouncementModal :isOpen="isUpdateModalOpen" :title="currentUpdateTitle" :content="currentUpdateContent"
+          :okText="$t('announcements.ok')" @ack="ackUpdate" />
+        <SubscriptionExpiringSoonModal :isOpen="isExpiringSoonModalOpen" :days="daysUntilExpiry"
+          :countdownText="countdownText" @ack="ackExpiringSoon" />
       </template>
     </SidebarProvider>
   </ThemeProvider>
@@ -47,19 +33,20 @@ import { useI18n } from "vue-i18n";
 import { useLanguageStore } from './lang/language';
 import { SpeedInsights } from "@vercel/speed-insights/vue"
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
-import { useRoute ,useRouter} from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import MaintenanceBanner from '@/components/announcements/MaintenanceBanner.vue'
 import UpdateAnnouncementModal from '@/components/announcements/UpdateAnnouncementModal.vue'
 import SubscriptionBlockedModal from '@/components/subscription/SubscriptionBlockedModal.vue'
 import SubscriptionExpiringSoonModal from '@/components/subscription/SubscriptionExpiringSoonModal.vue'
 import ConnectionStatus from '@/components/common/ConnectionStatus.vue'
+import InitialLoadProgress from '@/components/offline/InitialLoadProgress.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import TopProgressBar from '@/components/spinner/TopProgressBar.vue'
 import { isCheckoutOverlay } from '@/composables/spinner'
-import {stopAuthAutoRefresh,startAuthAutoRefresh, getActiveAnnouncements}  from '@/services/api'
+import { stopAuthAutoRefresh, startAuthAutoRefresh, getActiveAnnouncements } from '@/services/api'
 import { usePwaUpdate } from '@/composables/usePwaUpdate'
 import { syncManager } from '@/services/offline/syncManager'
 import { useConnection } from '@/composables/useConnection'
@@ -70,7 +57,7 @@ const t = useI18n({ useScope: "global" });
 
 
 
- const IDLE_TIMEOUT_MS = 30 * 60 * 1000
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000
 
 
 
@@ -498,7 +485,7 @@ onMounted(() => {
     isInitialLoad.value = false
   }, 0)
 
-   if (localStorage.getItem('pwa-updated') === 'true') {
+  if (localStorage.getItem('pwa-updated') === 'true') {
     localStorage.removeItem('pwa-updated')
     toast.success(t.t('common.appUpdated'))
   }
@@ -522,6 +509,7 @@ watch(
       // Démarrer le refresh automatique
       // Initialiser le mode offline
       try {
+        const serviceStore = useServiceStore()
         const hotelId = serviceStore.currentService?.id
         if (hotelId) {
           syncManager.init(hotelId)

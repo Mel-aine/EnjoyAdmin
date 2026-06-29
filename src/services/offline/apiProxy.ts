@@ -203,7 +203,7 @@ async function handleOfflineFallback<T>(
     const operationId = await offlineQueue.enqueue({
       operationType: opType,
       resourceType: resourceType || 'unknown',
-      resourceId: resourceId ?? null,
+      resourceId: typeof resourceId === 'string' ? parseInt(resourceId, 10) || null : resourceId ?? null,
       payload: options?.data || {},
       priority,
       maxRetries: options?.maxRetries ?? 3,

@@ -4,40 +4,65 @@
  * Orchestrates synchronisation between the local IndexedDB store and the
  * backend sync API (push / pull / initial-load).
  *
- * Flow:
- *   1. Pull changes from server (since last checkpoint)
- *   2. Push local pending operations in priority order
- *   3. Update local cache with server response
- *   4. Update checkpoint version
+ * NOTE sur les conventions de nommage :
+ * - initialLoad() : le backend retourne des clés camelCase (ex: "folioTransactions")
+ * - pull() : le backend utilise les clés snake_case de tableMap (ex: "folio_transaction")
+ * - Le frontend normalise tout en snake_case pour le cache local
  */
 import { v4 as uuidv4 } from 'uuid'
+import { useOfflineStore } from './offlineStore.js'
 import apiClient from '../apiClient.js'
 import { offlineQueue } from './queue.js'
 import {
-  db,
   cacheApiResponse,
   getCachedResponse,
   updateCheckpoint,
   getCheckpoint,
   clearExpiredCache,
-  type SyncOperation,
 } from './db.js'
+import type { SyncOperation } from './db.js'
 
 // ── Configuration ──────────────────────────────────────────────────────
 
 const SYNC_API_BASE = '/api'
-const PULL_INTERVAL_MS = 5 * 60 * 1000 // 5 minutes
-const INITIAL_LOAD_RESOURCES = [
-  'room_type',
-  'room',
-  'rate_type',
-  'room_rate',
-  'booking_source',
-  'payment_method',
-  'tax_rate',
-  'extra_charge',
-  'discount',
+const PULL_INTERVAL_MS = 5 * 60 * 1000
+const INITIAL_LOAD_DAYS_BACK = 15
+
+// Noms de ressources côté BACKEND (tableMap dans sync_service.ts)
+// Utilisés pour PULL et comme clés de cache normalisées
+const REFERENCE_RESOURCES = [
+  'room_type', 'room', 'rate_type', 'room_rate',
+  'booking_source', 'payment_method', 'tax_rate',
+  'extra_charge', 'discount',
 ]
+
+const BUSINESS_RESOURCES = [
+  'reservation', 'guest', 'folio', 'folio_transaction',
+]
+
+// Mapping camelCase (initialLoad backend) → snake_case (cache local)
+const INITIAL_LOAD_KEY_MAP: Record<string, string> = {
+  hotel: 'hotel',
+  roomTypes: 'room_type',
+  rooms: 'room',
+  rateTypes: 'rate_type',
+  rates: 'room_rate',
+  bookingSources: 'booking_source',
+  paymentMethods: 'payment_method',
+  taxRates: 'tax_rate',
+  extraCharges: 'extra_charge',
+  discounts: 'discount',
+  reservations: 'reservation',
+  guests: 'guest',
+  folios: 'folio',
+  folioTransactions: 'folio_transaction',
+}
+
+const TTL = {
+  REFERENCE: 7 * 24 * 60 * 60 * 1000,
+  DATA: 24 * 60 * 60 * 1000,
+  TRANSACTION: 7 * 24 * 60 * 60 * 1000,
+} as const
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -77,6 +102,45 @@ interface SyncStatusResponse {
   lastSyncAt: string | null
 }
 
+// ── Helpers ────────────────────────────────────────────────────────────
+
+function getTtl(resourceType: string): number {
+  if (resourceType === 'folio_transaction') return TTL.TRANSACTION
+  if (BUSINESS_RESOURCES.includes(resourceType)) return TTL.DATA
+  return TTL.REFERENCE
+}
+
+function buildCacheKey(resourceType: string, hotelId: number): string {
+  return `sync:${resourceType}:${hotelId}`
+}
+
+async function mergeChanges(
+  resourceType: string,
+  changes: { created: any[]; updated: any[]; deleted: Array<{ id: number; deletedAt: string }> },
+  hotelId: number
+): Promise<void> {
+  const cacheKey = buildCacheKey(resourceType, hotelId)
+  const existing = await getCachedResponse<any[]>(cacheKey)
+  if (!existing) return
+
+  let merged = [...existing.data]
+
+  for (const created of changes.created) {
+    const idx = merged.findIndex((r) => r.id === created.id)
+    if (idx >= 0) merged[idx] = created
+    else merged.push(created)
+  }
+  for (const updated of changes.updated) {
+    const idx = merged.findIndex((r) => r.id === updated.id)
+    if (idx >= 0) merged[idx] = updated
+  }
+  for (const deleted of changes.deleted) {
+    merged = merged.filter((r) => r.id !== deleted.id)
+  }
+
+  await cacheApiResponse(cacheKey, merged, getTtl(resourceType))
+}
+
 // ── SyncManager ────────────────────────────────────────────────────────
 
 class SyncManager {
@@ -86,7 +150,6 @@ class SyncManager {
   private syncing = false
 
   constructor() {
-    // Generate a stable device ID (persisted in localStorage)
     let deviceId = localStorage.getItem('offline_device_id')
     if (!deviceId) {
       deviceId = uuidv4()
@@ -95,21 +158,14 @@ class SyncManager {
     this.deviceId = deviceId
   }
 
-  /**
-   * Initialise the sync manager with the current hotel
-   */
   init(hotelId: number): void {
     this.hotelId = hotelId
   }
 
-  /**
-   * Check if offline mode is enabled for the current hotel
-   */
   async checkOfflineModeStatus(): Promise<boolean> {
     if (!this.hotelId) return false
     try {
-      // Try cached first
-      const cacheKey = `sync:status:${this.hotelId}`
+      const cacheKey = buildCacheKey('status', this.hotelId)
       const cached = await getCachedResponse<SyncStatusResponse>(cacheKey, 60_000)
       if (cached) return cached.data.offlineModeEnabled
 
@@ -118,52 +174,84 @@ class SyncManager {
         { params: { hotelId: this.hotelId } }
       )
       const data = response.data as SyncStatusResponse
-
       await cacheApiResponse(cacheKey, data, 60_000)
       return data.offlineModeEnabled
     } catch {
-      // If we can't reach the server, assume offline mode based on last known state
       const lastKnown = localStorage.getItem('offline_mode_enabled')
       return lastKnown === 'true'
     }
   }
 
   /**
-   * Perform initial load of reference data
+   * Perform initial load of all data needed for offline mode.
+   *
+   * Charge :
+   * - Réservations de J-15 jusqu'à l'infini
+   * - Clients, folios, transactions
+   * - Données de référence (chambres, tarifs, taxes...)
+   *
+   * Note : le backend retourne des clés camelCase, on les normalise
+   * en snake_case pour le cache local (cohérent avec PULL).
    */
-  async initialLoad(): Promise<void> {
+    async initialLoad(dateFrom?: string): Promise<void> {
     if (!this.hotelId) throw new Error('SyncManager not initialised')
 
+    const offlineStore = useOfflineStore()
+    offlineStore.setInitialLoading(true)
+    offlineStore.setInitialLoadProgress(0)
+
     try {
+      const fromDate = dateFrom ?? (() => {
+        const d = new Date()
+        d.setDate(d.getDate() - INITIAL_LOAD_DAYS_BACK)
+        return d.toISOString().split('T')[0]
+      })()
+
+      offlineStore.setInitialLoadProgress(5)
       const response = await apiClient.post(`${SYNC_API_BASE}/sync/initial-load`, {
         hotelId: this.hotelId,
-        resourceTypes: INITIAL_LOAD_RESOURCES,
+        deviceId: this.deviceId,
+        dateFrom: fromDate,
       })
 
+      offlineStore.setInitialLoadProgress(15)
       const result = response.data as InitialLoadResponse
+      const entries = Object.entries(result.data).filter(
+        ([key, val]) => INITIAL_LOAD_KEY_MAP[key] && Array.isArray(val) && val.length > 0
+      )
+      const total = entries.length
 
-      // Cache all reference data locally
-      for (const [resourceType, records] of Object.entries(result.data)) {
-        await cacheApiResponse(
-          `sync:${resourceType}:${this.hotelId}`,
-          records,
-          7 * 24 * 60 * 60 * 1000 // 7 days TTL for reference data
-        )
+      for (let i = 0; i < entries.length; i++) {
+        const [camelKey, records] = entries[i]
+        const resourceType = INITIAL_LOAD_KEY_MAP[camelKey]
+        if (!resourceType) {
+          console.warn(`[SyncManager] Unknown resource key: ${camelKey}`)
+          continue
+        }
+
+        const cacheKey = buildCacheKey(resourceType, this.hotelId)
+        await cacheApiResponse(cacheKey, records, getTtl(resourceType))
+
+        const progress = 15 + Math.round(((i + 1) / total) * 80)
+        offlineStore.setInitialLoadProgress(progress)
       }
 
-      // Update checkpoint
       await updateCheckpoint(this.hotelId, '*', result.version)
       localStorage.setItem('offline_mode_enabled', 'true')
-
-      console.log(`[SyncManager] Initial load complete (version ${result.version})`)
+      console.log('[SyncManager] Initial load complete')
+      offlineStore.setInitialLoadProgress(100)
+      offlineStore.setInitialLoading(false)
     } catch (err: any) {
       console.error('[SyncManager] Initial load failed:', err.message)
+      offlineStore.setInitialLoading(false)
+      offlineStore.setInitialLoadProgress(0)
       throw err
     }
   }
 
   /**
-   * Pull changes from the server
+   * Pull changes from the server (depuis le dernier checkpoint)
+   * Les clés sont en snake_case (tableMap côté backend)
    */
   async pull(): Promise<SyncPullResponse | null> {
     if (!this.hotelId) return null
@@ -175,95 +263,112 @@ class SyncManager {
         hotelId: this.hotelId,
         deviceId: this.deviceId,
         lastSyncVersion: lastVersion,
-        resourceTypes: [...INITIAL_LOAD_RESOURCES, 'reservation', 'guest', 'folio', 'folio_transaction'],
+        resourceTypes: [
+          ...REFERENCE_RESOURCES,
+          ...BUSINESS_RESOURCES,
+        ],
       })
 
       const result = response.data as SyncPullResponse
 
-      // Update local cache with pulled changes
       for (const [resourceType, changes] of Object.entries(result.changes)) {
-        const cacheKey = `sync:${resourceType}:${this.hotelId}`
-        const existing = await getCachedResponse<any[]>(cacheKey)
-
-        if (existing) {
-          let merged = [...existing.data]
-
-          for (const created of changes.created) {
-            const idx = merged.findIndex((r) => r.id === created.id)
-            if (idx >= 0) merged[idx] = created
-            else merged.push(created)
-          }
-          for (const updated of changes.updated) {
-            const idx = merged.findIndex((r) => r.id === updated.id)
-            if (idx >= 0) merged[idx] = updated
-          }
-          for (const deleted of changes.deleted) {
-            merged = merged.filter((r) => r.id !== deleted.id)
-          }
-
-          await cacheApiResponse(cacheKey, merged, 7 * 24 * 60 * 60 * 1000)
-        }
+        await mergeChanges(resourceType, changes, this.hotelId)
       }
 
-      // Update checkpoint
       await updateCheckpoint(this.hotelId, '*', result.checkpoint)
-
       return result
     } catch (err: any) {
       console.warn('[SyncManager] Pull failed:', err.message)
       return null
     }
   }
+  async push(): Promise<{ pushed: number; conflicts: number; errors: number } | null> {
+    if (!this.hotelId) return null
 
-  /**
-   * Push pending local operations to the server
-   */
-  async push(): Promise<{ pushed: number; conflicts: number; errors: number }> {
-    if (!this.hotelId) return { pushed: 0, conflicts: 0, errors: 0 }
-
-    const lastVersion = await getCheckpoint(this.hotelId, '*')
     const pending = await offlineQueue.getPending()
-
     if (pending.length === 0) return { pushed: 0, conflicts: 0, errors: 0 }
 
     try {
+      const lastSyncVersion = await getCheckpoint(this.hotelId, '*')
+
       const response = await apiClient.post(`${SYNC_API_BASE}/sync/push`, {
         hotelId: this.hotelId,
         deviceId: this.deviceId,
-        lastSyncVersion: lastVersion,
-        operations: pending.map((op) => ({
-          operationId: op.operationId,
-          operationType: op.operationType,
+        lastSyncVersion,
+        operations: pending.map((op: any) => ({
+          id: op.id!,
+          type: op.type,
           resourceType: op.resourceType,
           resourceId: op.resourceId,
-          payload: op.payload,
-          clientTimestamp: op.clientTimestamp,
+          data: op.data,
           priority: op.priority,
         })),
       })
 
       const result = response.data as SyncPushResponse
 
-      // Mark processed operations
-      for (const processed of result.processed) {
-        await offlineQueue.markCompleted(processed.operationId)
+      for (const opId of result.processed) {
+        await offlineQueue.markCompleted(opId)
       }
 
-      // Handle conflicts (server wins by default)
       for (const conflict of result.conflicts) {
-        // Update local cache with server data
-        const cacheKey = `sync:${conflict.resourceType}:${this.hotelId}`
-        const cached = await getCachedResponse<any[]>(cacheKey)
-        if (cached) {
-          const idx = cached.data.findIndex((r: any) => r.id === conflict.resourceId)
-          if (idx >= 0) {
-            cached.data[idx] = conflict.serverData
-            await cacheApiResponse(cacheKey, cached.data, 7 * 24 * 60 * 60 * 1000)
-          }
+        const cacheKey = buildCacheKey(conflict.resourceType, this.hotelId)
+        const existing = await getCachedResponse(cacheKey)
+        if (existing) {
+          const serverData = conflict.serverData
+          const merged = (existing.data as any[]).map((item: any) =>
+            item.id === serverData.id ? { ...item, ...serverData } : item
+          )
+          await cacheApiResponse(cacheKey, merged, getTtl(conflict.resourceType))
         }
-        await offlineQueue.markCompleted(conflict.operationId)
+        await offlineQueue.markCompleted(conflict.operationId.operationId)
       }
 
-      // Mark errors
       for (const err of result.errors) {
-        await offlineQueue.markFailed(e
+        await offlineQueue.markFailed(err.operationId, err.error)
+      }
+
+      if (result.newCheckpoint) {
+        await updateCheckpoint(this.hotelId, '*', result.newCheckpoint)
+      }
+
+      return {
+        pushed: result.processed.length,
+        conflicts: result.conflicts.length,
+        errors: result.errors.length,
+      }
+    } catch (err: any) {
+      console.error('[SyncManager] Push failed:', err.message)
+      throw err
+    }
+  }
+
+  async sync(): Promise<void> {
+    await this.pull()
+    await this.push()
+    await clearExpiredCache()
+  }
+
+  startPeriodicSync(): void {
+    if (this.pullTimer) return
+
+    this.pullTimer = setInterval(async () => {
+      if (this.syncing) return
+      this.syncing = true
+      try {
+        await this.sync()
+      } finally {
+        this.syncing = false
+      }
+    }, PULL_INTERVAL_MS)
+  }
+
+  stopPeriodicSync(): void {
+    if (this.pullTimer) {
+      clearInterval(this.pullTimer)
+      this.pullTimer = null
+    }
+  }
+}
+
+export const syncManager = new SyncManager()

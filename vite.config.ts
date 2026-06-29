@@ -80,8 +80,8 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: //api/.*/i,
-              handler: "StaleWhileRevalidate",
+            urlPattern: /^\/api\/.*/i,
+            handler: "StaleWhileRevalidate",
             options: {
               cacheName: "api-cache",
               expiration: {
@@ -94,7 +94,7 @@ export default defineConfig(({ mode }) => ({
             },
           },
           {
-            urlPattern: /https:/fonts..*/i,
+            urlPattern: /^\/api\/.*/i,
             handler: "CacheFirst",
             options: {
               cacheName: "google-fonts-cache",
@@ -117,6 +117,7 @@ export default defineConfig(({ mode }) => ({
           },
         ],
       },
+    })
   ],
   resolve: {
     alias: {

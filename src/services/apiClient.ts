@@ -40,4 +40,24 @@ axios.interceptors.request.use((config) => {
   return config
 })
 
+
+// Offline response interceptor: catch network errors
+import { useOfflineStore } from './offline/offlineStore.js'
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // If network error (no response from server), update offline store
+    if (!error.response || error.code === 'ECONNABORTED' || error.message === 'Network Error') {
+      try {
+        const offlineStore = useOfflineStore()
+        offlineStore.setOnline(false)
+      } catch {
+        // Store not available yet
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 export default apiClient

@@ -113,7 +113,11 @@
             </span>
           </button>
         </div>
-        <UserMenu />
+                  <div class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium" :class="offlineStore.syncStatusColor" :title="offlineStore.syncStatusLabel">
+            <span class="h-1.5 w-1.5 rounded-full" :class="offlineStore.dotColor"></span>
+            <span v-if="offlineStore.needsAttention" class="hidden sm:inline">{{ offlineStore.syncStatusLabel }}</span>
+          </div>
+          <UserMenu />
       </div>
     </div>
   </header>
@@ -165,6 +169,8 @@ import type { ReservationDetails } from '@/utils/models'
 import NotificationModal from '../modal/NotificationModal.vue'
 import { fetchMyNotifications, markNotificationRead, type NotificationItem } from '@/services/notificationsApi'
 import { subscribeNotifications, type Unsubscribe } from '@/services/notificationsStream'
+import { useOfflineStore } from '@/services/offline/offlineStore'
+const offlineStore = useOfflineStore()
 
 const authStore = useAuthStore();
 const showNotification = ref(false)
