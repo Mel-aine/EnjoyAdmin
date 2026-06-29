@@ -259,7 +259,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch,watchEffect } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   Wifi, Utensils, Bed, Car, Sun, Coffee, Tv, LogIn, LogOut, Wrench, CheckCircle, Calendar, Clock, User, AlertTriangle,
   Sparkles, Search, X ,Package, ChevronDown, Plus, Minus, Save
@@ -295,14 +295,6 @@ const props = defineProps({
   },
 })
 
-watchEffect(() => {
-  if (props.room.status === 'occupied' && !props.room.guestName) {
-    console.log('Room sans guestName:', {
-      reservations: props.room.reservations,
-      reservationRooms: props.room.reservationRooms,
-    })
-  }
-})
 
 const emit = defineEmits([
   'change', 'checkin', 'checkout', 'cleaned', 'request-status-change',
