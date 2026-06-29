@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-black rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700 group hover:border-gray-200 dark:hover:border-gray-600 transform hover:-translate-y-1">
+  <div class="bg-white dark:bg-black rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-700 group hover:border-gray-200 dark:hover:border-gray-600 transform hover:-translate-y-1 flex flex-col h-[370px]">
 
     <!-- Header avec gradient subtil -->
     <div class="relative px-6 pt-6 pb-4 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-700/50">
@@ -33,7 +33,7 @@
     </div>
 
     <!-- Contenu principal -->
-    <div class="px-6 pb-6 space-y-4">
+    <div class="px-6 pb-6 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
 
       <!-- Informations client (si occupée) -->
       <div v-if="room.guestName && room.status === 'occupied'"
@@ -82,37 +82,122 @@
       </div>
 
       <!-- block -->
+  
       <div v-if="activeBlocks.length">
+        
+        
+        <button
+          type="button"
+          @click="showBlocks = !showBlocks"
+          class="w-full flex items-center justify-between mb-1">
+          <div class="flex items-center gap-1.5">
+            <Wrench class="w-3 h-3 text-amber-600" />
+            <span class="text-xs font-medium text-amber-700">
+              {{ activeBlocks.length }} {{ $t('activeBlocks') }}
+            </span>
+          </div>
+          <ChevronDown
+            class="w-3 h-3 text-amber-500 transition-transform duration-200"
+            :class="{ 'rotate-180': showBlocks }" />
+        </button>
+
+        <!-- Liste avec hauteur max -->
         <div
-          v-for="block in activeBlocks"
-          :key="block.id"
-          class="p-2 bg-amber-50 border border-amber-200 rounded mb-1 flex items-center gap-2"
-        >
-          <Wrench class="w-3 h-3 text-amber-600" />
-
-          <div class="flex flex-col">
-
-            <p v-if="block.reason" class="text-xs font-normal">{{ block.reason }}</p>
-            <div class="flex items-center gap-4 text-amber-800 text-xs">
-
-
-              <p>{{ $t('StartDate') }}: {{ block.blockFromDate }}</p>
-              <p v-if="block.blockToDate">{{ $t('EndDate') }}: {{ block.blockToDate }}</p>
-
+          v-if="showBlocks"
+          class="max-h-28 overflow-y-auto space-y-1 pr-1
+                scrollbar-thin scrollbar-thumb-amber-200 scrollbar-track-transparent">
+          <div
+            v-for="block in activeBlocks"
+            :key="block.id"
+            class="p-2 bg-amber-50 border border-amber-200 rounded flex items-start gap-2">
+            <Wrench class="w-3 h-3 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div class="flex flex-col min-w-0">
+              <p v-if="block.reason" class="text-xs font-normal text-amber-900 truncate">
+                {{ block.reason }}
+              </p>
+              <div class="flex items-center gap-3 text-amber-700 text-xs mt-0.5 flex-wrap">
+                <p>{{ $t('StartDate') }}: {{ block.blockFromDate }}</p>
+                <p v-if="block.blockToDate">{{ $t('EndDate') }}: {{ block.blockToDate }}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-
-
-
         <!--afficher le house keeper assigner-->
-        <div v-if="room.assignedHousekeeper" class=" mt-2 flex items-center gap-2 p-2 bg-blue-50 rounded-lg hover:bg-purple-100 transition-colors">
+      <div v-if="room.assignedHousekeeper" class=" mt-2 flex items-center gap-2 p-2 bg-blue-50 rounded-lg hover:bg-purple-100 transition-colors">
 
           <i class="fa-solid fa-broom"></i>
           <span class="text-sm text-purple-700 font-medium">{{ room.assignedHousekeeper?.name }} - {{room.assignedHousekeeper?.phone  }}</span>
+      </div>
+
+        <!-- Équipements de la chambre -->
+      <div v-if="room.equipements && room.equipements.length > 0" class="mt-2">
+        
+        <!-- Toggle header -->
+        <button
+          type="button"
+          @click="showEquipements = !showEquipements"
+          class="w-full flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+          <div class="flex items-center gap-2">
+            <Package class="w-4 h-4 text-gray-500" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ $t('equipements') }} ({{ room.equipements.length }})
+            </span>
+          </div>
+          <ChevronDown
+            class="w-4 h-4 text-gray-400 transition-transform duration-200"
+            :class="{ 'rotate-180': showEquipements }" />
+        </button>
+
+        <!-- Liste équipements -->
+        <div v-if="showEquipements" class="mt-2 space-y-2">
+          <div
+            v-for="(equip, index) in localEquipements"
+            :key="equip.amenity_id"
+            class="flex items-center justify-between px-3 py-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg">
+            
+            <span class="text-sm text-gray-700 dark:text-gray-300">{{ equip.amenity_name }}</span>
+
+            <!-- Lecture seule si pas gouvernante -->
+            <span v-if="!isHousekeeper"
+              class="text-sm font-semibold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+              x{{ equip.quantity }}
+            </span>
+
+            <!-- Editable si gouvernante -->
+            <div v-else class="flex items-center gap-1">
+              <button
+                type="button"
+                @click="decrementQty(index)"
+                :disabled="equip.quantity <= 1"
+                class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 disabled:opacity-40 transition-colors">
+                <Minus class="w-3 h-3" />
+              </button>
+              <span class="w-8 text-center text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {{ equip.quantity }}
+              </span>
+              <button
+                type="button"
+                @click="incrementQty(index)"
+                class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 transition-colors">
+                <Plus class="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Bouton sauvegarder (gouvernante seulement) -->
+          <button
+            v-if="isHousekeeper && hasChanges"
+            type="button"
+            @click="saveEquipements"
+            :disabled="isSaving"
+            class="w-full mt-1 py-1.5 text-xs font-medium text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-50 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+            <Save class="w-3.5 h-3.5" />
+            {{ isSaving ? $t('saving') + '...' : $t('saveQuantities') }}
+          </button>
         </div>
+      </div>
 
 
       <!-- Disponibilité -->
@@ -174,15 +259,25 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   Wifi, Utensils, Bed, Car, Sun, Coffee, Tv, LogIn, LogOut, Wrench, CheckCircle, Calendar, Clock, User, AlertTriangle,
-  Sparkles, Search, X
+  Sparkles, Search, X ,Package, ChevronDown, Plus, Minus, Save
 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-
+import { useAuthStore } from '@/composables/user'
+import { updateRoomById } from '@/services/configrationApi'
+import { useToast } from 'vue-toastification'
 
 const { t,locale } = useI18n()
+const authStore = useAuthStore()
+const toast = useToast()
+
+const showEquipements = ref(false)
+const isSaving = ref(false)
+
+// Copie locale pour permettre l'édition sans muter les props
+const localEquipements = ref([])
 
 
 const props = defineProps({
@@ -200,15 +295,16 @@ const props = defineProps({
   },
 })
 
+
 const emit = defineEmits([
   'change', 'checkin', 'checkout', 'cleaned', 'request-status-change',
-  'maintenance-set', 'out_of_order', 'restore-service'
+  'maintenance-set', 'out_of_order', 'restore-service', 'equipements-updated'
 ])
 
 // État local
 
 const showCleaningHistory = ref(false)
-
+const showBlocks = ref(true) 
 
 // Configuration des statuts professionnels
 const getStatusConfigurations = computed(() => ({
@@ -360,12 +456,6 @@ const iconsMap = {
   option_8: Utensils,
 }
 
-const equipmentIcons = computed(() => ({
-  [t('FlatScreenTV')]: Tv,
-  [t('MiniBar')]: Utensils,
-  [t('WiFi')]: Wifi,
-  [t('AirConditioning')]: Car,
-}))
 
 // Computed properties
 const statusConfig = computed(() => {
@@ -376,17 +466,6 @@ const activeBlocks = computed(() => {
   return props.room?.blocks?.filter((b) => b.status !== 'completed') || []
 })
 
-const displayedOptions = computed(() => {
-  return Object.entries(optionLabels.value)
-    .filter(([key]) => props.room[key] !== undefined && props.room[key] !== null)
-    .slice(0, 4)
-    .map(([key, label]) => ({
-      key,
-      label,
-      value: props.room[key],
-      Icon: iconsMap[key],
-    }))
-})
 
 const availabilityInfo = computed(() => {
   const { status, nextAvailable, checkOutTime } = props.room
@@ -414,27 +493,72 @@ const formatDate = (dateStr, currentLocale = locale.value) => {
   })
 }
 
-const formatDateTime = (dateStr, currentLocale = locale.value) => {
-  if (!dateStr) return ''
-  const localeMap = {
-    'fr': 'fr-FR',
-    'en': 'en-US'
-  }
-  return new Date(dateStr).toLocaleString(localeMap[currentLocale] || currentLocale, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+
+// Détecte si des quantités ont changé
+const hasChanges = computed(() => {
+  if (!props.room.equipements) return false
+  return localEquipements.value.some((equip, i) => {
+    return equip.quantity !== props.room.equipements[i]?.quantity
   })
+})
+
+// Vérifie si l'utilisateur est gouvernante
+const isHousekeeper = computed(() => {
+  const privileges = authStore.user?.permisPrivileges
+  if (!privileges) return false
+  try {
+    const parsed = typeof privileges === 'string' ? JSON.parse(privileges) : privileges
+    return parsed.includes('access_to_house_keeping')
+  } catch {
+    return false
+  }
+})
+
+const incrementQty = (index) => {
+  localEquipements.value[index].quantity++
+}
+
+const decrementQty = (index) => {
+  if (localEquipements.value[index].quantity > 1) {
+    localEquipements.value[index].quantity--
+  }
+}
+
+const saveEquipements = async () => {
+  isSaving.value = true
+  try {
+    const formDataToSend = new FormData()
+    formDataToSend.append('equipements', JSON.stringify(localEquipements.value))
+
+    await updateRoomById(props.room.id, formDataToSend)
+    toast.success(t('equipementsSaved'))
+
+    // Mettre à jour la room localement
+    emit('equipements-updated', { roomId: props.room.id, equipements: localEquipements.value })
+  } catch (error) {
+    console.error('Error saving equipements:', error)
+    toast.error(t('errorSavingEquipements'))
+  } finally {
+    isSaving.value = false
+  }
 }
 
 
+watch(
+  () => props.room.blocks,
+  (val) => {
+    showBlocks.value = !val || val.length <= 2
+  },
+  { immediate: true }
+)
 
-
-
-
-
+watch(
+  () => props.room.equipements,
+  (val) => {
+    localEquipements.value = val ? val.map(e => ({ ...e })) : []
+  },
+  { immediate: true }
+)
 
 </script>
 

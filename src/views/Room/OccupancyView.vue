@@ -542,6 +542,7 @@
             </div>
           </div>
 
+        <div v-if="viewMode === 'grid'">
           <!-- Loading State -->
           <div v-if="isLoading" class="bg-white dark:bg-gray-800 shadow rounded-lg">
             <div class="p-6">
@@ -553,8 +554,9 @@
             </div>
           </div>
 
+
           <!-- Room Grid View -->
-          <div v-if="viewMode === 'grid'" class="mt-10">
+          <div v-else class="mt-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <RoomCard
                 v-for="room in paginatedRooms"
@@ -566,9 +568,11 @@
                 @change="handleStatusChange"
                 @maintenance-set="handleMaintenance(room, $event)"
                 @status-change="handleQuickStatusChange"
+                @equipements-updated="handleEquipementsUpdated"
               />
             </div>
           </div>
+        </div>
 
           <!-- Room Table View -->
           <div v-if="viewMode === 'list'" class="mt-10 bg-white dark:bg-gray-800 rounded-lg shadow">
@@ -798,6 +802,11 @@ const fetchRoomType = async () => {
   } catch (error) {
     console.error('Erreur lors de la récupération des roomtypes:', error)
   }
+}
+
+const handleEquipementsUpdated = ({ roomId, equipements }: any) => {
+  const room = Rooms.value.find(r => r.id === roomId)
+  if (room) room.equipements = equipements
 }
 
 onMounted(async () => {

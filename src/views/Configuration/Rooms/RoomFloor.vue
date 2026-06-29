@@ -268,34 +268,86 @@
                   💡 {{ t('maxImage') }} • {{ t('format') }}
                 </p>
               </div>
-            <!-- <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                {{ t('roomImage') }}
+              <!-- Équipements -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                {{ t('equipements') }}
               </label>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+              <!-- Pas de room type sélectionné -->
+              <div
+                v-if="!formData.roomTypeId"
+                class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg
+                      py-6 text-center text-sm text-gray-400 dark:text-gray-500">
+                {{ t('selectRoomTypeFirst') }}
+              </div>
+
+              <!-- Pas d'équipements pour ce type -->
+              <div
+                v-else-if="formData.equipements.length === 0"
+                class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg
+                      py-6 text-center text-sm text-gray-400 dark:text-gray-500">
+                {{ t('noAmenitiesForRoomType') }}
+              </div>
+
+              <!-- Tableau des équipements -->
+              <div v-else class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                
+                <!-- En-têtes -->
+                <div class="grid grid-cols-[1fr_160px] bg-gray-50 dark:bg-gray-700/50
+                            text-xs font-medium text-gray-500 dark:text-gray-400 px-4 py-2 gap-3">
+                  <span>{{ t('amenity') }}</span>
+                  <span class="text-center">{{ t('quantity') }}</span>
+                </div>
+
+                <!-- Lignes -->
                 <div
-                  v-for="(image, index) in formData.roomImages"
+                  v-for="(equipment, index) in formData.equipements"
                   :key="index"
-                  class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                  <div class="text-gray-400 mb-2">
-                    <Camera class="w-8 h-8 mx-auto" />
+                  :class="index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-700/20'"
+                  class="grid grid-cols-[1fr_160px] items-center px-4 py-2.5 gap-3
+                        border-t border-gray-100 dark:border-gray-700 first:border-t-0">
+
+                  <!-- Nom de l'équipement (lecture seule) -->
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0"></div>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ equipment.amenity_name }}</span>
                   </div>
-                  <p class="text-xs text-gray-500 mb-2">{{ t('image') }} {{ index + 1 }}</p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    @change="handleImageUpload($event, index)"
-                    class="hidden"
-                    :id="`image-${index}`">
-                  <label :for="`image-${index}`" class="text-xs text-blue-600 hover:text-blue-800 cursor-pointer">
-                    {{ t('chooseFile') }}
-                  </label>
-                  <div v-if="image" class="mt-2 text-xs text-green-600">{{ t('imageUploaded') }}</div>
-                  <div v-else class="mt-2 text-xs text-gray-400">{{ t('noImageAvailable') }}</div>
+
+                  <!-- Quantité -->
+                  <div class="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      @click="equipment.quantity = Math.max(0, equipment.quantity - 1)"
+                      class="w-7 h-7 flex items-center justify-center rounded-md border border-gray-300
+                            dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-500">
+                      <Minus class="w-3.5 h-3.5" />
+                    </button>
+
+                    <input
+                      v-model.number="equipment.quantity"
+                      type="number"
+                      min="0"
+                      class="w-14 text-center text-sm font-medium border border-gray-300 dark:border-gray-600
+                            rounded-md py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                            focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                    />
+
+                    <button
+                      type="button"
+                      @click="equipment.quantity++"
+                      class="w-7 h-7 flex items-center justify-center rounded-md border border-gray-300
+                            dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-500">
+                      <Plus class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
-              <p class="text-xs text-gray-500 mt-2">{{ t('roomImageDescription') }}</p>
-            </div> -->
+
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                💡 {{ t('quantityZeroMeansNotPresent') }}
+              </p>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Connect Rooms -->
@@ -387,13 +439,14 @@ import BasicButton from '@/components/buttons/BasicButton.vue'
 import ReusableTable from '@/components/tables/ReusableTable.vue'
 import Input from '@/components/forms/FormElements/Input.vue'
 import Select from '@/components/forms/FormElements/Select.vue'
-import { Plus, Trash2, Edit, Camera } from 'lucide-vue-next'
-import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes,deleteRoomById } from '../../../services/configrationApi'
+import { Plus, Trash2, Edit, Camera, Minus } from 'lucide-vue-next'
+import { getRooms, getRoomTypes, getBedTypes, postRoom, updateRoomById, getTaxes,deleteRoomById,getAmenities } from '../../../services/configrationApi'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import { useServiceStore } from '../../../composables/serviceStore'
 import { formatCurrency, formatDateT } from '../../../components/utilities/UtilitiesFunction'
 import ConfirmationModal from '@/components/Housekeeping/ConfirmationModal.vue'
+import AutoCompleteSelect from '@/components/forms/FormElements/AutoCompleteSelect.vue'
 
 // Types
 interface Room {
@@ -416,6 +469,7 @@ interface Room {
     bedTypeName: string
   }
   roomTypeColor?: string
+  equipements?: RoomEquipment[]
   status: string
   creator?: { firstName: string }
   modifier?: { firstName: string }
@@ -435,12 +489,14 @@ interface RoomFormData {
   roomImages: (File | null)[]
   connectedRooms: number[]
   taxRateIds: number[]
+  equipements: RoomEquipment[]
 }
 
 interface RoomType {
   id: number
   roomTypeName?: string
   name?: string
+  roomAmenities?: number[]
 }
 
 interface BedType {
@@ -463,6 +519,18 @@ interface Option {
   label: string
 }
 
+
+interface Amenity {
+  id: number
+  amenityName: string
+}
+
+interface RoomEquipment {
+  amenity_id: number | null
+  amenity_name: string
+  quantity: number
+}
+
 const { t } = useI18n()
 const toast = useToast()
 const serviceStore = useServiceStore()
@@ -481,7 +549,9 @@ const metaData = ref<any>(null)
 const deleteItem = ref<any>(null)
 const imagePreviews = ref<string[]>([])
 const selectedFiles = ref<File[]>([])
-
+const availableAmenities = ref<Amenity[]>([])
+const useDropdown = ref(true)
+const emit = defineEmits(["clear-error"]);
 
 
 // Form data with proper typing
@@ -496,7 +566,8 @@ const formData = ref<RoomFormData>({
   smokingAllowed: false,
   roomImages: [null, null, null, null],
   connectedRooms: [],
-  taxRateIds: []
+  taxRateIds: [],
+   equipements: []
 })
 
 // Available options
@@ -505,6 +576,14 @@ const availableTaxes = ref<Tax[]>([])
 const availableBedTypes = ref<BedType[]>([])
 const availableConnectRooms = ref<Room[]>([])
 const rooms = ref<Room[]>([])
+
+const amenityOptions = computed<Option[]>(() => {
+  console.log('filteredAmenities',filteredAmenities.value)
+  return filteredAmenities.value.map(a => ({
+    value: a.id,
+    label: a.amenityName
+  }))
+})
 
 // Computed options with proper typing - ensuring no undefined labels
 const roomTypeOptions = computed<Option[]>(() => {
@@ -522,11 +601,15 @@ const bedTypeOptions = computed<Option[]>(() => {
 })
 
 // Handler functions for Select components
-const handleRoomTypeChange = (value: string | number | undefined) => {
-  if (value === undefined || value === '') {
-    formData.value.roomTypeId = null
-  } else {
-    formData.value.roomTypeId = typeof value === 'string' ? Number(value) : value
+
+const loadAmenities = async () => {
+  try {
+    const resp = await getAmenities()
+    availableAmenities.value = resp.data.data?.data || resp.data.data || resp.data || []
+    console.log('availableAmenities',availableAmenities.value)
+  } catch (error) {
+    console.error('Error loading amenities:', error)
+    toast.error(t('errorLoadingAmenities'))
   }
 }
 
@@ -537,6 +620,8 @@ const handleBedTypeChange = (value: string | number | undefined) => {
     formData.value.bedTypeId = typeof value === 'string' ? Number(value) : value
   }
 }
+
+
 
 // Table configuration with proper Column typing - using const assertion
 const columns = computed(() => [
@@ -646,18 +731,33 @@ const onAction = (action: string, item: Room) => {
 
 const editRoom = (room: Room) => {
   editingRoom.value = room
-
-  // Réinitialiser les previews et les fichiers
   imagePreviews.value = []
   selectedFiles.value = []
 
-  // 🆕 Charger les images existantes dans les previews
   if (room.images && Array.isArray(room.images)) {
     room.images.slice(0, 2).forEach((imageUrl, index) => {
       if (imageUrl && typeof imageUrl === 'string') {
         imagePreviews.value[index] = imageUrl
-        // On ne met pas de fichier car c'est une URL existante
         selectedFiles.value[index] = null as any
+      }
+    })
+  }
+
+  // Construire les équipements : tous ceux du room type + quantités existantes
+  const selectedRoomType = availableRoomTypes.value.find(rt => rt.id === room.roomTypeId)
+  let mergedEquipements: RoomEquipment[] = []
+
+  if (selectedRoomType?.roomAmenities?.length) {
+    const amenitiesForType = availableAmenities.value.filter(
+      a => selectedRoomType.roomAmenities!.includes(a.id)
+    )
+    mergedEquipements = amenitiesForType.map(a => {
+      // Chercher la quantité déjà sauvegardée pour cet équipement
+      const existing = room.equipements?.find(e => e.amenity_id === a.id)
+      return {
+        amenity_id: a.id,
+        amenity_name: a.amenityName,
+        quantity: existing?.quantity ?? 0
       }
     })
   }
@@ -673,7 +773,8 @@ const editRoom = (room: Room) => {
     smokingAllowed: room.smokingAllowed,
     roomImages: [null, null, null, null],
     connectedRooms: room.connectedRooms || [],
-    taxRateIds: room.taxRates ? room.taxRates.map(e => e.taxRateId) : []
+    taxRateIds: room.taxRates ? room.taxRates.map(e => e.taxRateId) : [],
+    equipements: mergedEquipements
   }
 
   showEditModal.value = true
@@ -760,53 +861,6 @@ const removeImage = (index: number) => {
   }
 }
 
-// const saveRoom = async () => {
-//   // Validation
-//   if (!formData.value.shortCode ||
-//       !formData.value.roomNumber ||
-//       !formData.value.roomTypeId ) {
-//     toast.error(t('pleaseCompleteAllRequiredFields'))
-//     return
-//   }
-
-//   saving.value = true
-
-//   try {
-//     const roomData = {
-//       shortCode: formData.value.shortCode,
-//       roomNumber: formData.value.roomNumber,
-//       roomTypeId: formData.value.roomTypeId,
-//       bedTypeId: formData.value.bedTypeId,
-//       phoneExtension: formData.value.phoneExtension,
-//       keyCardAlias: formData.value.keyCardAlias,
-//       sortKey: formData.value.sortKey,
-//       smokingAllowed: formData.value.smokingAllowed,
-//       roomImages: formData.value.roomImages.filter(img => img !== null),
-//       connectedRooms: formData.value.connectedRooms,
-//       hotelId: serviceStore.serviceId,
-//       taxRateIds: formData.value.taxRateIds,
-//     }
-
-//     if (showEditModal.value && editingRoom.value) {
-//       // Update existing room
-//       await updateRoomById(editingRoom.value.id, roomData)
-//       toast.success(t('roomUpdatedSuccessfully'))
-//     } else {
-//       // Add new room
-//       await postRoom(roomData)
-//       toast.success(t('roomAddedSuccessfully'))
-//     }
-//     closeModal()
-//     // Reload data to reflect changes
-//     await loadData(1)
-
-//   } catch (error) {
-//     console.error('Error saving room:', error)
-//     toast.error(showEditModal.value ? t('errorUpdatingRoom') : t('errorAddingRoom'))
-//   } finally {
-//     saving.value = false
-//   }
-// }
 
 const saveRoom = async () => {
   // Validation
@@ -849,6 +903,12 @@ const saveRoom = async () => {
     formData.value.taxRateIds.forEach(taxId => {
       formDataToSend.append('taxRateIds[]', taxId.toString())
     })
+
+    // Ajouter les equipements
+    const validEquipements = formData.value.equipements.filter(e => e.amenity_id !== null)
+      if (validEquipements.length > 0) {
+        formDataToSend.append('equipements', JSON.stringify(validEquipements))
+      }
 
     // 🆕 Ajouter uniquement les NOUVEAUX fichiers uploadés
     // Si aucun nouveau fichier n'est uploadé en mode édition,
@@ -980,14 +1040,67 @@ const closeModal = () => {
     smokingAllowed: false,
     roomImages: [null, null, null, null],
     connectedRooms: [],
-    taxRateIds: []
+    taxRateIds: [],
+    equipements: []
   }
 }
 
+const handleRoomTypeChange = (value: string | number | undefined) => {
+  if (value === undefined || value === '') {
+    formData.value.roomTypeId = null
+    formData.value.equipements = []
+    return
+  }
+  
+  formData.value.roomTypeId = typeof value === 'string' ? Number(value) : value
+
+  // Précharger tous les équipements du room type avec quantité 0
+  const selectedRoomType = availableRoomTypes.value.find(
+    rt => rt.id === formData.value.roomTypeId
+  )
+
+  if (selectedRoomType?.roomAmenities?.length) {
+    const amenitiesForType = availableAmenities.value.filter(
+      a => selectedRoomType.roomAmenities!.includes(a.id)
+    )
+    formData.value.equipements = amenitiesForType.map(a => ({
+      amenity_id: a.id,
+      amenity_name: a.amenityName,
+      quantity: 0
+    }))
+  } else {
+    formData.value.equipements = []
+  }
+}
+
+
+const handleAmenityChange = (index: number, amenityId: number | string) => {
+  const id = typeof amenityId === 'string' ? Number(amenityId) : amenityId
+  const amenity = filteredAmenities.value.find(a => a.id === id)
+  if (amenity) {
+    formData.value.equipements[index].amenity_id = amenity.id
+    formData.value.equipements[index].amenity_name = amenity.amenityName
+  }
+}
+
+const filteredAmenities = computed<Amenity[]>(() => {
+  if (!formData.value.roomTypeId) return []
+
+  const selectedRoomType = availableRoomTypes.value.find(
+    rt => rt.id === formData.value.roomTypeId
+  )
+
+  if (!selectedRoomType?.roomAmenities?.length) return []
+
+  return availableAmenities.value.filter(
+    amenity => selectedRoomType.roomAmenities!.includes(amenity.id)
+  )
+})
 // Initialize data
 loadData(1)
 loadRoomTypes()
 loadBedTypes()
 loadConnectingRooms()
 loadTaxes()
+loadAmenities()
 </script>
