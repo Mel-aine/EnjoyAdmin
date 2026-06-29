@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => ({
     vueJsx(),
     // Load Vue DevTools only in development to avoid production bundle side-effects
     ...(process.env.NODE_ENV === 'development' ? [vueDevTools()] : []),
-    visualizer({ 
+    visualizer({
       filename: 'stats.html',
       open: false,
       gzipSize: true,
@@ -80,22 +80,43 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: /^\/api\/.*/i,
-            handler: 'NetworkFirst',
+            urlPattern: //api/.*/i,
+              handler: "StaleWhileRevalidate",
             options: {
-              cacheName: 'api-cache',
+              cacheName: "api-cache",
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24, // 1 jour
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 7,
               },
               cacheableResponse: {
                 statuses: [0, 200],
               },
             },
           },
+          {
+            urlPattern: /https:/fonts..*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-cache",
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
+          {
+            urlPattern: /.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "image-cache",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
         ],
       },
-    })
   ],
   resolve: {
     alias: {
@@ -112,11 +133,11 @@ export default defineConfig(({ mode }) => ({
     port: 5173,
     strictPort: true,
   },
-/*  server: {
-    host: '0.0.0.0',
-    port: parseInt(process.env.PORT || '5173'),
-  },
-*/
+  /*  server: {
+      host: '0.0.0.0',
+      port: parseInt(process.env.PORT || '5173'),
+    },
+  */
   preview: {
     host: '0.0.0.0',
     port: parseInt(process.env.PORT || '4173'),
@@ -136,7 +157,7 @@ export default defineConfig(({ mode }) => ({
           const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop()?.replace('.vue', '') : 'chunk'
           return `js/[name]-[hash].js`
         },
-        assetFileNames: (assetInfo:any) => {
+        assetFileNames: (assetInfo: any) => {
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
           if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name)) {

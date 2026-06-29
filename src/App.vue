@@ -6,6 +6,7 @@
         <SubscriptionBlockedModal :isOpen="true" :supportMailtoUrl="supportMailtoUrl" @renew="openSubscriptionRenewal" />
       </template>
       <template v-else>
+        <ConnectionStatus v-if="authStore.isFullyAuthenticated && !isLoginRoute" />
         <MaintenanceBanner
           :visible="authStore.isFullyAuthenticated && !isLoginRoute && !!maintenanceAnnouncement"
           :typeLabel="maintenanceTypeLabel"
@@ -52,12 +53,16 @@ import MaintenanceBanner from '@/components/announcements/MaintenanceBanner.vue'
 import UpdateAnnouncementModal from '@/components/announcements/UpdateAnnouncementModal.vue'
 import SubscriptionBlockedModal from '@/components/subscription/SubscriptionBlockedModal.vue'
 import SubscriptionExpiringSoonModal from '@/components/subscription/SubscriptionExpiringSoonModal.vue'
+import ConnectionStatus from '@/components/common/ConnectionStatus.vue'
 import { useAuthStore } from '@/composables/user'
+import { useServiceStore } from '@/composables/serviceStore'
 import OverLoading from '@/components/spinner/OverLoading.vue'
 import TopProgressBar from '@/components/spinner/TopProgressBar.vue'
 import { isCheckoutOverlay } from '@/composables/spinner'
 import {stopAuthAutoRefresh,startAuthAutoRefresh, getActiveAnnouncements}  from '@/services/api'
 import { usePwaUpdate } from '@/composables/usePwaUpdate'
+import { syncManager } from '@/services/offline/syncManager'
+import { useConnection } from '@/composables/useConnection'
 import { useToast } from 'vue-toastification'
 const toast = useToast()
 const useLanguage = useLanguageStore();
@@ -515,6 +520,21 @@ watch(
       addActivityListeners()
 
       // Démarrer le refresh automatique
+      // Initialiser le mode offline
+      try {
+        const hotelId = serviceStore.currentService?.id
+        if (hotelId) {
+          syncManager.init(hotelId)
+          syncManager.checkOfflineModeStatus().then((enabled) => {
+            if (enabled) {
+              syncManager.startPeriodicSync()
+            }
+          })
+        }
+      } catch (e) {
+        console.debug('[Sync] Init failed:', e)
+      }
+
       startAuthAutoRefresh()
 
       if (authStore.reauthRequired && !isLoginRoute.value) {
@@ -525,6 +545,7 @@ watch(
     } else {
       removeActivityListeners()
       clearIdleTimer()
+      syncManager.stopPeriodicSync()
       stopAuthAutoRefresh()
       isReAuthOpen.value = false
       authStore.setReauthRequired(false)
