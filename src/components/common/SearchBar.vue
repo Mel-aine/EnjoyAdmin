@@ -14,6 +14,17 @@
         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900  dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
         @input="handleInput" @focus="showDropdown = true" @blur="handleBlur" @keydown="handleKeydown" />
 
+      <!-- Badge Cache local -->
+      <div v-if="fromCache && !isLoading"
+        class="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-[4.5px] text-xs font-medium text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-400">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        </svg>
+        <span>Cache</span>
+      </div>
+
       <!-- Loading Spinner -->
       <div v-if="isLoading"
         class="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
@@ -24,7 +35,7 @@
       </div>
 
       <!-- Command Key Button -->
-      <button v-else
+      <button v-if="!fromCache && !isLoading"
         class="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
         <span>⌘</span>
         <span>K</span>
@@ -114,8 +125,21 @@
         </div>
       </div>
 
+      <!-- En-tête du cache local -->
+      <div v-if="fromCache && searchResults.length > 0"
+        class="sticky top-0 z-10 px-3 py-1.5 bg-amber-50 border-b border-amber-200 dark:bg-amber-900/15 dark:border-amber-800/40">
+        <div class="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400">
+          <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
+          <span class="font-medium">{{ $t('offlinePage.cachedResults') || 'Résultats du cache local' }}</span>
+        </div>
+      </div>
+
       <!-- No Results -->
-      <div v-else-if="searchQuery && !isLoading" class="px-4 py-2 text-gray-500 dark:text-gray-400 text-center">
+      <div v-if="searchQuery && !isLoading && searchResults.length === 0" class="px-4 py-2 text-gray-500 dark:text-gray-400 text-center">
         {{ t('noReservationsFound') }}
       </div>
     </div>
@@ -128,6 +152,8 @@ import { ref, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useServiceStore } from '@/composables/serviceStore'
 import { filterReservation } from '@/services/hotelApi'
+import { useOfflineStore } from '@/services/offline/offlineStore'
+import { db } from '@/services/offline/db'
 import type { FitlterItem, ReservationDetails } from '@/utils/models'
 // Modal moved to AppHeader; emit selection to parent instead
 import {  formatTimeFromTimeString } from '../utilities/UtilitiesFunction'
@@ -152,9 +178,11 @@ const emit = defineEmits<Emits>()
 const { t } = useI18n()
 
 const serviceStore = useServiceStore()
+const offlineStore = useOfflineStore()
 const searchQuery = ref(props.modelValue || '')
 const searchResults = ref<ReservationDetails[]>([])
 const isLoading = ref(false)
+const fromCache = ref(false)
 const showDropdown = ref(false)
 // Selection state held in parent; component emits 'select'
 const selectedIndex = ref(-1)
@@ -198,6 +226,12 @@ const performSearch = async () => {
   isLoading.value = true
 
   try {
+    // Mode hors ligne : recherche dans le cache local
+    if (!offlineStore.isOnline) {
+      await performOfflineSearch()
+      return
+    }
+
     const filter: FitlterItem = {
       searchText: searchQuery.value.trim(),
       status: '',
@@ -209,12 +243,73 @@ const performSearch = async () => {
     const response = await filterReservation(serviceStore.serviceId, filter)
     console.log('filter response', response)
     searchResults.value = response.data.reservations || []
+    fromCache.value = false
     showDropdown.value = true
   } catch (error) {
     console.error('Error searching reservations:', error)
-    searchResults.value = []
+    // En cas d'erreur réseau, essayer le cache local
+    if (!offlineStore.isOnline) {
+      await performOfflineSearch()
+    } else {
+      searchResults.value = []
+    }
   } finally {
     isLoading.value = false
+  }
+}
+
+/**
+ * Recherche dans le cache IndexedDB local quand on est hors ligne
+ */
+async function performOfflineSearch() {
+  const hotelId = serviceStore.serviceId
+  if (!hotelId) {
+    searchResults.value = []
+    showDropdown.value = true
+    return
+  }
+
+  try {
+    const cacheKey = `sync:reservation:${hotelId}`
+    const entry = await db.apiCache.where('key').equals(cacheKey).first()
+    
+    if (!entry || !Array.isArray(entry.data)) {
+      console.warn('No cached reservations available for offline search')
+      searchResults.value = []
+      showDropdown.value = true
+      return
+    }
+
+    const searchTerm = searchQuery.value.trim().toLowerCase()
+    if (!searchTerm) {
+      searchResults.value = []
+      showDropdown.value = true
+      return
+    }
+
+    const reservations: any[] = entry.data
+    const filtered = reservations.filter((r) => {
+      const displayName = (r.guest?.displayName || '').toLowerCase()
+      const firstName = (r.guest?.firstName || '').toLowerCase()
+      const lastName = (r.guest?.lastName || '').toLowerCase()
+      const resNumber = String(r.reservationNumber || '').toLowerCase()
+      
+      return (
+        displayName.includes(searchTerm) ||
+        firstName.includes(searchTerm) ||
+        lastName.includes(searchTerm) ||
+        resNumber.includes(searchTerm)
+      )
+    })
+
+    searchResults.value = filtered as ReservationDetails[]
+    fromCache.value = true
+    showDropdown.value = true
+  } catch (error) {
+    console.error('Error searching offline cache:', error)
+    searchResults.value = []
+    fromCache.value = true
+    showDropdown.value = true
   }
 }
 

@@ -42,14 +42,39 @@
         </div>
         <SearchBar @select="handleReservationSelect" />
 
-        <!-- Indicateur connexion en ligne/hors ligne -->
-        <div
-          class="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-300"
-          :class="offlineStore.syncStatusColor"
-          :title="offlineStore.syncStatusLabel"
-        >
-          <span class="h-2 w-2 rounded-full" :class="offlineStore.dotColor" />
-          <span class="hidden sm:inline">{{ offlineStore.syncStatusLabel }}</span>
+        <!-- Indicateur connexion + bouton sync -->
+        <div class="flex items-center gap-1">
+          <div
+            class="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-300"
+            :class="offlineStore.syncStatusColor"
+            :title="offlineStore.syncStatusLabel"
+          >
+            <span class="h-2 w-2 rounded-full" :class="offlineStore.dotColor" />
+            <span class="hidden sm:inline">{{ offlineStore.syncStatusLabel }}</span>
+          </div>
+
+          <!-- Bouton de synchronisation manuelle -->
+          <button
+            @click="handleSync"
+            :disabled="syncing"
+            class="flex items-center justify-center w-7 h-7 rounded-md transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            :title="syncing ? 'Synchronisation...' : 'Synchroniser maintenant'"
+          >
+            <svg
+              :class="{ 'animate-spin': syncing }"
+              class="w-4 h-4 text-gray-500 dark:text-gray-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+          </button>
         </div>
       </div>
       <div class="lg:flex self-center justify-center align-middle hidden">
@@ -176,7 +201,38 @@ import NotificationModal from '../modal/NotificationModal.vue'
 import { fetchMyNotifications, markNotificationRead, type NotificationItem } from '@/services/notificationsApi'
 import { subscribeNotifications, type Unsubscribe } from '@/services/notificationsStream'
 import { useOfflineStore } from '@/services/offline/offlineStore'
+import { syncManager } from '@/services/offline/syncManager'
+import { useServiceStore } from '@/composables/serviceStore'
+import { useToast } from 'vue-toastification'
+
 const offlineStore = useOfflineStore()
+const serviceStore = useServiceStore()
+const toast = useToast()
+
+const syncing = ref(false)
+
+async function handleSync() {
+  if (syncing.value) return
+  syncing.value = true
+  offlineStore.setSyncing(true)
+
+  try {
+    const hotelId = serviceStore?.serviceId
+    if (hotelId) {
+      syncManager.init(hotelId)
+    }
+    await syncManager.sync()
+    await offlineStore.refreshPendingCount()
+
+    toast.success('Synchronisation terminée')
+  } catch (e) {
+    console.warn('[Sync] Manual sync failed:', e)
+    toast.error('Erreur de synchronisation')
+  } finally {
+    syncing.value = false
+    offlineStore.setSyncing(false)
+  }
+}
 
 const authStore = useAuthStore();
 const showNotification = ref(false)

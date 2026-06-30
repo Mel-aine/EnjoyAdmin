@@ -20,6 +20,7 @@ import {
   isSyncing,
 } from '../services/offline/connectionState.js'
 import type { ConnectionQuality } from '../services/offline/connectionState.js'
+import { useOfflineStore } from '../services/offline/offlineStore.js'
 
 let unstableTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -27,6 +28,10 @@ function handleOnline() {
   isOnline.value = true
   connectionQuality.value = 'online'
   lastOnlineAt.value = new Date()
+
+  // Synchroniser le store Pinia (utilisé par AppHeader)
+  const offlineStore = useOfflineStore()
+  offlineStore.setOnline(true)
 
   if (unstableTimeout) {
     clearTimeout(unstableTimeout)
@@ -37,10 +42,13 @@ function handleOnline() {
 }
 
 function handleOffline() {
-  isOnline.value = false
-  connectionQuality.value = 'offline'
+  // Événement navigateur 'offline' — fiable, pas de debounce
+  const offlineStore = useOfflineStore()
+  offlineStore.setOfflineImmediate()
+
   lastOfflineAt.value = new Date()
   isSyncing.value = false
+
   syncManager.stopPeriodicSync()
 }
 
@@ -95,6 +103,10 @@ export function useConnection() {
     window.addEventListener('offline', handleOffline)
     startPendingRefresh()
     offlineQueue.pendingCount().then((count) => { pendingOperations.value = count })
+
+    // Synchroniser le store Pinia avec l'état actuel de la connexion au montage
+    const offlineStore = useOfflineStore()
+    offlineStore.setOnline(navigator.onLine)
   })
 
   onUnmounted(() => {

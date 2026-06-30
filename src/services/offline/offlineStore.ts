@@ -8,6 +8,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { db } from './db.js'
+import { isOnline as connectionIsOnline, connectionQuality } from './connectionState.js'
 
 export const useOfflineStore = defineStore('offline', () => {
   // ── State ────────────────────────────────────────────────────
@@ -69,6 +70,17 @@ export const useOfflineStore = defineStore('offline', () => {
   const hasConflicts = computed(() => conflictsCount.value > 0)
   const isOffline = computed(() => !isOnline.value)
 
+  // ── Debounce pour éviter les faux positifs ────────────────────
+  const OFFLINE_DEBOUNCE_MS = 4000
+  let _pendingOfflineTimer: ReturnType<typeof setTimeout> | null = null
+
+  function cancelPendingOffline() {
+    if (_pendingOfflineTimer) {
+      clearTimeout(_pendingOfflineTimer)
+      _pendingOfflineTimer = null
+    }
+  }
+
   // ── Actions ───────────────────────────────────────────────────
   async function refreshPendingCount() {
     try {
@@ -87,7 +99,39 @@ export const useOfflineStore = defineStore('offline', () => {
   }
 
   function setOnline(value: boolean) {
-    isOnline.value = value
+    if (value) {
+      // Retour en ligne → annuler tout debounce et remettre online
+      cancelPendingOffline()
+      isOnline.value = true
+      connectionIsOnline.value = true
+      connectionQuality.value = 'online'
+    } else {
+      // Perte de connexion détectée → debounce pour éviter les faux positifs
+      // Ne pas relancer le timer s'il est déjà en cours
+      if (_pendingOfflineTimer) return
+
+      // Passer immédiatement en 'instable' pour le feedback UI
+      connectionQuality.value = 'unstable'
+
+      // Confirmer hors ligne seulement après le délai de debounce
+      _pendingOfflineTimer = setTimeout(() => {
+        isOnline.value = false
+        connectionIsOnline.value = false
+        connectionQuality.value = 'offline'
+        _pendingOfflineTimer = null
+      }, OFFLINE_DEBOUNCE_MS)
+    }
+  }
+
+  /**
+   * Passage immédiat en mode hors ligne (pour les événements navigateur 'offline',
+   * qui sont plus fiables et ne nécessitent pas de debounce)
+   */
+  function setOfflineImmediate() {
+    cancelPendingOffline()
+    isOnline.value = false
+    connectionIsOnline.value = false
+    connectionQuality.value = 'offline'
   }
 
   function setSyncing(value: boolean) {
@@ -130,6 +174,7 @@ export const useOfflineStore = defineStore('offline', () => {
     // Actions
     refreshPendingCount,
     setOnline,
+    setOfflineImmediate,
     setSyncing,
     setLastSync,
     setInitialLoading,

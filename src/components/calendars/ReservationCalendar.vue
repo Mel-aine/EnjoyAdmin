@@ -1859,21 +1859,30 @@ function getRoomBlockColor(status: string) {
   return getReservationColor('blocked')
 }
 
-// --- API CALL ---
+// --- API CALL avec fallback offline ---
 const getLocaleDailyOccupancyAndReservations = async () => {
   isLoading.value = !laoded.value
   isRefreshing.value = laoded.value
   const serviceId = serviceStore.serviceId!
-  const response = await getDailyOccupancyAndReservations(
-    serviceId,
-    start_date.value,
-    end_date.value,
-  )
-  serviceResponse.value = response.data
-  console.log('this is the response', response)
-  isLoading.value = false
-  isRefreshing.value = false
-  laoded.value = true
+  try {
+    const response = await getDailyOccupancyAndReservations(
+      serviceId,
+      start_date.value,
+      end_date.value,
+    )
+    serviceResponse.value = response.data
+    console.log('this is the response', response)
+  } catch (error) {
+    console.warn('[Calendar] Failed to load data:', error)
+    // Garder les données précédentes si disponibles
+    if (!laoded.value) {
+      serviceResponse.value = { grouped_reservation_details: [], daily_occupancy_metrics: [], room_blocks: [] }
+    }
+  } finally {
+    isLoading.value = false
+    isRefreshing.value = false
+    laoded.value = true
+  }
 }
 // const refresh = async () => {
 //   isRefreshing.value = true

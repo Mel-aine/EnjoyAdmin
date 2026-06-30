@@ -4,6 +4,7 @@ import type { AxiosResponse } from 'axios'
 import { useAuthStore } from '@/composables/user'
 import type { FitlterItem } from '../utils/models'
 import { useServiceStore } from '../composables/serviceStore'
+import { db } from './offline/db.js'
 const axios = apiClient
 
 const API_URL = `${import.meta.env.VITE_API_URL as string}/hotels`
@@ -163,11 +164,11 @@ export const getOfflineModeStatus = (id: number): Promise<AxiosResponse<any>> =>
   return axios.get(`${API_URL}/${id}/offline-mode-status`, getHeaders())
 }
 
-// Find reservation
-// export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
-//   let qs = ``
-export const filterReservation = (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
-const params = new URLSearchParams()
+/**
+ * Search/filter reservations with offline cache fallback.
+ */
+export const filterReservation = async (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
+  const params = new URLSearchParams()
 
   if (filter.checkInDate) params.append('checkInDate', filter.checkInDate)
   if (filter.checkOutDate) params.append('checkOutDate', filter.checkOutDate)
@@ -185,5 +186,64 @@ const params = new URLSearchParams()
   if (filter.showBookings) params.append('showBookings', filter.showBookings)
 
   const qs = params.toString()
-  return axios.get(`${API_URL}/${id}/reservation/search${qs ? '?' + qs : ''}`, getHeaders())
+  const url = `${API_URL}/${id}/reservation/search${qs ? '?' + qs : ''}`
+  const cacheKey = `filter-reservation:${id}:${qs}`
+
+  try {
+    const response = await axios.get(url, getHeaders())
+    // Mettre en cache la réponse
+    try {
+      await db.apiCache.where('key').equals(cacheKey).delete()
+      await db.apiCache.add({ key: cacheKey, data: response.data, cachedAt: Date.now(), ttl: 10 * 60 * 1000 })
+    } catch {}
+    return response
+  } catch (error: any) {
+    // En cas d'erreur réseau, essayer le cache local
+    if (!error?.response || error?.code === 'ECONNABORTED' || error?.message === 'Network Error') {
+      try {
+        // Essayer d'abord le cache spécifique de cette recherche
+        const cached = await db.apiCache.where('key').equals(cacheKey).first()
+        if (cached) {
+          return { data: cached.data, status: 200, statusText: 'OK', headers: {}, config: {} } as AxiosResponse
+        }
+        // Fallback: chercher toutes les réservations en cache et filtrer localement
+        const allEntry = await db.apiCache.where('key').equals(`sync:reservation:${id}`).first()
+        if (allEntry && Array.isArray(allEntry.data)) {
+          const searchTerm = (filter.searchText || '').toLowerCase()
+          const today = new Date().toISOString().split('T')[0]
+          const filtered = allEntry.data.filter((r: any) => {
+            if (!searchTerm) return true
+            const name = (r.guest?.displayName || r.guest?.firstName || '').toLowerCase()
+            const num = String(r.reservationNumber || '').toLowerCase()
+            return name.includes(searchTerm) || num.includes(searchTerm)
+          })
+          // Calculer les statistiques de base
+          const arrivals = filtered.filter((r: any) => (r.arrivedDate || '').startsWith(today)).length
+          const departures = filtered.filter((r: any) => (r.departDate || '').startsWith(today)).length
+          const inHouse = filtered.filter((r: any) =>
+            r.status === 'checked_in' &&
+            (r.arrivedDate || '') <= today &&
+            (r.departDate || '') > today
+          ).length
+
+          return {
+            data: {
+              reservations: filtered,
+              statistics: {
+                totalReservations: filtered.length,
+                arrivals,
+                departures,
+                inHouse,
+              },
+            },
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config: {},
+          } as AxiosResponse
+        }
+      } catch {}
+    }
+    throw error
+  }
 }

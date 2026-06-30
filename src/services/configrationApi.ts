@@ -7,6 +7,7 @@ import type {
   RoomTypeData,
 } from '@/types/option'
 import { useServiceStore } from '../composables/serviceStore'
+import { db } from './offline/db.js'
 
 const URL = `${import.meta.env.VITE_API_URL as string}`
 
@@ -381,10 +382,31 @@ export const deleteRoomById = (id: number): Promise<AxiosResponse<any>> => {
 }
 
 /**
- * get Room Detail
+ * get Room Detail (avec cache offline)
  */
-export const getRoomsWithDetails = (hotelId: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/rooms/views/details`, getHeaders())
+export const getRoomsWithDetails = async (hotelId: number): Promise<AxiosResponse<any>> => {
+  const cacheKey = `rooms-details:${hotelId}`
+
+  try {
+    const response = await axios.get(`${API_URL()}/rooms/views/details`, getHeaders())
+    // Mettre en cache
+    try {
+      await db.apiCache.where('key').equals(cacheKey).delete()
+      await db.apiCache.add({ key: cacheKey, data: response.data, cachedAt: Date.now(), ttl: 15 * 60 * 1000 })
+    } catch {}
+    return response
+  } catch (error: any) {
+    // En cas d'erreur réseau, essayer le cache
+    if (!error?.response || error?.code === 'ECONNABORTED' || error?.message === 'Network Error') {
+      try {
+        const cached = await db.apiCache.where('key').equals(cacheKey).first()
+        if (cached) {
+          return { data: cached.data, status: 200, statusText: 'OK', headers: {}, config: {} } as AxiosResponse
+        }
+      } catch {}
+    }
+    throw error
+  }
 }
 
 /***
