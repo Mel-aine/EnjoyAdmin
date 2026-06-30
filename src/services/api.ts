@@ -738,33 +738,43 @@ export const deleteAmenityBooking = (id: number): Promise<AxiosResponse<any>> =>
  * @returns {Promise<Array>} A promise that resolves to an array of task objects.
  */
 /**
- * Fetches daily occupancy and reservations with offline cache fallback.
+ * Fetches daily occupancy and reservations with offline-aware support.
+ * Utilise offlineAwareApiCall pour bénéficier du cache automatique
+ * et du fallback hors ligne sans duplication de code.
  */
 export const getDailyOccupancyAndReservations = async (
   serviceId: number,
   start_date: string,
   end_date: string,
 ): Promise<AxiosResponse<any>> => {
-  const cacheKey = `daily-occupancy:${serviceId}:${start_date}:${end_date}`
+  const url = `/dashboard/service/${serviceId}/daily-occupancy?start_date=${start_date}&end_date=${end_date}`
 
   try {
-    const response = await axios.get(
-      `${API_URL}/dashboard/service/${serviceId}/daily-occupancy?start_date=${start_date}&end_date=${end_date}`,
-      getHeaders(),
-    )
-    // Mettre en cache la réponse pour le mode hors ligne
-    try {
-      await db.apiCache.where('key').equals(cacheKey).delete()
-      await db.apiCache.add({ key: cacheKey, data: response.data, cachedAt: Date.now(), ttl: 15 * 60 * 1000 })
-    } catch {}
-    return response
+    // On importe dynamiquement pour éviter les dépendances circulaires
+    const { offlineAwareApiCall } = await import('./offline/apiProxy.js')
+
+    const result = await offlineAwareApiCall('GET', url, {
+      resourceType: 'daily_occupancy',
+      params: { serviceId, start_date, end_date },
+      cacheTTL: 15 * 60 * 1000, // 15 minutes
+    })
+
+    return {
+      data: result.data,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {},
+    } as AxiosResponse
   } catch (error: any) {
-    // En cas d'erreur réseau, essayer le cache
+    // En cas d'erreur réseau, essayer le cache direct IndexedDB
     if (!error?.response || error?.code === 'ECONNABORTED' || error?.message === 'Network Error') {
       try {
+        const { db } = await import('./offline/db.js')
+        const cacheKey = `daily-occupancy:${serviceId}:${start_date}:${end_date}`
         const cached = await db.apiCache.where('key').equals(cacheKey).first()
         if (cached) {
-          return { data: cached.data, status: 200, statusText: 'OK', headers: {}, config: {} } as AxiosResponse
+          return { data: cached.data, status: 200, statusText: 'OK (cache)', headers: {}, config: {} } as AxiosResponse
         }
       } catch {}
     }

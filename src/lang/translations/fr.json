@@ -2263,6 +2263,7 @@
     "serverVersion": "Version serveur",
     "keepLocal": "Garder la locale",
     "keepServer": "Garder la serveur",
+    "merged": "Accepter les deux (fusion)",
     "cancel": "Annuler",
     "resourceLabels": {
       "reservation": "Réservation",
@@ -8943,7 +8944,9 @@
   "Please select a channel type first": "Veuillez d'abord sélectionner type canal",
   "connection": {
     "test_failed": "Test connexion échoué: {message}",
-    "save_failed": "Échec sauvegarde connexion: {message}"
+    "save_failed": "Échec sauvegarde connexion: {message}",
+    "backOnline": "Connexion rétablie",
+    "offline": "Vous êtes hors ligne"
   },
   "Failed to calculate final bill": "Échec calcul facture finale",
   "Failed to load reservation details": "Échec chargement détails réservation",

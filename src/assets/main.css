@@ -851,11 +851,54 @@ span.flatpickr-weekday,
 
 .social-button {
   @apply flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200;
-}
-
-.edit-button {
+}.edit-button {
   @apply flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto;
 }
+
+/* ── Connection toasts (style Facebook / YouTube) ────────────── */
+.connection-toast {
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 10px !important;
+  padding: 12px 18px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12) !important;
+  min-width: 200px;
+  max-width: 360px;
+  backdrop-filter: blur(8px);
+}
+
+.connection-toast.Vue-Toastification__toast--success {
+  background: #12b76a !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.connection-toast.Vue-Toastification__toast--warning {
+  background: #f79009 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.dark .connection-toast.Vue-Toastification__toast--success {
+  background: #039855 !important;
+}
+
+.dark .connection-toast.Vue-Toastification__toast--warning {
+  background: #dc6803 !important;
+}
+
+.connection-toast .Vue-Toastification__close-button {
+  display: none;
+}
+
+.connection-toast .Vue-Toastification__icon {
+  margin-right: 8px;
+}
+
+.connection-toast .Vue-Toastification__toast-body {
+  font-family: Outfit, sans-serif;
+}
+
 /* Global Void Styling */
 .void-status {
   color: gray;
@@ -1252,11 +1295,54 @@ span.flatpickr-weekday,
 
 .social-button {
   @apply flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200;
-}
-
-.edit-button {
+}.edit-button {
   @apply flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto;
 }
+
+/* ── Connection toasts (style Facebook / YouTube) ────────────── */
+.connection-toast {
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 10px !important;
+  padding: 12px 18px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12) !important;
+  min-width: 200px;
+  max-width: 360px;
+  backdrop-filter: blur(8px);
+}
+
+.connection-toast.Vue-Toastification__toast--success {
+  background: #12b76a !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.connection-toast.Vue-Toastification__toast--warning {
+  background: #f79009 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.dark .connection-toast.Vue-Toastification__toast--success {
+  background: #039855 !important;
+}
+
+.dark .connection-toast.Vue-Toastification__toast--warning {
+  background: #dc6803 !important;
+}
+
+.connection-toast .Vue-Toastification__close-button {
+  display: none;
+}
+
+.connection-toast .Vue-Toastification__icon {
+  margin-right: 8px;
+}
+
+.connection-toast .Vue-Toastification__toast-body {
+  font-family: Outfit, sans-serif;
+}
+
 /* Global Void Styling */
 .void-status {
   color: gray;

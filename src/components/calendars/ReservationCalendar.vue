@@ -890,6 +890,8 @@ import RoomSelectionModal from '../modal/RoomSelectionModal.vue'
 import { formatCurrency, formatDateLocal } from '../utilities/UtilitiesFunction'
 import SplitIcon from '@/icons/BookingStatus/splitIcon.vue'
 import { getHotelById } from '../../services/hotelApi'
+import { getRateTypes } from '@/services/rateTypeApi'
+import { useOfflineStore } from '@/services/offline/offlineStore'
 import { useAuthStore } from '../../composables/user'
 
 
@@ -1024,6 +1026,7 @@ function getRoomStatusIcon(status: string) {
 }
 
 const serviceStore = useServiceStore()
+const offlineStore = useOfflineStore()
 const { t, locale } = useI18n()
 const serviceResponse = ref<any>({})
 const showModalAddingModal = ref<boolean>(false)
@@ -2081,10 +2084,25 @@ const fectRateTypes = async () => {
   loadingRates.value = true
 
   try {
-    const data = serviceStore.rateTypes || []
+    let data = serviceStore.rateTypes || []
+
+    // Fallback: charger depuis l'API (offline-aware) si le store est vide
+    if (data.length === 0 && serviceStore.serviceId) {
+      console.warn('[Calendar] No rate types in store, fetching from API...')
+      try {
+        const apiResult = await getRateTypes(serviceStore.serviceId)
+        const apiData = apiResult?.data ?? apiResult ?? []
+        if (Array.isArray(apiData) && apiData.length > 0) {
+          data = apiData
+          serviceStore.setRateTypes(data)
+        }
+      } catch (apiErr) {
+        console.warn('[Calendar] Failed to fetch rate types from API:', apiErr)
+      }
+    }
 
     if (data.length === 0) {
-      console.warn(' No rate types in serviceStore')
+      console.warn('[Calendar] No rate types available (offline & no cache)')
       loadingRates.value = false
       return []
     }
@@ -2104,11 +2122,11 @@ const fectRateTypes = async () => {
     if (rateTypeOptions.value.length > 0) {
       selectRateType.value = rateTypeOptions.value[0].value
     } else {
-      console.error(' No valid options created!')
+      console.error('[Calendar] No valid options created!')
     }
 
   } catch (error) {
-    console.error(' Error in fectRateTypes:', error)
+    console.error('[Calendar] Error in fectRateTypes:', error)
   } finally {
     loadingRates.value = false
   }

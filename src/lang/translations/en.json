@@ -2272,6 +2272,7 @@
     "serverVersion": "Server version",
     "keepLocal": "Keep local",
     "keepServer": "Keep server",
+    "merged": "Accept both (merge)",
     "cancel": "Cancel",
     "resourceLabels": {
       "reservation": "Reservation",
@@ -8795,7 +8796,9 @@
   "Please select a channel type first": "Please select a channel type first",
   "connection": {
     "test_failed": "Connection test failed: {message}",
-    "save_failed": "Failed to save connection: {message}"
+    "save_failed": "Failed to save connection: {message}",
+    "backOnline": "Back online",
+    "offline": "You are offline"
   },
   "Failed to calculate final bill": "Failed to calculate final bill",
   "Failed to load reservation details": "Failed to load reservation details",

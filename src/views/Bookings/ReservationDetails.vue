@@ -368,7 +368,7 @@ import {
 } from 'lucide-vue-next';
 import type { ActivityLog, ReservationDetails } from '@/utils/models';
 import router from '@/router';
-import { getReservationDetailsById, getReservationHistoryById, getUnPaidAmenityBookingByReservationId } from '@/services/api';
+import { getReservationDetailsById, getReservationHistoryById, getUnPaidAmenityBookingByReservationId } from '@/services/reservation';
 import OverLoading from '@/components/spinner/OverLoading.vue';
 import { formatCurrency, formatDateT } from '@/components/utilities/UtilitiesFunction';
 import PaymentModal from './PaymentModal.vue';
@@ -398,20 +398,26 @@ const openPaymentAmenity = ref(false);
 const activitiesLogs = ref<ActivityLog[]>([]);
 const getBookingDetails = async () => {
   isLoading.value = true;
+  // getReservationDetailsById retourne directement le corps de la réponse (offline-aware)
   const response = await getReservationDetailsById(parseInt(reservation_id))
   console.log('this is the reservation', response)
-  activitiesLogs.value = await (await getReservationHistoryById(parseInt(reservation_id))).data
-  if (response.status === 200) {
-    selectBooking.value = response.data;
+  if (response) {
+    // response est le corps JSON : soit { data: {...} } soit directement l'objet réservation
+    selectBooking.value = response?.data ?? (Array.isArray(response) ? null : response)
   }
+  // getReservationHistoryById retourne directement le corps : { data: [...] }
+  const historyResponse = await getReservationHistoryById(parseInt(reservation_id))
+  activitiesLogs.value = historyResponse?.data ?? historyResponse ?? []
   isLoading.value = false;
 }
+
 const getUnPaidAmenityBooking = async () => {
   isLoading.value = true;
+  // getUnPaidAmenityBookingByReservationId retourne directement le corps
   const response = await getUnPaidAmenityBookingByReservationId(parseInt(reservation_id))
   console.log('this is the unPaid Amenity Booking', response)
-  if (response.status === 200) {
-    unpaidDetails.value = response.data;
+  if (response) {
+    unpaidDetails.value = response.data ?? response
   }
   isLoading.value = false;
 }

@@ -506,24 +506,9 @@ onMounted(() => {
     toast.success(t.t('common.appUpdated'))
   }
 
-  // Écouteur de reconnexion toast
-  window.addEventListener('app:online', async () => {
-    const hotelId = useServiceStore()?.getCurrentService?.id
-    if (hotelId) {
-      toast.info(t.t('common.syncing'), { timeout: 3000 })
-      try {
-        await syncManager.sync()
-        toast.success(t.t('common.syncComplete'))
-      } catch {
-        toast.error(t.t('common.syncError'))
-      }
-    }
-  })
-
-  // Écouteur de perte de connexion
-  window.addEventListener('app:offline', () => {
-    toast.warning(t.t('common.offlineMode'), { timeout: 4000 })
-  })
+  // Note: les toasts de connexion/perte de connexion sont gérés
+  // directement dans useConnection.ts (handleOnline / handleOffline)
+  // pour un affichage immédiat et sans duplication.
 
 })
 

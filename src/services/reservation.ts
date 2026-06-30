@@ -618,6 +618,39 @@ export const applyDiscountReservationDetails = async (reservationId: number, dat
 
 
 // ═══════════════════════════════════════════════════════════════════════
+//  HISTORIQUE & ACTIVITÉS
+// ═══════════════════════════════════════════════════════════════════════
+
+/** Récupérer l'historique d'une réservation */
+export const getReservationHistoryById = async (reservationId: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/activity-logs/by-entity`, {
+      resourceType: 'reservation',
+      resourceId: reservationId,
+      params: { entityType: 'Reservation', entityId: reservationId },
+    })
+    return result.data
+  } catch (error) {
+    console.error('Erreur récupération historique réservation:', error)
+    throw error
+  }
+}
+
+/** Récupérer les amenity bookings non payés d'une réservation */
+export const getUnPaidAmenityBookingByReservationId = async (reservationId: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/reservations/${reservationId}/unpaid-amenities`, {
+      resourceType: 'reservation',
+      resourceId: reservationId,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Erreur récupération amenity bookings non payés:', error)
+    throw error
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 //  IMPRESSION — Conservent axios direct (besoin de responseType: 'blob')
 // ═══════════════════════════════════════════════════════════════════════
 

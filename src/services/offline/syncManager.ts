@@ -11,6 +11,7 @@
  */
 import { v4 as uuidv4 } from 'uuid'
 import { useOfflineStore } from './offlineStore.js'
+import type { PushConflict } from './offlineStore.js'
 import apiClient from '../apiClient.js'
 import { offlineQueue } from './queue.js'
 import {
@@ -311,10 +312,25 @@ class SyncManager {
         await offlineQueue.markCompleted(opId.operationId)
       }
 
+      const pushConflicts: PushConflict[] = []
       for (const conflict of result.conflicts) {
         // Ne pas auto-merger — stocker les conflits pour résolution utilisateur
         // via le ConflictResolutionModal
         await offlineQueue.markCompleted(conflict.operationId)
+        // Préserver le resourceType (le GET /sync/conflicts pourrait ne pas le retourner)
+        pushConflicts.push({
+          operationId: conflict.operationId,
+          resourceType: conflict.resourceType,
+          resourceId: conflict.resourceId,
+          clientVersion: conflict.clientVersion,
+          serverVersion: conflict.serverVersion,
+          clientData: conflict.clientData,
+          serverData: conflict.serverData,
+        })
+      }
+      if (pushConflicts.length > 0) {
+        const offlineStore = useOfflineStore()
+        offlineStore.pushConflicts = pushConflicts
       }
 
       for (const err of result.errors) {

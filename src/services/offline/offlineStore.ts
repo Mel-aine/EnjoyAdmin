@@ -12,6 +12,17 @@ import { isOnline as connectionIsOnline, connectionQuality } from './connectionS
 import { fetchConflicts, resolveConflict as resolveConflictApi } from './syncApi.js'
 import type { SyncConflict, ConflictResolution } from './syncApi.js'
 
+/** Type partiel des conflits retournés par le push (sans id/hotelId/resolution/dates) */
+export interface PushConflict {
+  operationId: string
+  resourceType: string
+  resourceId: number
+  clientVersion: number
+  serverVersion: number
+  clientData: Record<string, any>
+  serverData: Record<string, any>
+}
+
 export const useOfflineStore = defineStore('offline', () => {
   // ── State ────────────────────────────────────────────────────
   const isOnline = ref(navigator.onLine)
@@ -24,6 +35,9 @@ export const useOfflineStore = defineStore('offline', () => {
   const isConflictModalVisible = ref(false)
   const isInitialLoading = ref(false)
   const initialLoadProgress = ref(0)
+
+  /** Conflits reçus du push (pour préserver resourceType que le GET pourrait omettre) */
+  const pushConflicts = ref<PushConflict[]>([])
 
   // ── Getters ───────────────────────────────────────────────────
   const syncStatus = computed<'online' | 'offline' | 'syncing' | 'pending' | 'conflict'>(() => {
@@ -103,6 +117,22 @@ export const useOfflineStore = defineStore('offline', () => {
     if (!hotelId) return
 
     const conflictList = await fetchConflicts(hotelId)
+
+    // Enrichir les conflits GET avec les resourceType du push (qui sont toujours complets)
+    if (pushConflicts.value.length > 0) {
+      for (const conflict of conflictList) {
+        if (!conflict.resourceType) {
+          const pushEntry = pushConflicts.value.find(
+            (pc) => pc.operationId === conflict.operationId
+          )
+          if (pushEntry?.resourceType) {
+            conflict.resourceType = pushEntry.resourceType
+          }
+        }
+      }
+      pushConflicts.value = []
+    }
+
     conflicts.value = conflictList
     conflictsCount.value = conflictList.length
 
@@ -220,6 +250,7 @@ export const useOfflineStore = defineStore('offline', () => {
     refreshConflicts,
     resolveConflictAction,
     closeConflictModal,
+    pushConflicts,
     setOnline,
     setOfflineImmediate,
     setSyncing,

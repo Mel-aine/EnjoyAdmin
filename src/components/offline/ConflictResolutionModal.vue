@@ -35,9 +35,11 @@
           <pre class="max-h-32 overflow-auto rounded bg-white/80 p-2 text-xs dark:bg-gray-900/50">{{ formatJSON(conflict.clientData) }}</pre>
           <button
             @click="resolve('client_wins')"
-            class="mt-2 w-full rounded-lg bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
+            :disabled="resolving"
+            class="mt-2 w-full rounded-lg px-3 py-1.5 text-sm text-white transition disabled:cursor-not-allowed disabled:opacity-60 bg-blue-600 hover:bg-blue-700"
           >
-            {{ t('offlineConflict.keepLocal') }}
+            <span v-if="resolving" class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+            <span v-else>{{ t('offlineConflict.keepLocal') }}</span>
           </button>
         </div>
 
@@ -50,9 +52,11 @@
           <pre class="max-h-32 overflow-auto rounded bg-white/80 p-2 text-xs dark:bg-gray-900/50">{{ formatJSON(conflict.serverData) }}</pre>
           <button
             @click="resolve('server_wins')"
-            class="mt-2 w-full rounded-lg bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700"
+            :disabled="resolving"
+            class="mt-2 w-full rounded-lg px-3 py-1.5 text-sm text-white transition disabled:cursor-not-allowed disabled:opacity-60 bg-green-600 hover:bg-green-700"
           >
-            {{ t('offlineConflict.keepServer') }}
+            <span v-if="resolving" class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+            <span v-else>{{ t('offlineConflict.keepServer') }}</span>
           </button>
         </div>
 
@@ -60,9 +64,11 @@
         <div class="col-span-2 mt-1">
           <button
             @click="resolve('merged')"
-            class="w-full rounded-lg border border-purple-300 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/30"
+            :disabled="resolving"
+            class="w-full rounded-lg border px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/30"
           >
-            🔀 {{ t('offlineConflict.merged') || 'Accepter les deux (fusion)' }}
+            <span v-if="resolving" class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-purple-400/30 border-t-purple-600"></span>
+            <span v-else>🔀 {{ t('offlineConflict.merged') }}</span>
           </button>
         </div>
       </div>
@@ -81,9 +87,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useOfflineStore } from '@/services/offline/offlineStore'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 import type { ConflictResolution, SyncConflict } from '@/services/offline/syncApi'
 
 const props = defineProps<{
@@ -97,15 +104,21 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 const store = useOfflineStore()
+
+const resolving = ref(false)
 
 const conflictLabel = computed(() => {
   if (!props.conflict) return ''
   const type = props.conflict.resourceType
+  const id = props.conflict.resourceId
+  if (!type && !id) return ''
+  if (!type) return '#' + id
   const key = 'offlineConflict.resourceLabels.' + type
   const translated = t(key)
   const label = translated !== key ? translated : type
-  return label + ' #' + props.conflict.resourceId
+  return label + (id != null ? ' #' + id : '')
 })
 
 function formatJSON(data: any): string {
@@ -117,12 +130,29 @@ function formatJSON(data: any): string {
 }
 
 async function resolve(resolution: ConflictResolution) {
-  if (!props.conflict?.id) return
-  const ok = await store.resolveConflictAction(props.conflict.id, resolution)
-  if (ok) {
-    emit('resolved')
-  } else {
-    console.error('Erreur résolution conflit #' + props.conflict.id)
+  if (resolving.value) return
+  if (!props.conflict) return
+
+  if (!props.conflict.id) {
+    console.warn('[ConflictResolution] ID de conflit manquant', props.conflict)
+    toast.error('Impossible de résoudre ce conflit : identifiant manquant.')
+    return
+  }
+
+  resolving.value = true
+  try {
+    const ok = await store.resolveConflictAction(props.conflict.id, resolution)
+    if (ok) {
+      toast.success('Conflit résolu avec succès ✅')
+      emit('resolved')
+    } else {
+      toast.error('Échec de la résolution du conflit. Veuillez réessayer.')
+    }
+  } catch (err) {
+    console.error('[ConflictResolution] Erreur inattendue:', err)
+    toast.error('Une erreur est survenue lors de la résolution du conflit.')
+  } finally {
+    resolving.value = false
   }
 }
 </script>
