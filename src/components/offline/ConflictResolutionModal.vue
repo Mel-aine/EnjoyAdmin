@@ -55,6 +55,16 @@
             {{ t('offlineConflict.keepServer') }}
           </button>
         </div>
+
+        <!-- Fusion manuelle (merged) -->
+        <div class="col-span-2 mt-1">
+          <button
+            @click="resolve('merged')"
+            class="w-full rounded-lg border border-purple-300 bg-purple-50 px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/30"
+          >
+            🔀 {{ t('offlineConflict.merged') || 'Accepter les deux (fusion)' }}
+          </button>
+        </div>
       </div>
 
       <!-- Footer -->
@@ -72,20 +82,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import apiClient from '@/services/apiClient'
 import { useOfflineStore } from '@/services/offline/offlineStore'
 import { useI18n } from 'vue-i18n'
+import type { ConflictResolution, SyncConflict } from '@/services/offline/syncApi'
 
 const props = defineProps<{
   visible: boolean
-  conflict: {
-    id?: number
-    operationId?: string
-    resourceType: string
-    resourceId: number
-    clientData: Record<string, any>
-    serverData: Record<string, any>
-  } | null
+  conflict: SyncConflict | null
 }>()
 
 const emit = defineEmits<{
@@ -113,14 +116,13 @@ function formatJSON(data: any): string {
   }
 }
 
-async function resolve(resolution: 'client_wins' | 'server_wins') {
+async function resolve(resolution: ConflictResolution) {
   if (!props.conflict?.id) return
-  try {
-    await apiClient.post('/api/sync/conflicts/' + props.conflict.id + '/resolve', { resolution })
-    await store.refreshPendingCount()
+  const ok = await store.resolveConflictAction(props.conflict.id, resolution)
+  if (ok) {
     emit('resolved')
-  } catch (error) {
-    console.error('Erreur résolution conflit:', error)
+  } else {
+    console.error('Erreur résolution conflit #' + props.conflict.id)
   }
 }
 </script>

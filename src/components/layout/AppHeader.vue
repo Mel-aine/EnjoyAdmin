@@ -40,9 +40,7 @@
           
           </div>
         </div>
-        <SearchBar @select="handleReservationSelect" />
-
-        <!-- Indicateur connexion + bouton sync -->
+        <SearchBar @select="handleReservationSelect" />          <!-- Indicateur connexion + bouton sync + conflits -->
         <div class="flex items-center gap-1">
           <div
             class="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-300"
@@ -52,6 +50,23 @@
             <span class="h-2 w-2 rounded-full" :class="offlineStore.dotColor" />
             <span class="hidden sm:inline">{{ offlineStore.syncStatusLabel }}</span>
           </div>
+
+          <!-- Bouton conflits (si des conflits existent) -->
+          <button
+            v-if="offlineStore.hasConflicts"
+            @click="offlineStore.isConflictModalVisible = true"
+            class="relative flex items-center justify-center w-7 h-7 rounded-md transition-all duration-200 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50"
+            :title="`${offlineStore.conflictsCount} conflit(s) de synchronisation`"
+          >
+            <svg class="w-4 h-4 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <span class="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[10px] font-bold leading-none">
+              {{ offlineStore.conflictsCount }}
+            </span>
+          </button>
 
           <!-- Bouton de synchronisation manuelle -->
           <button

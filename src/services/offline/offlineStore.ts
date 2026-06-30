@@ -9,6 +9,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { db } from './db.js'
 import { isOnline as connectionIsOnline, connectionQuality } from './connectionState.js'
+import { fetchConflicts, resolveConflict as resolveConflictApi } from './syncApi.js'
+import type { SyncConflict, ConflictResolution } from './syncApi.js'
 
 export const useOfflineStore = defineStore('offline', () => {
   // ── State ────────────────────────────────────────────────────
@@ -18,6 +20,8 @@ export const useOfflineStore = defineStore('offline', () => {
   const pendingCount = ref(0)
   const failedCount = ref(0)
   const conflictsCount = ref(0)
+  const conflicts = ref<SyncConflict[]>([])
+  const isConflictModalVisible = ref(false)
   const isInitialLoading = ref(false)
   const initialLoadProgress = ref(0)
 
@@ -87,15 +91,53 @@ export const useOfflineStore = defineStore('offline', () => {
       const all = await db.syncQueue.toArray()
       pendingCount.value = all.filter(o => o.status === 'pending' || o.status === 'processing').length
       failedCount.value = all.filter(o => o.status === 'failed').length
-
-      const cacheAll = await db.apiCache.toArray()
-      conflictsCount.value = cacheAll.filter(e => {
-        const meta = e.data as any
-        return meta?.resourceType === 'conflict'
-      }).length
     } catch {
       // DB might not be initialized yet
     }
+  }
+
+  /**
+   * Récupérer les conflits depuis le backend et mettre à jour le store
+   */
+  async function refreshConflicts(hotelId?: number): Promise<void> {
+    if (!hotelId) return
+
+    const conflictList = await fetchConflicts(hotelId)
+    conflicts.value = conflictList
+    conflictsCount.value = conflictList.length
+
+    // Si des conflits existent, ouvrir la modale
+    if (conflictList.length > 0 && !isConflictModalVisible.value) {
+      isConflictModalVisible.value = true
+    }
+  }
+
+  /**
+   * Résoudre un conflit
+   */
+  async function resolveConflictAction(
+    conflictId: number,
+    resolution: ConflictResolution
+  ): Promise<boolean> {
+    const ok = await resolveConflictApi(conflictId, resolution)
+    if (ok) {
+      // Retirer le conflit résolu de la liste
+      conflicts.value = conflicts.value.filter(c => c.id !== conflictId)
+      conflictsCount.value = conflicts.value.length
+
+      // Fermer la modale si plus de conflits
+      if (conflicts.value.length === 0) {
+        isConflictModalVisible.value = false
+      }
+    }
+    return ok
+  }
+
+  /**
+   * Fermer la modale de conflit
+   */
+  function closeConflictModal(): void {
+    isConflictModalVisible.value = false
   }
 
   function setOnline(value: boolean) {
@@ -159,6 +201,8 @@ export const useOfflineStore = defineStore('offline', () => {
     pendingCount,
     failedCount,
     conflictsCount,
+    conflicts,
+    isConflictModalVisible,
     isInitialLoading,
     initialLoadProgress,
 
@@ -173,6 +217,9 @@ export const useOfflineStore = defineStore('offline', () => {
 
     // Actions
     refreshPendingCount,
+    refreshConflicts,
+    resolveConflictAction,
+    closeConflictModal,
     setOnline,
     setOfflineImmediate,
     setSyncing,

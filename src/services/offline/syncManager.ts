@@ -312,15 +312,8 @@ class SyncManager {
       }
 
       for (const conflict of result.conflicts) {
-        const cacheKey = buildCacheKey(conflict.resourceType, this.hotelId)
-        const existing = await getCachedResponse(cacheKey)
-        if (existing) {
-          const serverData = conflict.serverData
-          const merged = (existing.data as any[]).map((item: any) =>
-            item.id === serverData.id ? { ...item, ...serverData } : item
-          )
-          await cacheApiResponse(cacheKey, merged, getTtl(conflict.resourceType))
-        }
+        // Ne pas auto-merger — stocker les conflits pour résolution utilisateur
+        // via le ConflictResolutionModal
         await offlineQueue.markCompleted(conflict.operationId)
       }
 

@@ -8,6 +8,12 @@
       </template>
       <template v-else>
         <InitialLoadProgress />
+        <ConflictResolutionModal
+          :visible="offlineStore.isConflictModalVisible"
+          :conflict="currentConflict"
+          @close="offlineStore.closeConflictModal()"
+          @resolved="onConflictResolved"
+        />
         <MaintenanceBanner :visible="authStore.isFullyAuthenticated && !isLoginRoute && !!maintenanceAnnouncement"
           :typeLabel="maintenanceTypeLabel" :windowText="maintenanceAnnouncementWindowText"
           :title="maintenanceAnnouncementTitle" :content="maintenanceAnnouncementContent"
@@ -39,6 +45,7 @@ import UpdateAnnouncementModal from '@/components/announcements/UpdateAnnounceme
 import SubscriptionBlockedModal from '@/components/subscription/SubscriptionBlockedModal.vue'
 import SubscriptionExpiringSoonModal from '@/components/subscription/SubscriptionExpiringSoonModal.vue'
 import InitialLoadProgress from '@/components/offline/InitialLoadProgress.vue'
+import ConflictResolutionModal from '@/components/offline/ConflictResolutionModal.vue'
 import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '@/composables/serviceStore'
 import OverLoading from '@/components/spinner/OverLoading.vue'
@@ -49,6 +56,7 @@ import { usePwaUpdate } from '@/composables/usePwaUpdate'
 import { syncManager } from '@/services/offline/syncManager'
 import { useConnection } from '@/composables/useConnection'
 import { useOfflineStore } from '@/services/offline/offlineStore'
+const offlineStore = useOfflineStore()
 import { useToast } from 'vue-toastification'
 const toast = useToast()
 const useLanguage = useLanguageStore();
@@ -473,6 +481,12 @@ const removeActivityListeners = () => {
 
 onMounted(() => {
 
+  // Vérifier les conflits existants au chargement
+  const hotelIdOnMount = useServiceStore()?.serviceId
+  if (hotelIdOnMount) {
+    offlineStore.refreshConflicts(hotelIdOnMount)
+  }
+
   if (authStore.isFullyAuthenticated) {
     addActivityListeners()
 
@@ -602,6 +616,35 @@ const handleSuccess = () => {
   router.go(0)
 }
 
+// ── Gestion des conflits de synchronisation ────────────────────────────
+
+/** Conflit actuellement affiché dans la modale */
+const currentConflict = computed(() => {
+  const list = offlineStore.conflicts
+  return list.length > 0 ? list[0] : null
+})
+
+/** Après résolution d'un conflit, passer au suivant ou fermer */
+function onConflictResolved() {
+  // Le store a déjà retiré le conflit résolu de la liste
+  // et ferme automatiquement la modale si plus de conflits
+  if (offlineStore.conflicts.length > 0) {
+    // La modale reste ouverte avec le conflit suivant (currentConflict change)
+  }
+}
+
+/** Rafraîchir les conflits depuis le backend après la sync */
+watch(
+  () => offlineStore.isSyncing,
+  async (syncing) => {
+    if (!syncing && offlineStore.isOnline) {
+      const hotelId = useServiceStore()?.serviceId
+      if (hotelId) {
+        await offlineStore.refreshConflicts(hotelId)
+      }
+    }
+  }
+)
 
 </script>
 <style>
