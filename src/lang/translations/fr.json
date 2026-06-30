@@ -2264,6 +2264,7 @@
     "keepLocal": "Garder la locale",
     "keepServer": "Garder la serveur",
     "merged": "Accepter les deux (fusion)",
+    "onlineRequired": "Vous devez être en ligne pour résoudre les conflits.Les modifications seront appliquées automatiquement au retour de la connexion.",
     "cancel": "Annuler",
     "resourceLabels": {
       "reservation": "Réservation",

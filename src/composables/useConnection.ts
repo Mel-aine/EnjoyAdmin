@@ -49,6 +49,9 @@ export function useConnection() {
   async function triggerSync() {
     if (isSyncing.value) return
     isSyncing.value = true
+    // Synchroniser offlineStore.isSyncing pour que le watcher dans App.vue fonctionne
+    const offlineStore = useOfflineStore()
+    offlineStore.setSyncing(true)
     try {
       const offlineEnabled = await syncManager.checkOfflineModeStatus()
       if (offlineEnabled) {
@@ -60,6 +63,7 @@ export function useConnection() {
       // Silent fail
     } finally {
       isSyncing.value = false
+      offlineStore.setSyncing(false)
     }
   }
 
@@ -76,13 +80,9 @@ export function useConnection() {
       unstableTimeout = null
     }
 
+    // triggerSync() met à jour offlineStore.isSyncing, ce qui déclenche
+    // le watcher dans App.vue, qui appelle refreshConflicts() automatiquement
     await triggerSync()
-
-    // Rafraîchir les conflits après la synchronisation
-    const hotelId = useServiceStore()?.serviceId
-    if (hotelId) {
-      await offlineStore.refreshConflicts(hotelId)
-    }
 
     // Toast reconnecté (bas-gauche, style Facebook/YouTube)
     toast(t('connection.backOnline'), {

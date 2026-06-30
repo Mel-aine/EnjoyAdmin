@@ -1915,6 +1915,8 @@ const refresh = async () => {
     )
     serviceResponse.value = response.data
     console.log('✅ REFRESH COMPLETED:', serviceResponse.value)
+  } catch (error) {
+    console.warn('[Calendar] Refresh failed:', error)
   } finally {
     isRefreshing.value = false
   }
@@ -1949,20 +1951,10 @@ function setDays(n: number) {
 }
 const roomTypeOptions = computed(() => {
   if (serviceResponse.value?.grouped_reservation_details) {
-    const res = serviceResponse.value?.grouped_reservation_details.map((item: any) => {
-      return {
-        label: item.room_type,
-        id: item.room_type_id,
-      }
-    })
-    if (selectedRoomTypes.value.length === 0) {
-      selectedRoomTypes.value = serviceResponse.value?.grouped_reservation_details.map(
-        (item: any) => {
-          return item.room_type_id
-        },
-      )
-    }
-    return res
+    return serviceResponse.value.grouped_reservation_details.map((item: any) => ({
+      label: item.room_type,
+      id: item.room_type_id,
+    }))
   }
   return []
 })
@@ -1979,12 +1971,14 @@ onMounted(async () => {
   if (serviceStore.calendarViewDate) {
     selectedDate.value = serviceStore.calendarViewDate
     daysToShow.value = serviceStore.calendarDaysToShow
-    // serviceStore.setCalendarViewDate(null)
   } else {
     selectedDate.value = hotel?.currentWorkingDate
     serviceStore.setCalendarViewDate(selectedDate.value)
   }
   getLocaleDailyOccupancyAndReservations()
+  // Note: appel explicite nécessaire car le watcher watch([selectedDate, daysToShow])
+  // ne se déclenche que si la valeur change. Si hotel?.currentWorkingDate === date par défaut,
+  // le watcher ne serait jamais appelé.
 })
 
 watch([selectedDate, daysToShow], () => {
@@ -1994,6 +1988,17 @@ watch([selectedDate, daysToShow], () => {
 watch(selectedDate,(newDate)=>{
   serviceStore.setCalendarViewDate(newDate)
 })
+
+// Initialiser selectedRoomTypes depuis les données chargées (watcher, pas dans un computed!)
+watch(
+  () => serviceResponse.value?.grouped_reservation_details,
+  (roomTypes) => {
+    if (roomTypes && roomTypes.length > 0 && selectedRoomTypes.value.length === 0) {
+      selectedRoomTypes.value = roomTypes.map((item: any) => item.room_type_id)
+    }
+  },
+  { immediate: false }
+)
 const tooltipReservation = ref<any | null>(null)
 const tooltipPosition = ref<{ x: number; y: number; placement?: 'above' | 'below' } | null>(null)
 

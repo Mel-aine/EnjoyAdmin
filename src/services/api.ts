@@ -747,6 +747,8 @@ export const getDailyOccupancyAndReservations = async (
   start_date: string,
   end_date: string,
 ): Promise<AxiosResponse<any>> => {
+  // Les dates sont incluses dans l'URL, PAS dans params, pour éviter
+  // les doublons de paramètres qui causent une erreur 400 côté backend.
   const url = `/dashboard/service/${serviceId}/daily-occupancy?start_date=${start_date}&end_date=${end_date}`
 
   try {
@@ -755,7 +757,7 @@ export const getDailyOccupancyAndReservations = async (
 
     const result = await offlineAwareApiCall('GET', url, {
       resourceType: 'daily_occupancy',
-      params: { serviceId, start_date, end_date },
+      params: {}, // Les params sont déjà dans l'URL, ne pas les dupliquer
       cacheTTL: 15 * 60 * 1000, // 15 minutes
     })
 

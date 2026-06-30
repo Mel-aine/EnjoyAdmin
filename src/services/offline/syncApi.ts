@@ -1,8 +1,13 @@
 /**
  * SyncApi — Service dédié aux endpoints de synchronisation
  *
- * Utilise offlineAwareApiCall pour les appels afin d'être compatible
- * avec le mode hors ligne (les GET en conflit peuvent être prioritaires).
+ * ⚠️ Les conflits sont des données temps réel côté serveur.
+ * Les GET (fetchConflicts) utilisent apiClient DIRECTEMENT (pas offlineAwareApiCall)
+ * car les conflits ne doivent JAMAIS venir du cache offline.
+ * Si l'utilisateur est hors ligne → fetchConflicts retourne [] (pas de conflits affichables).
+ *
+ * Les POST (resolveConflict) utilisent offlineAwareApiCall pour la file d'attente,
+ * car la résolution mise en attente sera jouée à la reconnexion.
  *
  * Endpoints backend :
  *   GET  /api/sync/conflicts              → liste des conflits non résolus
@@ -10,6 +15,7 @@
  *   GET  /api/sync/status                 → statut de la sync
  */
 import { offlineAwareApiCall } from './apiProxy.js'
+import apiClient from '../apiClient'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -38,36 +44,32 @@ export interface SyncStatus {
 
 export type ConflictResolution = 'client_wins' | 'server_wins' | 'merged'
 
-// ── Constants ──────────────────────────────────────────────────────────
-
-const SYNC_API_BASE = ''
-
 // ── Functions ──────────────────────────────────────────────────────────
 
 /**
- * Récupérer la liste des conflits non résolus depuis le backend
+ * Récupérer la liste des conflits non résolus depuis le backend.
+ * Utilise apiClient directement (pas de cache offline).
+ * Hors ligne → retourne [] car les conflits n'ont pas de sens sans serveur.
  */
 export async function fetchConflicts(hotelId: number): Promise<SyncConflict[]> {
   try {
-    const result = await offlineAwareApiCall<{ data: SyncConflict[] }>(
-      'GET',
-      `${SYNC_API_BASE}/sync/conflicts`,
-      {
-        params: { hotelId },
-        resourceType: 'sync_conflict',
-      }
-    )
-    // La réponse backend est { data: conflict[] }
-    const conflicts = (result.data as any)?.data ?? result.data ?? []
+    const response = await apiClient.get('/sync/conflicts', { params: { hotelId } })
+    const conflicts = response.data?.data ?? response.data ?? []
     return Array.isArray(conflicts) ? conflicts : []
-  } catch (error) {
-    console.warn('[SyncApi] Failed to fetch conflicts:', error)
+  } catch (error: any) {
+    // Erreur réseau (pas de réponse serveur) → silencieux, on retourne []
+    if (!error?.response) {
+      return []
+    }
+    console.warn('[SyncApi] Failed to fetch conflicts:', error?.response?.status, error?.response?.data)
     return []
   }
 }
 
 /**
- * Résoudre un conflit spécifique
+ * Résoudre un conflit spécifique.
+ * Utilise offlineAwareApiCall pour la file d'attente (écriture).
+ * Si hors ligne, la résolution sera mise en attente et jouée à la reconnexion.
  */
 export async function resolveConflict(
   conflictId: number,
@@ -76,7 +78,7 @@ export async function resolveConflict(
   try {
     await offlineAwareApiCall(
       'POST',
-      `${SYNC_API_BASE}/sync/conflicts/${conflictId}/resolve`,
+      `/sync/conflicts/${conflictId}/resolve`,
       {
         data: { resolution },
         resourceType: 'sync_conflict',

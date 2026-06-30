@@ -136,8 +136,10 @@ export const useOfflineStore = defineStore('offline', () => {
     conflicts.value = conflictList
     conflictsCount.value = conflictList.length
 
-    // Si des conflits existent, ouvrir la modale
-    if (conflictList.length > 0 && !isConflictModalVisible.value) {
+    // N'ouvrir la modale que si on est en ligne — les conflits ne peuvent
+    // pas être résolus hors ligne (nécessite un appel serveur).
+    // Les conflits sont stockés pour être résolus quand on reviendra en ligne.
+    if (conflictList.length > 0 && !isConflictModalVisible.value && isOnline.value) {
       isConflictModalVisible.value = true
     }
   }

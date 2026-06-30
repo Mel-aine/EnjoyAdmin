@@ -2273,6 +2273,7 @@
     "keepLocal": "Keep local",
     "keepServer": "Keep server",
     "merged": "Accept both (merge)",
+    "onlineRequired": "You need to be online to resolve conflicts. Changes will be applied automatically when the connection is restored.",
     "cancel": "Cancel",
     "resourceLabels": {
       "reservation": "Reservation",

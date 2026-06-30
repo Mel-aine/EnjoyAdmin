@@ -25,6 +25,16 @@
         {{ conflictLabel }}
       </div>
 
+      <!-- Message hors ligne -->
+      <div v-if="isOffline" class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+        <div class="flex items-center gap-2">
+          <svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636a9 9 0 010 12.728m-2.829-2.829a5 5 0 000-7.07m-4.243 4.243a1 1 0 010-1.414" />
+          </svg>
+          <span>{{ t('offlineConflict.onlineRequired') || 'Vous devez être en ligne pour résoudre les conflits. Revenez quand la connexion sera rétablie.' }}</span>
+        </div>
+      </div>
+
       <div class="grid grid-cols-2 gap-4">
         <!-- Version locale -->
         <div class="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
@@ -35,7 +45,7 @@
           <pre class="max-h-32 overflow-auto rounded bg-white/80 p-2 text-xs dark:bg-gray-900/50">{{ formatJSON(conflict.clientData) }}</pre>
           <button
             @click="resolve('client_wins')"
-            :disabled="resolving"
+            :disabled="resolving || isOffline"
             class="mt-2 w-full rounded-lg px-3 py-1.5 text-sm text-white transition disabled:cursor-not-allowed disabled:opacity-60 bg-blue-600 hover:bg-blue-700"
           >
             <span v-if="resolving" class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
@@ -52,7 +62,7 @@
           <pre class="max-h-32 overflow-auto rounded bg-white/80 p-2 text-xs dark:bg-gray-900/50">{{ formatJSON(conflict.serverData) }}</pre>
           <button
             @click="resolve('server_wins')"
-            :disabled="resolving"
+            :disabled="resolving || isOffline"
             class="mt-2 w-full rounded-lg px-3 py-1.5 text-sm text-white transition disabled:cursor-not-allowed disabled:opacity-60 bg-green-600 hover:bg-green-700"
           >
             <span v-if="resolving" class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
@@ -64,7 +74,7 @@
         <div class="col-span-2 mt-1">
           <button
             @click="resolve('merged')"
-            :disabled="resolving"
+            :disabled="resolving || isOffline"
             class="w-full rounded-lg border px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/30"
           >
             <span v-if="resolving" class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-purple-400/30 border-t-purple-600"></span>
@@ -108,6 +118,7 @@ const toast = useToast()
 const store = useOfflineStore()
 
 const resolving = ref(false)
+const isOffline = computed(() => !store.isOnline)
 
 const conflictLabel = computed(() => {
   if (!props.conflict) return ''
