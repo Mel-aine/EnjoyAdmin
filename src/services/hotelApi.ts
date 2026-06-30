@@ -1,171 +1,231 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Hotel API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne.
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ *
+ * La fonction filterReservation conserve son cache local avancé car elle
+ * filtre sur plusieurs critères complexes (recherche offline locale).
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 import apiClient from './apiClient'
 import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
 import type { FitlterItem } from '../utils/models'
-import { useServiceStore } from '../composables/serviceStore'
 import { db } from './offline/db.js'
-const axios = apiClient
 
-const API_URL = `${import.meta.env.VITE_API_URL as string}/hotels`
-
-
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  const serviceStore = useServiceStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'X-Hotel-Code': String(serviceStore?.serviceId ?? ''),
-    },
-    withCredentials: true,
+/**
+ * Get hotel details by ID
+ */
+export const getHotelById = async (id: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/hotels/${id}/details`, {
+      resourceType: 'hotel',
+      resourceId: id,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching hotel details:', error)
+    throw error
   }
 }
 
-export const getHotelById = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}/details`, getHeaders())
-}
-
-export const getById = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}`, getHeaders())
-}
-
-
-
-///// this is the amenities sections
 /**
- * Get all amenities
- * @returns {Promise<AxiosResponse<any>>}
+ * Get hotel by ID (basic)
  */
-
-export const updateStatusColors = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/${id}/status-colors`, data, getHeaders())
+export const getById = async (id: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/hotels/${id}`, {
+      resourceType: 'hotel',
+      resourceId: id,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching hotel:', error)
+    throw error
+  }
 }
 
 /**
- * update hotel information
- * @param id
- * @param data
- * @returns
+ * Update status colors (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelInformation = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/information`, data, getHeaders())
-}
-
-
-/**
- * update hotel notices
- * @param id
- * @param data
- * @returns
- */
-export const updateHotelNotices = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/notices`, data, getHeaders())
+export const updateStatusColors = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.patch(`/hotels/${id}/status-colors`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating status colors:', error)
+    throw error
+  }
 }
 
 /**
- * update hotel formula setting
- * @param id
- * @param data
- * @returns
+ * Update hotel information (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelFormulaSetting = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/formula-setting`, data, getHeaders())
+export const updateHotelInformation = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/information`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating hotel information:', error)
+    throw error
+  }
 }
 
 /**
- * update hotel document numbering setting
- * @param id
- * @param data
- * @returns
+ * Update hotel notices (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelDocumentNumberingSetting = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/document-numbering-setting`, data, getHeaders())
+export const updateHotelNotices = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/notices`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating hotel notices:', error)
+    throw error
+  }
 }
 
 /**
- * update hotel print email settings
- * @param id
- * @param data
- * @returns
+ * Update hotel formula setting (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelPrintEmailSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/print-email-settings`, data, getHeaders())
+export const updateHotelFormulaSetting = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/formula-setting`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating formula setting:', error)
+    throw error
+  }
 }
 
 /**
- * update hotel checkin reservation settings
- * @param id
- * @param data
- * @returns
+ * Update hotel document numbering setting (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelCheckinReservationSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/checkin-reservation-settings`, data, getHeaders())
+export const updateHotelDocumentNumberingSetting = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/document-numbering-setting`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating document numbering setting:', error)
+    throw error
+  }
 }
 
 /**
- * update hotel display settings
- * @param id
- * @param data
- * @returns
+ * Update hotel print email settings (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelDisplaySettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/display-settings`, data, getHeaders())
+export const updateHotelPrintEmailSettings = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/print-email-settings`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating print email settings:', error)
+    throw error
+  }
 }
 
 /**
- * update hotel registration settings
- * @param id
- * @param data
- * @returns
+ * Update hotel checkin reservation settings (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelRegistrationSettings = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/registration-settings`, data, getHeaders())
+export const updateHotelCheckinReservationSettings = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/checkin-reservation-settings`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating checkin reservation settings:', error)
+    throw error
+  }
 }
 
 /**
- * update hotel housekeeping-status-colors
- * @param id
- * @param data
- * @returns
+ * Update hotel display settings (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelHousekeepingStatusColors = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/housekeeping-status-colors`, data, getHeaders())
+export const updateHotelDisplaySettings = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/display-settings`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating display settings:', error)
+    throw error
+  }
 }
 
-/***
- * update hotel tax rates validator
- * @param id
- * @param data
- * @returns
+/**
+ * Update hotel registration settings (CONFIGURATION — en ligne uniquement)
  */
-export const updateHotelTaxRates = (id:number,data:any): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}/tax-rates`, data, getHeaders())
+export const updateHotelRegistrationSettings = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/registration-settings`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating registration settings:', error)
+    throw error
+  }
 }
 
+/**
+ * Update hotel housekeeping status colors (CONFIGURATION — en ligne uniquement)
+ */
+export const updateHotelHousekeepingStatusColors = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/housekeeping-status-colors`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating housekeeping status colors:', error)
+    throw error
+  }
+}
 
+/**
+ * Update hotel tax rates (CONFIGURATION — en ligne uniquement)
+ */
+export const updateHotelTaxRates = async (id: number, data: any): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.put(`/hotels/${id}/tax-rates`, data)
+    return response.data
+  } catch (error) {
+    console.error('Error updating tax rates:', error)
+    throw error
+  }
+}
 
 /**
  * Toggle offline mode for a hotel
- * @param id - Hotel ID
- * @param enabled - Whether to enable (true) or disable (false) offline mode
- * @returns {Promise<AxiosResponse<any>>}
  */
-export const toggleOfflineMode = (id: number, enabled: boolean): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/${id}/toggle-offline-mode`, { enabled }, getHeaders())
+export const toggleOfflineMode = async (id: number, enabled: boolean): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('PATCH', `/hotels/${id}/toggle-offline-mode`, {
+      data: { enabled },
+      resourceType: 'hotel',
+      resourceId: id,
+      queuePriority: 10,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error toggling offline mode:', error)
+    throw error
+  }
 }
 
 /**
  * Get offline mode status for a hotel
- * @param id - Hotel ID
- * @returns {Promise<AxiosResponse<any>>}
  */
-export const getOfflineModeStatus = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}/offline-mode-status`, getHeaders())
+export const getOfflineModeStatus = async (id: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/hotels/${id}/offline-mode-status`, {
+      resourceType: 'hotel',
+      resourceId: id,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching offline mode status:', error)
+    throw error
+  }
 }
 
 /**
  * Search/filter reservations with offline cache fallback.
+ * Conserve le cache local avancé car les filtres de recherche sont complexes
+ * et nécessitent un filtrage local quand offline.
  */
 export const filterReservation = async (id: number, filter: FitlterItem): Promise<AxiosResponse<any>> => {
   const params = new URLSearchParams()
@@ -186,17 +246,22 @@ export const filterReservation = async (id: number, filter: FitlterItem): Promis
   if (filter.showBookings) params.append('showBookings', filter.showBookings)
 
   const qs = params.toString()
-  const url = `${API_URL}/${id}/reservation/search${qs ? '?' + qs : ''}`
+  const url = `/hotels/${id}/reservation/search${qs ? '?' + qs : ''}`
   const cacheKey = `filter-reservation:${id}:${qs}`
 
   try {
-    const response = await axios.get(url, getHeaders())
+    const result = await offlineAwareApiCall('GET', url, {
+      resourceType: 'reservation',
+      skipCache: true, // On gère le cache nous-mêmes ci-dessous
+    })
+
     // Mettre en cache la réponse
     try {
       await db.apiCache.where('key').equals(cacheKey).delete()
-      await db.apiCache.add({ key: cacheKey, data: response.data, cachedAt: Date.now(), ttl: 10 * 60 * 1000 })
-    } catch {}
-    return response
+      await db.apiCache.add({ key: cacheKey, data: result.data, cachedAt: Date.now(), ttl: 10 * 60 * 1000 })
+    } catch { /* ignore cache errors */ }
+
+    return { data: result.data, status: 200, statusText: 'OK', headers: {}, config: {} } as AxiosResponse
   } catch (error: any) {
     // En cas d'erreur réseau, essayer le cache local
     if (!error?.response || error?.code === 'ECONNABORTED' || error?.message === 'Network Error') {
@@ -217,7 +282,6 @@ export const filterReservation = async (id: number, filter: FitlterItem): Promis
             const num = String(r.reservationNumber || '').toLowerCase()
             return name.includes(searchTerm) || num.includes(searchTerm)
           })
-          // Calculer les statistiques de base
           const arrivals = filtered.filter((r: any) => (r.arrivedDate || '').startsWith(today)).length
           const departures = filtered.filter((r: any) => (r.departDate || '').startsWith(today)).length
           const inHouse = filtered.filter((r: any) =>
@@ -229,20 +293,12 @@ export const filterReservation = async (id: number, filter: FitlterItem): Promis
           return {
             data: {
               reservations: filtered,
-              statistics: {
-                totalReservations: filtered.length,
-                arrivals,
-                departures,
-                inHouse,
-              },
+              statistics: { totalReservations: filtered.length, arrivals, departures, inHouse },
             },
-            status: 200,
-            statusText: 'OK',
-            headers: {},
-            config: {},
+            status: 200, statusText: 'OK', headers: {}, config: {},
           } as AxiosResponse
         }
-      } catch {}
+      } catch { /* ignore cache errors */ }
     }
     throw error
   }

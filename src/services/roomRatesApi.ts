@@ -1,15 +1,10 @@
-import apiClient from './apiClient'
-import { useAuthStore } from '@/composables/user'
-
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-    },
-    withCredentials: true,
-  }
-}
+/**
+ * Room Rates API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne
+ * (cache pour les GET, file d'attente pour les écritures).
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 
 /**
  * Get Base Rate by Room and Rate Type
@@ -21,21 +16,13 @@ interface BaseRateParams {
   date?: string
 }
 
-interface BaseRateResponse {
-  message: string
-  baseRate: number | null
-  data:any
-}
-
 /**
  * Récupère le base rate pour une combinaison room type + rate type + date
  */
-
-
 export const getBaseRateByRoomAndRateType = async (params: BaseRateParams) => {
   try {
-    const response = await apiClient.get<any>(`/configuration/hotels/${params.hotel_id}/room_rates/base-rate`, {
-      ...getHeaders(),
+    const result = await offlineAwareApiCall('GET', `/configuration/hotels/${params.hotel_id}/room_rates/base-rate`, {
+      resourceType: 'room_rate',
       params: {
         hotel_id: params.hotel_id,
         room_type_id: params.room_type_id,
@@ -43,12 +30,9 @@ export const getBaseRateByRoomAndRateType = async (params: BaseRateParams) => {
         date: params.date || new Date().toISOString().split('T')[0],
       },
     })
-
-    return response.data
+    return result.data
   } catch (error) {
     console.error('Error fetching base rate:', error)
     throw error
   }
 }
-
-

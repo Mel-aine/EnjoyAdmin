@@ -1,32 +1,22 @@
-
-import apiClient from './apiClient'
-import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
-import { useServiceStore } from '../composables/serviceStore'
-const axios = apiClient
-
-const API_URL = `${import.meta.env.VITE_API_URL as string}/payment_method`
-
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  const serviceStore = useServiceStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'X-Hotel-Code': String(serviceStore?.serviceId ?? ''),
-    },
-    withCredentials: true,
-  }
-}
-
+/**
+ * Payment Method API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne.
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 
 /**
- * get Payment Methodes
+ * Get Payment Methods
  */
-
-export const getPaymentMethods = (hotelId:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${hotelId}`, getHeaders())
+export const getPaymentMethods = async (hotelId: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/payment_method/${hotelId}`, {
+      resourceType: 'payment_method',
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching payment methods:', error)
+    throw error
+  }
 }
-
-
-

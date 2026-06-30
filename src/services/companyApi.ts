@@ -1,24 +1,16 @@
+/**
+ * Company API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne.
+ * exportCompanies conserve un appel axios direct (responseType: 'blob').
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
+import apiClient from './apiClient'
 import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
 import { useServiceStore } from '../composables/serviceStore'
-import axios from './apiClient'
-const API_URL = () => {
-  const hotelId = useServiceStore().serviceId
-  return `${import.meta.env.VITE_API_URL as string}/configuration/hotels/${hotelId}/company_accounts`
-}
-const API_URL_CITY_LEDGER = () => {
-  const hotelId = useServiceStore().serviceId
-  return `${import.meta.env.VITE_API_URL as string}/configuration/hotels/${hotelId}/city_ledger`
-}
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-    },
-    withCredentials: true,
-  }
-}
+
+const API_URL = `${import.meta.env.VITE_API_URL as string}/configuration/hotels`
 
 export interface ApiResponse<T = any> {
   message: string
@@ -29,7 +21,7 @@ export interface ApiResponse<T = any> {
 export interface Company {
   id: number
   name: string
-  companyName?:string
+  companyName?: string
   contactPerson: string
   contactTitle?: string
   country: string
@@ -59,8 +51,8 @@ export interface CompanyFilter {
   minBalance?: number
   maxBalance?: number
   email?: string
-  page?:number
-  limit?:number
+  page?: number
+  limit?: number
 }
 
 const handleApiError = (error: any): never => {
@@ -71,28 +63,50 @@ const handleApiError = (error: any): never => {
   }
 }
 
-// Get all companies
-export const getCompanies = async (params: any = {}): Promise<Company[] | undefined> => {
+// ── Helper pour construire l'URL company_accounts ─────────────────────
+
+const getHotelId = (): number => {
+  const store = useServiceStore()
+  return store.serviceId ?? 0
+}
+
+const companyUrl = (hotelId?: number) => `${API_URL}/${hotelId ?? getHotelId()}/company_accounts`
+const cityLedgerUrl = (hotelId?: number) => `${API_URL}/${hotelId ?? getHotelId()}/city_ledger`
+
+// ── CRUD Companies ─────────────────────────────────────────────────────
+
+/** Get all companies — le premier argument est params (rétrocompatible) */
+export const getCompanies = async (params: any = {}, hotelId?: number): Promise<Company[] | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company[]>> = await axios.get(
-      `${API_URL()}`,{ ...getHeaders(), params })
-    return response.data.data
+    const result = await offlineAwareApiCall('GET', `${companyUrl(hotelId)}`, {
+      resourceType: 'company',
+      params,
+    })
+    return result.data?.data ?? result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-export const getAllCompanies = ( params: any = {}): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}`, {
-    ...getHeaders(),
-    params: { ...params, all: true }
-  })
+/** Get all companies (with all flag) */
+export const getAllCompanies = async (params: any = {}, hotelId?: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `${companyUrl(hotelId)}`, {
+      resourceType: 'company',
+      params: { ...params, all: true },
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching all companies:', error)
+    throw error
+  }
 }
 
-// Get filtered companies
-export const getFilteredCompanies = async (filter: CompanyFilter): Promise<any> => {
+/** Get filtered companies — le premier argument est filter (rétrocompatible) */
+export const getFilteredCompanies = async (filter: CompanyFilter, hotelId?: number): Promise<any> => {
   try {
-    const response = await axios.get(`${API_URL()}`, {
+    const result = await offlineAwareApiCall('GET', `${companyUrl(hotelId)}`, {
+      resourceType: 'company',
       params: {
         filters: {
           searchText: filter.searchText,
@@ -105,81 +119,76 @@ export const getFilteredCompanies = async (filter: CompanyFilter): Promise<any> 
         page: filter.page,
         perPage: filter.limit,
       },
-      ...getHeaders(),
     })
-
-    return response.data.data
+    return result.data?.data ?? result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-
-
-// Get company by ID
-export const getCompanyById = async (companyId: number): Promise<Company | undefined> => {
+/** Get company by ID */
+export const getCompanyById = async (companyId: number, hotelId?: number): Promise<Company | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company>> = await axios.get(
-      `${API_URL()}/${companyId}`,
-      getHeaders()
-    )
-    return response.data.data
+    const result = await offlineAwareApiCall('GET', `${companyUrl(hotelId)}/${companyId}`, {
+      resourceType: 'company',
+      resourceId: companyId,
+    })
+    return result.data?.data ?? result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-// Create new company
-export const createCompany = async (companyData: Partial<Company>): Promise<Company | undefined> => {
+/** Create new company */
+export const createCompany = async (companyData: Partial<Company>, hotelId?: number): Promise<Company | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company>> = await axios.post(
-      `${API_URL()}`,
-      companyData,
-      getHeaders()
-    )
-    return response.data.data
+    const result = await offlineAwareApiCall('POST', `${companyUrl(hotelId)}`, {
+      data: companyData,
+      resourceType: 'company',
+      queuePriority: 7,
+    })
+    return result.data?.data ?? result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-// Update company
-export const updateCompany = async (companyId: number, companyData: Partial<Company>): Promise<Company | undefined> => {
+/** Update company */
+export const updateCompany = async (companyId: number, companyData: Partial<Company>, hotelId?: number): Promise<Company | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<Company>> = await axios.put(
-      `${API_URL()}/${companyId}`,
-      companyData,
-      getHeaders()
-    )
-    return response.data.data
+    const result = await offlineAwareApiCall('PUT', `${companyUrl(hotelId)}/${companyId}`, {
+      data: companyData,
+      resourceType: 'company',
+      resourceId: companyId,
+      queuePriority: 7,
+    })
+    return result.data?.data ?? result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-// Delete company
-export const deleteCompany = async (companyId: number): Promise<ApiResponse | undefined> => {
+/** Delete company */
+export const deleteCompany = async (companyId: number, hotelId?: number): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await axios.delete(
-      `${API_URL()}/${companyId}`,
-      getHeaders()
-    )
-    console.log('response', response)
-    return response.data
+    const result = await offlineAwareApiCall('DELETE', `${companyUrl(hotelId)}/${companyId}`, {
+      resourceType: 'company',
+      resourceId: companyId,
+      queuePriority: 7,
+    })
+    console.log('response', result.data)
+    return result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-// Export companies
-export const exportCompanies = async (): Promise<Blob | undefined> => {
+/** Export companies (blob) */
+export const exportCompanies = async (hotelId?: number): Promise<Blob | undefined> => {
   try {
-    const response: AxiosResponse<Blob> = await axios.get(
-      `${API_URL()}/export`,
-      {
-        ...getHeaders(),
-        responseType: 'blob',
-      }
+    const response: AxiosResponse<Blob> = await apiClient.get(
+      `${companyUrl(hotelId)}/export`,
+      { responseType: 'blob' }
     )
     return response.data
   } catch (error) {
@@ -187,100 +196,91 @@ export const exportCompanies = async (): Promise<Blob | undefined> => {
   }
 }
 
-// Audit companies
-export const auditCompanies = async (): Promise<ApiResponse | undefined> => {
+/** Audit companies */
+export const auditCompanies = async (hotelId?: number): Promise<ApiResponse | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await axios.get(
-      `${API_URL()}/audit`,
-      getHeaders()
-    )
-    return response.data
+    const result = await offlineAwareApiCall('GET', `${companyUrl(hotelId)}/audit`, {
+      resourceType: 'company',
+    })
+    return result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
+// ── City Ledger ────────────────────────────────────────────────────────
 
-/**
- * Get City Ledger list with pagination and search
- * Accepts optional params: page, limit, searchText
- * Returns payload including data[] and meta
- */
+/** Get City Ledger */
 export const getCityLedger = async (
-  hotelId: number,
+  hotelId?: number,
   options: { page?: number; limit?: number; searchText?: string; companyId?: number } = {}
 ): Promise<any> => {
   try {
-    const response: AxiosResponse<any> = await axios.get(
-      `${API_URL()}/city_ledger`,
-      {
-        params: {
-          page: options.page,
-          perPage: options.limit,
-          searchText: options.searchText,
-          companyId: options.companyId,
-        },
-        ...getHeaders(),
-      }
-    )
-    return response.data
+    const result = await offlineAwareApiCall('GET', `${cityLedgerUrl(hotelId)}`, {
+      resourceType: 'company',
+      params: {
+        page: options.page,
+        perPage: options.limit,
+        searchText: options.searchText,
+        companyId: options.companyId,
+      },
+    })
+    return result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-/**
- * filter city ledger transaction
- */
-
+/** Get City Ledger Details */
 export const getCityLedgerDetails = async (params: {
-  companyAccountId: number,
-  hotelId: number,
-  dateFrom: string,
-  dateTo: string,
-  usePostingDate: boolean, // Default to posting date
-  searchText: string,
-  showVoided: boolean, // Default to hide voided transactions
-  page: number,
+  companyAccountId: number
+  hotelId: number
+  dateFrom: string
+  dateTo: string
+  usePostingDate: boolean
+  searchText: string
+  showVoided: boolean
+  page: number
   limit: number
 }): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await axios.get(
-      `${API_URL_CITY_LEDGER()}`,
-      {
-        params,
-        ...getHeaders()
-      }
-    )
-    console.log('response', response)
-    return response.data
+    const result = await offlineAwareApiCall('GET', `${cityLedgerUrl(params.hotelId)}`, {
+      resourceType: 'folio_transaction',
+      params,
+    })
+    console.log('response', result.data)
+    return result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-/**
- * pos transaction payment
- */
+/** POS transaction payment */
 export const postTransactionPayCompanyBulk = async (data: any): Promise<any> => {
+  const hotelId = data.hotelId
   try {
-    const response: AxiosResponse<ApiResponse> = await axios.post(
-      `${API_URL()}/company_folios/payment-with-assignment`, data, getHeaders()
-    )
-    console.log('response', response)
-    return response.data
+    const result = await offlineAwareApiCall('POST', `${companyUrl(hotelId)}/company_folios/payment-with-assignment`, {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    console.log('response', result.data)
+    return result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-/**
- * Void Folio Transaction
- */
-export const voidFolioPayTransaction = async (id: number, data: { reason: string }): Promise<any> => {
+/** Void Folio Transaction */
+export const voidFolioPayTransaction = async (id: number, data: { reason: string }, hotelId?: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL()}/company_folios/payments/${id}/void`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', `${companyUrl(hotelId)}/company_folios/payments/${id}/void`, {
+      data,
+      resourceType: 'folio_transaction',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error voiding folio transaction:', error)
     throw error

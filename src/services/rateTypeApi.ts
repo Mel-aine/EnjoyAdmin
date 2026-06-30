@@ -1,35 +1,40 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import apiClient from './apiClient'
-import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
+/**
+ * Rate Type API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne.
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 import { useServiceStore } from '../composables/serviceStore'
-const axios = apiClient
 
-
-const URL = `${import.meta.env.VITE_API_URL as string}`
-const API_URL = () => {
-  const hotelId = useServiceStore().serviceId
-  return `${URL}/configuration/hotels/${hotelId}/rate_types`
-}
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-    },
-    withCredentials: true,
+/**
+ * Get Rate Types by hotel ID
+ */
+export const getRateTypes = async (hotelId: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/configuration/hotels/${hotelId}/rate_types/hotel/${hotelId}`, {
+      resourceType: 'rate_type',
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching rate types:', error)
+    throw error
   }
 }
 
-
 /**
- * get Room Types
+ * Get Rate Types by room type ID
  */
-
-export const getRateTypes = (id:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/hotel/${id}`, getHeaders())
-}
-
-export const getRateTypesByRoomTypes = (id:number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL()}/roomType/${id}`, getHeaders())
+export const getRateTypesByRoomTypes = async (roomTypeId: number, hotelId?: number): Promise<any> => {
+  const id = hotelId ?? useServiceStore().serviceId ?? 0
+  try {
+    const result = await offlineAwareApiCall('GET', `/configuration/hotels/${id}/rate_types/roomType/${roomTypeId}`, {
+      resourceType: 'rate_type',
+      resourceId: roomTypeId,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching rate types by room type:', error)
+    throw error
+  }
 }

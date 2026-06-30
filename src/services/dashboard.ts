@@ -1,6 +1,11 @@
-import type { AxiosResponse } from 'axios'
-import apiClient from './apiClient'
-import { useAuthStore } from '@/composables/user'
+/**
+ * Dashboard API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne
+ * (cache pour les GET, file d'attente pour les écritures).
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 
 export interface ApiResponse<T = any> {
   message: string
@@ -18,42 +23,26 @@ export interface Stats {
   reservationRateLastWeek: number
   totalReservationsThisMonth: number
   totalRevenueThisMonth: number
-
-}
-
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-    },
-    withCredentials: true,
-  }
 }
 
 export const getGeneralStats = async (serviceId: number | null): Promise<any> => {
   try {
-    const _headers = getHeaders()
-    const authStore = useAuthStore()
-    if(!authStore.token)
-      throw new Error("Token not founded");
-    console.log('-->Header:', _headers)
-
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/availability/${serviceId}`, _headers
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/availability/${serviceId}`, {
+      resourceType: 'dashboard',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des stats generaux:', error)
     return []
   }
 }
+
 export const getAverageLengthOfStay = async (serviceId: number | null): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/occupancy/${serviceId}/average-stay`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/occupancy/${serviceId}/average-stay`, {
+      resourceType: 'dashboard',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des etAverageLengthOfStay:', error)
     return []
@@ -65,11 +54,11 @@ export const getOccupancyRate = async ({
   period
 }: { serviceId: number | null; period: string }): Promise<any> => {
   try {
-
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/occupancy/${serviceId}/stats?period=${period}`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/occupancy/${serviceId}/stats`, {
+      resourceType: 'dashboard',
+      params: { period },
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des getOccupancyRate:', error)
     return []
@@ -81,11 +70,11 @@ export const getOccupancyRateTotal = async ({
   period
 }: { serviceId: number | null; period: string }): Promise<any> => {
   try {
-
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/occupancy/${serviceId}/average-rate?period=${period}`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/occupancy/${serviceId}/average-rate`, {
+      resourceType: 'dashboard',
+      params: { period },
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des getOccupancyRateTotal:', error)
     return []
@@ -97,11 +86,10 @@ export const getADR = async ({
   period
 }: { serviceId: number | null; period: string }): Promise<any> => {
   try {
-
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/adr/${serviceId}/${period}`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/adr/${serviceId}/${period}`, {
+      resourceType: 'dashboard',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des getADR:', error)
     return []
@@ -113,11 +101,11 @@ export const getRevenuTotal = async ({
   period
 }: { serviceId: number | null; period: string }): Promise<any> => {
   try {
-
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/revenue/${serviceId}/stats?period=${period}`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/revenue/${serviceId}/stats`, {
+      resourceType: 'dashboard',
+      params: { period },
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des getRevenuTotal:', error)
     return []
@@ -126,10 +114,10 @@ export const getRevenuTotal = async ({
 
 export const getOccupancyRateMonthly = async (serviceId: number | null): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/occupancy/${serviceId}/monthly`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/occupancy/${serviceId}/monthly`, {
+      resourceType: 'dashboard',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des getOccupancyRateMonthly:', error)
     return []
@@ -138,10 +126,10 @@ export const getOccupancyRateMonthly = async (serviceId: number | null): Promise
 
 export const getRevenuTotalMonthly = async (serviceId: number | null): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/revenue/${serviceId}/monthly-comparison`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/revenue/${serviceId}/monthly-comparison`, {
+      resourceType: 'dashboard',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des getRevenuTotalMonthly:', error)
     return []
@@ -150,21 +138,22 @@ export const getRevenuTotalMonthly = async (serviceId: number | null): Promise<a
 
 export const getStayDuration = async (serviceId: number | null): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/stay-duration/${serviceId}`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/stay-duration/${serviceId}`, {
+      resourceType: 'dashboard',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des getStayDuration:', error)
     return []
   }
 }
+
 export const getRecentReservation = async (serviceId: number | null): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/configuration/hotels/${serviceId}/rooms/recent/Booking`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/configuration/hotels/${serviceId}/rooms/recent/Booking`, {
+      resourceType: 'reservation',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération des getRecentReservation:', error)
     return []
@@ -173,10 +162,10 @@ export const getRecentReservation = async (serviceId: number | null): Promise<an
 
 export const getDemographic = async (serviceId: number | null): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/clients/origin-stats/${serviceId}`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/clients/origin-stats/${serviceId}`, {
+      resourceType: 'dashboard',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération de getDemographic:', error)
     return []
@@ -185,10 +174,10 @@ export const getDemographic = async (serviceId: number | null): Promise<any> => 
 
 export const getCustomerType = async (serviceId: number | null): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/customer-types/${serviceId}`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/customer-types/${serviceId}`, {
+      resourceType: 'dashboard',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération de getCustomerType:', error)
     return []
@@ -197,48 +186,28 @@ export const getCustomerType = async (serviceId: number | null): Promise<any> =>
 
 export const getReservationType = async (serviceId: number | null): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<Stats[]>> = await apiClient.get(
-      `/reservation/${serviceId}`, getHeaders()
-    )
-    return response.data || []
+    const result = await offlineAwareApiCall('GET', `/reservation/${serviceId}`, {
+      resourceType: 'reservation',
+    })
+    return result.data || []
   } catch (error) {
     console.error('Erreur récupération de getReservationType:', error)
     return []
   }
 }
+
 /**
- * dashboard front office routes
+ * Dashboard front office routes
  */
 export const getFrontOfficeDashboard = async (serviceId: number | null, params?: any): Promise<any> => {
   try {
-    // Construction de l'URL avec les paramètres de requête
-    const queryParams = new URLSearchParams()
-
-    if (params) {
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null) {
-          queryParams.append(key, params[key].toString())
-        }
-      })
-    }
-
-    const queryString = queryParams.toString()
-    const url = `/dashboard/front-office/${serviceId}${queryString ? `?${queryString}` : ''}`
-
-    const response: AxiosResponse<ApiResponse<any>> = await apiClient.get(
-      url,
-      getHeaders()
-    )
-
-    return response.data || { success: false, data: null }
-  } catch (error:any) {
+    const result = await offlineAwareApiCall('GET', `/dashboard/front-office/${serviceId}`, {
+      resourceType: 'dashboard',
+      params,
+    })
+    return result.data || { success: false, data: null }
+  } catch (error: any) {
     console.error('Erreur récupération de getFrontOfficeDashboard:', error)
     return { success: false, data: null, error: error.message }
   }
 }
-
-
-
-
-
-

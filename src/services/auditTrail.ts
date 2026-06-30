@@ -1,9 +1,16 @@
+/**
+ * Audit Trail API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne.
+ * exportAuditTrail conserve un appel axios direct (responseType: 'blob').
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 import apiClient from './apiClient'
 import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
-import { useServiceStore } from '../composables/serviceStore'
 
-// Types
+// ── Types ──────────────────────────────────────────────────────────────
+
 export interface AuditTrailEntry {
   id: number
   date: string
@@ -42,20 +49,8 @@ export interface ApiResponse<T = any> {
   error?: string
 }
 
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  const serviceStore = useServiceStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'X-Hotel-Code': String(serviceStore?.serviceId ?? ''),
-    },
-    withCredentials: true,
-  }
-}
+// ── Error handling ─────────────────────────────────────────────────────
 
-
-// Error handling
 const handleApiError = (error: any) => {
   console.error('API Error:', error)
   if (error.response) {
@@ -65,30 +60,28 @@ const handleApiError = (error: any) => {
   throw error
 }
 
-// Get audit trail entries
+// ── Audit Trail Queries ────────────────────────────────────────────────
+
+/** Get audit trail entries */
 export const getAuditTrail = async (params: AuditTrailQueryParams): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse<any>> = await apiClient.get(
-      '/audit-trail',
-      {
-        ...getHeaders(),
-        params,
-      }
-    )
-    console.log('response',response)
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/audit-trail', {
+      resourceType: 'audit_trail',
+      params,
+    })
+    console.log('response', result.data)
+    return result.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
-// Export audit trail
+/** Export audit trail (blob — conserve axios direct) */
 export const exportAuditTrail = async (params: AuditTrailQueryParams): Promise<Blob | undefined> => {
   try {
     const response: AxiosResponse<Blob> = await apiClient.get(
       '/audit-trail/export',
       {
-        ...getHeaders(),
         params,
         responseType: 'blob',
       }
@@ -99,17 +92,15 @@ export const exportAuditTrail = async (params: AuditTrailQueryParams): Promise<B
   }
 }
 
-// Get audit trail for a specific entity
+/** Get audit trail for a specific entity */
 export const getEntityAuditTrail = async (entityType: string, entityId: number, hotelId: number): Promise<AuditTrailEntry[] | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse<AuditTrailEntry[]>> = await apiClient.get(
-      `/audit-trail/${entityType}/${entityId}`,
-      {
-        ...getHeaders(),
-        params: { hotelId },
-      }
-    )
-    return response.data.data
+    const result = await offlineAwareApiCall('GET', `/audit-trail/${entityType}/${entityId}`, {
+      resourceType: 'audit_trail',
+      resourceId: entityId,
+      params: { hotelId },
+    })
+    return result.data?.data ?? result.data
   } catch (error) {
     handleApiError(error)
   }

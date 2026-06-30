@@ -1,25 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import apiClient from './apiClient'
-import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
-const axios = apiClient
-
-const API_URL = `${import.meta.env.VITE_API_URL as string}/guests`
-const API_URL1 = `${import.meta.env.VITE_API_URL as string}`
-
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-    },
-    withCredentials: true,
-  }
-}
+/**
+ * Guest API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne
+ * (cache pour les GET, file d'attente pour les écritures).
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 
 // Interface for Guest data
 export interface GuestPayload {
-  hotelId?:number
+  hotelId?: number
   title?: string
   firstName?: string
   lastName?: string
@@ -30,8 +20,8 @@ export interface GuestPayload {
   email?: string
   gender?: string
   addressLine?: string
-  stateProvince?:string
-  postalCode?:string
+  stateProvince?: string
+  postalCode?: string
   city?: string
   management?: string
   country?: string
@@ -53,84 +43,165 @@ export interface GuestPayload {
   maidenName?: string
   contactType?: string
   reservationId?: number
-  preferences?: any;
-  contactTypeValue?:string
+  preferences?: any
+  contactTypeValue?: string
 }
 
-/**
- * Create a new guest
- */
-export const createGuest = (guestData: GuestPayload): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}`, guestData, getHeaders())
+/** Create a new guest */
+export const createGuest = async (guestData: GuestPayload): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('POST', '/guests', {
+      data: guestData,
+      resourceType: 'guest',
+      queuePriority: 7,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error creating guest:', error)
+    throw error
+  }
 }
 
-/**
- * Update existing guest
- */
-export const updateGuest = (id: number, guestData: GuestPayload): Promise<AxiosResponse<any>> => {
-  return axios.put(`${API_URL}/${id}`, guestData, getHeaders())
+/** Update existing guest */
+export const updateGuest = async (id: number, guestData: GuestPayload): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('PUT', `/guests/${id}`, {
+      data: guestData,
+      resourceType: 'guest',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error updating guest:', error)
+    throw error
+  }
 }
 
-/**
- * Get guest by ID
- */
-export const getGuestById = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${id}`, getHeaders())
+/** Get guest by ID */
+export const getGuestById = async (id: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/guests/${id}`, {
+      resourceType: 'guest',
+      resourceId: id,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching guest:', error)
+    throw error
+  }
 }
 
-
-
-/**
- * Delete guest
- */
-export const deleteGuest = (id: number): Promise<AxiosResponse<any>> => {
-  return axios.delete(`${API_URL}/${id}`, getHeaders())
+/** Delete guest */
+export const deleteGuest = async (id: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('DELETE', `/guests/${id}`, {
+      resourceType: 'guest',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error deleting guest:', error)
+    throw error
+  }
 }
 
-/**
- * guest detail
- */
-export const getCustomerProfile = (
-  id: number,
-): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/customers/${id}/details`, getHeaders())
+/** Guest detail */
+export const getCustomerProfile = async (id: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/guests/customers/${id}/details`, {
+      resourceType: 'guest',
+      resourceId: id,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching customer profile:', error)
+    throw error
+  }
 }
 
-export const getCustomerActivityLogs = (
-  id: number,
-): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/customers/${id}/activity-logs`, getHeaders())
+export const getCustomerActivityLogs = async (id: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/guests/customers/${id}/activity-logs`, {
+      resourceType: 'guest',
+      resourceId: id,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching customer activity logs:', error)
+    throw error
+  }
 }
 
-export const getCustomerTransactions = (
-  id: number,params:any={}
-): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/customers/${id}/transactions`, {...getHeaders(),params})
+export const getCustomerTransactions = async (id: number, params: any = {}): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/guests/customers/${id}/transactions`, {
+      resourceType: 'folio_transaction',
+      resourceId: id,
+      params,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching customer transactions:', error)
+    throw error
+  }
 }
 
-export const getCustomerReservations = (
-  id: number,
-): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/customers/${id}/reservations`, getHeaders())
+export const getCustomerReservations = async (id: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/guests/customers/${id}/reservations`, {
+      resourceType: 'reservation',
+      resourceId: id,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching customer reservations:', error)
+    throw error
+  }
 }
 
-/**
- * Blacklist a guest
- */
-export const toggleGuestBlacklist = (id: number, reason: string): Promise<AxiosResponse<any>> => {
-  return axios.patch(`${API_URL}/${id}/toggle-blacklist`, { reason }, getHeaders())
+/** Blacklist a guest */
+export const toggleGuestBlacklist = async (id: number, reason: string): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('PATCH', `/guests/${id}/toggle-blacklist`, {
+      data: { reason },
+      resourceType: 'guest',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error toggling guest blacklist:', error)
+    throw error
+  }
 }
 
-/**
- * Fetch guests with optional filters
- */
-export const getGuests = (params: any = {}): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}`, { ...getHeaders(), params })
+/** Fetch guests with optional filters */
+export const getGuests = async (params: any = {}): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', '/guests', {
+      resourceType: 'guest',
+      params,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching guests:', error)
+    throw error
+  }
 }
 
-/**
- * get Activitylog
- */
-export const getGuestsActivityLogs = (hotelId: number ,guestId:number,params: any = {}): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL1}/activity-log/${hotelId}/guests/${guestId}/activity-logs`, { ...getHeaders(), params })
+/** Get Activity log */
+export const getGuestsActivityLogs = async (hotelId: number, guestId: number, params: any = {}): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/activity-log/${hotelId}/guests/${guestId}/activity-logs`, {
+      resourceType: 'guest',
+      resourceId: guestId,
+      params,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching guest activity logs:', error)
+    throw error
+  }
 }

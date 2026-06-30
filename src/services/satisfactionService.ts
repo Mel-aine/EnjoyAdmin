@@ -1,22 +1,20 @@
+/**
+ * Satisfaction Stats API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne.
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 
-import apiClient from './apiClient'
-import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
-
-const axios = apiClient
-const API_URL = `${import.meta.env.VITE_API_URL as string}`
-
-const getAuthHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true,
+export const getSatisfactionStats = async (hotelId: number, period: number): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/hotels/${hotelId}/satisfaction-stats`, {
+      resourceType: 'satisfaction',
+      params: { period },
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching satisfaction stats:', error)
+    throw error
   }
-}
-
-export const getSatisfactionStats = (hotelId: number, period: number): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/hotels/${hotelId}/satisfaction-stats?period=${period}`, getAuthHeaders())
 }

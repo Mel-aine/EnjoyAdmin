@@ -1,105 +1,90 @@
-import type { AxiosResponse } from 'axios'
-import apiClient from './apiClient'
-import { useAuthStore } from '@/composables/user'
+/**
+ * Lost & Found API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne.
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 
-//const API_URL = import.meta.env.VITE_API_URL as string;
-
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-    },
-    withCredentials: true,
-  }
-}
-
-export interface CheckInPayload {
-  reservationId: number
-}
-
-export interface CheckOutPayload {
-  reservationId: number
-}
-
-export interface ApiResponse<T = any> {
-  message: string
-  data?: T
-  error?: string
-}
-
-/* const handleApiError = (error: any): never => {
-  console.error('Erreur API:', error)
-  throw {
-    message: error.response?.data?.message || 'Erreur API',
-    error: error.response?.data?.error || error.message,
-  }
-} */
-
-//ajouter un objet perdu/trouvé
+/**
+ * Add lost/found item
+ */
 export const addLostFound = async (data: any): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.post(
-      '/lost-found', data, getHeaders()
-    )
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/lost-found', {
+      data,
+      resourceType: 'lost_found',
+      queuePriority: 5,
+    })
+    return result.data
   } catch (error) {
     console.error('Erreur ajout objet perdu/trouvé:', error)
   }
 }
 
-// recuperer la liste des objets perdus/trouvés
-export const getLostFound = async (params:any={}): Promise<any> => {
+/**
+ * Get list of lost/found items
+ */
+export const getLostFound = async (params: any = {}): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/lost-found`, {...getHeaders(),params}
-    )
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/lost-found', {
+      resourceType: 'lost_found',
+      params,
+    })
+    return result.data
   } catch (error) {
     console.error('Erreur récupération objets perdus/trouvés:', error)
     return []
   }
 }
 
-//update un objet perdu/trouvé
-
+/**
+ * Update a lost/found item
+ */
 export const updateLostFoundItem = async (itemId: number, data: any): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.put(
-      `/lost-found/${itemId}`, data, getHeaders()
-    )
-    return response.data
+    const result = await offlineAwareApiCall('PUT', `/lost-found/${itemId}`, {
+      data,
+      resourceType: 'lost_found',
+      resourceId: itemId,
+      queuePriority: 5,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Erreur mise à jour objet perdu/trouvé:', error)
+    return undefined
   }
-    catch (error) {
-        console.error('Erreur mise à jour objet perdu/trouvé:', error)
-        return undefined
-    }
 }
 
-//recuperer un objet perdu/trouvé
-
+/**
+ * Get a single lost/found item
+ */
 export const getLostFoundItem = async (itemId: number): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.get(
-      `/lost-found/${itemId}`, getHeaders()
-    )
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/lost-found/${itemId}`, {
+      resourceType: 'lost_found',
+      resourceId: itemId,
+    })
+    return result.data
   } catch (error) {
     console.error('Erreur récupération objet perdu/trouvé:', error)
     return undefined
-    }
+  }
 }
 
-//supprimer un objet perdu/trouvé
+/**
+ * Delete a lost/found item
+ */
 export const deleteLostFoundItem = async (itemId: number): Promise<any | undefined> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await apiClient.delete(
-      `/lost-found/${itemId}`, getHeaders()
-    )
-    return response.data
+    const result = await offlineAwareApiCall('DELETE', `/lost-found/${itemId}`, {
+      resourceType: 'lost_found',
+      resourceId: itemId,
+      queuePriority: 5,
+    })
+    return result.data
   } catch (error) {
     console.error('Erreur suppression objet perdu/trouvé:', error)
     return undefined
   }
 }
-

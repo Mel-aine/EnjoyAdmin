@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Folio API Service — Offline-Aware
+ *
+ * Toutes les fonctions API utilisent offlineAwareApiCall pour
+ * fonctionner en mode hors ligne (cache pour les GET, file d'attente
+ * pour les écritures).
+ *
+ * Les fonctions d'impression (printFolioPdf, printConfirmBookingPdf, printHotelPdf)
+ * conservent un appel axios direct (responseType: 'blob').
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 import apiClient from './apiClient'
 import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
-const axios = apiClient
-
-
 
 // Folio-related TypeScript interfaces
 export interface CreateFolioData {
@@ -104,25 +112,15 @@ export interface TransactionSearchParams {
   amount_max?: number
 }
 
-const API_URL = `${import.meta.env.VITE_API_URL as string}/folios`
-
-const getHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-    },
-    withCredentials: true,
-  }
-}
-
 /**
  * get All Foglio
  */
 export const getAllFoglio = async (): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(API_URL, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/folios', {
+      resourceType: 'folio',
+    })
+    return result.data
   } catch (error) {
     console.error('Error fetching foglio:', error)
     throw error
@@ -147,25 +145,11 @@ export const getFoglioWithParams = async (params: {
   date_to?: string
 }): Promise<any> => {
   try {
-    const queryParams = new URLSearchParams()
-
-    // Add parameters to query string if they exist
-    if (params.page) queryParams.append('page', params.page.toString())
-    if (params.limit) queryParams.append('limit', params.limit.toString())
-    if (params.search) queryParams.append('search', params.search)
-    if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
-    if (params.guest_id) queryParams.append('guest_id', params.guest_id.toString())
-    if (params.reservation_id) queryParams.append('reservation_id', params.reservation_id.toString())
-    if (params.folio_type) queryParams.append('folio_type', params.folio_type)
-    if (params.status) queryParams.append('status', params.status)
-    if (params.has_balance !== undefined) queryParams.append('has_balance', params.has_balance.toString())
-    if (params.is_overdue !== undefined) queryParams.append('is_overdue', params.is_overdue.toString())
-    if (params.date_from) queryParams.append('date_from', params.date_from)
-    if (params.date_to) queryParams.append('date_to', params.date_to)
-
-    const url = queryParams.toString() ? `${API_URL}?${queryParams.toString()}` : API_URL
-    const response: AxiosResponse = await axios.get(url, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/folios', {
+      resourceType: 'folio',
+      params,
+    })
+    return result.data
   } catch (error) {
     console.error('Error fetching foglio with params:', error)
     throw error
@@ -177,8 +161,11 @@ export const getFoglioWithParams = async (params: {
  */
 export const getFoglioById = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error fetching foglio:', error)
     throw error
@@ -190,8 +177,12 @@ export const getFoglioById = async (id: number): Promise<any> => {
  */
 export const createFoglio = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/reservation`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/reservation', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error creating foglio:', error)
     throw error
@@ -203,8 +194,13 @@ export const createFoglio = async (data: any): Promise<any> => {
  */
 export const updateFoglio = async (id: number, data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.put(`${API_URL}/${id}`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('PUT', `/folios/${id}`, {
+      data,
+      resourceType: 'folio',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error updating foglio:', error)
     throw error
@@ -216,8 +212,12 @@ export const updateFoglio = async (id: number, data: any): Promise<any> => {
  */
 export const deleteFoglio = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.delete(`${API_URL}/${id}`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('DELETE', `/folios/${id}`, {
+      resourceType: 'folio',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error deleting foglio:', error)
     throw error
@@ -231,8 +231,13 @@ export const deleteFoglio = async (id: number): Promise<any> => {
  */
 export const closeFolio = async (id: number, data: { notes?: string }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/close`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', `/folios/${id}/close`, {
+      data,
+      resourceType: 'folio',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error closing folio:', error)
     throw error
@@ -244,8 +249,13 @@ export const closeFolio = async (id: number, data: { notes?: string }): Promise<
  */
 export const reopenFolio = async (id: number, data: { reason?: string }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/reopen`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', `/folios/${id}/reopen`, {
+      data,
+      resourceType: 'folio',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error reopening folio:', error)
     throw error
@@ -261,8 +271,13 @@ export const transferCharges = async (id: number, data: {
   description: string
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/transfer`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', `/folios/${id}/transfer`, {
+      data,
+      resourceType: 'folio',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error transferring charges:', error)
     throw error
@@ -276,8 +291,12 @@ export const transferCharges = async (id: number, data: {
  */
 export const postTransaction = async (data: TransactionData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/transactions`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/transactions', {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error posting transaction:', error)
     throw error
@@ -285,14 +304,19 @@ export const postTransaction = async (data: TransactionData): Promise<any> => {
 }
 
 /**
- * Post Transaction
+ * Update Transaction
  */
-export const updateTransaction = async (transactionId:any,data: TransactionData): Promise<any> => {
+export const updateTransaction = async (transactionId: any, data: TransactionData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.put(`${API_URL}/transactions/${transactionId}`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('PUT', `/folios/transactions/${transactionId}`, {
+      data,
+      resourceType: 'folio_transaction',
+      resourceId: transactionId,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
-    console.error('Error posting transaction:', error)
+    console.error('Error updating transaction:', error)
     throw error
   }
 }
@@ -302,8 +326,12 @@ export const updateTransaction = async (transactionId:any,data: TransactionData)
  */
 export const settleFolio = async (data: SettlementData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/settle`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/settle', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error settling folio:', error)
     throw error
@@ -315,8 +343,12 @@ export const settleFolio = async (data: SettlementData): Promise<any> => {
  */
 export const transferChargesBetweenFolios = async (data: TransferChargesData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/transfer-charges`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/transfer-charges', {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error transferring charges between folios:', error)
     throw error
@@ -328,8 +360,12 @@ export const transferChargesBetweenFolios = async (data: TransferChargesData): P
  */
 export const closeFolioWithService = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/close-service`, {}, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', `/folios/${id}/close-service`, {
+      resourceType: 'folio',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error closing folio with service:', error)
     throw error
@@ -341,8 +377,12 @@ export const closeFolioWithService = async (id: number): Promise<any> => {
  */
 export const reopenFolioWithService = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/${id}/reopen-service`, {}, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', `/folios/${id}/reopen-service`, {
+      resourceType: 'folio',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error reopening folio with service:', error)
     throw error
@@ -354,8 +394,11 @@ export const reopenFolioWithService = async (id: number): Promise<any> => {
  */
 export const getStatementWithService = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement-service`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/statement-service`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting statement with service:', error)
     throw error
@@ -374,8 +417,12 @@ export const createFolioForReservation = async (data: {
   notes?: string
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/reservation`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/reservation', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error creating folio for reservation:', error)
     throw error
@@ -393,8 +440,12 @@ export const createFolioForWalkIn = async (data: {
   notes?: string
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/walk-in`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/walk-in', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error creating folio for walk-in guest:', error)
     throw error
@@ -406,8 +457,12 @@ export const createFolioForWalkIn = async (data: {
  */
 export const createFoliosForGroup = async (data: GroupFolioData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/group`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/group', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error creating folios for group:', error)
     throw error
@@ -421,8 +476,12 @@ export const createFoliosForGroup = async (data: GroupFolioData): Promise<any> =
  */
 export const postRoomCharges = async (data: { reservationId: number }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/post-room-charges`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/post-room-charges', {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error posting room charges:', error)
     throw error
@@ -434,8 +493,12 @@ export const postRoomCharges = async (data: { reservationId: number }): Promise<
  */
 export const postTaxesAndFees = async (data: { reservationId: number }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/post-taxes-fees`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/post-taxes-fees', {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error posting taxes and fees:', error)
     throw error
@@ -449,8 +512,11 @@ export const postTaxesAndFees = async (data: { reservationId: number }): Promise
  */
 export const getReservationFolios = async (reservationId: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/reservation/${reservationId}`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/reservation/${reservationId}`, {
+      resourceType: 'folio',
+      resourceId: reservationId,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting reservation folios:', error)
     throw error
@@ -464,8 +530,11 @@ export const getReservationFolios = async (reservationId: number): Promise<any> 
  */
 export const getSettlementSummary = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/settlement-summary`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/settlement-summary`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting settlement summary:', error)
     throw error
@@ -477,8 +546,11 @@ export const getSettlementSummary = async (id: number): Promise<any> => {
  */
 export const getCheckoutSummary = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/checkout-summary`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/checkout-summary`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting checkout summary:', error)
     throw error
@@ -490,8 +562,12 @@ export const getCheckoutSummary = async (id: number): Promise<any> => {
  */
 export const processCheckout = async (data: CheckoutData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/checkout`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/checkout', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error processing checkout:', error)
     throw error
@@ -503,8 +579,12 @@ export const processCheckout = async (data: CheckoutData): Promise<any> => {
  */
 export const processReservationCheckout = async (data: ReservationCheckoutData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/reservation-checkout`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/reservation-checkout', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error processing reservation checkout:', error)
     throw error
@@ -516,8 +596,12 @@ export const processReservationCheckout = async (data: ReservationCheckoutData):
  */
 export const forceCloseFolio = async (data: ForceCloseData): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${API_URL}/force-close`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/force-close', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error force closing folio:', error)
     throw error
@@ -529,8 +613,11 @@ export const forceCloseFolio = async (data: ForceCloseData): Promise<any> => {
  */
 export const validateCheckout = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/validate-checkout`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/validate-checkout`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error validating checkout:', error)
     throw error
@@ -544,9 +631,12 @@ export const validateCheckout = async (id: number): Promise<any> => {
  */
 export const getGuestView = async (id: number, includeSensitive?: boolean): Promise<any> => {
   try {
-    const queryParams = includeSensitive ? '?include_sensitive=true' : ''
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/guest-view${queryParams}`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/guest-view`, {
+      resourceType: 'folio',
+      resourceId: id,
+      params: includeSensitive ? { include_sensitive: 'true' } : undefined,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting guest view:', error)
     throw error
@@ -558,8 +648,11 @@ export const getGuestView = async (id: number, includeSensitive?: boolean): Prom
  */
 export const getStaffView = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/staff-view`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/staff-view`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting staff view:', error)
     throw error
@@ -571,21 +664,11 @@ export const getStaffView = async (id: number): Promise<any> => {
  */
 export const searchFolios = async (params: SearchParams): Promise<any> => {
   try {
-    const queryParams = new URLSearchParams()
-
-    if (params.query) queryParams.append('query', params.query)
-    if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
-    if (params.date_from) queryParams.append('date_from', params.date_from)
-    if (params.date_to) queryParams.append('date_to', params.date_to)
-    if (params.status) queryParams.append('status', params.status)
-    if (params.folio_type) queryParams.append('folio_type', params.folio_type)
-    if (params.has_balance !== undefined) queryParams.append('has_balance', params.has_balance.toString())
-    if (params.guest_name) queryParams.append('guest_name', params.guest_name)
-    if (params.folio_number) queryParams.append('folio_number', params.folio_number)
-
-    const url = `${API_URL}/search/details?${queryParams.toString()}`
-    const response: AxiosResponse = await axios.get(url, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/folios/search/details', {
+      resourceType: 'folio',
+      params,
+    })
+    return result.data
   } catch (error) {
     console.error('Error searching folios:', error)
     throw error
@@ -597,19 +680,11 @@ export const searchFolios = async (params: SearchParams): Promise<any> => {
  */
 export const searchTransactions = async (params: TransactionSearchParams): Promise<any> => {
   try {
-    const queryParams = new URLSearchParams()
-
-    if (params.folio_id) queryParams.append('folio_id', params.folio_id.toString())
-    if (params.transaction_type) queryParams.append('transaction_type', params.transaction_type)
-    if (params.category) queryParams.append('category', params.category)
-    if (params.date_from) queryParams.append('date_from', params.date_from)
-    if (params.date_to) queryParams.append('date_to', params.date_to)
-    if (params.amount_min) queryParams.append('amount_min', params.amount_min.toString())
-    if (params.amount_max) queryParams.append('amount_max', params.amount_max.toString())
-
-    const url = `${API_URL}/transactions/search?${queryParams.toString()}`
-    const response: AxiosResponse = await axios.get(url, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/folios/transactions/search', {
+      resourceType: 'folio_transaction',
+      params,
+    })
+    return result.data
   } catch (error) {
     console.error('Error searching transactions:', error)
     throw error
@@ -621,8 +696,11 @@ export const searchTransactions = async (params: TransactionSearchParams): Promi
  */
 export const getTimeline = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/timeline`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/timeline`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting timeline:', error)
     throw error
@@ -639,16 +717,11 @@ export const getAdvancedStatistics = async (params: {
   group_by?: string
 }): Promise<any> => {
   try {
-    const queryParams = new URLSearchParams()
-
-    if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
-    if (params.date_from) queryParams.append('date_from', params.date_from)
-    if (params.date_to) queryParams.append('date_to', params.date_to)
-    if (params.group_by) queryParams.append('group_by', params.group_by)
-
-    const url = `${API_URL}/statistics-advanced?${queryParams.toString()}`
-    const response: AxiosResponse = await axios.get(url, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/folios/statistics-advanced', {
+      resourceType: 'folio',
+      params,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting advanced statistics:', error)
     throw error
@@ -662,8 +735,11 @@ export const getAdvancedStatistics = async (params: {
  */
 export const getFolioBalance = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/balance`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/balance`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting folio balance:', error)
     throw error
@@ -675,8 +751,11 @@ export const getFolioBalance = async (id: number): Promise<any> => {
  */
 export const getFolioStatement = async (id: number): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.get(`${API_URL}/${id}/statement-service`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folios/${id}/statement-service`, {
+      resourceType: 'folio',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting folio statement:', error)
     throw error
@@ -692,15 +771,11 @@ export const getStatistics = async (params: {
   date_to?: string
 }): Promise<any> => {
   try {
-    const queryParams = new URLSearchParams()
-
-    if (params.hotel_id) queryParams.append('hotel_id', params.hotel_id.toString())
-    if (params.date_from) queryParams.append('date_from', params.date_from)
-    if (params.date_to) queryParams.append('date_to', params.date_to)
-
-    const url = `${API_URL}/statistics?${queryParams.toString()}`
-    const response: AxiosResponse = await axios.get(url, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/folios/statistics', {
+      resourceType: 'folio',
+      params,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting statistics:', error)
     throw error
@@ -722,20 +797,11 @@ export const getAllFolioTransactions = async (params: {
   date_to?: string
 }): Promise<any> => {
   try {
-    const queryParams = new URLSearchParams()
-
-    if (params.page) queryParams.append('page', params.page.toString())
-    if (params.limit) queryParams.append('limit', params.limit.toString())
-    if (params.folio_id) queryParams.append('folio_id', params.folio_id.toString())
-    if (params.transaction_type) queryParams.append('transaction_type', params.transaction_type)
-    if (params.category) queryParams.append('category', params.category)
-    if (params.date_from) queryParams.append('date_from', params.date_from)
-    if (params.date_to) queryParams.append('date_to', params.date_to)
-
-    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const url = queryParams.toString() ? `${transactionApiUrl}?${queryParams.toString()}` : transactionApiUrl
-    const response: AxiosResponse = await axios.get(url, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/folio-transactions', {
+      resourceType: 'folio_transaction',
+      params,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting folio transactions:', error)
     throw error
@@ -747,9 +813,11 @@ export const getAllFolioTransactions = async (params: {
  */
 export const getFolioTransactionById = async (id: number): Promise<any> => {
   try {
-    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.get(`${transactionApiUrl}/${id}`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', `/folio-transactions/${id}`, {
+      resourceType: 'folio_transaction',
+      resourceId: id,
+    })
+    return result.data
   } catch (error) {
     console.error('Error getting folio transaction:', error)
     throw error
@@ -761,9 +829,12 @@ export const getFolioTransactionById = async (id: number): Promise<any> => {
  */
 export const createFolioTransaction = async (data: any): Promise<any> => {
   try {
-    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.post(transactionApiUrl, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folio-transactions', {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error creating folio transaction:', error)
     throw error
@@ -775,9 +846,13 @@ export const createFolioTransaction = async (data: any): Promise<any> => {
  */
 export const updateFolioTransaction = async (id: number, data: any): Promise<any> => {
   try {
-    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.put(`${transactionApiUrl}/${id}`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('PUT', `/folio-transactions/${id}`, {
+      data,
+      resourceType: 'folio_transaction',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error updating folio transaction:', error)
     throw error
@@ -789,9 +864,12 @@ export const updateFolioTransaction = async (id: number, data: any): Promise<any
  */
 export const deleteFolioTransaction = async (id: number): Promise<any> => {
   try {
-    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.delete(`${transactionApiUrl}/${id}`, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('DELETE', `/folio-transactions/${id}`, {
+      resourceType: 'folio_transaction',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error deleting folio transaction:', error)
     throw error
@@ -803,9 +881,13 @@ export const deleteFolioTransaction = async (id: number): Promise<any> => {
  */
 export const voidFolioTransaction = async (id: number, data: { reason: string }): Promise<any> => {
   try {
-    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.post(`${transactionApiUrl}/${id}/void`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', `/folio-transactions/${id}/void`, {
+      data,
+      resourceType: 'folio_transaction',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error voiding folio transaction:', error)
     throw error
@@ -817,9 +899,13 @@ export const voidFolioTransaction = async (id: number, data: { reason: string })
  */
 export const reverseFolioTransaction = async (id: number, data: { reason: string }): Promise<any> => {
   try {
-    const transactionApiUrl = `${import.meta.env.VITE_API_URL as string}/folio-transactions`
-    const response: AxiosResponse = await axios.post(`${transactionApiUrl}/${id}/reverse`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', `/folio-transactions/${id}/reverse`, {
+      data,
+      resourceType: 'folio_transaction',
+      resourceId: id,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error reversing folio transaction:', error)
     throw error
@@ -828,8 +914,6 @@ export const reverseFolioTransaction = async (id: number, data: { reason: string
 
 /**
  * folio printer
- * @param data
- * @returns
  */
 export const printFolio = async (data: {
   folioId: number
@@ -837,8 +921,12 @@ export const printFolio = async (data: {
   currencyId?: number
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-transactions/print`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folio-transactions/print', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 5,
+    })
+    return result.data
   } catch (error) {
     console.error('Error printing folio:', error)
     throw error
@@ -847,71 +935,78 @@ export const printFolio = async (data: {
 
 
 /**
- * folio printer
- * @param data
- * @returns
+ * Print Folio PDF (blob — conserve axios direct)
  */
 export const printFolioPdf = async (data: {
   folioId: number
   reservationId?: number
   currencyId?: number
 }): Promise<any> => {
-
-  const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print-pdf`, data, headersWithBlob)
+    const response: AxiosResponse = await apiClient.post('/folio-print/print-pdf', data, {
+      responseType: 'blob',
+    })
     return response.data
   } catch (error) {
     console.error('Error printing folio:', error)
     throw error
   }
 }
+
+/**
+ * Print Confirm Booking PDF (blob — conserve axios direct)
+ */
 export const printConfirmBookingPdf = async (data: {
   reservationId?: number
   language?: string
 }): Promise<any> => {
   try {
-    const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
-
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_confirm_booking-pdf`, data, headersWithBlob)
+    const response: AxiosResponse = await apiClient.post('/folio-print/print_confirm_booking-pdf', data, {
+      responseType: 'blob',
+    })
     return response.data
   } catch (error) {
     console.error('Error printing confirmBooking:', error)
     throw error
   }
 }
+
+/**
+ * Print Hotel PDF (blob — conserve axios direct)
+ */
 export const printHotelPdf = async (data: {
   reservationId?: number
   language?: string
 }): Promise<any> => {
   try {
-    const headersWithBlob = { ...getHeaders(), responseType: 'blob' as const }
-
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folio-print/print_hotel-pdf`, data, headersWithBlob)
+    const response: AxiosResponse = await apiClient.post('/folio-print/print_hotel-pdf', data, {
+      responseType: 'blob',
+    })
     return response.data
   } catch (error) {
-    console.error('Error printing confirmBooking:', error)
+    console.error('Error printing hotel PDF:', error)
     throw error
   }
 }
-
-
-
-export const getUnsetteledFolio = async (hotelId: number,params:any={}): Promise<any> => {
-
-  try {
-    const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL as string}/folios/unsettled/${hotelId}`, {...getHeaders(),params})
-    return response.data
-  } catch (error) {
-    console.error('Error fetching folio:', error)
-    throw error
-  }
-}
-
-
 
 /**
- * get Foglio with query parameters
+ * Get unsettled folios
+ */
+export const getUnsetteledFolio = async (hotelId: number, params: any = {}): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('GET', `/folios/unsettled/${hotelId}`, {
+      resourceType: 'folio',
+      params,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error fetching unsettled folios:', error)
+    throw error
+  }
+}
+
+/**
+ * Find folio with comprehensive search
  */
 export const findFolio = async (params: {
   page?: number
@@ -924,36 +1019,29 @@ export const findFolio = async (params: {
   dateTo?: string
 }): Promise<any> => {
   try {
-    const queryParams = new URLSearchParams()
-
-    // Add parameters to query string if they exist
-    if (params.page) queryParams.append('page', params.page.toString())
-    if (params.limit) queryParams.append('limit', params.limit.toString())
-    if (params.searchText) queryParams.append('searchText', params.searchText.toString())
-    if (params.hotelId) queryParams.append('hotelId', params.hotelId.toString())
-    if (params.inhouse) queryParams.append('inhouse', params.inhouse.toString())
-    if (params.reservation) queryParams.append('reservation', params.reservation.toString())
-    if (params.dateFrom) queryParams.append('dateFrom', params.dateFrom)
-    if (params.dateTo) queryParams.append('dateTo', params.dateTo)
-    const url = queryParams.toString() ? `${API_URL}/comprehensive/search?${queryParams.toString()}` : API_URL
-    const response: AxiosResponse = await axios.get(url, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('GET', '/folios/comprehensive/search', {
+      resourceType: 'folio',
+      params,
+    })
+    return result.data
   } catch (error) {
-    console.error('Error fetching foglio with params:', error)
+    console.error('Error finding folio:', error)
     throw error
   }
 }
 
 
 /**
- * split folio
- * @param data
- * @returns
+ * Split folio
  */
 export const splitFolioHandler = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/split`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/split', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error splitting folio:', error)
     throw error
@@ -961,14 +1049,16 @@ export const splitFolioHandler = async (data: any): Promise<any> => {
 }
 
 /**
- * cut folio
- * @param data
- * @returns
+ * Cut folio
  */
 export const cutFolioHandler = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/cut`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/cut', {
+      data,
+      resourceType: 'folio',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error cutting folio:', error)
     throw error
@@ -976,14 +1066,16 @@ export const cutFolioHandler = async (data: any): Promise<any> => {
 }
 
 /**
- * add room charge
- * @param data
- * @returns   room charge
+ * Add room charge
  */
 export const addRoomChargeHandler = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/add`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/room-charge/add', {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error adding room charge:', error)
     throw error
@@ -991,58 +1083,69 @@ export const addRoomChargeHandler = async (data: any): Promise<any> => {
 }
 
 /**
- * update room charge
- * @param data
- * @returns   room charge
+ * Update room charge
  */
-export const updateRoomChargeHandler = async (transactionId:any,data: any): Promise<any> => {
+export const updateRoomChargeHandler = async (transactionId: any, data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.put(`${import.meta.env.VITE_API_URL as string}/folios/room-charge/${transactionId}`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('PUT', `/folios/room-charge/${transactionId}`, {
+      data,
+      resourceType: 'folio_transaction',
+      resourceId: transactionId,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
-    console.error('Error update room charge:', error)
+    console.error('Error updating room charge:', error)
     throw error
   }
 }
 
 /**
- * add adjustment
- * @param data
- * @returns   adjustment
+ * Add adjustment
  */
 export const addAdjustmentHandler = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/adjustment/add`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/adjustment/add', {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error adding adjustment:', error)
     throw error
   }
 }
 
-
 /**
- * update adjustement
+ * Update adjustment
  */
-export const updateAdjustmentHandler = async (transactionId:any,data: any): Promise<any> => {
+export const updateAdjustmentHandler = async (transactionId: any, data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.put(`${import.meta.env.VITE_API_URL as string}/folios/adjustment/${transactionId}`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('PUT', `/folios/adjustment/${transactionId}`, {
+      data,
+      resourceType: 'folio_transaction',
+      resourceId: transactionId,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
-    console.error('Error update adjustment:', error)
+    console.error('Error updating adjustment:', error)
     throw error
   }
 }
 
 /**
- * apply discount
- * @param data
- * @returns   discount
+ * Apply discount
  */
 export const applyDiscountHandler = async (data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(`${import.meta.env.VITE_API_URL as string}/folios/apply/discount`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('POST', '/folios/apply/discount', {
+      data,
+      resourceType: 'folio_transaction',
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error applying discount:', error)
     throw error
@@ -1050,12 +1153,17 @@ export const applyDiscountHandler = async (data: any): Promise<any> => {
 }
 
 /**
- * update Discount
+ * Update discount
  */
-export const updateDiscountHandler = async (transactionId:any,data: any): Promise<any> => {
+export const updateDiscountHandler = async (transactionId: any, data: any): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.put(`${import.meta.env.VITE_API_URL as string}/folios/update/discount/${transactionId}`, data, getHeaders())
-    return response.data
+    const result = await offlineAwareApiCall('PUT', `/folios/update/discount/${transactionId}`, {
+      data,
+      resourceType: 'folio_transaction',
+      resourceId: transactionId,
+      queuePriority: 7,
+    })
+    return result.data
   } catch (error) {
     console.error('Error updating discount:', error)
     throw error
@@ -1063,7 +1171,7 @@ export const updateDiscountHandler = async (transactionId:any,data: any): Promis
 }
 
 /**
- * Send invoice by email
+ * Send invoice by email (EN LIGNE UNIQUEMENT — nécessite connexion réseau)
  */
 export const sendInvoiceByEmail = async (data: {
   reservationId: number
@@ -1072,11 +1180,7 @@ export const sendInvoiceByEmail = async (data: {
   language?: 'fr' | 'en'
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(
-      `${import.meta.env.VITE_API_URL as string}/folio-print/send-invoice-email`,
-      data,
-      getHeaders()
-    )
+    const response: AxiosResponse = await apiClient.post('/folio-print/send-invoice-email', data)
     return response.data
   } catch (error) {
     console.error('Error sending invoice by email:', error)
@@ -1085,7 +1189,7 @@ export const sendInvoiceByEmail = async (data: {
 }
 
 /**
- * Send voucher by email
+ * Send voucher by email (EN LIGNE UNIQUEMENT)
  */
 export const sendVoucherByEmail = async (data: {
   reservationId: number
@@ -1093,11 +1197,7 @@ export const sendVoucherByEmail = async (data: {
   language?: 'fr' | 'en'
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(
-      `${import.meta.env.VITE_API_URL as string}/folio-print/send-voucher-email`,
-      data,
-      getHeaders()
-    )
+    const response: AxiosResponse = await apiClient.post('/folio-print/send-voucher-email', data)
     return response.data
   } catch (error) {
     console.error('Error sending voucher by email:', error)
@@ -1106,7 +1206,7 @@ export const sendVoucherByEmail = async (data: {
 }
 
 /**
- * Send invoice by WhatsApp
+ * Send invoice by WhatsApp (EN LIGNE UNIQUEMENT)
  */
 export const sendInvoiceByWhatsapp = async (data: {
   reservationId: number
@@ -1115,11 +1215,7 @@ export const sendInvoiceByWhatsapp = async (data: {
   language?: 'fr' | 'en'
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(
-      `${import.meta.env.VITE_API_URL as string}/folio-print/send-invoice-whatsapp`,
-      data,
-      getHeaders()
-    )
+    const response: AxiosResponse = await apiClient.post('/folio-print/send-invoice-whatsapp', data)
     return response.data
   } catch (error) {
     console.error('Error sending invoice by WhatsApp:', error)
@@ -1128,7 +1224,7 @@ export const sendInvoiceByWhatsapp = async (data: {
 }
 
 /**
- * Send voucher by WhatsApp
+ * Send voucher by WhatsApp (EN LIGNE UNIQUEMENT)
  */
 export const sendVoucherByWhatsapp = async (data: {
   reservationId: number
@@ -1136,11 +1232,7 @@ export const sendVoucherByWhatsapp = async (data: {
   language?: 'fr' | 'en'
 }): Promise<any> => {
   try {
-    const response: AxiosResponse = await axios.post(
-      `${import.meta.env.VITE_API_URL as string}/folio-print/send-voucher-whatsapp`,
-      data,
-      getHeaders()
-    )
+    const response: AxiosResponse = await apiClient.post('/folio-print/send-voucher-whatsapp', data)
     return response.data
   } catch (error) {
     console.error('Error sending voucher by WhatsApp:', error)

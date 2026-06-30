@@ -1,25 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from './apiClient'
+/**
+ * WhatsApp API Service — EN LIGNE UNIQUEMENT
+ *
+ * WhatsApp nécessite une connexion réseau (API externe Meta).
+ * Ces fonctions utilisent apiClient direct, pas offlineAwareApiCall.
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import apiClient from './apiClient'
 import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
-
-const API_URL = `${import.meta.env.VITE_API_URL as string}/hotels`
-
-const getAuthHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'Content-Type': 'application/json',
-    },
-    withCredentials: true,
-  }
-}
 
 /**
  * Test WhatsApp configuration for a hotel
  */
-export const testWhatsappConfiguration = (
+export const testWhatsappConfiguration = async (
   hotelId: number,
   payload: {
     recipient_phone_number: string
@@ -27,21 +19,32 @@ export const testWhatsappConfiguration = (
     providerType?: string
     config?: Record<string, any>
   }
-): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/${hotelId}/whatsapp/test`, payload, getAuthHeaders())
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.post(`/hotels/${hotelId}/whatsapp/test`, payload)
+    return response.data
+  } catch (error) {
+    console.error('Error testing WhatsApp configuration:', error)
+    throw error
+  }
 }
 
 /**
- * WhatsApp Log
+ * Get WhatsApp logs (OK en cache offline, mais nécessite connexion pour des logs frais)
  */
-export const getWhatsappLogs = (
+export const getWhatsappLogs = async (
   reservationId: number,
   hotelId: number,
   page: number = 1,
   perPage: number = 20
-): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/${hotelId}/whatsapp-logs`, {
-    params: { reservationId, page, perPage },
-    ...getAuthHeaders()
-  })
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await apiClient.get(`/hotels/${hotelId}/whatsapp-logs`, {
+      params: { reservationId, page, perPage },
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error fetching WhatsApp logs:', error)
+    throw error
+  }
 }

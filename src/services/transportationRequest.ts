@@ -1,31 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from './apiClient'
-import type { AxiosResponse } from 'axios'
-import { useAuthStore } from '@/composables/user'
-
-
-
-
-
-const API_URL = `${import.meta.env.VITE_API_URL as string}`
-
-// Function to get headers with current token
-const getAuthHeaders = () => {
-  const authStore = useAuthStore()
-  return {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true,
-  }
-}
+/**
+ * Transportation Request API Service — Offline-Aware
+ *
+ * Utilise offlineAwareApiCall pour fonctionner en mode hors ligne.
+ * L'authentification est gérée automatiquement par les intercepteurs d'apiClient.
+ */
+import { offlineAwareApiCall } from './offline/apiProxy.js'
 
 /**
- * Create User Assignment
+ * Create Transportation Request
  */
-export const createTransportationRequest = (data: any): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/transportation-requests`, data, getAuthHeaders())
+export const createTransportationRequest = async (data: any): Promise<any> => {
+  try {
+    const result = await offlineAwareApiCall('POST', '/transportation-requests', {
+      data,
+      resourceType: 'transportation',
+      queuePriority: 5,
+    })
+    return result.data
+  } catch (error) {
+    console.error('Error creating transportation request:', error)
+    throw error
+  }
 }
-
-
