@@ -22,6 +22,7 @@ import {
   clearExpiredCache,
 } from './db.js'
 import type { SyncOperation } from './db.js'
+import { OfflineCacheService } from './cacheService.js'
 
 // ── Configuration ──────────────────────────────────────────────────────
 
@@ -35,6 +36,8 @@ const REFERENCE_RESOURCES = [
   'room_type', 'room', 'rate_type', 'room_rate',
   'booking_source', 'payment_method', 'tax_rate',
   'extra_charge', 'discount',
+  'vip_status', 'black_list_reason',
+  'notification', 'announcement',
 ]
 
 const BUSINESS_RESOURCES = [
@@ -63,6 +66,10 @@ const INITIAL_LOAD_KEY_MAP: Record<string, string> = {
   folioTransactions: 'folio_transaction',
   workOrders: 'work_order',
   roomBlocks: 'room_block',
+  vipStatuses: 'vip_status',
+  blackListReasons: 'black_list_reason',
+  notifications: 'notification',
+  announcements: 'announcement',
 }
 
 const TTL = {
@@ -107,6 +114,36 @@ interface SyncStatusResponse {
   offlineModeEnabled: boolean
   pendingOperations: number
   lastSyncAt: string | null
+}
+
+// Mapping resourceType → chemins d'API pour le cache URL (utilisé par l'intercepteur axios)
+// Permet au syncManager de peupler le cache que l'axios interceptor consulte hors-ligne
+const RESOURCE_TO_URL_PATTERNS: Record<string, (hotelId: number) => string[]> = {
+  room_type: (id) => [`/api/configuration/hotels/${id}/room_types`],
+  room: (id) => [`/api/hotels/${id}/rooms`, `/api/configuration/hotels/${id}/rooms/views/details`],
+  rate_type: (id) => [`/api/configuration/hotels/${id}/rate_types`],
+  room_rate: (id) => [`/api/configuration/hotels/${id}/room_rates`],
+  booking_source: (id) => [`/api/configuration/hotels/${id}/booking_sources`],
+  payment_method: (id) => [`/api/configuration/hotels/${id}/payment_methods`],
+  tax_rate: (id) => [`/api/configuration/hotels/${id}/taxes`],
+  extra_charge: (id) => [`/api/configuration/hotels/${id}/extra_charges`],
+  discount: (id) => [`/api/configuration/hotels/${id}/discounts`],
+  reservation: () => ['/api/reservations'],
+  guest: () => ['/api/guests'],
+  folio: () => ['/api/folios'],
+  folio_transaction: () => ['/api/folios/transactions'],
+  work_order: () => ['/api/work_orders'],
+  room_block: (id) => [`/api/room-blocks/${id}`],
+  vip_status: (id) => [`/api/configuration/hotels/${id}/vip_statuses`],
+  black_list_reason: (id) => [`/api/configuration/hotels/${id}/black_list_reasons`],
+  notification: () => ['/api/notifications/me'],
+  announcement: () => ['/api/announcements/active'],
+  dashboard: (id) => [
+    `/api/dashboard/front-office/${id}`,
+    `/api/availability/${id}`,
+    `/api/occupancy/${id}/stats`,
+    `/api/revenue/${id}/stats`,
+  ],
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
@@ -200,7 +237,7 @@ class SyncManager {
    * Note : le backend retourne des clés camelCase, on les normalise
    * en snake_case pour le cache local (cohérent avec PULL).
    */
-    async initialLoad(dateFrom?: string): Promise<void> {
+  async initialLoad(dateFrom?: string): Promise<void> {
     if (!this.hotelId) throw new Error('SyncManager not initialised')
 
     const offlineStore = useOfflineStore()
@@ -238,6 +275,28 @@ class SyncManager {
 
         const cacheKey = buildCacheKey(resourceType, this.hotelId)
         await cacheApiResponse(cacheKey, records, getTtl(resourceType))
+
+        // Peupler le cache sous les clés URL (pour l'intercepteur axios)
+        const urlPatterns = RESOURCE_TO_URL_PATTERNS[resourceType]
+        if (urlPatterns && this.hotelId) {
+          const urlPaths = urlPatterns(this.hotelId)
+          for (const urlPath of urlPaths) {
+            await cacheApiResponse(urlPath, { data: records }, getTtl(resourceType))
+          }
+        }
+
+        // Peupler le cache OfflineCacheService (pour offlineAwareApiCall)
+        // Stocke chaque enregistrement individuellement sous la clé {resourceType}:{id}
+        // Permet à offlineAwareApiCall.get() et getAll() de trouver les données hors-ligne
+        if (resourceType && Array.isArray(records)) {
+          const ttl = getTtl(resourceType)
+          for (const record of records) {
+            const recordId = (record as any)?.id ?? (record as any)?.ID
+            if (recordId !== undefined && recordId !== null) {
+              await OfflineCacheService.set(resourceType, recordId, record, { ttlMs: ttl })
+            }
+          }
+        }
 
         const progress = 15 + Math.round(((i + 1) / total) * 80)
         offlineStore.setInitialLoadProgress(progress)
@@ -304,12 +363,13 @@ class SyncManager {
         deviceId: this.deviceId,
         lastSyncVersion,
         operations: pending.map((op: SyncOperation) => ({
-          id: op.id!,
+          operationId: op.operationId,
           operationType: op.operationType,
           resourceType: op.resourceType,
           resourceId: op.resourceId,
           payload: op.payload,
           priority: op.priority,
+          clientTimestamp: op.clientTimestamp,
         })),
       })
 

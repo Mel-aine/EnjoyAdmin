@@ -64,20 +64,20 @@ export function usePwaUpdate() {
    * Register for periodic background sync (Chrome 80+)
    * This keeps the cache fresh even when the app is closed
    */
-  function registerPeriodicSync(registration: ServiceWorkerRegistration) {
+  async function registerPeriodicSync(registration: ServiceWorkerRegistration) {
     if ('periodicSync' in registration) {
-      try {
-        const tags = ['sync-pull', 'sync-cache-cleanup']
-        tags.forEach(async (tag) => {
+      const tags = ['sync-pull', 'sync-cache-cleanup']
+      for (const tag of tags) {
+        try {
           // @ts-expect-error - periodicSync is not in all TS types yet
           await registration.periodicSync.register(tag, {
             minInterval: 30 * 60 * 1000, // Every 30 minutes
           })
-        })
-        console.log('[PWA] Periodic sync registered')
-      } catch (err) {
-        // Periodic sync not supported (may fail on some browsers)
-        console.debug('[PWA] Periodic sync not available')
+          console.log('[PWA] Periodic sync registered for', tag)
+        } catch (err) {
+          // Periodic sync not supported (may fail on some browsers)
+          console.debug('[PWA] Periodic sync not available for', tag)
+        }
       }
     }
   }

@@ -97,7 +97,7 @@ export default defineConfig(({ mode }) => ({
                 maxAgeSeconds: 60 * 60 * 24 * 7, // 7 jours
               },
               backgroundSync: {
-                name: 'pms-sync',
+                name: 'pms-sync-config',
               },
             },
           },
@@ -114,14 +114,14 @@ export default defineConfig(({ mode }) => ({
               },
               networkTimeoutSeconds: 5,
               backgroundSync: {
-                name: 'pms-sync',
+                name: 'pms-sync-data',
               },
             },
           },
 
           // ===== API GÉNÉRIQUE (fallback) =====
           {
-            urlPattern: /^\/api\/.*/i,
+            urlPattern: /\/api\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -147,7 +147,7 @@ export default defineConfig(({ mode }) => ({
 
           // ===== RAPPORTS FRONT OFFICE (lecture seule, network first avec cache) =====
           {
-            urlPattern: /^\/reports\/front-office\/.*/i,
+            urlPattern: /\/reports\/front-office\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'pms-frontoffice-reports',
@@ -161,7 +161,7 @@ export default defineConfig(({ mode }) => ({
 
           // ===== RAPPORTS GÉNÉRAUX =====
           {
-            urlPattern: /^\/reports\/.*/i,
+            urlPattern: /\/reports\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'pms-reports',
@@ -175,7 +175,7 @@ export default defineConfig(({ mode }) => ({
 
           // ===== HOUSEKEEPING : Ordres de travail & Blocs chambres =====
           {
-            urlPattern: /^\/(work_orders|room-blocks)\/?.*/i,
+            urlPattern: /\/(work_orders|room-blocks)\/?.*/i,
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'pms-housekeeping',
@@ -184,7 +184,7 @@ export default defineConfig(({ mode }) => ({
                 maxAgeSeconds: 60 * 60 * 24 * 3, // 3 jours
               },
               backgroundSync: {
-                name: 'pms-sync',
+                name: 'pms-sync-housekeeping',
               },
             },
           },
