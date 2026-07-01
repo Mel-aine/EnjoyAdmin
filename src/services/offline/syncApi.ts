@@ -17,6 +17,8 @@
 import { offlineAwareApiCall } from './apiProxy.js'
 import apiClient from '../apiClient'
 
+const SYNC_API_BASE = ''
+
 // ── Types ──────────────────────────────────────────────────────────────
 
 export interface SyncConflict {

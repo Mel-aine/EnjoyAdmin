@@ -14,7 +14,7 @@
  */
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useToast, POSITION } from 'vue-toastification'
+import { useToast, POSITION, TYPE } from 'vue-toastification'
 import { syncManager } from '../services/offline/syncManager.js'
 import { offlineQueue } from '../services/offline/queue.js'
 import {
@@ -87,7 +87,7 @@ export function useConnection() {
     // Toast reconnecté (bas-gauche, style Facebook/YouTube)
     toast(t('connection.backOnline'), {
       ...TOAST_OPTIONS,
-      type: 'success',
+      type: TYPE.SUCCESS,
     })
   }
 
@@ -103,7 +103,7 @@ export function useConnection() {
     // Toast hors-ligne (bas-gauche, style Facebook/YouTube)
     toast(t('connection.offline'), {
       ...TOAST_OPTIONS,
-      type: 'warning',
+      type: TYPE.WARNING,
     })
   }
 

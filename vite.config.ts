@@ -50,6 +50,10 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
       manifest: {
         name: 'Enjoy Stay',
         short_name: 'EnjoyStay',
@@ -79,6 +83,8 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2,ttf,eot}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           // ===== DONNÉES DE CONFIGURATION (lecture seule, longue durée) =====
           {
@@ -135,6 +141,50 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'pms-fonts',
               expiration: {
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 jours
+              },
+            },
+          },
+
+          // ===== RAPPORTS FRONT OFFICE (lecture seule, network first avec cache) =====
+          {
+            urlPattern: /^\/reports\/front-office\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pms-frontoffice-reports',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24, // 1 jour
+              },
+              networkTimeoutSeconds: 5,
+            },
+          },
+
+          // ===== RAPPORTS GÉNÉRAUX =====
+          {
+            urlPattern: /^\/reports\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pms-reports',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24, // 1 jour
+              },
+              networkTimeoutSeconds: 5,
+            },
+          },
+
+          // ===== HOUSEKEEPING : Ordres de travail & Blocs chambres =====
+          {
+            urlPattern: /^\/(work_orders|room-blocks)\/?.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'pms-housekeeping',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 3, // 3 jours
+              },
+              backgroundSync: {
+                name: 'pms-sync',
               },
             },
           },

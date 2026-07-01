@@ -41,6 +41,10 @@ const BUSINESS_RESOURCES = [
   'reservation', 'guest', 'folio', 'folio_transaction',
 ]
 
+const HOUSEKEEPING_RESOURCES = [
+  'work_order', 'room_block',
+]
+
 // Mapping camelCase (initialLoad backend) → snake_case (cache local)
 const INITIAL_LOAD_KEY_MAP: Record<string, string> = {
   hotel: 'hotel',
@@ -57,6 +61,8 @@ const INITIAL_LOAD_KEY_MAP: Record<string, string> = {
   guests: 'guest',
   folios: 'folio',
   folioTransactions: 'folio_transaction',
+  workOrders: 'work_order',
+  roomBlocks: 'room_block',
 }
 
 const TTL = {
@@ -267,6 +273,7 @@ class SyncManager {
         resourceTypes: [
           ...REFERENCE_RESOURCES,
           ...BUSINESS_RESOURCES,
+          ...HOUSEKEEPING_RESOURCES,
         ],
       })
 
