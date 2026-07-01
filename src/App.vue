@@ -7,6 +7,17 @@
           @renew="openSubscriptionRenewal" />
       </template>
       <template v-else>
+        <UpdateAvailableBanner
+          :visible="pwaShowUpdateBanner"
+          variant="update"
+          @refresh="pwaRefreshApp"
+          @dismiss="pwaDismissUpdate"
+        />
+        <UpdateAvailableBanner
+          :visible="pwaOfflineReady"
+          variant="offline-ready"
+          @dismiss="pwaClearOfflineReady"
+        />
         <InitialLoadProgress />
         <ConflictResolutionModal
           :visible="offlineStore.isConflictModalVisible"
@@ -39,6 +50,7 @@ import { useLanguageStore } from './lang/language';
 import { SpeedInsights } from "@vercel/speed-insights/vue"
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import UpdateAvailableBanner from '@/components/pwa/UpdateAvailableBanner.vue'
 import ReAuthModal from '@/components/auth/ReAuthModal.vue'
 import MaintenanceBanner from '@/components/announcements/MaintenanceBanner.vue'
 import UpdateAnnouncementModal from '@/components/announcements/UpdateAnnouncementModal.vue'
@@ -97,7 +109,26 @@ watch(
   { immediate: true },
 )
 
-usePwaUpdate()
+const {
+  needRefresh: pwaNeedRefresh,
+  offlineReady: pwaOfflineReadyRef,
+  refreshApp: pwaRefreshApp,
+} = usePwaUpdate()
+
+/** État local pour la bannière de mise à jour (permet de la dismiss) */
+const pwaUpdateDismissed = ref(false)
+const pwaShowUpdateBanner = computed(() => pwaNeedRefresh.value && !pwaUpdateDismissed.value)
+
+/** Bannière offlineReady : auto-disparaît après 5s (déjà géré dans le composable) */
+const pwaOfflineReady = computed(() => pwaOfflineReadyRef.value && !pwaUpdateDismissed.value)
+
+function pwaDismissUpdate() {
+  pwaUpdateDismissed.value = true
+}
+
+function pwaClearOfflineReady() {
+  // Le composable gère déjà l'auto-disparition ; ceci est un filet de sécurité
+}
 
 // Initialiser la détection de connexion avec synchronisation automatique
 const { manualSync } = useConnection()

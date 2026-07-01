@@ -96,4 +96,11 @@ export function usePwaUpdate() {
       })
     }
   }
+
+  return {
+    needRefresh,
+    offlineReady,
+    updateSW,
+    refreshApp,
+  }
 }
