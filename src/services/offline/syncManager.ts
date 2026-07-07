@@ -206,8 +206,38 @@ class SyncManager {
     this.hotelId = hotelId
   }
 
+  /**
+   * Vérifie si des données sont déjà en cache (évite un rechargement complet)
+   * Compte le nombre de types de ressources métier en cache.
+   */
+  async hasCachedData(): Promise<boolean> {
+    try {
+      const counts = await OfflineCacheService.countByType()
+      // Vérifie s'il y a au moins quelques types de données essentielles
+      const hasEssentialData = Object.keys(counts).some(key =>
+        BUSINESS_RESOURCES.includes(key) || REFERENCE_RESOURCES.includes(key)
+      ) && Object.values(counts).some(count => count > 0)
+      return hasEssentialData
+    } catch {
+      return false
+    }
+  }
+
   async checkOfflineModeStatus(): Promise<boolean> {
     if (!this.hotelId) return false
+
+    // Si on est déjà marqué hors ligne, pas besoin d'appeler le serveur
+    try {
+      const { useOfflineStore } = await import('./offlineStore.js')
+      const offlineStore = useOfflineStore()
+      if (!offlineStore.isOnline || !navigator.onLine) {
+        const lastKnown = localStorage.getItem('offline_mode_enabled')
+        return lastKnown === 'true'
+      }
+    } catch {
+      // Store pas encore disponible
+    }
+
     try {
       const cacheKey = buildCacheKey('status', this.hotelId)
       const cached = await getCachedResponse<SyncStatusResponse>(cacheKey, 60_000)

@@ -51,9 +51,26 @@ export type ConflictResolution = 'client_wins' | 'server_wins' | 'merged'
 /**
  * Récupérer la liste des conflits non résolus depuis le backend.
  * Utilise apiClient directement (pas de cache offline).
- * Hors ligne → retourne [] car les conflits n'ont pas de sens sans serveur.
+ * Hors ligne → retourne [] immédiatement sans appel réseau.
  */
 export async function fetchConflicts(hotelId: number): Promise<SyncConflict[]> {
+  // Vérifier le statut offline avant tout appel réseau
+  if (!navigator.onLine) {
+    console.log('[SyncApi] Hors ligne, pas de conflits à récupérer')
+    return []
+  }
+
+  try {
+    // Vérifier aussi le store offline
+    const { useOfflineStore } = await import('./offlineStore.js')
+    const offlineStore = useOfflineStore()
+    if (!offlineStore.isOnline) {
+      return []
+    }
+  } catch {
+    // Store pas encore disponible
+  }
+
   try {
     const response = await apiClient.get('/sync/conflicts', { params: { hotelId } })
     const conflicts = response.data?.data ?? response.data ?? []

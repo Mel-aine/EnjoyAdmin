@@ -139,8 +139,30 @@ export const getPermission = (): Promise<AxiosResponse<any>> => {
   return axios.get(`${API_URL}/permission`, getHeaders())
 }
 
-export const getActiveAnnouncements = (): Promise<AxiosResponse<any>> => {
-  return axios.get(`${API_URL}/announcements/active`, getOptionalAuthHeaders())
+export const getActiveAnnouncements = async (): Promise<AxiosResponse<any>> => {
+  try {
+    const { offlineAwareApiCall } = await import('./offline/apiProxy.js')
+    const result = await offlineAwareApiCall('GET', '/announcements/active', {
+      resourceType: 'announcement',
+      cacheTTL: 15 * 60 * 1000, // 15 minutes
+    })
+    return {
+      data: result.data,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {},
+    } as AxiosResponse
+  } catch (error) {
+    console.warn('[Offline] Failed to fetch announcements:', error)
+    return {
+      data: [],
+      status: 200,
+      statusText: 'OK (empty)',
+      headers: {},
+      config: {},
+    } as AxiosResponse
+  }
 }
 
 export const dashboard = (serviceId: any): Promise<AxiosResponse<any>> => {

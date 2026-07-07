@@ -563,13 +563,27 @@ watch(
         const hotelId = useServiceStore()?.getCurrentService?.id
         if (hotelId) {
           syncManager.init(hotelId)
-          syncManager.checkOfflineModeStatus().then((enabled) => {
+          syncManager.checkOfflineModeStatus().then(async (enabled) => {
             if (enabled) {
-              syncManager.startPeriodicSync()
-              // Rafraîchir le compteur d'opérations en attente
-              useOfflineStore().refreshPendingCount()
+              try {
+                // Vérifier si le cache est déjà peuplé
+                const hasData = await syncManager.hasCachedData()
+                if (!hasData) {
+                  console.log('[Offline] Cache vide — chargement initial...')
+                  await syncManager.initialLoad()
+                } else {
+                  console.log('[Offline] Cache déjà peuplé, synchronisation...')
+                  await syncManager.sync()
+                }
+                syncManager.startPeriodicSync()
+                // Rafraîchir le compteur d'opérations en attente
+                useOfflineStore().refreshPendingCount()
+              } catch (e) {
+                console.debug('[Sync] Init échoué (sera réessayé à la reconnexion):', e)
+                // Ne pas bloquer le démarrage de l'application
+              }
             }
-          })
+          }).catch(e => console.debug('[Sync] checkOfflineModeStatus échoué:', e))
         }
       } catch (e) {
         console.debug('[Sync] Init failed:', e)

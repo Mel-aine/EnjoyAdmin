@@ -252,7 +252,8 @@ export const filterReservation = async (id: number, filter: FitlterItem): Promis
   try {
     const result = await offlineAwareApiCall('GET', url, {
       resourceType: 'reservation',
-      skipCache: true, // On gère le cache nous-mêmes ci-dessous
+      // Cache géré par offlineAwareApiCall + cache local spécifique ci-dessous
+      cacheTTL: 10 * 60 * 1000, // 10 minutes
     })
 
     // Mettre en cache la réponse
