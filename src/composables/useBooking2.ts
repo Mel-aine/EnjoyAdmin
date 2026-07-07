@@ -1426,10 +1426,16 @@ const getChildOptions = (roomTypeId: any | null) => {
       console.log('Final reservation payload:', reservationPayload)
 
       const response = await reservationCreator(reservationPayload)
-      reservationId.value = response.reservationId
+      console.log('saveReservation response:', response)
+
+      // Détecter si la réservation est en attente de synchronisation offline
+      const isOfflineQueued = response._offlineQueued || response.offlineQueued
+      const resId = response.reservationId || response.id
+
+      reservationId.value = resId
       console.log('reservationId.value', reservationId.value)
 
-      if (response.reservationId) {
+      if (resId) {
         isPaymentButtonShow.value = true
         confirmReservation.value = true
       }
@@ -1438,7 +1444,12 @@ const getChildOptions = (roomTypeId: any | null) => {
         pendingReservation.value = true
       }
 
-      toast.success(t('reservationCreated'))
+      if (isOfflineQueued) {
+        toast.info('Réservation mise en attente (mode hors-ligne)')
+      } else {
+        toast.success(t('reservationCreated'))
+      }
+
       bookingStore.triggerGridRefresh()
       bookingStore.triggerCalendarRefresh()
 

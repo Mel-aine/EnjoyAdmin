@@ -41,6 +41,25 @@
             :is-loading="loadingRates"
           />
           <StatusLegend :sections="legendSections" />
+
+          <!-- Indicateur données offline/cache -->
+          <div
+            v-if="isDataOffline"
+            class="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium"
+            :class="isDataStale
+              ? 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20'
+              : 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20'"
+            :title="isDataStale
+              ? 'Données affichées depuis le cache offline (peuvent ne pas être à jour)'
+              : 'Données affichées depuis le cache offline'"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            <span class="hidden sm:inline">{{ isDataStale ? 'Données offline (non actuelles)' : 'Données offline' }}</span>
+          </div>
         </div>
       </div>
       <div class="flex-1 flex flex-col min-h-0">
@@ -849,6 +868,8 @@ import UnlockModal from '@/components/Housekeeping/UnlockModal.vue'
 const isLoading = ref(false)
 const isRefreshing = ref(false)
 const laoded = ref(false)
+const isDataOffline = ref(false)
+const isDataStale = ref(false)
 const currentHoveredReservation = ref<string | null>(null)
 const statusColorStore = useStatusColor()
 function getReservationTypeIcon(type: string) {
@@ -1866,7 +1887,38 @@ function getRoomBlockColor(status: string) {
 const getLocaleDailyOccupancyAndReservations = async () => {
   isLoading.value = !laoded.value
   isRefreshing.value = laoded.value
+  isDataOffline.value = false
+  isDataStale.value = false
   const serviceId = serviceStore.serviceId!
+
+  // Si hors ligne → calculer les données depuis les tables IndexedDB
+  if (!offlineStore.isOnline) {
+    console.log('[Calendar] 📡 Mode offline — calcul depuis IndexedDB')
+    try {
+      const { computeOfflineCalendarData } = await import('@/services/offline/offlineCalendarService')
+      const data = await computeOfflineCalendarData(
+        serviceId,
+        start_date.value,
+        end_date.value
+      )
+      serviceResponse.value = data
+      isDataOffline.value = true
+      isDataStale.value = true
+      console.log('[Calendar] ✅ Données calculées depuis IndexedDB')
+    } catch (err) {
+      console.warn('[Calendar] ❌ Échec du calcul offline:', err)
+      if (!laoded.value) {
+        serviceResponse.value = { grouped_reservation_details: [], daily_occupancy_metrics: [], room_blocks: [] }
+      }
+    } finally {
+      isLoading.value = false
+      isRefreshing.value = false
+      laoded.value = true
+    }
+    return
+  }
+
+  // En ligne → appeler l'API normalement
   try {
     const response = await getDailyOccupancyAndReservations(
       serviceId,
@@ -1877,9 +1929,24 @@ const getLocaleDailyOccupancyAndReservations = async () => {
     console.log('this is the response', response)
   } catch (error) {
     console.warn('[Calendar] Failed to load data:', error)
-    // Garder les données précédentes si disponibles
+    // En cas d'erreur réseau, essayer le calcul offline
     if (!laoded.value) {
-      serviceResponse.value = { grouped_reservation_details: [], daily_occupancy_metrics: [], room_blocks: [] }
+      try {
+        console.log('[Calendar] ⚠️ API failed, trying offline computation...')
+        const { computeOfflineCalendarData } = await import('@/services/offline/offlineCalendarService')
+        const data = await computeOfflineCalendarData(
+          serviceId,
+          start_date.value,
+          end_date.value
+        )
+        serviceResponse.value = data
+        isDataOffline.value = true
+        isDataStale.value = true
+        console.log('[Calendar] ✅ Fallback offline réussi depuis IndexedDB')
+      } catch (offlineErr) {
+        console.warn('[Calendar] ❌ Fallback offline aussi échoué:', offlineErr)
+        serviceResponse.value = { grouped_reservation_details: [], daily_occupancy_metrics: [], room_blocks: [] }
+      }
     }
   } finally {
     isLoading.value = false

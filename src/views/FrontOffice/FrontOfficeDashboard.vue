@@ -385,6 +385,45 @@ const loadDashboardData = async () => {
       return
     }
 
+    // Si hors ligne → calculer les données depuis les tables IndexedDB
+    if (!navigator.onLine) {
+      console.log('[Dashboard] 📡 Mode offline — calcul depuis IndexedDB')
+      try {
+        const { computeOfflineDashboardData } = await import('@/services/offline/offlineDashboardService')
+        const data = await computeOfflineDashboardData(hotelId)
+        const formatted = {
+          arrival: { pending: data.arrival.pending, arrived: data.arrival.arrived },
+          departure: { pending: data.departure.pending, checkedOut: data.departure.checkedOut },
+          guestInHouse: {
+            adult: data.guestInHouse.adult,
+            child: data.guestInHouse.child,
+          },
+          roomStatus: {
+            availableRooms: data.roomStatus.availableRooms,
+            sold: data.roomStatus.sold,
+            dayUse: data.roomStatus.dayUse,
+            complimentary: data.roomStatus.complimentary,
+            blockedForDate: data.roomStatus.blockedForDate,
+          },
+          suites: data.suites,
+          housekeepingStatus: data.housekeepingStatus,
+          unpaidFoliosData: data.unpaidFoliosData,
+          activityFeeds: [],
+        }
+        dashboardData.value = formatted
+        UnsettledFolios.value = data.unpaidFoliosData?.unpaidFolios?.foliosList || []
+        console.log('[Dashboard] ✅ Données calculées depuis IndexedDB')
+      } catch (err) {
+        console.warn('[Dashboard] ❌ Échec du calcul offline:', err)
+        dashboardData.value = null
+      } finally {
+        isLoading.value = false
+        lastUpdate.value = new Date()
+      }
+      return
+    }
+
+    // En ligne → appeler l'API normalement
     const params = {
       range: selectedRange.value,
       date: selectedRange.value === 'custom' ? customDate.value : undefined,
@@ -406,7 +445,32 @@ const loadDashboardData = async () => {
     lastUpdate.value = new Date()
   } catch (error) {
     console.error('Erreur lors du chargement du dashboard:', error)
-    dashboardData.value = null
+    // Fallback offline en cas d'erreur réseau
+    if (!navigator.onLine) {
+      try {
+        const { computeOfflineDashboardData } = await import('@/services/offline/offlineDashboardService')
+        const data = await computeOfflineDashboardData(serviceStore.serviceId!)
+        dashboardData.value = {
+          arrival: { pending: data.arrival.pending, arrived: data.arrival.arrived },
+          departure: { pending: data.departure.pending, checkedOut: data.departure.checkedOut },
+          guestInHouse: { adult: data.guestInHouse.adult, child: data.guestInHouse.child },
+          roomStatus: {
+            availableRooms: data.roomStatus.availableRooms,
+            sold: data.roomStatus.sold,
+            dayUse: data.roomStatus.dayUse,
+            complimentary: data.roomStatus.complimentary,
+            blockedForDate: data.roomStatus.blockedForDate,
+          },
+          suites: data.suites,
+          housekeepingStatus: data.housekeepingStatus,
+          unpaidFoliosData: data.unpaidFoliosData,
+          activityFeeds: [],
+        }
+        UnsettledFolios.value = data.unpaidFoliosData?.unpaidFolios?.foliosList || []
+      } catch {}
+    } else {
+      dashboardData.value = null
+    }
   } finally {
     isLoading.value = false
   }

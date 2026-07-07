@@ -771,6 +771,8 @@ export const getDailyOccupancyAndReservations = async (
 ): Promise<AxiosResponse<any>> => {
   // Les dates sont incluses dans l'URL, PAS dans params, pour éviter
   // les doublons de paramètres qui causent une erreur 400 côté backend.
+  // Les dates sont incluses dans l'URL, PAS dans params, pour éviter
+  // les doublons de paramètres qui causent une erreur 400 côté backend.
   const url = `/dashboard/service/${serviceId}/daily-occupancy?start_date=${start_date}&end_date=${end_date}`
 
   try {
@@ -791,17 +793,8 @@ export const getDailyOccupancyAndReservations = async (
       config: {},
     } as AxiosResponse
   } catch (error: any) {
-    // En cas d'erreur réseau, essayer le cache direct IndexedDB
-    if (!error?.response || error?.code === 'ECONNABORTED' || error?.message === 'Network Error') {
-      try {
-        const { db } = await import('./offline/db.js')
-        const cacheKey = `daily-occupancy:${serviceId}:${start_date}:${end_date}`
-        const cached = await db.apiCache.where('key').equals(cacheKey).first()
-        if (cached) {
-          return { data: cached.data, status: 200, statusText: 'OK (cache)', headers: {}, config: {} } as AxiosResponse
-        }
-      } catch {}
-    }
+    // En cas d'erreur réseau, le catch sera géré par le composant
+    // qui basculera vers le calcul offline depuis les tables IndexedDB
     throw error
   }
 }

@@ -177,10 +177,21 @@ export const getFoglioById = async (id: number): Promise<any> => {
  */
 export const createFoglio = async (data: any): Promise<any> => {
   try {
+    const tempId = `tmp-folio-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/reservation', {
       data,
       resourceType: 'folio',
+      resourceId: tempId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempId,
+        folioId: tempId,
+        _tempId: true,
+        folioStatus: 'open',
+        status: 'open',
+        balance: 0,
+      },
     })
     return result.data
   } catch (error) {
@@ -199,6 +210,10 @@ export const updateFoglio = async (id: number, data: any): Promise<any> => {
       resourceType: 'folio',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id,
+      },
     })
     return result.data
   } catch (error) {
@@ -216,6 +231,7 @@ export const deleteFoglio = async (id: number): Promise<any> => {
       resourceType: 'folio',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: { id, _deleted: true },
     })
     return result.data
   } catch (error) {
@@ -236,6 +252,12 @@ export const closeFolio = async (id: number, data: { notes?: string }): Promise<
       resourceType: 'folio',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id,
+        folioStatus: 'closed',
+        status: 'closed',
+      },
     })
     return result.data
   } catch (error) {
@@ -254,6 +276,12 @@ export const reopenFolio = async (id: number, data: { reason?: string }): Promis
       resourceType: 'folio',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id,
+        folioStatus: 'open',
+        status: 'open',
+      },
     })
     return result.data
   } catch (error) {
@@ -276,6 +304,10 @@ export const transferCharges = async (id: number, data: {
       resourceType: 'folio',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id,
+      },
     })
     return result.data
   } catch (error) {
@@ -291,10 +323,17 @@ export const transferCharges = async (id: number, data: {
  */
 export const postTransaction = async (data: TransactionData): Promise<any> => {
   try {
+    const tempTxId = `tmp-tx-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/transactions', {
       data,
       resourceType: 'folio_transaction',
+      resourceId: tempTxId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempTxId,
+        _tempId: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -313,6 +352,10 @@ export const updateTransaction = async (transactionId: any, data: TransactionDat
       resourceType: 'folio_transaction',
       resourceId: transactionId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: transactionId,
+      },
     })
     return result.data
   } catch (error) {
@@ -329,7 +372,14 @@ export const settleFolio = async (data: SettlementData): Promise<any> => {
     const result = await offlineAwareApiCall('POST', '/folios/settle', {
       data,
       resourceType: 'folio',
+      resourceId: data.folioId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: data.folioId,
+        folioStatus: 'settled',
+        status: 'settled',
+      },
     })
     return result.data
   } catch (error) {
@@ -343,10 +393,17 @@ export const settleFolio = async (data: SettlementData): Promise<any> => {
  */
 export const transferChargesBetweenFolios = async (data: TransferChargesData): Promise<any> => {
   try {
+    const tempTxId = `tmp-tx-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/transfer-charges', {
       data,
       resourceType: 'folio_transaction',
+      resourceId: tempTxId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempTxId,
+        _tempId: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -364,6 +421,7 @@ export const closeFolioWithService = async (id: number): Promise<any> => {
       resourceType: 'folio',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: { id, folioStatus: 'closed', status: 'closed' },
     })
     return result.data
   } catch (error) {
@@ -381,6 +439,7 @@ export const reopenFolioWithService = async (id: number): Promise<any> => {
       resourceType: 'folio',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: { id, folioStatus: 'open', status: 'open' },
     })
     return result.data
   } catch (error) {
@@ -417,10 +476,19 @@ export const createFolioForReservation = async (data: {
   notes?: string
 }): Promise<any> => {
   try {
+    const tempFolioId = `tmp-folio-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/reservation', {
       data,
       resourceType: 'folio',
+      resourceId: tempFolioId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempFolioId,
+        _tempId: true,
+        folioStatus: 'open',
+        status: 'open',
+      },
     })
     return result.data
   } catch (error) {
@@ -440,10 +508,20 @@ export const createFolioForWalkIn = async (data: {
   notes?: string
 }): Promise<any> => {
   try {
+    const tempFolioId = `tmp-folio-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/walk-in', {
       data,
       resourceType: 'folio',
+      resourceId: tempFolioId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempFolioId,
+        _tempId: true,
+        folioStatus: 'open',
+        status: 'open',
+        balance: 0,
+      },
     })
     return result.data
   } catch (error) {
@@ -457,10 +535,17 @@ export const createFolioForWalkIn = async (data: {
  */
 export const createFoliosForGroup = async (data: GroupFolioData): Promise<any> => {
   try {
+    const tempFolioId = `tmp-group-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/group', {
       data,
       resourceType: 'folio',
+      resourceId: tempFolioId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempFolioId,
+        _tempId: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -476,10 +561,18 @@ export const createFoliosForGroup = async (data: GroupFolioData): Promise<any> =
  */
 export const postRoomCharges = async (data: { reservationId: number }): Promise<any> => {
   try {
+    const tempChargeId = `tmp-charge-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/post-room-charges', {
       data,
       resourceType: 'folio_transaction',
+      resourceId: tempChargeId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempChargeId,
+        _tempId: true,
+        transactionType: 'room_charge',
+      },
     })
     return result.data
   } catch (error) {
@@ -493,10 +586,18 @@ export const postRoomCharges = async (data: { reservationId: number }): Promise<
  */
 export const postTaxesAndFees = async (data: { reservationId: number }): Promise<any> => {
   try {
+    const tempTaxId = `tmp-tax-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/post-taxes-fees', {
       data,
       resourceType: 'folio_transaction',
+      resourceId: tempTaxId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempTaxId,
+        _tempId: true,
+        transactionType: 'tax_fee',
+      },
     })
     return result.data
   } catch (error) {
@@ -565,7 +666,14 @@ export const processCheckout = async (data: CheckoutData): Promise<any> => {
     const result = await offlineAwareApiCall('POST', '/folios/checkout', {
       data,
       resourceType: 'folio',
+      resourceId: data.folioId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: data.folioId,
+        folioStatus: 'closed',
+        status: 'closed',
+      },
     })
     return result.data
   } catch (error) {
@@ -582,7 +690,12 @@ export const processReservationCheckout = async (data: ReservationCheckoutData):
     const result = await offlineAwareApiCall('POST', '/folios/reservation-checkout', {
       data,
       resourceType: 'folio',
+      resourceId: data.reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: data.reservationId,
+      },
     })
     return result.data
   } catch (error) {
@@ -599,7 +712,14 @@ export const forceCloseFolio = async (data: ForceCloseData): Promise<any> => {
     const result = await offlineAwareApiCall('POST', '/folios/force-close', {
       data,
       resourceType: 'folio',
+      resourceId: data.folioId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: data.folioId,
+        folioStatus: 'force_closed',
+        status: 'force_closed',
+      },
     })
     return result.data
   } catch (error) {
@@ -829,10 +949,17 @@ export const getFolioTransactionById = async (id: number): Promise<any> => {
  */
 export const createFolioTransaction = async (data: any): Promise<any> => {
   try {
+    const tempTxId = `tmp-tx-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folio-transactions', {
       data,
       resourceType: 'folio_transaction',
+      resourceId: tempTxId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempTxId,
+        _tempId: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -851,6 +978,10 @@ export const updateFolioTransaction = async (id: number, data: any): Promise<any
       resourceType: 'folio_transaction',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id,
+      },
     })
     return result.data
   } catch (error) {
@@ -868,6 +999,7 @@ export const deleteFolioTransaction = async (id: number): Promise<any> => {
       resourceType: 'folio_transaction',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: { id, _deleted: true },
     })
     return result.data
   } catch (error) {
@@ -886,6 +1018,12 @@ export const voidFolioTransaction = async (id: number, data: { reason: string })
       resourceType: 'folio_transaction',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id,
+        transactionStatus: 'voided',
+        _voided: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -904,6 +1042,12 @@ export const reverseFolioTransaction = async (id: number, data: { reason: string
       resourceType: 'folio_transaction',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id,
+        transactionStatus: 'reversed',
+        _reversed: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -924,7 +1068,12 @@ export const printFolio = async (data: {
     const result = await offlineAwareApiCall('POST', '/folio-transactions/print', {
       data,
       resourceType: 'folio',
+      resourceId: data.folioId,
       queuePriority: 5,
+      optimisticData: {
+        ...data,
+        _printed: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -1039,7 +1188,12 @@ export const splitFolioHandler = async (data: any): Promise<any> => {
     const result = await offlineAwareApiCall('POST', '/folios/split', {
       data,
       resourceType: 'folio',
+      resourceId: `tmp-split-${Date.now()}`,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        _split: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -1056,7 +1210,12 @@ export const cutFolioHandler = async (data: any): Promise<any> => {
     const result = await offlineAwareApiCall('POST', '/folios/cut', {
       data,
       resourceType: 'folio',
+      resourceId: `tmp-cut-${Date.now()}`,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        _cut: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -1070,10 +1229,18 @@ export const cutFolioHandler = async (data: any): Promise<any> => {
  */
 export const addRoomChargeHandler = async (data: any): Promise<any> => {
   try {
+    const tempChargeId = `tmp-room-charge-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/room-charge/add', {
       data,
       resourceType: 'folio_transaction',
+      resourceId: tempChargeId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempChargeId,
+        _tempId: true,
+        transactionType: 'room_charge',
+      },
     })
     return result.data
   } catch (error) {
@@ -1092,6 +1259,10 @@ export const updateRoomChargeHandler = async (transactionId: any, data: any): Pr
       resourceType: 'folio_transaction',
       resourceId: transactionId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: transactionId,
+      },
     })
     return result.data
   } catch (error) {
@@ -1105,10 +1276,18 @@ export const updateRoomChargeHandler = async (transactionId: any, data: any): Pr
  */
 export const addAdjustmentHandler = async (data: any): Promise<any> => {
   try {
+    const tempAdjId = `tmp-adj-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/adjustment/add', {
       data,
       resourceType: 'folio_transaction',
+      resourceId: tempAdjId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempAdjId,
+        _tempId: true,
+        transactionType: 'adjustment',
+      },
     })
     return result.data
   } catch (error) {
@@ -1127,6 +1306,10 @@ export const updateAdjustmentHandler = async (transactionId: any, data: any): Pr
       resourceType: 'folio_transaction',
       resourceId: transactionId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: transactionId,
+      },
     })
     return result.data
   } catch (error) {
@@ -1140,10 +1323,18 @@ export const updateAdjustmentHandler = async (transactionId: any, data: any): Pr
  */
 export const applyDiscountHandler = async (data: any): Promise<any> => {
   try {
+    const tempDiscountId = `tmp-discount-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/folios/apply/discount', {
       data,
       resourceType: 'folio_transaction',
+      resourceId: tempDiscountId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempDiscountId,
+        _tempId: true,
+        transactionType: 'discount',
+      },
     })
     return result.data
   } catch (error) {
@@ -1162,6 +1353,10 @@ export const updateDiscountHandler = async (transactionId: any, data: any): Prom
       resourceType: 'folio_transaction',
       resourceId: transactionId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: transactionId,
+      },
     })
     return result.data
   } catch (error) {

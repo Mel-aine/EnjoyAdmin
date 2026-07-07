@@ -50,10 +50,17 @@ export interface GuestPayload {
 /** Create a new guest */
 export const createGuest = async (guestData: GuestPayload): Promise<any> => {
   try {
+    const tempId = `tmp-guest-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     const result = await offlineAwareApiCall('POST', '/guests', {
       data: guestData,
       resourceType: 'guest',
       queuePriority: 7,
+      optimisticData: {
+        ...guestData,
+        id: tempId,
+        guestId: tempId,
+        _tempId: true,
+      },
     })
     return result.data
   } catch (error) {
@@ -70,6 +77,10 @@ export const updateGuest = async (id: number, guestData: GuestPayload): Promise<
       resourceType: 'guest',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...guestData,
+        id,
+      },
     })
     return result.data
   } catch (error) {
@@ -99,6 +110,7 @@ export const deleteGuest = async (id: number): Promise<any> => {
       resourceType: 'guest',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: { id, _deleted: true },
     })
     return result.data
   } catch (error) {
@@ -169,6 +181,11 @@ export const toggleGuestBlacklist = async (id: number, reason: string): Promise<
       resourceType: 'guest',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        id,
+        reason,
+        blacklisted: true,
+      },
     })
     return result.data
   } catch (error) {

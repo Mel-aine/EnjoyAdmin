@@ -66,6 +66,12 @@ export const checkInReservation = async (reservationId: number, datas: any): Pro
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 10,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+        reservationStatus: 'checked_in',
+        status: 'checked_in',
+      },
     })
     console.log(result.data)
     return result.data
@@ -85,6 +91,11 @@ export const checkInReservations = async (
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 10,
+      optimisticData: {
+        id: reservationId,
+        reservationStatus: 'checked_in',
+        status: 'checked_in',
+      },
     })
     return result.data
   } catch (error) {
@@ -100,6 +111,12 @@ export const checkOutReservation = async (reservationId: number, datas: any): Pr
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 10,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+        reservationStatus: 'checked_out',
+        status: 'checked_out',
+      },
     })
     console.log(result.data)
     return result.data
@@ -119,6 +136,11 @@ export const checkOutReservations = async (
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 10,
+      optimisticData: {
+        id: reservationId,
+        reservationStatus: 'checked_out',
+        status: 'checked_out',
+      },
     })
     console.log(result.data)
     return result.data
@@ -135,6 +157,12 @@ export const undoCheckInReservation = async (reservationId: number, datas: any):
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+        reservationStatus: 'confirmed',
+        status: 'confirmed',
+      },
     })
     console.log(result.data)
     return result.data
@@ -151,6 +179,12 @@ export const undoCheckOutReservation = async (reservationId: number, datas: any)
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+        reservationStatus: 'checked_in',
+        status: 'checked_in',
+      },
     })
     console.log(result.data)
     return result.data
@@ -168,11 +202,34 @@ export const undoCheckOutReservation = async (reservationId: number, datas: any)
 export const createReservation = async (data: any) => {
   try {
     console.log('Sending reservation data to backend:', data)
+
+    // Préparer les données optimistes : reprendre le payload avec un ID temporaire
+    const tempId = `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+    const optimisticData = {
+      ...data,
+      id: tempId,
+      reservationId: tempId,
+      reservationNumber: `OFF-${Date.now().toString(36).toUpperCase()}`,
+      status: 'pending',
+      reservationStatus: data.reservation_status || 'confirmed',
+      _offlineQueued: true,
+      _tempId: true,
+    }
+
     const result = await offlineAwareApiCall('POST', '/reservation/create', {
       data,
       resourceType: 'reservation',
+      resourceId: tempId,
       queuePriority: 7,
+      optimisticData,
     })
+
+    // Si la réservation a été mise en file d'attente offline
+    if (result.offlineQueued) {
+      console.log('[Offline] Reservation queued for sync:', result.operationId)
+      return { ...result.data, _operationId: result.operationId }
+    }
+
     console.log('Backend response:', result.data)
     return result.data
   } catch (error: any) {
@@ -190,11 +247,19 @@ export const createReservation = async (data: any) => {
 /** Insérer une réservation (haute priorité) */
 export const insertReservation = async (data: any) => {
   try {
+    const tempId = `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
     console.log('Sending reservation data to backend:', data)
     const result = await offlineAwareApiCall('POST', '/reservation/inserttrasaction', {
       data,
       resourceType: 'reservation',
+      resourceId: tempId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: tempId,
+        reservationId: tempId,
+        _tempId: true,
+      },
     })
     console.log('Backend response:', result.data)
     return result.data
@@ -218,6 +283,12 @@ export const cancelReservation = async (data: any) => {
       resourceType: 'reservation',
       resourceId: data.reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: data.reservationId,
+        reservationStatus: 'cancelled',
+        status: 'cancelled',
+      },
     })
     return result.data
   } catch (error: any) {
@@ -240,6 +311,12 @@ export const voidReservation = async (reservationId: any, data: any) => {
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: reservationId,
+        reservationStatus: 'void',
+        status: 'void',
+      },
     })
     return result.data
   } catch (error: any) {
@@ -262,6 +339,10 @@ export const amendReservation = async (data: any) => {
       resourceType: 'reservation',
       resourceId: data.reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: data.reservationId,
+      },
     })
     return result.data
   } catch (error: any) {
@@ -284,6 +365,12 @@ export const markNoShow = async (data: any) => {
       resourceType: 'reservation',
       resourceId: data.reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: data.reservationId,
+        reservationStatus: 'no-show',
+        status: 'no-show',
+      },
     })
     return result.data
   } catch (error: any) {
@@ -306,6 +393,11 @@ export const confirmBooking = async (id: number, data: any): Promise<any | undef
       resourceType: 'reservation',
       resourceId: id,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id,
+        reservationStatus: data.reservation_status || data.reservationStatus || 'confirmed',
+      },
     })
     return result.data
   } catch (error) {
@@ -326,6 +418,10 @@ export const unAssignRoomReservation = async (reservationId: number, datas: any)
       resourceType: 'reservation_room',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+      },
     })
     console.log(result.data)
     return result.data
@@ -342,6 +438,10 @@ export const assignRoomReservation = async (reservationId: number, datas: any): 
       resourceType: 'reservation_room',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+      },
     })
     console.log(result.data)
     return result.data
@@ -358,6 +458,10 @@ export const postRoomMoveReservation = async (reservationId: number, datas: any)
       resourceType: 'reservation_room',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+      },
     })
     console.log(result.data)
     return result.data
@@ -374,6 +478,10 @@ export const postExchangeRoomReservation = async (reservationId: number, datas: 
       resourceType: 'reservation_room',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+      },
     })
     console.log(result.data)
     return result.data
@@ -390,6 +498,10 @@ export const stopRoomMoveReservation = async (reservationId: number, datas: any)
       resourceType: 'reservation_room',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...(datas || {}),
+        id: reservationId,
+      },
     })
     console.log(result.data)
     return result.data
@@ -405,6 +517,10 @@ export const setAvailable = async (id: number): Promise<any | undefined> => {
       resourceType: 'room',
       resourceId: id,
       queuePriority: 5,
+      optimisticData: {
+        id,
+        status: 'available',
+      },
     })
     return result.data
   } catch (error) {
@@ -555,6 +671,10 @@ export const updateReservationDetails = async (reservationId: number, datas: any
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...datas,
+        id: reservationId,
+      },
     })
     console.log(result.data)
     return result.data
@@ -583,6 +703,10 @@ export const updateBookingDetail = async (reservationId: any, data: any) => {
       resourceType: 'reservation',
       resourceId: reservationId,
       queuePriority: 7,
+      optimisticData: {
+        ...data,
+        id: reservationId,
+      },
     })
 
     console.log('API Response:', result.data)
@@ -608,6 +732,10 @@ export const applyDiscountReservationDetails = async (reservationId: number, dat
       resourceType: 'folio',
       resourceId: reservationId,
       queuePriority: 5,
+      optimisticData: {
+        ...datas,
+        id: reservationId,
+      },
     })
     console.log(result.data)
     return result.data
