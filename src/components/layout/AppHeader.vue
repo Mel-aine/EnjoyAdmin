@@ -40,8 +40,8 @@
           
           </div>
         </div>
-        <SearchBar @select="handleReservationSelect" />          <!-- Indicateur connexion + bouton sync + conflits -->
-        <div class="flex items-center gap-1">
+        <SearchBar @select="handleReservationSelect" />          <!-- Indicateur connexion + bouton sync + conflits (visible uniquement si connecté) -->
+        <div v-if="authStore.isFullyAuthenticated && offlineStore.isOnline" class="flex items-center gap-1">
           <div
             class="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-300"
             :class="offlineStore.syncStatusColor"
@@ -88,6 +88,27 @@
               <polyline points="23 4 23 10 17 10" />
               <polyline points="1 20 1 14 7 14" />
               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+          </button>
+
+          <!-- Bouton de réinitialisation des données offline (initialLoad) -->
+          <button
+            @click="handleInit"
+            :disabled="initiating"
+            class="flex items-center justify-center w-7 h-7 rounded-md transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            :title="initiating ? 'Initialisation...' : 'Réinitialiser les données offline'"
+          >
+            <svg
+              :class="{ 'animate-spin': initiating }"
+              class="w-4 h-4 text-gray-500 dark:text-gray-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
             </svg>
           </button>
         </div>
@@ -225,6 +246,30 @@ const serviceStore = useServiceStore()
 const toast = useToast()
 
 const syncing = ref(false)
+const initiating = ref(false)
+
+async function handleInit() {
+  if (initiating.value) return
+  initiating.value = true
+
+  try {
+    const hotelId = serviceStore?.serviceId
+    if (hotelId) {
+      syncManager.init(hotelId)
+      offlineStore.setInitialLoading(true)
+      offlineStore.setInitialLoadProgress(0)
+      await syncManager.initialLoad()
+      syncManager.startPeriodicSync()
+      await offlineStore.refreshPendingCount()
+      toast.success('Données offline réinitialisées avec succès')
+    }
+  } catch (e) {
+    console.warn('[Sync] Manual init failed:', e)
+    toast.error("Erreur lors de l'initialisation des données offline")
+  } finally {
+    initiating.value = false
+  }
+}
 
 async function handleSync() {
   if (syncing.value) return
@@ -236,10 +281,23 @@ async function handleSync() {
     if (hotelId) {
       syncManager.init(hotelId)
     }
-    await syncManager.sync()
-    await offlineStore.refreshPendingCount()
 
-    toast.success('Synchronisation terminée')
+    // Vérifier si le cache est déjà peuplé
+    const hasData = await syncManager.hasCachedData()
+
+    if (!hasData) {
+      // Pas de cache → initialLoad avec modal de progression
+      // Le modal s'affiche automatiquement via offlineStore.isInitialLoading
+      await syncManager.initialLoad()
+      syncManager.startPeriodicSync()
+      await offlineStore.refreshPendingCount()
+      toast.success('Données initiales chargées avec succès')
+    } else {
+      // Cache existant → sync normale (push + pull)
+      await syncManager.sync()
+      await offlineStore.refreshPendingCount()
+      toast.success('Synchronisation terminée')
+    }
   } catch (e) {
     console.warn('[Sync] Manual sync failed:', e)
     toast.error('Erreur de synchronisation')

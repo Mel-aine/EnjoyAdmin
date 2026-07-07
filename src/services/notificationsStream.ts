@@ -50,11 +50,11 @@ export type Unsubscribe = () => void
 // }
 // ── Offline guard: vérifier le statut connection avant d'ouvrir le SSE ─
 // Évite de créer des connexions EventSource quand on est hors ligne ou instable.
-import { isOnline as connectionIsOnline } from './offline/connectionState.js'
+import { isOnline as connectionIsOnline, connectionQuality } from './offline/connectionState.js'
 
 function shouldConnectToSSE(): boolean {
-  if (!navigator.onLine || !connectionIsOnline.value) {
-    console.log('[Notifications] Hors ligne, SSE non ouvert')
+  if (!navigator.onLine || !connectionIsOnline.value || connectionQuality.value !== 'online') {
+    console.log('[Notifications] Hors ligne ou instable, SSE non ouvert')
     return false
   }
   return true

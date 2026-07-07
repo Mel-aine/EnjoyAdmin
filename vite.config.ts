@@ -82,7 +82,9 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2,ttf,eot}'],
+        ...(['production', 'staging'].includes(mode) ? {
+          globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2,ttf,eot}'],
+        } : {}),
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [

@@ -77,19 +77,20 @@ define(['./workbox-bb5a5cc5'], (function (workbox) { 'use strict';
    * See https://goo.gl/S9QRab
    */
   workbox.precacheAndRoute([{
-    "url": "index.html",
-    "revision": "0.5emvcp74l8c"
+    "url": "/index.html",
+    "revision": "0.klouqpri6u"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
-    allowlist: [/^\/$/]
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
+    allowlist: [/^\/$/],
+    denylist: [/^\/api/]
   }));
   workbox.registerRoute(/\/api\/(configuration|hotels\/\d+\/(room_types|rooms|rate_types|extra_charges|payment_methods|taxes|seasons|discounts)).*/i, new workbox.StaleWhileRevalidate({
     "cacheName": "pms-config",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 200,
       maxAgeSeconds: 604800
-    }), new workbox.BackgroundSyncPlugin("pms-sync")]
+    }), new workbox.BackgroundSyncPlugin("pms-sync-config")]
   }), 'GET');
   workbox.registerRoute(/\/api\/(reservation|guests|folios)(?!.*(checkin|checkout|payment|transaction)).*/i, new workbox.NetworkFirst({
     "cacheName": "pms-data",
@@ -97,9 +98,9 @@ define(['./workbox-bb5a5cc5'], (function (workbox) { 'use strict';
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 500,
       maxAgeSeconds: 86400
-    }), new workbox.BackgroundSyncPlugin("pms-sync")]
+    }), new workbox.BackgroundSyncPlugin("pms-sync-data")]
   }), 'GET');
-  workbox.registerRoute(/^\/api\/.*/i, new workbox.NetworkFirst({
+  workbox.registerRoute(/\/api\/.*/i, new workbox.NetworkFirst({
     "cacheName": "api-cache",
     "networkTimeoutSeconds": 5,
     plugins: [new workbox.ExpirationPlugin({
@@ -112,6 +113,29 @@ define(['./workbox-bb5a5cc5'], (function (workbox) { 'use strict';
     plugins: [new workbox.ExpirationPlugin({
       maxAgeSeconds: 2592000
     })]
+  }), 'GET');
+  workbox.registerRoute(/\/reports\/front-office\/.*/i, new workbox.NetworkFirst({
+    "cacheName": "pms-frontoffice-reports",
+    "networkTimeoutSeconds": 5,
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 100,
+      maxAgeSeconds: 86400
+    })]
+  }), 'GET');
+  workbox.registerRoute(/\/reports\/.*/i, new workbox.NetworkFirst({
+    "cacheName": "pms-reports",
+    "networkTimeoutSeconds": 5,
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 200,
+      maxAgeSeconds: 86400
+    })]
+  }), 'GET');
+  workbox.registerRoute(/\/(work_orders|room-blocks)\/?.*/i, new workbox.StaleWhileRevalidate({
+    "cacheName": "pms-housekeeping",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 200,
+      maxAgeSeconds: 259200
+    }), new workbox.BackgroundSyncPlugin("pms-sync-housekeeping")]
   }), 'GET');
   workbox.registerRoute(/\.(png|jpg|jpeg|svg|gif|webp|ico)$/i, new workbox.CacheFirst({
     "cacheName": "pms-images",

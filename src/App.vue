@@ -69,6 +69,7 @@ import { syncManager } from '@/services/offline/syncManager'
 import { useConnection } from '@/composables/useConnection'
 import { useOfflineStore } from '@/services/offline/offlineStore'
 const offlineStore = useOfflineStore()
+const serviceStore = useServiceStore()
 import { useToast } from 'vue-toastification'
 const toast = useToast()
 const useLanguage = useLanguageStore();
@@ -550,43 +551,45 @@ onBeforeUnmount(() => {
 })
 
 
-// Dans le watch de isFullyAuthenticated
+// ── Fonction réutilisable pour initialiser le mode offline ────────
+// Déclenchée quand l'utilisateur est authentifié ET qu'un hôtel est sélectionné
+async function initOfflineMode(hotelId: number): Promise<void> {
+  try {
+    syncManager.init(hotelId)
+    const enabled = await syncManager.checkOfflineModeStatus()
+    if (!enabled) return
+
+    const hasData = await syncManager.hasCachedData()
+    if (!hasData) {
+      console.log('[Offline] Cache vide — chargement initial...')
+      syncManager.initialLoad().then(() => {
+        syncManager.startPeriodicSync()
+        offlineStore.refreshPendingCount()
+      }).catch(e => {
+        console.debug('[Sync] Init échoué (sera réessayé à la reconnexion):', e)
+      })
+    } else {
+      console.log('[Offline] Cache déjà peuplé, synchronisation...')
+      await syncManager.sync()
+      syncManager.startPeriodicSync()
+      offlineStore.refreshPendingCount()
+    }
+  } catch (e) {
+    console.debug('[Sync] Init failed:', e)
+  }
+}
+
+// Watch 1 : dès que l'utilisateur est authentifié
 watch(
   () => authStore.isFullyAuthenticated,
   (isAuth) => {
     if (isAuth) {
       addActivityListeners()
 
-      // Démarrer le refresh automatique
-      // Initialiser le mode offline
-      try {
-        const hotelId = useServiceStore()?.getCurrentService?.id
-        if (hotelId) {
-          syncManager.init(hotelId)
-          syncManager.checkOfflineModeStatus().then(async (enabled) => {
-            if (enabled) {
-              try {
-                // Vérifier si le cache est déjà peuplé
-                const hasData = await syncManager.hasCachedData()
-                if (!hasData) {
-                  console.log('[Offline] Cache vide — chargement initial...')
-                  await syncManager.initialLoad()
-                } else {
-                  console.log('[Offline] Cache déjà peuplé, synchronisation...')
-                  await syncManager.sync()
-                }
-                syncManager.startPeriodicSync()
-                // Rafraîchir le compteur d'opérations en attente
-                useOfflineStore().refreshPendingCount()
-              } catch (e) {
-                console.debug('[Sync] Init échoué (sera réessayé à la reconnexion):', e)
-                // Ne pas bloquer le démarrage de l'application
-              }
-            }
-          }).catch(e => console.debug('[Sync] checkOfflineModeStatus échoué:', e))
-        }
-      } catch (e) {
-        console.debug('[Sync] Init failed:', e)
+      // Si un hôtel est déjà sélectionné, lancer l'offline init
+      const hotelId = serviceStore?.serviceId
+      if (hotelId) {
+        initOfflineMode(hotelId)
       }
 
       startAuthAutoRefresh()
@@ -606,6 +609,18 @@ watch(
     }
   },
   { immediate: true }
+)
+
+// Watch 2 : quand l'hôtel est sélectionné (ex: après SetupSpace.setCurrentService)
+// Utile quand l'utilisateur login avant d'avoir choisi son hôtel
+watch(
+  () => serviceStore?.serviceId,
+  (hotelId) => {
+    if (hotelId && authStore.isFullyAuthenticated) {
+      initOfflineMode(hotelId)
+    }
+  },
+  { immediate: false }
 )
 
 // Surveiller reauthRequired avec plus de détails

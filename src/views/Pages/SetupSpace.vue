@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div class="min-h-full bg-white flex items-center justify-center">
     <div class="text-center px-6 py-10">
       <div class="flex items-center justify-center mb-6">
@@ -23,7 +23,9 @@ import { useI18n } from 'vue-i18n'
 import { useLanguageStore } from '@/lang/language'
 import { initSpace } from '../../services/api'
 import router from '../../router'
-
+import { syncManager } from '../../services/offline'
+import { useOfflineStore } from '@/services/offline/offlineStore'
+const offlineStore = useOfflineStore()
 
 const { locale } = useI18n({ useScope: 'global' })
 const languageStore = useLanguageStore()
@@ -32,7 +34,33 @@ const authStore = useAuthStore()
 const serviceStore = useServiceStore()
 const statusColor = useStatusColor()
 
+// ── Fonction réutilisable pour initialiser le mode offline ────────
+// Déclenchée quand l'utilisateur est authentifié ET qu'un hôtel est sélectionné
+async function initOfflineMode(hotelId: number): Promise<void> {
+  try {
+    syncManager.init(hotelId)
+    const enabled = await syncManager.checkOfflineModeStatus()
+    if (!enabled) return
 
+    const hasData = await syncManager.hasCachedData()
+    if (!hasData) {
+      console.log('[Offline] Cache vide — chargement initial...')
+      syncManager.initialLoad().then(() => {
+        syncManager.startPeriodicSync()
+        offlineStore.refreshPendingCount()
+      }).catch(e => {
+        console.debug('[Sync] Init échoué (sera réessayé à la reconnexion):', e)
+      })
+    } else {
+      console.log('[Offline] Cache déjà peuplé, synchronisation...')
+      await syncManager.sync()
+      syncManager.startPeriodicSync()
+      offlineStore.refreshPendingCount()
+    }
+  } catch (e) {
+    console.debug('[Sync] Init failed:', e)
+  }
+}
 const initializeSpace = async () => {
   isLoading.value = true;
   try {
@@ -124,7 +152,10 @@ const initializeSpace = async () => {
 }
 
 initializeSpace();
-
+const hotelId = serviceStore?.serviceId
+      if (hotelId) {
+        initOfflineMode(hotelId)
+      }
 
 </script>
 

@@ -6,8 +6,12 @@
  *
  * Pour les écritures hors ligne :
  * 1. Met à jour le cache local de manière optimiste
- * 2. Ajoute l'opération à la file d'attente
+ * 2. Ajoute l'opération à la file d'attente (priority-based)
  * 3. Retourne une réponse simulée à l'appelant
+ *
+ * À la synchronisation :
+ * - Les IDs temporaires sont résolus via TemporaryIdService
+ * - Les données sont mises à jour dans les tables dédiées (Phase 1)
  *
  * Usage :
  *   import { offlineAwareApiCall } from '@/services/offline/apiProxy'
@@ -20,6 +24,7 @@ import apiClient from '../apiClient.js'
 import { OfflineCacheService } from './cacheService.js'
 import { offlineQueue } from './queue.js'
 import { useOfflineStore } from './offlineStore.js'
+import { TemporaryIdService } from './idService.js'
 
 type ApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
@@ -33,6 +38,7 @@ export interface ApiProxyOptions {
   cacheTTL?: number
   skipCache?: boolean
   maxRetries?: number
+  skipTempIdResolution?: boolean   // true pour éviter la résolution d'ID temporaire
 }
 
 export interface ApiProxyResult<T = any> {
@@ -49,9 +55,12 @@ export interface ApiProxyResult<T = any> {
 function isNetworkError(error: any): boolean {
   return !error?.response
     || error?.code === 'ECONNABORTED'
+    || error?.code === 'ERR_NETWORK'
     || error?.message === 'Network Error'
     || error?.message?.includes('timeout')
     || error?.message?.includes('Failed to fetch')
+    || error?.message?.includes('NetworkError')
+    || error?.__offlineRequest === true
 }
 
 /**
@@ -101,32 +110,44 @@ export async function offlineAwareApiCall<T = any>(
         params: options?.params,
       })
 
+      const responseData = response.data
+
       // Mettre en cache les GET
       if (method === 'GET' && resourceType && !options?.skipCache) {
         const id = resourceId ?? url
-        await OfflineCacheService.set(resourceType, id, response.data, {
+        await OfflineCacheService.set(resourceType, id, responseData, {
           ttlMs: options?.cacheTTL,
         })
       }
 
-      // Mettre à jour le cache après écriture
-      if (isWriteMethod(method) && resourceType && response.data) {
-        const serverId = (response.data as any)?.id
-          ?? (response.data as any)?.serverId
+      // Mettre à jour le cache après écriture réussie
+      if (isWriteMethod(method) && resourceType && responseData) {
+        const serverId = (responseData as any)?.id
+          ?? (responseData as any)?.serverId
           ?? resourceId
+
         if (serverId) {
-          await OfflineCacheService.set(resourceType, serverId, response.data, {
+          await OfflineCacheService.set(resourceType, serverId, responseData, {
             ttlMs: options?.cacheTTL,
           })
+
+          // Résoudre les IDs temporaires après confirmation serveur
+          if (!options?.skipTempIdResolution && resourceId && TemporaryIdService.isTemporary(resourceId)) {
+            await TemporaryIdService.resolveId(
+              { serverId: serverId as number },
+              resourceType,
+              resourceId
+            )
+          }
         }
       }
 
-      // Rafraîchir le compteur
+      // Rafraîchir le compteur du store
       await store.refreshPendingCount()
 
-      return { data: response.data }
+      return { data: responseData }
     } catch (error: any) {
-      // Erreur réseau → fallback offline
+      // Erreur réseau → fallback offline avec debounce
       if (isNetworkError(error)) {
         store.setOnline(false)
         return handleOfflineFallback(method, url, options, cacheKey)
@@ -154,6 +175,7 @@ async function handleOfflineFallback<T>(
 
   // ── GET : retourner le cache ──────────────────────────────────
   if (method === 'GET') {
+    // Cas 1 : Ressource spécifique
     if (resourceType && resourceId) {
       const cached = await OfflineCacheService.get<T>(resourceType, resourceId)
       if (cached) {
@@ -161,15 +183,15 @@ async function handleOfflineFallback<T>(
       }
     }
 
-    // GET sans resourceId : retourner tous les éléments du type
-    if (method === 'GET' && resourceType && !resourceId) {
+    // Cas 2 : Liste de ressources (GET sans resourceId)
+    if (resourceType && !resourceId) {
       const allData = await OfflineCacheService.getAll<T>(resourceType)
       if (allData.length > 0) {
         return { data: allData as unknown as T, fromCache: true }
       }
     }
 
-    // GET avec URL personnalisée : chercher par clé de cache
+    // Cas 3 : Cache par URL (pour les appels avec URLs complexes/paramétrées)
     if (cacheKey) {
       const cached = await OfflineCacheService.get<T>(resourceType || 'unknown', cacheKey)
       if (cached) {
@@ -188,13 +210,23 @@ async function handleOfflineFallback<T>(
     const opType = methodToOperationType(method)
     const priority = options?.queuePriority ?? 5
 
-    // Stockage optimiste dans le cache local
+    // Générer un ID temporaire pour les créations
+    const localId = resourceId ?? (
+      opType === 'create' ? TemporaryIdService.generate() : undefined
+    )
+
+    // Stockage optimiste dans le cache local (table dédiée)
     if (options?.optimisticData) {
-      const localId = resourceId ?? `tmp-${Date.now()}`
+      const idToUse = localId ?? `tmp-${Date.now()}`
       await OfflineCacheService.set(
         resourceType || 'unknown',
-        localId,
-        options.optimisticData,
+        idToUse,
+        {
+          ...options.optimisticData,
+          id: idToUse,
+          _tempId: TemporaryIdService.isTemporary(idToUse as string),
+          _pending: true,
+        },
         { pending: true, ttlMs: 7 * 24 * 60 * 60 * 1000 }
       )
     }
@@ -203,7 +235,9 @@ async function handleOfflineFallback<T>(
     const operationId = await offlineQueue.enqueue({
       operationType: opType,
       resourceType: resourceType || 'unknown',
-      resourceId: typeof resourceId === 'string' ? (p => isNaN(p) ? null : p)(parseInt(resourceId, 10)) : resourceId ?? null,
+      resourceId: typeof localId === 'string'
+        ? (isNaN(parseInt(localId, 10)) ? null : parseInt(localId, 10))
+        : (localId ?? null) as number | null,
       payload: options?.data || {},
       priority,
       maxRetries: options?.maxRetries ?? 3,
@@ -215,8 +249,10 @@ async function handleOfflineFallback<T>(
 
     return {
       data: (options?.optimisticData || {
+        id: localId,
         _operationId: operationId,
         _offlineQueued: true,
+        _tempId: TemporaryIdService.isTemporary(localId as string),
         _message: 'Opération mise en attente de synchronisation',
       }) as unknown as T,
       offlineQueued: true,

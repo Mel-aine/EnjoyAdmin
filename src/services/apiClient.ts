@@ -77,15 +77,24 @@ function addOfflineRequestInterceptor(instance: typeof apiClient | typeof axios)
     async (config) => {
       try {
         const offlineStore = useOfflineStore()
-        // Si on est en ligne, laisser passer la requête normalement
-        if (offlineStore.isOnline) return config
+
+        // Vérifier le navigateur + le store offline
+        // navigator.onLine est immédiat (pas de debounce)
+        // offlineStore.isOnline a un debounce de 4s mais est plus fiable pour
+        // détecter les timeouts (ex: connexion Wi-Fi sans internet)
+        const isBrowserOffline = !navigator.onLine
+        const isStoreOffline = !offlineStore.isOnline
+
+        // Si on est en ligne selon les DEUX sources, laisser passer
+        if (!isBrowserOffline && !isStoreOffline) return config
 
         // Hors ligne → bloquer la requête et laisser le response interceptor
         // servir depuis le cache (pour les GET) ou rejeter (pour les écritures)
         const url = config.url || ''
         const path = url.startsWith(API_URL) ? url.substring(API_URL.length) : url
 
-        console.log('[Offline] 🔒 Blocking request, serving from cache:', path)
+        console.log('[Offline] 🔒 Blocking request, serving from cache:', path,
+          isBrowserOffline ? '(navigator)' : '(store)')
 
         return Promise.reject({
           config,

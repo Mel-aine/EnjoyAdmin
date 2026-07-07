@@ -86,6 +86,24 @@ export function useReservation() {
   const isUndoingCheckOut = ref(false)
   
 
+  /**
+   * Détecte si une réponse contient un flag offlineQueued
+   */
+  function isOfflineQueued(response: any): boolean {
+    return response?._offlineQueued === true || response?.offlineQueued === true
+  }
+
+  /**
+   * Affiche un toast adapté : offline (file d'attente) ou succès normal
+   */
+  function showResultToast(response: any, offlineKey: string, successKey: string) {
+    if (isOfflineQueued(response)) {
+      toast.info(t(offlineKey) || t('Opération mise en attente — sera synchronisée automatiquement'), { timeout: 5000 })
+    } else {
+      toast.success(t(successKey))
+    }
+  }
+
   // Check-in reservation
   const performCheckIn = async (reservationId: number, payload: CheckInReservationPayload, refreshCallback?: () => Promise<void>) => {
     isCheckingIn.value = true
@@ -94,7 +112,7 @@ export function useReservation() {
       const response = await checkInReservation(reservationId, payload)
       console.log('Check-in response:', response)
 
-      toast.success(t('toast.checkInSuccess'))
+      showResultToast(response, 'toast.checkInQueued', 'toast.checkInSuccess')
 
       if (refreshCallback) {
         await refreshCallback()
@@ -129,7 +147,7 @@ export function useReservation() {
       const response = await checkOutReservation(reservationId, payload)
       console.log('Check-out response:', response)
 
-      toast.success(t('toast.checkOutSuccess') || t('Check-out completed successfully!'))
+      showResultToast(response, 'toast.checkOutQueued', 'toast.checkOutSuccess')
 
       if (refreshCallback) {
         await refreshCallback()
@@ -169,11 +187,17 @@ export function useReservation() {
     isAddingPayment.value = true
 
     try {
-      // TODO: Implement payment API call
-      // const response = await addReservationPayment(payload)
-      console.log('Adding payment:', payload)
+      // Note: Le paiement utilise le module folio (offline-aware via foglioApi)
+      const { postTransaction } = await import('@/services/foglioApi')
+      const response = await postTransaction({
+        folioId: payload.reservationId as unknown as number,
+        transactionType: 'payment',
+        category: 'payment',
+        description: payload.notes || 'Paiement réservation',
+        amount: payload.amount,
+      })
 
-      toast.success(t('toast.addPaymentSuccess') || t('Payment added successfully!'))
+      showResultToast(response, 'toast.paymentQueued', 'toast.addPaymentSuccess')
 
       if (refreshCallback) {
         await refreshCallback()
@@ -194,11 +218,10 @@ export function useReservation() {
     isAmendingStay.value = true
 
     try {
-      // TODO: Implement amend stay API call
-      // const response = await amendReservationStay(payload)
-      console.log('Amending stay:', payload)
+      const { amendReservation } = await import('@/services/reservation')
+      const response = await amendReservation(payload)
 
-      toast.success(t('toast.amendStaySuccess') || t('Stay amended successfully!'))
+      showResultToast(response, 'toast.amendStayQueued', 'toast.amendStaySuccess')
 
       if (refreshCallback) {
         await refreshCallback()
@@ -242,9 +265,9 @@ export function useReservation() {
         ]
       }
 
-      await assignRoomReservation(payload.reservationId, data)
+      const result = await assignRoomReservation(payload.reservationId, data)
 
-      toast.success(t('toast.roomMoveSuccess') || t('Room moved successfully!'))
+      showResultToast(result, 'toast.roomMoveQueued', 'toast.roomMoveSuccess')
 
       if (refreshCallback) {
         await refreshCallback()
@@ -340,11 +363,10 @@ export function useReservation() {
     isCancellingReservation.value = true
 
     try {
-      // TODO: Implement cancel reservation API call
-      // const response = await cancelReservationById(payload)
-      console.log('Cancelling reservation:', payload)
+      const { cancelReservation } = await import('@/services/reservation')
+      const response = await cancelReservation(payload)
 
-      toast.success(t('toast.cancelReservationSuccess') || t('Reservation cancelled successfully!'))
+      showResultToast(response, 'toast.cancelReservationQueued', 'toast.cancelReservationSuccess')
 
       if (refreshCallback) {
         await refreshCallback()
@@ -365,11 +387,10 @@ export function useReservation() {
     isMarkingNoShow.value = true
 
     try {
-      // TODO: Implement no show API call
-      // const response = await markReservationNoShow(reservationId, reason)
-      console.log('Marking no show for reservation:', reservationId, reason)
+      const { markNoShow } = await import('@/services/reservation')
+      const response = await markNoShow({ reservationId, reason })
 
-      toast.success(t('toast.noShowSuccess') || t('Reservation marked as no show successfully!'))
+      showResultToast(response, 'toast.noShowQueued', 'toast.noShowSuccess')
 
       if (refreshCallback) {
         await refreshCallback()
@@ -390,17 +411,16 @@ export function useReservation() {
     isVoidingReservation.value = true
 
     try {
-      // TODO: Implement void reservation API call
-      // const response = await voidReservationById(reservationId, reason)
-      console.log('Voiding reservation:', reservationId, reason)
+      const { voidReservation: voidReservationApi } = await import('@/services/reservation')
+      const response = await voidReservationApi(reservationId, reason)
 
-      toast.success(t('toast.voidReservationSuccess') || t('Reservation voided successfully!'))
+      showResultToast(response, 'toast.voidReservationQueued', 'toast.voidReservationSuccess')
 
       if (refreshCallback) {
         await refreshCallback()
       }
 
-      // return response
+      return response
     } catch (error) {
       console.error('Void reservation error:', error)
       toast.error(t('toast.voidReservationError') || t('Failed to void reservation. Please try again.'))
@@ -418,7 +438,7 @@ export function useReservation() {
       const response = await unAssignRoomReservation(reservationId, payload)
       console.log('Avhe response:', response)
 
-      toast.success(t('toast.avheSuccess') || t('Room unassignment completed successfully!'))
+      showResultToast(response, 'toast.avheQueued', 'toast.avheSuccess')
 
       if (refreshCallback) {
         await refreshCallback()
@@ -447,7 +467,7 @@ export function useReservation() {
     isUndoingCheckIn.value = true
     try {
       const response = await undoCheckInReservation(reservationId, payload)
-      toast.success(t('toast.undoCheckInSuccess') || t('Check-in undone successfully!'))
+      showResultToast(response, 'toast.undoCheckInQueued', 'toast.undoCheckInSuccess')
       if (refreshCallback) { await refreshCallback() }
       return response
     } catch (error) {
@@ -468,7 +488,7 @@ export function useReservation() {
     isUndoingCheckOut.value = true
     try {
       const response = await undoCheckOutReservation(reservationId, payload)
-      toast.success(t('toast.undoCheckOutSuccess'))
+      showResultToast(response, 'toast.undoCheckOutQueued', 'toast.undoCheckOutSuccess')
       if (refreshCallback) { await refreshCallback() }
       return response
     } catch (error) {

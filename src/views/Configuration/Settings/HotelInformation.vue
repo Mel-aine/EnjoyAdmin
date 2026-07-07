@@ -429,9 +429,6 @@ import { updateHotelInformation, toggleOfflineMode, getOfflineModeStatus } from 
 import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { uploadToCloudinary } from '../../../utils'
-import { syncManager } from '@/services/offline/syncManager'
-import { useOfflineStore } from '@/services/offline/offlineStore'
-
 // Import Save icon (you may need to adjust the path based on your icon structure)
 const Save = null // Replace with actual Save icon import
 
@@ -440,8 +437,6 @@ const toast = useToast()
 const { t } = useI18n({ useScope: 'global' })
 const isLoading = ref(false)
 const togglingOffline = ref(false)
-const offlineStore = useOfflineStore()
-
 async function toggleOffline() {
   const hotelId = serviceStore.serviceId
   if (!hotelId) return
@@ -454,15 +449,8 @@ async function toggleOffline() {
     hotelInfo.value.offlineModeEnabled = newEnabled
 
     if (newEnabled) {
-      // Activer le mode offline : charger les données + démarrer la sync périodique
-      syncManager.init(hotelId)
-      await syncManager.initialLoad()
-      syncManager.startPeriodicSync()
       toast.success(t('toast.offlineModeEnabled'))
     } else {
-      // Désactiver le mode offline : arrêter la sync + nettoyer
-      syncManager.stopPeriodicSync()
-      offlineStore.setOnline(true)
       toast.success(t('toast.offlineModeDisabled'))
     }
   } catch (error) {
@@ -632,6 +620,7 @@ const loadHotelInfo = async () => {
       nightAuditStartTime: currentService.nightAuditStartTime || '',
       nightAuditEndTime: currentService.nightAuditEndTime || '',
       hasCreditLedger: currentService.hasCreditLedger || false,
+      offlineModeEnabled: currentService.offlineModeEnabled ?? false,
       googlePlaceId: currentService.googlePlaceId || '',
       notificationSettings: {
         wifiCode:  currentService.notificationSettings?.wifiCode          ?? '',
